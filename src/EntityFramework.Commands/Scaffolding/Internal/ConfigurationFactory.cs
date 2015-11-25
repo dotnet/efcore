@@ -43,11 +43,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         }
 
         public virtual OptionsBuilderConfiguration CreateOptionsBuilderConfiguration(
-            [NotNull] string methodBody)
+            [NotNull] ICollection<string> methodBodyLines)
         {
-            Check.NotEmpty(methodBody, nameof(methodBody));
+            Check.NotNull(methodBodyLines, nameof(methodBodyLines));
 
-            return new OptionsBuilderConfiguration(methodBody);
+            return new OptionsBuilderConfiguration(methodBodyLines);
         }
 
         public virtual EntityConfiguration CreateEntityConfiguration(

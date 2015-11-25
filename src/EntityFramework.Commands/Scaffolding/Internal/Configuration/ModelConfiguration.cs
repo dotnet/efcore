@@ -125,10 +125,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
             _onConfiguringConfigurations.Add(
                 _configurationFactory.CreateOptionsBuilderConfiguration(
-                    methodName
-                    + "("
-                    + CSharpUtilities.GenerateVerbatimStringLiteral(CustomConfiguration.ConnectionString)
-                    + ")"));
+                    new List<string>() {
+                        methodName
+                        + "("
+                        + CSharpUtilities.GenerateVerbatimStringLiteral(CustomConfiguration.ConnectionString)
+                        + ")"
+                    }));
         }
 
         public virtual void AddEntityPropertiesConfiguration([NotNull] EntityConfiguration entityConfiguration)

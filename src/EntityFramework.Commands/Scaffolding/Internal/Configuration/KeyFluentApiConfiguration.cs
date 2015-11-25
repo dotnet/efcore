@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -28,13 +27,14 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         public virtual IReadOnlyList<Property> Properties { get; }
 
         public virtual bool HasAttributeEquivalent { get; set; }
-        public virtual string For { get; }
 
-        public virtual string FluentApi => string.Format(
+        public virtual ICollection<string> FluentApiLines =>
+            new List<string> { string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}({1} => {2})",
                 nameof(EntityTypeBuilder.HasKey),
                 LambdaIdentifier,
-                new ScaffoldingUtilities().GenerateLambdaToKey(Properties, LambdaIdentifier));
+                new ScaffoldingUtilities().GenerateLambdaToKey(Properties, LambdaIdentifier))
+            };
     }
 }
