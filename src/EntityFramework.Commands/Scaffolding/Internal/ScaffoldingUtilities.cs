@@ -38,55 +38,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             return sb.ToString();
         }
 
-        public virtual List<string> LayoutPropertyConfigurationLines(
-            [NotNull] PropertyConfiguration pc,
-            [NotNull] string propertyLambdaIdentifier,
-            [NotNull] string indent,
-            bool useFluentApi)
-        {
-            Check.NotNull(pc, nameof(pc));
-            Check.NotEmpty(propertyLambdaIdentifier, nameof(propertyLambdaIdentifier));
-            Check.NotNull(indent, nameof(indent));
-
-            var lines = new List<string>();
-            foreach (var keyValuePair in pc.GetFluentApiConfigurations(useFluentApi))
-            {
-                var forMethod = keyValuePair.Key;
-                var fluentApiConfigurationList = keyValuePair.Value;
-                if (fluentApiConfigurationList.Count == 0)
-                {
-                    continue;
-                }
-
-                if (string.IsNullOrEmpty(forMethod))
-                {
-                    foreach (var fluentApiConfiguration in fluentApiConfigurationList)
-                    {
-                        lines.Add("." + fluentApiConfiguration.MethodBody);
-                    }
-                }
-                else
-                {
-                    if (fluentApiConfigurationList.Count == 1)
-                    {
-                        lines.Add("." + forMethod + "()." + fluentApiConfigurationList.First().MethodBody);
-                    }
-                    else
-                    {
-                        lines.Add("." + forMethod + "(" + propertyLambdaIdentifier + " =>");
-                        lines.Add("{");
-                        foreach (var fluentApiConfiguration in fluentApiConfigurationList)
-                        {
-                            lines.Add(indent + propertyLambdaIdentifier + "." + fluentApiConfiguration.MethodBody + ";");
-                        }
-                        lines.Add("})");
-                    }
-                }
-            }
-
-            return lines;
-        }
-
         public virtual void LayoutRelationshipConfigurationLines(
             [NotNull] IndentedStringBuilder sb,
             [NotNull] string entityLambdaIdentifier,

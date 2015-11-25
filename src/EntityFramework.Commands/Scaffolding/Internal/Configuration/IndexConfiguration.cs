@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Text;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -26,32 +26,27 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         public virtual Index Index { get; }
 
         public virtual bool HasAttributeEquivalent { get; }
-        public virtual string For { get; }
 
-        public virtual string FluentApi
+        public virtual ICollection<string> FluentApiLines
         {
             get
             {
-                var sb = new StringBuilder();
-                sb.Append(nameof(EntityTypeBuilder<EntityType>.HasIndex) + "(");
-                sb.Append(LambdaIdentifier);
-                sb.Append(" => ");
-                sb.Append(new ScaffoldingUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier));
-                sb.Append(")");
+                var lines = new List<string>();
+                lines.Add(nameof(EntityTypeBuilder<EntityType>.HasIndex) + "(" + LambdaIdentifier + " => "
+                    + new ScaffoldingUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier) + ")");
 
                 if (!string.IsNullOrEmpty(Index.Relational().Name))
                 {
-                    sb.Append("." + nameof(RelationalIndexBuilderExtensions.HasName) + "(");
-                    sb.Append(CSharpUtilities.Instance.DelimitString(Index.Relational().Name));
-                    sb.Append(")");
+                    lines.Add("." + nameof(RelationalIndexBuilderExtensions.HasName) + "("
+                        + CSharpUtilities.Instance.DelimitString(Index.Relational().Name) + ")");
                 }
 
                 if (Index.IsUnique)
                 {
-                    sb.Append("." + nameof(IndexBuilder.IsUnique) + "()");
+                    lines.Add("." + nameof(IndexBuilder.IsUnique) + "()");
                 }
 
-                return sb.ToString();
+                return lines;
             }
         }
     }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -22,8 +23,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
         public virtual bool HasAttributeEquivalent { get; set; }
 
-        public virtual string For { get; }
-
         public virtual string MethodBody
         {
             get
@@ -34,13 +33,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             }
         }
 
-        public virtual string FluentApi
+        public virtual ICollection<string> FluentApiLines
         {
             get
             {
-                return For == null
-                    ? MethodBody
-                    : For + "()." + MethodBody;
+                return new List<string>() { MethodBody };
             }
         }
     }

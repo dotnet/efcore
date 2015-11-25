@@ -74,7 +74,9 @@ namespace E2ETest.Namespace
             {
                 entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 });
 
-                entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyDependentFK1, e.OneToOneFKToUniqueKeyDependentFK2 }).HasName("UK_OneToOneFKToUniqueKeyDependent").IsUnique();
+                entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyDependentFK1, e.OneToOneFKToUniqueKeyDependentFK2 })
+                    .HasName("UK_OneToOneFKToUniqueKeyDependent")
+                    .IsUnique();
 
                 entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK)
                     .WithOne(p => p.OneToOneFKToUniqueKeyDependent)
@@ -86,7 +88,9 @@ namespace E2ETest.Namespace
             {
                 entity.HasKey(e => new { e.OneToOneFKToUniqueKeyPrincipalID1, e.OneToOneFKToUniqueKeyPrincipalID2 });
 
-                entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyPrincipalUniqueKey1, e.OneToOneFKToUniqueKeyPrincipalUniqueKey2 }).HasName("UK_OneToOneFKToUniqueKeyPrincipal").IsUnique();
+                entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyPrincipalUniqueKey1, e.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
+                    .HasName("UK_OneToOneFKToUniqueKeyPrincipal")
+                    .IsUnique();
             });
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
@@ -98,7 +102,9 @@ namespace E2ETest.Namespace
             {
                 entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
 
-                entity.HasIndex(e => new { e.OneToOneSeparateFKDependentFK1, e.OneToOneSeparateFKDependentFK2 }).HasName("UK_OneToOneSeparateFKDependent").IsUnique();
+                entity.HasIndex(e => new { e.OneToOneSeparateFKDependentFK1, e.OneToOneSeparateFKDependentFK2 })
+                    .HasName("UK_OneToOneSeparateFKDependent")
+                    .IsUnique();
             });
 
             modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
@@ -108,7 +114,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<PropertyConfiguration>(entity =>
             {
-                entity.HasIndex(e => new { e.A, e.B }).HasName("Test_PropertyConfiguration_Index");
+                entity.HasIndex(e => new { e.A, e.B })
+                    .HasName("Test_PropertyConfiguration_Index");
 
                 entity.Property(e => e.RowversionColumn)
                     .HasColumnType("timestamp")

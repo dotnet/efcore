@@ -26,25 +26,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         public virtual List<IAttributeConfiguration> AttributeConfigurations { get; } = new List<IAttributeConfiguration>();
         public virtual List<FluentApiConfiguration> FluentApiConfigurations { get; } = new List<FluentApiConfiguration>();
 
-        public virtual Dictionary<string, List<FluentApiConfiguration>>
-            GetFluentApiConfigurations(bool useFluentApiOnly)
+        public virtual List<FluentApiConfiguration> GetFluentApiConfigurations(bool useFluentApiOnly)
         {
-            var fluentApiConfigsDictionary = new Dictionary<string, List<FluentApiConfiguration>>();
-            var fluentApiConfigs = useFluentApiOnly
+            return useFluentApiOnly
                 ? FluentApiConfigurations
-                : FluentApiConfigurations.Where(fc => !fc.HasAttributeEquivalent);
-            foreach (var fluentApiConfiguration in fluentApiConfigs)
-            {
-                var @for = fluentApiConfiguration.For ?? string.Empty;
-                List<FluentApiConfiguration> listOfFluentApiMethodBodies;
-                if (!fluentApiConfigsDictionary.TryGetValue(@for, out listOfFluentApiMethodBodies))
-                {
-                    listOfFluentApiMethodBodies = new List<FluentApiConfiguration>();
-                    fluentApiConfigsDictionary.Add(@for, listOfFluentApiMethodBodies);
-                }
-                listOfFluentApiMethodBodies.Add(fluentApiConfiguration);
-            }
-            return fluentApiConfigsDictionary;
+                : FluentApiConfigurations.Where(fc => !fc.HasAttributeEquivalent).ToList();
         }
     }
 }

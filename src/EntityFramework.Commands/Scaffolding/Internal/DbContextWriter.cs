@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -77,7 +78,21 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             {
                 foreach (var optionsBuilderConfig in _model.OnConfiguringConfigurations)
                 {
-                    _sb.AppendLine("options." + optionsBuilderConfig.FluentApi + ";");
+                    if (optionsBuilderConfig.FluentApiLines.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    _sb.Append("options." + optionsBuilderConfig.FluentApiLines.First());
+                    using (_sb.Indent())
+                    {
+                        foreach(var line in optionsBuilderConfig.FluentApiLines.Skip(1))
+                        {
+                            _sb.AppendLine();
+                            _sb.Append(line);
+                        }
+                    }
+                    _sb.AppendLine(";");
                 }
             }
             _sb.AppendLine("}");
@@ -135,12 +150,30 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             foreach (var entityFluentApi in fluentApiConfigurations)
             {
+                if (entityFluentApi.FluentApiLines.Count == 0)
+                {
+                    continue;
+                }
+
                 if (_foundFirstFluentApiForEntity)
                 {
                     _sb.AppendLine();
                 }
                 _foundFirstFluentApiForEntity = true;
-                _sb.AppendLine(EntityLambdaIdentifier + "." + entityFluentApi.FluentApi + ";");
+
+                _sb.Append(EntityLambdaIdentifier + "." + entityFluentApi.FluentApiLines.First());
+                if (entityFluentApi.FluentApiLines.Count > 1)
+                {
+                    using (_sb.Indent())
+                    {
+                        foreach (var line in entityFluentApi.FluentApiLines.Skip(1))
+                        {
+                            _sb.AppendLine();
+                            _sb.Append(line);
+                        }
+                    }
+                }
+                _sb.AppendLine(";");
             }
         }
 
@@ -151,40 +184,48 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             foreach (var propertyConfig in propertyConfigurations)
             {
-                var propertyConfigurationLines =
-                    ScaffoldingUtilities.LayoutPropertyConfigurationLines(
-                        propertyConfig, "property", "    ", _model.CustomConfiguration.UseFluentApiOnly);
+                var fluentApiConfigurations =
+                    propertyConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseFluentApiOnly);
+                if (fluentApiConfigurations.Count == 0)
+                {
+                    continue;
+                }
+
                 if (_foundFirstFluentApiForEntity)
                 {
                     _sb.AppendLine();
                 }
                 _foundFirstFluentApiForEntity = true;
 
-                if (propertyConfigurationLines.Count == 1)
+                _sb.Append(EntityLambdaIdentifier
+                    + ".Property(e => e." + propertyConfig.Property.Name + ")");
+
+                var onlyOneFluentApi = fluentApiConfigurations.Count == 1;
+                if (!onlyOneFluentApi)
                 {
-                    foreach (var line in propertyConfigurationLines)
+                    _sb.AppendLine();
+                    _sb.IncrementIndent();
+                }
+
+                var first = true;
+                foreach (var fluentApiConfiguration in fluentApiConfigurations)
+                {
+                    if (!first)
                     {
-                        _sb.AppendLine(EntityLambdaIdentifier
-                            + ".Property(e => e." + propertyConfig.Property.Name + ")" + line + ";");
+                        _sb.AppendLine();
+                    }
+                    first = false;
+
+                    foreach (var line in fluentApiConfiguration.FluentApiLines)
+                    {
+                        _sb.Append("." + line);
                     }
                 }
-                else
+
+                _sb.AppendLine(";");
+                if (!onlyOneFluentApi)
                 {
-                    _sb.AppendLine(EntityLambdaIdentifier
-                        + ".Property(e => e." + propertyConfig.Property.Name + ")");
-                    using (_sb.Indent())
-                    {
-                        var lineCount = 0;
-                        foreach (string line in propertyConfigurationLines)
-                        {
-                            var outputLine = line;
-                            if (++lineCount == propertyConfigurationLines.Count)
-                            {
-                                outputLine = line + ";";
-                            }
-                            _sb.AppendLine(outputLine);
-                        }
-                    }
+                    _sb.DecrementIndent();
                 }
             }
         }
