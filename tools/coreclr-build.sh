@@ -17,11 +17,13 @@ DNX_UNSTABLE_FEED=https://www.myget.org/F/aspnetcidev/ dnvm upgrade -u -r corecl
 dnu restore --quiet
 
 ERRORS=()
+SKIPPED=()
 
 for t in `grep -l "xunit.runner" test/*/project.json`; do
     TEST_DIR=$(dirname $t)
-    if [[ $TEST_DIR == *"MicrosoftSqlServer"* && $TEST_DIR == *"Functional"* ]]; then
+    if [[ $TEST_DIR == *"MicrosoftSqlServer"* && $TEST_DIR == *"Functional"* && "${Test__SqlServer__DataSource}" == "" ]]; then
         printf "${YELLOW}Skipping ${TEST_DIR}. Project requires SQL Server${NC}\n"
+        SKIPPED+=("${TEST_DIR} skipped")
         continue
     fi
 
@@ -44,6 +46,7 @@ done
 
 echo "============= TEST SUMMARY =============="
 
+printf "${YELLOW}%s${NC}\n" "${SKIPPED[@]}"
 
 if [ "${#ERRORS}" -ne "0" ]; then
     printf "${RED}%s${NC}\n" "${ERRORS[@]}"
