@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -126,7 +127,11 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(1, connection.DbConnections.Count);
 
             connection.Open();
+
+#if NET451 || DNX451
+            // On CoreCLR, DbConnection.Dispose() calls DbConnection.Close()
             connection.Close();
+#endif
 
             connection.Dispose();
 
@@ -139,7 +144,10 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(2, connection.DbConnections.Count);
 
             connection.Open();
+
+#if NET451 || DNX451
             connection.Close();
+#endif
 
             connection.Dispose();
 
