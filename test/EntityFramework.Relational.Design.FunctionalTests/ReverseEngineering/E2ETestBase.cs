@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Migrations.Design;
 using Microsoft.Data.Entity.Scaffolding;
 using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Extensions.DependencyInjection;

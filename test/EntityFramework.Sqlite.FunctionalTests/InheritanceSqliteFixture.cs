@@ -76,11 +76,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             TestSqlLoggerFactory.Reset();
         }
 
-        public override InheritanceContext CreateContext()
-        {
-            return new InheritanceContext(_serviceProvider, _options);
-        }
+        public override InheritanceContext CreateContext() => new InheritanceContext(_serviceProvider, _options);
 
-        public void Dispose() => _testStore?.Dispose();
+        public void Dispose() => _testStore.Dispose();
     }
 }

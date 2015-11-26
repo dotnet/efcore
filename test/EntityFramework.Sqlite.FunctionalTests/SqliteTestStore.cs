@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Microsoft.Data.Entity.FunctionalTests;
@@ -124,7 +123,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 DataSource = name + ".db",
                 Cache = sharedCache ? SqliteConnectionCacheMode.Shared : SqliteConnectionCacheMode.Private
-            }
-                .ToString();
+            }.ToString();
     }
 }

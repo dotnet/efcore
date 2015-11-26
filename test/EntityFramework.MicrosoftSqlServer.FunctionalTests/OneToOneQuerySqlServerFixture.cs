@@ -9,10 +9,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
+    public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase, IDisposable
     {
         private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
+        private readonly SqlServerTestStore _testStore;
 
         public OneToOneQuerySqlServerFixture()
         {
@@ -25,10 +26,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider();
 
-            var database = SqlServerTestStore.CreateScratch();
+            _testStore = SqlServerTestStore.CreateScratch();
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(database.Connection.ConnectionString);
+            optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
             _options = optionsBuilder.Options;
 
             using (var context = new DbContext(_serviceProvider, _options))
@@ -40,5 +41,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         public DbContext CreateContext() => new DbContext(_serviceProvider, _options);
+        public void Dispose() => _testStore.Dispose();
     }
 }

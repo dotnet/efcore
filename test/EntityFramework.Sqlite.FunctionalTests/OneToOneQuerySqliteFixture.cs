@@ -42,6 +42,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public DbContext CreateContext() => new DbContext(_serviceProvider, _options);
 
-        public void Dispose() => _testStore?.Dispose();
+        public void Dispose() => _testStore.Dispose();
     }
 }

@@ -10,10 +10,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class InheritanceSqlServerFixture : InheritanceRelationalFixture
+    public class InheritanceSqlServerFixture : InheritanceRelationalFixture, IDisposable
     {
         private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
+        private readonly SqlServerTestStore _testStore;
 
         public InheritanceSqlServerFixture()
         {
@@ -26,49 +27,23 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider();
 
-            var testStore = SqlServerTestStore.CreateScratch();
+            _testStore = SqlServerTestStore.CreateScratch();
 
             var optionsBuilder = new DbContextOptionsBuilder();
 
             optionsBuilder
                 .EnableSensitiveDataLogging()
-                .UseSqlServer(testStore.Connection);
+                .UseSqlServer(_testStore.Connection);
 
             _options = optionsBuilder.Options;
-
-            // TODO: Do this via migrations
-
-            testStore.ExecuteNonQuery(@"
-                CREATE TABLE Country (
-                    Id int NOT NULL PRIMARY KEY,
-                    Name nvarchar(100) NOT NULL
-                );
-
-                CREATE TABLE Animal (
-                    Species nvarchar(100) NOT NULL PRIMARY KEY,
-                    Name nvarchar(100) NOT NULL,
-                    CountryId int NOT NULL FOREIGN KEY REFERENCES Country (Id),
-                    IsFlightless bit NOT NULL,
-                    EagleId nvarchar(100) FOREIGN KEY REFERENCES Animal (Species),
-                    [Group] int,
-                    FoundOn tinyint,
-                    Discriminator nvarchar(255) NOT NULL
-                );
-
-                CREATE TABLE Plant(
-                    Genus int NOT NULL,
-                    Species nvarchar(100) NOT NULL PRIMARY KEY,
-                    Name nvarchar(100) NOT NULL,
-                    CountryId int FOREIGN KEY REFERENCES Country (Id),
-                    HasThorns bit
-                );");
-
             using (var context = CreateContext())
             {
+                context.Database.EnsureCreated();
                 SeedData(context);
             }
         }
 
         public override InheritanceContext CreateContext() => new InheritanceContext(_serviceProvider, _options);
+        public void Dispose() => _testStore.Dispose();
     }
 }

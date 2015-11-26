@@ -418,24 +418,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected TTestStore TestDatabase { get; set; }
         protected TFixture Fixture { get; set; }
 
-        public void Dispose()
-        {
-            TestDatabase.Dispose();
-        }
+        public void Dispose() => TestDatabase.Dispose();
 
         protected abstract bool SnapshotSupported { get; }
 
         protected virtual bool DirtyReadsOccur => true;
 
-        protected DbContext CreateContext()
-        {
-            return Fixture.CreateContext(TestDatabase);
-        }
+        protected DbContext CreateContext() => Fixture.CreateContext(TestDatabase);
 
-        protected DbContext CreateContext(DbConnection connection)
-        {
-            return Fixture.CreateContext(connection);
-        }
+        protected DbContext CreateContext(DbConnection connection) => Fixture.CreateContext(connection);
 
         #endregion
     }

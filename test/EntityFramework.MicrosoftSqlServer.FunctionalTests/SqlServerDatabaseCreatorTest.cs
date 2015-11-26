@@ -414,10 +414,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            public bool HasTablesBase() => base.HasTables();
+            public bool HasTablesBase() => HasTables();
 
             public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default(CancellationToken))
-                => base.HasTablesAsync(cancellationToken);
+                => HasTablesAsync(cancellationToken);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -221,7 +221,7 @@ CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "")
         public void It_filters_tables()
         {
             var sql = @"CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
-CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B) REFERENCES K2 (A) );";
+CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B) REFERENCES K2 (A) );";
 
             var selectionSet = new TableSelectionSet(new List<string>{ "K2" });
 
@@ -264,9 +264,6 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B
 
         public void ExecuteNonQuery(string sql) => _testStore.ExecuteNonQuery(sql);
 
-        public void Dispose()
-        {
-            _testStore.Dispose();
-        }
+        public void Dispose() => _testStore.Dispose();
     }
 }

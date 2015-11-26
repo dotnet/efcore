@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
 {
-    public class SqliteDatabaseModelFactoryTest
+    public class SqliteDatabaseModelFactoryTest : IDisposable
     {
         private readonly RelationalScaffoldingModelFactory _scaffoldingModelFactory;
         private readonly SqliteTestStore _testStore;
@@ -311,6 +311,8 @@ CREATE TABLE Gum ( A, B PRIMARY KEY,
             _testStore.ExecuteNonQuery(createSql);
             return _scaffoldingModelFactory.Create(_testStore.Connection.ConnectionString, TableSelectionSet.All);
         }
+
+        public void Dispose() => _testStore.Dispose();
     }
 
     public class TestLoggerProvider : ILoggerProvider

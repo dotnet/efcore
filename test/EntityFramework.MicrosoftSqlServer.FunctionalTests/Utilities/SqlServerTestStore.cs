@@ -10,8 +10,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await _connection.OpenAsync();
             }
 
-            _deleteDatabase = createDatabase;
+            _deleteDatabase = true;
             return this;
         }
 
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _connection.Open();
             }
 
-            _deleteDatabase = createDatabase;
+            _deleteDatabase = true;
             return this;
         }
 
@@ -506,11 +506,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public static string CreateConnectionString(string name)
         {
             var connStrBuilder = new SqlConnectionStringBuilder
-                {
-                    //MultipleActiveResultSets = false,
-                    MultipleActiveResultSets = new Random().Next(0, 2) == 1,
-                    InitialCatalog = name
-                };
+            {
+                //MultipleActiveResultSets = false,
+                MultipleActiveResultSets = new Random().Next(0, 2) == 1,
+                InitialCatalog = name
+            };
             return connStrBuilder.ApplyConfiguration().ConnectionString;
         }
 
