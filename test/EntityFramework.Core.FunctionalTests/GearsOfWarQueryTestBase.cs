@@ -685,6 +685,32 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        //[Fact]
+        public virtual void Collection_with_inheritance_and_join_include_joined()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from t in context.Tags
+                             join g in context.Gears.OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName } equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
+                             select g).Include(g => g.Tag);
+
+                var result = query.ToList();
+            }
+        }
+
+        //[Fact]
+        public virtual void Collection_with_inheritance_and_join_include_source()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from g in context.Gears.OfType<Officer>()
+                             join t in context.Tags on new { id1 = (int?)g.SquadId, id2 = g.Nickname } equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
+                             select g).Include(g => g.Tag);
+
+                var result = query.ToList();
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

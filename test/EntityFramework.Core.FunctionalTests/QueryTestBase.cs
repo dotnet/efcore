@@ -247,6 +247,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Any(c => c.ContactName.StartsWith("A")));
         }
 
+        //[Fact]
+        public virtual void Any_nested_negated()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Where(c => !c.Orders.Any(o => o.CustomerID.StartsWith("A")));
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
+
         [Fact]
         public virtual void All_top_level()
         {

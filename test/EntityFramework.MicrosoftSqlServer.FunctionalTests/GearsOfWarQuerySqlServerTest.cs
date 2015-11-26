@@ -630,6 +630,24 @@ INNER JOIN [CogTag] AS [t] ON [g].[FullName] = (
                 Sql);
         }
 
+        public override void Collection_with_inheritance_and_join_include_joined()
+        {
+            base.Collection_with_inheritance_and_join_include_joined();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Collection_with_inheritance_and_join_include_source()
+        {
+            base.Collection_with_inheritance_and_join_include_source();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

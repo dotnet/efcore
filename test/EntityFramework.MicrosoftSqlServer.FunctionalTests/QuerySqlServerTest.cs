@@ -1057,6 +1057,15 @@ END",
                 Sql);
         }
 
+        public override void Any_nested_negated()
+        {
+            base.Any_nested_negated();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
         public override void All_top_level()
         {
             base.All_top_level();
