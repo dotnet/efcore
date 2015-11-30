@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CannotFindTableForIndex" xml:space="preserve">
+    <value>For index {indexName}. Unable to find the table [{schemaName}].[{tableName}] to which this index belongs.</value>
+  </data>
   <data name="CannotInterpretSqlServerStringLiteral" xml:space="preserve">
     <value>Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.</value>
   </data>

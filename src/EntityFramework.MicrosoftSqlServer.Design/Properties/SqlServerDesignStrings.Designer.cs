@@ -13,6 +13,14 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.MicrosoftSqlServer.Design.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        /// For index {indexName}. Unable to find the table [{schemaName}].[{tableName}] to which this index belongs.
+        /// </summary>
+        public static string CannotFindTableForIndex([CanBeNull] object indexName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindTableForIndex", "indexName", "schemaName", "tableName"), indexName, schemaName, tableName);
+        }
+
+        /// <summary>
         /// Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.
         /// </summary>
         public static string CannotInterpretSqlServerStringLiteral([CanBeNull] object sqlServerStringLiteral)

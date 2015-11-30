@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Scaffolding
 {
@@ -23,6 +26,15 @@ namespace Microsoft.Data.Entity.Scaffolding
         private static string TableKey(TableModel table) => TableKey(table.Name, table.SchemaName);
         private static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
         private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
+
+        public SqlServerDatabaseModelFactory([NotNull] ILoggerFactory loggerFactory)
+        {
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+
+            Logger = loggerFactory.CreateCommandsLogger();
+        }
+
+        public virtual ILogger Logger { get; }
 
         private void ResetState()
         {
@@ -60,8 +72,9 @@ namespace Microsoft.Data.Entity.Scaffolding
         private void GetTables()
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "SELECT schema_name(t.schema_id) AS [schema], t.name FROM sys.tables AS t " +
-                                  $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'";
+            command.CommandText =
+                "SELECT schema_name(t.schema_id) AS [schema], t.name FROM sys.tables AS t " +
+                $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'";
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -212,6 +225,8 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         TableModel table;
                         if(!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
                         {
+                            Logger.LogWarning(
+                                SqlServerDesignStrings.CannotFindTableForIndex(indexName, schemaName, tableName));
                             continue;
                         }
 
