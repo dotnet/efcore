@@ -1,7 +1,7 @@
 dist: trusty
 os:
   - linux
-  - osx
+  # - osx CoreCLR does not support OS X 10.9 (yet)
 addons:
   apt:
     packages:
@@ -11,7 +11,7 @@ addons:
     - libssl-dev
     - libunwind8
     - zlib1g
-before_install:
-  - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi
+# before_install:
+#   - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi
 script:
   - ./tools/coreclr-build.sh -diagnostics
