@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
@@ -257,7 +258,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B
         {
             _testStore.ExecuteNonQuery(createSql);
 
-            var reader = new SqlServerDatabaseModelFactory();
+            var reader = new SqlServerDatabaseModelFactory(new LoggerFactory());
 
             return reader.Create(_testStore.Connection.ConnectionString, selection ?? TableSelectionSet.All);
         }
