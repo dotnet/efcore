@@ -36,6 +36,22 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToConvertDefaultValue", "columnId", "defaultValue", "propertyType", "propertyName", "entityTypeName"), columnId, defaultValue, propertyType, propertyName, entityTypeName);
         }
 
+        /// <summary>
+        /// For index {indexName}. Unable to find table [{schemaName}].[{tablename}]. Skipping column.
+        /// </summary>
+        public static string UnableToFindIndexForColumn([CanBeNull] object indexName, [CanBeNull] object schemaName, [CanBeNull] object tablename)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindIndexForColumn", "indexName", "schemaName", "tablename"), indexName, schemaName, tablename);
+        }
+
+        /// <summary>
+        /// For column {columnName}. Unable to find table [{schemaName}].[{tablename}]. Skipping column.
+        /// </summary>
+        public static string UnableToFindTableForColumn([CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tablename)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindTableForColumn", "columnName", "schemaName", "tablename"), columnName, schemaName, tablename);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

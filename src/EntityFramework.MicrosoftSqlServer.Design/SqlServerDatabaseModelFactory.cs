@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Scaffolding
 {
@@ -22,6 +25,15 @@ namespace Microsoft.Data.Entity.Scaffolding
         private static string TableKey(TableModel table) => TableKey(table.Name, table.SchemaName);
         private static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
         private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
+
+        public SqlServerDatabaseModelFactory([NotNull] ILoggerFactory loggerFactory)
+        {
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+
+            Logger = loggerFactory.CreateCommandsLogger();
+        }
+
+        public virtual ILogger Logger { get; }
 
         private void ResetState()
         {
@@ -119,8 +131,17 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                 {
                     var schemaName = reader.GetString(0);
                     var tableName = reader.GetString(1);
+                    var columnName = reader.GetString(3);
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
+                        continue;
+                    }
+
+                    TableModel table;
+                    if (!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
+                    {
+                        Logger.LogWarning(
+                            SqlServerDesignStrings.UnableToFindTableForColumn(columnName, schemaName, tableName));
                         continue;
                     }
 
@@ -145,12 +166,11 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                     var isIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11);
                     var isComputed = reader.GetBoolean(12) || dataTypeName == "timestamp";
 
-                    var table = _tables[TableKey(tableName, schemaName)];
                     var column = new ColumnModel
                     {
                         Table = table,
                         DataType = dataTypeName,
-                        Name = reader.GetString(3),
+                        Name = columnName,
                         Ordinal = reader.GetInt32(4) - 1,
                         IsNullable = nullable,
                         PrimaryKeyOrdinal = reader.IsDBNull(6) ? default(int?) : reader.GetInt32(6),
@@ -209,6 +229,8 @@ ORDER BY i.name, ic.key_ordinal";
                         TableModel table;
                         if(!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
                         {
+                            Logger.LogWarning(
+                                SqlServerDesignStrings.UnableToFindTableForColumn(indexName, schemaName, tableName));
                             continue;
                         }
 

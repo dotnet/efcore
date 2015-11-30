@@ -126,4 +126,10 @@
   <data name="UnableToConvertDefaultValue" xml:space="preserve">
     <value>For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.</value>
   </data>
+  <data name="UnableToFindIndexForColumn" xml:space="preserve">
+    <value>For index {indexName}. Unable to find table [{schemaName}].[{tablename}]. Skipping column.</value>
+  </data>
+  <data name="UnableToFindTableForColumn" xml:space="preserve">
+    <value>For column {columnName}. Unable to find table [{schemaName}].[{tablename}]. Skipping column.</value>
+  </data>
 </root>
