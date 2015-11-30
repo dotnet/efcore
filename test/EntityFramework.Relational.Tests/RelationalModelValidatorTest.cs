@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Tests.Infrastructure;
 using Microsoft.Data.Entity.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -94,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests
 
             CreateModelValidator().Validate(model);
         }
-        
+
         [Fact]
         public virtual void Does_not_detect_non_instantiable_types()
         {
@@ -106,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests
 
             CreateModelValidator().Validate(model);
         }
-        
+
         [Fact]
         public virtual void Detects_missing_discriminator_property()
         {
@@ -131,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests
             var discriminatorProperty = entityA.AddProperty("D", typeof(int));
             entityA.Relational().DiscriminatorProperty = discriminatorProperty;
             entityAbstract.Relational().DiscriminatorValue = 1;
-            
+
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityA.DisplayName()), model);
         }
 
@@ -147,14 +148,14 @@ namespace Microsoft.Data.Entity.Tests
             var discriminatorProperty = entityAbstract.AddProperty("D", typeof(int));
             entityAbstract.Relational().DiscriminatorProperty = discriminatorProperty;
             entityAbstract.Relational().DiscriminatorValue = 0;
-            
+
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
         }
 
         protected class C : A
         {
         }
-        
+
         protected abstract class Abstract : A
         {
         }

@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     {
                         x.ToTable("Cats", "dbo");
                         x.Property<int>("Id");
-                        x.HasKey("Id");
+                        x.HasKey("Id").HasName("PK_Cat");
                     }),
                 operations =>
                 {
@@ -2511,9 +2511,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     {
                         x.ToTable("Flies");
                         x.Property<int>("Id");
-                        x.HasKey("Id");
+                        x.HasKey("Id").HasName("PK_Fly");
                         x.Property<string>("Name");
-                        x.HasAlternateKey("Name");
+                        x.HasAlternateKey("Name").HasName("AK_Fly_Name");
                     }),
                 operations =>
                 {
@@ -2542,9 +2542,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     {
                         x.ToTable("Gnats");
                         x.Property<int>("Id");
-                        x.HasKey("Id");
+                        x.HasKey("Id").HasName("PK_Gnat");
                         x.Property<string>("Name");
-                        x.HasIndex("Name");
+                        x.HasIndex("Name").HasName("IX_Gnat_Name");
                     }),
                 operations =>
                 {
@@ -2710,9 +2710,10 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Zonkeys");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
+                            x.HasKey("Id").HasName("PK_Zonkey");
                             x.Property<int>("ParentId");
-                            x.HasOne("Zebra").WithMany().HasForeignKey("ParentId");
+                            x.HasOne("Zebra").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Zonkey_Zebra_ParentId");
+                            x.HasIndex("ParentId").HasName("IX_Zonkey_ParentId");
                         });
                 },
                 operations =>
@@ -2753,7 +2754,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Jaguars");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
+                            x.HasKey("Id").HasName("PK_Jaguar");
                         });
                     target.Entity(
                         "Jaglion",
@@ -2762,7 +2763,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Jaguar").WithMany().HasForeignKey("ParentId");
+                            x.HasOne("Jaguar").WithMany().HasForeignKey("ParentId")
+                                .HasConstraintName("FK_Jaglion_Jaguar_ParentId");
                         });
                 },
                 operations =>
@@ -3172,7 +3174,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     var operation = Assert.IsType<CreateIndexOperation>(operations[0]);
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Animal", operation.Table);
-                    Assert.Equal("IX_Minnow_Name", operation.Name);
+                    Assert.Equal("IX_Animal_Name", operation.Name);
                     Assert.Equal(new[] { "Name" }, operation.Columns);
                 });
         }
@@ -3240,7 +3242,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     var operation = Assert.IsType<RenameIndexOperation>(operations[0]);
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Animal", operation.Table);
-                    Assert.Equal("IX_Pike_Name", operation.Name);
+                    Assert.Equal("IX_Animal_Name", operation.Name);
                     Assert.Equal("IX_Animal_Pike_Name", operation.NewName);
                 });
         }
@@ -3307,7 +3309,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     var operation = Assert.IsType<DropIndexOperation>(operations[0]);
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Animal", operation.Table);
-                    Assert.Equal("IX_Catfish_Name", operation.Name);
+                    Assert.Equal("IX_Animal_Name", operation.Name);
                 });
         }
 
@@ -3407,14 +3409,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
-                    Assert.Equal("FK_Stag_Person_HandlerId", addForeignKeyOperation.Name);
+                    Assert.Equal("FK_Animal_Person_HandlerId", addForeignKeyOperation.Name);
                     Assert.Equal(new[] { "HandlerId" }, addForeignKeyOperation.Columns);
                     Assert.Equal("Person", addForeignKeyOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addForeignKeyOperation.PrincipalColumns);
 
                     var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[2]);
                     Assert.Equal("Animal", createIndexOperation.Table);
-                    Assert.Equal("IX_Stag_HandlerId", createIndexOperation.Name);
+                    Assert.Equal("IX_Animal_HandlerId", createIndexOperation.Name);
                     Assert.Equal(new[] { "HandlerId" }, createIndexOperation.Columns);
                 });
         }
@@ -3467,7 +3469,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
-                    Assert.Equal("FK_Person_DomesticAnimal_PetId", addForeignKeyOperation.Name);
+                    Assert.Equal("FK_Person_Animal_PetId", addForeignKeyOperation.Name);
                     Assert.Equal(new[] { "PetId" }, addForeignKeyOperation.Columns);
                     Assert.Equal("Animal", addForeignKeyOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addForeignKeyOperation.PrincipalColumns);
@@ -3517,14 +3519,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal(1, createTableOperation.ForeignKeys.Count);
 
                     var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
-                    Assert.Equal("FK_Predator_Animal_PreyId", addForeignKeyOperation.Name);
+                    Assert.Equal("FK_Animal_Animal_PreyId", addForeignKeyOperation.Name);
                     Assert.Equal(new[] { "PreyId" }, addForeignKeyOperation.Columns);
                     Assert.Equal("Animal", addForeignKeyOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addForeignKeyOperation.PrincipalColumns);
 
                     var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[1]);
                     Assert.Equal("Animal", createIndexOperation.Table);
-                    Assert.Equal("IX_Predator_PreyId", createIndexOperation.Name);
+                    Assert.Equal("IX_Animal_PreyId", createIndexOperation.Name);
                     Assert.Equal(new[] { "PreyId" }, createIndexOperation.Columns);
                 });
         }
@@ -3663,12 +3665,12 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                     var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
                     Assert.Equal("Animal", createIndexOperation.Table);
-                    Assert.Equal("IX_GameAnimal_HunterId", createIndexOperation.Name);
+                    Assert.Equal("IX_Animal_HunterId", createIndexOperation.Name);
                     Assert.Equal(new[] { "HunterId" }, createIndexOperation.Columns);
 
                     var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
                     Assert.Equal("Animal", addFkOperation.Table);
-                    Assert.Equal("FK_GameAnimal_Person_HunterId", addFkOperation.Name);
+                    Assert.Equal("FK_Animal_Person_HunterId", addFkOperation.Name);
                     Assert.Equal(new[] { "HunterId" }, addFkOperation.Columns);
                     Assert.Equal("Person", addFkOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
@@ -3753,7 +3755,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                     var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
                     Assert.Equal("Person", addFkOperation.Table);
-                    Assert.Equal("FK_Person_TrophyAnimal_TrophyId", addFkOperation.Name);
+                    Assert.Equal("FK_Person_Animal_TrophyId", addFkOperation.Name);
                     Assert.Equal(new[] { "TrophyId" }, addFkOperation.Columns);
                     Assert.Equal("Animal", addFkOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
@@ -3833,11 +3835,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                     var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
                     Assert.Equal("Animal", dropFkOperation.Table);
-                    Assert.Equal("FK_MountAnimal_Person_RiderId", dropFkOperation.Name);
+                    Assert.Equal("FK_Animal_Person_RiderId", dropFkOperation.Name);
 
                     var dropIndexOperation = Assert.IsType<DropIndexOperation>(operations[1]);
                     Assert.Equal("Animal", dropIndexOperation.Table);
-                    Assert.Equal("IX_MountAnimal_RiderId", dropIndexOperation.Name);
+                    Assert.Equal("IX_Animal_RiderId", dropIndexOperation.Name);
                 });
         }
 

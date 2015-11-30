@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
+                            x.HasKey("Id").HasName("PK_Person");
                             x.ForSqlServerToTable("People", "dbo");
                         }),
                 operations =>

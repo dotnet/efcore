@@ -108,6 +108,8 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                     GenerateBaseType(entityType.BaseType, stringBuilder);
 
+                    GenerateTableName(entityType, stringBuilder);
+
                     GenerateProperties(entityType.GetDeclaredProperties(), stringBuilder);
 
                     GenerateKeys(entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
@@ -163,6 +165,22 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .AppendLine()
                     .Append("b.HasBaseType(")
                     .Append(_code.Literal(baseType.Name))
+                    .AppendLine(");");
+            }
+        }
+
+        protected virtual void GenerateTableName([NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            if (entityType.FindAnnotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName) == null
+                && entityType.HasClrType())
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append("b.ToTable(")
+                    .Append(_code.Literal(entityType.DisplayName()))
                     .AppendLine(");");
             }
         }

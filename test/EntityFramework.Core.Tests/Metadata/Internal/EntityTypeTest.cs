@@ -1183,13 +1183,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Display_name_is_part_of_name_following_final_separator_when_no_CLR_type()
-        {
-            Assert.Equal("Everything", new Model().AddEntityType("Everything").DisplayName());
-            Assert.Equal("Is", new Model().AddEntityType("Everything.Is").DisplayName());
-            Assert.Equal("Awesome", new Model().AddEntityType("Everything.Is.Awesome").DisplayName());
-            Assert.Equal("WhenWe`reLivingOurDream", new Model().AddEntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream").DisplayName());
-        }
+        public void Display_name_is_entity_type_name_when_no_CLR_type()
+            => Assert.Equal(
+                "Everything.Is+Awesome<When.We, re.Living<Our.Dream>>",
+                new Model().AddEntityType("Everything.Is+Awesome<When.We, re.Living<Our.Dream>>").DisplayName());
 
         [Fact]
         public void Name_is_prettified_CLR_full_name()

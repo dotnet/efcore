@@ -34,8 +34,15 @@ namespace Microsoft.Data.Entity.Metadata
             => Annotations.SetAnnotation(RelationalAnnotationNames.Name, Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
-            => "FK_" + ForeignKey.DeclaringEntityType.DisplayName() +
-               "_" + ForeignKey.PrincipalEntityType.DisplayName() +
-               "_" + string.Join("_", ForeignKey.Properties.Select(p => p.Name));
+        {
+            var entityType = new RelationalEntityTypeAnnotations(ForeignKey.DeclaringEntityType, Annotations.ProviderPrefix);
+            var principalEntityType = new RelationalEntityTypeAnnotations(
+                ForeignKey.PrincipalEntityType,
+                Annotations.ProviderPrefix);
+
+            return "FK_" + entityType.TableName +
+                "_" + principalEntityType.TableName +
+                "_" + string.Join("_", ForeignKey.Properties.Select(p => p.Name));
+        }
     }
 }

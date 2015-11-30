@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             Assert.Equal(
                 "CREATE TABLE \"__EFMigrationsHistory\" (" + EOL +
-                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK_HistoryRow\" PRIMARY KEY," + EOL +
+                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY," + EOL +
                 "    \"ProductVersion\" TEXT NOT NULL" + EOL +
                 ");" + EOL,
                 sql);
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             Assert.Equal(
                 "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (" + EOL +
-                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK_HistoryRow\" PRIMARY KEY," + EOL +
+                "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY," + EOL +
                 "    \"ProductVersion\" TEXT NOT NULL" + EOL +
                 ");" + EOL,
                 sql);

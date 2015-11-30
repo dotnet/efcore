@@ -37,10 +37,11 @@ namespace Microsoft.Data.Entity.Metadata
         protected virtual string GetDefaultName()
         {
             var builder = new StringBuilder();
+            var entityType = new RelationalEntityTypeAnnotations(Key.DeclaringEntityType, Annotations.ProviderPrefix);
 
             builder
                 .Append(Key.IsPrimaryKey() ? "PK_" : "AK_")
-                .Append(Key.DeclaringEntityType.DisplayName());
+                .Append(entityType.TableName);
 
             if (!Key.IsPrimaryKey())
             {
