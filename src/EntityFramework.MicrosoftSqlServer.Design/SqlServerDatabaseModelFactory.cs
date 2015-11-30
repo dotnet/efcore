@@ -148,7 +148,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                     }
 
                     var dataTypeName = reader.GetString(2);
-                    var nullable = reader.IsDBNull(5) ? true : reader.GetBoolean(5);
+                    var nullable = reader.IsDBNull(5) ? false : reader.GetBoolean(5);
 
                     var maxLength = reader.IsDBNull(10) ? default(int?) : reader.GetInt32(10);
 
