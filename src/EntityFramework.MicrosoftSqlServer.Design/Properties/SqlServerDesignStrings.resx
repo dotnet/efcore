@@ -120,8 +120,14 @@
   <data name="CannotInterpretSqlServerStringLiteral" xml:space="preserve">
     <value>Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.</value>
   </data>
+  <data name="ColumnNameEmpty" xml:space="preserve">
+    <value>Found a column on table [{schemaName}].[{tableName}] with an empty or null name. Skipping column.</value>
+  </data>
   <data name="DataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
     <value>For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.</value>
+  </data>
+  <data name="IndexNameEmpty" xml:space="preserve">
+    <value>Found an index on table [{schemaName}].[{tableName}] with an empty or null name. Skipping index.</value>
   </data>
   <data name="UnableToConvertDefaultValue" xml:space="preserve">
     <value>For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.</value>

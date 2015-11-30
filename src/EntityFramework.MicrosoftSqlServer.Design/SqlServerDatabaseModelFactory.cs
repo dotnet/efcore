@@ -133,9 +133,15 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                 {
                     var schemaName = reader.GetString(0);
                     var tableName = reader.GetString(1);
-                    var columnName = reader.GetString(3);
+                    var columnName = reader.GetStringOrNull(3);
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(columnName))
+                    {
+                        Logger.LogWarning(SqlServerDesignStrings.ColumnNameEmpty(schemaName, tableName));
                         continue;
                     }
 
@@ -219,9 +225,14 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     var schemaName = reader.GetString(0);
                     var tableName = reader.GetString(1);
                     var indexName = reader.GetStringOrNull(2);
-                    if (string.IsNullOrEmpty(indexName)
-                        || !_tableSelectionSet.Allows(schemaName, tableName))
+                    if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(indexName))
+                    {
+                        Logger.LogWarning(SqlServerDesignStrings.IndexNameEmpty(schemaName, tableName));
                         continue;
                     }
 

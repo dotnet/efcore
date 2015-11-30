@@ -21,11 +21,27 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Found a column on table [{schemaName}].[{tableName}] with an empty or null name. Skipping column.
+        /// </summary>
+        public static string ColumnNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNameEmpty", "schemaName", "tableName"), schemaName, tableName);
+        }
+
+        /// <summary>
         /// For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.
         /// </summary>
         public static string DataTypeDoesNotAllowSqlServerIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DataTypeDoesNotAllowSqlServerIdentityStrategy", "columnId", "sqlServerDataType"), columnId, sqlServerDataType);
+        }
+
+        /// <summary>
+        /// Found an index on table [{schemaName}].[{tableName}] with an empty or null name. Skipping index.
+        /// </summary>
+        public static string IndexNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IndexNameEmpty", "schemaName", "tableName"), schemaName, tableName);
         }
 
         /// <summary>
