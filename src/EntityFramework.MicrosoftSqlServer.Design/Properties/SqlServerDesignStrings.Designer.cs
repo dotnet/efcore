@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// For index {indexName}. Unable to find table [{schemaName}].[{tablename}]. Skipping column.
+        /// For index {indexName}. Unable to find table [{schemaName}].[{tablename}]. Skipping index.
         /// </summary>
         public static string UnableToFindIndexForColumn([CanBeNull] object indexName, [CanBeNull] object schemaName, [CanBeNull] object tablename)
         {
