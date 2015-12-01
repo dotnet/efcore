@@ -45,8 +45,7 @@ LIMIT -1 OFFSET 5",
         {
         }
 
-
-        private static string FileLineEnding = @"
+        private const string FileLineEnding = @"
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);

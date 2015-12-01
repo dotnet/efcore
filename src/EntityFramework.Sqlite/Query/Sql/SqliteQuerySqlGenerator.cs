@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Storage;
@@ -34,8 +35,9 @@ namespace Microsoft.Data.Entity.Query.Sql
                 || (selectExpression.Offset != null))
             {
                 Sql.AppendLine()
-                    .Append("LIMIT ")
-                    .Append(selectExpression.Limit ?? -1);
+                    .Append("LIMIT ");
+
+                Visit(selectExpression.Limit ?? Expression.Constant(-1));
 
                 if (selectExpression.Offset != null)
                 {

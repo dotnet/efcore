@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private static Expression HandleFirst(HandlerContext handlerContext)
         {
-            handlerContext.SelectExpression.Limit = 1;
+            handlerContext.SelectExpression.Limit = Expression.Constant(1);
 
             return handlerContext.EvalOnClient(requiresClientResultOperator: false);
         }
@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                             : OrderingDirection.Asc;
                 }
 
-                handlerContext.SelectExpression.Limit = 1;
+                handlerContext.SelectExpression.Limit = Expression.Constant(1);
             }
 
             return handlerContext.EvalOnClient(requiresClientResultOperator: false);
@@ -472,7 +472,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private static Expression HandleSingle(HandlerContext handlerContext)
         {
-            handlerContext.SelectExpression.Limit = 2;
+            handlerContext.SelectExpression.Limit = Expression.Constant(2);
 
             return handlerContext.EvalOnClient(requiresClientResultOperator: false);
         }
@@ -490,7 +490,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             var takeResultOperator = (TakeResultOperator)handlerContext.ResultOperator;
 
-            handlerContext.SelectExpression.Limit = takeResultOperator.GetConstantCount();
+            handlerContext.SelectExpression.Limit = takeResultOperator.Count;
 
             return handlerContext.EvalOnServer;
         }

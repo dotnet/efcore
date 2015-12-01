@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
 
-        private int? _limit;
+        private Expression _limit;
         private int? _offset;
 
         private int _subqueryDepth = -1;
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             }
         }
 
-        public virtual int? Limit
+        public virtual Expression Limit
         {
             get { return _limit; }
             set

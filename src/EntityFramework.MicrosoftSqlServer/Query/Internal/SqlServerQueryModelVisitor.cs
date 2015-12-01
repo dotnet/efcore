@@ -170,14 +170,23 @@ namespace Microsoft.Data.Entity.Query.Internal
                     predicate = Expression.GreaterThan(columnExpression, Expression.Constant(offset));
                 }
 
-                if (subQuery.Limit.HasValue)
+                if (subQuery.Limit != null)
                 {
-                    var exp = Expression.LessThanOrEqual(columnExpression, Expression.Constant(offset + subQuery.Limit.Value));
+                    var constantValue = (subQuery.Limit as ConstantExpression)?.Value;
+
+                    var limitExpression
+                        = constantValue != null
+                            ? (Expression)Expression.Constant(offset + (int)constantValue)
+                            : Expression.Add(Expression.Constant(offset), subQuery.Limit);
+
+                    var expression = Expression.LessThanOrEqual(columnExpression, limitExpression);
+
                     if (predicate != null)
                     {
-                        exp = Expression.AndAlso(predicate, exp);
+                        expression = Expression.AndAlso(predicate, expression);
                     }
-                    predicate = exp;
+
+                    predicate = expression;
                 }
 
                 selectExpression.Predicate = predicate;

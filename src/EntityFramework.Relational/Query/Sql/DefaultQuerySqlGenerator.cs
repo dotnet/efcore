@@ -121,10 +121,13 @@ namespace Microsoft.Data.Entity.Query.Sql
             GenerateTop(selectExpression);
 
             var projectionAdded = false;
+
             if (selectExpression.IsProjectStar)
             {
-                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Tables.Single().Alias))
+                _relationalCommandBuilder
+                    .Append(_sqlGeneratorHelper.DelimitIdentifier(selectExpression.Tables.Single().Alias))
                     .Append(".*");
+
                 projectionAdded = true;
             }
 
@@ -134,7 +137,9 @@ namespace Microsoft.Data.Entity.Query.Sql
                 {
                     _relationalCommandBuilder.Append(", ");
                 }
+
                 VisitJoin(selectExpression.Projection);
+
                 projectionAdded = true;
             }
 
@@ -641,9 +646,11 @@ namespace Microsoft.Data.Entity.Query.Sql
             if ((selectExpression.Limit != null)
                 && (selectExpression.Offset == null))
             {
-                _relationalCommandBuilder.Append("TOP(")
-                    .Append(selectExpression.Limit)
-                    .Append(") ");
+                _relationalCommandBuilder.Append("TOP(");
+
+                Visit(selectExpression.Limit);
+
+                _relationalCommandBuilder.Append(") ");
             }
         }
 
@@ -660,9 +667,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (selectExpression.Limit != null)
                 {
-                    _relationalCommandBuilder.Append(" FETCH NEXT ")
-                        .Append(selectExpression.Limit)
-                        .Append(" ROWS ONLY");
+                    _relationalCommandBuilder.Append(" FETCH NEXT ");
+
+                    Visit(selectExpression.Limit);
+
+                    _relationalCommandBuilder.Append(" ROWS ONLY");
                 }
             }
         }
