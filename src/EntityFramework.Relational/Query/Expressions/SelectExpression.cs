@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         private readonly List<Ordering> _orderBy = new List<Ordering>();
 
         private Expression _limit;
-        private int? _offset;
+        private Expression _offset;
 
         private int _subqueryDepth = -1;
 
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 {
                     var columnExpression = expression as ColumnExpression;
 
-                    if ((columnExpression?.Table.QuerySource != null)
+                    if (columnExpression?.Table.QuerySource != null
                         && !_selectExpression.HandlesQuerySource(columnExpression.Table.QuerySource))
                     {
                         _correlated = true;
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             Check.NotNull(querySource, nameof(querySource));
 
             return _tables.Any(te
-                => (te.QuerySource == querySource)
+                => te.QuerySource == querySource
                    || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false));
         }
 
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             Check.NotNull(querySource, nameof(querySource));
 
             return _tables.FirstOrDefault(te
-                => (te.QuerySource == querySource)
+                => te.QuerySource == querySource
                    || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
                    ?? _tables.Single();
         }
@@ -165,6 +165,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         public virtual Expression Limit
         {
             get { return _limit; }
+            [param: CanBeNull]
             set
             {
                 Check.NotNull(value, nameof(value));
@@ -175,13 +176,14 @@ namespace Microsoft.Data.Entity.Query.Expressions
             }
         }
 
-        public virtual int? Offset
+        public virtual Expression Offset
         {
             get { return _offset; }
+            [param: CanBeNull]
             set
             {
-                if ((_limit != null)
-                    && (value != null))
+                if (_limit != null
+                    && value != null)
                 {
                     var subquery = PushDownSubquery();
 
@@ -239,7 +241,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 {
                     var columnExpression = aliasExpression.TryGetColumnExpression();
 
-                    if ((columnExpression != null)
+                    if (columnExpression != null
                         && subquery._projection.OfType<AliasExpression>()
                             .Any(ae => ae.TryGetColumnExpression()?.Name == columnExpression.Name))
                     {
@@ -354,20 +356,20 @@ namespace Microsoft.Data.Entity.Query.Expressions
                             var ae = e as AliasExpression;
                             var ce = e.TryGetColumnExpression();
 
-                            return ((ce != null) && (ce.Property == columnExpression?.Property)
-                                    && (ce.TableAlias == columnExpression?.TableAlias))
-                                   || (ae?.Expression == expression);
+                            return ce != null && ce.Property == columnExpression?.Property
+                                   && ce.TableAlias == columnExpression?.TableAlias
+                                   || ae?.Expression == expression;
                         });
 
             if (projectionIndex == -1)
             {
-                if ((Alias != null)
-                    || (columnExpression == null))
+                if (Alias != null
+                    || columnExpression == null)
                 {
                     var currentAlias = alias ?? columnExpression?.Name ?? expression.NodeType.ToString();
                     var uniqueAlias = CreateUniqueProjectionAlias(currentAlias);
 
-                    if ((columnExpression == null)
+                    if (columnExpression == null
                         || !string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
                     {
                         alias = uniqueAlias;
@@ -406,9 +408,9 @@ namespace Microsoft.Data.Entity.Query.Expressions
                         {
                             var ce = e.TryGetColumnExpression();
 
-                            return (ce?.Property == columnExpression.Property)
-                                   && (ce?.Type == columnExpression.Type)
-                                   && (ce.TableAlias == columnExpression.TableAlias);
+                            return ce?.Property == columnExpression.Property
+                                   && ce?.Type == columnExpression.Type
+                                   && ce.TableAlias == columnExpression.TableAlias;
                         });
 
             if (projectionIndex == -1)
@@ -516,8 +518,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
                     {
                         var ce = e.TryGetColumnExpression();
 
-                        return (ce?.Property == property)
-                               && (ce.TableAlias == table.Alias);
+                        return ce?.Property == property
+                               && ce.TableAlias == table.Alias;
                     });
         }
 

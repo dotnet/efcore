@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 || relationalQueryModelVisitor.RequiresClientOrderBy
                 || relationalQueryModelVisitor.RequiresClientResultOperator
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
-                || (selectExpression == null))
+                || selectExpression == null)
             {
                 return handlerContext.EvalOnClient();
             }
@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                         {
                             var projectionColumnExpression = e.TryGetColumnExpression();
 
-                            return (projectionColumnExpression != null)
+                            return projectionColumnExpression != null
                                    && projectionColumnExpression.Equals(orderByColumnExpression);
                         });
                 }))
@@ -397,8 +397,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToArray();
 
-            if ((concreteEntityTypes.Length != 1)
-                || (concreteEntityTypes[0].RootType() != concreteEntityTypes[0]))
+            if (concreteEntityTypes.Length != 1
+                || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
             {
                 var relationalMetadataExtensionProvider
                     = handlerContext.RelationalAnnotationProvider;
@@ -460,8 +460,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             {
                 var discriminatorExpression = expression as DiscriminatorPredicateExpression;
 
-                if ((discriminatorExpression != null)
-                    && (discriminatorExpression.QuerySource == _querySource))
+                if (discriminatorExpression != null
+                    && discriminatorExpression.QuerySource == _querySource)
                 {
                     return new DiscriminatorPredicateExpression(_discriminatorPredicate, _querySource);
                 }
@@ -481,7 +481,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             var skipResultOperator = (SkipResultOperator)handlerContext.ResultOperator;
 
-            handlerContext.SelectExpression.Offset = skipResultOperator.GetConstantCount();
+            handlerContext.SelectExpression.Offset = skipResultOperator.Count;
 
             return handlerContext.EvalOnServer;
         }

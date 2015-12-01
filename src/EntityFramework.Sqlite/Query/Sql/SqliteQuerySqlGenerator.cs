@@ -41,8 +41,9 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (selectExpression.Offset != null)
                 {
-                    Sql.Append(" OFFSET ")
-                        .Append(selectExpression.Offset);
+                    Sql.Append(" OFFSET ");
+
+                    Visit(selectExpression.Offset);
                 }
             }
         }

@@ -107,8 +107,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
 
             private static bool RequiresRowNumberPaging(SelectExpression selectExpression)
-                => selectExpression.Offset.HasValue
-                   && (selectExpression.Offset != 0)
+                => selectExpression.Offset != null
                    && !selectExpression.Projection.Any(p => p is RowNumberExpression);
 
             private Expression VisitSelectExpression(SelectExpression selectExpression)
@@ -163,21 +162,23 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 Expression predicate = null;
 
-                var offset = subQuery.Offset ?? 0;
+                var offset = subQuery.Offset ?? Expression.Constant(0);
 
-                if (subQuery.Offset.HasValue)
+                if (subQuery.Offset != null)
                 {
-                    predicate = Expression.GreaterThan(columnExpression, Expression.Constant(offset));
+                    predicate = Expression.GreaterThan(columnExpression, offset);
                 }
 
                 if (subQuery.Limit != null)
                 {
                     var constantValue = (subQuery.Limit as ConstantExpression)?.Value;
+                    var offsetValue = (offset as ConstantExpression)?.Value;
 
                     var limitExpression
                         = constantValue != null
-                            ? (Expression)Expression.Constant(offset + (int)constantValue)
-                            : Expression.Add(Expression.Constant(offset), subQuery.Limit);
+                          && offsetValue != null
+                            ? (Expression)Expression.Constant((int)offsetValue + (int)constantValue)
+                            : Expression.Add(offset, subQuery.Limit);
 
                     var expression = Expression.LessThanOrEqual(columnExpression, limitExpression);
 
