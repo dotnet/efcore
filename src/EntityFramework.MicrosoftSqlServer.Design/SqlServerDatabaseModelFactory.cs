@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -18,6 +19,8 @@ namespace Microsoft.Data.Entity.Scaffolding
         private DatabaseModel _databaseModel;
         private Dictionary<string, TableModel> _tables;
         private Dictionary<string, ColumnModel> _tableColumns;
+        private const int DefaultDateTimePrecision = 7;
+        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
 
         private static string TableKey(TableModel table) => TableKey(table.Name, table.SchemaName);
         private static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
@@ -45,7 +48,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 _tableSelectionSet = tableSelectionSet;
 
                 _databaseModel.DatabaseName = _connection.Database;
-                 // TODO actually load per-user
+                // TODO actually load per-user
                 _databaseModel.DefaultSchemaName = "dbo";
 
                 GetTables();
@@ -126,8 +129,10 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
 
                     var dataTypeName = reader.GetString(2);
                     var nullable = reader.GetBoolean(5);
-
+                    var scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9);
                     var maxLength = reader.IsDBNull(10) ? default(int?) : reader.GetInt32(10);
+                    var precision = reader.IsDBNull(8) ? default(int?) : reader.GetInt32(8);
+                    var dateTimePrecision = default(int?);
 
                     if (dataTypeName == "nvarchar"
                         || dataTypeName == "nchar")
@@ -140,6 +145,13 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                     {
                         // maxlength here represents storage bytes. The server determines this, not the client.
                         maxLength = null;
+                    }
+
+                    if (_dateTimePrecisionTypes.Contains(dataTypeName))
+                    {
+                        dateTimePrecision = scale ?? DefaultDateTimePrecision;
+                        scale = null;
+                        precision = null;
                     }
 
                     var isIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11);
@@ -155,15 +167,16 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         IsNullable = nullable,
                         PrimaryKeyOrdinal = reader.IsDBNull(6) ? default(int?) : reader.GetInt32(6),
                         DefaultValue = reader.IsDBNull(7) ? null : reader.GetString(7),
-                        Precision = reader.IsDBNull(8) ? default(int?) : reader.GetInt32(8),
-                        Scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9),
+                        Precision = precision,
+                        Scale = scale,
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,
-                        IsIdentity = isIdentity,
                         ValueGenerated = isIdentity ?
                             ValueGenerated.OnAdd :
                             isComputed ?
                                 ValueGenerated.OnAddOrUpdate : default(ValueGenerated?)
                     };
+                    column.SqlServer().DateTimePrecision = dateTimePrecision;
+                    column.SqlServer().IsIdentity = isIdentity;
 
                     table.Columns.Add(column);
                     _tableColumns.Add(ColumnKey(table, column.Name), column);
@@ -207,7 +220,7 @@ ORDER BY i.name, ic.key_ordinal";
                         || index.Name != indexName)
                     {
                         TableModel table;
-                        if(!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
+                        if (!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
                         {
                             continue;
                         }
@@ -216,9 +229,10 @@ ORDER BY i.name, ic.key_ordinal";
                         {
                             Table = table,
                             Name = indexName,
-                            IsUnique = reader.GetBoolean(3),
-                            IsClustered = (reader.GetString(5) == "CLUSTERED") ? true : default(bool?)
+                            IsUnique = reader.GetBoolean(3)
                         };
+                        index.SqlServer().IsClustered = reader.GetString(5) == "CLUSTERED";
+
                         table.Indexes.Add(index);
                     }
                     var columnName = reader.GetString(4);
