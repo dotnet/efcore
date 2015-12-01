@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IModel _model;
         private readonly IDatabase _database;
+        private IConcurrencyDetector _concurrencyDetector;
 
         public StateManager(
             [NotNull] IInternalEntityEntryFactory factory,
@@ -42,6 +43,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IModel model,
             [NotNull] IDatabase database,
+            [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] DbContext context)
         {
             _factory = factory;
@@ -51,6 +53,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             ValueGeneration = valueGeneration;
             _model = model;
             _database = database;
+            _concurrencyDetector = concurrencyDetector;
             Context = context;
         }
 
@@ -411,12 +414,32 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected virtual int SaveChanges(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave)
-            => _database.SaveChanges(entriesToSave);
+        {
+            try
+            {
+                _concurrencyDetector.EnterCriticalSection();
+                return _database.SaveChanges(entriesToSave);
+            }
+            finally
+            {
+                _concurrencyDetector.ExitCriticalSection();
+            }
+        }
 
-        protected virtual Task<int> SaveChangesAsync(
+        protected virtual async Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
-            => _database.SaveChangesAsync(entriesToSave, cancellationToken);
+        {
+            try
+            {
+                _concurrencyDetector.EnterCriticalSection();
+                return await _database.SaveChangesAsync(entriesToSave, cancellationToken);
+            }
+            finally
+            {
+                _concurrencyDetector.ExitCriticalSection();
+            }
+        }
 
         public virtual void AcceptAllChanges()
         {

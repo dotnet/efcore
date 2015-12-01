@@ -14,10 +14,12 @@ namespace Microsoft.Data.Entity.Query.Internal
         public InMemoryQueryContext(
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IInMemoryStore store,
-            [NotNull] IStateManager stateManager)
+            [NotNull] IStateManager stateManager,
+            [NotNull] IConcurrencyDetector concurrencyDetector)
             : base(
                 Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),
-                Check.NotNull(stateManager, nameof(stateManager)))
+                Check.NotNull(stateManager, nameof(stateManager)),
+                Check.NotNull(concurrencyDetector, nameof(concurrencyDetector)))
         {
             Store = store;
         }

@@ -211,7 +211,8 @@ namespace Microsoft.Data.Entity.Query
                         .MakeGenericMethod(_expression.Type.GetSequenceType()),
                     _expression,
                     Expression.Constant(QueryCompilationContext.ContextType),
-                    Expression.Constant(QueryCompilationContext.Logger));
+                    Expression.Constant(QueryCompilationContext.Logger),
+                    QueryContextParameter);
         }
 
         protected virtual void ExtractQueryAnnotations([NotNull] QueryModel queryModel)

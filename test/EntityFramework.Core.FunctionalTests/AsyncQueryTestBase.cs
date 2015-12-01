@@ -7,8 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Tests;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -3079,6 +3082,38 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await AssertQuery<Order>(order => order
                 .Where(o => o.CustomerID == "QUICK")
                 .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Throws_on_concurrent_query_list()
+        {
+            using (var context = CreateContext())
+            {
+                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+
+                var ex = await Assert.ThrowsAsync<AggregateException>(
+                    async () => await context.Customers.ToListAsync());
+
+                Assert.Equal(
+                    CoreStrings.ConcurrentMethodInvocation,
+                    ex.InnerException.Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Throws_on_concurrent_query_first()
+        {
+            using (var context = CreateContext())
+            {
+                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+
+                var ex = await Assert.ThrowsAsync<AggregateException>(
+                    async () => await context.Customers.FirstAsync());
+
+                Assert.Equal(
+                    CoreStrings.ConcurrentMethodInvocation,
+                    ex.InnerException.Message);
+            }
         }
 
         protected NorthwindContext CreateContext()

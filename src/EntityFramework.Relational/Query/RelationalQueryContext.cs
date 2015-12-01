@@ -24,10 +24,12 @@ namespace Microsoft.Data.Entity.Query
         public RelationalQueryContext(
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IRelationalConnection connection,
-            [NotNull] IStateManager stateManager)
+            [NotNull] IStateManager stateManager,
+            [NotNull] IConcurrencyDetector concurrencyDetector)
             : base(
                   Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),
-                  Check.NotNull(stateManager, nameof(stateManager)))
+                  Check.NotNull(stateManager, nameof(stateManager)),
+                  Check.NotNull(concurrencyDetector, nameof(concurrencyDetector)))
         {
             Check.NotNull(connection, nameof(connection));
 

@@ -22,20 +22,25 @@ namespace Microsoft.Data.Entity.Query
 
         public QueryContext(
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
-            [NotNull] IStateManager stateManager)
+            [NotNull] IStateManager stateManager,
+            [NotNull] IConcurrencyDetector concurrencyDetector)
         {
             Check.NotNull(queryBufferFactory, nameof(queryBufferFactory));
             Check.NotNull(stateManager, nameof(stateManager));
+            Check.NotNull(concurrencyDetector, nameof(concurrencyDetector));
 
             _queryBufferFactory = queryBufferFactory;
 
             StateManager = stateManager;
+            ConcurrencyDetector = concurrencyDetector;
         }
 
         public virtual IQueryBuffer QueryBuffer
             => _queryBuffer ?? (_queryBuffer = _queryBufferFactory());
 
         public virtual IStateManager StateManager { get; }
+
+        public virtual IConcurrencyDetector ConcurrencyDetector { get; }
 
         public virtual CancellationToken CancellationToken { get; set; }
 

@@ -21,8 +21,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             IKeyValueFactorySource keyValueFactorySource,
             IModel model,
             IDatabase database,
+            IConcurrencyDetector concurrencyDetector,
             DbContext context)
-            : base(factory, subscriber, notifier, valueGeneration, keyValueFactorySource, model, database, context)
+            : base(factory, subscriber, notifier, valueGeneration, keyValueFactorySource, model, database, concurrencyDetector, context)
         {
         }
 

@@ -1,9 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -30,6 +34,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Throws_on_concurrent_command()
+        {
+            using (var context = CreateContext())
+            {
+                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+
+                Assert.Equal(
+                    CoreStrings.ConcurrentMethodInvocation,
+                    Assert.Throws<NotSupportedException>(
+                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+            }
+        }
+
+        [Fact]
         public virtual async Task Executes_stored_procedure_async()
         {
             using (var context = CreateContext())
@@ -44,6 +62,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistorySproc, default(CancellationToken), "ALFKI"));
+            }
+        }
+
+        [Fact]
+        public virtual async Task Throws_on_concurrent_command_async()
+        {
+            using (var context = CreateContext())
+            {
+                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+
+                Assert.Equal(
+                    CoreStrings.ConcurrentMethodInvocation,
+                    (await Assert.ThrowsAsync<NotSupportedException>(
+                        async () => await context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
             }
         }
 

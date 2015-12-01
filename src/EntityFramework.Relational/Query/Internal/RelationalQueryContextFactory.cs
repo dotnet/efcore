@@ -13,14 +13,15 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public RelationalQueryContextFactory(
             [NotNull] IStateManager stateManager,
+            [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IRelationalConnection connection)
-            : base(stateManager, keyValueFactorySource)
+            : base(stateManager, concurrencyDetector, keyValueFactorySource)
         {
             _connection = connection;
         }
 
         public override QueryContext Create()
-            => new RelationalQueryContext(CreateQueryBuffer, _connection, StateManager);
+            => new RelationalQueryContext(CreateQueryBuffer, _connection, StateManager, ConcurrencyDetector);
     }
 }

@@ -96,7 +96,9 @@
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />
     <Compile Include="Internal\IDatabaseProviderSelector.cs" />
+    <Compile Include="IConcurrencyDetector.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
+    <Compile Include="Internal\ConcurrencyDetector.cs" />
     <Compile Include="Internal\LazyRef.cs" />
     <Compile Include="Metadata\Internal\ConventionalAnnotatable.cs" />
     <Compile Include="Metadata\Internal\ConventionalAnnotation.cs" />

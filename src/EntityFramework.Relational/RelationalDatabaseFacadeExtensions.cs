@@ -45,13 +45,24 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
 
-            return databaseFacade
-                .GetService<IRawSqlCommandBuilder>()
-                .Build(sql, parameters)
-                .ExecuteNonQuery(GetRelationalConnection(databaseFacade));
+            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+
+            try
+            {
+                concurrencyDetector.EnterCriticalSection();
+
+                return databaseFacade
+                    .GetService<IRawSqlCommandBuilder>()
+                    .Build(sql, parameters)
+                    .ExecuteNonQuery(GetRelationalConnection(databaseFacade));
+            }
+            finally
+            {
+                concurrencyDetector.ExitCriticalSection();
+            }
         }
 
-        public static Task<int> ExecuteSqlCommandAsync(
+        public static async Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken),
@@ -59,10 +70,21 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
 
-            return databaseFacade
-                .GetService<IRawSqlCommandBuilder>()
-                .Build(sql, parameters)
-                .ExecuteNonQueryAsync(GetRelationalConnection(databaseFacade), cancellationToken: cancellationToken);
+            var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
+
+            try
+            {
+                concurrencyDetector.EnterCriticalSection();
+
+                return await databaseFacade
+                    .GetService<IRawSqlCommandBuilder>()
+                    .Build(sql, parameters)
+                    .ExecuteNonQueryAsync(GetRelationalConnection(databaseFacade), cancellationToken: cancellationToken);
+            }
+            finally
+            {
+                concurrencyDetector.ExitCriticalSection();
+            }
         }
 
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)

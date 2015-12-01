@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -146,6 +147,48 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
                 Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.ContextType);
                 Assert.EndsWith(ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+            }
+        }
+
+        [Fact]
+        public async Task SaveChanges_logs_concurrent_access_nonasync()
+        {
+            await SaveChanges_logs_concurrent_access(async: false);
+        }
+
+        [Fact]
+        public async Task SaveChanges_logs_concurrent_access_async()
+        {
+            await SaveChanges_logs_concurrent_access(async: true);
+        }
+
+        public async Task SaveChanges_logs_concurrent_access(bool async)
+        {
+            var loggerFactory = new TestLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .GetInfrastructure()
+                .AddSingleton<ILoggerFactory>(loggerFactory)
+                .BuildServiceProvider();
+
+            using (var context = new BloggingContext(serviceProvider))
+            {
+                context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
+
+                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+
+                Exception ex;
+                if (async)
+                {
+                    ex = await Assert.ThrowsAsync<NotSupportedException>(() => context.SaveChangesAsync());
+                }
+                else
+                {
+                    ex = Assert.Throws<NotSupportedException>(() => context.SaveChanges());
+                }
+
+                Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
             }
         }
 

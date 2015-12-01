@@ -86,8 +86,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         [UsedImplicitly]
         internal static IAsyncEnumerable<T> _InterceptExceptions<T>(
-            IAsyncEnumerable<T> source, Type contextType, ILogger logger)
-            => new ExceptionInterceptor<T>(source, contextType, logger);
+            IAsyncEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
+            => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
@@ -96,13 +96,15 @@ namespace Microsoft.Data.Entity.Query.Internal
             private readonly IAsyncEnumerable<T> _innerAsyncEnumerable;
             private readonly Type _contextType;
             private readonly ILogger _logger;
+            private readonly QueryContext _queryContext;
 
             public ExceptionInterceptor(
-                IAsyncEnumerable<T> innerAsyncEnumerable, Type contextType, ILogger logger)
+                IAsyncEnumerable<T> innerAsyncEnumerable, Type contextType, ILogger logger, QueryContext queryContext)
             {
                 _innerAsyncEnumerable = innerAsyncEnumerable;
                 _contextType = contextType;
                 _logger = logger;
+                _queryContext = queryContext;
             }
 
             public IAsyncEnumerator<T> GetEnumerator() => new EnumeratorExceptionInterceptor(this);
@@ -125,6 +127,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 {
                     try
                     {
+                        _exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection();
                         return await _innerEnumerator.MoveNext(cancellationToken);
                     }
                     catch (Exception exception)
@@ -137,6 +140,10 @@ namespace Microsoft.Data.Entity.Query.Internal
                                 e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
 
                         throw;
+                    }
+                    finally
+                    {
+                        _exceptionInterceptor._queryContext.ConcurrencyDetector.ExitCriticalSection();
                     }
                 }
 

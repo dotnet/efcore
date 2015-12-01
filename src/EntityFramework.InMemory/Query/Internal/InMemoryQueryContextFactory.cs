@@ -14,9 +14,10 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public InMemoryQueryContextFactory(
             [NotNull] IStateManager stateManager,
+            [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IInMemoryDatabase database)
-            : base(stateManager, keyValueFactorySource)
+            : base(stateManager, concurrencyDetector, keyValueFactorySource)
         {
             Check.NotNull(database, nameof(database));
 
@@ -24,6 +25,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         public override QueryContext Create()
-            => new InMemoryQueryContext(CreateQueryBuffer, _database.Store, StateManager);
+            => new InMemoryQueryContext(CreateQueryBuffer, _database.Store, StateManager, ConcurrencyDetector);
     }
 }

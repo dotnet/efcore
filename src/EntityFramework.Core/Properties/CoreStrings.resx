@@ -522,4 +522,7 @@
   <data name="KeyPropertyInForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be part of a key on '{entityType}' because it is contained in a foreign key defined on a derived entity type.</value>
   </data>
+  <data name="ConcurrentMethodInvocation" xml:space="preserve">
+    <value>A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
+  </data>
 </root>

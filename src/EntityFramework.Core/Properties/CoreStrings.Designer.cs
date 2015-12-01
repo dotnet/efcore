@@ -1092,6 +1092,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("KeyPropertyInForeignKey", "property", "entityType"), property, entityType);
         }
 
+        // <summary>
+        // A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
+        // </summary>
+        public static string ConcurrentMethodInvocation
+        {
+            get { return GetString("ConcurrentMethodInvocation"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
