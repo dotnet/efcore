@@ -18,17 +18,35 @@ namespace System.Linq.Expressions
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
 
-            var propertyInfo
-                = propertyAccessExpression
-                    .Parameters
-                    .Single()
-                    .MatchSimplePropertyAccess(propertyAccessExpression.Body);
+            var parameterExpression = propertyAccessExpression.Parameters.Single();
+            var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
 
             if (propertyInfo == null)
             {
                 throw new ArgumentException(
                     CoreStrings.InvalidPropertyExpression(propertyAccessExpression),
                     nameof(propertyAccessExpression));
+            }
+
+            var declaringType = propertyInfo.DeclaringType;
+            var parameterType = parameterExpression.Type;
+
+            if (declaringType != null
+                && declaringType != parameterType
+                && declaringType.GetTypeInfo().IsInterface
+                && declaringType.IsAssignableFrom(parameterType))
+            {
+                var propertyGetter = propertyInfo.GetGetMethod(true);
+                var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
+                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p == propertyGetter);
+                var targetMethod = interfaceMapping.TargetMethods[index];
+                foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
+                {
+                    if (targetMethod == runtimeProperty.GetGetMethod(true))
+                    {
+                        return runtimeProperty;
+                    }
+                }
             }
 
             return propertyInfo;

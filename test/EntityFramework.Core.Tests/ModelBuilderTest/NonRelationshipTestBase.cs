@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -688,6 +689,17 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.NotNull(entityType.FindPrimaryKey());
                 AssertEqual(new[] { "Id" }, entityType.FindPrimaryKey().Properties.Select(p => p.Name));
+            }
+
+            [Fact]
+            public virtual void Can_ignore_property_preserving_explicit_interface_implementation()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityBase>().Ignore(e => e.Target);
+
+                Assert.Equal(
+                    typeof(EntityBase).GetRuntimeProperties().First(p => p != EntityBase.TargetProperty).Name,
+                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Single().Name);
             }
         }
     }

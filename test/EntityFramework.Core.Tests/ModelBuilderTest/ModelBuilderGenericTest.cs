@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions;
@@ -46,12 +48,38 @@ namespace Microsoft.Data.Entity.Tests
 
         public class GenericNonRelationship : NonRelationshipTestBase
         {
+            [Fact]
+            public virtual void Can_add_ignore_explicit_interface_implementation_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityBase>().Ignore(e => ((IEntityBase)e).Target);
+
+                Assert.DoesNotContain(
+                    typeof(EntityBase).GetRuntimeProperties().First(p => p != EntityBase.TargetProperty).Name,
+                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
+
+                modelBuilder.Entity<EntityBase>().Property(e => ((IEntityBase)e).Target);
+
+                Assert.Contains(
+                    typeof(EntityBase).GetRuntimeProperties().First(p => p != EntityBase.TargetProperty).Name,
+                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
+            }
+
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
                 => new GenericTestModelBuilder(modelBuilder);
         }
 
         public class GenericDataAnnotations : DataAnnotationsTestBase
         {
+            [Fact]
+            public virtual void NotMappedAttribute_ignored_explicit_interface_implementation_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<EntityAnnotationBase>();
+
+                Assert.Equal(EntityAnnotationBase.TargetProperty.Name, modelBuilder.Model.FindEntityType(typeof(EntityAnnotationBase)).GetProperties().Single().Name);
+            }
+
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
                 => new GenericTestModelBuilder(modelBuilder);
         }

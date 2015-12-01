@@ -380,5 +380,31 @@ namespace Microsoft.Data.Entity.Tests
             [ForeignKey("CommonFkProperty")]
             public Alpha AlphaTwo { get; set; }
         }
+
+        protected interface IEntityBase
+        {
+            int Target { get; }
+        }
+
+        protected class EntityBase : IEntityBase
+        {
+            public static readonly PropertyInfo TargetProperty = typeof(EntityBase).GetProperty("Target");
+
+            public int Target { get; set; }
+
+            int IEntityBase.Target => Target;
+        }
+
+        protected class EntityAnnotationBase : IEntityBase
+        {
+            public static readonly PropertyInfo TargetProperty = typeof(EntityAnnotationBase).GetProperty("Target");
+
+            public int Target { get; set; }
+
+            [NotMapped]
+            int IEntityBase.Target => Target;
+        }
+
+
     }
 }
