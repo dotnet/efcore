@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             _options = BuildOptions();
 
-            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
+            _serviceProvider.GetRequiredService<ILoggerFactory>();
         }
 
         protected DbContextOptions BuildOptions()

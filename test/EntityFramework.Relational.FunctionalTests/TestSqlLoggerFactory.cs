@@ -23,8 +23,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private static SqlLogger _logger;
         private static string EOL = Environment.NewLine;
 
-        public LogLevel MinimumLevel { get; set; }
-
         public ILogger CreateLogger(string name) => Logger;
 
         private static SqlLogger Logger => LazyInitializer.EnsureInitialized(ref _logger);

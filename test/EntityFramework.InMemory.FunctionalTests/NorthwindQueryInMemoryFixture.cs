@@ -81,7 +81,5 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public void Dispose()
         {
         }
-
-        public LogLevel MinimumLevel { get; set; }
     }
 }

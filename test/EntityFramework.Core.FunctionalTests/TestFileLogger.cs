@@ -14,8 +14,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class TestFileLoggerFactory : ILoggerFactory
         {
-            public LogLevel MinimumLevel { get; set; }
-
             public ILogger CreateLogger(string name)
             {
                 return Instance;

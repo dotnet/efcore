@@ -38,8 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             _options = optionsBuilder.Options;
 
-            _serviceProvider.GetRequiredService<ILoggerFactory>()
-                .MinimumLevel = LogLevel.Debug;
+            _serviceProvider.GetRequiredService<ILoggerFactory>();
         }
 
         public override NorthwindContext CreateContext()

@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.Tests.TestUtilities
         {
         }
 
-        public LogLevel MinimumLevel { get; set; }
-
         public ListLoggerFactory(List<Tuple<LogLevel, string>> log, Func<string, bool> shouldCreateLogger)
         {
             _log = log;
