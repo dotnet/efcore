@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string collection = null)
-            => new ReferenceCollectionBuilder(WithManyBuilder(collection));
+            => new ReferenceCollectionBuilder(WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithMany" /> is called.
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder WithOne([CanBeNull] string reference = null)
-            => new ReferenceReferenceBuilder(WithOneBuilder(reference));
+            => new ReferenceReferenceBuilder(WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.

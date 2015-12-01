@@ -214,6 +214,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             [CanBeNull] string navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
 
@@ -248,6 +249,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             [CanBeNull] string navigationName = null)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
 
@@ -281,6 +283,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             [CanBeNull] string navigationName = null)
         {
             Check.NotNull(relatedType, nameof(relatedType));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
 
@@ -311,6 +314,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             [CanBeNull] string navigationName = null)
         {
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
 

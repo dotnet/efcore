@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Builders
 {
@@ -61,6 +62,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string reference = null)
-            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(WithOneBuilder(reference));
+            => new ReferenceCollectionBuilder<TEntity, TRelatedEntity>(
+                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Builders
 {
@@ -82,7 +83,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany([CanBeNull] string collection = null)
-            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(WithManyBuilder(collection));
+            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+                WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))));
 
         /// <summary>
         ///     Configures this as a one-to-one relationship.
@@ -93,6 +95,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string reference = null)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(WithOneBuilder(reference));
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
     }
 }

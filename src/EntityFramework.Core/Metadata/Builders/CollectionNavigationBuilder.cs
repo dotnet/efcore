@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string reference = null)
-            => new ReferenceCollectionBuilder(WithOneBuilder(reference));
+            => new ReferenceCollectionBuilder(WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
