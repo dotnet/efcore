@@ -13,11 +13,43 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.MicrosoftSqlServer.Design.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        /// For index {indexName}. Unable to find the table [{schemaName}].[{tableName}] to which this index belongs.
+        /// </summary>
+        public static string CannotFindTableForIndex([CanBeNull] object indexName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindTableForIndex", "indexName", "schemaName", "tableName"), indexName, schemaName, tableName);
+        }
+
+        /// <summary>
         /// Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.
         /// </summary>
         public static string CannotInterpretSqlServerStringLiteral([CanBeNull] object sqlServerStringLiteral)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CannotInterpretSqlServerStringLiteral", "sqlServerStringLiteral"), sqlServerStringLiteral);
+        }
+
+        /// <summary>
+        /// Found a column on table [{schemaName}].[{tableName}] with an empty or null name. Skipping column.
+        /// </summary>
+        public static string ColumnNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNameEmpty", "schemaName", "tableName"), schemaName, tableName);
+        }
+
+        /// <summary>
+        /// Found a column on foreign key [{schemaName}].[{tableName}].[{fkName}] with an empty or null name. Not including column in foreign key
+        /// </summary>
+        public static string ColumnNameEmptyOnForeignKey([CanBeNull] object schemaName, [CanBeNull] object tableName, [CanBeNull] object fkName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNameEmptyOnForeignKey", "schemaName", "tableName", "fkName"), schemaName, tableName, fkName);
+        }
+
+        /// <summary>
+        /// Found a column on index [{schemaName}].[{tableName}].[{indexName}] with an empty or null name. Not including column in index.
+        /// </summary>
+        public static string ColumnNameEmptyOnIndex([CanBeNull] object schemaName, [CanBeNull] object tableName, [CanBeNull] object indexName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNameEmptyOnIndex", "schemaName", "tableName", "indexName"), schemaName, tableName, indexName);
         }
 
         /// <summary>
@@ -29,11 +61,51 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Found an index on table [{schemaName}].[{tableName}] with an empty or null name. Skipping index.
+        /// </summary>
+        public static string IndexNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IndexNameEmpty", "schemaName", "tableName"), schemaName, tableName);
+        }
+
+        /// <summary>
         /// For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
         /// </summary>
         public static string UnableToConvertDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyType, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToConvertDefaultValue", "columnId", "defaultValue", "propertyType", "propertyName", "entityTypeName"), columnId, defaultValue, propertyType, propertyName, entityTypeName);
+        }
+
+        /// <summary>
+        /// For foreign Key {fkName}. The column named {columnName} cannot be found on table [{schemaName}].[{tableName}]. Not including column in foreign key definition.
+        /// </summary>
+        public static string UnableToFindColumnForForeignKey([CanBeNull] object fkName, [CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindColumnForForeignKey", "fkName", "columnName", "schemaName", "tableName"), fkName, columnName, schemaName, tableName);
+        }
+
+        /// <summary>
+        /// Index {indexName} contains a column named {columnName} which we cannot find on table [{schemaName}].[{tableName}]. Not including column in foreign key definition.
+        /// </summary>
+        public static string UnableToFindColumnForIndex([CanBeNull] object indexName, [CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindColumnForIndex", "indexName", "columnName", "schemaName", "tableName"), indexName, columnName, schemaName, tableName);
+        }
+
+        /// <summary>
+        /// For index {indexName}. Unable to find table [{schemaName}].[{tablename}]. Skipping column.
+        /// </summary>
+        public static string UnableToFindIndexForColumn([CanBeNull] object indexName, [CanBeNull] object schemaName, [CanBeNull] object tablename)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindIndexForColumn", "indexName", "schemaName", "tablename"), indexName, schemaName, tablename);
+        }
+
+        /// <summary>
+        /// For column {columnName}. Unable to find table [{schemaName}].[{tablename}]. Skipping column.
+        /// </summary>
+        public static string UnableToFindTableForColumn([CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tablename)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindTableForColumn", "columnName", "schemaName", "tablename"), columnName, schemaName, tablename);
         }
 
         private static string GetString(string name, params string[] formatterNames)

@@ -43,6 +43,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="Internal\SqlDataReaderExtensions.cs" />
     <Compile Include="SqlServerTableSelectionSetExtensions.cs" />
     <Compile Include="SqlServerDesignTimeServices.cs" />
     <Compile Include="SqlServerScaffoldingModelFactory.cs" />
