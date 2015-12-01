@@ -261,11 +261,24 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         };
                         table.Indexes.Add(index);
                     }
+
                     var columnName = reader.GetStringOrNull(4);
-                    if (!string.IsNullOrEmpty(columnName))
+                    ColumnModel columnModel = null;
+                    if (string.IsNullOrEmpty(columnName))
                     {
-                        var column = _tableColumns[ColumnKey(index.Table, columnName)];
-                        index.Columns.Add(column);
+                        Logger.LogWarning(
+                            SqlServerDesignStrings.ColumnNameEmptyOnIndex(
+                                schemaName, tableName, indexName));
+                    }
+                    else if (!_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out columnModel))
+                    {
+                        Logger.LogWarning(
+                            SqlServerDesignStrings.UnableToFindColumnForIndex(
+                                indexName, columnName, schemaName, tableName));
+                    }
+                    else
+                    {
+                        index.Columns.Add(columnModel);
                     }
                 }
             }
@@ -337,21 +350,49 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                     }
 
                     var fromColumnName = reader.GetStringOrNull(5);
-                    if (!string.IsNullOrEmpty(fromColumnName))
+                    ColumnModel fromColumn;
+                    if ((fromColumn = FindColumnForForeignKey(fromColumnName, fkInfo.Table, fkName)) != null)
                     {
-                        var fromColumn = _tableColumns[ColumnKey(fkInfo.Table, fromColumnName)];
                         fkInfo.Columns.Add(fromColumn);
                     }
 
                     if (fkInfo.PrincipalTable != null)
                     {
                         var toColumnName = reader.GetString(6);
-                        var toColumn = _tableColumns[ColumnKey(fkInfo.PrincipalTable, toColumnName)];
-                        fkInfo.PrincipalColumns.Add(toColumn);
+                        ColumnModel toColumn;
+                        if ((toColumn = FindColumnForForeignKey(toColumnName, fkInfo.PrincipalTable, fkName)) != null)
+                        {
+                            fkInfo.PrincipalColumns.Add(toColumn);
+                        }
                     }
 
                     fkInfo.OnDelete = ConvertToReferentialAction(reader.GetStringOrNull(8));
                 }
+            }
+        }
+
+        private ColumnModel FindColumnForForeignKey(
+            string columnName, TableModel table, string fkName)
+        {
+            ColumnModel column = null;
+            if (string.IsNullOrEmpty(columnName))
+            {
+                Logger.LogWarning(
+                    SqlServerDesignStrings.ColumnNameEmptyOnForeignKey(
+                        table.SchemaName, table.Name, fkName));
+                return null;
+            }
+            else if (!_tableColumns.TryGetValue(
+                ColumnKey(table, columnName), out column))
+            {
+                Logger.LogWarning(
+                    SqlServerDesignStrings.UnableToFindColumnForForeignKey(
+                        fkName, columnName, table.SchemaName, table.Name));
+                return null;
+            }
+            else
+            {
+                return column;
             }
         }
 

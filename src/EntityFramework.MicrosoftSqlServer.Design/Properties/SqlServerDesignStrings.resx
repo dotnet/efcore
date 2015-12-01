@@ -123,6 +123,12 @@
   <data name="ColumnNameEmpty" xml:space="preserve">
     <value>Found a column on table [{schemaName}].[{tableName}] with an empty or null name. Skipping column.</value>
   </data>
+  <data name="ColumnNameEmptyOnForeignKey" xml:space="preserve">
+    <value>Found a column on foreign key [{schemaName}].[{tableName}].[{fkName}] with an empty or null name. Not including column in foreign key</value>
+  </data>
+  <data name="ColumnNameEmptyOnIndex" xml:space="preserve">
+    <value>Found a column on index [{schemaName}].[{tableName}].[{indexName}] with an empty or null name. Not including column in index.</value>
+  </data>
   <data name="DataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
     <value>For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.</value>
   </data>
@@ -131,6 +137,12 @@
   </data>
   <data name="UnableToConvertDefaultValue" xml:space="preserve">
     <value>For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.</value>
+  </data>
+  <data name="UnableToFindColumnForForeignKey" xml:space="preserve">
+    <value>For foreign Key {fkName}. The column named {columnName} cannot be found on table [{schemaName}].[{tableName}]. Not including column in foreign key definition.</value>
+  </data>
+  <data name="UnableToFindColumnForIndex" xml:space="preserve">
+    <value>Index {indexName} contains a column named {columnName} which we cannot find on table [{schemaName}].[{tableName}]. Not including column in foreign key definition.</value>
   </data>
   <data name="UnableToFindIndexForColumn" xml:space="preserve">
     <value>For index {indexName}. Unable to find table [{schemaName}].[{tablename}]. Skipping index.</value>

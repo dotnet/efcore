@@ -29,6 +29,22 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Found a column on foreign key [{schemaName}].[{tableName}].[{fkName}] with an empty or null name. Not including column in foreign key
+        /// </summary>
+        public static string ColumnNameEmptyOnForeignKey([CanBeNull] object schemaName, [CanBeNull] object tableName, [CanBeNull] object fkName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNameEmptyOnForeignKey", "schemaName", "tableName", "fkName"), schemaName, tableName, fkName);
+        }
+
+        /// <summary>
+        /// Found a column on index [{schemaName}].[{tableName}].[{indexName}] with an empty or null name. Not including column in index.
+        /// </summary>
+        public static string ColumnNameEmptyOnIndex([CanBeNull] object schemaName, [CanBeNull] object tableName, [CanBeNull] object indexName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNameEmptyOnIndex", "schemaName", "tableName", "indexName"), schemaName, tableName, indexName);
+        }
+
+        /// <summary>
         /// For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.
         /// </summary>
         public static string DataTypeDoesNotAllowSqlServerIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
@@ -50,6 +66,22 @@ namespace Microsoft.Data.Entity.Internal
         public static string UnableToConvertDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyType, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToConvertDefaultValue", "columnId", "defaultValue", "propertyType", "propertyName", "entityTypeName"), columnId, defaultValue, propertyType, propertyName, entityTypeName);
+        }
+
+        /// <summary>
+        /// For foreign Key {fkName}. The column named {columnName} cannot be found on table [{schemaName}].[{tableName}]. Not including column in foreign key definition.
+        /// </summary>
+        public static string UnableToFindColumnForForeignKey([CanBeNull] object fkName, [CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindColumnForForeignKey", "fkName", "columnName", "schemaName", "tableName"), fkName, columnName, schemaName, tableName);
+        }
+
+        /// <summary>
+        /// Index {indexName} contains a column named {columnName} which we cannot find on table [{schemaName}].[{tableName}]. Not including column in foreign key definition.
+        /// </summary>
+        public static string UnableToFindColumnForIndex([CanBeNull] object indexName, [CanBeNull] object columnName, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToFindColumnForIndex", "indexName", "columnName", "schemaName", "tableName"), indexName, columnName, schemaName, tableName);
         }
 
         /// <summary>
