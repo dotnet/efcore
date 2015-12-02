@@ -52,6 +52,7 @@ namespace Microsoft.Data.Entity.Design
             [CanBeNull] List<string> schemas,
             [CanBeNull] List<string> tables,
             bool useDataAnnotations,
+            bool overwriteFiles,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotEmpty(provider, nameof(provider));
@@ -72,7 +73,8 @@ namespace Microsoft.Data.Entity.Design
                 ProjectRootNamespace = _rootNamespace,
                 OutputPath = outputDir,
                 TableSelectionSet = tableSelectionSet,
-                UseFluentApiOnly = !useDataAnnotations
+                UseFluentApiOnly = !useDataAnnotations,
+                OverwriteFiles = overwriteFiles
             };
 
             return generator.GenerateAsync(configuration, cancellationToken);

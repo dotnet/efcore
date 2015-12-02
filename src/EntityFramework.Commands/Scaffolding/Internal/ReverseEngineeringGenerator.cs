@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -72,7 +73,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                     ? configuration.OutputPath
                     : Path.Combine(configuration.ProjectPath, configuration.OutputPath));
 
-            CheckOutputFiles(outputPath, dbContextClassName, metadataModel);
+            CheckOutputFiles(outputPath, dbContextClassName, metadataModel, configuration.OverwriteFiles);
 
             return CodeWriter.WriteCodeAsync(
                 modelConfiguration, outputPath, dbContextClassName, cancellationToken);
@@ -97,7 +98,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         public virtual void CheckOutputFiles(
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
-            [NotNull] IModel metadataModel)
+            [NotNull] IModel metadataModel,
+            bool overwriteFiles)
         {
             Check.NotEmpty(outputPath, nameof(outputPath));
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
@@ -109,7 +111,23 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             {
                 throw new InvalidOperationException(
                     RelationalDesignStrings.ReadOnlyFiles(
-                        outputPath, string.Join(", ", readOnlyFiles)));
+                        outputPath,
+                        string.Join(
+                            CultureInfo.CurrentCulture.TextInfo.ListSeparator, readOnlyFiles)));
+            }
+
+            if (!overwriteFiles)
+            {
+                var existingFiles = CodeWriter.GetExistingFilePaths(
+                    outputPath, dbContextClassName, metadataModel.GetEntityTypes());
+                if (existingFiles.Count > 0)
+                {
+                    throw new InvalidOperationException(
+                        RelationalDesignStrings.ExistingFiles(
+                            outputPath,
+                            string.Join(
+                                CultureInfo.CurrentCulture.TextInfo.ListSeparator, existingFiles)));
+                }
             }
         }
 

@@ -374,6 +374,9 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER DataAnnotations
     Use DataAnnotation attributes to configure the model where possible. If omitted, the output code will use only the fluent API.
 
+.PARAMETER Force
+    Force scaffolding to overwrite existing files. Otherwise, the code will only proceed if no output files would be overwritten.
+
 .PARAMETER Project
     Specifies the project to use. If omitted, the default project is used.
 
@@ -398,6 +401,7 @@ function Scaffold-DbContext {
         [string[]] $Schemas,
         [string[]] $Tables,
         [switch] $DataAnnotations,
+        [switch] $Force,
         [string] $Project,
         [string] $StartupProject,
         [string] $Environment)
@@ -414,6 +418,7 @@ function Scaffold-DbContext {
         schemaFilters = $Schemas
         tableFilters = $Tables
         useDataAnnotations = [bool]$DataAnnotations
+        overwriteFiles = [bool]$Force
     }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }

@@ -280,9 +280,11 @@ namespace Microsoft.Data.Entity.Design
                 var schemaFilters = (string[])args["schemaFilters"] ?? new string[0];
                 var tableFilters = (string[])args["tableFilters"] ?? new string[0];
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
+                var overwriteFiles = (bool)args["overwriteFiles"];
 
                 Execute(() => executor.ReverseEngineerImpl(provider,
-                    connectionString, outputDir, dbContextClassName, schemaFilters, tableFilters, useDataAnnotations));
+                    connectionString, outputDir, dbContextClassName,
+                    schemaFilters, tableFilters, useDataAnnotations, overwriteFiles));
             }
         }
 
@@ -293,7 +295,8 @@ namespace Microsoft.Data.Entity.Design
             [CanBeNull] string dbContextClassName,
             [NotNull] string[] schemaFilters,
             [NotNull] string[] tableFilters,
-            bool useDataAnnotations)
+            bool useDataAnnotations,
+            bool overwriteFiles)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
@@ -302,7 +305,7 @@ namespace Microsoft.Data.Entity.Design
 
             var files = _databaseOperations.Value.ReverseEngineerAsync(
                     provider, connectionString, outputDir, dbContextClassName,
-                    schemaFilters.ToList(), tableFilters.ToList(), useDataAnnotations).Result;
+                    schemaFilters.ToList(), tableFilters.ToList(), useDataAnnotations, overwriteFiles).Result;
 
             // NOTE: First file will be opened in VS
             yield return files.ContextFile;

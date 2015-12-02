@@ -28,6 +28,48 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
 
         /// <summary>
+        /// Returns a list of the files which would be output by this class where
+        /// the file already exists.
+        /// </summary>
+        /// <param name="outputPath"> directory where the files are to be output </param>
+        /// <param name="dbContextClassName"> name of the <see cref="DbContext" /> class </param>
+        /// <param name="entityTypes"> a list of the <see cref="IEntityType" /> classes to be output </param>
+        /// <returns> A list of paths to the output files which already exist </returns>
+        public virtual IList<string> GetExistingFilePaths(
+            [NotNull] string outputPath,
+            [NotNull] string dbContextClassName,
+            [NotNull] IEnumerable<IEntityType> entityTypes)
+        {
+            Check.NotEmpty(outputPath, nameof(outputPath));
+            Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
+            Check.NotNull(entityTypes, nameof(entityTypes));
+
+            var existingFiles = new List<string>();
+
+            if (!FileService.DirectoryExists(outputPath))
+            {
+                return existingFiles;
+            }
+
+            var filesToTest = new List<string>
+            {
+                dbContextClassName + FileExtension
+            };
+            filesToTest.AddRange(entityTypes
+                .Select(entityType => entityType.DisplayName() + FileExtension));
+
+            foreach (var fileName in filesToTest)
+            {
+                if (FileService.FileExists(outputPath, fileName))
+                {
+                    existingFiles.Add(fileName);
+                }
+            }
+
+            return existingFiles;
+        }
+
+        /// <summary>
         /// Returns a list of the files which would be output by this class but
         /// which currently exist and would not be able to be overwritten due to
         /// being read-only.
@@ -47,18 +89,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             var readOnlyFiles = new List<string>();
 
-            if (!FileService.DirectoryExists(outputPath))
-            {
-                return readOnlyFiles;
-            }
-
-            var filesToTest = new List<string>
-            {
-                dbContextClassName + FileExtension
-            };
-            filesToTest.AddRange(entityTypes
-                .Select(entityType => entityType.DisplayName() + FileExtension));
-
+            var filesToTest = GetExistingFilePaths(outputPath, dbContextClassName, entityTypes);
             foreach (var fileName in filesToTest)
             {
                 if (FileService.IsFileReadOnly(outputPath, fileName))
