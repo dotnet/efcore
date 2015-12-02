@@ -52,6 +52,22 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return true;
             }
 
+            public T GetValue<T>(T currentValue, int index)
+            {
+                if (IsEmpty)
+                {
+                    return currentValue;
+                }
+
+                var value = _values[index];
+
+                return value == null
+                    ? currentValue
+                    : value == _nullSentinel
+                        ? default(T)
+                        : (T)value;
+            }
+
             public bool CanStoreValue(IPropertyBase propertyBase)
                 => (_values != null)
                    && (propertyBase.GetStoreGeneratedIndex() != -1);

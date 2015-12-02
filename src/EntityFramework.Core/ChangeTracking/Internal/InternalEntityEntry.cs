@@ -225,7 +225,41 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         internal static readonly MethodInfo ReadShadowValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue));
 
-        public virtual object ReadShadowValue(int shadowIndex) => null;
+        [UsedImplicitly]
+        protected virtual T ReadShadowValue<T>(int shadowIndex) => default(T);
+
+        internal static readonly MethodInfo ReadOriginalValueMethod
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue));
+
+        [UsedImplicitly]
+        private T ReadOriginalValue<T>(IProperty property, int originalValueIndex) 
+            => _originalValues.GetValue<T>(this, property, originalValueIndex);
+
+        internal static readonly MethodInfo ReadRelationshipSnapshotValueMethod
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadRelationshipSnapshotValue));
+
+        [UsedImplicitly]
+        private T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
+            => _relationshipsSnapshot.GetValue<T>(this, propertyBase, relationshipSnapshotIndex);
+
+        internal static readonly MethodInfo ReadStoreGeneratedValueMethod
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue));
+
+        [UsedImplicitly]
+        private T ReadStoreGeneratedValue<T>(T currentValue, int storeGeneratedIndex)
+            => _storeGeneratedValues.GetValue<T>(currentValue, storeGeneratedIndex);
+
+        internal static readonly MethodInfo GetCurrentValueMethod
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(GetCurrentValue));
+
+        public virtual TProperty GetCurrentValue<TProperty>([NotNull] IPropertyBase propertyBase)
+            => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().CurrentValueGetter)(this);
+
+        public virtual TProperty GetOriginalValue<TProperty>([NotNull] IProperty property)
+            => ((Func<InternalEntityEntry, TProperty>)property.GetPropertyAccessors().OriginalValueGetter)(this);
+
+        public virtual TProperty GetRelationshipSnapshotValue<TProperty>([NotNull] IPropertyBase propertyBase)
+            => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(this);
 
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {

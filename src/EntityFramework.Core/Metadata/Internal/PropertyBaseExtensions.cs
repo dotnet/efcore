@@ -7,6 +7,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public static class PropertyBaseExtensions
     {
+        public static PropertyAccessors GetPropertyAccessors([NotNull] this IPropertyBase propertyBase)
+        {
+            var accessors = propertyBase as IPropertyBaseAccessors;
+
+            return accessors != null
+                ? accessors.Accessors
+                : new PropertyAccessorsFactory().Create(propertyBase);
+        }
+
         public static IClrPropertyGetter GetGetter([NotNull] this IPropertyBase propertyBase)
         {
             var accessors = propertyBase as IPropertyBaseAccessors;

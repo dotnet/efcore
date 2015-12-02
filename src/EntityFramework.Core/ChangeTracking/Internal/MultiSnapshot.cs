@@ -19,6 +19,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         internal static readonly ConstructorInfo Constructor 
             = typeof(MultiSnapshot).GetDeclaredConstructor(new[] { typeof(ISnapshot[]) });
 
+        public T GetValue<T>(int index) 
+            => _snapshots[index / Snapshot.MaxGenericTypes].GetValue<T>(index % Snapshot.MaxGenericTypes);
+
         public object this[int index]
         {
             get { return _snapshots[index / Snapshot.MaxGenericTypes][index % Snapshot.MaxGenericTypes]; }

@@ -7,5 +7,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     {
         IClrPropertyGetter Getter { get; }
         IClrPropertySetter Setter { get; }
+        PropertyAccessors Accessors { get; }
     }
 }

@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </summary>
         public new virtual TProperty CurrentValue
         {
-            get { return (TProperty)base.CurrentValue; }
+            get { return this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata); }
             [param: CanBeNull] set { base.CurrentValue = value; }
         }
 
@@ -55,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </summary>
         public new virtual TProperty OriginalValue
         {
-            get { return (TProperty)base.OriginalValue; }
+            get { return this.GetInfrastructure().GetOriginalValue<TProperty>(Metadata); }
             [param: CanBeNull] set { base.OriginalValue = value; }
         }
     }

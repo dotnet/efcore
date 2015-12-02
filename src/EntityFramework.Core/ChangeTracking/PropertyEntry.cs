@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -21,7 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyEntry
+    public class PropertyEntry : IInfrastructure<InternalEntityEntry>
     {
         private readonly InternalEntityEntry _internalEntry;
 
@@ -88,5 +89,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _internalEntry.GetValue(Metadata, ValueSource.Original); }
             [param: CanBeNull] set { _internalEntry.SetValue(Metadata, value, ValueSource.Original); }
         }
+
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _internalEntry;
     }
 }

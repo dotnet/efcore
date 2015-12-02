@@ -724,6 +724,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public virtual void Can_set_and_get_property_values_genericly()
+        {
+            var model = BuildModel();
+            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.FindProperty("Id");
+            var nonKeyProperty = entityType.FindProperty("Name");
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
+
+            var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
+
+            entry[keyProperty] = 77;
+            entry[nonKeyProperty] = "Magic Tree House";
+
+            Assert.Equal(77, entry.GetCurrentValue<int>(keyProperty));
+            Assert.Equal("Magic Tree House", entry.GetCurrentValue<string>(nonKeyProperty));
+        }
+
+        [Fact]
         public virtual void Can_get_value_buffer_from_properties()
         {
             var model = BuildModel();
@@ -832,6 +850,49 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_full_change_tracking()
+        {
+            var model = BuildModel();
+            GenericOriginalValuesTest(model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1, Name = "Kool" });
+        }
+
+        [Fact]
+        public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_changed_only_notification()
+        {
+            var model = BuildModel();
+            GenericOriginalValuesTest(model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1, Name = "Kool" });
+        }
+
+        [Fact]
+        public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_no_notification()
+        {
+            var model = BuildModel();
+            GenericOriginalValuesTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1, Name = "Kool" });
+        }
+
+        protected void GenericOriginalValuesTest(IModel model, IEntityType entityType, object entity)
+        {
+            var nameProperty = entityType.FindProperty("Name");
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
+
+            var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
+            entry.SetEntityState(EntityState.Unchanged);
+
+            Assert.Equal("Kool", entry.GetOriginalValue<string>(nameProperty));
+            Assert.Equal("Kool", entry.GetCurrentValue<string>(nameProperty));
+
+            entry[nameProperty] = "Beans";
+
+            Assert.Equal("Kool", entry.GetOriginalValue<string>(nameProperty));
+            Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
+
+            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
+
+            Assert.Equal("Franks", entry.GetOriginalValue<string>(nameProperty));
+            Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
+        }
+
+        [Fact]
         public virtual void Null_original_values_are_handled_for_entity_that_does_full_change_tracking()
         {
             var model = BuildModel();
@@ -877,6 +938,55 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Null(entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal("Beans", entry[nameProperty]);
+        }
+
+        [Fact]
+        public virtual void Null_original_values_are_handled_generically_for_entity_that_does_full_change_tracking()
+        {
+            var model = BuildModel();
+            GenericNullOriginalValuesTest(model, model.FindEntityType(typeof(FullNotificationEntity).FullName), new FullNotificationEntity { Id = 1 });
+        }
+
+        [Fact]
+        public virtual void Null_original_values_are_handled_generically_for_entity_that_does_changed_only_notification()
+        {
+            var model = BuildModel();
+            GenericNullOriginalValuesTest(model, model.FindEntityType(typeof(ChangedOnlyEntity).FullName), new ChangedOnlyEntity { Id = 1 });
+        }
+
+        [Fact]
+        public virtual void Null_original_values_are_handled_generically_for_entity_that_does_no_notification()
+        {
+            var model = BuildModel();
+            GenericNullOriginalValuesTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1 });
+        }
+
+
+        protected void GenericNullOriginalValuesTest(IModel model, IEntityType entityType, object entity)
+        {
+            var nameProperty = entityType.FindProperty("Name");
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
+
+            var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, null }));
+            entry.SetEntityState(EntityState.Unchanged);
+
+            Assert.Null(entry.GetOriginalValue<string>(nameProperty));
+            Assert.Null(entry.GetCurrentValue<string>(nameProperty));
+
+            entry[nameProperty] = "Beans";
+
+            Assert.Null(entry.GetOriginalValue<string>(nameProperty));
+            Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
+
+            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
+
+            Assert.Equal("Franks", entry.GetOriginalValue<string>(nameProperty));
+            Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
+
+            entry.SetValue(nameProperty, null, ValueSource.Original);
+
+            Assert.Null(entry.GetOriginalValue<string>(nameProperty));
+            Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
         }
 
         [Fact]

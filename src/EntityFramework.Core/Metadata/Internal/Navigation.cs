@@ -15,16 +15,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
     public class Navigation : ConventionalAnnotatable, IMutableNavigation, INavigationAccessors, IPropertyIndexesAccessor
     {
-        // Warning: Never access this field directly as access needs to be thread-safe
+        // Warning: Never access these fieldd directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
-
-        // Warning: Never access this field directly as access needs to be thread-safe
         private IClrPropertySetter _setter;
-
-        // Warning: Never access this field directly as access needs to be thread-safe
         private IClrCollectionAccessor _collectionAccessor;
-
-        // Warning: Never access this field directly as access needs to be thread-safe
+        private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
 
         public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey)
@@ -164,6 +159,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IClrCollectionAccessor CollectionAccessor
             => LazyInitializer.EnsureInitialized(ref _collectionAccessor, () => new ClrCollectionAccessorFactory().Create(this));
+
+        public virtual PropertyAccessors Accessors
+            => LazyInitializer.EnsureInitialized(ref _accessors, () => new PropertyAccessorsFactory().Create(this));
 
         public virtual PropertyIndexes Indexes
         {

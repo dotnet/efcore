@@ -30,6 +30,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return index != -1 ? _values[index] : entry[property];
             }
 
+            public T GetValue<T>(InternalEntityEntry entry, IProperty property, int index) 
+                => IsEmpty 
+                ? entry.GetCurrentValue<T>(property) 
+                : _values.GetValue<T>(index);
+
             public void SetValue(IProperty property, object value)
             {
                 Debug.Assert(!IsEmpty);

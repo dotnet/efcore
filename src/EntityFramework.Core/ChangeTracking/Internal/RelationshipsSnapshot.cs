@@ -23,6 +23,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             public object GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
                 => IsEmpty ? entry[propertyBase] : _values[propertyBase.GetRelationshipIndex()];
 
+            public T GetValue<T>(InternalEntityEntry entry, IPropertyBase propertyBase, int index)
+                => IsEmpty
+                ? entry.GetCurrentValue<T>(propertyBase)
+                : _values.GetValue<T>(index);
+
             public void SetValue(IPropertyBase propertyBase, object value)
             {
                 if (value == null)

@@ -8,5 +8,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     public interface ISnapshot
     {
         object this[int index] { get; [param: CanBeNull] set; }
+
+        T GetValue<T>(int index);
     }
 }

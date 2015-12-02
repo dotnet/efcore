@@ -16,13 +16,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
     public class Property : ConventionalAnnotatable, IMutableProperty, IPropertyBaseAccessors, IPropertyIndexesAccessor
     {
-        // Warning: Never access this field directly as access needs to be thread-safe
+        // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
-
-        // Warning: Never access this field directly as access needs to be thread-safe
         private IClrPropertySetter _setter;
-
-        // Warning: Never access this field directly as access needs to be thread-safe
+        private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
 
         private PropertyFlags _flags;
@@ -382,6 +379,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IClrPropertySetter Setter
             => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
+
+        public virtual PropertyAccessors Accessors
+            => LazyInitializer.EnsureInitialized(ref _accessors, () => new PropertyAccessorsFactory().Create(this));
 
         public virtual PropertyIndexes Indexes
         {

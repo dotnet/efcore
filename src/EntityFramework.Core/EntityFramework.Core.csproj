@@ -110,6 +110,8 @@
     <Compile Include="Metadata\Internal\ModelExtensions.cs" />
     <Compile Include="Metadata\Internal\MutableEntityTypeExtensions.cs" />
     <Compile Include="Metadata\Internal\NavigationExtensions.cs" />
+    <Compile Include="Metadata\Internal\PropertyAccessors.cs" />
+    <Compile Include="Metadata\Internal\PropertyAccessorsFactory.cs" />
     <Compile Include="Metadata\Internal\PropertyBaseExtensions.cs" />
     <Compile Include="Metadata\Internal\PropertyCounts.cs" />
     <Compile Include="Metadata\Internal\PropertyExtensions.cs" />

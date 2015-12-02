@@ -138,12 +138,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected virtual Expression CreateReadShadowValueExpression(
             [CanBeNull] ParameterExpression parameter, [NotNull] IProperty property)
-            => Expression.Convert(
-                Expression.Call(
-                    parameter,
-                    InternalEntityEntry.ReadShadowValueMethod,
-                    Expression.Constant(property.GetShadowIndex())),
-                property.ClrType);
+            => Expression.Call(
+                parameter,
+                InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
+                Expression.Constant(property.GetShadowIndex()));
 
         protected abstract int GetPropertyIndex([NotNull] IPropertyBase propertyBase);
 

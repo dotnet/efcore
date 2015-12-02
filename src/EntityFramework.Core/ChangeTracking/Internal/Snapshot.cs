@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -20,6 +22,28 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             get { throw new IndexOutOfRangeException(); }
             set { throw new IndexOutOfRangeException(); }
+        }
+
+        public T GetValue<T>(int index)
+        {
+            throw new IndexOutOfRangeException();
+        }
+
+        public static Delegate[] CreateReaders<TSnapshot>()
+        {
+            var genericArguments = typeof(TSnapshot).GetTypeInfo().GenericTypeArguments;
+            var delegates = new Delegate[genericArguments.Length];
+
+            for (var i = 0; i < genericArguments.Length; ++i)
+            {
+                var snapshotParameter = Expression.Parameter(typeof(TSnapshot), "snapshot");
+
+                delegates[i] = Expression.Lambda(typeof(Func<,>).MakeGenericType(typeof(TSnapshot), genericArguments[i]),
+                    Expression.Field(snapshotParameter, "_value" + i), snapshotParameter)
+                    .Compile();
+            }
+
+            return delegates;
         }
 
         public static Type CreateSnapshotType([NotNull] Type[] types)
@@ -92,9 +116,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -189,6 +216,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T27 _value27;
         private T28 _value28;
         private T29 _value29;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -361,9 +391,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -455,6 +488,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T26 _value26;
         private T27 _value27;
         private T28 _value28;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -622,9 +658,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -713,6 +752,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T25 _value25;
         private T26 _value26;
         private T27 _value27;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -875,9 +917,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -963,6 +1008,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T24 _value24;
         private T25 _value25;
         private T26 _value26;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -1120,9 +1168,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -1205,6 +1256,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T23 _value23;
         private T24 _value24;
         private T25 _value25;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -1357,9 +1411,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -1439,6 +1496,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T22 _value22;
         private T23 _value23;
         private T24 _value24;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -1586,9 +1646,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -1665,6 +1728,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T21 _value21;
         private T22 _value22;
         private T23 _value23;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -1807,9 +1873,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -1883,6 +1952,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T20 _value20;
         private T21 _value21;
         private T22 _value22;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -2020,9 +2092,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -2093,6 +2168,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T19 _value19;
         private T20 _value20;
         private T21 _value21;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -2225,9 +2303,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -2295,6 +2376,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T18 _value18;
         private T19 _value19;
         private T20 _value20;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -2422,9 +2506,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -2489,6 +2576,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T17 _value17;
         private T18 _value18;
         private T19 _value19;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -2611,9 +2701,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -2675,6 +2768,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T16 _value16;
         private T17 _value17;
         private T18 _value18;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -2792,9 +2888,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -2853,6 +2952,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T15 _value15;
         private T16 _value16;
         private T17 _value17;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -2965,9 +3067,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3023,6 +3128,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T14 _value14;
         private T15 _value15;
         private T16 _value16;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -3130,9 +3238,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3185,6 +3296,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T13 _value13;
         private T14 _value14;
         private T15 _value15;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -3287,9 +3401,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3339,6 +3456,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T12 _value12;
         private T13 _value13;
         private T14 _value14;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -3436,9 +3556,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3485,6 +3608,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T11 _value11;
         private T12 _value12;
         private T13 _value13;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -3577,9 +3703,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3623,6 +3752,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T10 _value10;
         private T11 _value11;
         private T12 _value12;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -3710,9 +3842,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3753,6 +3888,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T9 _value9;
         private T10 _value10;
         private T11 _value11;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -3835,9 +3973,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3875,6 +4016,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T8 _value8;
         private T9 _value9;
         private T10 _value10;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -3952,9 +4096,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -3989,6 +4136,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T7 _value7;
         private T8 _value8;
         private T9 _value9;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4061,9 +4211,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -4095,6 +4248,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T6 _value6;
         private T7 _value7;
         private T8 _value8;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4162,9 +4318,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -4193,6 +4352,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T5 _value5;
         private T6 _value6;
         private T7 _value7;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4255,9 +4417,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5, T6>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -4283,6 +4448,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T4 _value4;
         private T5 _value5;
         private T6 _value6;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4340,9 +4508,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4, T5>
+    public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -4365,6 +4536,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T3 _value3;
         private T4 _value4;
         private T5 _value5;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4, T5>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4417,9 +4591,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3, T4>
+    public sealed class Snapshot<T0, T1, T2, T3, T4>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -4439,6 +4616,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T2 _value2;
         private T3 _value3;
         private T4 _value4;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3, T4>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4486,9 +4666,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2, T3>
+    public sealed class Snapshot<T0, T1, T2, T3>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -4505,6 +4688,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T1 _value1;
         private T2 _value2;
         private T3 _value3;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2, T3>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4547,9 +4733,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1, T2>
+    public sealed class Snapshot<T0, T1, T2>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1, T2>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1,
@@ -4563,6 +4752,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private T0 _value0;
         private T1 _value1;
         private T2 _value2;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1, T2>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4600,9 +4792,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0, T1>
+    public sealed class Snapshot<T0, T1>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0, T1>>();
+
         public Snapshot(
             [CanBeNull] T0 value0,
             [CanBeNull] T1 value1)
@@ -4613,6 +4808,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private T0 _value0;
         private T1 _value1;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0, T1>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
@@ -4645,9 +4843,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
     }
 
-    public struct Snapshot<T0>
+    public sealed class Snapshot<T0>
         : ISnapshot
     {
+        private static readonly Delegate[] _valueReaders
+            = Snapshot.CreateReaders<Snapshot<T0>>();
+
         public Snapshot(
             [CanBeNull] T0 value0)
         {
@@ -4655,6 +4856,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private T0 _value0;
+
+        public T GetValue<T>(int index)
+            => ((Func<Snapshot<T0>, T>)_valueReaders[index])(this);
 
         public object this[int index]
         {
