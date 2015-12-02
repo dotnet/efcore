@@ -169,6 +169,16 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("SpecialBookLabelId", relationshipBuilder.Metadata.Properties.Single().Name);
                 Assert.False(relationshipBuilder.Metadata.IsRequired);
             }
+
+            [Fact]
+            public virtual void Removing_derived_type_make_sure_that_entity_type_is_removed_from_directly_derived_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Book>();
+                modelBuilder.Ignore<SpecialBookLabel>();
+
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName).GetDirectlyDerivedTypes());
+            }
         }
     }
 }

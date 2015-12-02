@@ -404,7 +404,5 @@ namespace Microsoft.Data.Entity.Tests
             [NotMapped]
             int IEntityBase.Target => Target;
         }
-
-
     }
 }

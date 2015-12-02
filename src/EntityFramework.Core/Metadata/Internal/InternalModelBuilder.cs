@@ -112,6 +112,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return false;
             }
 
+            // Set base type as null to remove the entityType from directly derived types of the base type
+            var baseType = entityType.BaseType;
+            entityType.Builder.HasBaseType((EntityType)null, configurationSource);
+
             Metadata.Ignore(entityType.Name, configurationSource);
 
             var entityTypeBuilder = entityType.Builder;
@@ -130,7 +134,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
             {
                 var derivedEntityTypeBuilder = directlyDerivedType.Builder
-                    .HasBaseType(entityType.BaseType, configurationSource);
+                    .HasBaseType(baseType, configurationSource);
                 Debug.Assert(derivedEntityTypeBuilder != null);
             }
 
