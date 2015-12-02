@@ -10,10 +10,10 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Scaffolding.Internal
 {  
-    public class StringBuilderCodeWriter : CodeWriter  
+    public class StringBuilderCodeWriter : CodeWriter
     {  
-        public virtual DbContextWriter DbContextWriter { get; }  
-        public virtual EntityTypeWriter EntityTypeWriter { get; }  
+        public virtual DbContextWriter DbContextWriter { get; }
+        public virtual EntityTypeWriter EntityTypeWriter { get; }
   
         public StringBuilderCodeWriter(  
             [NotNull] IFileService fileService,
@@ -21,43 +21,43 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             [NotNull] EntityTypeWriter entityTypeWriter)
             : base(fileService)  
         {  
-            Check.NotNull(dbContextWriter, nameof(dbContextWriter));  
-            Check.NotNull(entityTypeWriter, nameof(entityTypeWriter));  
+            Check.NotNull(dbContextWriter, nameof(dbContextWriter));
+            Check.NotNull(entityTypeWriter, nameof(entityTypeWriter));
   
             DbContextWriter = dbContextWriter;
             EntityTypeWriter = entityTypeWriter;
         }  
   
-        public override Task<ReverseEngineerFiles> WriteCodeAsync(  
+        public override Task<ReverseEngineerFiles> WriteCodeAsync(
             [NotNull] ModelConfiguration modelConfiguration,
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
             CancellationToken cancellationToken = default(CancellationToken))
         {  
-            Check.NotNull(modelConfiguration, nameof(modelConfiguration));  
-            Check.NotEmpty(outputPath, nameof(outputPath));  
-            Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));  
+            Check.NotNull(modelConfiguration, nameof(modelConfiguration));
+            Check.NotEmpty(outputPath, nameof(outputPath));
+            Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
   
-            cancellationToken.ThrowIfCancellationRequested();  
+            cancellationToken.ThrowIfCancellationRequested();
   
-            var resultingFiles = new ReverseEngineerFiles();  
+            var resultingFiles = new ReverseEngineerFiles();
   
-            var generatedCode = DbContextWriter.WriteCode(modelConfiguration);  
+            var generatedCode = DbContextWriter.WriteCode(modelConfiguration);
   
-            // output DbContext .cs file  
-            var dbContextFileName = dbContextClassName + FileExtension;  
+            // output DbContext .cs file
+            var dbContextFileName = dbContextClassName + FileExtension;
             var dbContextFileFullPath = FileService.OutputFile(
-                outputPath, dbContextFileName, generatedCode);  
-            resultingFiles.ContextFile = dbContextFileFullPath;  
+                outputPath, dbContextFileName, generatedCode);
+            resultingFiles.ContextFile = dbContextFileFullPath;
   
-            foreach (var entityConfig in modelConfiguration.EntityConfigurations)  
+            foreach (var entityConfig in modelConfiguration.EntityConfigurations)
             {  
-                generatedCode = EntityTypeWriter.WriteCode(entityConfig);  
+                generatedCode = EntityTypeWriter.WriteCode(entityConfig);
   
-                // output EntityType poco .cs file  
-                var entityTypeFileName = entityConfig.EntityType.DisplayName() + FileExtension;  
+                // output EntityType poco .cs file
+                var entityTypeFileName = entityConfig.EntityType.DisplayName() + FileExtension;
                 var entityTypeFileFullPath = FileService.OutputFile(
-                    outputPath, entityTypeFileName, generatedCode);  
+                    outputPath, entityTypeFileName, generatedCode);
                 resultingFiles.EntityTypeFiles.Add(entityTypeFileFullPath);
             }
             

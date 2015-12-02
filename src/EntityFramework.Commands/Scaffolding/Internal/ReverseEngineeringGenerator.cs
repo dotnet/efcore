@@ -52,8 +52,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             configuration.CheckValidity();
 
             var metadataModel = GetMetadataModel(configuration);
+
+            var outputPaths = ConstructCanonicalizedPaths(configuration.ProjectPath, configuration.OutputPath);
+
             var @namespace = ConstructNamespace(configuration.ProjectRootNamespace,
-                    configuration.ProjectPath, configuration.OutputPath);
+                    outputPaths.CanonicalizedRelativeOutputPath);
 
             var customConfiguration = _configurationFactory
                 .CreateCustomConfiguration(
@@ -67,16 +70,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 ? modelConfiguration.ClassName()
                 : customConfiguration.ContextClassName;
 
-            var outputPath = string.IsNullOrEmpty(configuration.OutputPath)
-                ? configuration.ProjectPath
-                : (Path.IsPathRooted(configuration.OutputPath)
-                    ? configuration.OutputPath
-                    : Path.Combine(configuration.ProjectPath, configuration.OutputPath));
-
-            CheckOutputFiles(outputPath, dbContextClassName, metadataModel, configuration.OverwriteFiles);
+            CheckOutputFiles(outputPaths.CanonicalizedFullOutputPath,
+                dbContextClassName, metadataModel, configuration.OverwriteFiles);
 
             return CodeWriter.WriteCodeAsync(
-                modelConfiguration, outputPath, dbContextClassName, cancellationToken);
+                modelConfiguration, outputPaths.CanonicalizedFullOutputPath,
+                dbContextClassName, cancellationToken);
         }
 
         public virtual IModel GetMetadataModel([NotNull] ReverseEngineeringConfiguration configuration)
@@ -134,17 +133,40 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         private static char[] directorySeparatorChars = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         public static string ConstructNamespace(
-            [NotNull] string rootNamespace, [NotNull] string projectPath, [CanBeNull] string outputPath)
+            [NotNull] string rootNamespace, [CanBeNull] string canonicalizedRelativeOutputPath)
         {
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
-            Check.NotEmpty(projectPath, nameof(projectPath));
 
-            if (string.IsNullOrEmpty(outputPath)
-                || Path.IsPathRooted(outputPath))
+            if (string.IsNullOrEmpty(canonicalizedRelativeOutputPath))
             {
-                // outputPath is empty or is not relative - so just use root namespace
+                // canonicalized output path is outside of or is the same
+                // as the project dir - so just use root namespace
                 return rootNamespace;
             }
+
+            var @namespace = rootNamespace;
+            foreach (var pathPart in canonicalizedRelativeOutputPath
+                .Split(directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries))
+            {
+                @namespace += "." + CSharpUtilities.Instance.GenerateCSharpIdentifier(pathPart, null);
+            }
+
+            return @namespace;
+        }
+
+        /// <summary>
+        /// Construct canonicalized paths from the project path and output path.
+        /// </summary>
+        /// <param name="projectPath"> path to the project, must not be empty, can be absolute or relative </param>
+        /// <param name="outputPath"> path to output directory, can be null or empty, can be absolute or relative (to the project path) </param>
+        /// <returns>
+        ///  a <see cref="CanonicalizedOutputPaths"> object containing the canonicalized full output path
+        ///  and the canonicalized relative output path
+        /// </returns>
+        public static CanonicalizedOutputPaths ConstructCanonicalizedPaths(
+            [NotNull] string projectPath, [CanBeNull] string outputPath)
+        {
+            Check.NotEmpty(projectPath, nameof(projectPath));
 
             // strip off any directory separator chars at end of project path
             for (var projectPathLastChar = projectPath.Last();
@@ -154,24 +176,40 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 projectPath = projectPath.Substring(0, projectPath.Length - 1);
             }
 
-            var canonicalizedProjectPath = Path.GetFullPath(projectPath);
-            var canonicalizedOutputPath = Path.GetFullPath(Path.Combine(projectPath, outputPath));
-            if (!canonicalizedOutputPath.StartsWith(canonicalizedProjectPath))
+            var canonicalizedFullProjectPath = Path.GetFullPath(projectPath);
+            var canonicalizedFullOutputPath =
+                string.IsNullOrEmpty(outputPath)
+                    ? canonicalizedFullProjectPath
+                    : Path.IsPathRooted(outputPath)
+                        ? Path.GetFullPath(outputPath)
+                        : Path.GetFullPath(Path.Combine(projectPath, outputPath));
+
+            var canonicalizedRelativeOutputPath =
+                canonicalizedFullOutputPath == canonicalizedFullProjectPath
+                ? string.Empty
+                : canonicalizedFullOutputPath.StartsWith(canonicalizedFullProjectPath)
+                    ? canonicalizedFullOutputPath
+                        .Substring(canonicalizedFullProjectPath.Count() + 1)
+                    : null;
+
+            return new CanonicalizedOutputPaths(
+                canonicalizedFullOutputPath, canonicalizedRelativeOutputPath);
+        }
+
+        public class CanonicalizedOutputPaths
+        {
+            public CanonicalizedOutputPaths(
+                [NotNull] string canonicalizedFullOutputPath,
+                [CanBeNull] string canonicalizedRelativeOutputPath)
             {
-                // canonicalizedOutputPath is outside of project - so just use root namespace
-                return rootNamespace;
+                Check.NotEmpty(canonicalizedFullOutputPath, nameof(canonicalizedFullOutputPath));
+
+                CanonicalizedFullOutputPath = canonicalizedFullOutputPath;
+                CanonicalizedRelativeOutputPath = canonicalizedRelativeOutputPath;
             }
 
-            var @namespace = rootNamespace;
-            var canonicalizedRelativePath = canonicalizedOutputPath
-                .Substring(canonicalizedProjectPath.Count() + 1);
-            foreach (var pathPart in canonicalizedRelativePath
-                .Split(directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries))
-            {
-                @namespace += "." + CSharpUtilities.Instance.GenerateCSharpIdentifier(pathPart, null);
-            }
-
-            return @namespace;
+            public virtual string CanonicalizedFullOutputPath { get; }
+            public virtual string CanonicalizedRelativeOutputPath { get; }
         }
     }
 }
