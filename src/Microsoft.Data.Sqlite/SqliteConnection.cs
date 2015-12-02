@@ -130,7 +130,7 @@ namespace Microsoft.Data.Sqlite
                 DbConnectionExtensions.ExecuteNonQuery(this, "PRAGMA temp_store_directory = '" + TemporaryFolderPath + "'");
             }
         }
-        
+
         private readonly static string DefaultBasePath = AppData?.LocalFolder.Path;
         private readonly static string TemporaryFolderPath = AppData?.TemporaryFolder.Path;
 
@@ -233,6 +233,18 @@ namespace Microsoft.Data.Sqlite
         public override void ChangeDatabase(string databaseName)
         {
             throw new NotSupportedException();
+        }
+
+        public virtual void EnableExtensions(bool enable = true)
+        {
+            if (_db == null
+                || _db.IsInvalid)
+            {
+                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection(nameof(EnableExtensions)));
+            }
+
+            var rc = NativeMethods.sqlite3_enable_load_extension(_db, enable ? 1 : 0);
+            MarshalEx.ThrowExceptionForRC(rc, _db);
         }
     }
 }

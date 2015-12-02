@@ -9,6 +9,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 #endif
 using Microsoft.AspNet.Testing.xunit;
 using Xunit;
+using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -345,6 +346,43 @@ namespace Microsoft.Data.Sqlite
                         Assert.Equal("2B", reader2.GetString(0));
                     }
                 }
+            }
+        }
+
+        [Fact]
+        public void EnableExtensions_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                var sql = "SELECT load_extension('unknown');";
+
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery(sql));
+                var originalError = ex.Message;
+
+                connection.EnableExtensions();
+
+                ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery(sql));
+                var enabledError = ex.Message;
+
+                connection.EnableExtensions(enable: false);
+
+                ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery(sql));
+                var disabledError = ex.Message;
+
+                Assert.NotEqual(originalError, enabledError);
+                Assert.Equal(originalError, disabledError);
+            }
+        }
+
+        [Fact]
+        public void EnableExtensions_throws_when_closed()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var ex = Assert.Throws<InvalidOperationException>(() => connection.EnableExtensions());
+                Assert.Equal(Strings.FormatCallRequiresOpenConnection("EnableExtensions"), ex.Message);
             }
         }
     }
