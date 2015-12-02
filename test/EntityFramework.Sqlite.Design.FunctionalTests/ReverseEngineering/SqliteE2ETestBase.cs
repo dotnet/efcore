@@ -18,6 +18,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
     public abstract class SqliteE2ETestBase : E2ETestBase
     {
+        public const string TestProjectPath = "testout";
+        public static readonly string TestProjectFullPath = Path.GetFullPath(TestProjectPath);
+
         public SqliteE2ETestBase(ITestOutputHelper output)
             : base(output)
         {
@@ -44,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -61,7 +64,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                         "Principal.expected"
                     }
                 };
-                var actualFileSet = new FileSet(InMemoryFiles, "testout")
+                var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
                     Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
@@ -98,7 +101,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -115,7 +118,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                         "OneToManyPrincipal.expected"
                     }
                 };
-                var actualFileSet = new FileSet(InMemoryFiles, "testout")
+                var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
                     Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
@@ -146,7 +149,7 @@ CREATE TABLE Users_Groups (
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -164,7 +167,7 @@ CREATE TABLE Users_Groups (
                         "Users_Groups.expected"
                     }
                 };
-                var actualFileSet = new FileSet(InMemoryFiles, "testout")
+                var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
                     Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
@@ -188,7 +191,7 @@ CREATE TABLE Users_Groups (
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -204,7 +207,7 @@ CREATE TABLE Users_Groups (
                         "SelfRef.expected"
                     }
                 };
-                var actualFileSet = new FileSet(InMemoryFiles, "testout")
+                var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
                     Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
@@ -223,7 +226,7 @@ CREATE TABLE Users_Groups (
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -238,7 +241,7 @@ CREATE TABLE Users_Groups (
                     }
                 };
                 AssertLog(expectedLog);
-                Assert.Contains(errorMessage, InMemoryFiles.RetrieveFileContents("testout", Path.GetFileName(results.ContextFile)));
+                Assert.Contains(errorMessage, InMemoryFiles.RetrieveFileContents(TestProjectFullPath, Path.GetFileName(results.ContextFile)));
             }
         }
 
@@ -258,7 +261,7 @@ CREATE TABLE Principal ( Id INT);");
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -283,7 +286,7 @@ CREATE TABLE Principal ( Id INT);");
                         "Dependent.expected",
                     }
                 };
-                var actualFileSet = new FileSet(InMemoryFiles, "testout")
+                var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
                     Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
@@ -325,7 +328,7 @@ CREATE TABLE String (
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -333,7 +336,7 @@ CREATE TABLE String (
 
                 AssertLog(new LoggerMessages());
 
-                var files = new FileSet(InMemoryFiles, "testout")
+                var files = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
                     Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
@@ -363,7 +366,7 @@ CREATE TABLE Comment (
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
                     ContextClassName = "FkToAltKeyContext",
-                    ProjectPath = "testout",
+                    ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
                     TableSelectionSet = TableSelectionSet.All
@@ -380,7 +383,7 @@ CREATE TABLE Comment (
                         "User.expected"
                     }
                 };
-                var actualFileSet = new FileSet(InMemoryFiles, "testout")
+                var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
                 {
                     Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };

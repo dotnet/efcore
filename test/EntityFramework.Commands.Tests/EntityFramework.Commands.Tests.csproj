@@ -46,6 +46,8 @@
     <Compile Include="Migrations\Design\CSharpMigrationOperationGeneratorTest.cs" />
     <Compile Include="Migrations\Design\MigrationScaffolderTest.cs" />
     <Compile Include="Migrations\Design\CSharpHelperTest.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringConfigurationTests.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringGeneratorTests.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
