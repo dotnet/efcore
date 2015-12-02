@@ -2,16 +2,22 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
+using System.Data.SqlClient;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition
     {
-        public bool IsMet => SqlServerTestStore.IsConfigured;
+        private static readonly string _dataSource = new SqlConnectionStringBuilder(SqlServerTestStore.CreateConnectionString("sample")).DataSource;
+        private readonly bool _isLocalDb = _dataSource.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);
 
-        public string SkipReason => "No test SQL Server has been configured.";
+        public bool IsMet => TestPlatformHelper.IsWindows || !_isLocalDb;
+
+        public string SkipReason => _isLocalDb
+            ? "LocalDb is not accessible on this platform. An external SQL Server must be configured."
+            : "No test SQL Server has been configured.";
     }
 }

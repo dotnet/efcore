@@ -168,6 +168,7 @@
     <Compile Include="ReverseEngineering\SqlServerE2EFixture.cs" />
     <Compile Include="ReverseEngineering\SqlServerE2ETests.cs" />
     <Compile Include="SqlServerDatabaseModelFactoryTest.cs" />
+    <Compile Include="Properties\TestAssemblyConditions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

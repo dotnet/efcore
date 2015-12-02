@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static SqlException CreateSqlException(int number)
         {
-            var ctors = typeof(SqlError)
+            var errorCtors = typeof(SqlError)
                 .GetTypeInfo()
                 .DeclaredConstructors;
 
@@ -231,13 +231,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 && !TestPlatformHelper.IsMono)
             {
                 // On coreclr, SqlError's internal constructor has an additional parameter
-                error = (SqlError)ctors.First(c => c.GetParameters().Length == 8)
+                error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
                     .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
             }
             else
             {
                 // On Windows-CoreClr, SqlError is type-forwarded to full .NET
-                error = (SqlError)ctors.First(c => c.GetParameters().Length == 7)
+                error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                     .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
             }
 
@@ -249,11 +249,19 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             typeof(SqlErrorCollection).GetRuntimeMethods().Single(m => m.Name == "Add").Invoke(errors, new object[] { error });
 
-            return (SqlException)typeof(SqlException)
+            var exceptionCtors = typeof(SqlException)
                 .GetTypeInfo()
-                .DeclaredConstructors
-                .First(c=>c.GetParameters().Count() == 4)
-                .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
+                .DeclaredConstructors;
+
+            if (TestPlatformHelper.IsMono)
+            {
+                return (SqlException)exceptionCtors
+                    .First(c => c.GetParameters().Length == 3)
+                    .Invoke(new object[] { error.Message, null, error });
+            }
+
+            return (SqlException)exceptionCtors.First(c => c.GetParameters().Length == 4)
+                    .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
         }
     }
 }

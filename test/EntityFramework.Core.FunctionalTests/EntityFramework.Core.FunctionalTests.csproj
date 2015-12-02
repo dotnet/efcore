@@ -163,7 +163,9 @@
     <Compile Include="TestUtilities\PropertyComparer.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
     <Compile Include="TestUtilities\TestPlatformHelper.cs" />
+    <Compile Include="TestUtilities\Xunit\ConditionalTestFramework.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactDiscoverer.cs" />
+    <Compile Include="TestUtilities\Xunit\ConditionalTestFrameworkExecutor.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTheoryDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTheoryAttribute.cs" />

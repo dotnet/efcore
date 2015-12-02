@@ -21,16 +21,12 @@ SKIPPED=()
 
 for t in `grep -l "xunit.runner" test/*/project.json`; do
     TEST_DIR=$(dirname $t)
-    if [[ $TEST_DIR == *"MicrosoftSqlServer"* && $TEST_DIR == *"Functional"* && "${Test__SqlServer__DataSource}" == "" ]]; then
-        printf "${YELLOW}Skipping ${TEST_DIR}. Project requires SQL Server${NC}\n"
-        SKIPPED+=("${TEST_DIR} skipped")
-        continue
-    fi
 
     _=$(grep "dnxcore50" $t)
     rc=$?
     if [[ $rc != 0 ]]; then
         printf "${YELLOW}Skipping tests on project ${TEST_DIR}. Project does not support CoreCLR${NC}\n"
+        SKIPPED+=("${TEST_DIR} skipped")
         continue
     fi
     

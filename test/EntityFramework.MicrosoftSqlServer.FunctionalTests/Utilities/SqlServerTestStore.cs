@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -489,8 +488,5 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             };
             return connStrBuilder.ApplyConfiguration().ConnectionString;
         }
-
-        public static bool IsConfigured
-            => TestPlatformHelper.IsWindows || !string.IsNullOrEmpty(TestEnvironment.Config["DataSource"]);
     }
 }
