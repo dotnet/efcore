@@ -22,14 +22,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         {
             _typeMapper = typeMapper;
         }
-
-        public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
-        {
-            Check.NotNull(command, nameof(command));
-
-            AppendBulkInsertOperation(commandStringBuilder, new[] { command }, commandPosition);
-        }
-
+        
         public virtual ResultsGrouping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
             IReadOnlyList<ModificationCommand> modificationCommands,
@@ -38,10 +31,21 @@ namespace Microsoft.Data.Entity.Update.Internal
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(modificationCommands, nameof(modificationCommands));
 
+            if (modificationCommands.Count == 1
+                && modificationCommands[0].ColumnModifications.All(o =>
+                    !o.IsKey
+                    || !o.IsRead
+                    || o.Property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+            {
+                AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
+                return ResultsGrouping.OneCommandPerResultSet;
+            }
+
             var name = modificationCommands[0].TableName;
             var schema = modificationCommands[0].Schema;
 
-            // TODO: Support TPH
+            // TODO: Batch base and derived for TPH
+            // #3954
             var defaultValuesOnly = !modificationCommands.First().ColumnModifications.Any(o => o.IsWrite);
             var statementCount = defaultValuesOnly
                 ? modificationCommands.Count

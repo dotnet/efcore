@@ -56,12 +56,11 @@ SELECT @@ROWCOUNT;",
 @p2: 00000000-0000-0000-0000-000000000003
 
 SET NOCOUNT OFF;
-DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
-OUTPUT INSERTED.[UniqueNo]
-INTO @generated1
 VALUES (@p0, @p1, @p2);
-SELECT [UniqueNo] FROM @generated1;",
+SELECT [UniqueNo]
+FROM [Sample]
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
                 Sql);
         }
 
@@ -74,24 +73,22 @@ SELECT [UniqueNo] FROM @generated1;",
 @p2: 00000000-0000-0000-0000-000000000001
 
 SET NOCOUNT OFF;
-DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
-OUTPUT INSERTED.[UniqueNo]
-INTO @generated1
 VALUES (@p0, @p1, @p2);
-SELECT [UniqueNo] FROM @generated1;
+SELECT [UniqueNo]
+FROM [Sample]
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();
 
 @p0: VeryVeryVeryVeryVeryVeryLongString
 @p1: ValidString
 @p2: 00000000-0000-0000-0000-000000000002
 
 SET NOCOUNT OFF;
-DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
-OUTPUT INSERTED.[UniqueNo]
-INTO @generated1
 VALUES (@p0, @p1, @p2);
-SELECT [UniqueNo] FROM @generated1;",
+SELECT [UniqueNo]
+FROM [Sample]
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
                 Sql);
         }
 
@@ -126,24 +123,22 @@ SELECT @@ROWCOUNT;",
 @p2: 00000000-0000-0000-0000-000000000001
 
 SET NOCOUNT OFF;
-DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
-OUTPUT INSERTED.[UniqueNo]
-INTO @generated1
 VALUES (@p0, @p1, @p2);
-SELECT [UniqueNo] FROM @generated1;
+SELECT [UniqueNo]
+FROM [Sample]
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();
 
 @p0: 
 @p1: 
 @p2: 00000000-0000-0000-0000-000000000002
 
 SET NOCOUNT OFF;
-DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
-OUTPUT INSERTED.[UniqueNo]
-INTO @generated1
 VALUES (@p0, @p1, @p2);
-SELECT [UniqueNo] FROM @generated1;",
+SELECT [UniqueNo]
+FROM [Sample]
+WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
                 Sql);
         }
 
@@ -154,22 +149,20 @@ SELECT [UniqueNo] FROM @generated1;",
             Assert.Equal(@"@p0: ValidString
 
 SET NOCOUNT OFF;
-DECLARE @generated1 TABLE ([Id] int, [Timestamp] varbinary(8));
 INSERT INTO [Two] ([Data])
-OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
-INTO @generated1
 VALUES (@p0);
-SELECT [Id], [Timestamp] FROM @generated1;
+SELECT [Id], [Timestamp]
+FROM [Two]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
 
 @p0: ValidButLongString
 
 SET NOCOUNT OFF;
-DECLARE @generated1 TABLE ([Id] int, [Timestamp] varbinary(8));
 INSERT INTO [Two] ([Data])
-OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
-INTO @generated1
 VALUES (@p0);
-SELECT [Id], [Timestamp] FROM @generated1;",
+SELECT [Id], [Timestamp]
+FROM [Two]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
                 Sql);
         }
 

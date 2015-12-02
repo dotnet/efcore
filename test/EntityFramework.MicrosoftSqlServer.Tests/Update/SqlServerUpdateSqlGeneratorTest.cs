@@ -29,60 +29,55 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         protected override void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "DECLARE @generated0 TABLE ([Computed] uniqueidentifier);" + Environment.NewLine +
                 "INSERT INTO [dbo].[Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
-                "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
-                "INTO @generated0" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
-                "SELECT [Computed] FROM @generated0;" + Environment.NewLine,
+                "SELECT [Computed]" + Environment.NewLine +
+                "FROM [dbo].[Ducks]" + Environment.NewLine +
+                "WHERE @@ROWCOUNT = 1 AND [Id] = @p0;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
         protected override void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "DECLARE @generated0 TABLE ([Id] int, [Computed] uniqueidentifier);" + Environment.NewLine +
                 "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
-                "OUTPUT INSERTED.[Id], INSERTED.[Computed]" + Environment.NewLine +
-                "INTO @generated0" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
-                "SELECT [Id], [Computed] FROM @generated0;" + Environment.NewLine,
+                "SELECT [Id], [Computed]" + Environment.NewLine +
+                "FROM [dbo].[Ducks]" + Environment.NewLine +
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
         protected override void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "DECLARE @generated0 TABLE ([Id] int);" + Environment.NewLine +
                 "INSERT INTO [dbo].[Ducks]" + Environment.NewLine +
-                "OUTPUT INSERTED.[Id]" + Environment.NewLine +
-                "INTO @generated0" + Environment.NewLine +
                 "DEFAULT VALUES;" + Environment.NewLine +
-                "SELECT [Id] FROM @generated0;" + Environment.NewLine,
+                "SELECT [Id]" + Environment.NewLine +
+                "FROM [dbo].[Ducks]" + Environment.NewLine +
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
         protected override void AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "DECLARE @generated0 TABLE ([Id] int);" + Environment.NewLine +
                 "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
-                "OUTPUT INSERTED.[Id]" + Environment.NewLine +
-                "INTO @generated0" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
-                "SELECT [Id] FROM @generated0;" + Environment.NewLine,
+                "SELECT [Id]" + Environment.NewLine +
+                "FROM [dbo].[Ducks]" + Environment.NewLine +
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
         protected override void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "DECLARE @generated0 TABLE ([Id] int, [Computed] uniqueidentifier);" + Environment.NewLine +
                 "INSERT INTO [dbo].[Ducks]" + Environment.NewLine +
-                "OUTPUT INSERTED.[Id], INSERTED.[Computed]" + Environment.NewLine +
-                "INTO @generated0" + Environment.NewLine +
                 "DEFAULT VALUES;" + Environment.NewLine +
-                "SELECT [Id], [Computed] FROM @generated0;" + Environment.NewLine,
+                "SELECT [Id], [Computed]" + Environment.NewLine +
+                "FROM [dbo].[Ducks]" + Environment.NewLine +
+                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
