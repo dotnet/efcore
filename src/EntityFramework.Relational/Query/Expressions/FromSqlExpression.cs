@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
     {
         public FromSqlExpression(
             [NotNull] string sql,
-            [NotNull] string argumentsParameterName,
+            [NotNull] Expression arguments,
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(
@@ -21,14 +21,14 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 Check.NotEmpty(alias, nameof(alias)))
         {
             Check.NotEmpty(sql, nameof(sql));
-            Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
+            Check.NotNull(arguments, nameof(arguments));
 
             Sql = sql;
-            ArgumentsParameterName = argumentsParameterName;
+            Arguments = arguments;
         }
 
         public virtual string Sql { get; }
-        public virtual string ArgumentsParameterName { get; }
+        public virtual Expression Arguments { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {

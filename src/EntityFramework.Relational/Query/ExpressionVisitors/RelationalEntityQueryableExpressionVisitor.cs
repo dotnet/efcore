@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 selectExpression.AddTable(
                     new FromSqlExpression(
                         fromSqlAnnotation.Sql,
-                        fromSqlAnnotation.ArgumentsParameterName,
+                        fromSqlAnnotation.Arguments,
                         tableAlias,
                         _querySource));
 
@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     querySqlGeneratorFunc = ()
                         => selectExpression.CreateFromSqlQuerySqlGenerator(
                             fromSqlAnnotation.Sql,
-                            fromSqlAnnotation.ArgumentsParameterName);
+                            fromSqlAnnotation.Arguments);
                 }
             }
 

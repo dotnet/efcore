@@ -6,13 +6,15 @@ using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
+using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
 {
+    // Test class for manual profiling work.
     public class Profile : IDisposable
     {
         private readonly OrdersContext _context;
-        private readonly IQueryable<object> _query;
+        //private readonly IQueryable<object> _query;
 
         public Profile()
         {
@@ -23,27 +25,33 @@ namespace EntityFramework.Microbenchmarks.Query
 
             //_query = _context.Products.AsNoTracking().Where(p => p.Retail < 15);
 
-            _query = _context.Products
-                .AsNoTracking()
-                .Select(p => new
-                {
-                    p.ProductId,
-                    p.Name,
-                    p.Description,
-                    p.SKU,
-                    p.Retail,
-                    p.CurrentPrice,
-                    p.ActualStockLevel
-                });
+            var product
+                = (from p in _context.Products
+                   from p2 in _context.Products
+                   select new { p, p2 })
+                    .Select(a => a.p.Name)
+                    .OrderBy(n => n)
+                    .AsNoTracking()
+                    .First();
 
-            _query.Load();
+            //_query.Load();
         }
 
+        //[Fact]
         public void Run()
         {
-            for (var i = 0; i < 2000; i++)
+            for (var i = 0; i < 1; i++)
             {
-                _query.Load();
+                var product
+                    = (from p in _context.Products
+                       from p2 in _context.Products
+                       select new { p, p2 })
+                        .Select(a => a.p.Name)
+                        .OrderBy(n => n)
+                        .AsNoTracking()
+                        .First();
+
+                Assert.NotNull(product);
             }
         }
 

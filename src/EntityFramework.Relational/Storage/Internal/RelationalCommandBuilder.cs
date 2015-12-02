@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -54,7 +55,11 @@ namespace Microsoft.Data.Entity.Storage.Internal
         {
             Check.NotNull(relationalParameter, nameof(relationalParameter));
 
-            _parameters.Add(relationalParameter);
+            if (relationalParameter.InvariantName == null
+                || _parameters.All(p => p.InvariantName != relationalParameter.InvariantName))
+            {
+                _parameters.Add(relationalParameter);
+            }
         }
 
         public virtual IRelationalCommand Build()

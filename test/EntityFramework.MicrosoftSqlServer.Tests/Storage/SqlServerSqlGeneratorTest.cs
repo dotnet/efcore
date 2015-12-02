@@ -21,7 +21,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
             var literal = CreateSqlGenerationHelper().GenerateLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.3710000'", literal);
+
+            Assert.Equal("'2015-03-12T13:36:37.371'", literal);
         }
 
         [Fact]
@@ -29,7 +30,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
             var literal = CreateSqlGenerationHelper().GenerateLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.3710000-07:00'", literal);
+
+            Assert.Equal("'2015-03-12T13:36:37.371-07:00'", literal);
         }
 
         [Fact]

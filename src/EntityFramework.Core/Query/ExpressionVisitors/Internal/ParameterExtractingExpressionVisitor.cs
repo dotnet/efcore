@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -35,6 +34,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         private readonly QueryContext _queryContext;
         private readonly ISensitiveDataLogger _logger;
 
+        private bool _inLambda;
+
         private ParameterExtractingExpressionVisitor(
             PartialEvaluationInfo partialEvaluationInfo,
             QueryContext queryContext,
@@ -45,152 +46,153 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _logger = logger;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (node.Method.IsGenericMethod
-                && ReferenceEquals(
-                    node.Method.GetGenericMethodDefinition(),
-                    EntityQueryModelVisitor.PropertyMethodInfo))
+            if (methodCallExpression.Method.DeclaringType == typeof(EF)
+                || methodCallExpression.Method.DeclaringType == typeof(DbContext))
             {
-                return node;
+                return methodCallExpression;
             }
 
-            node = ProcessNotParameterizableArguments(node);
+            var newMethodCallExpression = ProcessNotParameterizableArguments(methodCallExpression);
 
-            return base.VisitMethodCall(node);
+            return methodCallExpression != newMethodCallExpression
+                ? newMethodCallExpression
+                : base.VisitMethodCall(methodCallExpression);
         }
 
-        private static MethodCallExpression ProcessNotParameterizableArguments(MethodCallExpression methodCallExpression)
+        private MethodCallExpression ProcessNotParameterizableArguments(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsStatic
-                && (methodCallExpression.Method.DeclaringType != typeof(Queryable)))
+            var methodInfo = methodCallExpression.Method;
+
+            if (methodInfo.IsStatic
+                && methodInfo.DeclaringType != typeof(Queryable))
             {
-                var parameterInfos = methodCallExpression.Method.GetParameters();
+                ParameterInfo[] parameterInfos = null;
+                Expression[] newArguments = null;
 
-                Expression[] newArgs = null;
+                var arguments = methodCallExpression.Arguments;
 
-                for (var i = 0; i < parameterInfos.Length; i++)
+                for (var i = 0; i < arguments.Count; i++)
                 {
-                    if ((parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
-                        && !(methodCallExpression.Arguments[i] is ConstantExpression))
-                    {
-                        if (newArgs == null)
-                        {
-                            newArgs = new Expression[parameterInfos.Length];
+                    var argument = arguments[i];
+                    var newArgument = Visit(argument);
 
-                            for (var j = 0; j < i; j++)
-                            {
-                                newArgs[j] = methodCallExpression.Arguments[j];
-                            }
+                    if (newArgument != argument)
+                    {
+                        if (parameterInfos == null)
+                        {
+                            parameterInfos = methodInfo.GetParameters();
                         }
 
-                        string _;
-                        newArgs[i] = Expression.Constant(Evaluate(methodCallExpression.Arguments[i], out _));
+                        if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
+                        {
+                            var parameter = newArgument as ParameterExpression;
+
+                            if (parameter != null)
+                            {
+                                newArgument = Expression.Constant(_queryContext.RemoveParameter(parameter.Name));
+
+                                if (newArguments == null)
+                                {
+                                    newArguments = new Expression[arguments.Count];
+
+                                    for (var j = 0; j < i; j++)
+                                    {
+                                        newArguments[j] = arguments[j];
+                                    }
+                                }
+                            }
+                        }
                     }
-                    else if (newArgs != null)
+
+                    if (newArguments != null)
                     {
-                        newArgs[i] = methodCallExpression.Arguments[i];
+                        newArguments[i] = newArgument;
                     }
                 }
 
-                if (newArgs != null)
+                if (newArguments != null)
                 {
-                    methodCallExpression
-                        = methodCallExpression.Update(methodCallExpression.Object, newArgs);
+                    methodCallExpression = methodCallExpression.Update(methodCallExpression.Object, newArguments);
                 }
             }
+
             return methodCallExpression;
         }
 
-        public override Expression Visit(Expression node)
+        protected override Expression VisitMember(MemberExpression memberExpression)
+            => !_partialEvaluationInfo.IsEvaluatableExpression(memberExpression)
+                ? base.VisitMember(memberExpression)
+                : !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(memberExpression.Type.GetTypeInfo())
+                    ? TryExtractParameter(memberExpression)
+                    : memberExpression;
+
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+            => !_inLambda
+               && _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
+               && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(constantExpression.Type.GetTypeInfo())
+                ? TryExtractParameter(constantExpression)
+                : constantExpression;
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
         {
-            if (node == null)
+            var oldInLambda = _inLambda;
+
+            _inLambda = true;
+
+            try
             {
-                return null;
+                return base.VisitLambda(node);
             }
-
-            if ((node.NodeType == ExpressionType.Lambda)
-                || !_partialEvaluationInfo.IsEvaluatableExpression(node))
+            finally
             {
-                return base.Visit(node);
+                _inLambda = oldInLambda;
             }
-
-            var e = node;
-
-            if (node.NodeType == ExpressionType.Convert)
-            {
-                if (node.RemoveConvert() is ConstantExpression)
-                {
-                    return node;
-                }
-
-                var unaryExpression = (UnaryExpression)node;
-
-                if ((unaryExpression.Type.IsNullableType()
-                     && !unaryExpression.Operand.Type.IsNullableType())
-                    || (unaryExpression.Type == typeof(object)))
-                {
-                    e = unaryExpression.Operand;
-                }
-            }
-
-            if (!typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
-            {
-                var constantExpression = e as ConstantExpression;
-
-                if ((constantExpression == null)
-                    || (constantExpression.Value is IEnumerable && (constantExpression.Type != typeof(string)) && (constantExpression.Type != typeof(byte[]))))
-                {
-                    try
-                    {
-                        string parameterName;
-
-                        var parameterValue = Evaluate(e, out parameterName);
-
-                        if (parameterName == null)
-                        {
-                            parameterName = "p";
-                        }
-
-                        var compilerPrefixIndex
-                            = parameterName.LastIndexOf(">", StringComparison.Ordinal);
-
-                        if (compilerPrefixIndex != -1)
-                        {
-                            parameterName = parameterName.Substring(compilerPrefixIndex + 1);
-                        }
-
-                        parameterName
-                            = CompiledQueryCache.CompiledQueryParameterPrefix
-                              + parameterName
-                              + "_"
-                              + _queryContext.ParameterValues.Count;
-
-                        _queryContext.AddParameter(parameterName, parameterValue);
-
-                        return e.Type == node.Type
-                            ? Expression.Parameter(e.Type, parameterName)
-                            : (Expression)Expression.Convert(
-                                Expression.Parameter(e.Type, parameterName),
-                                node.Type);
-                    }
-                    catch (Exception exception)
-                    {
-                        throw new InvalidOperationException(
-                            _logger.LogSensitiveData
-                                ? CoreStrings.ExpressionParameterizationExceptionSensitive(node)
-                                : CoreStrings.ExpressionParameterizationException,
-                            exception);
-                    }
-                }
-            }
-
-            return node;
         }
 
-        public static object Evaluate(
-            [CanBeNull] Expression expression,
-            [CanBeNull] out string parameterName)
+        private Expression TryExtractParameter(Expression expression)
+        {
+            try
+            {
+                string parameterName;
+
+                var parameterValue = Evaluate(expression, out parameterName);
+
+                if (parameterName == null)
+                {
+                    parameterName = "p";
+                }
+
+                var compilerPrefixIndex
+                    = parameterName.LastIndexOf(">", StringComparison.Ordinal);
+
+                if (compilerPrefixIndex != -1)
+                {
+                    parameterName = parameterName.Substring(compilerPrefixIndex + 1);
+                }
+
+                parameterName
+                    = CompiledQueryCache.CompiledQueryParameterPrefix
+                      + parameterName
+                      + "_"
+                      + _queryContext.ParameterValues.Count;
+
+                _queryContext.AddParameter(parameterName, parameterValue);
+
+                return Expression.Parameter(expression.Type, parameterName);
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidOperationException(
+                    _logger.LogSensitiveData
+                        ? CoreStrings.ExpressionParameterizationExceptionSensitive(expression)
+                        : CoreStrings.ExpressionParameterizationException,
+                    exception);
+            }
+        }
+
+        public static object Evaluate([CanBeNull] Expression expression, [CanBeNull] out string parameterName)
         {
             parameterName = null;
 
@@ -203,58 +205,58 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             switch (expression.NodeType)
             {
                 case ExpressionType.MemberAccess:
+                {
+                    var memberExpression = (MemberExpression)expression;
+                    var @object = Evaluate(memberExpression.Expression, out parameterName);
+
+                    var fieldInfo = memberExpression.Member as FieldInfo;
+
+                    if (fieldInfo != null)
                     {
-                        var memberExpression = (MemberExpression)expression;
-                        var @object = Evaluate(memberExpression.Expression, out parameterName);
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + fieldInfo.Name
+                            : fieldInfo.Name;
 
-                        var fieldInfo = memberExpression.Member as FieldInfo;
-
-                        if (fieldInfo != null)
+                        try
                         {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + fieldInfo.Name
-                                : fieldInfo.Name;
-
-                            try
-                            {
-                                return fieldInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
+                            return fieldInfo.GetValue(@object);
                         }
-
-                        var propertyInfo = memberExpression.Member as PropertyInfo;
-
-                        if (propertyInfo != null)
+                        catch
                         {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + propertyInfo.Name
-                                : propertyInfo.Name;
-
-                            try
-                            {
-                                return propertyInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
+                            // Try again when we compile the delegate
                         }
-
-                        break;
                     }
+
+                    var propertyInfo = memberExpression.Member as PropertyInfo;
+
+                    if (propertyInfo != null)
+                    {
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + propertyInfo.Name
+                            : propertyInfo.Name;
+
+                        try
+                        {
+                            return propertyInfo.GetValue(@object);
+                        }
+                        catch
+                        {
+                            // Try again when we compile the delegate
+                        }
+                    }
+
+                    break;
+                }
                 case ExpressionType.Constant:
-                    {
-                        return ((ConstantExpression)expression).Value;
-                    }
+                {
+                    return ((ConstantExpression)expression).Value;
+                }
                 case ExpressionType.Call:
-                    {
-                        parameterName = ((MethodCallExpression)expression).Method.Name;
+                {
+                    parameterName = ((MethodCallExpression)expression).Method.Name;
 
-                        break;
-                    }
+                    break;
+                }
             }
 
             return Expression.Lambda<Func<object>>(

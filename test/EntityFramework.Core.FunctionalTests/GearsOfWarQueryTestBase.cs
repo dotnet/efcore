@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {

@@ -18,20 +18,20 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
         };
 
         private readonly string _sql;
-        private readonly string _argumentsParameterName;
+        private readonly Expression _arguments;
 
         public FromSqlExpressionNode(
             MethodCallExpressionParseInfo parseInfo,
             [NotNull] ConstantExpression sql,
-            [NotNull] ParameterExpression arguments)
+            [NotNull] Expression arguments)
             : base(parseInfo, null, null)
         {
             _sql = (string)sql.Value;
-            _argumentsParameterName = arguments.Name;
+            _arguments = arguments;
         }
 
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-            => new FromSqlResultOperator(_sql, _argumentsParameterName);
+            => new FromSqlResultOperator(_sql, _arguments);
 
         public override Expression Resolve(
             ParameterExpression inputParameter,

@@ -4,7 +4,7 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
@@ -28,20 +28,23 @@ namespace Microsoft.Data.Entity.Query
 
         protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
             => new CompiledQueryCacheKey(
-                new ExpressionStringBuilder().Build(Check.NotNull(query, nameof(query))),
+                Check.NotNull(query, nameof(query)),
                 _model,
                 _context.ChangeTracker.QueryTrackingBehavior,
                 async);
 
         protected struct CompiledQueryCacheKey
         {
-            private readonly string _query;
+            private static readonly ExpressionEqualityComparer _expressionEqualityComparer
+                = new ExpressionEqualityComparer();
+
+            private readonly Expression _query;
             private readonly IModel _model;
             private readonly QueryTrackingBehavior _queryTrackingBehavior;
             private readonly bool _async;
 
             public CompiledQueryCacheKey(
-                [NotNull] string query,
+                [NotNull] Expression query,
                 [NotNull] IModel model,
                 QueryTrackingBehavior queryTrackingBehavior,
                 bool async)
@@ -53,21 +56,22 @@ namespace Microsoft.Data.Entity.Query
             }
 
             public override bool Equals(object obj)
-                => !ReferenceEquals(null, obj) && obj is CompiledQueryCacheKey && Equals((CompiledQueryCacheKey)obj);
+            {
+                var other = (CompiledQueryCacheKey)obj;
 
-            private bool Equals(CompiledQueryCacheKey other)
-                => string.Equals(_query, other._query)
-                   && _model.Equals(other._model)
-                   && (_queryTrackingBehavior == other._queryTrackingBehavior)
-                   && (_async == other._async);
+                return ReferenceEquals(_model, other._model)
+                       && _queryTrackingBehavior == other._queryTrackingBehavior
+                       && _async == other._async
+                       && _expressionEqualityComparer.Equals(_query, other._query);
+            }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    var hashCode = _query.GetHashCode();
+                    var hashCode = _expressionEqualityComparer.GetHashCode(_query);
                     hashCode = (hashCode * 397) ^ _model.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _queryTrackingBehavior.GetHashCode();
+                    hashCode = (hashCode * 397) ^ (int)_queryTrackingBehavior;
                     hashCode = (hashCode * 397) ^ _async.GetHashCode();
                     return hashCode;
                 }

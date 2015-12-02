@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             if (selectExpression.IsProjectStar)
             {
                 _relationalCommandBuilder
-                    .Append(_sqlGeneratorHelper.DelimitIdentifier(selectExpression.Tables.Single().Alias))
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Tables.Single().Alias))
                     .Append(".*");
 
                 projectionAdded = true;
@@ -289,7 +289,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             using (_relationalCommandBuilder.Indent())
             {
-                GenerateFromSql(fromSqlExpression.Sql, fromSqlExpression.ArgumentsParameterName, _parametersValues);
+                GenerateFromSql(fromSqlExpression.Sql, fromSqlExpression.Arguments, _parametersValues);
             }
 
             _relationalCommandBuilder.Append(") AS ")
@@ -300,52 +300,121 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual void GenerateFromSql(
             [NotNull] string sql,
-            [NotNull] string argumentsParameterName,
+            [NotNull] Expression arguments,
             [NotNull] IReadOnlyDictionary<string, object> parameters)
         {
             Check.NotEmpty(sql, nameof(sql));
-            Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
+            Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(parameters, nameof(parameters));
 
-            object parameterValue;
+            string[] substitutions = null;
 
-            if (parameters.TryGetValue(argumentsParameterName, out parameterValue))
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (arguments.NodeType)
             {
-                var arguments = (object[])parameterValue;
-                var substitutions = new string[arguments.Length];
-                var relationalParameters = new IRelationalParameter[arguments.Length];
-
-                for (var i = 0; i < arguments.Length; i++)
+                case ExpressionType.Parameter:
                 {
-                    var parameterName = _parameterNameGenerator.GenerateNext();
+                    var parameterExpression = (ParameterExpression)arguments;
 
-                    substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                    object parameterValue;
+                    if (parameters.TryGetValue(parameterExpression.Name, out parameterValue))
+                    {
+                        var argumentValues = (object[])parameterValue;
+                        var relationalParameters = new IRelationalParameter[argumentValues.Length];
 
-                    var value = arguments[i];
+                        substitutions = new string[argumentValues.Length];
 
-                    relationalParameters[i]
-                        = _relationalCommandBuilder
-                            .CreateParameter(
-                                substitutions[i],
-                                value,
-                                t => t.GetMappingForValue(value),
-                                value?.GetType().IsNullableType(),
-                                parameterName);
+                        for (var i = 0; i < argumentValues.Length; i++)
+                        {
+                            var parameterName = _parameterNameGenerator.GenerateNext();
+
+                            substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+
+                            var value = argumentValues[i];
+
+                            relationalParameters[i]
+                                = _relationalCommandBuilder
+                                    .CreateParameter(
+                                        substitutions[i],
+                                        value,
+                                        t => t.GetMappingForValue(value),
+                                        value?.GetType().IsNullableType(),
+                                        parameterName);
+                        }
+
+                        _relationalCommandBuilder.AddParameter(
+                            new CompositeRelationalParameter(
+                                parameterExpression.Name,
+                                relationalParameters));
+                    }
+
+                    break;
                 }
+                case ExpressionType.Constant:
+                {
+                    var constantExpression = (ConstantExpression)arguments;
+                    var argumentValues = (object[])constantExpression.Value;
 
-                _relationalCommandBuilder.AddParameter(
-                    new CompositeRelationalParameter(
-                        argumentsParameterName,
-                        relationalParameters));
+                    substitutions = new string[argumentValues.Length];
 
-                _relationalCommandBuilder.AppendLines(
-                    // ReSharper disable once CoVariantArrayConversion
-                    string.Format(sql, substitutions));
+                    for (var i = 0; i < argumentValues.Length; i++)
+                    {
+                        substitutions[i] = SqlGenerator.GenerateLiteral(argumentValues[i]);
+                    }
+
+                    break;
+                }
+                case ExpressionType.NewArrayInit:
+                {
+                    var newArrayExpression = (NewArrayExpression)arguments;
+
+                    substitutions = new string[newArrayExpression.Expressions.Count];
+
+                    for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
+                    {
+                        var expression = newArrayExpression.Expressions[i].RemoveConvert();
+
+                        // ReSharper disable once SwitchStatementMissingSomeCases
+                        switch (expression.NodeType)
+                        {
+                            case ExpressionType.Constant:
+                            {
+                                substitutions[i]
+                                    = SqlGenerator
+                                        .GenerateLiteral(((ConstantExpression)expression).Value);
+
+                                break;
+                            }
+                            case ExpressionType.Parameter:
+                            {
+                                var parameter = (ParameterExpression)expression;
+
+                                object value;
+                                if (_parametersValues.TryGetValue(parameter.Name, out value))
+                                {
+                                    var parameterName = _sqlGenerationHelper.GenerateParameterName(parameter.Name);
+
+                                    substitutions[i] = parameterName;
+
+                                    _relationalCommandBuilder.AddParameter(parameterName, value, parameter.Name);
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+
+                    break;
+                }
             }
-            else
+
+            if (substitutions != null)
             {
-                _relationalCommandBuilder.AppendLines(sql);
+                // ReSharper disable once CoVariantArrayConversion
+                sql = string.Format(sql, substitutions);
             }
+
+            _relationalCommandBuilder.AppendLines(sql);
         }
 
         public virtual Expression VisitTable(TableExpression tableExpression)
@@ -499,9 +568,10 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (inValues.Count != inValuesNotNull.Count)
                 {
-                    var relationalNullsNotInExpression = Expression.AndAlso(
-                        Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
-                        Expression.Not(new IsNullExpression(inExpression.Operand)));
+                    var relationalNullsNotInExpression
+                        = Expression.AndAlso(
+                            Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
+                            Expression.Not(new IsNullExpression(inExpression.Operand)));
 
                     return Visit(relationalNullsNotInExpression);
                 }
@@ -534,7 +604,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         }
 
         protected virtual IReadOnlyList<Expression> ProcessInExpressionValues(
-            [NotNull] IReadOnlyList<Expression> inExpressionValues)
+            [NotNull] IEnumerable<Expression> inExpressionValues)
         {
             Check.NotNull(inExpressionValues, nameof(inExpressionValues));
 
@@ -543,35 +613,63 @@ namespace Microsoft.Data.Entity.Query.Sql
             foreach (var inValue in inExpressionValues)
             {
                 var inConstant = inValue as ConstantExpression;
+
                 if (inConstant != null)
                 {
-                    inConstants.Add(inConstant);
-                    continue;
+                    AddInExpressionValues(inConstant.Value, inConstants, inConstant);
                 }
-
-                var inParameter = inValue as ParameterExpression;
-                if (inParameter != null)
+                else
                 {
-                    object parameterValue;
-                    if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
-                    {
-                        var valuesCollection = parameterValue as IEnumerable;
+                    var inParameter = inValue as ParameterExpression;
 
-                        if (valuesCollection != null
-                            && parameterValue.GetType() != typeof(string)
-                            && parameterValue.GetType() != typeof(byte[]))
+                    if (inParameter != null)
+                    {
+                        object parameterValue;
+                        if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
                         {
-                            inConstants.AddRange(valuesCollection.Cast<object>().Select(Expression.Constant));
+                            AddInExpressionValues(parameterValue, inConstants, inParameter);
+                        }
+                    }
+                    else
+                    {
+                        var inListInit = inValue as ListInitExpression;
+
+                        if (inListInit != null)
+                        {
+                            inConstants.AddRange(ProcessInExpressionValues(
+                                inListInit.Initializers.SelectMany(i => i.Arguments)));
                         }
                         else
                         {
-                            inConstants.Add(inParameter);
+                            var newArray = inValue as NewArrayExpression;
+
+                            if (newArray != null)
+                            {
+                                inConstants.AddRange(ProcessInExpressionValues(newArray.Expressions));
+                            }
                         }
                     }
                 }
             }
 
             return inConstants;
+        }
+
+        private static void AddInExpressionValues(
+            object value, List<Expression> inConstants, Expression expression)
+        {
+            var valuesEnumerable = value as IEnumerable;
+
+            if (valuesEnumerable != null
+                && value.GetType() != typeof(string)
+                && value.GetType() != typeof(byte[]))
+            {
+                inConstants.AddRange(valuesEnumerable.Cast<object>().Select(Expression.Constant));
+            }
+            else
+            {
+                inConstants.Add(expression);
+            }
         }
 
         protected virtual IReadOnlyList<Expression> ExtractNonNullExpressionValues(
@@ -974,14 +1072,12 @@ namespace Microsoft.Data.Entity.Query.Sql
             Check.NotNull(expression, nameof(expression));
 
             object value;
-            if (!_parametersValues.TryGetValue(expression.Name, out value))
+            if (_parametersValues.TryGetValue(expression.Name, out value))
             {
-                value = string.Empty;
+                var name = _sqlGenerationHelper.GenerateParameterName(expression.Name);
+
+                _relationalCommandBuilder.AppendParameter(name, value, expression.Type, expression.Name);
             }
-
-            var name = _sqlGenerationHelper.GenerateParameterName(expression.Name);
-
-            _relationalCommandBuilder.AppendParameter(name, value, expression.Type, expression.Name);
 
             return expression;
         }
@@ -1008,9 +1104,12 @@ namespace Microsoft.Data.Entity.Query.Sql
                 if (expression.NodeType == ExpressionType.Equal
                     || expression.NodeType == ExpressionType.NotEqual)
                 {
+                    var leftExpression = expression.Left.RemoveConvert();
+                    var rightExpression = expression.Right.RemoveConvert();
+
                     var parameter
-                        = expression.Right as ParameterExpression
-                          ?? expression.Left as ParameterExpression;
+                        = rightExpression as ParameterExpression
+                          ?? leftExpression as ParameterExpression;
 
                     object parameterValue;
                     if (parameter != null
@@ -1018,8 +1117,8 @@ namespace Microsoft.Data.Entity.Query.Sql
                         && parameterValue == null)
                     {
                         var columnExpression
-                            = expression.Left.RemoveConvert().TryGetColumnExpression()
-                              ?? expression.Right.RemoveConvert().TryGetColumnExpression();
+                            = leftExpression.TryGetColumnExpression()
+                              ?? rightExpression.TryGetColumnExpression();
 
                         if (columnExpression != null)
                         {

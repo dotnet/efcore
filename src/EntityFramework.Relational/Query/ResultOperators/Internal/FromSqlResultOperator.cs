@@ -13,23 +13,23 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
 {
     public class FromSqlResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
-        public FromSqlResultOperator([NotNull] string sql, [NotNull] string argumentsParameterName)
+        public FromSqlResultOperator([NotNull] string sql, [NotNull] Expression arguments)
         {
             Sql = sql;
-            ArgumentsParameterName = argumentsParameterName;
+            Arguments = arguments;
         }
 
-        public virtual IQuerySource QuerySource { get; [NotNull] set; }
+        public virtual IQuerySource QuerySource { get;[NotNull] set; }
         public virtual QueryModel QueryModel { get; set; }
 
         public virtual string Sql { get; }
 
-        public virtual string ArgumentsParameterName { get; }
+        public virtual Expression Arguments { get; }
 
         public override string ToString() => $"FromSql('{Sql}')";
 
         public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
-            => new FromSqlResultOperator(Sql, ArgumentsParameterName);
+            => new FromSqlResultOperator(Sql, Arguments);
 
         public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
         {

@@ -49,6 +49,17 @@ namespace Microsoft.Data.Entity.Query
             _parameterValues.Add(name, value);
         }
 
+        public virtual object RemoveParameter([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var value = _parameterValues[name];
+
+            _parameterValues.Remove(name);
+
+            return value;
+        }
+
         public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
 
         public virtual void StartTracking(

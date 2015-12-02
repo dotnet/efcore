@@ -122,7 +122,9 @@ WHERE [e].[Title] = (
             base.Select_Subquery_Single();
 
             Assert.Equal(
-                @"SELECT TOP(2) [od].[OrderID]
+                @"@__p_0: 2
+
+SELECT TOP(@__p_0) [od].[OrderID]
 FROM [Order Details] AS [od]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -170,9 +172,11 @@ FROM [Customers] AS [c]",
             base.Where_subquery_anon();
 
             Assert.Equal(
-                @"SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+                @"@__p_0: 9
+
+SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
-    SELECT TOP(9) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [t0]
 CROSS JOIN (
@@ -776,10 +780,12 @@ FROM (
             base.Skip();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__p_0: 5
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
-OFFSET 5 ROWS",
+OFFSET @__p_0 ROWS",
                 Sql);
         }
 
@@ -790,10 +796,12 @@ OFFSET 5 ROWS",
             base.Skip_no_orderby();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__p_0: 5
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY @@ROWCOUNT
-OFFSET 5 ROWS",
+OFFSET @__p_0 ROWS",
                 Sql);
         }
 
@@ -804,10 +812,13 @@ OFFSET 5 ROWS",
             base.Skip_Take();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__p_0: 5
+@__p_1: 10
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName]
-OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
                 Sql);
         }
 
@@ -818,11 +829,14 @@ OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
             base.Join_Customers_Orders_Skip_Take();
 
             Assert.Equal(
-                @"SELECT [c].[ContactName], [o].[OrderID]
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [c].[ContactName], [o].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
-OFFSET 10 ROWS FETCH NEXT 5 ROWS ONLY",
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
                 Sql);
         }
 
@@ -833,11 +847,14 @@ OFFSET 10 ROWS FETCH NEXT 5 ROWS ONLY",
             base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take();
 
             Assert.Equal(
-                @"SELECT ([c].[ContactName] + ' ') + [c].[ContactTitle], [o].[OrderID]
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT ([c].[ContactName] + ' ') + [c].[ContactTitle], [o].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
-OFFSET 10 ROWS FETCH NEXT 5 ROWS ONLY",
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
                 Sql);
         }
 
@@ -848,14 +865,17 @@ OFFSET 10 ROWS FETCH NEXT 5 ROWS ONLY",
             base.Take_Skip();
 
             Assert.Equal(
-                @"SELECT [t0].*
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [t0].*
 FROM (
-    SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
 ) AS [t0]
 ORDER BY [t0].[ContactName]
-OFFSET 5 ROWS",
+OFFSET @__p_1 ROWS",
                 Sql);
         }
 
@@ -866,16 +886,58 @@ OFFSET 5 ROWS",
             base.Take_Skip_Distinct();
 
             Assert.Equal(
-                @"SELECT DISTINCT [t1].*
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT DISTINCT [t1].*
 FROM (
     SELECT [t0].*
     FROM (
-        SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [t0]
     ORDER BY [t0].[ContactName]
-    OFFSET 5 ROWS
+    OFFSET @__p_1 ROWS
+) AS [t1]",
+                Sql);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Take_Skip_Distinct_Caching()
+        {
+            base.Take_Skip_Distinct_Caching();
+
+            Assert.Equal(
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT DISTINCT [t1].*
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[ContactName]
+    ) AS [t0]
+    ORDER BY [t0].[ContactName]
+    OFFSET @__p_1 ROWS
+) AS [t1]
+
+@__p_0: 15
+@__p_1: 10
+
+SELECT DISTINCT [t1].*
+FROM (
+    SELECT [t0].*
+    FROM (
+        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[ContactName]
+    ) AS [t0]
+    ORDER BY [t0].[ContactName]
+    OFFSET @__p_1 ROWS
 ) AS [t1]",
                 Sql);
         }
@@ -890,9 +952,11 @@ FROM (
             base.Take_Distinct_Count();
 
             Assert.Equal(
-                @"SELECT COUNT(*)
+                @"@__p_0: 5
+
+SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
 ) AS [t0]",
                 Sql);
@@ -903,9 +967,11 @@ FROM (
             base.Take_Where_Distinct_Count();
 
             Assert.Equal(
-                @"SELECT COUNT(*)
+                @"@__p_0: 5
+
+SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = 'FRANK'
 ) AS [t0]",
@@ -947,9 +1013,11 @@ FROM [Customers] AS [c3]",
             base.Queryable_simple_anonymous_projection_subquery();
 
             Assert.Equal(
-                @"SELECT [t0].[City]
+                @"@__p_0: 91
+
+SELECT [t0].[City]
 FROM (
-    SELECT TOP(91) [c].*
+    SELECT TOP(@__p_0) [c].*
     FROM [Customers] AS [c]
 ) AS [t0]",
                 Sql);
@@ -960,7 +1028,9 @@ FROM (
             base.Queryable_simple_anonymous_subquery();
 
             Assert.Equal(
-                @"SELECT TOP(91) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__p_0: 91
+
+SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -970,7 +1040,22 @@ FROM [Customers] AS [c]",
             base.Take_simple();
 
             Assert.Equal(
-                @"SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__p_0: 10
+
+SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Take_simple_parameterized()
+        {
+            base.Take_simple_parameterized();
+
+            Assert.Equal(
+                @"@__p_0: 10
+
+SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 Sql);
@@ -981,7 +1066,9 @@ ORDER BY [c].[CustomerID]",
             base.Take_simple_projection();
 
             Assert.Equal(
-                @"SELECT TOP(10) [c].[City]
+                @"@__p_0: 10
+
+SELECT TOP(@__p_0) [c].[City]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]",
                 Sql);
@@ -992,9 +1079,11 @@ ORDER BY [c].[CustomerID]",
             base.Take_subquery_projection();
 
             Assert.Equal(
-                @"SELECT [t0].[City]
+                @"@__p_0: 2
+
+SELECT [t0].[City]
 FROM (
-    SELECT TOP(2) [c].*
+    SELECT TOP(@__p_0) [c].*
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t0]",
@@ -1006,9 +1095,11 @@ FROM (
             base.OrderBy_Take_Count();
 
             Assert.Equal(
-                @"SELECT COUNT(*)
+                @"@__p_0: 5
+
+SELECT COUNT(*)
 FROM (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t0]",
@@ -1020,9 +1111,11 @@ FROM (
             base.Take_OrderBy_Count();
 
             Assert.Equal(
-                @"SELECT COUNT(*)
+                @"@__p_0: 5
+
+SELECT COUNT(*)
 FROM (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
 ) AS [t0]",
                 Sql);
@@ -1146,9 +1239,11 @@ FROM [Customers] AS [c]",
             base.Select_scalar_primitive_after_take();
 
             Assert.Equal(
-                @"SELECT [t0].[EmployeeID]
+                @"@__p_0: 9
+
+SELECT [t0].[EmployeeID]
 FROM (
-    SELECT TOP(9) [e].*
+    SELECT TOP(@__p_0) [e].*
     FROM [Employees] AS [e]
 ) AS [t0]",
                 Sql);
@@ -1416,11 +1511,11 @@ WHERE 1 = 0",
             base.Where_equals_using_int_overload_on_mismatched_types();
 
             Assert.Equal(
-                @"@__p_0: 1
+                @"@__shortPrm_0: 1
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__p_0",
+WHERE [e].[EmployeeID] = @__shortPrm_0",
                 Sql);
         }
 
@@ -1817,9 +1912,11 @@ FROM [Customers] AS [c]",
             base.SelectMany_simple_subquery();
 
             Assert.Equal(
-                @"SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__p_0: 9
+
+SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT TOP(9) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [t0]
 CROSS JOIN [Customers] AS [c]",
@@ -2038,10 +2135,12 @@ FROM [Customers] AS [c]",
             base.Join_customers_orders_with_subquery_with_take();
 
             Assert.Equal(
-                @"SELECT [c].[ContactName], [t0].[OrderID]
+                @"@__p_0: 5
+
+SELECT [c].[ContactName], [t0].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT TOP(5) [o2].*
+    SELECT TOP(@__p_0) [o2].*
     FROM [Orders] AS [o2]
     ORDER BY [o2].[OrderID]
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
@@ -2068,7 +2167,9 @@ FROM [Customers] AS [c]",
             base.Join_customers_orders_with_subquery_anonymous_property_method_with_take();
 
             Assert.Equal(
-                @"SELECT TOP(5) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+                @"@__p_0: 5
+
+SELECT TOP(@__p_0) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]
 ORDER BY [o2].[OrderID]
 
@@ -2097,10 +2198,12 @@ FROM [Customers] AS [c]",
             base.Join_customers_orders_with_subquery_predicate_with_take();
 
             Assert.Equal(
-                @"SELECT [c].[ContactName], [t0].[OrderID]
+                @"@__p_0: 5
+
+SELECT [c].[ContactName], [t0].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT TOP(5) [o2].*
+    SELECT TOP(@__p_0) [o2].*
     FROM [Orders] AS [o2]
     WHERE [o2].[OrderID] > 0
     ORDER BY [o2].[OrderID]
@@ -2335,10 +2438,12 @@ ORDER BY [c].[City], [c].[CustomerID]",
             base.GroupJoin_simple_subquery();
 
             Assert.Equal(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+                @"@__p_0: 4
+
+SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT TOP(4) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
@@ -2404,9 +2509,11 @@ CROSS APPLY (
             base.Take_with_single();
 
             Assert.Equal(
-                @"SELECT TOP(2) [t0].*
+                @"@__p_0: 1
+
+SELECT TOP(2) [t0].*
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t0]",
@@ -2418,9 +2525,11 @@ FROM (
             base.Take_with_single_select_many();
 
             Assert.Equal(
-                @"SELECT TOP(2) [t0].*
+                @"@__p_0: 1
+
+SELECT TOP(2) [t0].*
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID] AS [c0], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID] AS [c0], [o].[EmployeeID], [o].[OrderDate]
     FROM [Customers] AS [c]
     CROSS JOIN [Orders] AS [o]
     ORDER BY [c].[CustomerID], [o].[OrderID]
@@ -2577,7 +2686,9 @@ ORDER BY [t0].[CustomerID]",
             base.Take_Distinct();
 
             Assert.Equal(
-                @"SELECT DISTINCT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"@__p_0: 5
+
+SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]",
                 Sql);
@@ -2681,9 +2792,11 @@ WHERE 1 = 0",
             base.Where_primitive();
 
             Assert.Equal(
-                @"SELECT [t0].[EmployeeID]
+                @"@__p_0: 9
+
+SELECT [t0].[EmployeeID]
 FROM (
-    SELECT TOP(9) [e].[EmployeeID]
+    SELECT TOP(@__p_0) [e].[EmployeeID]
     FROM [Employees] AS [e]
 ) AS [t0]
 WHERE [t0].[EmployeeID] = 5",
@@ -3817,11 +3930,9 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
             base.Where_chain();
 
             Assert.Equal(
-                @"@__p_0: 01/01/1998 00:00:00
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'QUICK') AND ([o].[OrderDate] > @__p_0)",
+WHERE ([o].[CustomerID] = 'QUICK') AND ([o].[OrderDate] > '1998-01-01T00:00:00.000')",
                 Sql);
         }
 
@@ -3928,9 +4039,17 @@ WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
             base.Contains_with_local_list_inline_closure_mix();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__id_0: ALFKI
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN ('ABCDE', 'ALFKI')",
+WHERE [c].[CustomerID] IN ('ABCDE', @__id_0)
+
+@__id_0: ANATR
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN ('ABCDE', @__id_0)",
                 Sql);
         }
 
@@ -4049,26 +4168,33 @@ WHERE COALESCE([c].[CompanyName], [c].[ContactName]) = 'The Big Cheese'",
         {
             base.Take_skip_null_coalesce_operator();
 
-            Assert.Equal(@"SELECT DISTINCT [t1].*
+            Assert.Equal(@"@__p_0: 10
+@__p_1: 5
+
+SELECT DISTINCT [t1].*
 FROM (
     SELECT [t0].*
     FROM (
-        SELECT TOP(10) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY COALESCE([c].[Region], 'ZZ')
     ) AS [t0]
     ORDER BY COALESCE([t0].[Region], 'ZZ')
-    OFFSET 5 ROWS
-) AS [t1]", Sql);
+    OFFSET @__p_1 ROWS
+) AS [t1]", 
+                Sql);
         }
 
         public override void Select_take_null_coalesce_operator()
         {
             base.Select_take_null_coalesce_operator();
 
-            Assert.Equal(@"SELECT TOP(5) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
+            Assert.Equal(@"@__p_0: 5
+
+SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
 FROM [Customers] AS [c]
-ORDER BY [Coalesce]", Sql);
+ORDER BY [Coalesce]", 
+                Sql);
         }
 
         [ConditionalFact]
@@ -4078,14 +4204,17 @@ ORDER BY [Coalesce]", Sql);
             base.Select_take_skip_null_coalesce_operator();
 
             Assert.Equal(
-                @"SELECT [t0].*
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [t0].*
 FROM (
-    SELECT TOP(10) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
     FROM [Customers] AS [c]
     ORDER BY [Coalesce]
 ) AS [t0]
 ORDER BY [Coalesce]
-OFFSET 5 ROWS",
+OFFSET @__p_1 ROWS",
                 Sql);
         }
 

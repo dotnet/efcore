@@ -68,6 +68,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Take_simple_parameterized()
+        {
+            var take = 10;
+
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(take),
+                assertOrder: true,
+                entryCount: 10);
+        }
+
+        [Fact]
         public virtual void Take_simple_projection()
         {
             AssertQuery<Customer>(
@@ -178,6 +189,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct(),
+                entryCount: 5);
+        }
+
+        [Fact]
+        public virtual void Take_Skip_Distinct_Caching()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct(),
+                entryCount: 5);
+
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.ContactName).Take(15).Skip(10).Distinct(),
                 entryCount: 5);
         }
 
@@ -4032,15 +4055,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Contains_with_local_list_inline_closure_mix()
         {
-            var alfki = "ALFKI";
+            var id = "ALFKI";
+
             AssertQuery<Customer>(cs =>
-                cs.Where(c => new List<string> { "ABCDE", alfki }.Contains(c.CustomerID)), entryCount: 1);
+                cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
+
+            id = "ANATR";
+
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [Fact]
         public virtual void Contains_with_local_collection_false()
         {
             string[] ids = { "ABCDE", "ALFKI" };
+
             AssertQuery<Customer>(cs =>
                 cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
         }
@@ -4049,6 +4079,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Contains_with_local_collection_complex_predicate_and()
         {
             string[] ids = { "ABCDE", "ALFKI" };
+
             AssertQuery<Customer>(cs =>
                 cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
         }
@@ -4057,6 +4088,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Contains_with_local_collection_complex_predicate_or()
         {
             string[] ids = { "ABCDE", "ALFKI" };
+
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
@@ -4065,6 +4097,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins1()
         {
             string[] ids = { "ABCDE", "ALFKI" };
+
             AssertQuery<Customer>(cs =>
                 cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)), entryCount: 91);
         }
@@ -4073,6 +4106,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins2()
         {
             string[] ids = { "ABCDE", "ALFKI" };
+
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")));
         }
@@ -4081,6 +4115,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Contains_with_local_collection_sql_injection()
         {
             string[] ids = { "ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --" };
+
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
@@ -4088,7 +4123,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Contains_with_local_collection_empty_closure()
         {
-            string[] ids = new string[0];
+            var ids = new string[0];
 
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)));

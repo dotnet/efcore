@@ -495,28 +495,33 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 if (contains != null)
                 {
-                    var parameter = subQueryModel.MainFromClause.FromExpression as ParameterExpression;
-                    if (parameter != null)
+                    var fromExpression = subQueryModel.MainFromClause.FromExpression;
+
+                    if (fromExpression.NodeType == ExpressionType.Parameter
+                        || fromExpression.NodeType == ExpressionType.Constant
+                        || fromExpression.NodeType == ExpressionType.ListInit
+                        || fromExpression.NodeType == ExpressionType.NewArrayInit)
                     {
                         var memberItem = contains.Item as MemberExpression;
+
                         if (memberItem != null)
                         {
                             var aliasExpression = (AliasExpression)VisitMember(memberItem);
 
-                            return new InExpression(aliasExpression, new[] { parameter });
+                            return new InExpression(aliasExpression, new[] { fromExpression });
                         }
 
                         var methodCallItem = contains.Item as MethodCallExpression;
-                        if (methodCallItem != null 
-                            && methodCallItem.Method.IsGenericMethod 
+
+                        if (methodCallItem != null
+                            && methodCallItem.Method.IsGenericMethod
                             && methodCallItem.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo)
                         {
                             var aliasExpression = (AliasExpression)VisitMethodCall(methodCallItem);
 
-                            return new InExpression(aliasExpression, new[] { parameter });
+                            return new InExpression(aliasExpression, new[] { fromExpression });
                         }
                     }
-
                 }
             }
             else if (!(subQueryModel.GetOutputDataInfo() is StreamedSequenceInfo))

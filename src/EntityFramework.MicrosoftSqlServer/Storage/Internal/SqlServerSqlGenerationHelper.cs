@@ -12,6 +12,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
     {
         public override string BatchTerminator => "GO" + Environment.NewLine + Environment.NewLine;
 
+        protected override string DateTimeFormat => "yyyy-MM-ddTHH:mm:ss.fffK";
+        protected override string DateTimeOffsetFormat => "yyyy-MM-ddTHH:mm:ss.fffzzz";
+        
         public override string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
 

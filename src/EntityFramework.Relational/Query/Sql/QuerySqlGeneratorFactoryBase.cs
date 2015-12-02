@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Sql.Internal;
@@ -34,13 +35,13 @@ namespace Microsoft.Data.Entity.Query.Sql
         public virtual IQuerySqlGenerator CreateFromSql(
             SelectExpression selectExpression,
             string sql,
-            string argumentsParameterName)
+            Expression arguments)
             => new FromSqlNonComposedQuerySqlGenerator(
                 CommandBuilderFactory,
                 SqlGenerationHelper,
                 ParameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)),
                 Check.NotEmpty(sql, nameof(sql)),
-                Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName)));
+                Check.NotNull(arguments, nameof(arguments)));
     }
 }

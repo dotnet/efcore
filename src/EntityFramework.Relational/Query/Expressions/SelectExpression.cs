@@ -767,12 +767,12 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual IQuerySqlGenerator CreateFromSqlQuerySqlGenerator(
             [NotNull] string sql,
-            [NotNull] string argumentsParameterName)
+            [NotNull] Expression arguments)
             => _querySqlGeneratorFactory
                 .CreateFromSql(
                     this,
                     Check.NotEmpty(sql, nameof(sql)),
-                    Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName)));
+                    Check.NotNull(arguments, nameof(arguments)));
 
         public override string ToString()
             => CreateDefaultQuerySqlGenerator()

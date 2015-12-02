@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -258,7 +259,9 @@ namespace Microsoft.Data.Entity.Query
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Skip
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
-                entityQueryModelVisitor.Expression, skipResultOperator.Count);
+                entityQueryModelVisitor.Expression,
+                new DefaultQueryExpressionVisitor(entityQueryModelVisitor)
+                    .Visit(skipResultOperator.Count));
 
         private static Expression HandleSum(EntityQueryModelVisitor entityQueryModelVisitor)
             => HandleAggregate(entityQueryModelVisitor, "Sum");
@@ -268,7 +271,9 @@ namespace Microsoft.Data.Entity.Query
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Take
                     .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
-                entityQueryModelVisitor.Expression, takeResultOperator.Count);
+                entityQueryModelVisitor.Expression,
+                new DefaultQueryExpressionVisitor(entityQueryModelVisitor)
+                    .Visit(takeResultOperator.Count));
 
         private static Expression HandleAggregate(EntityQueryModelVisitor entityQueryModelVisitor, string methodName)
             => CallWithPossibleCancellationToken(

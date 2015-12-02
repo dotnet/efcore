@@ -285,6 +285,7 @@
     <Compile Include="Query\ExpressionVisitors\IQuerySourceTracingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IRequiresMaterializationExpressionVisitorFactory.cs" />
     <Compile Include="Query\IEntityQueryModelVisitorFactory.cs" />
+    <Compile Include="Query\Internal\ExpressionEqualityComparer.cs" />
     <Compile Include="Query\Internal\Grouping.cs" />
     <Compile Include="Query\Internal\IEntityTrackingInfoFactory.cs" />
     <Compile Include="Query\ICompiledQueryCacheKeyGenerator.cs" />
@@ -307,7 +308,6 @@
     <Compile Include="Query\ExpressionVisitors\IOrderingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IEntityQueryableExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\ISubQueryMemberPushDownExpressionVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\Internal\ExpressionStringBuilder.cs" />
     <Compile Include="Query\ExpressionVisitors\ExpressionVisitorBase.cs" />
     <Compile Include="Query\IQueryCompilationContextFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\NavigationRewritingExpressionVisitor.cs" />

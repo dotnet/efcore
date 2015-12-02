@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
     public class FromSqlNonComposedQuerySqlGenerator : DefaultQuerySqlGenerator
     {
         private readonly string _sql;
-        private readonly string _argumentsParameterName;
+        private readonly Expression _arguments;
 
         public FromSqlNonComposedQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
-            [NotNull] string argumentsParameterName)
+            [NotNull] Expression arguments)
             : base(
                 Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory)),
                 Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper)),
@@ -32,15 +32,15 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
                 Check.NotNull(selectExpression, nameof(selectExpression)))
         {
             Check.NotEmpty(sql, nameof(sql));
-            Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
+            Check.NotNull(arguments, nameof(arguments));
 
             _sql = sql;
-            _argumentsParameterName = argumentsParameterName;
+            _arguments = arguments;
         }
 
         public override Expression Visit(Expression expression)
         {
-            GenerateFromSql(_sql, _argumentsParameterName, ParameterValues);
+            GenerateFromSql(_sql, _arguments, ParameterValues);
 
             return expression;
         }

@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(RelationalStrings.ClientEvalDisabled("from Int32 i in __p_0"),
+                Assert.Equal(RelationalStrings.ClientEvalDisabled("from Int32 i in value(System.Int32[])"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from c1 in context.Customers

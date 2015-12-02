@@ -198,6 +198,24 @@ FROM ""Customers""")
                 Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
             }
         }
+        
+        [Fact]
+        public virtual void From_sql_queryable_with_parameters_inline()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Customer>()
+                    .FromSql(
+                        @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}",
+                        "London",
+                        "Sales Representative")
+                    .ToArray();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
 
         [Fact]
         public virtual void From_sql_queryable_with_null_parameter()

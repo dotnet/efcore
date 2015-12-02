@@ -408,7 +408,6 @@ namespace Microsoft.Data.Entity.Query
             bool querySourceRequiresTracking)
         {
             // template method
-
             throw new NotImplementedException(CoreStrings.IncludeNotImplemented);
         }
 
