@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         public virtual string OutputPath { get;[param: CanBeNull] set; }
         public virtual TableSelectionSet TableSelectionSet { get;[param: CanBeNull] set; }
         public virtual bool UseFluentApiOnly { get; set; }
+        public virtual bool Force { get; set; }
 
         public virtual void CheckValidity()
         {

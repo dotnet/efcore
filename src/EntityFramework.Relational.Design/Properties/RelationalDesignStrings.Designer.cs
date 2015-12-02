@@ -108,6 +108,14 @@ namespace Microsoft.Data.Entity.Internal
             get { return GetString("MissingUseProviderMethodNameAnnotation"); }
         }
 
+        /// <summary>
+        /// The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.
+        /// </summary>
+        public static string ExistingFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object existingFiles)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ExistingFiles", "outputDirectoryName", "existingFiles"), outputDirectoryName, existingFiles);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -157,6 +157,10 @@ namespace Microsoft.Data.Entity.Commands
                             var dbContextClassName = scaffold.Option(
                                 "-c|--context <name>",
                                 "Name of the generated DbContext class.");
+                            var force = scaffold.Option(
+                                "-f|--force",
+                                "Force scaffolding to overwrite existing files. Otherwise, the code will only proceed if no output files would be overwritten.",
+                                CommandOptionType.NoValue);
                             var outputDir = scaffold.Option(
                                 "-o|--output-dir <path>",
                                 "Directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
@@ -214,6 +218,7 @@ namespace Microsoft.Data.Entity.Commands
                                             schemaFilters.Values,
                                             tableFilters.Values,
                                             useDataAnnotations.HasValue(),
+                                            force.HasValue(),
                                             cancellationTokenSource.Token);
                                 });
                         });
@@ -655,13 +660,15 @@ namespace Microsoft.Data.Entity.Commands
                 [CanBeNull] List<string> schemaFilters,
                 [CanBeNull] List<string> tableFilters,
                 bool useDataAnnotations,
+                bool force,
                 CancellationToken cancellationToken = default(CancellationToken))
                 => ExecuteAsync(
                     async () =>
                     {
                         await _databaseOperations.Value.ReverseEngineerAsync(
                             providerAssemblyName, connectionString, outputDirectory,
-                            dbContextClassName, schemaFilters, tableFilters, useDataAnnotations);
+                            dbContextClassName, schemaFilters, tableFilters,
+                            useDataAnnotations, force);
 
                         _logger.Value.LogInformation("Done");
                     });
