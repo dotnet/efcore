@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         }
 
         public override bool IsEnabled(LogLevel logLevel) =>
-            base.IsEnabled(logLevel) && (logLevel > LogLevel.Verbose || _verbose);
+            base.IsEnabled(logLevel) && (logLevel > LogLevel.Debug || _verbose);
 
         protected override void WriteError(string message)
             => _ansiConsole.WriteLine("\x1b[1m\x1b[31m" + message + "\x1b[22m\x1b[39m");
@@ -33,10 +33,10 @@ namespace Microsoft.Data.Entity.Design.Internal
         protected override void WriteInformation(string message)
             => _ansiConsole.WriteLine("\x1b[37m" + message + "\x1b[39m");
 
-        protected override void WriteVerbose(string message)
+        protected override void WriteDebug(string message)
             => _ansiConsole.WriteLine("\x1b[1m\x1b[30m" + message + "\x1b[22m\x1b[39m");
 
-        protected override void WriteDebug(string message) => WriteVerbose(message);
+        protected override void WriteTrace(string message) => WriteDebug(message);
     }
 }
 

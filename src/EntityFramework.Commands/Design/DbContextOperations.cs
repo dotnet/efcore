@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Design
         public virtual DbContext CreateContext([CanBeNull] string contextType)
         {
             var context = FindContextType(contextType).Value();
-            _logger.Value.LogVerbose(CommandsStrings.LogUseContext(context.GetType().Name));
+            _logger.Value.LogDebug(CommandsStrings.LogUseContext(context.GetType().Name));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Design
 
         private IDictionary<Type, Func<DbContext>> FindContextTypes()
         {
-            _logger.Value.LogVerbose(CommandsStrings.LogFindingContexts);
+            _logger.Value.LogDebug(CommandsStrings.LogFindingContexts);
 
             var startupAssembly = Assembly.Load(new AssemblyName(_startupAssemblyName));
             var contexts = new Dictionary<Type, Func<DbContext>>();

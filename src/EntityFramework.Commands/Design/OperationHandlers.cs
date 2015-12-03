@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Design
         void WriteError(string message);
         void WriteWarning(string message);
         void WriteInformation(string message);
-        void WriteVerbose(string message);
         void WriteDebug(string message);
+        void WriteTrace(string message);
     }
 #endif
 
@@ -84,8 +84,8 @@ namespace Microsoft.Data.Entity.Design
         private readonly Action<string> _writeError;
         private readonly Action<string> _writeWarning;
         private readonly Action<string> _writeInformation;
-        private readonly Action<string> _writeVerbose;
         private readonly Action<string> _writeDebug;
+        private readonly Action<string> _writeTrace;
 
         public virtual int Version
         {
@@ -96,14 +96,14 @@ namespace Microsoft.Data.Entity.Design
             Action<string> writeError = null,
             Action<string> writeWarning = null,
             Action<string> writeInformation = null,
-            Action<string> writeVerbose = null,
-            Action<string> writeDebug = null)
+            Action<string> writeDebug = null,
+            Action<string> writeTrace = null)
         {
             _writeError = writeError;
             _writeWarning = writeWarning;
             _writeInformation = writeInformation;
-            _writeVerbose = writeVerbose;
             _writeDebug = writeDebug;
+            _writeTrace = writeTrace;
         }
 
         public virtual void WriteError(string message)
@@ -130,19 +130,19 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        public virtual void WriteVerbose(string message)
-        {
-            if (_writeVerbose != null)
-            {
-                _writeVerbose(message);
-            }
-        }
-
         public virtual void WriteDebug(string message)
         {
             if (_writeDebug != null)
             {
                 _writeDebug(message);
+            }
+        }
+
+        public virtual void WriteTrace(string message)
+        {
+            if (_writeTrace != null)
+            {
+                _writeTrace(message);
             }
         }
     }

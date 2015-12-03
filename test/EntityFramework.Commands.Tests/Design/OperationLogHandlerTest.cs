@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Design
             handler.WriteError("Princess Celestia does not exist.");
             handler.WriteWarning("Princess Celestia is in danger.");
             handler.WriteInformation("Princess Celestia is on her way.");
-            handler.WriteVerbose("Princess Celestia is an alicorn.");
             handler.WriteDebug("Princess Celestia is a princess.");
+            handler.WriteTrace("Princess Celestia is an alicorn.");
         }
 
         [Fact]
@@ -62,18 +62,6 @@ namespace Microsoft.Data.Entity.Design
         }
 
         [Fact]
-        public void WriteVerbose_works()
-        {
-            string result = null;
-            var handler = new OperationLogHandler(writeVerbose: m => result = m);
-            var message = "Princess Celestia is an alicorn.";
-
-            handler.WriteVerbose(message);
-
-            Assert.Equal(message, result);
-        }
-
-        [Fact]
         public void WriteDebug_works()
         {
             string result = null;
@@ -81,6 +69,18 @@ namespace Microsoft.Data.Entity.Design
             var message = "Princess Celestia is a princess.";
 
             handler.WriteDebug(message);
+
+            Assert.Equal(message, result);
+        }
+
+        [Fact]
+        public void WriteTrace_works()
+        {
+            string result = null;
+            var handler = new OperationLogHandler(writeTrace: m => result = m);
+            var message = "Princess Celestia is an alicorn.";
+
+            handler.WriteTrace(message);
 
             Assert.Equal(message, result);
         }

@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Query
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
                 QueryCompilationContext.Logger
-                    .LogVerbose(
+                    .LogDebug(
                         CoreLoggingEventId.CompilingQueryModel,
                         () => CoreStrings.LogCompilingQueryModel(queryModel));
 
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.Query
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
                 QueryCompilationContext.Logger
-                    .LogVerbose(
+                    .LogDebug(
                         CoreLoggingEventId.CompilingQueryModel,
                         () => CoreStrings.LogCompilingQueryModel(queryModel));
 
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Query
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
             QueryCompilationContext.Logger
-                .LogVerbose(
+                .LogDebug(
                     CoreLoggingEventId.OptimizedQueryModel,
                     () => CoreStrings.LogOptimizedQueryModel(queryModel));
         }
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.Query
                                 Expression.Parameter(queryModel.SelectClause.Selector.Type, "result"));
 
                     QueryCompilationContext.Logger
-                        .LogVerbose(
+                        .LogDebug(
                             CoreLoggingEventId.IncludingNavigation,
                             () => CoreStrings.LogIncludingNavigation(includeSpecification.NavigationPath.Join(".")));
 
@@ -508,7 +508,7 @@ namespace Microsoft.Data.Entity.Query
 
             var queryExecutor = queryExecutorExpression.Compile();
 
-            QueryCompilationContext.Logger.LogVerbose(
+            QueryCompilationContext.Logger.LogDebug(
                 CoreLoggingEventId.QueryPlan,
                 () =>
                     {

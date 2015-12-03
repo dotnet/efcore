@@ -52,16 +52,6 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
             Messages.Info.Add(message);
         }
 
-        protected override void WriteVerbose(string message)
-        {
-            if (_logToOutput)
-            {
-                _output?.WriteLine("[VERBOSE]: " + message);
-            }
-
-            Messages.Verbose.Add(message);
-        }
-
         protected override void WriteDebug(string message)
         {
             if (_logToOutput)
@@ -71,6 +61,16 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
             Messages.Debug.Add(message);
         }
+
+        protected override void WriteTrace(string message)
+        {
+            if (_logToOutput)
+            {
+                _output?.WriteLine("[TRACE]: " + message);
+            }
+
+            Messages.Trace.Add(message);
+        }
     }
 
     public class LoggerMessages
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         public List<string> Error = new List<string>();
         public List<string> Warn = new List<string>();
         public List<string> Info = new List<string>();
-        public List<string> Verbose = new List<string>();
+        public List<string> Trace = new List<string>();
         public List<string> Debug = new List<string>();
     }
 }

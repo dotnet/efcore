@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Design.Internal
 
         protected override void WriteError(string message) => _logHandler.WriteError(message);
         protected override void WriteInformation(string message) => _logHandler.WriteInformation(message);
-        protected override void WriteVerbose(string message) => _logHandler.WriteVerbose(message);
         protected override void WriteWarning(string message) => _logHandler.WriteWarning(message);
         protected override void WriteDebug(string message) => _logHandler.WriteDebug(message);
+        protected override void WriteTrace(string message) => _logHandler.WriteTrace(message);
     }
 }
