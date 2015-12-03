@@ -507,4 +507,7 @@
   <data name="MultipleNavigationsSameFk" xml:space="preserve">
     <value>There are multiple navigations in entity type '{entityType}' which are pointing to same set of properties - '{propertyList}' using ForeignKeyAttribute.</value>
   </data>
+  <data name="InconsistentInheritance" xml:space="preserve">
+    <value>The entity type '{entityType}' should derive from '{baseEntityType}' to reflect the hierarchy of the corresponding CLR types.</value>
+  </data>
 </root>

@@ -1,22 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Tests.Infrastructure;
 using Microsoft.Data.Entity.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity.Internal.Tests
 {
     public class RelationalModelValidatorTest : LoggingModelValidatorTest
     {
         [Fact]
         public virtual void Detects_duplicate_table_names()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_duplicate_table_names_with_schema()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Does_not_detect_duplicate_table_names_in_different_schema()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -56,24 +56,19 @@ namespace Microsoft.Data.Entity.Tests
             entityB.Relational().TableName = "Table";
             entityB.Relational().Schema = "SchemaB";
 
-            CreateModelValidator().Validate(model);
+            Validate(model);
         }
 
         [Fact]
         public virtual void Does_not_detect_duplicate_table_names_for_inherited_entities()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
-            entityC.HasBaseType(entityA);
+            SetBaseType(entityC, entityA);
 
-            var discriminatorProperty = entityA.AddProperty("D", typeof(int));
-            entityA.Relational().DiscriminatorProperty = discriminatorProperty;
-            entityA.Relational().DiscriminatorValue = 0;
-            entityC.Relational().DiscriminatorValue = 1;
-
-            CreateModelValidator().Validate(model);
+            Validate(model);
         }
 
         [Fact]
@@ -89,29 +84,29 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Passes_for_non_hierarchical_model()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
 
-            CreateModelValidator().Validate(model);
+            Validate(model);
         }
 
         [Fact]
         public virtual void Does_not_detect_non_instantiable_types()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<>));
             entityGeneric.HasBaseType(entityAbstract);
 
-            CreateModelValidator().Validate(model);
+            Validate(model);
         }
 
         [Fact]
         public virtual void Detects_missing_discriminator_property()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
@@ -123,7 +118,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_missing_discriminator_value_on_base()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityAbstract = model.AddEntityType(typeof(Abstract));
@@ -139,7 +134,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_missing_discriminator_value_on_leaf()
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new Model();
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<string>));
@@ -150,6 +145,16 @@ namespace Microsoft.Data.Entity.Tests
             entityAbstract.Relational().DiscriminatorValue = 0;
 
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
+        }
+
+        protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
+        {
+            base.SetBaseType(entityType, baseEntityType);
+
+            var discriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string));
+            baseEntityType.Relational().DiscriminatorProperty = discriminatorProperty;
+            baseEntityType.Relational().DiscriminatorValue = baseEntityType.Name;
+            entityType.Relational().DiscriminatorValue = entityType.Name;
         }
 
         protected class C : A

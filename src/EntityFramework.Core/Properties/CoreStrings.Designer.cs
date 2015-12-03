@@ -1052,6 +1052,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("MultipleNavigationsSameFk", "entityType", "propertyList"), entityType, propertyList);
         }
 
+        /// <summary>
+        /// The entity type '{entityType}' should derive from '{baseEntityType}' to reflect the hierarchy of the corresponding CLR types.
+        /// </summary>
+        public static string InconsistentInheritance([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InconsistentInheritance", "entityType", "baseEntityType"), entityType, baseEntityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

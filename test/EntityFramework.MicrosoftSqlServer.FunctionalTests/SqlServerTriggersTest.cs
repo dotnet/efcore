@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -109,8 +108,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         .AddEntityFramework()
                         .AddSqlServer()
                         .ServiceCollection()
-                        .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                        .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                         .BuildServiceProvider();
             }
 
@@ -168,22 +165,13 @@ END");
                 return testStore;
             }
 
-            public void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Product>().Property(e => e.Version)
-                    .ValueGeneratedOnAddOrUpdate()
-                    .IsConcurrencyToken();
-                modelBuilder.Entity<ProductBackup>().HasBaseType((Type)null)
-                    .Property(e => e.Id).ValueGeneratedNever();
-            }
-
             public TriggersContext CreateContext(SqlServerTestStore testStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder
                     .EnableSensitiveDataLogging()
                     .UseSqlServer(testStore.Connection);
-                
+
                 return new TriggersContext(_serviceProvider, optionsBuilder.Options);
             }
         }
@@ -197,6 +185,15 @@ END");
 
             public virtual DbSet<Product> Products { get; set; }
             public virtual DbSet<ProductBackup> ProductBackups { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Product>().Property(e => e.Version)
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
+                modelBuilder.Entity<ProductBackup>()
+                    .Property(e => e.Id).ValueGeneratedNever();
+            }
         }
 
         public class Product
@@ -206,8 +203,11 @@ END");
             public virtual string Name { get; set; }
         }
 
-        public class ProductBackup : Product
+        public class ProductBackup
         {
+            public virtual int Id { get; set; }
+            public virtual byte[] Version { get; set; }
+            public virtual string Name { get; set; }
         }
     }
 }
