@@ -394,6 +394,22 @@ namespace Microsoft.Data.Sqlite
             return string.Format(CultureInfo.CurrentCulture, GetString("AmbiguousParameterName", "parameterName"), parameterName);
         }
 
+        /// <summary>
+        /// The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.
+        /// </summary>
+        internal static string AlreadyLoaded
+        {
+            get { return GetString("AlreadyLoaded"); }
+        }
+
+        /// <summary>
+        /// The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.
+        /// </summary>
+        internal static string FormatAlreadyLoaded()
+        {
+            return GetString("AlreadyLoaded");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

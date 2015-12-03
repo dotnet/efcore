@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite.Interop
 
         protected override bool ReleaseHandle()
         {
-            var rc = VersionedMethods.SqliteClose(handle);
+            var rc = VersionedMethods.Close(handle);
             handle = IntPtr.Zero;
 
             return rc == Constants.SQLITE_OK;

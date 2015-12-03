@@ -7,67 +7,65 @@ namespace Microsoft.Data.Sqlite.Interop
 {
     internal class VersionedMethods
     {
-        public static string SqliteErrorMessage(int rc, Sqlite3Handle db)
-        {
-            var message = db == null || db.IsInvalid
-                ? _strategy.ErrorString(rc)
-                : NativeMethods.sqlite3_errmsg(db);
+        private static readonly BaseStrategy _strategy;
 
-            return Strings.FormatSqliteNativeError(rc, message);
+        static VersionedMethods()
+        {
+            var version = new Version(NativeMethods.sqlite3_libversion());
+            if (version >= new Version(3, 7, 15))
+            {
+                _strategy = new Strategy3_7_15();
+            }
+            else if (version >= new Version(3, 7, 14))
+            {
+                _strategy = new Strategy3_7_14();
+            }
+            else if (version >= new Version(3, 7, 10))
+            {
+                _strategy = new Strategy3_7_10();
+            }
+            else
+            {
+                _strategy = new BaseStrategy();
+            }
         }
 
-        public static int SqliteClose(IntPtr handle)
-           => _strategy.Close(handle);
+        public static string GetErrorString(int rc)
+            => _strategy.GetErrorString(rc);
 
-        public static string SqliteDbFilename(Sqlite3Handle db, string databaseName)
-            => _strategy.DbFilename(db, databaseName);
+        public static int Close(IntPtr db)
+           => _strategy.Close(db);
 
-        private static readonly StrategyBase _strategy = GetStrategy(new Version(NativeMethods.sqlite3_libversion()));
-
-        private static StrategyBase GetStrategy(Version current)
-        {
-            if (current >= new Version("3.7.15"))
-            {
-                return new Strategy3_7_15();
-            }
-            if (current >= new Version("3.7.14"))
-            {
-                return new Strategy3_7_14();
-            }
-            if (current >= new Version("3.7.10"))
-            {
-                return new Strategy3_7_10();
-            }
-            return new StrategyBase();
-        }
+        public static string GetFilename(Sqlite3Handle db, string zDbName)
+            => _strategy.GetFilename(db, zDbName);
 
         private class Strategy3_7_15 : Strategy3_7_14
         {
-            public override string ErrorString(int rc)
-                => NativeMethods.sqlite3_errstr(rc) + " " + base.ErrorString(rc);
+            public override string GetErrorString(int rc)
+                => NativeMethods.sqlite3_errstr(rc) + " " + base.GetErrorString(rc);
         }
 
         private class Strategy3_7_14 : Strategy3_7_10
         {
-            public override int Close(IntPtr handle)
-                => NativeMethods.sqlite3_close_v2(handle);
+            public override int Close(IntPtr db)
+                => NativeMethods.sqlite3_close_v2(db);
         }
 
-        private class Strategy3_7_10 : StrategyBase
+        private class Strategy3_7_10 : BaseStrategy
         {
-            public override string DbFilename(Sqlite3Handle db, string databaseName)
-                => NativeMethods.sqlite3_db_filename(db, databaseName);
+            public override string GetFilename(Sqlite3Handle db, string zDbName)
+                => NativeMethods.sqlite3_db_filename(db, zDbName);
         }
 
-        private class StrategyBase
+        private class BaseStrategy
         {
-            public virtual string ErrorString(int rc)
+            public virtual string GetErrorString(int rc)
                 => Strings.DefaultNativeError;
-                
-            public virtual int Close(IntPtr handle)
-                => NativeMethods.sqlite3_close(handle);
-                
-            public virtual string DbFilename(Sqlite3Handle db, string databaseName)
+
+            public virtual int Close(IntPtr db)
+                => NativeMethods.sqlite3_close(db);
+
+            public virtual string GetFilename(Sqlite3Handle db, string zDbName)
                 => null;
         }
     }

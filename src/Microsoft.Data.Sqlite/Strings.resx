@@ -189,4 +189,7 @@
   <data name="AmbiguousParameterName" xml:space="preserve">
     <value>Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.</value>
   </data>
+  <data name="AlreadyLoaded" xml:space="preserve">
+    <value>The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.</value>
+  </data>
 </root>

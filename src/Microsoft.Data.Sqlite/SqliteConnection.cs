@@ -61,10 +61,19 @@ namespace Microsoft.Data.Sqlite
 
         public override string Database => MainDatabaseName;
 
-        public override string DataSource =>
-            State == ConnectionState.Open
-                ? VersionedMethods.SqliteDbFilename(_db, MainDatabaseName) ?? ConnectionStringBuilder.DataSource
-                : ConnectionStringBuilder.DataSource;
+        public override string DataSource
+        {
+            get
+            {
+                string dataSource = null;
+                if (State == ConnectionState.Open)
+                {
+                    dataSource = VersionedMethods.GetFilename(_db, MainDatabaseName);
+                }
+
+                return dataSource ?? ConnectionStringBuilder.DataSource;
+            }
+        }
 
         /// <summary>
         /// Corresponds to the version of the SQLite library used by the connection.
