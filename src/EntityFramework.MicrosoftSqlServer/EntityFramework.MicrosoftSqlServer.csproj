@@ -47,9 +47,9 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\SqlServerDbContextOptionsBuilder.cs" />
-    <Compile Include="Internal\SqlServerModelSource.cs" />
+    <Compile Include="Infrastructure\Internal\SqlServerModelSource.cs" />
     <Compile Include="Internal\SqlServerModelValidator.cs" />
-    <Compile Include="Internal\SqlServerOptionsExtension.cs" />
+    <Compile Include="Infrastructure\Internal\SqlServerOptionsExtension.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerConventionSetBuilder.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\Internal\SqlServerAnnotationNames.cs" />

@@ -4,7 +4,7 @@
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Infrastructure.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests

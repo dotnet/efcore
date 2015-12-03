@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.Data.Entity.Infrastructure.Internal
 {
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
