@@ -11,84 +11,58 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     public class ReverseEngineeringGeneratorTests
     {
         [Theory]
-        [MemberData(nameof(NamespaceOptions))]
-        public void Constructs_correct_namespace(
-            string rootNamespace, string projectPath, string outputPath, string resultingNamespace)
-        {
-            var outputPaths = ReverseEngineeringGenerator.ConstructCanonicalizedPaths(projectPath, outputPath);
-            Assert.Equal(resultingNamespace,
-                ReverseEngineeringGenerator.ConstructNamespace(rootNamespace, outputPaths.CanonicalizedRelativeOutputPath));
-        }
-
-        [Theory]
-        [MemberData(nameof(PathOptions))]
+        [MemberData(nameof(NamespaceAndPathOptions))]
         public void Constructs_correct_canonical_paths(
-            string projectPath, string outputPath,
+            string rootNamespace, string projectPath, string outputPath, string expectedNamepace,
             string canonicalizedFullOutputPath, string canonicalizedRelativeOutputPath)
         {
-            var outputPaths = ReverseEngineeringGenerator.ConstructCanonicalizedPaths(projectPath, outputPath);
-            Assert.Equal(canonicalizedFullOutputPath, outputPaths.CanonicalizedFullOutputPath);
-            Assert.Equal(canonicalizedRelativeOutputPath, outputPaths.CanonicalizedRelativeOutputPath);
+            var outputNamespaceAndPaths = ReverseEngineeringGenerator.ConstructNamespaceAndCanonicalizedPaths(
+                rootNamespace, projectPath, outputPath);
+            Assert.Equal(expectedNamepace, outputNamespaceAndPaths.Namespace);
+            Assert.Equal(canonicalizedFullOutputPath, outputNamespaceAndPaths.CanonicalizedFullOutputPath);
+            Assert.Equal(canonicalizedRelativeOutputPath, outputNamespaceAndPaths.CanonicalizedRelativeOutputPath);
         }
 
-        public static TheoryData NamespaceOptions
+        public static TheoryData NamespaceAndPathOptions
         {
             get
             {
-                var data = new TheoryData<string, string, string, string>
-                {
-                    { "Root.Namespace", "project/Path", null, "Root.Namespace" },
-                    { "Root.Namespace", "project/Path", "", "Root.Namespace" },
-                    { "Root.Namespace", "project/Path", "/Absolute/Output/Path", "Root.Namespace" },
-                    { "Root.Namespace", "project/Path", "../../Path/Outside/Project", "Root.Namespace" },
-                    { "Root.Namespace", "project/Path", "Path/Inside/Project", "Root.Namespace.Path.Inside.Project" },
-                    { "Root.Namespace", "project/Path", "Keyword/volatile/123/Bad!$&Chars", "Root.Namespace.Keyword._volatile._123.Bad___Chars" }
-                };
+                var data = new TheoryData<string, string, string, string, string, string>();
 
                 if (Path.DirectorySeparatorChar == '\\'
                     || Path.AltDirectorySeparatorChar == '\\')
                 {
-                    data.Add("Root.Namespace", @"project\Path", @"X:\Absolute\Output\Path", "Root.Namespace");
-                    data.Add("Root.Namespace", @"project\Path", @"\Absolute\Output\Path", "Root.Namespace");
-                    data.Add("Root.Namespace", @"project\Path", @"..\..\Path\Outside\Project", "Root.Namespace");
-                    data.Add("Root.Namespace", @"project\Path", @"Path\Inside\Project", "Root.Namespace.Path.Inside.Project");
-                    data.Add("Root.Namespace", @"project\Path", @"Keyword\volatile\123\Bad!$&Chars", "Root.Namespace.Keyword._volatile._123.Bad___Chars");
-                }
-
-                return data;
-            }
-        }
-
-        public static TheoryData PathOptions
-        {
-            get
-            {
-                var data = new TheoryData<string, string, string, string>();
-
-                if (Path.DirectorySeparatorChar == '\\'
-                    || Path.AltDirectorySeparatorChar == '\\')
-                {
-                    data.Add(@"X:\project\Path", null, @"X:\project\Path", string.Empty);
-                    data.Add(@"X:\project\Path", string.Empty, @"X:\project\Path", string.Empty);
-                    data.Add(@"X:\project\Path", @"X:\Absolute\Output\Path", @"X:\Absolute\Output\Path", null);
-                    data.Add(@"X:\project\Path", @"..\..\Path\Outside\Project", @"X:\Path\Outside\Project", null);
-                    data.Add(@"X:\project\Path", @"Path\Inside\Project", @"X:\project\Path\Path\Inside\Project", @"Path\Inside\Project");
-                    data.Add(@"X:\project\Path", @"Path\.\Inside\Project", @"X:\project\Path\Path\Inside\Project", @"Path\Inside\Project");
-                    data.Add(@"X:\project\Path", @"FirstDir\IgnoreThisDir\..\AnotherDir", @"X:\project\Path\FirstDir\AnotherDir", @"FirstDir\AnotherDir");
+                    data.Add("Root.Namespace", @"X:\project\Path", null, "Root.Namespace", @"X:\project\Path", string.Empty);
+                    data.Add("Root.Namespace", @"X:\project\Path", string.Empty, "Root.Namespace", @"X:\project\Path", string.Empty);
+                    data.Add("Root.Namespace", @"X:\project\Path", @"X:\Absolute\Output\Path", "Root.Namespace", @"X:\Absolute\Output\Path", null);
+                    data.Add("Root.Namespace", @"X:\project\Path", @"..\..\Path\Outside\Project", "Root.Namespace", @"X:\Path\Outside\Project", null);
+                    data.Add("Root.Namespace", @"X:\project\Path", @"Path\Inside\Project", "Root.Namespace.Path.Inside.Project", @"X:\project\Path\Path\Inside\Project", @"Path\Inside\Project");
+                    data.Add("Root.Namespace", @"X:\project\Path", @"Path\.\Inside\Project", "Root.Namespace.Path.Inside.Project", @"X:\project\Path\Path\Inside\Project", @"Path\Inside\Project");
+                    data.Add("Root.Namespace", @"X:\project\Path", @"FirstDir\IgnoreThisDir\..\AnotherDir", "Root.Namespace.FirstDir.AnotherDir", @"X:\project\Path\FirstDir\AnotherDir", @"FirstDir\AnotherDir");
+                    data.Add("Root.Namespace", @"X:\project\Path", @"Keyword\volatile\123\Bad!$&Chars", "Root.Namespace.Keyword._volatile._123.Bad___Chars", @"X:\project\Path\Keyword\volatile\123\Bad!$&Chars", @"Keyword\volatile\123\Bad!$&Chars");
                 }
                 else
                 {
-                    data.Add("/project/Path", null, "/project/Path", string.Empty);
-                    data.Add("/project/Path", string.Empty, "project/Path", string.Empty);
-                    data.Add("/project/Path", "/Absolute/Output/Path", "/Absolute/Output/Path", null);
-                    data.Add("/project/Path", "../../Path/Outside/Project", "/Path/Outside/Project", null);
-                    data.Add("/project/Path", "Path/Inside/Project", "/project/Path/Path/Inside/Project", "Path/Inside/Project");
-                    data.Add("/project/Path", "Path/./Inside/Project", "/project/Path/Path/Inside/Project", "Path/Inside/Project");
-                    data.Add("/project/Path", "FirstDir/IgnoreThisDir/../AnotherDir", "/project/Path/FirstDir/AnotherDir", "FirstDir/AnotherDir");
+                    data.Add("Root.Namespace", "/project/Path", null, "Root.Namespace", "/project/Path", string.Empty);
+                    data.Add("Root.Namespace", "/project/Path", string.Empty, "Root.Namespace", "project/Path", string.Empty);
+                    data.Add("Root.Namespace", "/project/Path", "/Absolute/Output/Path", "Root.Namespace", "/Absolute/Output/Path", null);
+                    data.Add("Root.Namespace", "/project/Path", "../../Path/Outside/Project", "Root.Namespace", "/Path/Outside/Project", null);
+                    data.Add("Root.Namespace", "/project/Path", "Path/Inside/Project", "Root.Namespace.Path.Inside.Project", "/project/Path/Path/Inside/Project", "Path/Inside/Project");
+                    data.Add("Root.Namespace", "/project/Path", "Path/./Inside/Project", "Root.Namespace.Path.Inside.Project", "/project/Path/Path/Inside/Project", "Path/Inside/Project");
+                    data.Add("Root.Namespace", "/project/Path", "FirstDir/IgnoreThisDir/../AnotherDir", "Root.Namespace.FirstDir.AnotherDir", "/project/Path/FirstDir/AnotherDir", "FirstDir/AnotherDir");
+                    data.Add("Root.Namespace", "/project/Path", "Keyword/volatile/123/Bad!$&Chars", "Root.Namespace.Keyword._volatile._123.Bad___Chars", "/project/Path/Keyword/volatile/123/Bad!$&Chars", "Keyword/volatile/123/Bad!$&Chars");
                 }
 
                 return data;
             }
+        }
+    }
+
+    public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
+    {
+        public void Add(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6)
+        {
+            AddRow(t1, t2, t3, t4, t5, t6);
         }
     }
 }
