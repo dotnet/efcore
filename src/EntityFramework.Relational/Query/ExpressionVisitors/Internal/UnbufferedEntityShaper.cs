@@ -3,8 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Remotion.Linq.Clauses;
 
@@ -17,9 +16,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             [NotNull] string entityType,
             bool trackingQuery,
-            [NotNull] KeyValueFactory keyValueFactory,
+            [NotNull] IKey key,
             [NotNull] Func<ValueBuffer, object> materializer)
-            : base(querySource, entityType, trackingQuery, keyValueFactory, materializer)
+            : base(querySource, entityType, trackingQuery, key, materializer)
         {
         }
 
@@ -29,18 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         {
             if (IsTrackingQuery)
             {
-                var keyValue = KeyValueFactory.Create(valueBuffer);
-
-                if (keyValue.IsInvalid)
-                {
-                    if (!AllowNullResult)
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.InvalidKeyValue(EntityType));
-                    }
-                }
-
-                var entry = queryContext.StateManager.TryGetEntry(keyValue);
+                var entry = queryContext.StateManager.TryGetEntry(Key, valueBuffer, !AllowNullResult);
 
                 if (entry != null)
                 {
@@ -56,7 +44,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 QuerySource,
                 EntityType,
                 IsTrackingQuery,
-                KeyValueFactory,
+                Key,
                 Materializer);
 
         public override EntityShaper WithOffset(int offset)
@@ -64,7 +52,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 QuerySource,
                 EntityType,
                 IsTrackingQuery,
-                KeyValueFactory,
+                Key,
                 Materializer)
                 .SetOffset(offset);
     }

@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             _querySource,
                             entityType.DisplayName(),
                             QueryModelVisitor.QueryCompilationContext.IsTrackingQuery,
-                            _keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey()),
+                            entityType.FindPrimaryKey(),
                             materializer,
                             QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
                         });
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             IQuerySource querySource,
             string entityType,
             bool trackingQuery,
-            KeyValueFactory keyValueFactory,
+            IKey key,
             Func<ValueBuffer, object> materializer,
             bool useQueryBuffer)
             where TEntity : class
@@ -257,13 +257,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     querySource,
                     entityType,
                     trackingQuery,
-                    keyValueFactory,
+                    key,
                     materializer)
                 : new BufferedEntityShaper<TEntity>(
                     querySource,
                     entityType,
                     trackingQuery,
-                    keyValueFactory,
+                    key,
                     materializer);
     }
 }

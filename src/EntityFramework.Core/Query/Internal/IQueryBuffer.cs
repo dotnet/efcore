@@ -1,29 +1,27 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
     public delegate IEnumerable<EntityLoadInfo> RelatedEntitiesLoader(
-        IKeyValue primaryKeyValue, Func<ValueBuffer, IKeyValue> foreignKeyFactory);
+        IIncludeKeyComparer keyComparer);
 
     public delegate IAsyncEnumerable<EntityLoadInfo> AsyncRelatedEntitiesLoader(
-        IKeyValue primaryKeyValue, Func<ValueBuffer, IKeyValue> foreignKeyFactory);
+        IIncludeKeyComparer keyComparer);
 
     public interface IQueryBuffer
     {
         object GetEntity(
-            [NotNull] IKeyValue keyValue,
+            [NotNull] IKey key,
             EntityLoadInfo entityLoadInfo,
-            bool queryStateManager);
+            bool queryStateManager,
+            bool throwOnNullKey);
 
         object GetPropertyValue(
             [NotNull] object entity,

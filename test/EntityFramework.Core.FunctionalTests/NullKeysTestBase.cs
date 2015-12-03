@@ -18,10 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected virtual TFixture Fixture { get; }
 
-        protected DbContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected DbContext CreateContext() => Fixture.CreateContext();
 
         [Fact] // Issue #1093
         public virtual void Include_with_null_FKs_and_nullable_PK()
@@ -88,6 +85,33 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(
                     new[] { 1, 2, 3, 4, 5, 6 },
                     results.Select(e => e.Id).ToArray());
+
+                Assert.Equal(
+                    new int?[] { null, 1, null, 2, null, null },
+                    results.Select(e => e.Fk));
+
+                Assert.Null(results[0].Principal);
+                Assert.Equal(1, results[1].Principal.Id);
+                Assert.Null(results[2].Principal);
+                Assert.Equal(2, results[3].Principal.Id);
+                Assert.Null(results[4].Principal);
+                Assert.Null(results[5].Principal);
+            }
+        }
+
+        [Fact] // Issue #1093
+        public virtual void Include_with_null_fKs_and_nullable_PK()
+        {
+            using (var context = CreateContext())
+            {
+                var results = context.Set<WithAllNullableIntFk>()
+                    .OrderBy(e => e.Id)
+                    .Include(e => e.Principal)
+                    .ToList();
+
+                Assert.Equal(
+                    new[] { 1, 2, 3, 4, 5, 6 },
+                    results.Select(e => e.Id));
 
                 Assert.Equal(
                     new int?[] { null, 1, null, 2, null, null },
@@ -177,6 +201,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public WithNullableIntKey Principal { get; set; }
         }
 
+        protected class WithAllNullableIntKey
+        {
+            public int? Id { get; set; }
+
+            public ICollection<WithAllNullableIntFk> Dependents { get; set; }
+        }
+
+        protected class WithAllNullableIntFk
+        {
+            public int Id { get; set; }
+
+            public int? Fk { get; set; }
+            public WithAllNullableIntKey Principal { get; set; }
+        }
+
         public abstract class NullKeysFixtureBase : IDisposable
         {
             public abstract DbContext CreateContext();
@@ -208,10 +247,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             .HasForeignKey(e => e.Fk);
                     });
 
+                modelBuilder.Entity<WithAllNullableIntKey>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.HasMany(e => e.Dependents)
+                        .WithOne(e => e.Principal)
+                        .HasForeignKey(e => e.Fk);
+                });
+
                 modelBuilder.Entity<WithIntFk>()
                     .Property(e => e.Id).ValueGeneratedNever();
 
                 modelBuilder.Entity<WithNullableIntFk>()
+                    .Property(e => e.Id).ValueGeneratedNever();
+
+                modelBuilder.Entity<WithAllNullableIntFk>()
                     .Property(e => e.Id).ValueGeneratedNever();
             }
 
@@ -250,6 +300,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         context.Add(new WithIntFk { Id = 1, Fk = 1 });
                         context.Add(new WithIntFk { Id = 2, Fk = 1 });
                         context.Add(new WithIntFk { Id = 3, Fk = 3 });
+
+                        context.Add(new WithAllNullableIntKey { Id = 1 });
+                        context.Add(new WithAllNullableIntKey { Id = 2 });
+                        context.Add(new WithAllNullableIntKey { Id = 3 });
+
+                        context.Add(new WithAllNullableIntFk { Id = 1 });
+                        context.Add(new WithAllNullableIntFk { Id = 2, Fk = 1 });
+                        context.Add(new WithAllNullableIntFk { Id = 3 });
+                        context.Add(new WithAllNullableIntFk { Id = 4, Fk = 2 });
+                        context.Add(new WithAllNullableIntFk { Id = 5 });
+                        context.Add(new WithAllNullableIntFk { Id = 6 });
 
                         context.SaveChanges();
                     }

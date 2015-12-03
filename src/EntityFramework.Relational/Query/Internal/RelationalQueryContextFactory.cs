@@ -13,9 +13,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public RelationalQueryContextFactory(
             [NotNull] IStateManager stateManager,
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IRelationalConnection connection)
-            : base(stateManager, keyValueFactorySource)
+            : base(stateManager)
         {
             _connection = connection;
         }

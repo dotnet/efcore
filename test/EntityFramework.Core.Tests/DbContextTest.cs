@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public void UpdateIdentityMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IKey principalKey)
+            public void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey)
             {
                 throw new NotImplementedException();
             }
@@ -262,7 +262,7 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry StartTracking(
+            public InternalEntityEntry StartTrackingFromQuery(
                 IEntityType entityType,
                 object entity,
                 ValueBuffer valueBuffer)
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry TryGetEntry(IKeyValue keyValueValue)
+            public InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
             {
                 throw new NotImplementedException();
             }
@@ -307,7 +307,12 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey, ValueSource valueSource)
+            public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey)
+            {
+                throw new NotImplementedException();
+            }
+
+            public InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();
             }

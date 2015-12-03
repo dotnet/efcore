@@ -135,9 +135,6 @@
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.</value>
   </data>
-  <data name="InvalidPrimaryKey" xml:space="preserve">
-    <value>The instance of entity type '{entityType}' cannot be tracked because it has an invalid (e.g. null or CLR default) primary key. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.</value>
-  </data>
   <data name="WrongStateManager" xml:space="preserve">
     <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because it was created by a different StateManager instance.</value>
   </data>
@@ -497,6 +494,9 @@
   </data>
   <data name="UnhandledNodeType" xml:space="preserve">
     <value>Unhandled node type: {nodeType}</value>
+  </data>
+  <data name="InvalidKeyValue" xml:space="preserve">
+    <value>Unable to create or track an entity of type '{entityType}' because it has an null primary or alternate key value.</value>
   </data>
   <data name="SensitiveDataLoggingEnabled" xml:space="preserve">
     <value>Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.</value>

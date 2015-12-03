@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     InMemoryQueryModelVisitor.EntityQueryMethodInfo.MakeGenericMethod(elementType),
                     EntityQueryModelVisitor.QueryContextParameter,
                     Expression.Constant(entityType),
-                    Expression.Constant(_keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey())),
+                    Expression.Constant(entityType.FindPrimaryKey()),
                     materializer,
                     Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsTrackingQuery));
             }
