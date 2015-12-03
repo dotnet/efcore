@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
@@ -317,7 +318,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 });
         }
 
-        [Theory]
+        [ConditionalTheory]
+        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Mono's type comparisons for empty byte arrays is incorrect")]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), 0)]
         [InlineData(typeof(string), "")]

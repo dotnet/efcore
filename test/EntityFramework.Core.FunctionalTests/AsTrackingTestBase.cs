@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -23,7 +24,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Applied_to_body_clause()
         {
             using (var context = CreateContext())
@@ -58,7 +60,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Applied_to_body_clause_with_projection()
         {
             using (var context = CreateContext())
@@ -76,7 +79,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Applied_to_projection()
         {
             using (var context = CreateContext())

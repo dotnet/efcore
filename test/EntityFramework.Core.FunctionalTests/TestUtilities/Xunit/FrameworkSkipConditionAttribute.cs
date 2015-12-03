@@ -6,7 +6,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly, AllowMultiple = false)]
     public class FrameworkSkipConditionAttribute : Attribute, ITestCondition
     {
         private readonly RuntimeFrameworks _excludedFrameworks;

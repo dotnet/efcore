@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
@@ -15,6 +16,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Mono < 4.2.0 does not implement reflection APIs used in this test")]
     public abstract class ApiConsistencyTestBase
     {
         protected const BindingFlags PublicInstance
@@ -23,7 +25,7 @@ namespace Microsoft.Data.Entity
         protected const BindingFlags AnyInstance
             = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-        [Fact]
+        [ConditionalFact]
         public void Public_inheritable_apis_should_be_virtual()
         {
             var nonVirtualMethods
@@ -48,7 +50,7 @@ namespace Microsoft.Data.Entity
                 "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Public_api_arguments_should_have_not_null_annotation()
         {
             var parametersMissingAttribute
@@ -83,7 +85,7 @@ namespace Microsoft.Data.Entity
                 "\r\n-- Missing NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersMissingAttribute));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
             var asyncMethods
@@ -131,7 +133,7 @@ namespace Microsoft.Data.Entity
                 "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Public_api_bool_parameters_should_not_be_prefixed()
         {
             var prefixes = new[]

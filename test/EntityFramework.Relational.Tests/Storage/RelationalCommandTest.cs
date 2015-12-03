@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage.Internal;
@@ -378,7 +379,8 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
         }
 
-        [Theory]
+        [ConditionalTheory]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "ExecuteReaderAsync is not implemented in Mono < 4.2.0")]
         [InlineData(true)]
         [InlineData(false)]
         public async Task Can_ExecuteReaderAsync(bool manageConnection)

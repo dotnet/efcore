@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 
 #pragma warning disable 1998
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Single_Predicate_Cancellation()
         {
             await Assert.ThrowsAsync<TaskCanceledException>(async () =>

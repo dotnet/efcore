@@ -4,11 +4,13 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 using System.Collections.Generic;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : ComplexNavigationsQueryFixtureBase<TTestStore>, new()
@@ -38,7 +40,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore.Dispose();
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Data_reader_is_closed_correct_number_of_times_for_include_queries_on_optional_navigations()
         {
             using (var context = CreateContext())
@@ -52,7 +54,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {
             using (var context = CreateContext())
@@ -78,7 +80,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times()
         {
             using (var context = CreateContext())
@@ -113,7 +115,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Multi_level_include_reads_key_values_from_data_reader_rather_than_incorrect_reader_deep_into_the_stack()
         {
             using (var context = CreateContext())
@@ -151,7 +153,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Multi_level_include_with_short_circuiting()
         {
             var fieldLabels = new Dictionary<string, string>();
@@ -230,7 +232,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3186
-        ////[Fact]
+        ////[ConditionalFact]
         public virtual void Join_navigation_key_access_optional()
         {
             List<Level1> levelOnes;
@@ -263,7 +265,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_key_access_required()
         {
             List<Level1> levelOnes;
@@ -297,7 +299,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3186
-        ////[Fact]
+        ////[ConditionalFact]
         public virtual void Navigation_key_access_optional_comparison()
         {
             List<Level2> levelTwos;
@@ -394,7 +396,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_in_outer_selector_translated_to_extra_join_nested()
         {
             List<Level1> levelOnes;
@@ -427,7 +429,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_in_inner_selector_translated_to_subquery()
         {
             List<Level1> levelOnes;
@@ -460,7 +462,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_translated_to_subquery_non_key_join()
         {
             List<Level1> levelOnes;
@@ -493,7 +495,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_translated_to_subquery_self_ref()
         {
             List<Level1> levelOnes1;
@@ -526,7 +528,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_translated_to_subquery_nested()
         {
             List<Level1> levelOnes;
@@ -559,7 +561,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_translated_to_subquery_deeply_nested_non_key_join()
         {
             List<Level1> levelOnes;
@@ -593,7 +595,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3180
-        [Fact]
+        [ConditionalFact]
         public virtual void Multiple_complex_includes()
         {
             List<Level1> levelOnes;
@@ -639,7 +641,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3180
-        [Fact]
+        [ConditionalFact]
         public virtual void Multiple_complex_includes_self_ref()
         {
             List<Level1> levelOnes1;
@@ -673,7 +675,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Multiple_complex_include_select()
         {
             List<Level1> levelOnes;
@@ -720,7 +722,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_nav_prop_collection_one_to_many_required()
         {
             List<List<int>> expected;

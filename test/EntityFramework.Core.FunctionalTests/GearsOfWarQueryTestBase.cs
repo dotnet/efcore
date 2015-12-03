@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -278,7 +279,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Include_with_join_reference2()
         {
             using (var context = CreateContext())
@@ -312,7 +314,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Include_with_join_collection2()
         {
             using (var context = CreateContext())
@@ -653,7 +656,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Join_navigation_translated_to_subquery_composite_key()
         {
             List<Gear> gears;

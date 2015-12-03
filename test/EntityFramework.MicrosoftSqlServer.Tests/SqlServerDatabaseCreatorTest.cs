@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -24,39 +25,40 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Cannot immitate SqlError on this version of Mono")]
     public class SqlServerDatabaseCreatorTest
     {
-        [Fact]
+        [ConditionalFact]
         public async Task Create_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(233, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Create_checks_for_existence_and_retries_if_timeout_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(-2, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Create_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(4060, async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task CreateAsync_checks_for_existence_and_retries_if_no_proccess_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(233, async: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task CreateAsync_checks_for_existence_and_retries_if_timeout_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(-2, async: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task CreateAsync_checks_for_existence_and_retries_if_cannot_open_until_it_passes()
         {
             await Create_checks_for_existence_and_retries_until_it_passes(4060, async: true);
@@ -89,13 +91,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(5, connection.OpenCount);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Create_checks_for_existence_and_ultimately_gives_up_waiting()
         {
             await Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: false);
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task CreateAsync_checks_for_existence_and_ultimately_gives_up_waiting()
         {
             await Create_checks_for_existence_and_ultimately_gives_up_waiting_test(async: true);
@@ -236,7 +238,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
             else
             {
-                // On Windows-CoreClr, SqlError is type-forwarded to full .NET
+                // On Windows-CoreClr & Mono, SqlError is type-forwarded to full .NET
                 error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                     .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
             }

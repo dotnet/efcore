@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 // ReSharper disable ReplaceWithSingleCallToCount
 
@@ -16,10 +17,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Queryable_simple()
         {
             AssertQuery<Customer>(
@@ -27,7 +29,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Queryable_simple_anonymous()
         {
             AssertQuery<Customer>(
@@ -35,21 +37,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Queryable_simple_anonymous_projection_subquery()
         {
             AssertQuery<Customer>(
                 cs => cs.Take(91).Select(c => new { c }).Select(a => a.c.City));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Queryable_simple_anonymous_subquery()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c }).Take(91).Select(a => a.c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Queryable_nested_simple()
         {
             AssertQuery<Customer>(
@@ -58,7 +60,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_simple()
         {
             AssertQuery<Customer>(
@@ -78,7 +80,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 10);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_simple_projection()
         {
             AssertQuery<Customer>(
@@ -86,7 +88,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
         
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_subquery_projection()
         {
             AssertQuery<Customer>(
@@ -94,7 +96,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Skip()
         {
             AssertQuery<Customer>(
@@ -103,7 +105,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 86);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Skip_no_orderby()
         {
             AssertQuery<Customer>(
@@ -112,7 +114,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 asserter: (_, __) => { /* non-deterministic */ });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_Skip()
         {
             AssertQuery<Customer>(
@@ -121,7 +123,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_Skip()
         {
             AssertQuery<Customer>(
@@ -130,7 +132,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 86);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Skip_Take()
         {
             AssertQuery<Customer>(
@@ -139,7 +141,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 10);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_Customers_Orders_Skip_Take()
         {
             AssertQuery<Customer, Order>((cs, os) => (
@@ -149,7 +151,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o.OrderID }).Skip(10).Take(5));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_Customers_Orders_Projection_With_String_Concat_Skip_Take()
         {
             AssertQuery<Customer, Order>((cs, os) => (
@@ -159,7 +161,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { Contact = c.ContactName + " " + c.ContactTitle, o.OrderID }).Skip(10).Take(5));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_Skip_Take()
         {
             AssertQuery<Customer>(
@@ -168,7 +170,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 10);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Skip_Distinct()
         {
             AssertQuery<Customer>(
@@ -176,7 +178,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 86);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Skip_Take_Distinct()
         {
             AssertQuery<Customer>(
@@ -184,7 +186,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 10);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_Skip_Distinct()
         {
             AssertQuery<Customer>(
@@ -204,7 +206,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_Distinct()
         {
             AssertQuery<Order>(
@@ -212,7 +214,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_Take()
         {
             AssertQuery<Order>(
@@ -221,56 +223,56 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_Take_Count()
         {
             AssertQuery<Order>(
                 os => os.Distinct().Take(5).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_Distinct_Count()
         {
             AssertQuery<Order>(
                 os => os.Take(5).Distinct().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_Where_Distinct_Count()
         {
             AssertQuery<Order>(
                 os => os.Where(o => o.CustomerID == "FRANK").Take(5).Distinct().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Any_simple()
         {
             AssertQuery<Customer>(
                 cs => cs.Any());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Take_Count()
         {
             AssertQuery<Order>(
                    os => os.OrderBy(o => o.OrderID).Take(5).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_OrderBy_Count()
         {
             AssertQuery<Order>(
                    os => os.Take(5).OrderBy(o => o.OrderID).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Any_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Any(c => c.ContactName.StartsWith("A")));
         }
 
-        //[Fact]
+        //[ConditionalFact]
         public virtual void Any_nested_negated()
         {
             using (var context = CreateContext())
@@ -282,42 +284,42 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_top_level()
         {
             AssertQuery<Customer>(
                 cs => cs.All(c => c.ContactName.StartsWith("A")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_top_level_subquery()
         {
             AssertQuery<Customer>(
                 cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_client()
         {
             AssertQuery<Customer>(
                 cs => cs.All(c => c.IsLondon));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_client_and_server_top_level()
         {
             AssertQuery<Customer>(
                 cs => cs.All(c => c.CustomerID != "Foo" && c.IsLondon));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void All_client_or_server_top_level()
         {
             AssertQuery<Customer>(
                 cs => cs.All(c => c.CustomerID != "Foo" || c.IsLondon));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_into()
         {
             AssertQuery<Customer>(
@@ -329,14 +331,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     select id);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Projection_when_arithmetic_expression_precendence()
         {
             AssertQuery<Order>(
                 os => os.Select(o => new { A = o.OrderID / (o.OrderID / 2), B = (o.OrderID / o.OrderID) / 2 }));
         }
 
-        //        [Fact]
+        //        [ConditionalFact]
         //        public virtual void Projection_when_arithmetic_expressions()
         //        {
         //            AssertQuery<Order>(
@@ -353,7 +355,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                entryCount: 830);
         //        }
         //
-        //        [Fact]
+        //        [ConditionalFact]
         //        public virtual void Projection_when_arithmetic_mixed()
         //        {
         //            AssertQuery<Order, Employee>((os, es) =>
@@ -370,7 +372,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                });
         //        }
         //
-        //        [Fact]
+        //        [ConditionalFact]
         //        public virtual void Projection_when_arithmetic_mixed_subqueries()
         //        {
         //            AssertQuery<Order, Employee>((os, es) =>
@@ -387,21 +389,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                });
         //        }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Projection_when_null_value()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => c.Region));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_with_single()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Take(1).Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_with_single_select_many()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -414,13 +416,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Cast_results_to_object()
         {
             AssertQuery<Customer>(cs => from c in cs.Cast<object>() select c, entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple()
         {
             AssertQuery<Customer>(
@@ -428,7 +430,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_closure()
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -439,7 +441,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_closure_constant()
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -450,7 +452,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_closure_via_query_cache()
         {
             var city = "London";
@@ -493,7 +495,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_method_call_nullable_type_closure_via_query_cache()
         {
             var city = new City { Int = 2 };
@@ -509,7 +511,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_method_call_nullable_type_reverse_closure_via_query_cache()
         {
             var city = new City { NullableInt = 1 };
@@ -525,7 +527,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 4);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_method_call_closure_via_query_cache()
         {
             var city = new City { InstanceFieldValue = "London" };
@@ -541,7 +543,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_field_access_closure_via_query_cache()
         {
             var city = new City { InstanceFieldValue = "London" };
@@ -557,7 +559,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_property_access_closure_via_query_cache()
         {
             var city = new City { InstancePropertyValue = "London" };
@@ -573,7 +575,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_static_field_access_closure_via_query_cache()
         {
             City.StaticFieldValue = "London";
@@ -589,7 +591,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_static_property_access_closure_via_query_cache()
         {
             City.StaticPropertyValue = "London";
@@ -605,7 +607,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_nested_field_access_closure_via_query_cache()
         {
             var city = new City { Nested = new City { InstanceFieldValue = "London" } };
@@ -621,7 +623,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_nested_property_access_closure_via_query_cache()
         {
             var city = new City { Nested = new City { InstancePropertyValue = "London" } };
@@ -637,7 +639,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_nested_field_access_closure_via_query_cache_error_null()
         {
             var city = new City();
@@ -651,7 +653,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_nested_field_access_closure_via_query_cache_error_method_null()
         {
             var city = new City();
@@ -665,7 +667,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_new_instance_field_access_closure_via_query_cache()
         {
             AssertQuery<Customer>(
@@ -677,7 +679,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_closure_via_query_cache_nullable_type()
         {
             int? reportsTo = 2;
@@ -699,7 +701,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_closure_via_query_cache_nullable_type_reverse()
         {
             int? reportsTo = null;
@@ -721,7 +723,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_shadow()
         {
             AssertQuery<Employee>(
@@ -729,7 +731,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_shadow_projection()
         {
             AssertQuery<Employee>(
@@ -745,7 +747,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_shadow_subquery()
         {
             AssertQuery<Employee>(
@@ -755,7 +757,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 3);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_shadow_subquery_first()
         {
             AssertQuery<Employee>(es =>
@@ -766,7 +768,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_client()
         {
             AssertQuery<Customer>(
@@ -774,7 +776,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_subquery_correlated()
         {
             AssertQuery<Customer>(
@@ -782,7 +784,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_subquery_correlated_client_eval()
         {
             AssertQuery<Customer>(
@@ -790,7 +792,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_client_and_server_top_level()
         {
             AssertQuery<Customer>(
@@ -798,7 +800,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_client_or_server_top_level()
         {
             AssertQuery<Customer>(
@@ -806,7 +808,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 7);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_client_and_server_non_top_level()
         {
             AssertQuery<Customer>(
@@ -814,7 +816,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_client_deep_inside_predicate_and_server_top_level()
         {
             AssertQuery<Customer>(
@@ -822,14 +824,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void First_client_predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).First(c => c.IsLondon));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_method_string()
         {
             AssertQuery<Customer>(
@@ -837,7 +839,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_method_int()
         {
             AssertQuery<Employee>(
@@ -845,7 +847,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_using_object_overload_on_mismatched_types()
         {
             long longPrm = 1;
@@ -855,7 +857,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 0);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_using_int_overload_on_mismatched_types()
         {
             short shortPrm = 1;
@@ -865,7 +867,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_on_mismatched_types_nullable_int_long()
         {
             long longPrm = 2;
@@ -879,7 +881,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 0);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_on_mismatched_types_int_nullable_int()
         {
             int intPrm = 2;
@@ -894,7 +896,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_on_mismatched_types_nullable_long_nullable_int()
         {
             long? nullableLongPrm = 2;
@@ -906,7 +908,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 es => es.Where(e => e.ReportsTo.Equals(nullableLongPrm)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_equals_on_matched_nullable_int_types()
         {
             int? nullableIntPrm = 2;
@@ -920,7 +922,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        // [Fact] issue #3208
+        // [ConditionalFact] issue #3208
         public virtual void Where_equals_on_null_nullable_int_types()
         {
             int? nullableIntPrm = null;
@@ -934,7 +936,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_comparison_nullable_type_not_null()
         {
             AssertQuery<Employee>(
@@ -942,7 +944,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_comparison_nullable_type_null()
         {
             AssertQuery<Employee>(
@@ -950,7 +952,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_string_length()
         {
             AssertQuery<Customer>(
@@ -958,7 +960,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 20);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_datetime_now()
         {
             var myDatetime = new DateTime(2015, 4, 10);
@@ -967,7 +969,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
         
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_datetime_utcnow()
         {
             var myDatetime = new DateTime(2015, 4, 10);
@@ -976,7 +978,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_reversed()
         {
             AssertQuery<Customer>(
@@ -984,14 +986,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_is_null()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_null_is_null()
         {
             // ReSharper disable once EqualExpressionComparison
@@ -1000,14 +1002,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_constant_is_null()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => "foo" == null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_is_not_null()
         {
             AssertQuery<Customer>(
@@ -1015,7 +1017,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_null_is_not_null()
         {
             // ReSharper disable once EqualExpressionComparison
@@ -1023,7 +1025,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => null != null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_constant_is_not_null()
         {
             AssertQuery<Customer>(
@@ -1031,7 +1033,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_identity_comparison()
         {
             // ReSharper disable once EqualExpressionComparison
@@ -1040,7 +1042,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_select_many_or()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1051,7 +1053,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_select_many_or2()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1062,7 +1064,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_select_many_or3()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1074,7 +1076,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_select_many_or4()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1087,7 +1089,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_select_many_or_with_parameter()
         {
             var london = "London";
@@ -1103,7 +1105,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_in_optimization_multiple()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1116,7 +1118,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_not_in_optimization1()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1127,7 +1129,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_not_in_optimization2()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1138,7 +1140,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_not_in_optimization3()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1150,7 +1152,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_not_in_optimization4()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1163,7 +1165,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_select_many_and()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -1175,14 +1177,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_primitive()
         {
             AssertQuery<Employee>(
                 es => es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_primitive_tracked()
         {
             AssertQuery<Employee>(
@@ -1190,7 +1192,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_primitive_tracked2()
         {
             AssertQuery<Employee>(
@@ -1198,7 +1200,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_subquery_anon()
         {
             AssertQuery<Employee, Order>((es, os) =>
@@ -1208,19 +1210,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { e, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.Discontinued), entryCount: 8);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_false()
         {
             AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued), entryCount: 69);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_client_side_negated()
         {
             AssertQuery<Product>(ps => ps.Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8);
@@ -1231,7 +1233,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return false;
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_negated_twice()
         {
             // ReSharper disable once NegativeEqualityExpression
@@ -1240,94 +1242,94 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Product>(ps => ps.Where(p => !!(p.Discontinued == true)), entryCount: 8);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_shadow()
         {
             AssertQuery<Product>(ps => ps.Where(p => EF.Property<bool>(p, "Discontinued")), entryCount: 8);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_false_shadow()
         {
             AssertQuery<Product>(ps => ps.Where(p => !EF.Property<bool>(p, "Discontinued")), entryCount: 69);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_equals_constant()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.Discontinued.Equals(true)), entryCount: 8);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_in_complex_predicate()
         {
             // ReSharper disable once RedundantBoolCompare
             AssertQuery<Product>(ps => ps.Where(p => p.ProductID > 100 && p.Discontinued || (p.Discontinued == true)), entryCount: 8);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_compared_to_binary_expression()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.Discontinued == (p.ProductID > 50)), entryCount: 44);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_not_bool_member_compared_to_not_bool_member()
         {
             AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued == !p.Discontinued), entryCount: 77);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_negated_boolean_expression_compared_to_another_negated_boolean_expression()
         {
             AssertQuery<Product>(ps => ps.Where(p => !(p.ProductID > 50) == !(p.ProductID > 20)), entryCount: 47);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_not_bool_member_compared_to_binary_expression()
         {
             AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued == (p.ProductID > 50)), entryCount: 33);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_parameter_compared_to_binary_expression()
         {
             var prm = true;
             AssertQuery<Product>(ps => ps.Where(p => (p.ProductID > 50) != prm), entryCount: 50);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_member_and_parameter_compared_to_binary_expression_nested()
         {
             var prm = true;
             AssertQuery<Product>(ps => ps.Where(p => p.Discontinued == ((p.ProductID > 50) != prm)), entryCount: 33);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_de_morgan_or_optimizated()
         {
             AssertQuery<Product>(ps => ps.Where(p => !(p.Discontinued || (p.ProductID < 20))), entryCount: 53);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_de_morgan_and_optimizated()
         {
             AssertQuery<Product>(ps => ps.Where(p => !(p.Discontinued && (p.ProductID < 20))), entryCount: 74);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_complex_negated_expression_optimized()
         {
             AssertQuery<Product>(ps => ps.Where(p => !(!(!p.Discontinued && (p.ProductID < 60)) || !(p.ProductID > 30))), entryCount: 27);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_short_member_comparison()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.UnitsInStock > 10), entryCount: 63);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_true()
         {
             AssertQuery<Customer>(
@@ -1335,14 +1337,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_false()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => false));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_bool_closure()
         {
             var boolean = false;
@@ -1357,7 +1359,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_poco_closure()
         {
             var customer = new Customer { CustomerID = "ALFKI" };
@@ -1371,7 +1373,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_bool_closure()
         {
             var boolean = false;
@@ -1387,7 +1389,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Re-write entity ref equality to identity equality.
         //
-        // [Fact]
+        // [ConditionalFact]
         // public virtual void Where_compare_entity_equal()
         // {
         //     var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
@@ -1397,7 +1399,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //         AssertQuery<Customer>(cs => cs.Where(c => c == alfki)));
         // }
         //
-        // [Fact]
+        // [ConditionalFact]
         // public virtual void Where_compare_entity_not_equal()
         // {
         //     var alfki = new Customer { CustomerID = "ALFKI" };
@@ -1406,7 +1408,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //         // ReSharper disable once PossibleUnintendedReferenceComparison
         //         AssertQuery<Customer>(cs => cs.Where(c => c != alfki)));
         //
-        // [Fact]
+        // [ConditionalFact]
         // public virtual void Project_compare_entity_equal()
         // {
         //     var alfki = NorthwindData.Customers.Single(c => c.CustomerID == "ALFKI");
@@ -1416,7 +1418,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //         AssertQuery<Customer>(cs => cs.Select(c => c == alfki)));
         // }
         //
-        // [Fact]
+        // [ConditionalFact]
         // public virtual void Project_compare_entity_not_equal()
         // {
         //     var alfki = new Customer { CustomerID = "ALFKI" };
@@ -1426,21 +1428,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //         AssertQuery<Customer>(cs => cs.Select(c => c != alfki)));
         // }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_compare_constructed_equal()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => new { x = c.City } == new { x = "London" }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_compare_constructed_multi_value_equal()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_compare_constructed_multi_value_not_equal()
         {
             AssertQuery<Customer>(
@@ -1448,70 +1450,70 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_compare_constructed()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => new { x = c.City } == new { x = "London" }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_compare_null()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == null && c.Country == "UK"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_projection()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == "London").Select(c => c.CompanyName));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_scalar()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => c.City));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_one()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.City }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_two()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.City, c.Phone }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_three()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.City, c.Phone, c.Country }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_bool_constant_true()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.CustomerID, ConstantTrue = true }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_bool_constant_in_expression()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.CustomerID, Expression = c.CustomerID.Length + 5 }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_customer_table()
         {
             AssertQuery<Customer>(
@@ -1519,7 +1521,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_customer_identity()
         {
             AssertQuery<Customer>(
@@ -1527,7 +1529,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_with_object()
         {
             AssertQuery<Customer>(
@@ -1535,39 +1537,39 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_nested()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.City, Country = new { c.Country } }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_empty()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_anonymous_literal()
         {
             AssertQuery<Customer>(cs => cs.Select(c => new { X = 10 }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_constant_int()
         {
             AssertQuery<Customer>(cs => cs.Select(c => 0));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_constant_null_string()
         {
             AssertQuery<Customer>(cs => cs.Select(c => (string)null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_local()
         {
             // ReSharper disable once ConvertToConstant.Local
@@ -1576,21 +1578,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(cs => cs.Select(c => x));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_scalar_primitive()
         {
             AssertQuery<Employee>(
                 es => es.Select(e => e.EmployeeID));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_scalar_primitive_after_take()
         {
             AssertQuery<Employee>(
                 es => es.Take(9).Select(e => e.EmployeeID));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_project_filter()
         {
             AssertQuery<Customer>(
@@ -1600,7 +1602,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     select c.CompanyName);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_project_filter2()
         {
             AssertQuery<Customer>(
@@ -1610,7 +1612,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     select c.City);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_nested_collection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -1637,7 +1639,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_correlated_subquery_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -1661,7 +1663,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_correlated_subquery_ordered()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -1685,7 +1687,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // TODO: Re-linq parser
-        // [Fact]
+        // [ConditionalFact]
         // public virtual void Select_nested_ordered_enumerable_collection()
         // {
         //     AssertQuery<Customer>(cs =>
@@ -1693,7 +1695,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //         assertOrder: true);
         // }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_nested_collection_in_anonymous_type()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -1721,7 +1723,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_subquery_recursive_trivial()
         {
             AssertQuery<Employee>(
@@ -1748,7 +1750,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        // TODO: [Fact] See #153
+        // TODO: [ConditionalFact] See #153
         public virtual void Where_subquery_on_collection()
         {
             AssertQuery<Product, OrderDetail>((pr, od) =>
@@ -1757,7 +1759,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select p);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition()
         {
             AssertQuery<Employee>(
@@ -1768,7 +1770,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition_is_null()
         {
             AssertQuery<Employee>(
@@ -1779,7 +1781,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition_is_not_null()
         {
             AssertQuery<Employee>(
@@ -1790,7 +1792,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 8);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition_entity_equality()
         {
             AssertQuery<Employee>(
@@ -1800,7 +1802,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     select e1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition2()
         {
             AssertQuery<Employee>(
@@ -1814,7 +1816,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition3()
         {
             AssertQuery<Customer>(
@@ -1825,7 +1827,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition4()
         {
             AssertQuery<Customer>(
@@ -1838,7 +1840,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition5()
         {
             AssertQuery<Customer>(
@@ -1849,7 +1851,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 85);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_query_composition6()
         {
             AssertQuery<Customer>(
@@ -1863,7 +1865,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 85);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_subquery_recursive_trivial()
         {
             AssertQuery<Employee>(
@@ -1880,7 +1882,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 9);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_nested_collection_deep()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -1912,7 +1914,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_scalar_primitive()
         {
             AssertQuery<Employee>(
@@ -1921,7 +1923,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_mixed()
         {
             AssertQuery<Employee, Customer>(
@@ -1931,7 +1933,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             select new { e1, s, c });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_simple1()
         {
             AssertQuery<Employee, Customer>(
@@ -1940,7 +1942,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_simple_subquery()
         {
             AssertQuery<Employee, Customer>(
@@ -1949,7 +1951,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             select new { c, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_simple2()
         {
             AssertQuery<Employee, Customer>(
@@ -1959,7 +1961,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             select new { e1, c, e2.FirstName });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_entity_deep()
         {
             AssertQuery<Employee>(
@@ -1972,7 +1974,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 9);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_projection1()
         {
             AssertQuery<Employee>(
@@ -1981,7 +1983,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                       select new { e1.City, e2.Country });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_projection2()
         {
             AssertQuery<Employee>(
@@ -1991,7 +1993,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                       select new { e1.City, e2.Country, e3.FirstName });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_nested_simple()
         {
             AssertQuery<Customer>(
@@ -2005,7 +2007,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_correlated_simple()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -2017,7 +2019,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_correlated_subquery_simple()
         {
             AssertQuery<Customer, Employee>(
@@ -2029,7 +2031,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_correlated_subquery_hard()
         {
             AssertQuery<Customer, Employee>(
@@ -2043,7 +2045,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     select new { c1, e1 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_cartesian_product_with_ordering()
         {
             AssertQuery<Customer, Employee>(
@@ -2056,7 +2058,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_primitive()
         {
             AssertQuery<Employee>(
@@ -2066,7 +2068,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     select i);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_primitive_select_subquery()
         {
             AssertQuery<Employee>(
@@ -2076,7 +2078,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     select es.Any());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2085,7 +2087,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o.OrderID });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_entities()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2094,7 +2096,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_select_many()
         {
             AssertQuery<Customer, Order, Employee>((cs, os, es) =>
@@ -2104,7 +2106,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o, e });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Client_Join_select_many()
         {
             AssertQuery<Employee>(es =>
@@ -2120,7 +2122,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return employee.EmployeeID;
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_select()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2131,7 +2133,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select p);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_with_subquery()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2142,7 +2144,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o1.OrderID });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_with_subquery_with_take()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2153,7 +2155,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o1.OrderID });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_with_subquery_anonymous_property_method()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2164,7 +2166,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_with_subquery_anonymous_property_method_with_take()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2175,7 +2177,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_with_subquery_predicate()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2186,7 +2188,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o1.OrderID });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_customers_orders_with_subquery_predicate_with_take()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2197,7 +2199,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o1.OrderID });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_composite_key()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2207,7 +2209,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_client_new_expression()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2216,7 +2218,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o });
         }
         
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_local_collection_int_closure_is_cached_correctly()
         {
             var ids = new[] { 1, 2 };
@@ -2234,7 +2236,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select e.EmployeeID);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_local_string_closure_is_cached_correctly()
         {
             var ids = "12";
@@ -2252,7 +2254,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select e.EmployeeID);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_local_bytes_closure_is_cached_correctly()
         {
             var ids = new byte[] { 1, 2 };
@@ -2271,7 +2273,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_Where_Count()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2281,7 +2283,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Multiple_joins_Where_Order_Any()
         {
             AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
@@ -2291,7 +2293,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Any());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_OrderBy_Count()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2301,7 +2303,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_join_select()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2311,7 +2313,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_orderby_join_select()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2322,7 +2324,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_join_orderby_join_select()
         {
             AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
@@ -2334,7 +2336,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_select_many()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2344,7 +2346,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_orderby_select_many()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2361,7 +2363,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public string Bar { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_customers_orders()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2380,7 +2382,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_customers_orders_count()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2389,7 +2391,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { cust = c, ords = orders.Count() });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Default_if_empty_top_level()
         {
             AssertQuery<Employee>(cs =>
@@ -2397,7 +2399,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select c);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Default_if_empty_top_level_arg()
         {
             AssertQuery<Employee>(cs =>
@@ -2406,7 +2408,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_customers_employees_shadow()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -2422,7 +2424,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_customers_employees_subquery_shadow()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -2438,7 +2440,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_customers_employees_subquery_shadow_take()
         {
             AssertQuery<Customer, Employee>((cs, es) =>
@@ -2454,7 +2456,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_customer_orders()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2464,7 +2466,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o.OrderID });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_Count()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2473,7 +2475,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c.CustomerID).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_LongCount()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2482,7 +2484,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                  select c.CustomerID).LongCount());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_OrderBy_ThenBy_Any()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2494,7 +2496,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Composite keys, slow..
 
-        //        [Fact]
+        //        [ConditionalFact]
         //        public virtual void Multiple_joins_with_join_conditions_in_where()
         //        {
         //            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
@@ -2507,7 +2509,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                select od.ProductID,
         //                assertOrder: true);
         //        }
-        //        [Fact]
+        //        [ConditionalFact]
         //
         //        public virtual void TestMultipleJoinsWithMissingJoinCondition()
         //        {
@@ -2521,7 +2523,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                );
         //        }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy()
         {
             AssertQuery<Customer>(
@@ -2530,7 +2532,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_anon()
         {
             AssertQuery<Customer>(
@@ -2538,7 +2540,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_anon2()
         {
             AssertQuery<Customer>(
@@ -2547,7 +2549,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_client_mixed()
         {
             AssertQuery<Customer>(
@@ -2556,7 +2558,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_multiple_queries()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2566,7 +2568,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_shadow()
         {
             AssertQuery<Employee>(
@@ -2575,7 +2577,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 9);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_ThenBy_predicate()
         {
             AssertQuery<Customer>(
@@ -2586,7 +2588,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_correlated_subquery_lol()
         {
             AssertQuery<Customer>(
@@ -2596,7 +2598,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Select()
         {
             AssertQuery<Customer>(
@@ -2606,7 +2608,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_multiple()
         {
             AssertQuery<Customer>(
@@ -2618,7 +2620,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_ThenBy()
         {
             AssertQuery<Customer>(
@@ -2627,7 +2629,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderByDescending()
         {
             AssertQuery<Customer>(
@@ -2636,7 +2638,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderByDescending_ThenBy()
         {
             AssertQuery<Customer>(
@@ -2645,7 +2647,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderByDescending_ThenByDescending()
         {
             AssertQuery<Customer>(
@@ -2654,14 +2656,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_ThenBy_Any()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).ThenBy(c => c.ContactName).Any());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Join()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2670,7 +2672,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.CustomerID, o.OrderID });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_SelectMany()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -2682,7 +2684,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // TODO: Need to figure out how to do this 
-        //        [Fact]
+        //        [ConditionalFact]
         //        public virtual void GroupBy_anonymous()
         //        {
         //            AssertQuery<Customer>(cs =>
@@ -2691,7 +2693,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                assertOrder: true);
         //        }
         //
-        //        [Fact]
+        //        [ConditionalFact]
         //        public virtual void GroupBy_anonymous_subquery()
         //        {
         //            AssertQuery<Customer>(cs =>
@@ -2700,7 +2702,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                assertOrder: true);
         //        }
         //
-        //        [Fact]
+        //        [ConditionalFact]
         //        public virtual void GroupBy_nested_order_by_enumerable()
         //        {
         //            AssertQuery<Customer>(cs =>
@@ -2711,7 +2713,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //                assertOrder: true);
         //        }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_SelectMany()
         {
             AssertQuery<Customer>(
@@ -2719,7 +2721,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_simple()
         {
             AssertQuery<Order>(
@@ -2738,7 +2740,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_simple2()
         {
             AssertQuery<Order>(
@@ -2757,7 +2759,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_first()
         {
             AssertQuery<Order>(
@@ -2773,28 +2775,28 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_Sum()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_Count()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g => g.Count()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_LongCount()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_Shadow()
         {
             AssertQuery<Employee>(es =>
@@ -2804,7 +2806,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_Shadow2()
         {
             AssertQuery<Employee>(es =>
@@ -2814,7 +2816,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => g.First()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_Shadow3()
         {
             AssertQuery<Employee>(es =>
@@ -2823,7 +2825,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_Sum_Min_Max_Avg()
         {
             AssertQuery<Order>(os =>
@@ -2837,7 +2839,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_result_selector()
         {
             AssertQuery<Order>(os =>
@@ -2851,7 +2853,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_element_selector_sum()
         {
             AssertQuery<Order>(os =>
@@ -2860,7 +2862,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
 
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_element_selector()
         {
             AssertQuery<Order>(os =>
@@ -2882,7 +2884,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_element_selector2()
         {
             AssertQuery<Order>(os =>
@@ -2904,7 +2906,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_element_selector3()
         {
             AssertQuery<Employee>(es =>
@@ -2914,7 +2916,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_element_selector_sum_max()
         {
             AssertQuery<Order>(os =>
@@ -2922,7 +2924,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => new { Sum = g.Sum(), Max = g.Max() }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_anonymous_element()
         {
             AssertQuery<Order>(os =>
@@ -2930,7 +2932,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => g.Sum(x => x.OrderID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_with_two_part_key()
         {
             AssertQuery<Order>(os =>
@@ -2938,7 +2940,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_GroupBy()
         {
             AssertQuery<Order>(os =>
@@ -2947,7 +2949,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => g.Sum(o => o.OrderID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_GroupBy_SelectMany()
         {
             AssertQuery<Order>(os =>
@@ -2957,7 +2959,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 830);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_GroupBy_SelectMany_shadow()
         {
             AssertQuery<Employee>(es =>
@@ -2967,158 +2969,158 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Select(g => EF.Property<string>(g, "Title")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Sum_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Sum());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Sum_with_binary_expression()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID * 2).Sum());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Sum_with_no_arg_empty()
         {
             AssertQuery<Order>(os => os.Where(o => o.OrderID == 42).Select(o => o.OrderID).Sum());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Sum_with_arg()
         {
             AssertQuery<Order>(os => os.Sum(o => o.OrderID));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Sum_with_arg_expression()
         {
             AssertQuery<Order>(os => os.Sum(o => o.OrderID + o.OrderID));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Min_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Min());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Min_with_arg()
         {
             AssertQuery<Order>(os => os.Min(o => o.OrderID));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Max_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Max());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Max_with_arg()
         {
             AssertQuery<Order>(os => os.Max(o => o.OrderID));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Count_with_no_predicate()
         {
             AssertQuery<Order>(os => os.Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Count_with_predicate()
         {
             AssertQuery<Order>(os =>
                 os.Count(o => o.CustomerID == "ALFKI"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Count_with_order_by()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.CustomerID).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_OrderBy_Count()
         {
             AssertQuery<Order>(os => os.Where(o => o.CustomerID == "ALFKI").OrderBy(o => o.OrderID).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Where_Count()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => o.CustomerID == "ALFKI").Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Count_with_predicate()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Count(o => o.CustomerID == "ALFKI"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Where_Count_with_predicate()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => o.OrderID > 10).Count(o => o.CustomerID != "ALFKI"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_OrderBy_Count_client_eval()
         {
             AssertQuery<Order>(os => os.Where(o => ClientEvalPredicate(o)).OrderBy(o => ClientEvalSelectorStateless()).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_OrderBy_Count_client_eval_mixed()
         {
             AssertQuery<Order>(os => os.Where(o => o.OrderID > 10).OrderBy(o => ClientEvalPredicate(o)).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Where_Count_client_eval()
         {
             AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Where_Count_client_eval_mixed()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Count_with_predicate_client_eval()
         {
             AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Count(o => ClientEvalPredicate(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Count_with_predicate_client_eval_mixed()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Count(o => ClientEvalPredicateStateless()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Where_Count_with_predicate_client_eval()
         {
             AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicateStateless()).Count(o => ClientEvalPredicate(o)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Where_Count_with_predicate_client_eval_mixed()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count(o => o.CustomerID != "ALFKI"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_client_Take()
         {
             AssertQuery<Employee>(es => es.OrderBy(o => ClientEvalSelectorStateless()).Take(10), entryCount: 9);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_arithmetic()
         {
             AssertQuery<Employee>(
@@ -3134,7 +3136,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected internal int ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct()
         {
             AssertQuery<Customer>(
@@ -3142,21 +3144,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_Scalar()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => c.City).Distinct());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_Distinct()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Distinct());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_OrderBy()
         {
             AssertQuery<Customer>(
@@ -3164,7 +3166,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_OrderBy2()
         {
             AssertQuery<Customer>(
@@ -3173,7 +3175,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_OrderBy3()
         {
             AssertQuery<Customer>(
@@ -3181,7 +3183,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_GroupBy()
         {
             AssertQuery<Order>(os =>
@@ -3192,49 +3194,49 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 assertOrder: true);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupBy_Distinct()
         {
             AssertQuery<Order>(os =>
                 os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Distinct_Count()
         {
             AssertQuery<Customer>(
                 cs => cs.Distinct().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Distinct_Count()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => c.City).Distinct().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Select_Distinct_Count()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => c.City).Select(c => c).Distinct().Count());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Single_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
                 AssertQuery<Customer>(cs => cs.Single()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Single_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.Single(c => c.CustomerID == "ALFKI"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_Single()
         {
             AssertQuery<Customer>(
@@ -3242,7 +3244,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Single());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SingleOrDefault_Throws()
         {
             Assert.Throws<InvalidOperationException>(() =>
@@ -3250,14 +3252,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     cs => cs.SingleOrDefault()));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SingleOrDefault_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.SingleOrDefault(c => c.CustomerID == "ALFKI"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_SingleOrDefault()
         {
             AssertQuery<Customer>(
@@ -3265,21 +3267,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.CustomerID == "ALFKI").SingleOrDefault());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void First()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).First());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void First_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).First(c => c.City == "London"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_First()
         {
             AssertQuery<Customer>(
@@ -3287,21 +3289,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").First());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FirstOrDefault()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).FirstOrDefault());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void FirstOrDefault_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).FirstOrDefault(c => c.City == "London"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_FirstOrDefault()
         {
             AssertQuery<Customer>(
@@ -3309,14 +3311,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefault());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Last()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Last());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Last_when_no_order_by()
         {
             AssertQuery<Customer>(
@@ -3324,14 +3326,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Last());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Last_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Last(c => c.City == "London"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_Last()
         {
             AssertQuery<Customer>(
@@ -3339,21 +3341,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").Last());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void LastOrDefault()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).LastOrDefault());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void LastOrDefault_Predicate()
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).LastOrDefault(c => c.City == "London"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_LastOrDefault()
         {
             AssertQuery<Customer>(
@@ -3361,7 +3363,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").LastOrDefault());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_StartsWith_Literal()
         {
             AssertQuery<Customer>(
@@ -3369,7 +3371,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 12);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_StartsWith_Identity()
         {
             AssertQuery<Customer>(
@@ -3377,7 +3379,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_StartsWith_Column()
         {
             AssertQuery<Customer>(
@@ -3385,7 +3387,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_StartsWith_MethodCall()
         {
             AssertQuery<Customer>(
@@ -3393,7 +3395,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 12);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_EndsWith_Literal()
         {
             AssertQuery<Customer>(
@@ -3401,7 +3403,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_EndsWith_Identity()
         {
             AssertQuery<Customer>(
@@ -3409,7 +3411,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_EndsWith_Column()
         {
             AssertQuery<Customer>(
@@ -3417,7 +3419,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_EndsWith_MethodCall()
         {
             AssertQuery<Customer>(
@@ -3425,7 +3427,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Contains_Literal()
         {
             AssertQuery<Customer>(
@@ -3433,7 +3435,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 19);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Contains_Identity()
         {
             AssertQuery<Customer>(
@@ -3441,7 +3443,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Contains_Column()
         {
             AssertQuery<Customer>(
@@ -3449,7 +3451,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Contains_MethodCall()
         {
             AssertQuery<Customer>(
@@ -3457,7 +3459,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 19);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Compare_simple_zero()
         {
             AssertQuery<Customer>(
@@ -3485,7 +3487,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Compare_simple_one()
         {
             AssertQuery<Customer>(
@@ -3513,7 +3515,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Compare_simple_client()
         {
             AssertQuery<Customer>(
@@ -3529,7 +3531,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Compare_nested()
         {
             AssertQuery<Customer>(
@@ -3557,7 +3559,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void String_Compare_multi_predicate()
         {
             AssertQuery<Customer>(
@@ -3579,7 +3581,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return "m";
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_abs1()
         {
             AssertQuery<OrderDetail>(
@@ -3587,7 +3589,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1939);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_abs2()
         {
             AssertQuery<OrderDetail>(
@@ -3595,7 +3597,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1547);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_abs3()
         {
             AssertQuery<OrderDetail>(
@@ -3603,7 +3605,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1677);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_abs_uncorrelated()
         {
             AssertQuery<OrderDetail>(
@@ -3611,7 +3613,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1939);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_ceiling1()
         {
             AssertQuery<OrderDetail>(
@@ -3619,7 +3621,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 838);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_ceiling2()
         {
             AssertQuery<OrderDetail>(
@@ -3627,7 +3629,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1677);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_floor()
         {
             AssertQuery<OrderDetail>(
@@ -3635,7 +3637,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1658);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_power()
         {
             AssertQuery<OrderDetail>(
@@ -3643,7 +3645,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 154);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_round()
         {
             AssertQuery<OrderDetail>(
@@ -3651,7 +3653,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1662);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_math_truncate()
         {
             AssertQuery<OrderDetail>(
@@ -3659,7 +3661,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1658);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_guid_newguid()
         {
             AssertQuery<OrderDetail>(
@@ -3667,14 +3669,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 2155);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_string_to_upper()
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.ToUpper() == "ALFKI"),
                 entryCount: 1);
         }
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_string_to_lower()
         {
             AssertQuery<Customer>(
@@ -3682,7 +3684,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_functions_nested()
         {
             AssertQuery<Customer>(
@@ -3690,7 +3692,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Convert_ToByte()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -3714,7 +3716,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Convert_ToDecimal()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -3738,7 +3740,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Convert_ToDouble()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -3762,7 +3764,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Convert_ToInt16()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -3786,7 +3788,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Convert_ToInt32()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -3810,7 +3812,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Convert_ToInt64()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -3834,7 +3836,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        //[Fact]
+        //[ConditionalFact]
         public virtual void Convert_ToString()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
@@ -3858,7 +3860,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_simple()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3868,7 +3870,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select o);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_simple2()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3878,7 +3880,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select c);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_simple_ordering()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3888,7 +3890,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select o);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_simple_subquery()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3898,7 +3900,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select o);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_projection()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3908,7 +3910,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_DefaultIfEmpty()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3918,7 +3920,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_DefaultIfEmpty2()
         {
             AssertQuery<Employee, Order>((es, os) =>
@@ -3928,7 +3930,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { e, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_DefaultIfEmpty3()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3938,7 +3940,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select o);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_Joined()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3947,7 +3949,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o.OrderDate });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_Joined_DefaultIfEmpty()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3956,7 +3958,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_Joined_Take()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3965,7 +3967,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o });
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_Joined_DefaultIfEmpty2()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -3974,35 +3976,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select o);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_many_cross_join_same_collection()
         {
             AssertQuery<Customer, Customer>((cs1, cs2) =>
                 cs1.SelectMany(c => cs2));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_same_collection_multiple()
         {
             AssertQuery<Customer, Customer, Customer>((cs1, cs2, cs3) =>
                 cs1.Join(cs2, o => o.CustomerID, i => i.CustomerID, (c1, c2) => new { c1, c2 }).Join(cs3, o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_same_collection_force_alias_uniquefication()
         {
             AssertQuery<Order, Order>((os1, os2) =>
                 os1.Join(os2, o => o.CustomerID, i => i.CustomerID, (_, o) => new { _, o }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_subquery()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 cs.Where(c => os.Select(o => o.CustomerID).Contains(c.CustomerID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_array_closure()
         {
             var ids = new[] { "ABCDE", "ALFKI" };
@@ -4016,7 +4018,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_int_array_closure()
         {
             var ids = new[] { 0, 1 };
@@ -4030,14 +4032,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 es.Where(e => ids.Contains(e.EmployeeID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_array_inline()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_list_closure()
         {
             var ids = new List<string> { "ABCDE", "ALFKI" };
@@ -4045,14 +4047,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_list_inline()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_list_inline_closure_mix()
         {
             var id = "ALFKI";
@@ -4066,7 +4068,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_false()
         {
             string[] ids = { "ABCDE", "ALFKI" };
@@ -4075,7 +4077,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_complex_predicate_and()
         {
             string[] ids = { "ABCDE", "ALFKI" };
@@ -4084,7 +4086,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_complex_predicate_or()
         {
             string[] ids = { "ABCDE", "ALFKI" };
@@ -4093,7 +4095,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins1()
         {
             string[] ids = { "ABCDE", "ALFKI" };
@@ -4102,7 +4104,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)), entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_complex_predicate_not_matching_ins2()
         {
             string[] ids = { "ABCDE", "ALFKI" };
@@ -4111,7 +4113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_sql_injection()
         {
             string[] ids = { "ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --" };
@@ -4120,7 +4122,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_empty_closure()
         {
             var ids = new string[0];
@@ -4129,21 +4131,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_with_local_collection_empty_inline()
         {
             AssertQuery<Customer>(cs =>
                 cs.Where(c => !(new List<string>().Contains(c.CustomerID))), entryCount: 91);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Contains_top_level()
         {
             AssertQuery<Customer>(cs =>
                 cs.Select(c => c.CustomerID).Contains("ALFKI"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_chain()
         {
             AssertQuery<Order>(order => order
@@ -4152,7 +4154,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_null_coalesce_operator()
         {
             AssertQuery<Customer>(customer => customer
@@ -4160,14 +4162,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact] //Issue 1798
+        [ConditionalFact] //Issue 1798
         public virtual void Select_null_coalesce_operator()
         {
             AssertQuery<Customer>(customer => customer
                 .Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(o => o.Region));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void OrderBy_conditional_operator()
         {
             AssertQuery<Customer>(customer => customer
@@ -4175,14 +4177,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        [Fact] //Issue 1798
+        [ConditionalFact] //Issue 1798
         public virtual void Projection_null_coalesce_operator()
         {
             AssertQuery<Customer>(customer => customer
                 .Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Filter_coalesce_operator()
         {
             AssertQuery<Customer>(customer => customer
@@ -4190,7 +4192,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Take_skip_null_coalesce_operator()
         {
             AssertQuery<Customer>(
@@ -4198,21 +4200,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_take_null_coalesce_operator()
         {
             AssertQuery<Customer>(
             cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(5));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_take_skip_null_coalesce_operator()
         {
             AssertQuery<Customer>(
             cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Property_when_non_shadow()
         {
             AssertQuery<Order>(os =>
@@ -4220,7 +4222,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select EF.Property<int>(o, "OrderID"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_Property_when_non_shadow()
         {
             AssertQuery<Order>(os =>
@@ -4230,7 +4232,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 1);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Property_when_shadow()
         {
             AssertQuery<Employee>(es =>
@@ -4238,7 +4240,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select EF.Property<string>(e, "Title"));
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_Property_when_shadow()
         {
             AssertQuery<Employee>(es =>
@@ -4248,7 +4250,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 6);
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Selected_column_can_coalesce()
         {
             using (var context = CreateContext())
@@ -4262,7 +4264,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_cast_CreateQuery_result_to_IQueryable_T_bug_1730()
         {
             using (var context = CreateContext())
@@ -4274,7 +4276,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_execute_non_generic()
         {
             using (var context = CreateContext())
@@ -4288,7 +4290,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Subquery_Single()
         {
             using (var context = CreateContext())
@@ -4305,7 +4307,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Subquery_Deep_Single()
         {
             using (var context = CreateContext())
@@ -4330,7 +4332,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Subquery_Deep_First()
         {
             using (var context = CreateContext())
