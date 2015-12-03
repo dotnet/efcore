@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (var context = new NullKeyContext(testStore.Connection.ConnectionString))
                 {
                     Assert.Equal(
-                        RelationalStrings.InvalidKeyValue("ZeroKey"),
+                        CoreStrings.InvalidKeyValue("ZeroKey"),
                         Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
                 }
             }

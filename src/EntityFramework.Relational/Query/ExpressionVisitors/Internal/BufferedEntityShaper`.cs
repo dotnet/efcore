@@ -4,8 +4,7 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Remotion.Linq.Clauses;
 
@@ -18,9 +17,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             [NotNull] string entityType,
             bool trackingQuery,
-            [NotNull] KeyValueFactory keyValueFactory,
+            [NotNull] IKey key,
             [NotNull] Func<ValueBuffer, object> materializer)
-            : base(querySource, entityType, trackingQuery, keyValueFactory, materializer)
+            : base(querySource, entityType, trackingQuery, key, materializer)
         {
         }
 
@@ -30,26 +29,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         {
             Debug.Assert(queryContext != null);
 
-            var keyValue = KeyValueFactory.Create(valueBuffer);
+            var entity = (TEntity)queryContext.QueryBuffer
+                .GetEntity(
+                    Key,
+                    new EntityLoadInfo(valueBuffer, Materializer),
+                    queryStateManager: IsTrackingQuery,
+                    throwOnNullKey: !AllowNullResult);
 
-            if (keyValue.IsInvalid)
-            {
-                if (!AllowNullResult)
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.InvalidKeyValue(EntityType));
-                }
-            }
-            else
-            {
-                return (TEntity)queryContext.QueryBuffer
-                    .GetEntity(
-                        keyValue,
-                        new EntityLoadInfo(valueBuffer, Materializer),
-                        queryStateManager: IsTrackingQuery);
-            }
-
-            return null;
+            return entity;
         }
 
         public override IShaper<TDerived> Cast<TDerived>()
@@ -57,7 +44,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 QuerySource,
                 EntityType,
                 IsTrackingQuery,
-                KeyValueFactory,
+                Key,
                 Materializer);
 
         public override EntityShaper WithOffset(int offset)
@@ -65,7 +52,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 QuerySource,
                 EntityType,
                 IsTrackingQuery,
-                KeyValueFactory,
+                Key,
                 Materializer)
                 .SetOffset(offset);
     }

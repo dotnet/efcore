@@ -333,14 +333,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Unable to materialize an entity of type '{entityType}' because it has an null key value.
-        /// </summary>
-        public static string InvalidKeyValue([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidKeyValue", "entityType"), entityType);
-        }
-
-        /// <summary>
         /// Unable to compile the LINQ expression '{expression}' because it requires client evaluation, which is disabled. Either enable client evaluation or rewrite the query to not require client evaluation.
         /// </summary>
         public static string ClientEvalDisabled([CanBeNull] object expression)

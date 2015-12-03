@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query.Internal
@@ -25,24 +24,20 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         public virtual IAsyncEnumerable<ValueBuffer> GetRelatedValues(
-            [NotNull] IKeyValue primaryKeyValue,
-            [NotNull] Func<ValueBuffer, IKeyValue> relatedKeyFactory)
-            => new RelatedValuesEnumerable(this, primaryKeyValue, relatedKeyFactory);
+            [NotNull] IIncludeKeyComparer keyComparer)
+            => new RelatedValuesEnumerable(this, keyComparer);
 
         private sealed class RelatedValuesEnumerable : IAsyncEnumerable<ValueBuffer>
         {
             private readonly AsyncIncludeCollectionIterator _iterator;
-            private readonly IKeyValue _primaryKeyValue;
-            private readonly Func<ValueBuffer, IKeyValue> _relatedKeyFactory;
+            private readonly IIncludeKeyComparer _keyComparer;
 
             public RelatedValuesEnumerable(
                 AsyncIncludeCollectionIterator iterator,
-                IKeyValue primaryKeyValue,
-                Func<ValueBuffer, IKeyValue> relatedKeyFactory)
+                IIncludeKeyComparer keyComparer)
             {
                 _iterator = iterator;
-                _primaryKeyValue = primaryKeyValue;
-                _relatedKeyFactory = relatedKeyFactory;
+                _keyComparer = keyComparer;
             }
 
             public IAsyncEnumerator<ValueBuffer> GetEnumerator()
@@ -71,9 +66,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                     }
 
                     if (_relatedValuesEnumerable._iterator._hasRemainingRows
-                        && _relatedValuesEnumerable._relatedKeyFactory(
-                            _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current)
-                            .Equals(_relatedValuesEnumerable._primaryKeyValue))
+                        && _relatedValuesEnumerable._keyComparer.ShouldInclude(
+                            _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current))
                     {
                         Current = _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current;
 

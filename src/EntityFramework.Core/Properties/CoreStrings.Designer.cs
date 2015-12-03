@@ -61,14 +61,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The instance of entity type '{entityType}' cannot be tracked because it has an invalid (e.g. null or CLR default) primary key. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.
-        /// </summary>
-        public static string InvalidPrimaryKey([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPrimaryKey", "entityType"), entityType);
-        }
-
-        /// <summary>
         /// Cannot start tracking InternalEntityEntry for entity type '{entityType}' because it was created by a different StateManager instance.
         /// </summary>
         public static string WrongStateManager([CanBeNull] object entityType)
@@ -1026,6 +1018,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string UnhandledNodeType([CanBeNull] object nodeType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledNodeType", "nodeType"), nodeType);
+        }
+
+        /// <summary>
+        /// Unable to create or track an entity of type '{entityType}' because it has an null primary or alternate key value.
+        /// </summary>
+        public static string InvalidKeyValue([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidKeyValue", "entityType"), entityType);
         }
 
         /// <summary>

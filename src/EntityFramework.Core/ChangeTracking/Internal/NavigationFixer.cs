@@ -33,13 +33,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var navigations = foreignKey.GetNavigations().ToList();
 
-                var oldPrincipalEntry = entry.StateManager.GetPrincipal(entry, foreignKey, ValueSource.RelationshipSnapshot);
+                var oldPrincipalEntry = entry.StateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
                 if (oldPrincipalEntry != null)
                 {
                     Unfixup(navigations, oldPrincipalEntry, entry);
                 }
 
-                var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey, ValueSource.Current);
+                var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey);
                 if (principalEntry != null)
                 {
                     if (foreignKey.IsUnique)
@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
-                var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey, ValueSource.RelationshipSnapshot);
+                var principalEntry = entry.StateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
                 if (principalEntry != null)
                 {
                     DoFixup(foreignKey, principalEntry, new[] { entry });

@@ -3,7 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Remotion.Linq.Clauses;
 
@@ -15,19 +15,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             [NotNull] string entityType,
             bool trackingQuery,
-            [NotNull] KeyValueFactory keyValueFactory,
+            [NotNull] IKey key,
             [NotNull] Func<ValueBuffer, object> materializer)
             : base(querySource)
         {
             IsTrackingQuery = trackingQuery;
             EntityType = entityType;
-            KeyValueFactory = keyValueFactory;
+            Key = key;
             Materializer = materializer;
         }
 
         protected virtual string EntityType { get; }
         protected virtual bool IsTrackingQuery { get; }
-        protected virtual KeyValueFactory KeyValueFactory { get; }
+        protected virtual IKey Key { get; }
         protected virtual Func<ValueBuffer, object> Materializer { get; }
         protected virtual bool AllowNullResult { get; private set; }
         protected virtual int ValueBufferOffset { get; private set; }

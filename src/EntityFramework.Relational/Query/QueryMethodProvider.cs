@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Query
                 _materializer = materializer;
             }
 
-            public IEnumerable<EntityLoadInfo> GetRelatedValues(IKeyValue keyValue, Func<ValueBuffer, IKeyValue> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(IIncludeKeyComparer keyComparer)
             {
                 var valueBuffer = _queryContext.GetIncludeValueBuffer(_queryIndex).WithOffset(_valueBufferOffset);
 
@@ -320,11 +320,11 @@ namespace Microsoft.Data.Entity.Query
                     = new IncludeCollectionIterator(relatedValueBuffers.GetEnumerator());
             }
 
-            public IEnumerable<EntityLoadInfo> GetRelatedValues(IKeyValue keyValue, Func<ValueBuffer, IKeyValue> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(IIncludeKeyComparer keyComparer)
             {
                 return
                     _includeCollectionIterator
-                        .GetRelatedValues(keyValue, keyFactory)
+                        .GetRelatedValues(keyComparer)
                         .Select(vr => new EntityLoadInfo(vr, _materializer));
             }
 
