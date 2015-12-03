@@ -30,7 +30,7 @@ WHERE [r].[UniqueNo] = 1
 @p2: 00000000-0000-0000-0003-000000000001
 @p3: 00000001-0000-0000-0000-000000000001
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p1, [RowVersion] = @p2
 WHERE [UniqueNo] = @p0 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;
@@ -40,7 +40,7 @@ SELECT @@ROWCOUNT;
 @p2: 00000000-0000-0000-0002-000000000001
 @p3: 00000001-0000-0000-0000-000000000001
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p1, [RowVersion] = @p2
 WHERE [UniqueNo] = @p0 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;",
@@ -55,7 +55,7 @@ SELECT @@ROWCOUNT;",
 @p1: Third
 @p2: 00000000-0000-0000-0000-000000000003
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
@@ -72,7 +72,7 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
 @p1: ValidString
 @p2: 00000000-0000-0000-0000-000000000001
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
@@ -83,7 +83,7 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();
 @p1: ValidString
 @p2: 00000000-0000-0000-0000-000000000002
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
@@ -99,18 +99,16 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
             Assert.Equal(@"@p0: 0
 @p1: Book1
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [BookDetail] ([Id], [BookId])
 VALUES (@p0, @p1);
-SELECT @@ROWCOUNT;
 
 @p0: 0
 @p1: 
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [BookDetail] ([Id], [BookId])
-VALUES (@p0, @p1);
-SELECT @@ROWCOUNT;",
+VALUES (@p0, @p1);",
                 Sql);
         }
 
@@ -122,7 +120,7 @@ SELECT @@ROWCOUNT;",
 @p1: ValidString
 @p2: 00000000-0000-0000-0000-000000000001
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
@@ -133,7 +131,7 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();
 @p1: 
 @p2: 00000000-0000-0000-0000-000000000002
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
@@ -148,7 +146,7 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
 
             Assert.Equal(@"@p0: ValidString
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
@@ -157,7 +155,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
 
 @p0: ValidButLongString
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
@@ -182,7 +180,7 @@ WHERE [r].[Id] = 1
 @p1: ModifiedData
 @p2: System.Byte[]
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 DECLARE @generated0 TABLE ([Timestamp] varbinary(8));
 UPDATE [Two] SET [Data] = @p1
 OUTPUT INSERTED.[Timestamp]
@@ -194,7 +192,7 @@ SELECT [Timestamp] FROM @generated0;
 @p1: ChangedData
 @p2: System.Byte[]
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 DECLARE @generated0 TABLE ([Timestamp] varbinary(8));
 UPDATE [Two] SET [Data] = @p1
 OUTPUT INSERTED.[Timestamp]

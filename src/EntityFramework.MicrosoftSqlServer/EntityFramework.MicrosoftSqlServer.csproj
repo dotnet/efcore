@@ -78,7 +78,6 @@
     <Compile Include="Storage\Internal\SqlServerSqlGenerationHelper.cs" />
     <Compile Include="Storage\Internal\SqlServerTypeMapper.cs" />
     <Compile Include="Update\Internal\ISqlServerUpdateSqlGenerator.cs" />
-    <Compile Include="Update\Internal\ResultsGrouping.cs" />
     <Compile Include="Update\Internal\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Update\Internal\SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="Update\Internal\SqlServerUpdateSqlGenerator.cs" />

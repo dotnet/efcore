@@ -349,6 +349,7 @@
     </Compile>
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\MethodInfoExtensions.cs" />
+    <Compile Include="Update\ResultSetMapping.cs" />
     <Compile Include="Update\SingularModificationCommandBatch.cs" />
     <Compile Include="Update\UpdateSqlGenerator.cs" />
     <Compile Include="Utilities\RelationalImplyGen.cs">

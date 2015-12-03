@@ -234,10 +234,9 @@ WHERE [c].[Id] = 1
 @p5: True
 @p6: North
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 INSERT INTO [Animal] ([Species], [CountryId], [Discriminator], [Name], [EagleId], [IsFlightless], [FoundOn])
 VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
-SELECT @@ROWCOUNT;
 
 SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
@@ -246,7 +245,7 @@ WHERE ([k].[Discriminator] = 'Kiwi') AND [k].[Species] LIKE '%' + 'owenii'
 @p0: Apteryx owenii
 @p1: Aquila chrysaetos canadensis
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 UPDATE [Animal] SET [EagleId] = @p1
 WHERE [Species] = @p0;
 SELECT @@ROWCOUNT;
@@ -257,7 +256,7 @@ WHERE ([k].[Discriminator] = 'Kiwi') AND [k].[Species] LIKE '%' + 'owenii'
 
 @p0: Apteryx owenii
 
-SET NOCOUNT OFF;
+SET NOCOUNT ON;
 DELETE FROM [Animal]
 WHERE [Species] = @p0;
 SELECT @@ROWCOUNT;

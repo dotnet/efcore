@@ -151,13 +151,15 @@ namespace Microsoft.Data.Entity.Tests.Update
             {
             }
 
-            public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+            public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
             {
                 if (!string.IsNullOrEmpty(command.Schema))
                 {
                     commandStringBuilder.Append(command.Schema + ".");
                 }
                 commandStringBuilder.Append(command.TableName);
+
+                return ResultSetMapping.NotLastInResultSet;
             }
 
             public int AppendBatchHeaderCalls { get; set; }
@@ -168,8 +170,10 @@ namespace Microsoft.Data.Entity.Tests.Update
                 base.AppendBatchHeader(commandStringBuilder);
             }
 
-            protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+            protected override ResultSetMapping AppendSelectAffectedCountCommand(
+                StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
             {
+                return ResultSetMapping.NoResultSet;
             }
 
             protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)

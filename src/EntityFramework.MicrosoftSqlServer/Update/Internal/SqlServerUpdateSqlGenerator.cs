@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Update.Internal
         {
             _typeMapper = typeMapper;
         }
-        
-        public virtual ResultsGrouping AppendBulkInsertOperation(
+
+        public virtual ResultSetMapping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
             IReadOnlyList<ModificationCommand> modificationCommands,
             int commandPosition)
@@ -37,8 +37,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                     || !o.IsRead
                     || o.Property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
             {
-                AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
-                return ResultsGrouping.OneCommandPerResultSet;
+                return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
 
             var name = modificationCommands[0].TableName;
@@ -53,6 +52,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             var valueSetCount = defaultValuesOnly
                 ? 1
                 : modificationCommands.Count;
+            var resultSetCreated = false;
 
             for (var i = 0; i < statementCount; i++)
             {
@@ -82,19 +82,18 @@ namespace Microsoft.Data.Entity.Update.Internal
                 if (readOperations.Length > 0)
                 {
                     AppendSelectGeneratedCommand(commandStringBuilder, readOperations, commandPosition);
-                }
-                else
-                {
-                    AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+                    resultSetCreated = true;
                 }
             }
 
-            return defaultValuesOnly
-                ? ResultsGrouping.OneCommandPerResultSet
-                : ResultsGrouping.OneResultSet;
+            return resultSetCreated ?
+                defaultValuesOnly
+                    ? ResultSetMapping.LastInResultSet
+                    : ResultSetMapping.NotLastInResultSet
+                : ResultSetMapping.NoResultSet;
         }
 
-        public override void AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -121,12 +120,9 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             if (readOperations.Length > 0)
             {
-                AppendSelectGeneratedCommand(commandStringBuilder, readOperations, commandPosition);
+                return AppendSelectGeneratedCommand(commandStringBuilder, readOperations, commandPosition);
             }
-            else
-            {
-                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
-            }
+            return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
         }
 
         private void AppendDeclareGeneratedTable(StringBuilder commandStringBuilder, ColumnModification[] readOperations, int commandPosition)
@@ -170,7 +166,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                 .Append($"INTO @generated{commandPosition}");
         }
 
-        private void AppendSelectGeneratedCommand(StringBuilder commandStringBuilder, ColumnModification[] readOperations, int commandPosition)
+        private ResultSetMapping AppendSelectGeneratedCommand(StringBuilder commandStringBuilder, ColumnModification[] readOperations, int commandPosition)
         {
             commandStringBuilder
                 .Append("SELECT ")
@@ -178,16 +174,22 @@ namespace Microsoft.Data.Entity.Update.Internal
                 .Append($" FROM @generated{commandPosition}")
                 .Append(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
+
+            return ResultSetMapping.LastInResultSet;
         }
 
-        protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
-            => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
+        protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+        {
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SELECT @@ROWCOUNT")
                 .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
+            return ResultSetMapping.LastInResultSet;
+        }
+
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
-                .Append("SET NOCOUNT OFF")
+                .Append("SET NOCOUNT ON")
                 .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)

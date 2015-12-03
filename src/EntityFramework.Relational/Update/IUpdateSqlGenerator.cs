@@ -11,13 +11,13 @@ namespace Microsoft.Data.Entity.Update
         string GenerateNextSequenceValueOperation([NotNull] string name, [CanBeNull] string schema);
         void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder);
 
-        void AppendDeleteOperation(
+        ResultSetMapping AppendDeleteOperation(
             [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
 
-        void AppendInsertOperation(
+        ResultSetMapping AppendInsertOperation(
             [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
 
-        void AppendUpdateOperation(
+        ResultSetMapping AppendUpdateOperation(
             [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
     }
 }

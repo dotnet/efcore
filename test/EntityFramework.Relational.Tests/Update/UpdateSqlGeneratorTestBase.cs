@@ -81,8 +81,7 @@ namespace Microsoft.Data.Entity.Tests
                 "INSERT INTO " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " (" +
                 OpenDelimeter + "Id" + CloseDelimeter + ", " + OpenDelimeter + "Name" + CloseDelimeter + ", " + OpenDelimeter + "Quacks"
                 + CloseDelimeter + ", " + OpenDelimeter + "Concurrency" + "Token" + CloseDelimeter + ")" + Environment.NewLine +
-                "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
-                "SELECT " + RowsAffected + ";" + Environment.NewLine,
+                "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 

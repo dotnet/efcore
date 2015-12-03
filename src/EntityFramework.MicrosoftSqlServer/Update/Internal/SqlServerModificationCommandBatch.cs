@@ -118,13 +118,16 @@ namespace Microsoft.Data.Entity.Update.Internal
             }
 
             var stringBuilder = new StringBuilder();
-            var grouping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex);
+            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex);
             for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
-                ResultSetEnds[i] = grouping == ResultsGrouping.OneCommandPerResultSet;
+                CommandResultSet[i] = resultSetMapping;
             }
 
-            ResultSetEnds[lastIndex - 1] = true;
+            if (resultSetMapping != ResultSetMapping.NoResultSet)
+            {
+                CommandResultSet[lastIndex - 1] = ResultSetMapping.LastInResultSet;
+            }
 
             return stringBuilder.ToString();
         }

@@ -17,13 +17,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             => new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper());
 
         [Fact]
-        public void AppendBatchHeader_should_append_SET_NOCOUNT_OFF()
+        public void AppendBatchHeader_should_append_SET_NOCOUNT_ON()
         {
             var sb = new StringBuilder();
 
             CreateSqlGenerator().AppendBatchHeader(sb);
 
-            Assert.Equal("SET NOCOUNT OFF;" + Environment.NewLine, sb.ToString());
+            Assert.Equal("SET NOCOUNT ON;" + Environment.NewLine, sb.ToString());
         }
 
         protected override void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(StringBuilder stringBuilder)
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 "(@p0, @p1, @p2);" + Environment.NewLine +
                 "SELECT [Id], [Computed] FROM @generated0;" + Environment.NewLine,
                 stringBuilder.ToString());
-            Assert.Equal(ResultsGrouping.OneResultSet, grouping);
+            Assert.Equal(ResultSetMapping.NotLastInResultSet, grouping);
         }
 
         [Fact]
@@ -138,10 +138,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 "INSERT INTO [dbo].[Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
                 "VALUES (@p0, @p1, @p2, @p3)," + Environment.NewLine +
-                "(@p0, @p1, @p2, @p3);" + Environment.NewLine +
-                "SELECT @@ROWCOUNT;" + Environment.NewLine,
+                "(@p0, @p1, @p2, @p3);" + Environment.NewLine,
                 stringBuilder.ToString());
-            Assert.Equal(ResultsGrouping.OneResultSet, grouping);
+            Assert.Equal(ResultSetMapping.NoResultSet, grouping);
         }
 
         [Fact]
@@ -162,7 +161,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 "SELECT [Id], [Computed] FROM @generated0;" + Environment.NewLine;
             Assert.Equal(expectedText + expectedText,
                 stringBuilder.ToString());
-            Assert.Equal(ResultsGrouping.OneCommandPerResultSet, grouping);
+            Assert.Equal(ResultSetMapping.LastInResultSet, grouping);
         }
 
         [Fact]
@@ -175,11 +174,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
 
             var expectedText = "INSERT INTO [dbo].[Ducks]" + Environment.NewLine +
-                               "DEFAULT VALUES;" + Environment.NewLine +
-                               "SELECT @@ROWCOUNT;" + Environment.NewLine;
+                               "DEFAULT VALUES;" + Environment.NewLine;
             Assert.Equal(expectedText + expectedText,
                 stringBuilder.ToString());
-            Assert.Equal(ResultsGrouping.OneCommandPerResultSet, grouping);
+            Assert.Equal(ResultSetMapping.NoResultSet, grouping);
         }
 
         protected override string RowsAffected => "@@ROWCOUNT";

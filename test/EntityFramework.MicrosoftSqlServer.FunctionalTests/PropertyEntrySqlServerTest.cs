@@ -23,16 +23,13 @@ FROM [Engines] AS [e]",
                 Sql);
 
             Assert.Contains(
-                @"SET NOCOUNT OFF;
+                @"SET NOCOUNT ON;
 UPDATE [Engines] SET [Name] = @p2
 WHERE [Id] = @p0 AND [EngineSupplierId] = @p1 AND [Name] = @p3;
 SELECT @@ROWCOUNT;", 
                 Sql);
         }
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.Sql; }
-        }
+        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

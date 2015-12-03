@@ -81,16 +81,14 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
 @p1: Book1
 
 INSERT INTO ""BookDetail"" (""Id"", ""BookId"")
-VALUES (@p0, @p1);
-SELECT changes();",
+VALUES (@p0, @p1);",
                 Sql);
 
             Assert.Contains(@"@p0: 0
 @p1: 
 
 INSERT INTO ""BookDetail"" (""Id"", ""BookId"")
-VALUES (@p0, @p1);
-SELECT changes();",
+VALUES (@p0, @p1);",
                 Sql);
         }
 

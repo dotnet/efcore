@@ -19,12 +19,7 @@ namespace Microsoft.Data.Entity.Update
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
-
-        protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
-
-        protected virtual int LastCachedCommandIndex { get; set; }
 
         protected ReaderModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
@@ -38,18 +33,17 @@ namespace Microsoft.Data.Entity.Update
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _commandBuilderFactory = commandBuilderFactory;
-
             SqlGenerationHelper = sqlGenerationHelper;
             UpdateSqlGenerator = updateSqlGenerator;
-
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
+        protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
+        protected virtual int LastCachedCommandIndex { get; set; }
         protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
-
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
-
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
+        protected virtual IList<ResultSetMapping> CommandResultSet { get; } = new List<ResultSetMapping>();
 
         public override bool AddCommand(ModificationCommand modificationCommand)
         {
@@ -66,11 +60,13 @@ namespace Microsoft.Data.Entity.Update
             }
 
             _modificationCommands.Add(modificationCommand);
+            CommandResultSet.Add(ResultSetMapping.LastInResultSet);
 
             if (!IsCommandTextValid())
             {
                 ResetCommandText();
                 _modificationCommands.RemoveAt(_modificationCommands.Count - 1);
+                CommandResultSet.RemoveAt(CommandResultSet.Count - 1);
                 return false;
             }
 
@@ -105,13 +101,16 @@ namespace Microsoft.Data.Entity.Update
             switch (newModificationCommand.EntityState)
             {
                 case EntityState.Added:
-                    UpdateSqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    CommandResultSet[commandPosition] =
+                        UpdateSqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand, commandPosition);
                     break;
                 case EntityState.Modified:
-                    UpdateSqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    CommandResultSet[commandPosition] =
+                        UpdateSqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand, commandPosition);
                     break;
                 case EntityState.Deleted:
-                    UpdateSqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    CommandResultSet[commandPosition] =
+                        UpdateSqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand, commandPosition);
                     break;
             }
 

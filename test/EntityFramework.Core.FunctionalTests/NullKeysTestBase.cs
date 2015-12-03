@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -36,11 +35,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(
                     new[] { "And", "By", "George", "Me", "Rodrigue", "Wendy" },
-                    results.Select(e => e.Id));
+                    results.Select(e => e.Id).ToArray());
 
                 Assert.Equal(
                     new[] { null, null, "Empire", "Fire", "Stereo", "Stereo" },
-                    results.Select(e => e.Fk));
+                    results.Select(e => e.Fk).ToArray());
 
                 Assert.Equal(
                     new WithStringKey[] { null, null },
@@ -64,15 +63,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(
                     new[] { 1, 2, 3 },
-                    results.Select(e => e.Id));
+                    results.Select(e => e.Id).ToArray());
 
                 Assert.Equal(
                     new[] { 1, 1, 3 },
-                    results.Select(e => e.Fk));
+                    results.Select(e => e.Fk).ToArray());
 
                 Assert.Equal(
                     new int?[] { 1, 1, 3 },
-                    results.Select(e => e.Principal.Id));
+                    results.Select(e => e.Principal.Id).ToArray());
             }
         }
 
@@ -88,7 +87,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(
                     new[] { 1, 2, 3, 4, 5, 6 },
-                    results.Select(e => e.Id));
+                    results.Select(e => e.Id).ToArray());
 
                 Assert.Equal(
                     new int?[] { null, 1, null, 2, null, null },
@@ -115,11 +114,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(
                     new[] { "And", "By", "George", "Me", "Rodrigue", "Wendy" },
-                    results.Select(e => e.Id));
+                    results.Select(e => e.Id).ToArray());
 
                 Assert.Equal(
                     new[] { "By", null, null, null, null, "Rodrigue" },
-                    results.Select(e => e.SelfFk));
+                    results.Select(e => e.SelfFk).ToArray());
 
                 Assert.Null(results[0].Self);
                 Assert.Equal("And", results[1].Self.Id);

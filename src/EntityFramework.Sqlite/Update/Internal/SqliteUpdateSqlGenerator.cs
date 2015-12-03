@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                 .Append("last_insert_rowid()");
         }
 
-        protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+        protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -37,6 +37,8 @@ namespace Microsoft.Data.Entity.Update.Internal
                 .Append("SELECT changes()")
                 .Append(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
+
+            return ResultSetMapping.LastInResultSet;
         }
 
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)

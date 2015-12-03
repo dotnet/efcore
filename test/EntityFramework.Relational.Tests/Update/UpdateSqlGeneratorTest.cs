@@ -31,10 +31,12 @@ namespace Microsoft.Data.Entity.Tests
                     .Append("provider_specific_identity()");
             }
 
-            protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+            protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
             {
                 commandStringBuilder
                     .Append("SELECT provider_specific_rowcount();" + Environment.NewLine);
+
+                return ResultSetMapping.LastInResultSet;
             }
 
             protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
