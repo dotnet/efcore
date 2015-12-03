@@ -121,7 +121,7 @@
     <value>The name '{migrationName}' is used by an existing migration.</value>
   </data>
   <data name="MultipleContexts" xml:space="preserve">
-    <value>More than one DbContext was found. Specify which one to use.</value>
+    <value>More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for DNX commands.</value>
   </data>
   <data name="MultipleContextsWithName" xml:space="preserve">
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name.</value>
