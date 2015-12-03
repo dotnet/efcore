@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 else
                 {
                     data.Add("Root.Namespace", "/project/Path", null, "Root.Namespace", "/project/Path", string.Empty);
-                    data.Add("Root.Namespace", "/project/Path", string.Empty, "Root.Namespace", "project/Path", string.Empty);
+                    data.Add("Root.Namespace", "/project/Path", string.Empty, "Root.Namespace", "/project/Path", string.Empty);
                     data.Add("Root.Namespace", "/project/Path", "/Absolute/Output/Path", "Root.Namespace", "/Absolute/Output/Path", null);
                     data.Add("Root.Namespace", "/project/Path", "../../Path/Outside/Project", "Root.Namespace", "/Path/Outside/Project", null);
                     data.Add("Root.Namespace", "/project/Path", "Path/Inside/Project", "Root.Namespace.Path.Inside.Project", "/project/Path/Path/Inside/Project", "Path/Inside/Project");
