@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public virtual void Migrate(string targetMigration = null)
         {
             var connection = _connection.DbConnection;
-            _logger.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.LogDebug(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!_historyRepository.Exists())
             {
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = _connection.DbConnection;
-            _logger.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.LogDebug(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         checkFirst = false;
                     }
 
-                    _logger.LogVerbose(RelationalStrings.GeneratingUp(migration.GetId()));
+                    _logger.LogDebug(RelationalStrings.GeneratingUp(migration.GetId()));
 
                     foreach (var command in GenerateUpSql(migration))
                     {
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         ? migrationsToRevert[i + 1]
                         : null;
 
-                    _logger.LogVerbose(RelationalStrings.GeneratingDown(migration.GetId()));
+                    _logger.LogDebug(RelationalStrings.GeneratingDown(migration.GetId()));
 
                     foreach (var command in GenerateDownSql(migration, previousMigration))
                     {

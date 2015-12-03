@@ -78,15 +78,15 @@ namespace Microsoft.Data.Entity.Design.Internal
                 case LogLevel.Information:
                     WriteInformation(message.ToString());
                     break;
-                case LogLevel.Verbose:
-                    WriteVerbose(message.ToString());
-                    break;
                 case LogLevel.Debug:
                     WriteDebug(message.ToString());
                     break;
+                case LogLevel.Trace:
+                    WriteTrace(message.ToString());
+                    break;
                 default:
                     Debug.Fail("Unexpected event type: " + logLevel);
-                    WriteVerbose(message.ToString());
+                    WriteDebug(message.ToString());
                     break;
             }
         }
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         protected abstract void WriteError([NotNull] string message);
         protected abstract void WriteWarning([NotNull] string message);
         protected abstract void WriteInformation([NotNull] string message);
-        protected abstract void WriteVerbose([NotNull] string message);
         protected abstract void WriteDebug([NotNull] string message);
+        protected abstract void WriteTrace([NotNull] string message);
     }
 }

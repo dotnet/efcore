@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Extensions.Internal
             }
         }
 
-        public static void LogVerbose(this ILogger logger, CoreLoggingEventId eventId, Func<string> formatter)
+        public static void LogDebug(this ILogger logger, CoreLoggingEventId eventId, Func<string> formatter)
         {
-            if (logger.IsEnabled(LogLevel.Verbose))
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.Log(LogLevel.Verbose, (int)eventId, null, null, (_, __) => formatter());
+                logger.Log(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
             }
         }
     }

@@ -61,21 +61,21 @@ namespace Microsoft.Data.Entity.Storage
             }
         }
 
-        public static void LogVerbose(
+        public static void LogDebug(
             this ILogger logger, RelationalLoggingEventId eventId, Func<string> formatter)
         {
-            if (logger.IsEnabled(LogLevel.Verbose))
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.Log(LogLevel.Verbose, (int)eventId, null, null, (_, __) => formatter());
+                logger.Log(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
             }
         }
 
-        public static void LogVerbose<TState>(
+        public static void LogDebug<TState>(
             this ILogger logger, RelationalLoggingEventId eventId, TState state, Func<TState, string> formatter)
         {
-            if (logger.IsEnabled(LogLevel.Verbose))
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.Log(LogLevel.Verbose, (int)eventId, state, null, (s, __) => formatter((TState)s));
+                logger.Log(LogLevel.Debug, (int)eventId, state, null, (s, __) => formatter((TState)s));
             }
         }
     }

@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 var lastModelSnapshotName = modelSnapshot.GetType().Name;
                 if (lastModelSnapshotName != modelSnapshotName)
                 {
-                    _logger.Value.LogVerbose(CommandsStrings.ReusingSnapshotName(lastModelSnapshotName));
+                    _logger.Value.LogDebug(CommandsStrings.ReusingSnapshotName(lastModelSnapshotName));
 
                     modelSnapshotName = lastModelSnapshotName;
                 }
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     }
                     else
                     {
-                        _logger.Value.LogVerbose(CommandsStrings.NoMigrationMetadataFile(migrationMetadataFileName));
+                        _logger.Value.LogDebug(CommandsStrings.NoMigrationMetadataFile(migrationMetadataFileName));
                     }
 
                     model = migrations.Count > 1
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 }
                 else
                 {
-                    _logger.Value.LogVerbose(CommandsStrings.ManuallyDeleted);
+                    _logger.Value.LogDebug(CommandsStrings.ManuallyDeleted);
                 }
             }
 
@@ -308,12 +308,12 @@ namespace Microsoft.Data.Entity.Migrations.Design
             var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
-            _logger.Value.LogVerbose(CommandsStrings.WritingMigration(migrationFile));
+            _logger.Value.LogDebug(CommandsStrings.WritingMigration(migrationFile));
             Directory.CreateDirectory(migrationDirectory);
             File.WriteAllText(migrationFile, migration.MigrationCode);
             File.WriteAllText(migrationMetadataFile, migration.MetadataCode);
 
-            _logger.Value.LogVerbose(CommandsStrings.WritingSnapshot(modelSnapshotFile));
+            _logger.Value.LogDebug(CommandsStrings.WritingSnapshot(modelSnapshotFile));
             Directory.CreateDirectory(modelSnapshotDirectory);
             File.WriteAllText(modelSnapshotFile, migration.SnapshotCode);
 
@@ -332,7 +332,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 var lastNamespace = siblingType.Namespace;
                 if (lastNamespace != defaultNamespace)
                 {
-                    _logger.Value.LogVerbose(CommandsStrings.ReusingNamespace(siblingType.Name));
+                    _logger.Value.LogDebug(CommandsStrings.ReusingNamespace(siblingType.Name));
 
                     return lastNamespace;
                 }
@@ -359,7 +359,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     var lastDirectory = Path.GetDirectoryName(siblingPath);
                     if (!defaultDirectory.Equals(lastDirectory, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.Value.LogVerbose(CommandsStrings.ReusingDirectory(siblingFileName));
+                        _logger.Value.LogDebug(CommandsStrings.ReusingDirectory(siblingFileName));
 
                         return lastDirectory;
                     }

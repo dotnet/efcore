@@ -642,7 +642,7 @@ namespace Microsoft.Data.Entity.Commands
                         }
                         else
                         {
-                            _logger.Value.LogVerbose("Writing SQL script to '{0}'", output);
+                            _logger.Value.LogDebug("Writing SQL script to '{0}'", output);
                             File.WriteAllText(output, sql);
 
                             _logger.Value.LogInformation("Done");
@@ -709,7 +709,7 @@ namespace Microsoft.Data.Entity.Commands
             {
                 if (ex is OperationException)
                 {
-                    _logger.Value.LogVerbose(ex.ToString());
+                    _logger.Value.LogDebug(ex.ToString());
                 }
                 else
                 {

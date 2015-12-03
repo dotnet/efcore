@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(_logger, nameof(_logger));
 
-            _logger.LogVerbose(
+            _logger.LogDebug(
                 RelationalLoggingEventId.BeginningTransaction,
                 isolationLevel,
                 il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
@@ -196,7 +196,7 @@ namespace Microsoft.Data.Entity.Storage
             if ((_openedCount == 0)
                 && (_connection.Value.State != ConnectionState.Open))
             {
-                _logger.LogVerbose(
+                _logger.LogDebug(
                     RelationalLoggingEventId.OpeningConnection,
                     new
                     {
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Storage
             if ((_openedCount == 0)
                 && (_connection.Value.State != ConnectionState.Open))
             {
-                _logger.LogVerbose(
+                _logger.LogDebug(
                     RelationalLoggingEventId.OpeningConnection,
                     new
                     {
@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.Storage
                 && (--_openedCount == 0)
                 && _openedInternally)
             {
-                _logger.LogVerbose(
+                _logger.LogDebug(
                     RelationalLoggingEventId.ClosingConnection,
                     new
                     {
