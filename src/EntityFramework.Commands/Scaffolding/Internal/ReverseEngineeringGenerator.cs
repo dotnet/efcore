@@ -147,6 +147,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             [NotNull] string projectPath,
             [CanBeNull] string outputPath)
         {
+            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
             Check.NotEmpty(projectPath, nameof(projectPath));
 
             // strip off any directory separator chars at end of project path
