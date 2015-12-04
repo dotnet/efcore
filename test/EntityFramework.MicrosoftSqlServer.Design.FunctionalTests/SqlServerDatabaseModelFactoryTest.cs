@@ -17,6 +17,31 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
     public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFixture>
     {
         [Fact]
+        public void It_reads_type_aliases()
+        {
+            var sql = @"
+CREATE TYPE [dbo].[nvarcharMaxTestTypeAlias] FROM nvarchar(max);
+CREATE TYPE [dbo].[floatTestTypeAlias] FROM float";
+
+            var dbInfo = CreateModel(sql);
+
+            // There are some pre-existing type aliases already defined in the DB
+            // hence the Where() clause.
+            Assert.Collection(dbInfo.TypeAliases
+                .Where(ta => ta.Alias.Contains("TestTypeAlias")).OrderBy(ta => ta.Alias),
+                ta0 =>
+                {
+                    Assert.Equal("floatTestTypeAlias", ta0.Alias);
+                    Assert.Equal("float", ta0.SystemType);
+                },
+                ta1 =>
+                {
+                    Assert.Equal("nvarcharMaxTestTypeAlias", ta1.Alias);
+                    Assert.Equal("nvarchar", ta1.SystemType);
+                });
+        }
+
+        [Fact]
         public void It_reads_tables()
         {
             var sql = @"

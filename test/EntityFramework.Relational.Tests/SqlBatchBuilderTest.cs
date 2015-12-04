@@ -100,20 +100,17 @@ Statement3
 
         private class TestRelationalTypeMapper : RelationalTypeMapper
         {
-            private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-                = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), new RelationalTypeMapping("int", typeof(int), DbType.String) }
-                    };
+            public TestRelationalTypeMapper()
+            {
+                _simpleMappings
+                    = new Dictionary<Type, RelationalTypeMapping>
+                        {
+                            { typeof(int), new RelationalTypeMapping("int", typeof(int), DbType.String) }
+                        };
 
-            private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-                = new Dictionary<string, RelationalTypeMapping>();
-
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-                => _simpleMappings;
-
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-                => _simpleNameMappings;
+                _simpleNameMappings
+                    = new Dictionary<string, RelationalTypeMapping>();
+            }
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
         }

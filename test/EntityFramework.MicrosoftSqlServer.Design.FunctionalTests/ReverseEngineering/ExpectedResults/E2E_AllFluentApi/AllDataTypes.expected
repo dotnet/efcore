@@ -34,6 +34,7 @@ namespace E2ETest.Namespace
         public TimeSpan? timeColumn { get; set; }
         public byte[] timestampColumn { get; set; }
         public byte tinyintColumn { get; set; }
+        public string typeAliasColumn { get; set; }
         public Guid? uniqueidentifierColumn { get; set; }
         public byte[] varbinaryColumn { get; set; }
         public string varcharColumn { get; set; }

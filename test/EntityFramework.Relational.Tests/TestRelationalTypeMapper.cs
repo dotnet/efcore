@@ -21,28 +21,25 @@ namespace Microsoft.Data.Entity.Tests
         private static readonly RelationalTypeMapping _defaultIntMapping = new RelationalTypeMapping("default_int_mapping", typeof(int));
         private static readonly RelationalTypeMapping _someIntMapping = new RelationalTypeMapping("some_int_mapping", typeof(int));
 
+        public TestRelationalTypeMapper()
+        {
+            _simpleMappings
+                = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(int), _defaultIntMapping },
+                        { typeof(string), _string }
+                    };
+
+            _simpleNameMappings
+                = new Dictionary<string, RelationalTypeMapping>
+                    {
+                        { "some_int_mapping", _someIntMapping },
+                        { "some_string(max)", _string },
+                        { "some_binary(max)", _binary }
+                    };
+        }
+
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
-
-        private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-        = new Dictionary<Type, RelationalTypeMapping>
-            {
-                { typeof(int), _defaultIntMapping },
-                { typeof(string), _string }
-            };
-
-        private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-        = new Dictionary<string, RelationalTypeMapping>
-            {
-                { "some_int_mapping", _someIntMapping },
-                { "some_string(max)", _string },
-                { "some_binary(max)", _binary }
-            };
-
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-            => _simpleMappings;
-
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-            => _simpleNameMappings;
 
         protected override RelationalTypeMapping FindCustomMapping(IProperty property)
         {

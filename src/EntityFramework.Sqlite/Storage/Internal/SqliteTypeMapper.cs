@@ -17,10 +17,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private static readonly RelationalTypeMapping _text = new RelationalTypeMapping("TEXT", typeof(string));
         private static readonly RelationalTypeMapping _default = _text;
 
-        private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
-
-        private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
-
         public SqliteTypeMapper()
         {
             _simpleNameMappings
@@ -95,11 +91,5 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         private static bool Contains(string haystack, string needle)
             => haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
-
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-            => _simpleMappings;
-
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-            => _simpleNameMappings;
     }
 }

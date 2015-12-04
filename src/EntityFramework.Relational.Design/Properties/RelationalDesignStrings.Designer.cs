@@ -116,6 +116,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ExistingFiles", "outputDirectoryName", "existingFiles"), outputDirectoryName, existingFiles);
         }
 
+        /// <summary>
+        /// Unable to add type alias '{alias}' with underlying system type '{storeSystemType}' into type mappings.
+        /// </summary>
+        public static string UnableToAddTypeAlias([CanBeNull] object alias, [CanBeNull] object storeSystemType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToAddTypeAlias", "alias", "storeSystemType"), alias, storeSystemType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

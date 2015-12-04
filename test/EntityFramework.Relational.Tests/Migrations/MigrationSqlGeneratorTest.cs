@@ -303,23 +303,21 @@ namespace Microsoft.Data.Entity.Migrations
 
         private class ConcreteRelationalTypeMapper : RelationalTypeMapper
         {
-            private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-                = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) }
-                };
+            public ConcreteRelationalTypeMapper()
+            {
+                _simpleMappings
+                    = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(int), new RelationalTypeMapping("int", typeof(int)) }
+                    };
 
-            private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-                = new Dictionary<string, RelationalTypeMapping>
-                {
-                    { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string)) }
-                };
+                _simpleNameMappings
+                    = new Dictionary<string, RelationalTypeMapping>
+                    {
+                        { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string)) }
+                    };
+            }
 
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-                => _simpleMappings;
-
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-                => _simpleNameMappings;
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
