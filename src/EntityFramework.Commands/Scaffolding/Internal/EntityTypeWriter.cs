@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Scaffolding.Internal.Configuration;
@@ -41,6 +42,17 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             {
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 _sb.AppendLine("using System.ComponentModel.DataAnnotations.Schema;");
+            }
+
+            foreach (var ns in _entity.EntityType.GetProperties()
+                .Select(p => p.ClrType.Namespace)
+                .Where(ns => ns != "System" && ns != "System.Collections.Generic")
+                .Distinct())
+            {
+                _sb
+                    .Append("using ")
+                    .Append(ns)
+                    .AppendLine(';');
             }
 
             _sb.AppendLine();
