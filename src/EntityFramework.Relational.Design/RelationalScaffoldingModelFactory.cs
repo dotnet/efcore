@@ -263,12 +263,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             foreach (var index in indexes)
             {
-                var indexBuilder = VisitIndex(builder, index);
-
-                if (indexBuilder == null)
-                {
-                    Logger.LogWarning(RelationalDesignStrings.UnableToScaffoldIndex(index.Name));
-                }
+                VisitIndex(builder, index);
             }
 
             return builder;
@@ -283,7 +278,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             if (properties.Count(p => builder.Metadata.FindProperty(p) != null) != properties.Length)
             {
-                // TODO log when index cannot be scaffolding because of missing columns
+                Logger.LogWarning(RelationalDesignStrings.UnableToScaffoldIndexMissingProperty(index.Name));
                 return null;
             }
 

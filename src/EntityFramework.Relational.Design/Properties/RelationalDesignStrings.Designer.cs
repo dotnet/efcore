@@ -95,9 +95,9 @@ namespace Microsoft.Data.Entity.Internal
         /// <summary>
         /// Unable to scaffold the index '{indexName}' because at least one of the properties it contains could not be scaffolded.
         /// </summary>
-        public static string UnableToScaffoldIndex([CanBeNull] object indexName)
+        public static string UnableToScaffoldIndexMissingProperty([CanBeNull] object indexName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToScaffoldIndex", "indexName"), indexName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToScaffoldIndexMissingProperty", "indexName"), indexName);
         }
 
         /// <summary>
