@@ -41,12 +41,5 @@ namespace System.Linq.Expressions
                    || unwrappedExpression is LiteralExpression
                    || unwrappedExpression.IsAliasWithColumnExpression();
         }
-
-        public static bool IsSelectExpression([NotNull] this Expression expression)
-        {
-            var unwrappedExpression = expression.RemoveConvert();
-
-            return unwrappedExpression is SelectExpression;
-        }
     }
 }

@@ -51,6 +51,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return (TEntity)Materializer(valueBuffer);
         }
 
+        public override IShaper<TDerived> Cast<TDerived>()
+            => new UnbufferedOffsetEntityShaper<TDerived>(
+                QuerySource,
+                EntityType,
+                IsTrackingQuery,
+                KeyValueFactory,
+                Materializer);
+
         public override EntityShaper WithOffset(int offset)
             => new UnbufferedOffsetEntityShaper<TEntity>(
                 QuerySource,

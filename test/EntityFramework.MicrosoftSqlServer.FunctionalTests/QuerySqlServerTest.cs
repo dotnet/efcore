@@ -1155,7 +1155,110 @@ END",
             base.Any_nested_negated();
 
             Assert.Equal(
-                @"",
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [o].[CustomerID] LIKE 'A' + '%')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 0",
+                Sql);
+        }        public override void Any_nested_negated2()
+        {
+            base.Any_nested_negated2();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [o].[CustomerID] LIKE 'A' + '%')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 0",
+                Sql);
+        }
+
+        public override void Any_nested_negated3()
+        {
+            base.Any_nested_negated3();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [o].[CustomerID] LIKE 'A' + '%')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 0 AND (([c].[City] <> 'London') OR [c].[City] IS NULL)",
+                Sql);
+        }
+
+        public override void Any_nested()
+        {
+            base.Any_nested();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [o].[CustomerID] LIKE 'A' + '%')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
+        public override void Any_nested2()
+        {
+            base.Any_nested2();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [o].[CustomerID] LIKE 'A' + '%')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
+        public override void Any_nested3()
+        {
+            base.Any_nested3();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [o].[CustomerID] LIKE 'A' + '%')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1 AND (([c].[City] <> 'London') OR [c].[City] IS NULL)",
                 Sql);
         }
 

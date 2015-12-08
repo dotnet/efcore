@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
+using Microsoft.Data.Entity.Storage;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
@@ -438,11 +439,29 @@ namespace Microsoft.Data.Entity.Query.Internal
                         .Visit(handlerContext.SelectExpression.Predicate);
             }
 
+            var shapedQueryMethod = (MethodCallExpression)handlerContext.QueryModelVisitor.Expression;
+            var entityShaper = (EntityShaper)((ConstantExpression)shapedQueryMethod.Arguments[2]).Value;
+
             return Expression.Call(
-                handlerContext.QueryModelVisitor.LinqOperatorProvider.Cast
+                shapedQueryMethod.Method
+                    .GetGenericMethodDefinition()
                     .MakeGenericMethod(ofTypeResultOperator.SearchedItemType),
-                handlerContext.QueryModelVisitor.Expression);
+                shapedQueryMethod.Arguments[0],
+                shapedQueryMethod.Arguments[1],
+                Expression.Constant(
+                    _createDowncastingShaperMethodInfo
+                        .MakeGenericMethod(ofTypeResultOperator.SearchedItemType)
+                        .Invoke(null, new object[] { entityShaper })));
         }
+
+        private static readonly MethodInfo _createDowncastingShaperMethodInfo
+            = typeof(RelationalResultOperatorHandler).GetTypeInfo()
+                .GetDeclaredMethod(nameof(CreateDowncastingShaper));
+
+        [UsedImplicitly]
+        private static IShaper<TDerived> CreateDowncastingShaper<TDerived>(EntityShaper shaper)
+            where TDerived : class
+            => shaper.Cast<TDerived>();
 
         private class DiscriminatorReplacingExpressionVisitor : RelinqExpressionVisitor
         {
