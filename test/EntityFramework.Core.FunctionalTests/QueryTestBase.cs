@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [ConditionalFact]
         public virtual void Any_nested_negated2()
-            {
+        {
             AssertQuery<Customer, Order>(
                 (cs, os) => cs.Where(c => c.City != "London"
                                           && !os.Any(o => o.CustomerID.StartsWith("A"))));
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer, Order>(
                 (cs, os) => cs.Where(c => !os.Any(o => o.CustomerID.StartsWith("A"))
                                           && c.City != "London"));
-            }
+        }
 
         [ConditionalFact]
         public virtual void Any_nested()
