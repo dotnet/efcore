@@ -156,4 +156,7 @@
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
+  <data name="UnableToAddTypeAlias" xml:space="preserve">
+    <value>Unable to add type alias '{alias}' with underlying system type '{storeSystemType}' into type mappings.</value>
+  </data>
 </root>

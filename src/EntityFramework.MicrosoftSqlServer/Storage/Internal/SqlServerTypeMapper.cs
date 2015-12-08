@@ -35,9 +35,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(decimal));
         private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(TimeSpan));
 
-        private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
-        private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
-
         public SqlServerTypeMapper()
         {
             _simpleNameMappings
@@ -109,12 +106,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
         }
 
         protected override string GetColumnType(IProperty property) => property.SqlServer().ColumnType;
-
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-            => _simpleMappings;
-
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-            => _simpleNameMappings;
 
         public override RelationalTypeMapping FindMapping(Type clrType)
         {

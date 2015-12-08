@@ -40,6 +40,23 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
+            public ConcreteTypeMapper()
+            {
+                _simpleMappings
+                    = new Dictionary<Type, RelationalTypeMapping>
+                        {
+                            { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
+                            { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
+                        };
+
+                _simpleNameMappings
+                    = new Dictionary<string, RelationalTypeMapping>
+                        {
+                            { "varchar", new RelationalTypeMapping("varchar", typeof(string)) },
+                            { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
+                        };
+            }
+
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
             public override RelationalTypeMapping FindMapping([NotNull] Type clrType)
@@ -51,27 +68,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
                     ? new RelationalTypeMapping("varchar(" + property.GetMaxLength() + ")", typeof(string))
                     : base.FindCustomMapping(property);
-
-
-            private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-                = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
-                        { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
-                    };
-
-            private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-                = new Dictionary<string, RelationalTypeMapping>
-                    {
-                        { "varchar", new RelationalTypeMapping("varchar", typeof(string)) },
-                        { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
-                    };
-
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-                => _simpleMappings;
-
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-                => _simpleNameMappings;
         }
     }
 }

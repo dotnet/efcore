@@ -58,6 +58,7 @@
     <Compile Include="Metadata\IndexModel.cs" />
     <Compile Include="Metadata\ScaffoldingModelAnnotations.cs" />
     <Compile Include="Metadata\TableModel.cs" />
+    <Compile Include="Metadata\TypeAliasModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="..\Shared\Check.cs">

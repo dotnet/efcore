@@ -61,6 +61,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                  // TODO actually load per-user
                 _databaseModel.DefaultSchemaName = "dbo";
 
+                GetTypeAliases();
                 GetTables();
                 GetColumns();
                 GetIndexes();
@@ -68,6 +69,43 @@ namespace Microsoft.Data.Entity.Scaffolding
                 return _databaseModel;
             }
         }
+
+        private void GetTypeAliases()
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = @"SELECT
+  [type_name],
+  [underlying_system_type]
+  FROM
+  (SELECT
+    t1.[name] as [type_name],
+    ( CASE WHEN t1.[xusertype] = t1.[xtype] THEN NULL
+      ELSE
+        ( SELECT t2.[name]
+          FROM [sys].[systypes] AS t2
+          WHERE t2.[xusertype] = t2.[xtype]
+          AND t2.[xusertype] = t1.[xtype] )
+      END) as [underlying_system_type]
+    FROM [sys].[systypes] AS t1
+  ) AS t
+  WHERE [underlying_system_type] IS NOT NULL";
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var alias = reader.GetString(0);
+                    var underlyingSystemDataType = reader.GetString(1);
+                    var typeAlias = new TypeAliasModel
+                    {
+                        Alias = alias,
+                        SystemType = underlyingSystemDataType
+                    };
+
+                    _databaseModel.TypeAliases.Add(typeAlias);
+                }
+            }
+       }
 
         private void GetTables()
         {

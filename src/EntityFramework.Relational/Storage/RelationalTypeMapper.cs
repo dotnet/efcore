@@ -21,12 +21,34 @@ namespace Microsoft.Data.Entity.Storage
         private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedBinaryMappings
             = new ConcurrentDictionary<int, RelationalTypeMapping>();
 
-        protected abstract IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings();
+        protected virtual IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+            => _simpleMappings;
 
-        protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings();
+        protected virtual IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+            => _simpleNameMappings;
+
+        protected Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
+        protected Dictionary<Type, RelationalTypeMapping> _simpleMappings;
 
         // Not using IRelationalAnnotationProvider here because type mappers are Singletons
         protected abstract string GetColumnType([NotNull] IProperty property);
+
+        public virtual bool AddTypeAlias(
+            [NotNull] string typeAlias, [NotNull] string systemDataType)
+        {
+            Check.NotEmpty(typeAlias, nameof(typeAlias));
+            Check.NotEmpty(systemDataType, nameof(systemDataType));
+
+            RelationalTypeMapping mapping;
+            if (_simpleNameMappings.ContainsKey(typeAlias)
+                || !_simpleNameMappings.TryGetValue(systemDataType, out mapping))
+            {
+                return false;
+            }
+
+            _simpleNameMappings.Add(typeAlias, mapping);
+            return true;
+        }
 
         public virtual RelationalTypeMapping FindMapping([NotNull] IProperty property)
         {

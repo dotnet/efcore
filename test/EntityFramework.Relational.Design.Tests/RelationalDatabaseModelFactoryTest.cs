@@ -615,26 +615,23 @@ namespace Microsoft.Data.Entity.Relational.Design
         private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("string", typeof(string));
         private static readonly RelationalTypeMapping _long = new RelationalTypeMapping("long", typeof(long));
 
-        private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-            = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(string), _string },
-                    { typeof(long), _long }
-                };
+        public TestTypeMapper()
+        {
+            _simpleMappings
+                = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(string), _string },
+                        { typeof(long), _long }
+                    };
 
-        private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-            = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "string", _string },
-                    { "alias for string", _string },
-                    { "long", _long }
-                };
-
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-            => _simpleMappings;
-
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-            => _simpleNameMappings;
+            _simpleNameMappings
+                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "string", _string },
+                        { "alias for string", _string },
+                        { "long", _long }
+                    };
+        }
 
         protected override string GetColumnType(IProperty property) => ((Property)property).Relational().ColumnType;
     }

@@ -16,28 +16,25 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
         private static readonly RelationalTypeMapping _long = new RelationalTypeMapping("DefaultLong", typeof(long), DbType.Int64);
         private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("DefaultString", typeof(string), DbType.String);
 
-        protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
+        public FakeRelationalTypeMapper()
+        {
+            _simpleMappings
+                = new Dictionary<Type, RelationalTypeMapping>
+                    {
+                        { typeof(int), _int },
+                        { typeof(long), _long },
+                        { typeof(string), _string }
+                    };
 
-        private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-            = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(int), _int },
-                    { typeof(long), _long },
-                    { typeof(string), _string }
-                };
+            _simpleNameMappings
+                = new Dictionary<string, RelationalTypeMapping>
+                    {
+                        { "DefaultInt", _int },
+                        { "DefaultLong", _long },
+                        { "DefaultString", _string}
+                    };
+        }
 
-        private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-            = new Dictionary<string, RelationalTypeMapping>
-                {
-                    { "DefaultInt", _int },
-                    { "DefaultLong", _long },
-                    { "DefaultString", _string}
-                };
-
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-            => _simpleMappings;
-
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-            => _simpleNameMappings;
+    protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
     }
 }

@@ -52,8 +52,23 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotEmpty(connectionString, nameof(connectionString));
 
             var schemaInfo = _databaseModelFactory.Create(connectionString, tableSelectionSet ?? TableSelectionSet.All);
+            AddTypeAliasesToTypeMapper(schemaInfo.TypeAliases);
 
             return CreateFromDatabaseModel(schemaInfo);
+        }
+
+        protected virtual void AddTypeAliasesToTypeMapper([NotNull] IEnumerable<TypeAliasModel> typeAliases)
+        {
+            Check.NotNull(typeAliases, nameof(typeAliases));
+
+            foreach (var typeAlias in typeAliases)
+            {
+                if (!_typeMapper.AddTypeAlias(typeAlias.Alias, typeAlias.SystemType))
+                {
+                    Logger.LogWarning(RelationalDesignStrings
+                        .UnableToAddTypeAlias(typeAlias.Alias, typeAlias.SystemType));
+                }
+            }
         }
 
         protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel)
