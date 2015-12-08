@@ -90,7 +90,7 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteCompositeMemberTranslator.cs" />
     <Compile Include="Storage\Internal\SqliteDatabaseCreator.cs" />
     <Compile Include="Storage\Internal\SqliteRelationalConnection.cs" />
-    <Compile Include="Metadata\Conventions\Internal\SqliteConventionSetBuilder.cs" />
+    <Compile Include="Metadata\Conventions\SqliteConventionSetBuilder.cs" />
     <Compile Include="Infrastructure\SqliteDbContextOptionsBuilder.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="Infrastructure\SqliteEntityFrameworkServicesBuilderExtensions.cs" />

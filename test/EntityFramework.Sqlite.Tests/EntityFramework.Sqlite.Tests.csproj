@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Metadata\Conventions\SqliteConventionSetBuilderTests.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\Internal\SqliteInternalMetadataBuilderExtensionsTest.cs" />

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,6 +8,7 @@ using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks;
 using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers;
 using EntityFramework.Microbenchmarks.Models.AdventureWorks;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Storage.Internal;
 using Xunit;
@@ -52,11 +53,8 @@ namespace EntityFramework.Microbenchmarks
         public void BuildModel_AdventureWorks(IMetricCollector collector)
         {
             collector.StartCollection();
-
-            var conventions = new SqlServerConventionSetBuilder(new SqlServerTypeMapper())
-                .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
-
-            var builder = new ModelBuilder(conventions);
+            
+            var builder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
             AdventureWorksContext.ConfigureModel(builder);
 
             var model = builder.Model;

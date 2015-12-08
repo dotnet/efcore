@@ -50,7 +50,7 @@
     <Compile Include="Infrastructure\Internal\SqlServerModelSource.cs" />
     <Compile Include="Internal\SqlServerModelValidator.cs" />
     <Compile Include="Infrastructure\Internal\SqlServerOptionsExtension.cs" />
-    <Compile Include="Metadata\Conventions\Internal\SqlServerConventionSetBuilder.cs" />
+    <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilder.cs" />
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\Internal\SqlServerAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\SqlServerIndexBuilderAnnotations.cs" />
