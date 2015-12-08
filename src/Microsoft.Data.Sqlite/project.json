@@ -7,17 +7,13 @@
   },
   "frameworks": {
     "net451": {
-      "dependencies": {
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
-      },
       "frameworkAssemblies": {
-        "System.Data": "",
-        "System.Xml": ""
+        "System.Data": "4.0.0.0"
       }
     },
     "dotnet5.4": {
       "dependencies": {
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
+        "System.AppContext": "4.0.1-*",
         "System.Collections": "4.0.11-*",
         "System.ComponentModel": "4.0.1-*",
         "System.Data.Common": "4.0.1-*",
@@ -37,6 +33,7 @@
     },
     "netcore50": {
       "dependencies": {
+        "System.AppContext": "4.0.0",
         "Microsoft.CSharp": "4.0.0",
         "System.Collections": "4.0.10",
         "System.Data.Common": "4.0.0",

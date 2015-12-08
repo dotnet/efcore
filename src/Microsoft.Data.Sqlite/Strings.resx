@@ -192,4 +192,10 @@
   <data name="AlreadyLoaded" xml:space="preserve">
     <value>The SQLite library is already loaded. UseWinSqlite3 must be called before using SQLite.</value>
   </data>
+  <data name="InvalidEnumValue" xml:space="preserve">
+    <value>The {enumType} enumeration value, {value}, is invalid.</value>
+  </data>
+  <data name="ConvertFailed" xml:space="preserve">
+    <value>Cannot convert object of type '{sourceType}' to object of type '{targetType}'.</value>
+  </data>
 </root>

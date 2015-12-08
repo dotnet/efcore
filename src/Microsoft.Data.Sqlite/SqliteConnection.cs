@@ -4,14 +4,16 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
+using Microsoft.Data.Sqlite.Interop;
+
 #if NETCORE50
 using System.Reflection;
 using Microsoft.Data.Sqlite.Utilities;
-#else
-using Microsoft.Extensions.PlatformAbstractions;
 #endif
-using Microsoft.Data.Sqlite.Interop;
+
+using static Microsoft.Data.Sqlite.Interop.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -103,88 +105,102 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
             }
 
-            var flags = Constants.SQLITE_OPEN_READWRITE | Constants.SQLITE_OPEN_CREATE;
-            flags |= (ConnectionStringBuilder.Cache == SqliteConnectionCacheMode.Shared) ? Constants.SQLITE_OPEN_SHAREDCACHE : Constants.SQLITE_OPEN_PRIVATECACHE;
 
-            var path = ConnectionStringBuilder.DataSource;
 
-            if (!path.Equals(":memory:", StringComparison.OrdinalIgnoreCase))
+            var filename = ConnectionStringBuilder.DataSource;
+            var flags = 0;
+
+            if (filename.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
             {
-                path = AdjustForRelativeDirectory(path);
+                flags |= SQLITE_OPEN_URI;
             }
 
-            var rc = NativeMethods.sqlite3_open_v2(path, out _db, flags, vfs: null);
+            switch (ConnectionStringBuilder.Mode)
+            {
+                case SqliteOpenMode.ReadOnly:
+                    flags |= SQLITE_OPEN_READONLY;
+                    break;
+
+                case SqliteOpenMode.ReadWrite:
+                    flags |= SQLITE_OPEN_READWRITE;
+                    break;
+
+                case SqliteOpenMode.Memory:
+                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_MEMORY;
+                    if ((flags & SQLITE_OPEN_URI) == 0)
+                    {
+                        flags |= SQLITE_OPEN_URI;
+                        filename = "file:" + filename;
+                    }
+                    break;
+
+                default:
+                    Debug.Assert(
+                        ConnectionStringBuilder.Mode == SqliteOpenMode.ReadWriteCreate,
+                        "ConnectionStringBuilder.Mode is not ReadWriteCreate");
+                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+                    break;
+            }
+
+            switch (ConnectionStringBuilder.Cache)
+            {
+                case SqliteCacheMode.Shared:
+                    flags |= SQLITE_OPEN_SHAREDCACHE;
+                    break;
+
+                case SqliteCacheMode.Private:
+                    flags |= SQLITE_OPEN_PRIVATECACHE;
+                    break;
+
+                default:
+                    Debug.Assert(
+                        ConnectionStringBuilder.Cache == SqliteCacheMode.Default,
+                        "ConnectionStringBuilder.Cache is not Default.");
+                    break;
+            }
+
+            if ((flags & SQLITE_OPEN_URI) == 0
+                && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase)
+                && !Path.IsPathRooted(filename))
+            {
+                filename = Path.GetFullPath(Path.Combine(BaseDirectory, filename));
+            }
+
+            var rc = NativeMethods.sqlite3_open_v2(filename, out _db, flags, vfs: null);
             MarshalEx.ThrowExceptionForRC(rc, _db);
+
             SetState(ConnectionState.Open);
 
-            SetFolders();
+            OnOpened();
         }
 
-        partial void SetFolders();
+        partial void OnOpened();
 
 #if NETCORE50
-        partial void SetFolders()
+        partial void OnOpened()
         {
-            if (TemporaryFolderPath != null)
+            var temporaryFolder = CurrentApplicationData?.TemporaryFolder.Path;
+            if (temporaryFolder != null)
             {
-                DbConnectionExtensions.ExecuteNonQuery(this, "PRAGMA temp_store_directory = '" + TemporaryFolderPath + "'");
+                DbConnectionExtensions.ExecuteNonQuery(this, "PRAGMA temp_store_directory = '" + temporaryFolder + "';");
             }
         }
 
-        private readonly static string DefaultBasePath = AppData?.LocalFolder.Path;
-        private readonly static string TemporaryFolderPath = AppData?.TemporaryFolder.Path;
+        private static dynamic CurrentApplicationData
+            => Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                ?.GetTypeInfo().GetDeclaredProperty("Current").GetValue(null);
 
-        private static dynamic AppData
-        {
-            get
-            {
-                var appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime", throwOnError: false);
-                var appData = (dynamic)appDataType?.GetTypeInfo()
-                    .GetDeclaredProperty("Current").GetMethod.Invoke(null, null);
-                return appData;
-            }
-        }
+        private static string BaseDirectory
+            => CurrentApplicationData?.LocalFolder.Path
+                ?? AppContext.BaseDirectory;
+#elif NET451
+        private static string BaseDirectory
+            => AppDomain.CurrentDomain.GetData("APP_CONTEXT_BASE_DIRECTORY") as string
+                ?? AppDomain.CurrentDomain.BaseDirectory;
 #else
-        private readonly static string DefaultBasePath = PlatformServices.Default.Application.ApplicationBasePath;
+        private static string BaseDirectory
+            => AppContext.BaseDirectory;
 #endif
-
-        internal static string AdjustForRelativeDirectory(string path)
-        {
-            if (DefaultBasePath == null)
-            {
-                return path;
-            }
-
-            if (path.StartsWith("file:"))
-            {
-#if NETCORE50
-                // UWP cannot adjust for URI on UWP
-                return path;
-#else
-                // is this already absolute?
-                if (path.StartsWith("file:/"))
-                {
-                    return path;
-                }
-                var prefix = PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase) ? "file:///" : "file://";
-                return prefix + DefaultBasePath + "/" + path.Replace("file:", "");
-#endif
-            }
-
-            if (Path.IsPathRooted(path))
-            {
-                return path;
-            }
-
-            try
-            {
-                return Path.GetFullPath(Path.Combine(DefaultBasePath, path));
-            }
-            catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException)
-            {
-                return path;
-            }
-        }
 
         public override void Close()
         {

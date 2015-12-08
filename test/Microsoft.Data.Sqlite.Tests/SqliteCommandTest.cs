@@ -6,6 +6,8 @@ using System.Data;
 using Microsoft.Data.Sqlite.Utilities;
 using Xunit;
 
+using static Microsoft.Data.Sqlite.TestUtilities.Constants;
+
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteCommandTest
@@ -108,7 +110,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<SqliteException>(() => command.ExecuteReader());
 
-                Assert.Equal(1, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -455,7 +457,7 @@ namespace Microsoft.Data.Sqlite
         {
             Assert.Throws<NotSupportedException>(() => new SqliteCommand().Cancel());
         }
-        
+
         [Fact]
         public void ExecuteReader_supports_SequentialAccess()
         {
@@ -503,7 +505,7 @@ namespace Microsoft.Data.Sqlite
                 var command = connection.CreateCommand();
                 command.CommandText = "SELECT 0;";
                 connection.Open();
-                
+
                 var ex = Assert.Throws<ArgumentException>(() => command.ExecuteReader(behavior));
                 Assert.Equal(Strings.FormatInvalidCommandBehavior(behavior), ex.Message);
             }

@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -18,12 +19,14 @@ namespace Microsoft.Data.Sqlite
     {
         private const string DataSourceKeyword = "Data Source";
         private const string DataSourceNoSpaceKeyword = "DataSource";
+        private const string ModeKeyword = "Mode";
         private const string CacheKeyword = "Cache";
         private const string FilenameKeyword = "Filename";
 
         private enum Keywords
         {
             DataSource,
+            Mode,
             Cache
         }
 
@@ -31,18 +34,21 @@ namespace Microsoft.Data.Sqlite
         private static readonly IReadOnlyDictionary<string, Keywords> _keywords;
 
         private string _dataSource = string.Empty;
-        private SqliteConnectionCacheMode _cacheMode = SqliteConnectionCacheMode.Private;
+        private SqliteOpenMode _mode = SqliteOpenMode.ReadWriteCreate;
+        private SqliteCacheMode _cache = SqliteCacheMode.Default;
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[2];
+            var validKeywords = new string[3];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
+            validKeywords[(int)Keywords.Mode] = ModeKeyword;
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
             _validKeywords = validKeywords;
 
             _keywords = new Dictionary<string, Keywords>(3, StringComparer.OrdinalIgnoreCase)
             {
                 [DataSourceKeyword] = Keywords.DataSource,
+                [ModeKeyword] = Keywords.Mode,
                 [CacheKeyword] = Keywords.Cache,
 
                 // aliases
@@ -66,6 +72,12 @@ namespace Microsoft.Data.Sqlite
             set { base[DataSourceKeyword] = _dataSource = value; }
         }
 
+        public SqliteOpenMode Mode
+        {
+            get { return _mode; }
+            set { base[ModeKeyword] = _mode = value; }
+        }
+
         public override ICollection Keys => new ReadOnlyCollection<string>((string[])_validKeywords);
 
         public override ICollection Values
@@ -82,10 +94,10 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public SqliteConnectionCacheMode Cache
+        public SqliteCacheMode Cache
         {
-            get { return _cacheMode; }
-            set { base[CacheKeyword] = _cacheMode = value; }
+            get { return _cache; }
+            set { base[CacheKeyword] = _cache = value; }
         }
 
         public override object this[string keyword]
@@ -106,13 +118,12 @@ namespace Microsoft.Data.Sqlite
                         DataSource = Convert.ToString(value, CultureInfo.InvariantCulture);
                         return;
 
+                    case Keywords.Mode:
+                        Mode = ConvertToEnum<SqliteOpenMode>(keyword, value);
+                        return;
+
                     case Keywords.Cache:
-                        SqliteConnectionCacheMode mode;
-                        if (!Enum.TryParse(value as string, out mode))
-                        {
-                            throw new ArgumentException(Strings.FormatInvalidCacheMode(value));
-                        }
-                        Cache = mode;
+                        Cache = ConvertToEnum<SqliteCacheMode>(keyword, value);
                         return;
 
                     default:
@@ -120,6 +131,40 @@ namespace Microsoft.Data.Sqlite
                         return;
                 }
             }
+        }
+
+        private TEnum ConvertToEnum<TEnum>(string keyword, object value)
+            where TEnum : struct
+        {
+            var stringValue = value as string;
+            if (stringValue != null)
+            {
+                return (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true);
+            }
+
+            TEnum enumValue;
+            if (value is TEnum)
+            {
+                enumValue = (TEnum)value;
+            }
+            else if (value.GetType().GetTypeInfo().IsEnum)
+            {
+                throw new ArgumentException(Strings.FormatConvertFailed(value.GetType(), typeof(TEnum)));
+            }
+            else
+            {
+                enumValue = (TEnum)Enum.ToObject(typeof(TEnum), value);
+            }
+
+            if (!Enum.IsDefined(typeof(TEnum), enumValue))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(value),
+                    value,
+                    Strings.FormatInvalidEnumValue(typeof(TEnum), enumValue));
+            }
+
+            return enumValue;
         }
 
         public override void Clear()
@@ -176,6 +221,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.DataSource:
                     return DataSource;
 
+                case Keywords.Mode:
+                    return Mode;
+
                 case Keywords.Cache:
                     return Cache;
 
@@ -204,8 +252,12 @@ namespace Microsoft.Data.Sqlite
                     _dataSource = string.Empty;
                     return;
 
+                case Keywords.Mode:
+                    _mode = SqliteOpenMode.ReadWriteCreate;
+                    return;
+
                 case Keywords.Cache:
-                    _cacheMode = SqliteConnectionCacheMode.Private;
+                    _cache = SqliteCacheMode.Default;
                     return;
 
                 default:

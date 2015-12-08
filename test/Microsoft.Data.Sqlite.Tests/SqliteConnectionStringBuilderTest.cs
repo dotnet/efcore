@@ -16,14 +16,21 @@ namespace Microsoft.Data.Sqlite
             var builder = new SqliteConnectionStringBuilder("Data Source=test.db");
 
             Assert.Equal("test.db", builder.DataSource);
-            Assert.Equal(SqliteConnectionCacheMode.Private, builder.Cache);
         }
 
         [Fact]
         public void Ctor_parses_SharedCache()
         {
-            Assert.Equal(SqliteConnectionCacheMode.Private, new SqliteConnectionStringBuilder("Cache=Private").Cache);
-            Assert.Equal(SqliteConnectionCacheMode.Shared, new SqliteConnectionStringBuilder("Cache=Shared").Cache);
+            Assert.Equal(SqliteCacheMode.Private, new SqliteConnectionStringBuilder("Cache=Private").Cache);
+            Assert.Equal(SqliteCacheMode.Shared, new SqliteConnectionStringBuilder("Cache=Shared").Cache);
+        }
+
+        [Fact]
+        public void Ctor_parses_mode()
+        {
+            var builder = new SqliteConnectionStringBuilder("Mode=Memory");
+
+            Assert.Equal(SqliteOpenMode.Memory, builder.Mode);
         }
 
         [Fact]
@@ -58,16 +65,23 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Cache_throws_when_invalid_mode()
+        public void Mode_works()
         {
-            var ex = Assert.Throws<ArgumentException>(() => new SqliteConnectionStringBuilder("Cache=Valley"));
-            Assert.Equal(Strings.FormatInvalidCacheMode("Valley"), ex.Message);
+            var builder = new SqliteConnectionStringBuilder();
+
+            builder.Mode = SqliteOpenMode.Memory;
+
+            Assert.Equal(SqliteOpenMode.Memory, builder.Mode);
         }
 
         [Fact]
-        public void Cache_defaults_to_private()
+        public void Mode_defaults_to_ReadWriteCreate()
+            => Assert.Equal(SqliteOpenMode.ReadWriteCreate, new SqliteConnectionStringBuilder().Mode);
+
+        [Fact]
+        public void Cache_defaults()
         {
-            Assert.Equal(SqliteConnectionCacheMode.Private, new SqliteConnectionStringBuilder().Cache);
+            Assert.Equal(SqliteCacheMode.Default, new SqliteConnectionStringBuilder().Cache);
         }
 
         [Fact]
@@ -76,8 +90,9 @@ namespace Microsoft.Data.Sqlite
             var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
             Assert.True(keys.IsReadOnly);
-            Assert.Equal(2, keys.Count);
+            Assert.Equal(3, keys.Count);
             Assert.Contains("Data Source", keys);
+            Assert.Contains("Mode", keys);
             Assert.Contains("Cache", keys);
         }
 
@@ -87,7 +102,7 @@ namespace Microsoft.Data.Sqlite
             var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
             Assert.True(values.IsReadOnly);
-            Assert.Equal(2, values.Count);
+            Assert.Equal(3, values.Count);
         }
 
         [Fact]
@@ -130,14 +145,42 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal("test.db", builder.DataSource);
         }
 
+        [Theory]
+        [InlineData("Shared")]
+        [InlineData("SHARED")]
+        [InlineData(SqliteCacheMode.Shared)]
+        [InlineData((int)SqliteCacheMode.Shared)]
+        public void Item_converts_to_enum_on_set(object value)
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            builder["Cache"] = value;
+
+            Assert.Equal(SqliteCacheMode.Shared, builder["Cache"]);
+        }
+
+        [Theory]
+        [InlineData(42)]
+        [InlineData("Unknown")]
+        [InlineData((SqliteCacheMode)42)]
+        [InlineData(SqliteOpenMode.ReadOnly)]
+        public void Item_throws_when_cannot_convert_to_enum_on_set(object value)
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            Assert.ThrowsAny<ArgumentException>(() => builder["Cache"] = value);
+        }
+
         [Fact]
         public void Clear_resets_everything()
         {
-            var builder = new SqliteConnectionStringBuilder("Data Source=test.db");
+            var builder = new SqliteConnectionStringBuilder("Data Source=test.db;Mode=Memory;Cache=Shared");
 
             builder.Clear();
 
             Assert.Empty(builder.DataSource);
+            Assert.Equal(SqliteOpenMode.ReadWriteCreate, builder.Mode);
+            Assert.Equal(SqliteCacheMode.Default, builder.Cache);
         }
 
         [Fact]
@@ -223,11 +266,22 @@ namespace Microsoft.Data.Sqlite
             var builder = new SqliteConnectionStringBuilder
             {
                 DataSource = "test.db",
-                Cache = SqliteConnectionCacheMode.Shared
+                Cache = SqliteCacheMode.Shared,
+                Mode = SqliteOpenMode.Memory
             };
-            Assert.Equal("Data Source=test.db;Cache=Shared", builder.ToString());
 
-            Assert.Equal("Data Source=test2.db", new SqliteConnectionStringBuilder(" Data Source = test2.db ").ToString());
+            Assert.Equal("Data Source=test.db;Mode=Memory;Cache=Shared", builder.ToString());
+        }
+
+        [Fact]
+        public void ToString_builds_minimal_string()
+        {
+            var builder = new SqliteConnectionStringBuilder
+            {
+                DataSource = "test.db"
+            };
+
+            Assert.Equal("Data Source=test.db", builder.ToString());
         }
     }
 }

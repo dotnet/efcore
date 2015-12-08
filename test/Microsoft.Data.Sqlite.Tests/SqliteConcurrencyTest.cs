@@ -9,14 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Interop;
 using Xunit;
+
 using static Microsoft.Data.Sqlite.Interop.Constants;
+using static Microsoft.Data.Sqlite.TestUtilities.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteConcurrencyTest : IDisposable
     {
-        private const int SQLITE_BUSY = 5;
-
         public SqliteConcurrencyTest()
         {
             using (var connection = CreateConnection())
@@ -116,7 +116,7 @@ INSERT INTO a VALUES (2);";
                         var ex = Assert.Throws<SqliteException>(() => dropCommand.ExecuteNonQuery());
 
                         Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
-                        
+
                         if (CurrentVersion >= new Version("3.7.15"))
                         {
                             var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
@@ -195,7 +195,7 @@ INSERT INTO a VALUES (2);";
                             waitHandle.Release();
 
                             Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
-                            
+
                             if (CurrentVersion >= new Version("3.7.15"))
                             {
                                 var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
@@ -210,7 +210,7 @@ INSERT INTO a VALUES (2);";
                 }
             }
         }
-        
+
         private Version CurrentVersion => new Version(NativeMethods.sqlite3_libversion());
 
         private const string FileName = "./concurrency.db";

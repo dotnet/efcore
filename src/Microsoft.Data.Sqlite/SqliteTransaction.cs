@@ -24,7 +24,7 @@ namespace Microsoft.Data.Sqlite
 
             if (isolationLevel == IsolationLevel.ReadUncommitted)
             {
-                if (connection.ConnectionStringBuilder.Cache != SqliteConnectionCacheMode.Shared)
+                if (connection.ConnectionStringBuilder.Cache != SqliteCacheMode.Shared)
                 {
                     throw new ArgumentException(Strings.FormatInvalidIsolationLevelForUnsharedCache(isolationLevel));
                 }

@@ -5,6 +5,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
+using static Microsoft.Data.Sqlite.Interop.Constants;
+
 namespace Microsoft.Data.Sqlite.Interop
 {
     internal static class MarshalEx
@@ -53,9 +55,9 @@ namespace Microsoft.Data.Sqlite.Interop
 
         public static void ThrowExceptionForRC(int rc, Sqlite3Handle db)
         {
-            if (rc == Constants.SQLITE_OK
-                || rc == Constants.SQLITE_ROW
-                || rc == Constants.SQLITE_DONE)
+            if (rc == SQLITE_OK
+                || rc == SQLITE_ROW
+                || rc == SQLITE_DONE)
             {
                 return;
             }

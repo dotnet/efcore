@@ -7,7 +7,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.PlatformAbstractions;
+using System.Runtime.Versioning;
 
 namespace Microsoft.Data.Sqlite.Utilities
 {
@@ -81,7 +81,20 @@ namespace Microsoft.Data.Sqlite.Utilities
         }
 
         private static bool IsDNX()
-            => PlatformServices.Default?.Application.RuntimeFramework.Identifier == "DNX";
+        {
+            var platformServices = Type.GetType(
+                "Microsoft.Extensions.PlatformAbstractions.PlatformServices, Microsoft.Extensions.PlatformAbstractions");
+            if (platformServices == null)
+            {
+                return false;
+            }
+
+            var defaultPlatformServices = platformServices.GetProperty("Default").GetValue(null);
+            var application = defaultPlatformServices.GetType().GetProperty("Application").GetValue(defaultPlatformServices);
+            var runtimeFramework = (FrameworkName)application.GetType().GetProperty("RuntimeFramework").GetValue(application);
+
+            return runtimeFramework.Identifier == "DNX";
+        }
 
         private static bool IsMono() => Type.GetType("Mono.Runtime") != null;
 

@@ -410,6 +410,38 @@ namespace Microsoft.Data.Sqlite
             return GetString("AlreadyLoaded");
         }
 
+        /// <summary>
+        /// The {enumType} enumeration value, {value}, is invalid.
+        /// </summary>
+        internal static string InvalidEnumValue
+        {
+            get { return GetString("InvalidEnumValue"); }
+        }
+
+        /// <summary>
+        /// The {enumType} enumeration value, {value}, is invalid.
+        /// </summary>
+        internal static string FormatInvalidEnumValue(object enumType, object value)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "enumType", "value"), enumType, value);
+        }
+
+        /// <summary>
+        /// Cannot convert object of type '{sourceType}' to object of type '{targetType}'.
+        /// </summary>
+        internal static string ConvertFailed
+        {
+            get { return GetString("ConvertFailed"); }
+        }
+
+        /// <summary>
+        /// Cannot convert object of type '{sourceType}' to object of type '{targetType}'.
+        /// </summary>
+        internal static string FormatConvertFailed(object sourceType, object targetType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConvertFailed", "sourceType", "targetType"), sourceType, targetType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

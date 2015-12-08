@@ -4,12 +4,12 @@
 using System;
 using System.Data;
 using System.IO;
-#if !NETCORE50
-using Microsoft.Extensions.PlatformAbstractions;
-#endif
 using Microsoft.AspNet.Testing.xunit;
-using Xunit;
 using Microsoft.Data.Sqlite.Utilities;
+using Microsoft.Extensions.PlatformAbstractions;
+using Xunit;
+
+using static Microsoft.Data.Sqlite.TestUtilities.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -108,7 +108,6 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(Strings.OpenRequiresSetConnectionString, ex.Message);
         }
 
-#if !NETCORE50
         [Fact]
         public void Open_adjusts_relative_path()
         {
@@ -117,31 +116,14 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "local.db"), connection.DataSource);
         }
 
-        [Theory]
-        [InlineData("file:data.db","file://{relativePath}/data.db")]
-        [InlineData("file:data.db?mode=ro&cache=private", "file://{relativePath}/data.db?mode=ro&cache=private")]
-        [InlineData("file:/home/data.db", "file:/home/data.db")]
-        public void AdjustForRelativeDirectory_handles_uri_format(string inputPath, string adjustedPath)
-        {
-            var relativePath = PlatformServices.Default.Application.ApplicationBasePath;
-            if(PlatformServices.Default.Runtime.OperatingSystem == "Windows")
-            {
-                relativePath = "/" + relativePath;
-            }
-
-            var expected = adjustedPath.Replace("{relativePath}", relativePath);
-            Assert.Equal(expected, SqliteConnection.AdjustForRelativeDirectory(inputPath));
-        }
-#endif
-
         [Fact]
         public void Open_throws_when_error()
         {
-            var connection = new SqliteConnection("Data Source=fakeproto://data.db?mode=invalidmode");
+            var connection = new SqliteConnection("Data Source=file:data.db?mode=invalidmode");
 
             var ex = Assert.Throws<SqliteException>(() => connection.Open());
 
-            Assert.Equal(14, ex.SqliteErrorCode);
+            Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
         }
 
         [Fact]
@@ -171,6 +153,75 @@ namespace Microsoft.Data.Sqlite
                 {
                     connection.StateChange -= handler;
                 }
+            }
+        }
+
+        [Fact]
+        public void Open_works_when_readonly()
+        {
+            using (var connection = new SqliteConnection("Data Source=readonly.db"))
+            {
+                connection.Open();
+
+                if (connection.ExecuteScalar<long>("SELECT COUNT(*) FROM sqlite_master WHERE name = 'Idomic';") == 0)
+                {
+                    connection.ExecuteNonQuery("CREATE TABLE Idomic (Word TEXT);");
+                }
+            }
+
+            using (var connection = new SqliteConnection("Data Source=readonly.db;Mode=ReadOnly"))
+            {
+                connection.Open();
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteNonQuery("INSERT INTO Idomic VALUES ('arimfexendrapuse');"));
+
+                Assert.Equal(SQLITE_READONLY, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void Open_works_when_readwrite()
+        {
+            using (var connection = new SqliteConnection("Data Source=readwrite.db;Mode=ReadWrite"))
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.Open());
+
+                Assert.Equal(SQLITE_CANTOPEN, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void Open_works_when_memory_shared()
+        {
+            var connectionString = "Data Source=people;Mode=Memory;Cache=Shared";
+
+            using (var connection1 = new SqliteConnection(connectionString))
+            {
+                connection1.Open();
+
+                connection1.ExecuteNonQuery(
+                    "CREATE TABLE Person (Name TEXT);" +
+                    "INSERT INTO Person VALUES ('Waldo');");
+
+                using (var connection2 = new SqliteConnection(connectionString))
+                {
+                    connection2.Open();
+
+                    var name = connection2.ExecuteScalar<string>("SELECT Name FROM Person;");
+                    Assert.Equal("Waldo", name);
+                }
+            }
+        }
+
+        [Fact]
+        public void Open_works_when_uri()
+        {
+            using (var connection = new SqliteConnection("Data Source=file:readwrite.db?mode=rw"))
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.Open());
+
+                Assert.Equal(SQLITE_CANTOPEN, ex.SqliteErrorCode);
             }
         }
 

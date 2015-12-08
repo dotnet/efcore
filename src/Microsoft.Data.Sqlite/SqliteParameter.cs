@@ -5,9 +5,10 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
-using System.Linq;
 using Microsoft.Data.Sqlite.Interop;
 using Microsoft.Data.Sqlite.Utilities;
+
+using static Microsoft.Data.Sqlite.Interop.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -260,10 +261,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static void BindBlob(Sqlite3StmtHandle stmt, int index, byte[] value) =>
-            NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, Constants.SQLITE_TRANSIENT);
+            NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, SQLITE_TRANSIENT);
 
         private static void BindText(Sqlite3StmtHandle stmt, int index, string value) =>
-            NativeMethods.sqlite3_bind_text(stmt, index, value, Constants.SQLITE_TRANSIENT);
+            NativeMethods.sqlite3_bind_text(stmt, index, value, SQLITE_TRANSIENT);
 
         private readonly static char[] _parameterPrefixes = { '@', '$', ':' };
 
