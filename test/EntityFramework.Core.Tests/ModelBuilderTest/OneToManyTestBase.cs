@@ -1741,6 +1741,17 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.False(property.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
+
+            [Fact]
+            public virtual void Throws_when_foreign_key_references_shadow_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders).HasForeignKey(e => e.AnotherCustomerId);
+
+                Assert.Equal(
+                    CoreStrings.ReferencedShadowKey("{'AnotherCustomerId'}", typeof(Customer).FullName, "{'AnotherCustomerId'}", "{'AnotherCustomerId'}", typeof(Order).FullName),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+            }
         }
     }
 }

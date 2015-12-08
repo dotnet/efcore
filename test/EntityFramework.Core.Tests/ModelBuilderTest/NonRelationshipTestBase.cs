@@ -701,6 +701,19 @@ namespace Microsoft.Data.Entity.Tests
                     typeof(EntityBase).GetRuntimeProperties().First(p => p != EntityBase.TargetProperty).Name,
                     modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Single().Name);
             }
+
+            [Fact]
+            public virtual void Throws_for_shadow_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var entityType = (EntityType)modelBuilder.Entity<SelfRef>().Metadata;
+                var shadowProperty = entityType.AddProperty("ShadowProperty", ConfigurationSource.Convention);
+                entityType.AddKey(shadowProperty);
+
+                Assert.Equal(
+                    CoreStrings.ShadowKey("{'ShadowProperty'}", typeof(SelfRef).FullName, "{'ShadowProperty'}"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+            }
         }
     }
 }

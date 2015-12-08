@@ -55,6 +55,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
+            conventionSet.ModelBuiltConventions.Add(keyConvention);
             conventionSet.ModelBuiltConventions.Add(new PropertyMappingValidationConvention());
 
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());
