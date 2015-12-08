@@ -36,9 +36,7 @@
     <Compile Include="CSharpUniqueNamerTest.cs" />
     <Compile Include="NullLogger.cs" />
     <Compile Include="RelationalDatabaseModelFactoryTest.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineeringConfigurationTests.cs" />
     <Compile Include="ScaffoldingMetadataExtenstionsTest.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineeringGeneratorTests.cs" />
     <Compile Include="TestLogger.cs" />
     <None Include="project.json" />
   </ItemGroup>

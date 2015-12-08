@@ -3,10 +3,9 @@
 
 using System;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Scaffolding.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
+namespace Microsoft.Data.Entity.Scaffolding.Internal
 {
     public class ReverseEngineeringConfigurationTests
     {

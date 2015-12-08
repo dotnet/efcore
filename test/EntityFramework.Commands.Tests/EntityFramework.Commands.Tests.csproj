@@ -46,6 +46,8 @@
     <Compile Include="Migrations\Design\CSharpMigrationOperationGeneratorTest.cs" />
     <Compile Include="Migrations\Design\MigrationScaffolderTest.cs" />
     <Compile Include="Migrations\Design\CSharpHelperTest.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringConfigurationTests.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringGeneratorTests.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +76,7 @@
       <Name>EntityFramework.Relational.Tests</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         ///  an <see cref="NamespaceAndOutputPaths"> object containing the canonicalized paths
         ///  and the namespace
         /// </returns>
-        public static NamespaceAndOutputPaths ConstructNamespaceAndCanonicalizedPaths(
+        internal static NamespaceAndOutputPaths ConstructNamespaceAndCanonicalizedPaths(
             [NotNull] string rootNamespace,
             [NotNull] string projectPath,
             [CanBeNull] string outputPath)
@@ -150,7 +150,10 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
             Check.NotEmpty(projectPath, nameof(projectPath));
 
-            // strip off any directory separator chars at end of project path
+            // Strip off any directory separator chars at end of project path
+            // to ensure that when we strip off the canonicalized project path
+            // later to form the canonicalized relative path we strip off the
+            // correct number of characters.
             for (var projectPathLastChar = projectPath.Last();
                 directorySeparatorChars.Contains(projectPathLastChar);
                 projectPathLastChar = projectPath.Last())
@@ -186,9 +189,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 canonicalizedFullOutputPath, canonicalizedRelativeOutputPath);
         }
 
-        public class NamespaceAndOutputPaths
+        internal class NamespaceAndOutputPaths
         {
-            public NamespaceAndOutputPaths(
+            internal NamespaceAndOutputPaths(
                 [NotNull] string @namespace,
                 [NotNull] string canonicalizedFullOutputPath,
                 [CanBeNull] string canonicalizedRelativeOutputPath)
@@ -201,9 +204,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 CanonicalizedRelativeOutputPath = canonicalizedRelativeOutputPath;
             }
 
-            public virtual string Namespace { get; }
-            public virtual string CanonicalizedFullOutputPath { get; }
-            public virtual string CanonicalizedRelativeOutputPath { get; }
+            internal string Namespace { get; }
+            internal string CanonicalizedFullOutputPath { get; }
+            internal string CanonicalizedRelativeOutputPath { get; }
         }
     }
 }
