@@ -683,7 +683,14 @@ INNER JOIN [CogTag] AS [t] ON [g].[FullName] = (
             base.Collection_with_inheritance_and_join_include_joined();
 
             Assert.Equal(
-                @"",
+                @"SELECT [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+FROM [CogTag] AS [t]
+INNER JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gear] AS [g]
+    WHERE [g].[Discriminator] = 'Officer'
+) AS [t0] ON ([t].[GearSquadId] = [t0].[SquadId]) AND ([t].[GearNickName] = [t0].[Nickname])
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [t0].[Nickname]) AND ([c].[GearSquadId] = [t0].[SquadId])",
                 Sql);
         }
 
@@ -692,7 +699,14 @@ INNER JOIN [CogTag] AS [t] ON [g].[FullName] = (
             base.Collection_with_inheritance_and_join_include_source();
 
             Assert.Equal(
-                @"",
+                @"SELECT [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+FROM (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gear] AS [g]
+    WHERE [g].[Discriminator] = 'Officer'
+) AS [t0]
+INNER JOIN [CogTag] AS [t] ON ([t0].[SquadId] = [t].[GearSquadId]) AND ([t0].[Nickname] = [t].[GearNickName])
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [t0].[Nickname]) AND ([c].[GearSquadId] = [t0].[SquadId])",
                 Sql);
         }
 

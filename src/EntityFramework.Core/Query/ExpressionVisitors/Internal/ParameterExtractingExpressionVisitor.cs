@@ -15,35 +15,53 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
+        private static readonly TypeInfo _queryableTypeInfo = typeof(IQueryable).GetTypeInfo();
+
         public static Expression ExtractParameters(
             [NotNull] Expression expression,
             [NotNull] QueryContext queryContext,
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
             [NotNull] ISensitiveDataLogger logger)
         {
-            var partialEvaluationInfo
-                = EvaluatableTreeFindingExpressionVisitor
-                    .Analyze(expression, evaluatableExpressionFilter);
+            var visitor = new ParameterExtractingExpressionVisitor(evaluatableExpressionFilter, queryContext, logger);
 
-            var visitor = new ParameterExtractingExpressionVisitor(partialEvaluationInfo, queryContext, logger);
-
-            return visitor.Visit(expression);
+            return visitor.ExtractParameters(expression);
         }
 
-        private readonly PartialEvaluationInfo _partialEvaluationInfo;
+        private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
         private readonly QueryContext _queryContext;
         private readonly ISensitiveDataLogger _logger;
+
+        private PartialEvaluationInfo _partialEvaluationInfo;
 
         private bool _inLambda;
 
         private ParameterExtractingExpressionVisitor(
-            PartialEvaluationInfo partialEvaluationInfo,
+            IEvaluatableExpressionFilter evaluatableExpressionFilter,
             QueryContext queryContext,
             ISensitiveDataLogger logger)
         {
-            _partialEvaluationInfo = partialEvaluationInfo;
+            _evaluatableExpressionFilter = evaluatableExpressionFilter;
             _queryContext = queryContext;
             _logger = logger;
+        }
+
+        public Expression ExtractParameters([NotNull] Expression expression)
+        {
+            var oldPartialEvaluationInfo = _partialEvaluationInfo;
+
+            _partialEvaluationInfo
+                = EvaluatableTreeFindingExpressionVisitor
+                    .Analyze(expression, _evaluatableExpressionFilter);
+
+            try
+            {
+                return Visit(expression);
+            }
+            finally
+            {
+                _partialEvaluationInfo = oldPartialEvaluationInfo;
+            }
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -86,7 +104,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             newArguments[j] = arguments[j];
                         }
                     }
-                    
+
                     if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
                     {
                         var parameter = newArgument as ParameterExpression;
@@ -114,16 +132,27 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
-            => !_partialEvaluationInfo.IsEvaluatableExpression(memberExpression)
-                ? base.VisitMember(memberExpression)
-                : !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(memberExpression.Type.GetTypeInfo())
-                    ? TryExtractParameter(memberExpression)
-                    : memberExpression;
+        {
+            if (!_partialEvaluationInfo.IsEvaluatableExpression(memberExpression))
+            {
+                return base.VisitMember(memberExpression);
+            }
+
+            if (!_queryableTypeInfo.IsAssignableFrom(memberExpression.Type.GetTypeInfo()))
+            {
+                return TryExtractParameter(memberExpression);
+            }
+
+            string _;
+            var queryable = (IQueryable)Evaluate(memberExpression, out _);
+
+            return ExtractParameters(queryable.Expression);
+        }
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => !_inLambda
                && _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
-               && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(constantExpression.Type.GetTypeInfo())
+               && !_queryableTypeInfo.IsAssignableFrom(constantExpression.Type.GetTypeInfo())
                 ? TryExtractParameter(constantExpression)
                 : constantExpression;
 
