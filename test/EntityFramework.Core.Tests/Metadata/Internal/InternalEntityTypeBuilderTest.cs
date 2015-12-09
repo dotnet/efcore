@@ -1416,8 +1416,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Null(foreignKeyBuilder.DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.DataAnnotation));
             Assert.Null(foreignKeyBuilder.PrincipalToDependent(Customer.OrdersProperty.Name, ConfigurationSource.DataAnnotation));
 
-            Assert.NotNull(foreignKeyBuilder.DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
-            Assert.NotNull(foreignKeyBuilder.PrincipalToDependent(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
+            foreignKeyBuilder = foreignKeyBuilder.DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Explicit);
+            Assert.NotNull(foreignKeyBuilder);
+
+            foreignKeyBuilder = foreignKeyBuilder.PrincipalToDependent(Customer.OrdersProperty.Name, ConfigurationSource.Explicit);
+            Assert.NotNull(foreignKeyBuilder);
         }
 
         [Fact]

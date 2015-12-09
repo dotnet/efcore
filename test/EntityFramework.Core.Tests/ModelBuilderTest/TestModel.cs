@@ -335,7 +335,11 @@ namespace Microsoft.Data.Entity.Tests
             public int Id { get; set; }
 
             public Delta NavDelta { get; set; }
-            public IList<Epsilon> NavEpsilon { get; set; }
+            public IList<Epsilon> Epsilons { get; set; }
+            public IList<Eta> Etas { get; set; }
+            [ForeignKey("Id")]
+            public IList<Theta> Thetas { get; set; }
+
         }
 
         protected class Beta
@@ -369,6 +373,14 @@ namespace Microsoft.Data.Entity.Tests
             public Alpha Alpha { get; set; }
         }
 
+        protected class Eta
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("Id")]
+            public Alpha Alpha { get; set; }
+        }
+
         protected class Zeta
         {
             public int Id { get; set; }
@@ -379,6 +391,13 @@ namespace Microsoft.Data.Entity.Tests
             public Alpha AlphaOne { get; set; }
             [ForeignKey("CommonFkProperty")]
             public Alpha AlphaTwo { get; set; }
+        }
+
+        protected class Theta
+        {
+            public int Id { get; set; }
+
+            public Alpha Alpha { get; set; }
         }
 
         protected interface IEntityBase

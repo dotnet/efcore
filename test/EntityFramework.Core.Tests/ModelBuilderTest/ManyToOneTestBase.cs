@@ -1605,7 +1605,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Ignore<Delta>();
-                modelBuilder.Entity<Alpha>().HasMany(b => b.NavEpsilon).WithOne();
+                modelBuilder.Entity<Alpha>().HasMany(b => b.Epsilons).WithOne();
 
                 var property = modelBuilder.Model.FindEntityType(typeof(Epsilon)).FindProperty("Id");
                 Assert.False(property.RequiresValueGenerator);

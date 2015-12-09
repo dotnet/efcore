@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Author>();
 
                 Assert.Null(model.FindEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AuthorId", model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+                Assert.Equal("AuthorId", model.FindEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.Properties.First().Name);
 
                 Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.PrincipalToDependent);
                 Assert.Equal("AuthorDetailsId", model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.Properties.First().Name);
