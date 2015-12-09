@@ -552,13 +552,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (!shouldInvert
                 && !dependentEntityType.IsAssignableFrom(Metadata.DeclaringEntityType))
             {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationship(
-                        dependentEntityType.DisplayName(),
-                        Metadata.DeclaringEntityType.DisplayName(),
-                        Metadata.PrincipalEntityType.DisplayName()));
-                }
+                return null;
             }
 
             if (shouldInvert)
@@ -693,10 +687,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (!shouldInvert
                 && !principalEntityType.IsAssignableFrom(Metadata.PrincipalEntityType))
             {
-                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationship(
-                    principalEntityType.DisplayName(),
-                    Metadata.DeclaringEntityType.DisplayName(),
-                    Metadata.PrincipalEntityType.DisplayName()));
+                return null;
             }
 
             if (shouldInvert)

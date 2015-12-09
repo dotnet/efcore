@@ -112,8 +112,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
             return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.DependentEntityType(dependentEntityType, ConfigurationSource.Explicit)
-                    .HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                SetDependentEntityType(dependentEntityType).HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
                 foreignKeySet: true);
@@ -139,8 +138,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
             return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.PrincipalEntityType(principalEntityType, ConfigurationSource.Explicit)
-                    .HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                SetPrincipalEntityType(principalEntityType).HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
                 principalKeySet: true);
@@ -180,8 +178,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
             return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.DependentEntityType(dependentEntityTypeName, ConfigurationSource.Explicit)
-                    .HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                SetDependentEntityType(dependentEntityTypeName).HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != dependentEntityTypeName,
                 foreignKeySet: true);
@@ -208,8 +205,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
             return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.PrincipalEntityType(principalEntityTypeName, ConfigurationSource.Explicit)
-                    .HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                SetPrincipalEntityType(principalEntityTypeName).HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
                 principalKeySet: true);
@@ -251,7 +247,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
 
             return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.DependentEntityType(typeof(TDependentEntity), ConfigurationSource.Explicit)
+                SetDependentEntityType(typeof(TDependentEntity))
                     .HasForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
@@ -284,7 +280,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotNull(keyExpression, nameof(keyExpression));
 
             return new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.PrincipalEntityType(typeof(TPrincipalEntity), ConfigurationSource.Explicit)
+                SetPrincipalEntityType(typeof(TPrincipalEntity))
                     .HasPrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),

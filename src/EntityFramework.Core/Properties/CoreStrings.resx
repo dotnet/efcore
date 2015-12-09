@@ -510,4 +510,10 @@
   <data name="InconsistentInheritance" xml:space="preserve">
     <value>The entity type '{entityType}' should derive from '{baseEntityType}' to reflect the hierarchy of the corresponding CLR types.</value>
   </data>
+  <data name="DependentEntityTypeNotInRelationship" xml:space="preserve">
+    <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key on '{entityType}'. The foreign key must be defined on a type that is part of the relationship.</value>
+  </data>
+  <data name="PrincipalEntityTypeNotInRelationship" xml:space="preserve">
+    <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key targetting '{entityType}'. The foreign key must be targetting a type that is part of the relationship.</value>
+  </data>
 </root>

@@ -187,8 +187,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
             return new ReferenceReferenceBuilder(
-                Builder.DependentEntityType(dependentEntityType, ConfigurationSource.Explicit)
-                    .HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                SetDependentEntityType(dependentEntityType).HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
                 foreignKeySet: true);
@@ -228,11 +227,36 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
             return new ReferenceReferenceBuilder(
-                Builder.DependentEntityType(dependentEntityTypeName, ConfigurationSource.Explicit)
-                    .HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+                SetDependentEntityType(dependentEntityTypeName).HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != dependentEntityTypeName,
                 foreignKeySet: true);
+        }
+
+        protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] string dependentEntityTypeName)
+        {
+            var builder = Builder.DependentEntityType(dependentEntityTypeName, ConfigurationSource.Explicit);
+            if (builder == null)
+            {
+                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
+                    Metadata.DeclaringEntityType.DisplayName(),
+                    Metadata.PrincipalEntityType.DisplayName(),
+                    dependentEntityTypeName));
+            }
+            return builder;
+        }
+
+        protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] Type dependentEntityType)
+        {
+            var builder = Builder.DependentEntityType(dependentEntityType, ConfigurationSource.Explicit);
+            if (builder == null)
+            {
+                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
+                    Metadata.DeclaringEntityType.DisplayName(),
+                    Metadata.PrincipalEntityType.DisplayName(),
+                    dependentEntityType.Name));
+            }
+            return builder;
         }
 
         /// <summary>
@@ -255,8 +279,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
             return new ReferenceReferenceBuilder(
-                Builder.PrincipalEntityType(principalEntityType, ConfigurationSource.Explicit)
-                    .HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                SetPrincipalEntityType(principalEntityType).HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
                 principalKeySet: true);
@@ -282,11 +305,36 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
             return new ReferenceReferenceBuilder(
-                Builder.PrincipalEntityType(principalEntityTypeName, ConfigurationSource.Explicit)
-                    .HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+                SetPrincipalEntityType(principalEntityTypeName).HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
                 principalKeySet: true);
+        }
+
+        protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] Type principalEntityType)
+        {
+            var builder = Builder.PrincipalEntityType(principalEntityType, ConfigurationSource.Explicit);
+            if (builder == null)
+            {
+                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
+                    Metadata.DeclaringEntityType.DisplayName(),
+                    Metadata.PrincipalEntityType.DisplayName(),
+                    principalEntityType.Name));
+            }
+            return builder;
+        }
+
+        protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] string principalEntityTypeName)
+        {
+            var builder = Builder.PrincipalEntityType(principalEntityTypeName, ConfigurationSource.Explicit);
+            if (builder == null)
+            {
+                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
+                    Metadata.DeclaringEntityType.DisplayName(),
+                    Metadata.PrincipalEntityType.DisplayName(),
+                    principalEntityTypeName));
+            }
+            return builder;
         }
 
         /// <summary>
