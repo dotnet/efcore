@@ -69,7 +69,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 })
+                    .HasName("PK_OneToManyDependent");
 
                 entity.Property(e => e.SomeDependentEndColumn)
                     .IsRequired()
@@ -82,7 +83,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 })
+                    .HasName("PK_OneToManyPrincipal");
 
                 entity.Property(e => e.Other)
                     .IsRequired()
@@ -91,7 +93,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 });
+                entity.HasKey(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 })
+                    .HasName("PK_OneToOneDependent");
 
                 entity.Property(e => e.SomeDependentEndColumn)
                     .IsRequired()
@@ -105,7 +108,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 });
+                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 })
+                    .HasName("PK_OneToOneFKToUniqueKeyDependent");
 
                 entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyDependentFK1, e.OneToOneFKToUniqueKeyDependentFK2 })
                     .HasName("UK_OneToOneFKToUniqueKeyDependent")
@@ -123,7 +127,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyPrincipalID1, e.OneToOneFKToUniqueKeyPrincipalID2 });
+                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyPrincipalID1, e.OneToOneFKToUniqueKeyPrincipalID2 })
+                    .HasName("PK_OneToOneFKToUniqueKeyPrincipal");
 
                 entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyPrincipalUniqueKey1, e.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
                     .HasName("UK_OneToOneFKToUniqueKeyPrincipal")
@@ -136,7 +141,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 });
+                entity.HasKey(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 })
+                    .HasName("PK_OneToOnePrincipal");
 
                 entity.Property(e => e.SomeOneToOnePrincipalColumn)
                     .IsRequired()
@@ -145,7 +151,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
+                entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 })
+                    .HasName("PK_OneToOneSeparateFKDependent");
 
                 entity.HasIndex(e => new { e.OneToOneSeparateFKDependentFK1, e.OneToOneSeparateFKDependentFK2 })
                     .HasName("UK_OneToOneSeparateFKDependent")
@@ -162,7 +169,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
+                entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 })
+                    .HasName("PK_OneToOneSeparateFKPrincipal");
 
                 entity.Property(e => e.SomeOneToOneSeparateFKPrincipalColumn)
                     .IsRequired()

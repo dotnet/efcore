@@ -223,7 +223,6 @@ FROM sys.indexes i
     INNER JOIN sys.index_columns ic  ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     INNER JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
 WHERE object_schema_name(i.object_id) <> 'sys'
-    AND i.is_primary_key <> 1
     AND object_name(i.object_id) <> '" + HistoryRepository.DefaultTableName + @"'
 ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.key_ordinal";
 
