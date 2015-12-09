@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 .Where(c => c.PrimaryKeyOrdinal.HasValue)
                 .OrderBy(c => c.PrimaryKeyOrdinal)
                 .ToList();
-          
+
             if (keyColumns.Count == 0)
             {
                 Logger.LogWarning(RelationalDesignStrings.MissingPrimaryKey(table.DisplayName));
@@ -274,15 +274,40 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(index, nameof(index));
 
-            var properties = index.Columns.Select(GetPropertyName).ToArray();
+            var propertyNames = index.Columns.Select(GetPropertyName).ToArray();
 
-            if (properties.Count(p => builder.Metadata.FindProperty(p) != null) != properties.Length)
+            if (propertyNames.Count(p => builder.Metadata.FindProperty(p) != null) != propertyNames.Length)
             {
                 Logger.LogWarning(RelationalDesignStrings.UnableToScaffoldIndexMissingProperty(index.Name));
                 return null;
             }
 
-            var indexBuilder = builder.HasIndex(properties)
+            var columnNames = index.Columns.Select(c => c.Name);
+            if (index.Table != null)
+            {
+                var primaryKeyColumns = index.Table.Columns
+                    .Where(c => c.PrimaryKeyOrdinal.HasValue)
+                    .OrderBy(c => c.PrimaryKeyOrdinal);
+                if (columnNames.SequenceEqual(primaryKeyColumns.Select(c => c.Name)))
+                {
+                    // index is supporting the primary key. So there is no need for
+                    // an extra index in the model. But if the index name does not
+                    // match what would be produced by default then need to call
+                    // HasName() on the primary key.
+                    if (index.Name !=
+                        RelationalKeyAnnotations
+                            .GetDefaultKeyName(
+                                index.Table.Name,
+                                true, /* is primary key */
+                                primaryKeyColumns.Select(c => GetPropertyName(c))))
+                    {
+                        builder.HasKey(propertyNames.ToArray()).HasName(index.Name);
+                    }
+                    return null;
+                }
+            }
+
+            var indexBuilder = builder.HasIndex(propertyNames)
                 .IsUnique(index.IsUnique);
 
             if (!string.IsNullOrEmpty(index.Name))
@@ -292,7 +317,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             if (index.IsUnique)
             {
-                var keyBuilder = builder.HasAlternateKey(properties);
+                var keyBuilder = builder.HasAlternateKey(propertyNames);
                 if (!string.IsNullOrEmpty(index.Name))
                 {
                     keyBuilder.HasName(index.Name);
@@ -388,6 +413,8 @@ namespace Microsoft.Data.Entity.Scaffolding
             var key = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
 
             key.IsUnique = dependentEntityType.FindKey(depProps) != null;
+
+            key.Relational().Name = foreignKey.Name;
 
             AssignOnDeleteAction(foreignKey, key);
 
