@@ -70,7 +70,7 @@
         "System.Collections": "4.0.11-*",
         "System.Collections.Concurrent": "4.0.11-*",
         "System.ComponentModel": "4.0.1-*",
-        "System.ComponentModel.Annotations": "4.0.11-*",
+        "System.ComponentModel.Annotations": "4.1.0-*",
         "System.Diagnostics.Debug": "4.0.11-*",
         "System.Diagnostics.Tools": "4.0.1-*",
         "System.Linq": "4.0.1-*",
