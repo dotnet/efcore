@@ -69,15 +69,15 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
             base.From_sql_queryable_multiple_composed_with_closure_parameters();
 
             Assert.Equal(
-                @"@__8__locals1_startDate_3: 01/01/1997 00:00:00
-@__8__locals1_endDate_4: 01/01/1998 00:00:00
+                @"@__8__locals1_startDate_1: 01/01/1997 00:00:00
+@__8__locals1_endDate_2: 01/01/1998 00:00:00
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_3 AND @__8__locals1_endDate_4
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
@@ -89,15 +89,15 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
 
             Assert.Equal(
                 @"@p0: London
-@__8__locals1_startDate_3: 01/01/1997 00:00:00
-@__8__locals1_endDate_4: 01/01/1998 00:00:00
+@__8__locals1_startDate_1: 01/01/1997 00:00:00
+@__8__locals1_endDate_2: 01/01/1998 00:00:00
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_3 AND @__8__locals1_endDate_4
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @__8__locals1_startDate_1 AND @__8__locals1_endDate_2
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 Sql);

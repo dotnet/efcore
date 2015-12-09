@@ -13,7 +13,7 @@ using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
-    public class ParameterExtractingExpressionVisitor : ExpressionVisitorBase
+    public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
         public static Expression ExtractParameters(
             [NotNull] Expression expression,
@@ -48,74 +48,66 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(EF)
-                || methodCallExpression.Method.DeclaringType == typeof(DbContext))
+            var methodInfo = methodCallExpression.Method;
+            var declaringType = methodInfo.DeclaringType;
+
+            if (declaringType == typeof(EF)
+                || declaringType == typeof(DbContext))
             {
                 return methodCallExpression;
             }
 
-            var newMethodCallExpression = ProcessNotParameterizableArguments(methodCallExpression);
-
-            return methodCallExpression != newMethodCallExpression
-                ? newMethodCallExpression
-                : base.VisitMethodCall(methodCallExpression);
-        }
-
-        private MethodCallExpression ProcessNotParameterizableArguments(MethodCallExpression methodCallExpression)
-        {
-            var methodInfo = methodCallExpression.Method;
-
-            if (methodInfo.IsStatic
-                && methodInfo.DeclaringType != typeof(Queryable))
+            if (!methodInfo.IsStatic
+                || declaringType == typeof(Queryable)
+                || declaringType == typeof(EntityFrameworkQueryableExtensions))
             {
-                ParameterInfo[] parameterInfos = null;
-                Expression[] newArguments = null;
+                return base.VisitMethodCall(methodCallExpression);
+            }
 
-                var arguments = methodCallExpression.Arguments;
+            ParameterInfo[] parameterInfos = null;
+            Expression[] newArguments = null;
 
-                for (var i = 0; i < arguments.Count; i++)
+            var arguments = methodCallExpression.Arguments;
+
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                var argument = arguments[i];
+                var newArgument = Visit(argument);
+
+                if (newArgument != argument)
                 {
-                    var argument = arguments[i];
-                    var newArgument = Visit(argument);
-
-                    if (newArgument != argument)
+                    if (newArguments == null)
                     {
-                        if (parameterInfos == null)
+                        parameterInfos = methodInfo.GetParameters();
+                        newArguments = new Expression[arguments.Count];
+
+                        for (var j = 0; j < i; j++)
                         {
-                            parameterInfos = methodInfo.GetParameters();
+                            newArguments[j] = arguments[j];
                         }
+                    }
+                    
+                    if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
+                    {
+                        var parameter = newArgument as ParameterExpression;
 
-                        if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
+                        if (parameter != null)
                         {
-                            var parameter = newArgument as ParameterExpression;
-
-                            if (parameter != null)
-                            {
-                                newArgument = Expression.Constant(_queryContext.RemoveParameter(parameter.Name));
-
-                                if (newArguments == null)
-                                {
-                                    newArguments = new Expression[arguments.Count];
-
-                                    for (var j = 0; j < i; j++)
-                                    {
-                                        newArguments[j] = arguments[j];
-                                    }
-                                }
-                            }
+                            newArgument = Expression.Constant(_queryContext.RemoveParameter(parameter.Name));
                         }
                     }
 
-                    if (newArguments != null)
-                    {
-                        newArguments[i] = newArgument;
-                    }
+                    newArguments[i] = newArgument;
                 }
-
-                if (newArguments != null)
+                else if (newArguments != null)
                 {
-                    methodCallExpression = methodCallExpression.Update(methodCallExpression.Object, newArguments);
+                    newArguments[i] = newArgument;
                 }
+            }
+
+            if (newArguments != null)
+            {
+                methodCallExpression = methodCallExpression.Update(methodCallExpression.Object, newArguments);
             }
 
             return methodCallExpression;
