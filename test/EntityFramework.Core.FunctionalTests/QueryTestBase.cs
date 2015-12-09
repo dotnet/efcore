@@ -758,6 +758,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Where_subquery_closure_via_query_cache()
+        {
+            using (var context = CreateContext())
+            {
+                string customerID = null;
+
+                var orders = context.Orders.Where(o => o.CustomerID == customerID);
+
+                customerID = "ALFKI";
+
+                var customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
+
+                Assert.Equal(1, customers.Count);
+
+                customerID = "ANATR";
+
+                customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
+
+                Assert.Equal("ANATR", customers.Single().CustomerID);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Where_simple_shadow()
         {
             AssertQuery<Employee>(

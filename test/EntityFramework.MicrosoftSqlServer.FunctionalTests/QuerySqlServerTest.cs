@@ -508,6 +508,41 @@ WHERE [c].[City] = @__city_0",
                 Sql);
         }
 
+        public override void Where_subquery_closure_via_query_cache()
+        {
+            base.Where_subquery_closure_via_query_cache();
+
+            Assert.Equal(
+                @"@__customerID_0: ALFKI
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1
+
+@__customerID_0: ANATR
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
         public override void Count_with_predicate()
         {
             base.Count_with_predicate();
