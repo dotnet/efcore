@@ -32,6 +32,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AsTrackingInMemoryTest.cs" />
+    <Compile Include="ComplexNavigationsQueryInMemoryFixture.cs" />
+    <Compile Include="ComplexNavigationsQueryInMemoryTest.cs" />
     <Compile Include="DataAnnotationInMemoryFixture.cs" />
     <Compile Include="DataAnnotationInMemoryTest.cs" />
     <Compile Include="EndToEndTest.cs" />

@@ -254,7 +254,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             if (navigations.Any())
                             {
                                 if ((navigations.Count == 1)
-                                    && navigations[0].IsDependentToPrincipal())
+                                    && navigations[0].IsDependentToPrincipal() 
+                                    && navigations[0].ForeignKey.IsRequired)
                                 {
                                     var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(node, navigations[0]);
                                     if (foreignKeyMemberAccess != null)
@@ -298,9 +299,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     var declaringExpression = ((MemberExpression)memberExpression.Expression).Expression;
                     var foreignKeyPropertyExpression = CreateKeyAccessExpression(declaringExpression, navigation.ForeignKey.Properties);
 
-                    return foreignKeyPropertyExpression.Type != principalKeyProperty.ClrType
-                        ? Expression.Convert(foreignKeyPropertyExpression, principalKeyProperty.ClrType)
-                        : foreignKeyPropertyExpression;
+                    return foreignKeyPropertyExpression;
                 }
             }
 
@@ -457,10 +456,20 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                     if (innerKeySelector.Type != joinClause.OuterKeySelector.Type)
                     {
-                        innerKeySelector
-                            = Expression.Convert(
-                                innerKeySelector,
-                                joinClause.OuterKeySelector.Type);
+                        if (innerKeySelector.Type.IsNullableType())
+                        {
+                            joinClause.OuterKeySelector
+                                = Expression.Convert(
+                                    joinClause.OuterKeySelector,
+                                    innerKeySelector.Type);
+                        }
+                        else
+                        {
+                            innerKeySelector
+                                = Expression.Convert(
+                                    innerKeySelector,
+                                    joinClause.OuterKeySelector.Type);
+                        }
                     }
 
                     joinClause.InnerKeySelector = innerKeySelector;

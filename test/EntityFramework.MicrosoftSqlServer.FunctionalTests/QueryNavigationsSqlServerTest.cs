@@ -560,10 +560,11 @@ FROM [Orders] AS [o]",
         {
             base.Navigation_fk_based_inside_contains();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IN ('ALFKI')",
+INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o.Customer].[CustomerID] IN ('ALFKI')",
                 Sql);
         }
 
@@ -571,7 +572,7 @@ WHERE [o].[CustomerID] IN ('ALFKI')",
         {
             base.Navigation_inside_contains();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
@@ -583,7 +584,7 @@ WHERE [o.Customer].[City] IN ('Novigrad', 'Seattle')",
         {
             base.Navigation_inside_contains_nested();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
@@ -596,7 +597,7 @@ WHERE [od.Order.Customer].[City] IN ('Novigrad', 'Seattle')",
         {
             base.Navigation_from_join_clause_inside_contains();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
@@ -609,7 +610,7 @@ WHERE [o.Customer].[Country] IN ('USA', 'Redania')",
         {
             base.Navigation_in_subquery_referencing_outer_query();
 
-            Assert.StartsWith(
+            Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[Country]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
