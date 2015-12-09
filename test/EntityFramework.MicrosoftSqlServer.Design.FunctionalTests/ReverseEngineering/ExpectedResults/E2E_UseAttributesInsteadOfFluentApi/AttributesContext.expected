@@ -57,22 +57,26 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 })
+                    .HasName("PK_OneToManyDependent");
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 })
+                    .HasName("PK_OneToManyPrincipal");
             });
 
             modelBuilder.Entity<OneToOneDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 });
+                entity.HasKey(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 })
+                    .HasName("PK_OneToOneDependent");
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 });
+                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 })
+                    .HasName("PK_OneToOneFKToUniqueKeyDependent");
 
                 entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyDependentFK1, e.OneToOneFKToUniqueKeyDependentFK2 })
                     .HasName("UK_OneToOneFKToUniqueKeyDependent")
@@ -82,12 +86,14 @@ namespace E2ETest.Namespace
                     .WithOne(p => p.OneToOneFKToUniqueKeyDependent)
                     .HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
                     .HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 })
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_OneToOneFKToUniqueKeyDependent");
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyPrincipalID1, e.OneToOneFKToUniqueKeyPrincipalID2 });
+                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyPrincipalID1, e.OneToOneFKToUniqueKeyPrincipalID2 })
+                    .HasName("PK_OneToOneFKToUniqueKeyPrincipal");
 
                 entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyPrincipalUniqueKey1, e.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
                     .HasName("UK_OneToOneFKToUniqueKeyPrincipal")
@@ -96,12 +102,14 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 });
+                entity.HasKey(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 })
+                    .HasName("PK_OneToOnePrincipal");
             });
 
             modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
+                entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 })
+                    .HasName("PK_OneToOneSeparateFKDependent");
 
                 entity.HasIndex(e => new { e.OneToOneSeparateFKDependentFK1, e.OneToOneSeparateFKDependentFK2 })
                     .HasName("UK_OneToOneSeparateFKDependent")
@@ -110,7 +118,8 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
+                entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 })
+                    .HasName("PK_OneToOneSeparateFKPrincipal");
             });
 
             modelBuilder.Entity<PropertyConfiguration>(entity =>

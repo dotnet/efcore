@@ -202,7 +202,7 @@ CREATE TABLE "OneToManyPrincipal" (
 	"OneToManyPrincipalID1" "int",
 	"OneToManyPrincipalID2" "int",
 	"Other" nvarchar(20) NOT NULL,
-	CONSTRAINT "PK_OneToManyPrincipal" PRIMARY KEY  CLUSTERED 
+	CONSTRAINT "PK_OneToManyPrincipal" PRIMARY KEY CLUSTERED 
 	(
 		"OneToManyPrincipalID1", "OneToManyPrincipalID2"
 	)
@@ -216,7 +216,7 @@ CREATE TABLE "OneToManyDependent" (
 	"SomeDependentEndColumn" nvarchar (20) NOT NULL,
 	"OneToManyDependentFK2" "int" NULL, -- deliberately put FK columns in other order to make sure we get correct order in key
 	"OneToManyDependentFK1" "int" NULL,
-	CONSTRAINT "PK_OneToManyDependent" PRIMARY KEY  CLUSTERED 
+	CONSTRAINT "PK_OneToManyDependent" PRIMARY KEY CLUSTERED 
 	(
 		"OneToManyDependentID1", "OneToManyDependentID2"
 	),
@@ -234,7 +234,7 @@ CREATE TABLE "OneToOnePrincipal" (
 	"OneToOnePrincipalID1" "int",
 	"OneToOnePrincipalID2" "int",
 	"SomeOneToOnePrincipalColumn" nvarchar (20) NOT NULL,
-	CONSTRAINT "PK_OneToOnePrincipal" PRIMARY KEY  CLUSTERED 
+	CONSTRAINT "PK_OneToOnePrincipal" PRIMARY KEY CLUSTERED 
 	(
 		"OneToOnePrincipalID1", "OneToOnePrincipalID2"
 	)
@@ -246,7 +246,7 @@ CREATE TABLE "OneToOneDependent" (
 	"OneToOneDependentID1" "int",
 	"OneToOneDependentID2" "int",
 	"SomeDependentEndColumn" nvarchar (20) NOT NULL,
-	CONSTRAINT "PK_OneToOneDependent" PRIMARY KEY  CLUSTERED 
+	CONSTRAINT "PK_OneToOneDependent" PRIMARY KEY CLUSTERED 
 	(
 		"OneToOneDependentID1", "OneToOneDependentID2"
 	),
@@ -264,7 +264,7 @@ CREATE TABLE "OneToOneSeparateFKPrincipal" (
 	"OneToOneSeparateFKPrincipalID1" "int",
 	"OneToOneSeparateFKPrincipalID2" "int",
 	"SomeOneToOneSeparateFKPrincipalColumn" nvarchar (20) NOT NULL,
-	CONSTRAINT "PK_OneToOneSeparateFKPrincipal" PRIMARY KEY  CLUSTERED 
+	CONSTRAINT "PK_OneToOneSeparateFKPrincipal" PRIMARY KEY CLUSTERED 
 	(
 		"OneToOneSeparateFKPrincipalID1", "OneToOneSeparateFKPrincipalID2"
 	)
@@ -278,7 +278,7 @@ CREATE TABLE "OneToOneSeparateFKDependent" (
 	"SomeDependentEndColumn" nvarchar (20) NOT NULL,
 	"OneToOneSeparateFKDependentFK1" "int" NULL,
 	"OneToOneSeparateFKDependentFK2" "int" NULL,
-	CONSTRAINT "PK_OneToOneSeparateFKDependent" PRIMARY KEY  CLUSTERED 
+	CONSTRAINT "PK_OneToOneSeparateFKDependent" PRIMARY KEY CLUSTERED 
 	(
 		"OneToOneSeparateFKDependentID1", "OneToOneSeparateFKDependentID2"
 	),
@@ -320,7 +320,7 @@ CREATE TABLE "OneToOneFKToUniqueKeyDependent" (
 	"SomeColumn" nvarchar (20) NOT NULL,
 	"OneToOneFKToUniqueKeyDependentFK1" "int" NULL,
 	"OneToOneFKToUniqueKeyDependentFK2" "int" NULL,
-	CONSTRAINT "PK_OneToOneFKToUniqueKeyDependent" PRIMARY KEY  CLUSTERED 
+	CONSTRAINT "PK_OneToOneFKToUniqueKeyDependent" PRIMARY KEY CLUSTERED 
 	(
 		"OneToOneFKToUniqueKeyDependentID1", "OneToOneFKToUniqueKeyDependentID2"
 	),
