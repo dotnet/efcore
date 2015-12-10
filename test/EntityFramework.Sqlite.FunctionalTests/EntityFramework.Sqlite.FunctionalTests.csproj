@@ -53,6 +53,7 @@
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
     <Compile Include="GearsOfWarFromSqlQuerySqliteTest.cs" />
+    <Compile Include="SqliteDatabaseCreatorTest.cs" />
     <Compile Include="SqliteForeignKeyTest.cs" />
     <Compile Include="FromSqlQuerySqliteTest.cs" />
     <Compile Include="GearsOfWarQuerySqliteFixture.cs" />

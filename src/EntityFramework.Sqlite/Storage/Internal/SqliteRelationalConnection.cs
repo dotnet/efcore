@@ -84,5 +84,21 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 _rawSqlCommandBuilder.Build("PRAGMA foreign_keys=OFF;").ExecuteNonQuery(this);
             }
         }
+
+        public virtual SqliteRelationalConnection CreateReadOnlyConnection()
+        {
+            var builder = new SqliteConnectionStringBuilder(ConnectionString)
+            {
+                Mode = SqliteOpenMode.ReadOnly
+            };
+
+            var options = new DbContextOptionsBuilder();
+            options.UseSqlite(builder.ToString());
+
+            return new SqliteRelationalConnection(
+                _rawSqlCommandBuilder,
+                options.Options,
+                (ILogger<SqliteRelationalConnection>)Logger);
+        }
     }
 }

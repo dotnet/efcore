@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             new SqliteConnectionStringBuilder
             {
                 DataSource = name + ".db",
-                Cache = sharedCache ? SqliteConnectionCacheMode.Shared : SqliteConnectionCacheMode.Private
+                Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
             }.ToString();
     }
 }
