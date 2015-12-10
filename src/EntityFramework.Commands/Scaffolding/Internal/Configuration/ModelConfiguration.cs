@@ -179,9 +179,10 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 if (key.IsPrimaryKey())
                 {
                     var keyFluentApi = _configurationFactory
-                        .CreateKeyFluentApiConfiguration("e", key.Properties);
+                        .CreateKeyFluentApiConfiguration("e", key);
 
-                    if (key.Properties.Count == 1)
+                    if (key.Properties.Count == 1
+                        && key.Relational().Name == null)
                     {
                         keyFluentApi.HasAttributeEquivalent = true;
 
@@ -241,15 +242,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
-            var entityType = (EntityType)entityConfiguration.EntityType;
-            var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
-            foreach (var index in entityType.GetIndexes())
+            foreach (var index in entityConfiguration.EntityType.GetIndexes().Cast<Index>())
             {
-                // do not add indexes for the primary key
-                if (!index.Properties.SequenceEqual(primaryKeyProperties))
-                {
-                    AddIndexConfiguration(entityConfiguration, index);
-                }
+                AddIndexConfiguration(entityConfiguration, index);
             }
         }
 

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -37,10 +38,13 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var entityType = new RelationalEntityTypeAnnotations(Index.DeclaringEntityType, Annotations.ProviderPrefix);
 
-            return "IX_" +
-                entityType.TableName +
-                "_" +
-                string.Join("_", Index.Properties.Select(p => p.Name));
+            return GetDefaultIndexName(entityType.TableName, Index.Properties.Select(p => p.Name));
+        }
+
+        public static string GetDefaultIndexName(
+            [NotNull] string tableName, [NotNull] IEnumerable<string> propertyNames)
+        {
+            return "IX_" + tableName + "_" + string.Join("_", propertyNames);
         }
     }
 }
