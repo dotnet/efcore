@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
-    public class DatabaseModel
+    public class DatabaseModel : Annotatable
     {
         [CanBeNull]
         public virtual string DatabaseName { get; [param: CanBeNull] set; }

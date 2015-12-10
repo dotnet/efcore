@@ -271,7 +271,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                     var isIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11);
                     var isComputed = reader.GetBoolean(12) || dataTypeName == "timestamp";
 
-                    var column = new SqlServerColumnModel
+                    var column = new ColumnModel
                     {
                         Table = table,
                         DataType = dataTypeName,
@@ -282,14 +282,14 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         DefaultValue = reader.IsDBNull(7) ? null : reader.GetString(7),
                         Precision = reader.IsDBNull(8) ? default(int?) : reader.GetInt32(8),
                         Scale = scale,
-                        DateTimePrecision = dateTimePrecision,
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,
-                        IsIdentity = isIdentity,
                         ValueGenerated = isIdentity ?
                             ValueGenerated.OnAdd :
                             isComputed ?
                                 ValueGenerated.OnAddOrUpdate : default(ValueGenerated?)
                     };
+                    column.SqlServer().IsIdentity = isIdentity;
+                    column.SqlServer().DateTimePrecision = dateTimePrecision;
 
                     table.Columns.Add(column);
                     _tableColumns.Add(ColumnKey(table, column.Name), column);
@@ -346,13 +346,14 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                             continue;
                         }
 
-                        index = new SqlServerIndexModel
+                        index = new IndexModel
                         {
                             Table = table,
                             Name = indexName,
                             IsUnique = reader.IsDBNull(3) ? false : reader.GetBoolean(3),
-                            IsClustered = reader.GetStringOrNull(5) == "CLUSTERED"
                         };
+                        index.SqlServer().IsClustered = reader.GetStringOrNull(5) == "CLUSTERED";
+
                         table.Indexes.Add(index);
                     }
 

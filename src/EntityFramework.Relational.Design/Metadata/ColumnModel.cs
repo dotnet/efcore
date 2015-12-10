@@ -4,10 +4,11 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
-    public class ColumnModel
+    public class ColumnModel : Annotatable
     {
         public virtual TableModel Table { get; [param: NotNull] set; }
         public virtual string Name { get; [param: NotNull] set; }

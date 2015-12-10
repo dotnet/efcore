@@ -92,25 +92,25 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                     Assert.Equal("Place", c.Table.Name);
                 });
 
-            Assert.Collection(indexes.OfType<SqlServerIndexModel>(),
+            Assert.Collection(indexes.OrderBy(i => i.Name),
                 nonClustered =>
                     {
                         Assert.Equal("IX_Location", nonClustered.Name);
-                        Assert.False(nonClustered.IsClustered);
+                        Assert.False(nonClustered.SqlServer().IsClustered);
                         Assert.Equal("Location", nonClustered.Columns.Select(c => c.Name).Single());
                     },
                 clusteredIndex =>
                     {
                         Assert.Equal("IX_Location_Name", clusteredIndex.Name);
                         Assert.False(clusteredIndex.IsUnique);
-                        Assert.True(clusteredIndex.IsClustered);
+                        Assert.True(clusteredIndex.SqlServer().IsClustered);
                         Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.Columns.Select(c => c.Name).ToList());
                     },
                 pkIndex =>
                 {
                     Assert.StartsWith("PK__Place", pkIndex.Name);
                     Assert.True(pkIndex.IsUnique);
-                    Assert.False(pkIndex.IsClustered);
+                    Assert.False(pkIndex.SqlServer().IsClustered);
                     Assert.Equal(new List<string> { "Id" }, pkIndex.Columns.Select(c => c.Name).ToList());
                 },
                 unique =>
@@ -144,7 +144,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
                     Assert.Equal("MountainsColumns", c.Table.Name);
                 });
 
-            Assert.Collection(columns.OfType<SqlServerColumnModel>(),
+            Assert.Collection(columns,
                 id =>
                     {
                         Assert.Equal("Id", id.Name);
@@ -175,18 +175,19 @@ CREATE TABLE [dbo].[MountainsColumns] (
                         Assert.Equal(5, lat.Precision);
                         Assert.Equal(2, lat.Scale);
                         Assert.Null(lat.MaxLength);
+                        Assert.Null(lat.SqlServer().DateTimePrecision);
                     },
                 created =>
                     {
                         Assert.Equal("Created", created.Name);
                         Assert.Null(created.Scale);
-                        Assert.Equal(6, created.DateTimePrecision);
+                        Assert.Equal(6, created.SqlServer().DateTimePrecision);
                         Assert.Equal("('October 20, 2015 11am')", created.DefaultValue);
                     },
                 discovered =>
                      {
                          Assert.Equal("DiscoveredDate", discovered.Name);
-                         Assert.Equal(7, discovered.DateTimePrecision);
+                         Assert.Equal(7, discovered.SqlServer().DateTimePrecision);
                      },
                 sum =>
                     {
@@ -228,8 +229,8 @@ CREATE TABLE [dbo].[MountainsColumns] (
 CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")",
                 new TableSelectionSet(new List<string> { "Identities" }));
 
-            var column = Assert.IsType<SqlServerColumnModel>(Assert.Single(dbModel.Tables.Single().Columns));
-            Assert.Equal(isIdentity, column.IsIdentity);
+            var column = Assert.Single(dbModel.Tables.Single().Columns);
+            Assert.Equal(isIdentity, column.SqlServer().IsIdentity);
             Assert.Equal(isIdentity ? ValueGenerated.OnAdd : default(ValueGenerated?), column.ValueGenerated);
         }
 

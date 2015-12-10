@@ -67,8 +67,8 @@ namespace Microsoft.Data.Entity.Scaffolding
             // override this behavior.
 
             // TODO use KeyConvention directly to detect when it will be applied
-            var pkColumns = table.Columns.OfType<SqlServerColumnModel>().Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
-            if (pkColumns.Count != 1 || pkColumns[0].IsIdentity)
+            var pkColumns = table.Columns.Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
+            if (pkColumns.Count != 1 || pkColumns[0].SqlServer().IsIdentity)
             {
                 return keyBuilder;
             }
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             var indexBuilder = base.VisitIndex(builder, index);
 
-            if ((index as SqlServerIndexModel)?.IsClustered == true)
+            if (index.SqlServer().IsClustered)
             {
                 indexBuilder?.ForSqlServerIsClustered();
             }
@@ -100,13 +100,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         private PropertyBuilder VisitTypeMapping(PropertyBuilder propertyBuilder, ColumnModel column)
         {
-            var sqlColumn = column as SqlServerColumnModel;
-            if (sqlColumn == null)
-            {
-                return propertyBuilder;
-            }
-
-            if (sqlColumn.IsIdentity)
+            if (column.SqlServer().IsIdentity)
             {
                 if (typeof(byte) == propertyBuilder.Metadata.ClrType)
                 {
@@ -122,10 +116,10 @@ namespace Microsoft.Data.Entity.Scaffolding
                 }
             }
 
-            if (sqlColumn.DateTimePrecision.HasValue && sqlColumn.DateTimePrecision != DefaultTimeTimePrecision)
+            if (column.SqlServer().DateTimePrecision.HasValue && column.SqlServer().DateTimePrecision != DefaultTimeTimePrecision)
             {
                 propertyBuilder.Metadata.SetMaxLength(null);
-                propertyBuilder.HasColumnType($"{sqlColumn.DataType}({sqlColumn.DateTimePrecision.Value})");
+                propertyBuilder.HasColumnType($"{column.DataType}({column.SqlServer().DateTimePrecision.Value})");
             }
 
             // undo quirk in reverse type mapping to litters code with unnecessary nvarchar annotations

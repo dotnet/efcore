@@ -4,11 +4,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations;
 
 namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
-    public class ForeignKeyModel
+    public class ForeignKeyModel : Annotatable
     {
         [CanBeNull]
         public virtual TableModel Table { get; [param: CanBeNull] set; }
