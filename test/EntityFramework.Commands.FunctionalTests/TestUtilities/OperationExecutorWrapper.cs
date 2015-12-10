@@ -120,6 +120,9 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                     { "useFluentApiOnly", useFluentApiOnly }
                 });
 
+        public IEnumerable<string> ScaffoldRuntimeDirectives()
+            => InvokeOperation<IEnumerable<string>>("ScaffoldRuntimeDirectives", new Hashtable());
+
         public void Dispose()
         {
             AppDomain.Unload(_domain);

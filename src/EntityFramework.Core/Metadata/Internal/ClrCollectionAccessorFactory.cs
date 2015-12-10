@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
@@ -13,13 +12,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class ClrCollectionAccessorFactory
     {
         private static readonly MethodInfo _genericCreate
-            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethods("CreateGeneric").Single();
+            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric));
 
         private static readonly MethodInfo _createAndSet
-            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethods("CreateAndSet").Single();
+            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateAndSet));
 
         private static readonly MethodInfo _create
-            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethods("CreateCollection").Single();
+            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateCollection));
 
         public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
         {

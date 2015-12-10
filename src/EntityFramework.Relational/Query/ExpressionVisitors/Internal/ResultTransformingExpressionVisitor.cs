@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -24,6 +25,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 
+        [GenericMethodFactory(nameof(QueryMethodProvider.GetResult), typeof(TypeArgumentCategory.Primitives), TargetType = typeof(QueryMethodProvider))]
+        [GenericMethodFactory(nameof(QueryMethodProvider.GetResult), typeof(TypeArgumentCategory.EntityTypes), TargetType = typeof(QueryMethodProvider))]
+        [GenericMethodFactory(nameof(AsyncQueryMethodProvider.GetResult), typeof(TypeArgumentCategory.Primitives), TargetType = typeof(AsyncQueryMethodProvider))]
+        [GenericMethodFactory(nameof(AsyncQueryMethodProvider.GetResult), typeof(TypeArgumentCategory.EntityTypes), TargetType = typeof(AsyncQueryMethodProvider))]
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Check.NotNull(node, nameof(node));

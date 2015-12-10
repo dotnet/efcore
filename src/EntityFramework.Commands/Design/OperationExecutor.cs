@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Design
         private readonly LazyRef<DbContextOperations> _contextOperations;
         private readonly LazyRef<DatabaseOperations> _databaseOperations;
         private readonly LazyRef<MigrationsOperations> _migrationsOperations;
+        private readonly LazyRef<ProjectOperations> _projectOperations;
 
         public OperationExecutor([NotNull] object logHandler, [NotNull] IDictionary args)
         {
@@ -56,6 +57,13 @@ namespace Microsoft.Data.Entity.Design
                     environment,
                     projectDir,
                     rootNamespace));
+            _projectOperations = new LazyRef<ProjectOperations>(
+                () => new ProjectOperations(
+                    loggerProvider,
+                    targetName,
+                    startupTargetName,
+                    environment,
+                    projectDir));
         }
 
         public class GetContextType : OperationBase
@@ -314,6 +322,24 @@ namespace Microsoft.Data.Entity.Design
             {
                 yield return file;
             }
+        }
+
+        public class ScaffoldRuntimeDirectives : OperationBase
+        {
+            public ScaffoldRuntimeDirectives([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args) 
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                Execute(() => executor.ScaffoldRuntimeDirectivesImpl());
+            }
+        }
+
+        private IEnumerable<string> ScaffoldRuntimeDirectivesImpl()
+        {
+            var files = _projectOperations.Value.GenerateRuntimeDirectives();
+            yield return files.GeneratedFile;
         }
 
         public abstract class OperationBase : MarshalByRefObject

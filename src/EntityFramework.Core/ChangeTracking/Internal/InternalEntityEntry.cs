@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue));
 
         [UsedImplicitly]
-        protected virtual T ReadShadowValue<T>(int shadowIndex) => default(T);
+        protected internal virtual T ReadShadowValue<T>(int shadowIndex) => default(T);
 
         internal static readonly MethodInfo ReadOriginalValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue));

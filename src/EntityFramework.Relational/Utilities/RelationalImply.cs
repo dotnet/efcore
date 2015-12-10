@@ -3,48 +3,17 @@
 
 #pragma warning disable 0169
 
-using System;
-using System.Threading;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Utilities
 {
-    /// <summary>
-    ///     DO NOT USE. <see cref="ImpliedEntityType{TEntity}" />
-    /// </summary>
-    internal partial class RelationalImplyTypes
-    {
-        public ImplyGeneric<ValueBuffer> ValueBufferProp;
-        public ImplyGeneric<object> Object;
-        public ImplyGeneric<string> String;
-    }
-
-    internal partial class ImplyGeneric<T>
-    {
-        public void ImplyMethods()
-        {
-            QueryMethodProvider.GetResult<T>(null);
-            QueryMethodProvider._ShapedQuery<T>(null, null, null);
-            QueryMethodProvider._Include<T>(null, null, null, null, null, true);
-
-            AsyncQueryMethodProvider.GetResult<T>(null, default(CancellationToken)).Wait();
-            AsyncQueryMethodProvider._ShapedQuery<T>(null, null, null);
-            AsyncQueryMethodProvider._Include<T>(null, null, null, null, null, true);
-        }
-    }
-
-    internal class ImplyGeneric<T1, T2>
-    {
-        public Func<T1, T2> Func1;
-        public Func<T2, T1> Func2;
-    }
-
     internal class ImplyGeneric<T1, T2, T3, T4>
     {
         public void ImplyMethods()
         {
             QueryMethodProvider._GroupJoin<T1, T2, T3, T4>(null, null, null, null, null, null);
+
+            AsyncQueryMethodProvider._GroupJoin<T1, T2, T3, T4>(null, null, null, null, null, null);
         }
     }
 }

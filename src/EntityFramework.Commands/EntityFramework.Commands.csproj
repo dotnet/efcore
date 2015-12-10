@@ -36,6 +36,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
@@ -50,9 +52,12 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\SharedTypeExtensions.cs</Link>
     </Compile>
+    <Compile Include="Design\Internal\RuntimeTypeDiscoverer.cs" />
+    <Compile Include="Scaffolding\Internal\DirectiveFiles.cs" />
     <Compile Include="Design\Internal\HostingEnvironment.cs" />
     <Compile Include="Design\Internal\StartupInvoker.cs" />
     <Compile Include="Design\MigrationInfo.cs" />
+    <Compile Include="Design\ProjectOperations.cs" />
     <Compile Include="Design\OperationException.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
     <Compile Include="Design\DatabaseOperations.cs" />
@@ -88,6 +93,7 @@
     <Compile Include="Migrations\Design\CSharpHelper.cs" />
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
+    <Compile Include="Scaffolding\DirectiveGenerator.cs" />
     <Compile Include="Scaffolding\Internal\CodeWriter.cs" />
     <Compile Include="Scaffolding\Internal\Configuration\SequenceConfiguration.cs" />
     <Compile Include="Scaffolding\Internal\ScaffoldingServiceCollectionExtensions.cs" />

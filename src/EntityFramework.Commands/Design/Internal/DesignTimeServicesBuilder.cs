@@ -15,6 +15,9 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Update.Internal;
 
 namespace Microsoft.Data.Entity.Design.Internal
 {
@@ -83,18 +86,25 @@ namespace Microsoft.Data.Entity.Design.Internal
         protected virtual void ConfigureContextServices(
             [NotNull] IServiceProvider contextServices,
             [NotNull] IServiceCollection services)
-            => services
-                .AddTransient<MigrationsScaffolder>()
-                .AddTransient(_ => contextServices.GetService<DbContext>())
-                .AddTransient(_ => contextServices.GetService<IDatabaseProviderServices>())
-                .AddTransient(_ => contextServices.GetService<IDbContextOptions>())
-                .AddTransient(_ => contextServices.GetService<IHistoryRepository>())
-                .AddTransient(_ => contextServices.GetService<ILoggerFactory>())
-                .AddTransient(_ => contextServices.GetService<IMigrationsAssembly>())
-                .AddTransient(_ => contextServices.GetService<IMigrationsIdGenerator>())
-                .AddTransient(_ => contextServices.GetService<IMigrationsModelDiffer>())
-                .AddTransient(_ => contextServices.GetService<IMigrator>())
-                .AddTransient(_ => contextServices.GetService<IModel>());
+        {
+            // for migrations
+            services.AddTransient<MigrationsScaffolder>()
+                    .AddTransient(_ => contextServices.GetService<DbContext>())
+                    .AddTransient(_ => contextServices.GetService<IDatabaseProviderServices>())
+                    .AddTransient(_ => contextServices.GetService<IDbContextOptions>())
+                    .AddTransient(_ => contextServices.GetService<IHistoryRepository>())
+                    .AddTransient(_ => contextServices.GetService<ILoggerFactory>())
+                    .AddTransient(_ => contextServices.GetService<IMigrationsAssembly>())
+                    .AddTransient(_ => contextServices.GetService<IMigrationsIdGenerator>())
+                    .AddTransient(_ => contextServices.GetService<IMigrationsModelDiffer>())
+                    .AddTransient(_ => contextServices.GetService<IMigrator>())
+                    .AddTransient(_ => contextServices.GetService<IModel>())
+            // for directive generation
+                    .AddTransient(_ => contextServices.GetService<IStateManager>())
+                    .AddTransient(_ => contextServices.GetService<IInternalEntityEntryFactory>())
+                    .AddTransient<RuntimeTypeDiscoverer>()
+            ;
+        }
 
         private void ConfigureUserServices(IServiceCollection services)
             => _startup.ConfigureDesignTimeServices(services);

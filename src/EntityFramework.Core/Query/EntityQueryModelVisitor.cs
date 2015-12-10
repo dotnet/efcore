@@ -240,6 +240,7 @@ namespace Microsoft.Data.Entity.Query
                     () => CoreStrings.LogOptimizedQueryModel(queryModel));
         }
 
+        [GenericMethodFactory(nameof(TaskToSequence), typeof(TypeArgumentCategory.Properties))]
         protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -254,6 +255,7 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
+        [GenericMethodFactory(nameof(TaskToSequence), typeof(TypeArgumentCategory.Properties))]
         protected virtual void AsyncSingleResultToSequence([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -273,7 +275,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(TaskToSequence));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<T> TaskToSequence<T>(Task<T> task)
+        private static IAsyncEnumerable<T> TaskToSequence<T>(Task<T> task)
             => new TaskResultAsyncEnumerable<T>(task);
 
         protected virtual void IncludeNavigations([NotNull] QueryModel queryModel)

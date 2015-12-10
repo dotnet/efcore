@@ -45,8 +45,23 @@ namespace Microsoft.Data.Entity.Design
         }
 
         public virtual DbContext CreateContext([CanBeNull] string contextType)
+            => CreateContext(FindContextType(contextType).Value);
+
+        public virtual DbContext CreateContext([NotNull] Type contextType)
         {
-            var context = FindContextType(contextType).Value();
+            Check.NotNull(contextType, nameof(contextType));
+
+            Func<DbContext> factory;
+            if(!FindContextTypes().TryGetValue(contextType, out factory))
+            {
+                throw new OperationException(CommandsStrings.NoContext);
+            }
+            return CreateContext(factory);
+        }
+
+        private DbContext CreateContext(Func<DbContext> factory)
+        {
+            var context = factory();
             _logger.Value.LogDebug(CommandsStrings.LogUseContext(context.GetType().Name));
 
             var loggerFactory = context.GetService<ILoggerFactory>();

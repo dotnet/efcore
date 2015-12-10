@@ -1,70 +1,98 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
-    <Library>
-        <!-- TODO optimize this for types that actually need reflection -->
-        <Assembly Name="EntityFramework.Core" Dynamic="Required All" />
+  <Library>
+    <!-- TODO optimize this for types that actually need reflection -->
+    <Assembly Name="EntityFramework.Core" Dynamic="Required All" />
 
-        <!-- TODO https://github.com/aspnet/EntityFramework/issues/3477 -->
-        <Type Name="Microsoft.Data.Entity.DbSet{TEntity}">
-            <GenericParameter Name="TEntity" Dynamic="Required All" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All" />
-        </Type>
+    <TypeInstantiation Name="System.Collections.Generic.IEnumerable"
+                       Arguments="Microsoft.Data.Entity.Storage.ValueBuffer"
+                       Dynamic="Required All" />
 
-        <TypeInstantiation Name="System.Collections.Generic.IEnumerable"
-                           Arguments="Microsoft.Data.Entity.Storage.ValueBuffer"
-                           Dynamic="Required All" />
+    <TypeInstantiation Name="Microsoft.Data.Entity.Query.EntityQueryModelVisitor.TransparentIdentifier"
+                       Arguments="Microsoft.Data.Entity.Storage.ValueBuffer,Microsoft.Data.Entity.Storage.ValueBuffer"
+                       Dynamic="Required All" />
 
-        <TypeInstantiation Name="Microsoft.Data.Entity.Query.EntityQueryModelVisitor.TransparentIdentifier"
-                           Arguments="Microsoft.Data.Entity.Storage.ValueBuffer,Microsoft.Data.Entity.Storage.ValueBuffer"
-                           Dynamic="Required All" />
+    <Assembly Name="System.Linq">
+      <Type Name="System.Linq.Enumerable">
+        <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
 
-        <Assembly Name="System.Linq">
-            <Type Name="System.Linq.Enumerable">
-                <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
-            </Type>
-        </Assembly>
+        <Method Name="Select{TResult}">
+          <GenericParameter Name="TResult"/>
+          <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All"/>
+        </Method>
 
-        <Type Name="System.Linq.AsyncEnumerable">
-            <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
-        </Type>
-        
-        <Type Name="System.Collections.ArrayList" Dynamic="Required All" />
+        <Method Name="Select{TSource, TResult}">
+          <GenericParameter Name="TSource"/>
+          <GenericParameter Name="TResult"/>
+          <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All"/>
+        </Method>
+      </Type>
+    </Assembly>
 
-        <Type Name="Microsoft.Data.Entity.DbContext">
+    <Type Name="System.Linq.AsyncEnumerable">
+      <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
+    </Type>
 
-            <Subtypes Dynamic="Required All" />
+    <Assembly Name="System.Collections.NonGeneric">
+      <Type Name="System.Collections.ArrayList" Dynamic="Required All" />
+    </Assembly>
 
-            <Method Name="Add{TEntity}">
-                <GenericParameter Name="TEntity" Dynamic="Required All" />
-                <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All" />
-            </Method>
+    <Type Name="System.Linq.Queryable">
+      <Method Name="Select{TResult}">
+        <GenericParameter Name="TResult"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All"/>
+      </Method>
 
-            <Method Name="Attach{TEntity}">
-                <GenericParameter Name="TEntity" Dynamic="Required All" />
-                <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All" />
-            </Method>
+      <Method Name="Select{TSource, TResult}">
+        <GenericParameter Name="TSource"/>
+        <GenericParameter Name="TResult"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All"/>
+      </Method>
 
-            <Method Name="Entry{TEntity}">
-                <GenericParameter Name="TEntity" Dynamic="Required All" />
-                <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All" />
-            </Method>
+      <Method Name="GroupBy{TSource, TKey}">
+        <GenericParameter Name="TSource"/>
+        <GenericParameter Name="TKey"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey}" Dynamic="Required All" />
+      </Method>
 
-            <Method Name="Remove{TEntity}">
-                <GenericParameter Name="TEntity" Dynamic="Required All" />
-                <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All" />
-            </Method>
+      <Method Name="GroupBy{TSource, TKey, TElement}">
+        <GenericParameter Name="TSource"/>
+        <GenericParameter Name="TKey"/>
+        <GenericParameter Name="TElement"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey, TElement}" Dynamic="Required All" />
+      </Method>
 
-            <Method Name="Set{TEntity}">
-                <GenericParameter Name="TEntity" Dynamic="Required All" />
-                <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All" />
-            </Method>
+      <Method Name="GroupBy{TSource, TKey, TResult}">
+        <GenericParameter Name="TSource"/>
+        <GenericParameter Name="TKey"/>
+        <GenericParameter Name="TResult"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey, TResult}" Dynamic="Required All" />
+      </Method>
 
-            <Method Name="Update{TEntity}">
-                <GenericParameter Name="TEntity" Dynamic="Required All" />
-                <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All" />
-            </Method>
-        </Type>
+      <Method Name="SelectMany{TSource, TCollection, TResult}">
+        <GenericParameter Name="TSource"/>
+        <GenericParameter Name="TCollection"/>
+        <GenericParameter Name="TResult"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TCollection, TResult}" Dynamic="Required All" />
+      </Method>
 
-    </Library>
+      <Method Name="Join{TOuter, TInner, TKey, TResult}">
+        <GenericParameter Name="TOuter"/>
+        <GenericParameter Name="TInner"/>
+        <GenericParameter Name="TKey"/>
+        <GenericParameter Name="TResult"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TOuter, TInner, TKey, TResult}" Dynamic="Required All" />
+      </Method>
+
+      <Method Name="GroupJoin{TOuter, TInner, TKey, TResult}">
+        <GenericParameter Name="TOuter"/>
+        <GenericParameter Name="TInner"/>
+        <GenericParameter Name="TKey"/>
+        <GenericParameter Name="TResult"/>
+        <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TOuter, TInner, TKey, TResult}" Dynamic="Required All" />
+      </Method>
+    </Type>
+
+  </Library>
 </Directives>

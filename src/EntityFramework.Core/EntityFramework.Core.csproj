@@ -308,6 +308,8 @@
     <Compile Include="Query\IEntityQueryModelVisitorFactory.cs" />
     <Compile Include="Query\Internal\DependentToPrincipalIncludeComparer.cs" />
     <Compile Include="Query\Internal\ExpressionEqualityComparer.cs" />
+    <Compile Include="Internal\TypeArgumentCategory.cs" />
+    <Compile Include="Internal\GenericMethodFactory.cs" />
     <Compile Include="Query\Internal\Grouping.cs" />
     <Compile Include="Query\Internal\IEntityTrackingInfoFactory.cs" />
     <Compile Include="Query\ICompiledQueryCacheKeyGenerator.cs" />
@@ -463,13 +465,8 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\Internal\SharedTypeExtensions.cs</Link>
     </Compile>
-    <Compile Include="Utilities\Imply.cs" />
     <Compile Include="Update\IUpdateEntry.cs" />
-    <Compile Include="Utilities\ImplyGen.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ImplyGen.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Utilities\Imply.cs" />
     <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\HiLoValueGeneratorState.cs" />
     <Compile Include="ValueGeneration\HiLoValueGenerator.cs" />
@@ -489,10 +486,6 @@
     <Compile Include="ValueGeneration\ValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\IValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
-    <Content Include="Utilities\ImplyGen.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ImplyGen.cs</LastGenOutput>
-    </Content>
     <EmbeddedResource Include="Properties\EntityFramework.Core.rd.xml" />
     <EmbeddedResource Include="Properties\CoreStrings.resx">
       <LogicalName>EntityFramework.Core.CoreStrings.resources</LogicalName>
@@ -509,7 +502,6 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
