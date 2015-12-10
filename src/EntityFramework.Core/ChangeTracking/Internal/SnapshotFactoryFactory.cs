@@ -136,6 +136,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 : constructorExpression;
         }
 
+        [CallsMakeGenericMethod(nameof(InternalEntityEntry.ReadShadowValue), typeof(TypeArgumentCategory.Properties), TargetType = typeof(InternalEntityEntry))]
         protected virtual Expression CreateReadShadowValueExpression(
             [CanBeNull] ParameterExpression parameter, [NotNull] IProperty property)
             => Expression.Call(

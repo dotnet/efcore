@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -22,7 +21,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         private Func<IInMemoryTable> Create([NotNull] IKey key)
             => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
-                .GetDeclaredMethods(nameof(CreateFactory)).Single()
+                .GetDeclaredMethod(nameof(CreateFactory))
                 .MakeGenericMethod(GetKeyType(key))
                 .Invoke(null, new object[] { key });
 

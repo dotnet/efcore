@@ -31,7 +31,9 @@
         "System.Threading.Tasks": {
           "version": "4.0.0.0",
           "type": "build"
-        }
+        },
+        "System.Xml": "4.0.0.0",
+        "System.Xml.Linq": "4.0.0.0"
       }
     },
     "dnx451": {
@@ -40,6 +42,10 @@
         "Microsoft.Dnx.Runtime": "1.0.0-*",
         "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
         "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
+      },
+      "frameworkAssemblies": {
+        "System.Xml": "4.0.0.0",
+        "System.Xml.Linq": "4.0.0.0"
       }
     },
     "dnxcore50": {
@@ -49,7 +55,8 @@
         "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
         "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
         "System.Console": "4.0.0-*",
-        "System.IO.FileSystem": "4.0.1-*"
+        "System.IO.FileSystem": "4.0.1-*",
+        "System.Xml.XDocument": "4.0.11-*"
       }
     },
     "netcore50": {

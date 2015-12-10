@@ -4,13 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,37 +26,93 @@ namespace Microsoft.Data.Entity.Design
         private readonly ILoggerProvider _loggerProvider;
         private readonly string _assemblyName;
         private readonly string _startupAssemblyName;
+        private readonly string _projectDir;
         private readonly LazyRef<ILogger> _logger;
         private readonly IServiceProvider _runtimeServices;
+        private readonly DesignTimeServicesBuilder _servicesBuilder;
 
         public DbContextOperations(
             [NotNull] ILoggerProvider loggerProvider,
             [NotNull] string assemblyName,
             [NotNull] string startupAssemblyName,
+            [NotNull] string projectDir,
             [CanBeNull] string environment)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotEmpty(assemblyName, nameof(assemblyName));
             Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
+            Check.NotEmpty(projectDir, nameof(projectDir));
 
             _loggerProvider = loggerProvider;
             _assemblyName = assemblyName;
             _startupAssemblyName = startupAssemblyName;
+            _projectDir = projectDir;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
             var startup = new StartupInvoker(startupAssemblyName, environment);
             _runtimeServices = startup.ConfigureServices();
+
+            _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
-        public virtual DbContext CreateContext([CanBeNull] string contextType)
+        public virtual DbContext CreateContext([CanBeNull] string contextType) 
+            => CreateContext(FindContextType(contextType).Value);
+
+        private DbContext CreateContext(Func<DbContext> factory)
         {
-            var context = FindContextType(contextType).Value();
+            var context = factory();
             _logger.Value.LogDebug(CommandsStrings.LogUseContext(context.GetType().Name));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
 
             return context;
+        }
+
+        public virtual DirectiveFiles GenerateRuntimeDirectives()
+        {
+            var generator = new DirectiveGenerator();
+            var members = new List<MemberInfo>();
+
+            foreach (var contextType in FindContextTypes())
+            {
+                var contextTypeName = contextType.Key.GetTypeInfo().FullName;
+                using (var context = CreateContext(contextType.Value))
+                {
+                    var services = _servicesBuilder.Build(context);
+                    var discoverer = services.GetRequiredService<RuntimeTypeDiscoverer>();
+
+                    _logger.Value.LogDebug(CommandsStrings.BeginRuntimeTypeDiscovery(contextTypeName));
+                    var start = members.Count;
+
+                    var assemblies = new[]
+                    {
+                        typeof(EntityType).GetTypeInfo().Assembly,
+                        typeof(RelationalDatabase).GetTypeInfo().Assembly,
+                        context.GetInfrastructure()
+                            .GetRequiredService<IDbContextServices>()
+                            .DatabaseProviderServices
+                            .GetType()
+                            .GetTypeInfo()
+                            .Assembly
+                    };
+
+                    members.AddRange(discoverer.Discover(assemblies));
+
+                    _logger.Value.LogDebug(CommandsStrings.EndRuntimeTypeDiscovery(members.Count - start, contextTypeName));
+                }
+            }
+            var xml = generator.GenerateXml(members);
+
+            var filename = Path.Combine(_projectDir, "Properties", "EntityFramework.g.rd.xml");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(filename));
+
+            _logger.Value.LogInformation(CommandsStrings.WritingDirectives(filename));
+
+            File.WriteAllText(filename, xml);
+
+            return new DirectiveFiles { GeneratedFile = filename };
         }
 
         public virtual IEnumerable<Type> GetContextTypes()

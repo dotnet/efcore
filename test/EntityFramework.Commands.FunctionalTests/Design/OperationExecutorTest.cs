@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET46
+#if NET451
 
 using System;
 using System.IO;
@@ -9,11 +9,20 @@ using System.Linq;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.Data.Entity.Design.Internal
 {
     public class OperationExecutorTest
     {
+        private readonly ITestOutputHelper _output = null;
+
+        public OperationExecutorTest(ITestOutputHelper output)
+        {
+            // uncomment line below to see output when developing
+            _output = output;
+        }
+
         public class SimpleProjectTest : IClassFixture<SimpleProjectTest.SimpleProject>
         {
             private readonly SimpleProject _project;
@@ -382,6 +391,95 @@ namespace Microsoft.Data.Entity.Design.Internal
                     var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
                     Assert.Equal(3, artifacts.Count());
                     Assert.True(Directory.Exists(Path.Combine(targetDir, @"Migrations\MySecond")));
+                }
+            }
+        }
+
+        [Fact]
+        public void ScaffoldRuntimeDirectives()
+        {
+            using (var directory = new TempDirectory())
+            {
+                var targetDir = directory.Path;
+                var source = new BuildSource
+                {
+                    TargetDir = targetDir,
+                    References =
+                                {
+                                    BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                    BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
+                                    BuildReference.ByName("System.Interactive.Async", copyLocal: true),
+                                    BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+                                    BuildReference.ByName("EntityFramework.Core", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.CodeAnalysis.CSharp", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
+                                    BuildReference.ByName("Remotion.Linq", copyLocal: true)
+                                },
+                    Sources = { @"using System;
+                                using Microsoft.Data.Entity;
+
+                                namespace MyProject
+                                {
+                                    public class MyContext : DbContext
+                                    {
+                                        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                                        {
+                                            optionsBuilder.UseSqlServer(""Data Source=(localdb)\\mssqllocaldb"");
+                                        }
+                                        public DbSet<Post> Posts { get; set; }
+                                    }
+
+                                    public class MySecondContext : DbContext
+                                    {
+                                        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                                        {
+                                            optionsBuilder.UseSqlServer(""Data Source=(localdb)\\mssqllocaldb"");
+                                        }
+
+                                        public DbSet<Blog> Blogs { get; set; }
+                                    }
+
+                                    public class Blog
+                                    {
+                                        public int Id { get; set; }
+                                        public DateTime Created { get; set; }
+                                        public string Title { get; set; }
+                                    }
+
+                                    public class Post
+                                    {
+                                        public int Id { get; set; }
+                                        public string Title { get; set; }
+                                    }
+                                }" }
+                };
+                var build = source.Build();
+                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, "MyProject"))
+                {
+                    executor.ScaffoldRuntimeDirectives();
+                    var expectedFile = Path.Combine(targetDir, @"Properties\EntityFramework.g.rd.xml");
+
+                    Assert.True(File.Exists(expectedFile));
+
+                    var contents = File.ReadAllText(expectedFile);
+                    _output?.WriteLine(contents);
+
+                    // original values snapshot
+                    Assert.Contains("<TypeInstantiation Name=\"Microsoft.Data.Entity.ChangeTracking.Internal.Snapshot\" "
+                        + "Arguments=\"System.Int32, System.DateTime, System.String\" "
+                        + "Dynamic=\"Required All\" />", 
+                        contents);
                 }
             }
         }

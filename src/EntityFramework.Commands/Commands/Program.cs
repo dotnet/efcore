@@ -480,6 +480,7 @@ namespace Microsoft.Data.Entity.Commands
                         loggerProvider,
                         targetName,
                         startupTargetName,
+                        projectDir,
                         environment));
                 _databaseOperations = new LazyRef<DatabaseOperations>(
                     () => new DatabaseOperations(

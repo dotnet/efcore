@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET46;OMIT_HANDLER_INTERFACES;ENABLE_HANDLERS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET451;OMIT_HANDLER_INTERFACES;ENABLE_HANDLERS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET46;OMIT_HANDLER_INTERFACES;ENABLE_HANDLERS</DefineConstants>
+    <DefineConstants>TRACE;NET451;OMIT_HANDLER_INTERFACES;ENABLE_HANDLERS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -42,6 +42,7 @@
     <Compile Include="Migrations\CodeCompilationTest.cs" />
     <Compile Include="Migrations\ModelSnapshotTest.cs" />
     <Compile Include="Migrations\OperationCompilationTest.cs" />
+    <Compile Include="RuntimeTypeDiscovererTest.cs" />
     <Compile Include="TestUtilities\BuildReference.cs" />
     <Compile Include="TestUtilities\BuildFileResult.cs" />
     <Compile Include="TestUtilities\BuildSource.cs" />
@@ -58,6 +59,10 @@
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
+      <Project>{ba3f5dbc-ec16-4d5a-8298-8226e6c5accc}</Project>
+      <Name>EntityFramework.InMemory</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.csproj">
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>

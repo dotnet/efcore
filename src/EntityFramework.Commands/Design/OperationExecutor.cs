@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Design
                     loggerProvider,
                     targetName,
                     startupTargetName,
-                    environment));
+                    projectDir, environment));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     loggerProvider,
@@ -314,6 +314,24 @@ namespace Microsoft.Data.Entity.Design
             {
                 yield return file;
             }
+        }
+
+        public class ScaffoldRuntimeDirectives : OperationBase
+        {
+            public ScaffoldRuntimeDirectives([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args) 
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                Execute(() => executor.ScaffoldRuntimeDirectivesImpl());
+            }
+        }
+
+        private IEnumerable<string> ScaffoldRuntimeDirectivesImpl()
+        {
+            var files = _contextOperations.Value.GenerateRuntimeDirectives();
+            yield return files.GeneratedFile;
         }
 
         public abstract class OperationBase : MarshalByRefObject

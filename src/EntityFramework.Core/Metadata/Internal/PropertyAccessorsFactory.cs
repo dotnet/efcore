@@ -3,17 +3,21 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class PropertyAccessorsFactory
     {
+
+        [CallsMakeGenericMethod(nameof(CreateGeneric), typeof(TypeArgumentCategory.Properties))]
+        [CallsMakeGenericMethod(nameof(CreateGeneric), typeof(HashSet<object>))]
+        [CallsMakeGenericMethod(nameof(CreateGeneric), typeof(object))]
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
             => (PropertyAccessors)_genericCreate
                 .MakeGenericMethod((propertyBase as IProperty)?.ClrType
@@ -23,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .Invoke(null, new object[] { propertyBase });
 
         private static readonly MethodInfo _genericCreate
-            = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethods(nameof(CreateGeneric)).Single();
+            = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric));
 
         [UsedImplicitly]
         private static PropertyAccessors CreateGeneric<TProperty>(IPropertyBase propertyBase)
@@ -36,6 +40,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 property == null ? null : CreateValueBufferGetter(property));
         }
 
+        [CallsMakeGenericMethod(MethodName = nameof(InternalEntityEntry.ReadShadowValue),
+                TypeArguments = new[] { typeof(TypeArgumentCategory.Properties) }, TargetType = typeof(InternalEntityEntry))]
+        [CallsMakeGenericMethod(MethodName = nameof(InternalEntityEntry.ReadStoreGeneratedValue),
+                TypeArguments = new[] { typeof(TypeArgumentCategory.Properties) }, TargetType = typeof(InternalEntityEntry))]
         private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(IPropertyBase propertyBase)
         {
             var entityClrType = propertyBase.DeclaringEntityType.ClrType;
@@ -69,6 +77,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .Compile();
         }
 
+        [CallsMakeGenericMethod(MethodName = nameof(InternalEntityEntry.ReadOriginalValue), 
+            TypeArguments = new [] { typeof(TypeArgumentCategory.Properties) }, TargetType = typeof(InternalEntityEntry))]
+        [CallsMakeGenericMethod(MethodName = nameof(InternalEntityEntry.GetCurrentValue),
+            TypeArguments = new[] { typeof(TypeArgumentCategory.Properties) }, TargetType = typeof(InternalEntityEntry))]
         private static Func<InternalEntityEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)
         {
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
@@ -89,6 +101,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .Compile();
         }
 
+        [CallsMakeGenericMethod(MethodName = nameof(InternalEntityEntry.ReadRelationshipSnapshotValue),
+           TypeArguments = new[] { typeof(TypeArgumentCategory.Properties) }, TargetType = typeof(InternalEntityEntry))]
+        [CallsMakeGenericMethod(MethodName = nameof(InternalEntityEntry.GetCurrentValue),
+           TypeArguments = new[] { typeof(TypeArgumentCategory.Properties) }, TargetType = typeof(InternalEntityEntry))]
         private static Func<InternalEntityEntry, TProperty> CreateRelationshipSnapshotGetter<TProperty>(IPropertyBase propertyBase)
         {
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");

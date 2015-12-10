@@ -426,6 +426,64 @@ function Scaffold-DbContext {
     ShowConsole
 }
 
+# 
+# Scaffold-Directives
+#
+
+Register-TabExpansion Scaffold-Directives @{
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+
+<#
+.SYNOPSIS
+    Scaffolds a runtime directive file for .NET Native.
+
+.DESCRIPTION
+    Scaffolds a runtime directive file for .NET Native. 
+    These directives instruct the compiler to include metadata for types needed at runtime.
+
+.PARAMETER Project
+    Specifies the project to use. If omitted, the default project is used.
+
+.PARAMETER StartupProject
+    Specifies the startup project to use. If omitted, the solution's startup project is used.
+
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, "Development" is used.
+
+.LINK
+    about_EntityFramework
+#>
+
+function Scaffold-Directives {
+    [CmdletBinding(PositionalBinding = $false)]
+    param (
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Environment)
+
+    $values = ProcessCommonParameters $StartupProject $Project
+    $dteStartupProject = $values.StartupProject
+    $config = $dteStartupProject.ConfigurationManager.ActiveConfiguration.ConfigurationName
+    $configProperties = $dteStartupProject.ConfigurationManager.ActiveConfiguration.Properties
+    $isNative = (GetProperty $configProperties ProjectN.UseDotNetNativeToolchain) -eq 'True'
+
+    if ($isNative) {
+        throw "Cannot run in '$config' mode because 'Compile with the .NET Native tool chain' is enabled. Disable this setting or use a different configuration and try again."
+    }
+
+    $dteProject = $values.Project
+
+    $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject ScaffoldRuntimeDirectives
+
+    $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null  }
+
+    ShowConsole
+}
+
+
 #
 # Enable-Migrations (Obsolete)
 #

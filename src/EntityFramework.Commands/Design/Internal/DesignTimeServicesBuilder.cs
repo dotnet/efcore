@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 
 namespace Microsoft.Data.Entity.Design.Internal
 {
@@ -68,6 +69,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .AddSingleton<CSharpMigrationOperationGenerator>()
                 .AddSingleton<CSharpSnapshotGenerator>()
                 .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
+                .AddSingleton<RuntimeTypeDiscoverer>()
                 .AddScaffolding();
 
         partial void ConfigureDnxServices(IServiceCollection services);
@@ -94,7 +96,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .AddTransient(_ => contextServices.GetService<IMigrationsIdGenerator>())
                 .AddTransient(_ => contextServices.GetService<IMigrationsModelDiffer>())
                 .AddTransient(_ => contextServices.GetService<IMigrator>())
-                .AddTransient(_ => contextServices.GetService<IModel>());
+                .AddTransient(_ => contextServices.GetService<IModel>())
+                .AddTransient(_ => contextServices.GetService<IStateManager>())
+                .AddTransient(_ => contextServices.GetService<IInternalEntityEntryFactory>());
 
         private void ConfigureUserServices(IServiceCollection services)
             => _startup.ConfigureDesignTimeServices(services);

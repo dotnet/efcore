@@ -1,0 +1,111 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Reflection" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".rd.xml" #>
+<?xml version="1.0" encoding="utf-8"?>
+
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Library>
+    <!-- TODO optimize this for types that actually need reflection -->
+    <Assembly Name="EntityFramework.Core" Dynamic="Required All" />
+
+    <TypeInstantiation Name="System.Collections.Generic.IEnumerable"
+                       Arguments="Microsoft.Data.Entity.Storage.ValueBuffer"
+                       Dynamic="Required All" />
+
+    <TypeInstantiation Name="Microsoft.Data.Entity.Query.EntityQueryModelVisitor.TransparentIdentifier"
+                       Arguments="Microsoft.Data.Entity.Storage.ValueBuffer,Microsoft.Data.Entity.Storage.ValueBuffer"
+                       Dynamic="Required All" />
+    
+    <Assembly Name="System.Collections.NonGeneric">
+      <Type Name="System.Collections.ArrayList" Dynamic="Required All" />
+    </Assembly>
+
+    <Type Name="System.Linq.AsyncEnumerable">
+      <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
+    </Type>
+	
+    <Assembly Name="System.Linq">
+      <Type Name="System.Linq.Enumerable">
+        <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
+
+<# foreach(var method in typeof(Enumerable).GetTypeInfo()
+		.DeclaredMethods
+		.Where(m => m.ContainsGenericParameters && m.GetGenericArguments().Length <= 4)
+		.GroupBy( m => new { m.Name, m.GetGenericArguments().Length })
+		.Select(m => m.First())
+		.OrderBy(m => m.Name)) { #>
+        <Method Name="<#= Serialize(method) #>" >
+<# foreach(var arg in method.GetGenericArguments()) { #>
+            <GenericParameter Name="<#= arg.Name #>" />
+<# } #>
+            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator<#= SerializeTypeArgs(method.GetGenericArguments()) #>" Dynamic="Required All" />
+        </Method>
+<# } #>
+      </Type>
+    </Assembly>
+
+    <Type Name="System.Linq.Queryable">
+
+<# foreach(var method in typeof(Enumerable).GetTypeInfo()
+		.DeclaredMethods
+		.Where(m => m.ContainsGenericParameters && m.GetGenericArguments().Length <= 4)
+		.GroupBy( m => new { m.Name, m.GetGenericArguments().Length })
+		.Select(m => m.First())
+		.OrderBy(m => m.Name)) { #>
+        <Method Name="<#= Serialize(method) #>" >
+<# foreach(var arg in method.GetGenericArguments()) { #>
+            <GenericParameter Name="<#= arg.Name #>" />
+<# } #>
+            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator<#= SerializeTypeArgs(method.GetGenericArguments()) #>" Dynamic="Required All" />
+        </Method>
+<# } #>
+    </Type>
+
+  </Library>
+</Directives>
+
+<#+         
+public string Serialize(Type type)
+{
+	return Serialize(type.GetTypeInfo());
+}
+
+public string Serialize(TypeInfo typeInfo)
+{
+    var sb = new StringBuilder((typeInfo.FullName ?? typeInfo.Name).Split('`')[0].Replace('+', '.'));
+
+    var typeArgs = typeInfo.ContainsGenericParameters
+        ? typeInfo.GenericTypeParameters
+        : typeInfo.GenericTypeArguments;
+
+    sb.Append(SerializeTypeArgs(typeArgs));
+    
+	return sb.ToString();
+}
+
+public string Serialize(MethodInfo methodInfo)
+{
+    var sb = new StringBuilder(methodInfo.Name.Split('`')[0]);
+
+    var typeArgs = methodInfo.GetGenericArguments();
+
+    sb.Append(SerializeTypeArgs(typeArgs));
+
+    return sb.ToString();
+}
+
+public string SerializeTypeArgs(Type[] typeArgs)
+{
+    return (typeArgs.Length == 0)
+		? string.Empty
+		:  "{" + string.Join(", ", typeArgs.Select(Serialize)) + "}";
+}
+
+#>

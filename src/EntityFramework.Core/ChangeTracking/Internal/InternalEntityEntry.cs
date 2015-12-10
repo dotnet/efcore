@@ -236,27 +236,27 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue));
 
         [UsedImplicitly]
-        protected virtual T ReadShadowValue<T>(int shadowIndex) => default(T);
+        protected internal virtual T ReadShadowValue<T>(int shadowIndex) => default(T);
 
         internal static readonly MethodInfo ReadOriginalValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue));
 
         [UsedImplicitly]
-        private T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
+        internal T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
             => _originalValues.GetValue<T>(this, property, originalValueIndex);
 
         internal static readonly MethodInfo ReadRelationshipSnapshotValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadRelationshipSnapshotValue));
 
         [UsedImplicitly]
-        private T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
+        internal T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
             => _relationshipsSnapshot.GetValue<T>(this, propertyBase, relationshipSnapshotIndex);
 
         internal static readonly MethodInfo ReadStoreGeneratedValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue));
 
         [UsedImplicitly]
-        private T ReadStoreGeneratedValue<T>(T currentValue, int storeGeneratedIndex)
+        internal T ReadStoreGeneratedValue<T>(T currentValue, int storeGeneratedIndex)
             => _storeGeneratedValues.GetValue<T>(currentValue, storeGeneratedIndex);
 
         internal static readonly MethodInfo GetCurrentValueMethod

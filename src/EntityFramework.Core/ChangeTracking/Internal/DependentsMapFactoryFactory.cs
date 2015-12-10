@@ -2,19 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class DependentsMapFactoryFactory : IdentityMapFactoryFactoryBase
     {
+        [CallsMakeGenericMethod(nameof(CreateFactory), typeof(TypeArgumentCategory.Keys))]
         public virtual Func<IDependentsMap> Create([NotNull] IForeignKey foreignKey)
             => (Func<IDependentsMap>)typeof(DependentsMapFactoryFactory).GetTypeInfo()
-                .GetDeclaredMethods(nameof(CreateFactory)).Single()
+                .GetDeclaredMethod(nameof(CreateFactory))
                 .MakeGenericMethod(GetKeyType(foreignKey.PrincipalKey))
                 .Invoke(null, new object[] { foreignKey });
 
