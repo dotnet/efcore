@@ -38,6 +38,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_closes_reader()
+        {
+            using (var context = CreateContext())
+            {
+                var customer = context.Set<Customer>().Include(c => c.Orders).FirstOrDefault();
+                var products = context.Products.ToList();
+
+                Assert.NotNull(customer);
+                Assert.NotNull(products);
+            }
+        }
+
+        [Fact]
         public virtual void Include_when_result_operator()
         {
             using (var context = CreateContext())

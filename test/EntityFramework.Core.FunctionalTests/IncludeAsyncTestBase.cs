@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
@@ -22,10 +21,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected TFixture Fixture { get; }
 
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [Fact]
         public virtual async Task Include_collection()
@@ -41,6 +37,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
                 Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
                 Assert.Equal(91 + 830, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual async Task Include_closes_reader()
+        {
+            using (var context = CreateContext())
+            {
+                var customer = await context.Set<Customer>().Include(c => c.Orders).FirstOrDefaultAsync();
+                var products = await context.Products.ToListAsync();
+
+                Assert.NotNull(customer);
+                Assert.NotNull(products);
             }
         }
 
@@ -167,8 +176,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = await (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                        from c2 in context.Set<Customer>().Include(c => c.Orders)
-                        select c2)
+                             from c2 in context.Set<Customer>().Include(c => c.Orders)
+                             select c2)
                         .ToListAsync();
 
                 Assert.Equal(455, customers.Count);
@@ -185,10 +194,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = await (from c1 in context.Set<Customer>()
-                        from c2 in context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .Where(c => c.CustomerID == "ALFKI")
-                        select c2)
+                             from c2 in context.Set<Customer>()
+                                 .Include(c => c.Orders)
+                                 .Where(c => c.CustomerID == "ALFKI")
+                             select c2)
                         .ToListAsync();
 
                 Assert.Equal(91, customers.Count);
@@ -205,8 +214,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = await (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                        from c2 in context.Set<Customer>().Include(c => c.Orders)
-                        select c1)
+                             from c2 in context.Set<Customer>().Include(c => c.Orders)
+                             select c1)
                         .ToListAsync();
 
                 Assert.Equal(455, customers.Count);
@@ -222,9 +231,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = await (from c in context.Set<Customer>().Include(c => c.Orders)
-                        join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
-                        where c.CustomerID == "ALFKI"
-                        select c)
+                             join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
+                             where c.CustomerID == "ALFKI"
+                             select c)
                         .ToListAsync();
 
                 Assert.Equal(6, customers.Count);
@@ -241,10 +250,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = await (from c in context.Set<Customer>().Include(c => c.Orders)
-                        join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
-                        where c.CustomerID == "ALFKI"
-                        orderby c.City
-                        select c)
+                             join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
+                             where c.CustomerID == "ALFKI"
+                             orderby c.City
+                             select c)
                         .ToListAsync();
 
                 Assert.Equal(6, customers.Count);
@@ -413,12 +422,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Include(c => c.Orders)
                         .OrderBy(c => c.CustomerID)
                         .Take(2)
-                        from c2 in context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .OrderBy(c => c.CustomerID)
-                            .Skip(2)
-                            .Take(2)
-                        select new { c1, c2 })
+                             from c2 in context.Set<Customer>()
+                                 .Include(c => c.Orders)
+                                 .OrderBy(c => c.CustomerID)
+                                 .Skip(2)
+                                 .Take(2)
+                             select new { c1, c2 })
                         .ToListAsync();
 
                 Assert.Equal(4, customers.Count);
@@ -440,12 +449,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Include(c => c.Orders)
                         .OrderBy(c => c.CustomerID)
                         .Take(2)
-                        from c2 in context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .OrderBy(c => c.CustomerID)
-                            .Skip(2)
-                            .Take(2)
-                        select new { c1, c2 })
+                             from c2 in context.Set<Customer>()
+                                 .Include(c => c.Orders)
+                                 .OrderBy(c => c.CustomerID)
+                                 .Skip(2)
+                                 .Take(2)
+                             select new { c1, c2 })
                         .Take(1)
                         .ToListAsync();
 
@@ -468,11 +477,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Include(c => c.Orders)
                         .OrderBy(c => c.CustomerID)
                         .Take(2)
-                        from c2 in context.Set<Customer>()
-                            .OrderBy(c => c.CustomerID)
-                            .Skip(2)
-                            .Take(2)
-                        select new { c1, c2 })
+                             from c2 in context.Set<Customer>()
+                                 .OrderBy(c => c.CustomerID)
+                                 .Skip(2)
+                                 .Take(2)
+                             select new { c1, c2 })
                         .Take(1)
                         .ToListAsync();
 
@@ -494,12 +503,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Include(o => o.Customer)
                         .OrderBy(o => o.CustomerID)
                         .Take(2)
-                        from o2 in context.Set<Order>()
-                            .Include(o => o.Customer)
-                            .OrderBy(o => o.CustomerID)
-                            .Skip(2)
-                            .Take(2)
-                        select new { o1, o2 })
+                             from o2 in context.Set<Order>()
+                                 .Include(o => o.Customer)
+                                 .OrderBy(o => o.CustomerID)
+                                 .Skip(2)
+                                 .Take(2)
+                             select new { o1, o2 })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
@@ -521,11 +530,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Include(o => o.Customer)
                         .OrderBy(o => o.OrderID)
                         .Take(2)
-                        from o2 in context.Set<Order>()
-                            .OrderBy(o => o.OrderID)
-                            .Skip(2)
-                            .Take(2)
-                        select new { o1, o2 })
+                             from o2 in context.Set<Order>()
+                                 .OrderBy(o => o.OrderID)
+                                 .Skip(2)
+                                 .Take(2)
+                             select new { o1, o2 })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
@@ -545,12 +554,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     = await (from o1 in context.Set<Order>()
                         .OrderBy(o => o.OrderID)
                         .Take(2)
-                        from o2 in context.Set<Order>()
-                            .OrderBy(o => o.OrderID)
-                            .Include(o => o.Customer)
-                            .Skip(2)
-                            .Take(2)
-                        select new { o1, o2 })
+                             from o2 in context.Set<Order>()
+                                 .OrderBy(o => o.OrderID)
+                                 .Include(o => o.Customer)
+                                 .Skip(2)
+                                 .Take(2)
+                             select new { o1, o2 })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);

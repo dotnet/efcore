@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -221,24 +222,29 @@ namespace Microsoft.Data.Entity.Query
                     .Select<IIncludeRelatedValuesStrategy, RelatedEntitiesLoader>(s => s.GetRelatedValues)
                     .ToArray();
 
-            foreach (var innerResult in innerResults)
+            try
             {
-                queryContext.QueryBuffer
-                    .Include(
-                        entityAccessor == null ? innerResult : entityAccessor(innerResult), // TODO: Compile time?
-                        navigationPath,
-                        relatedEntitiesLoaders,
-                        querySourceRequiresTracking);
+                foreach (var innerResult in innerResults)
+                {
+                    queryContext.QueryBuffer
+                        .Include(
+                            entityAccessor == null ? innerResult : entityAccessor(innerResult), // TODO: Compile time?
+                            navigationPath,
+                            relatedEntitiesLoaders,
+                            querySourceRequiresTracking);
 
-                yield return innerResult;
+                    yield return innerResult;
+                }
             }
-
-            foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
+            finally // Need this to run even if innerResults is not fully consumed.
             {
-                includeRelatedValuesStrategy.Dispose();
-            }
+                foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
+                {
+                    includeRelatedValuesStrategy.Dispose();
+                }
 
-            queryContext.EndIncludeScope();
+                queryContext.EndIncludeScope();
+            }
         }
 
         public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod

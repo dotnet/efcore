@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
             if (!Connection.IsMultipleActiveResultSetsEnabled
-                && (_activeQueries.Count > 0))
+                && _activeQueries.Count > 0)
             {
                 _activeQueries.Last().BufferAll();
             }
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Query
             _activeQueries.Add(valueBufferCursor);
 
             if (queryIndex.HasValue
-                && (queryIndex.Value > 0))
+                && queryIndex.Value > 0)
             {
                 AddBufferCursorToIncludeQueriesList(valueBufferCursor, queryIndex.Value);
             }
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
             if (!Connection.IsMultipleActiveResultSetsEnabled
-                && (_activeQueries.Count > 0))
+                && _activeQueries.Count > 0)
             {
                 await _activeQueries.Last().BufferAllAsync(cancellationToken);
             }
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Query
             _activeQueries.Add(valueBufferCursor);
 
             if (queryIndex.HasValue
-                && (queryIndex.Value > 0))
+                && queryIndex.Value > 0)
             {
                 AddBufferCursorToIncludeQueriesList(valueBufferCursor, queryIndex.Value);
             }
