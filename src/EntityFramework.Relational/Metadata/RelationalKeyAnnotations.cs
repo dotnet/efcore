@@ -43,14 +43,14 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public static string GetDefaultKeyName(
-            [NotNull] string tableName, bool isPrimaryKey, [NotNull] IEnumerable<string> propertyNames)
+            [NotNull] string tableName, bool primaryKey, [NotNull] IEnumerable<string> propertyNames)
         {
             var builder = new StringBuilder();
             builder
-                .Append(isPrimaryKey ? "PK_" : "AK_")
+                .Append(primaryKey ? "PK_" : "AK_")
                 .Append(tableName);
 
-            if (!isPrimaryKey)
+            if (!primaryKey)
             {
                 builder
                     .Append("_")
