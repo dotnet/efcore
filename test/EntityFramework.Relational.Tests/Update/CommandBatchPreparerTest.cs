@@ -309,6 +309,37 @@ namespace Microsoft.Data.Entity.Tests.Update
                     () => { var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }).ToArray(); }).Message);
         }
 
+
+        [Fact]
+        public void Batch_command_shows_correct_cycle_when_circular_dependencies()
+        {
+            var model = CreateCyclicFkWithTailModel();
+            var configuration = CreateContextServices(model);
+            var stateManager = configuration.GetRequiredService<IStateManager>();
+
+            var fakeEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 1, RelatedId = 2 });
+            fakeEntry.SetEntityState(EntityState.Added);
+
+            var relatedFakeEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 2, RelatedId = 1 });
+            relatedFakeEntry.SetEntityState(EntityState.Added);
+
+            var anotherFakeEntry = stateManager.GetOrCreateEntry(new AnotherFakeEntity { Id = 3, AnotherId = 2 });
+            anotherFakeEntry.SetEntityState(EntityState.Added);
+
+            Assert.Equal(
+                CoreStrings.CircularDependency(
+                    string.Join(", ",
+                        model.FindEntityType(typeof(FakeEntity)).GetForeignKeys().First(),
+                        model.FindEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().First())),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                    {
+                        var commandBatches = CreateCommandBatchPreparer().BatchCommands(
+                    // Order is important for this test. Entry which is not part of cycle but tail should come first.
+                    new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray();
+                    }).Message);
+        }
+
         private static IServiceProvider CreateContextServices(IModel model)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -377,6 +408,41 @@ namespace Microsoft.Data.Entity.Tests.Update
                 .HasOne<RelatedFakeEntity>()
                 .WithOne()
                 .HasForeignKey<FakeEntity>(c => c.RelatedId);
+
+            return modelBuilder.Model;
+        }
+
+        private static IModel CreateCyclicFkWithTailModel()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            modelBuilder.Entity<FakeEntity>(b =>
+            {
+                b.HasKey(c => c.Id);
+                b.Property(c => c.Value);
+            });
+
+            modelBuilder.Entity<RelatedFakeEntity>(b =>
+            {
+                b.HasKey(c => c.Id);
+                b.HasOne<FakeEntity>()
+                    .WithOne()
+                    .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
+            });
+
+            modelBuilder
+                .Entity<FakeEntity>()
+                .HasOne<RelatedFakeEntity>()
+                .WithOne()
+                .HasForeignKey<FakeEntity>(c => c.RelatedId);
+
+            modelBuilder.Entity<AnotherFakeEntity>(b =>
+                {
+                    b.HasKey(e => e.Id);
+                    b.HasOne<RelatedFakeEntity>()
+                        .WithOne()
+                        .HasForeignKey<AnotherFakeEntity>(e => e.AnotherId);
+                });
 
             return modelBuilder.Model;
         }

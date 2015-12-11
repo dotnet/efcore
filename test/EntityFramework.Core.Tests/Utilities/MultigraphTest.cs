@@ -500,6 +500,54 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         }
 
         [Fact]
+        public void BatchingTopologicalSort_throws_with_formatted_message_with_no_tail_when_cycle_cannot_be_broken()
+        {
+            const string message = "Formatted cycle";
+
+            var vertexOne = new Vertex { Id = 1 };
+            var vertexTwo = new Vertex { Id = 2 };
+            var vertexThree = new Vertex { Id = 3 };
+            var vertexFour = new Vertex { Id = 4 };
+
+            var edgeOne = new Edge { Id = 1 };
+            var edgeTwo = new Edge { Id = 2 };
+            var edgeThree = new Edge { Id = 3 };
+            var edgeFour = new Edge { Id = 4 };
+
+            var graph = new Multigraph<Vertex, Edge>();
+            graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree, vertexFour });
+
+            // 2 -> {1}
+            graph.AddEdge(vertexTwo, vertexOne, edgeOne);
+            // 3 -> {2}
+            graph.AddEdge(vertexThree, vertexTwo, edgeTwo);
+            // 4 -> {3}
+            graph.AddEdge(vertexFour, vertexThree, edgeThree);
+            // 3 -> {4}
+            graph.AddEdge(vertexThree, vertexFour, edgeFour);
+
+            Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null;
+
+            Func<IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>>, string> formatter = data =>
+            {
+                cycleData = data.ToDictionary(entry => entry.Item1);
+                return message;
+            };
+
+            Assert.Equal(
+                CoreStrings.CircularDependency(message),
+                Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort(formatter)).Message);
+
+            Assert.Equal(2, cycleData.Count);
+
+            Assert.Equal(vertexFour, cycleData[vertexThree].Item2);
+            Assert.Equal(new[] { edgeFour }, cycleData[vertexThree].Item3);
+
+            Assert.Equal(vertexThree, cycleData[vertexFour].Item2);
+            Assert.Equal(new[] { edgeThree }, cycleData[vertexFour].Item3);
+        }
+
+        [Fact]
         public void BatchingTopologicalSort_sorts_simple()
         {
             var model = new Model();
@@ -777,7 +825,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                CoreStrings.CircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName + " -> " + typeof(A).FullName),
+                CoreStrings.CircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
     }

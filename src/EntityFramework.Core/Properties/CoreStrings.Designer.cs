@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// A circular dependency was detected: {cycle}.
+        /// Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
         /// </summary>
         public static string CircularDependency([CanBeNull] object cycle)
         {

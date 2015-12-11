@@ -121,7 +121,7 @@
     <value>The string argument '{argumentName}' cannot be empty.</value>
   </data>
   <data name="CircularDependency" xml:space="preserve">
-    <value>A circular dependency was detected: {cycle}.</value>
+    <value>Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
