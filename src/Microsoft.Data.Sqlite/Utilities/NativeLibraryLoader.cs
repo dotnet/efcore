@@ -82,18 +82,25 @@ namespace Microsoft.Data.Sqlite.Utilities
 
         private static bool IsDNX()
         {
-            var platformServices = Type.GetType(
-                "Microsoft.Extensions.PlatformAbstractions.PlatformServices, Microsoft.Extensions.PlatformAbstractions");
-            if (platformServices == null)
+            try
+            {
+                var platformServices = Type.GetType(
+                    "Microsoft.Extensions.PlatformAbstractions.PlatformServices, Microsoft.Extensions.PlatformAbstractions");
+                if (platformServices == null)
+                {
+                    return false;
+                }
+
+                var defaultPlatformServices = platformServices.GetProperty("Default").GetValue(null);
+                var application = defaultPlatformServices.GetType().GetProperty("Application").GetValue(defaultPlatformServices);
+                var runtimeFramework = (FrameworkName)application.GetType().GetProperty("RuntimeFramework").GetValue(application);
+
+                return runtimeFramework.Identifier == "DNX";
+            }
+            catch (Exception)
             {
                 return false;
             }
-
-            var defaultPlatformServices = platformServices.GetProperty("Default").GetValue(null);
-            var application = defaultPlatformServices.GetType().GetProperty("Application").GetValue(defaultPlatformServices);
-            var runtimeFramework = (FrameworkName)application.GetType().GetProperty("RuntimeFramework").GetValue(application);
-
-            return runtimeFramework.Identifier == "DNX";
         }
 
         private static bool IsMono() => Type.GetType("Mono.Runtime") != null;
