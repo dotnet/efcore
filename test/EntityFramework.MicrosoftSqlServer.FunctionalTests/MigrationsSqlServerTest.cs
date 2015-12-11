@@ -22,11 +22,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             Assert.Equal(
                 @"IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL
+BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
         [ProductVersion] nvarchar(32) NOT NULL,
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
+END;
 
 GO
 
@@ -61,11 +63,13 @@ GO
 
             Assert.Equal(
                 @"IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL
+BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
         [ProductVersion] nvarchar(32) NOT NULL,
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
+END;
 
 GO
 
@@ -75,7 +79,7 @@ BEGIN
         [Id] int NOT NULL,
         CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
     );
-END
+END;
 
 GO
 
@@ -83,14 +87,14 @@ IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'0000
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000001_Migration1', N'7.0.0-test');
-END
+END;
 
 GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
 BEGIN
     EXEC sp_rename N'Table1', N'Table2';
-END
+END;
 
 GO
 
@@ -98,7 +102,7 @@ IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'0000
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-END
+END;
 
 GO
 
@@ -141,7 +145,7 @@ GO
                 @"IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
 BEGIN
     EXEC sp_rename N'Table2', N'Table1';
-END
+END;
 
 GO
 
@@ -149,14 +153,14 @@ IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000
 BEGIN
     DELETE FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2';
-END
+END;
 
 GO
 
 IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
 BEGIN
     DROP TABLE [Table1];
-END
+END;
 
 GO
 
@@ -164,7 +168,7 @@ IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000
 BEGIN
     DELETE FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1';
-END
+END;
 
 GO
 

@@ -109,11 +109,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             builder
                 .Append(SqlGenerationHelper.EscapeLiteral(TableName))
-                .AppendLine("') IS NULL");
+                .AppendLine("') IS NULL")
+                .AppendLine("BEGIN");
             using (builder.Indent())
             {
                 builder.AppendLines(GetCreateScript());
             }
+            builder.AppendLine("END;");
 
             return builder.ToString();
         }
@@ -150,6 +152,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 .ToString();
         }
 
-        public override string GetEndIfScript() => "END" + Environment.NewLine;
+        public override string GetEndIfScript() => "END;" + Environment.NewLine;
     }
 }

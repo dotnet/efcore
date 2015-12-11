@@ -35,17 +35,52 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         [Fact]
+        public void GetCreateScript_works_with_schema()
+        {
+            var sql = CreateHistoryRepository("my").GetCreateScript();
+
+            Assert.Equal(
+                "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my]');" + EOL +
+                "CREATE TABLE [my].[__EFMigrationsHistory] (" + EOL +
+                "    [MigrationId] nvarchar(150) NOT NULL," + EOL +
+                "    [ProductVersion] nvarchar(32) NOT NULL," + EOL +
+                "    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])" + EOL +
+                ");" + EOL,
+                sql);
+        }
+
+        [Fact]
         public void GetCreateIfNotExistsScript_works()
         {
             var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
 
             Assert.Equal(
                 "IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL" + EOL +
+                "BEGIN" + EOL +
                 "    CREATE TABLE [__EFMigrationsHistory] (" + EOL +
                 "        [MigrationId] nvarchar(150) NOT NULL," + EOL +
                 "        [ProductVersion] nvarchar(32) NOT NULL," + EOL +
                 "        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])" + EOL +
-                "    );" + EOL,
+                "    );" + EOL +
+                "END;" + EOL,
+                sql);
+        }
+
+        [Fact]
+        public void GetCreateIfNotExistsScript_works_with_schema()
+        {
+            var sql = CreateHistoryRepository("my").GetCreateIfNotExistsScript();
+
+            Assert.Equal(
+                "IF OBJECT_ID(N'my.__EFMigrationsHistory') IS NULL" + EOL +
+                "BEGIN" + EOL +
+                "    IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my]');" + EOL +
+                "    CREATE TABLE [my].[__EFMigrationsHistory] (" + EOL +
+                "        [MigrationId] nvarchar(150) NOT NULL," + EOL +
+                "        [ProductVersion] nvarchar(32) NOT NULL," + EOL +
+                "        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])" + EOL +
+                "    );" + EOL +
+                "END;" + EOL,
                 sql);
         }
 
@@ -99,10 +134,10 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var sql = CreateHistoryRepository().GetEndIfScript();
 
-            Assert.Equal("END" + EOL, sql);
+            Assert.Equal("END;" + EOL, sql);
         }
 
-        private static IHistoryRepository CreateHistoryRepository()
+        private static IHistoryRepository CreateHistoryRepository(string schema = null)
         {
             var annotationsProvider = new SqlServerAnnotationProvider();
             var sqlGenerator = new SqlServerSqlGenerationHelper();
@@ -120,7 +155,10 @@ namespace Microsoft.Data.Entity.Migrations
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
                     {
-                        { typeof(SqlServerOptionsExtension), new SqlServerOptionsExtension() }
+                        {
+                            typeof(SqlServerOptionsExtension),
+                            new SqlServerOptionsExtension { MigrationsHistoryTableSchema = schema}
+                        }
                     }),
                 new MigrationsModelDiffer(
                     new SqlServerTypeMapper(),

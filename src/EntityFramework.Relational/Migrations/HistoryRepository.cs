@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -108,12 +109,8 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var operations = _modelDiffer.GetDifferences(null, _model.Value);
             var commands = _migrationsSqlGenerator.Generate(operations, _model.Value);
-            if (commands.Count != 1)
-            {
-                throw new InvalidOperationException(RelationalStrings.InvalidCreateScript);
-            }
 
-            return commands[0].CommandText;
+            return string.Concat(commands.Select(c => c.CommandText));
         }
 
         protected virtual void ConfigureTable([NotNull] EntityTypeBuilder<HistoryRow> history)
