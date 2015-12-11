@@ -3534,6 +3534,24 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         }
 
         [Fact]
+        public void Create_table_with_overlapping_columns_in_hierarchy()
+            => Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity("Animal").Property<int>("Id");
+                    modelBuilder.Entity("Cat").HasBaseType("Animal").Property<int>("BreederId");
+                    modelBuilder.Entity("Dog").HasBaseType("Animal").Property<int>("BreederId");
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Equal(2, createTableOperation.Columns.Count);
+                });
+
+        [Fact]
         public void Add_foreign_key_on_base_type()
         {
             Execute(

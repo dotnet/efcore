@@ -91,7 +91,6 @@
     <Compile Include="Metadata\RelationalAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalAnnotationsBuilder.cs" />
     <Compile Include="Metadata\Internal\RelationalEntityTypeBuilderAnnotations.cs" />
-    <Compile Include="Metadata\RelationalEntityTypeExtensions.cs" />
     <Compile Include="Metadata\RelationalModelExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
     <Compile Include="Migrations\Internal\MigrationExtensions.cs" />

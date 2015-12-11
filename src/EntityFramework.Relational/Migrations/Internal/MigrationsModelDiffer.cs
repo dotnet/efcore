@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             foreach (var dropTableOperation in dropTableOperations)
             {
                 var entityType = diffContext.GetMetadata(dropTableOperation);
-                foreach (var foreignKey in entityType.GetForeignKeysInHierarchy())
+                foreach (var foreignKey in GetForeignKeysInHierarchy(entityType))
                 {
                     var principalRootEntityType = foreignKey.PrincipalEntityType.RootType();
                     if (entityType == principalRootEntityType)
@@ -326,9 +326,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             diffContext.AddMapping(source, target);
 
-            var operations = Diff(source.GetPropertiesInHierarchy(), target.GetPropertiesInHierarchy(), diffContext)
+            var operations = Diff(GetPropertiesInHierarchy(source), GetPropertiesInHierarchy(target), diffContext)
                 .Concat(Diff(source.GetKeys(), target.GetKeys(), diffContext))
-                .Concat(Diff(source.GetIndexesInHierarchy(), target.GetIndexesInHierarchy(), diffContext));
+                .Concat(Diff(GetIndexesInHierarchy(source), GetIndexesInHierarchy(target), diffContext));
             foreach (var operation in operations)
             {
                 yield return operation;
@@ -346,7 +346,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             };
             CopyAnnotations(MigrationsAnnotations.For(target), createTableOperation);
 
-            createTableOperation.Columns.AddRange(target.GetPropertiesInHierarchy().SelectMany(p => Add(p, inline: true)).Cast<AddColumnOperation>());
+            createTableOperation.Columns.AddRange(GetPropertiesInHierarchy(target).SelectMany(p => Add(p, inline: true)).Cast<AddColumnOperation>());
             var primaryKey = target.FindPrimaryKey();
             createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             yield return createTableOperation;
 
-            foreach (var operation in target.GetIndexesInHierarchy().SelectMany(Add))
+            foreach (var operation in GetIndexesInHierarchy(target).SelectMany(Add))
             {
                 yield return operation;
             }
@@ -376,6 +376,19 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             yield return operation;
         }
+
+        private IEnumerable<IForeignKey> GetForeignKeysInHierarchy(IEntityType entityType)
+            => entityType.GetDeclaredForeignKeys()
+                .Concat(entityType.GetDerivedTypes().SelectMany(t => t.GetDeclaredForeignKeys()))
+                .Distinct((x, y) => Annotations.For(x).Name == Annotations.For(y).Name);
+
+        private IEnumerable<IIndex> GetIndexesInHierarchy(IEntityType entityType)
+            => entityType.GetDeclaredIndexes().Concat(entityType.GetDerivedTypes().SelectMany(t => t.GetDeclaredIndexes()))
+                .Distinct((x, y) => Annotations.For(x).Name == Annotations.For(y).Name);
+
+        private IEnumerable<IProperty> GetPropertiesInHierarchy(IEntityType entityType)
+            => entityType.GetDeclaredProperties().Concat(entityType.GetDerivedTypes().SelectMany(t => t.GetDeclaredProperties()))
+                .Distinct((x, y) => Annotations.For(x).ColumnName == Annotations.For(y).ColumnName);
 
         #endregion
 

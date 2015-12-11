@@ -66,6 +66,7 @@
     <Compile Include="Storage\RawSqlCommandBuilderTest.cs" />
     <Compile Include="Storage\SqlGeneratorTestBase.cs" />
     <Compile Include="Storage\TypedRelationalValueBufferFactoryFactoryTest.cs" />
+    <Compile Include="TestConventionalSetBuilder.cs" />
     <Compile Include="TestRelationalTypeMapper.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeRelationalTypeMapper.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeCommandExecutor.cs" />

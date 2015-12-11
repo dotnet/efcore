@@ -82,6 +82,17 @@ namespace Microsoft.Data.Entity.Internal.Tests
         }
 
         [Fact]
+        public virtual void Does_not_detect_duplicate_column_names_within_hierarchy()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Dog>();
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
         public virtual void Passes_for_non_hierarchical_model()
         {
             var model = new Model();
@@ -173,6 +184,21 @@ namespace Microsoft.Data.Entity.Internal.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class Animal
+        {
+            public int Id { get; set; }
+        }
+
+        private class Cat : Animal
+        {
+            public string Breed { get; set; }
+        }
+
+        private class Dog : Animal
+        {
+            public string Breed { get; set; }
         }
 
         protected override ModelValidator CreateModelValidator()
