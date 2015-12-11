@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalTypeMapper relationalTypeMapper,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] Expression arguments)
@@ -29,6 +30,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
                 Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory)),
                 Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper)),
                 Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory)),
+                Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper)),
                 Check.NotNull(selectExpression, nameof(selectExpression)))
         {
             Check.NotEmpty(sql, nameof(sql));

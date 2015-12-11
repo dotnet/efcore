@@ -29,5 +29,6 @@ namespace Microsoft.Data.Entity.Query.Sql
         Expression VisitIn([NotNull] InExpression inExpression);
         Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
         Expression VisitStringCompare([NotNull] StringCompareExpression stringCompareExpression);
+        Expression VisitExplicitCast([NotNull] ExplicitCastExpression explicitCastExpression);
     }
 }

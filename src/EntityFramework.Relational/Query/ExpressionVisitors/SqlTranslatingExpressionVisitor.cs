@@ -644,6 +644,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     : expression;
             }
 
+            var explicitCast = expression as ExplicitCastExpression;
+            if (explicitCast != null)
+            {
+                var newOperand = Visit(explicitCast.Operand);
+
+                return newOperand != explicitCast.Operand
+                    ? new ExplicitCastExpression(newOperand, explicitCast.Type)
+                    : expression;
+            }
+
             return base.VisitExtension(expression);
         }
 

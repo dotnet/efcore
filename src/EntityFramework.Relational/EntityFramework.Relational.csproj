@@ -98,9 +98,11 @@
     <Compile Include="Migrations\MigrationAttribute.cs" />
     <Compile Include="Migrations\MigrationsAssemblyExtensions.cs" />
     <Compile Include="Query\Expressions\ColumnExpression.cs" />
+    <Compile Include="Query\Expressions\ExplicitCastExpression.cs" />
     <Compile Include="Query\Expressions\LateralJoinExpression.cs" />
     <Compile Include="Query\Expressions\ISelectExpressionFactory.cs" />
     <Compile Include="Query\Expressions\SelectExpressionFactory.cs" />
+    <Compile Include="Query\ExpressionTranslators\StringConcatTranslator.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\BufferedOffsetEntityShaper.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\EntityShaper.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\BufferedEntityShaper`.cs" />

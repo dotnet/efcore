@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -22,6 +23,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly IRelationalTypeMapper _relationalTypeMapper;
 
         private IRelationalCommandBuilder _relationalCommandBuilder;
         private IReadOnlyDictionary<string, object> _parametersValues;
@@ -47,16 +49,19 @@ namespace Microsoft.Data.Entity.Query.Sql
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalTypeMapper relationalTypeMapper,
             [NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper));
             Check.NotNull(selectExpression, nameof(selectExpression));
 
             _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
             _sqlGenerationHelper = sqlGenerationHelper;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            _relationalTypeMapper = relationalTypeMapper;
 
             SelectExpression = selectExpression;
         }
@@ -1007,6 +1012,28 @@ namespace Microsoft.Data.Entity.Query.Sql
             _relationalCommandBuilder.Append(")");
 
             return sqlFunctionExpression;
+        }
+
+        public virtual Expression VisitExplicitCast(ExplicitCastExpression explicitCastExpression)
+        {
+            _relationalCommandBuilder.Append("CAST(");
+
+            Visit(explicitCastExpression.Operand);
+
+            _relationalCommandBuilder.Append(" AS ");
+
+            var typeMapping = _relationalTypeMapper.FindMapping(explicitCastExpression.Type);
+
+            if (typeMapping == null)
+            {
+                throw new NotSupportedException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.Name));
+            }
+
+            _relationalCommandBuilder.Append(typeMapping.DefaultTypeName);
+
+            _relationalCommandBuilder.Append(")");
+
+            return explicitCastExpression;
         }
 
         protected override Expression VisitUnary(UnaryExpression expression)

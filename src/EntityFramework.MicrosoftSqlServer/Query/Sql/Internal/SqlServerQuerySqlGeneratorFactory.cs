@@ -13,11 +13,13 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
         public SqlServerQuerySqlGeneratorFactory(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalTypeMapper relationalTypeMapper)
             : base(
                 Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory)),
                 Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper)),
-                Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory)))
+                Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory)),
+                Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper)))
         {
         }
 
@@ -26,6 +28,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
                 CommandBuilderFactory,
                 SqlGenerationHelper,
                 ParameterNameGeneratorFactory,
+                RelationalTypeMapper,
                 Check.NotNull(selectExpression, nameof(selectExpression)));
     }
 }

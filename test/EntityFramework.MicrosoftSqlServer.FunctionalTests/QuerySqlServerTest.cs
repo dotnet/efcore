@@ -2925,6 +2925,46 @@ WHERE 1 = 0",
                 Sql);
         }
 
+        public override void Where_concat_string_int_comparison1()
+        {
+            base.Where_concat_string_int_comparison1();
+
+            Assert.Equal(
+                @"@__i_0: 10
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] + CAST(@__i_0 AS nvarchar(max))) = [c].[CompanyName]",
+                Sql);
+        }
+
+        public override void Where_concat_string_int_comparison2()
+        {
+            base.Where_concat_string_int_comparison2();
+
+            Assert.Equal(
+                @"@__i_0: 10
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE (CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID]) = [c].[CompanyName]",
+                Sql);
+        }
+
+        public override void Where_concat_string_int_comparison3()
+        {
+            base.Where_concat_string_int_comparison3();
+
+            Assert.Equal(
+    @"@__i_0: 10
+@__j_1: 21
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE (((CAST(@__i_0 + 20 AS nvarchar(max)) + [c].[CustomerID]) + CAST(@__j_1 AS nvarchar(max))) + CAST(42 AS nvarchar(max))) = [c].[CompanyName]",
+                Sql);
+        }
+
         public override void Where_primitive()
         {
             base.Where_primitive();

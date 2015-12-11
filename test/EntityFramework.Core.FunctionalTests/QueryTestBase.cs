@@ -1431,6 +1431,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Where_concat_string_int_comparison1()
+        {
+            int i = 10;
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID + i == c.CompanyName).Select(c => c.CustomerID));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_concat_string_int_comparison2()
+        {
+            int i = 10;
+            AssertQuery<Customer>(
+                cs => cs.Where(c => i + c.CustomerID == c.CompanyName).Select(c => c.CustomerID));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_concat_string_int_comparison3()
+        {
+            var i = 10;
+            var j = 21;
+            AssertQuery<Customer>(
+                cs => cs.Where(c => i + 20 + c.CustomerID + j + 42 == c.CompanyName).Select(c => c.CustomerID));
+        }
+
+        [ConditionalFact]
         public virtual void Select_bool_closure()
         {
             var boolean = false;
