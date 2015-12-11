@@ -156,4 +156,10 @@
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
+  <data name="SequencesRequireName" xml:space="preserve">
+    <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
+  </data>
+  <data name="BadSequenceType" xml:space="preserve">
+    <value>For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.</value>
+  </data>
 </root>

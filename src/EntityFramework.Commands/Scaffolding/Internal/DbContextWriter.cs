@@ -138,6 +138,23 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                     }
                     _sb.AppendLine("});");
                 }
+
+                foreach (var sequenceConfig in _model.SequenceConfigurations)
+                {
+                    if (!first)
+                    {
+                        _sb.AppendLine();
+                    }
+                    first = false;
+
+                    _sb.Append("modelBuilder.HasSequence")
+                        .Append(!string.IsNullOrEmpty(sequenceConfig.TypeIdentifier) ? "<" + sequenceConfig.TypeIdentifier + ">" : "")
+                        .Append("(" + sequenceConfig.NameIdentifier)
+                        .Append(!string.IsNullOrEmpty(sequenceConfig.SchemaNameIdentifier) ? ", " + sequenceConfig.SchemaNameIdentifier : "")
+                        .Append(")");
+
+                    AddFluentConfigurations(sequenceConfig.FluentApiConfigurations);
+                }
             }
 
             _sb.AppendLine("}");
@@ -200,33 +217,37 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 _sb.Append(EntityLambdaIdentifier
                     + ".Property(e => e." + propertyConfig.Property.Name + ")");
 
-                var onlyOneFluentApi = fluentApiConfigurations.Count == 1;
-                if (!onlyOneFluentApi)
+                AddFluentConfigurations(fluentApiConfigurations);
+            }
+        }
+
+        private void AddFluentConfigurations(List<FluentApiConfiguration> fluentApiConfigurations)
+        {
+            if (fluentApiConfigurations.Count > 1)
+            {
+                _sb.AppendLine();
+                _sb.IncrementIndent();
+            }
+
+            var first = true;
+            foreach (var fluentApiConfiguration in fluentApiConfigurations)
+            {
+                if (!first)
                 {
                     _sb.AppendLine();
-                    _sb.IncrementIndent();
                 }
+                first = false;
 
-                var first = true;
-                foreach (var fluentApiConfiguration in fluentApiConfigurations)
+                foreach (var line in fluentApiConfiguration.FluentApiLines)
                 {
-                    if (!first)
-                    {
-                        _sb.AppendLine();
-                    }
-                    first = false;
-
-                    foreach (var line in fluentApiConfiguration.FluentApiLines)
-                    {
-                        _sb.Append("." + line);
-                    }
+                    _sb.Append("." + line);
                 }
+            }
 
-                _sb.AppendLine(";");
-                if (!onlyOneFluentApi)
-                {
-                    _sb.DecrementIndent();
-                }
+            _sb.AppendLine(";");
+            if (fluentApiConfigurations.Count > 1)
+            {
+                _sb.DecrementIndent();
             }
         }
 
@@ -249,9 +270,15 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
         public virtual void AddDbSetProperties()
         {
-            _sb.AppendLine();
+            var first = true;
             foreach(var entityConfig in _model.EntityConfigurations)
             {
+                if (first)
+                {
+                    _sb.AppendLine();
+                    first = false;
+                }
+
                 _sb.AppendLine("public virtual DbSet<"
                     + entityConfig.EntityType.Name
                     + "> " + entityConfig.EntityType.Name

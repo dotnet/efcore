@@ -1,0 +1,31 @@
+﻿using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public partial class SequenceContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(@"{{connectionString}}");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasSequence("CountByTwo").IncrementsBy(2);
+
+            modelBuilder.HasSequence("CyclicalCountByThree")
+                .StartsAt(6)
+                .IncrementsBy(3)
+                .HasMin(0)
+                .HasMax(27)
+                .IsCyclic();
+
+            modelBuilder.HasSequence<int>("IntSequence");
+
+            modelBuilder.HasSequence<short>("SmallIntSequence");
+
+            modelBuilder.HasSequence<byte>("TinyIntSequence");
+        }
+    }
+}

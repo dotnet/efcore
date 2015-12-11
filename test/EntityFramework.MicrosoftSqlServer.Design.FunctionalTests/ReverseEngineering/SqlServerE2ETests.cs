@@ -201,5 +201,76 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
         }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public void Sequences()
+        {
+            using (var scratch = SqlServerTestStore.CreateScratch())
+            {
+                scratch.ExecuteNonQuery(@"
+CREATE SEQUENCE CountByTwo
+    START WITH 1
+    INCREMENT BY 2;
+
+CREATE SEQUENCE CyclicalCountByThree
+    START WITH 6
+    INCREMENT BY 3
+    MAXVALUE 27
+    MINVALUE 0
+    CYCLE;
+
+CREATE SEQUENCE TinyIntSequence
+    AS tinyint
+    START WITH 1;
+
+CREATE SEQUENCE SmallIntSequence
+    AS smallint
+    START WITH 1;
+
+CREATE SEQUENCE IntSequence
+    AS int
+    START WITH 1;
+
+CREATE SEQUENCE DecimalSequence
+    AS decimal;
+
+CREATE SEQUENCE NumericSequence
+    AS numeric;");
+
+                var configuration = new ReverseEngineeringConfiguration
+                {
+                    ConnectionString = scratch.Connection.ConnectionString,
+                    ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
+                    ProjectRootNamespace = TestNamespace,
+                    ContextClassName = "SequenceContext",
+                };
+                var expectedFileSet = new FileSet(new FileSystemFileService(),
+                    Path.Combine("ReverseEngineering", "ExpectedResults"),
+                    contents => contents.Replace("{{connectionString}}", scratch.Connection.ConnectionString))
+                {
+                    Files = new List<string> { "SequenceContext.expected" }
+                };
+
+                var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+
+                var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
+                {
+                    Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
+
+                AssertLog(new LoggerMessages
+                {
+                    Warn =
+                    {
+                        RelationalDesignStrings.BadSequenceType("DecimalSequence", "decimal"),
+                        RelationalDesignStrings.BadSequenceType("NumericSequence", "numeric")
+                    }
+                });
+
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
     }
 }

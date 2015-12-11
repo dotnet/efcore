@@ -34,6 +34,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="project.json" />
     <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\Comment.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -29,6 +29,17 @@ namespace Microsoft.Data.Entity.Scaffolding
         private static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
         private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
+        // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
+        private static readonly Dictionary<string, long[]> _defaultSequenceMinMax = new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "tinyint", new[] { 0L, 255L } },
+            { "smallint", new[] { -32768L, 32767L } },
+            { "int", new[] { -2147483648L, 2147483647L } },
+            { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } },
+            { "decimal", new[] { -999999999999999999L, 999999999999999999L } },
+            { "numeric", new[] { -999999999999999999L, 999999999999999999L } }
+        };
+
         public SqlServerDatabaseModelFactory([NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
@@ -60,14 +71,91 @@ namespace Microsoft.Data.Entity.Scaffolding
                 _tableSelectionSet = tableSelectionSet;
 
                 _databaseModel.DatabaseName = _connection.Database;
-                 // TODO actually load per-user
+                // TODO actually load per-user
                 _databaseModel.DefaultSchemaName = "dbo";
+
+                if (SupportsSequences)
+                {
+                    GetSequences();
+                }
 
                 GetTables();
                 GetColumns();
                 GetIndexes();
                 GetForeignKeys();
                 return _databaseModel;
+            }
+        }
+
+        private bool SupportsSequences
+        {
+            get
+            {
+                Version v;
+                if (Version.TryParse(_connection.ServerVersion, out v))
+                {
+                    return v.Major >= 11;
+                }
+                return false;
+            }
+        }
+
+        private void GetSequences()
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = @"SELECT name,
+                        is_cycling,
+                        CAST(minimum_value AS bigint) as [minimum_value],
+                        CAST(maximum_value AS bigint) as [maximum_value],
+                        CAST(start_value AS bigint) as [start_value],
+                        CAST(increment AS int) as [increment],
+                        TYPE_NAME(user_type_id) as [type_name],
+                        OBJECT_SCHEMA_NAME(object_id) AS [schema_name]
+                        FROM sys.sequences";
+
+            using (var reader = command.ExecuteReader())
+            {
+                var dboIdx = reader.GetOrdinal("schema_name");
+                var typeIdx = reader.GetOrdinal("type_name");
+                var nameIdx = reader.GetOrdinal("name");
+                var cycleIdx = reader.GetOrdinal("is_cycling");
+                var minIdx = reader.GetOrdinal("minimum_value");
+                var maxIdx = reader.GetOrdinal("maximum_value");
+                var startIdx = reader.GetOrdinal("start_value");
+                var incrIdx = reader.GetOrdinal("increment");
+
+                while (reader.Read())
+                {
+                    var sequence = new SequenceModel
+                    {
+                        SchemaName = reader.GetStringOrNull(dboIdx),
+                        Name = reader.GetStringOrNull(nameIdx),
+                        DataType = reader.GetStringOrNull(typeIdx),
+                        IsCyclic = reader.GetBoolean(cycleIdx),
+                        IncrementBy = reader.GetInt32(incrIdx),
+                        Start = reader.GetInt64(startIdx),
+                        Min = reader.GetInt64(minIdx),
+                        Max = reader.GetInt64(maxIdx)
+                    };
+
+                    if (string.IsNullOrEmpty(sequence.Name))
+                    {
+                        Logger.LogWarning(SqlServerDesignStrings.SequenceNameEmpty(sequence.SchemaName));
+                        continue;
+                    }
+
+                    if (_defaultSequenceMinMax.ContainsKey(sequence.DataType))
+                    {
+                        var defaultMin = _defaultSequenceMinMax[sequence.DataType][0];
+                        sequence.Min = sequence.Min == defaultMin ? null : sequence.Min;
+                        sequence.Start = sequence.Start == defaultMin ? null : sequence.Start;
+
+                        var defaultMax = _defaultSequenceMinMax[sequence.DataType][1];
+                        sequence.Max = sequence.Max == defaultMax ? null : sequence.Max;
+                    }
+
+                    _databaseModel.Sequences.Add(sequence);
+                }
             }
         }
 
@@ -252,7 +340,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         || index.Table.SchemaName != schemaName)
                     {
                         TableModel table;
-                        if(!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
+                        if (!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
                         {
                             Logger.LogWarning(
                                 SqlServerDesignStrings.UnableToFindTableForIndex(indexName, schemaName, tableName));
@@ -389,7 +477,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         table.SchemaName, table.Name, fkName));
                 return null;
             }
-            else if (!_tableColumns.TryGetValue(
+            if (!_tableColumns.TryGetValue(
                 ColumnKey(table, columnName), out column))
             {
                 Logger.LogWarning(
@@ -397,10 +485,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         fkName, columnName, table.SchemaName, table.Name));
                 return null;
             }
-            else
-            {
-                return column;
-            }
+            return column;
         }
 
         private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)

@@ -61,6 +61,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Found a sequence in schema [{schemaName}] with an empty or null name. Skipping sequence.
+        /// </summary>
+        public static string SequenceNameEmpty([CanBeNull] object schemaName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SequenceNameEmpty", "schemaName"), schemaName);
+        }
+
+        /// <summary>
         /// For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
         /// </summary>
         public static string UnableToConvertDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyType, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)

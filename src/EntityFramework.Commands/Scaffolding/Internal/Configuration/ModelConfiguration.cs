@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         protected readonly ConfigurationFactory _configurationFactory;
         protected List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
         protected SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
+        private List<SequenceConfiguration> _sequenceConfigurations;
 
         public ModelConfiguration(
             [NotNull] ConfigurationFactory configurationFactory,
@@ -94,6 +96,84 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 }
 
                 return _entityConfigurationMap.Values.ToList();
+            }
+        }
+
+        public virtual List<SequenceConfiguration> SequenceConfigurations
+        {
+            get
+            {
+                if (_sequenceConfigurations == null)
+                {
+                    AddSequenceConfigurations();
+                }
+                return _sequenceConfigurations;
+            }
+        }
+
+        public virtual void AddSequenceConfigurations()
+        {
+            _sequenceConfigurations = new List<SequenceConfiguration>();
+            foreach (var sequence in (Model as Model).Relational().Sequences)
+            {
+                var config = _configurationFactory.CreateSequenceConfiguration();
+
+                config.NameIdentifier = CSharpUtilities.DelimitString(sequence.Name);
+
+                if (sequence.ClrType != Sequence.DefaultClrType)
+                {
+                    config.TypeIdentifier = CSharpUtilities.GetTypeName(sequence.ClrType);
+                }
+
+                if (!string.IsNullOrEmpty(sequence.Schema) && (Model as Model).Relational().DefaultSchema != sequence.Schema)
+                {
+                    config.SchemaNameIdentifier = CSharpUtilities.DelimitString(sequence.Schema);
+                }
+
+                if (sequence.StartValue != Sequence.DefaultStartValue)
+                {
+                    config.FluentApiConfigurations.Add(
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            false,
+                            nameof(RelationalSequenceBuilder.StartsAt),
+                            sequence.StartValue.ToString()));
+                }
+                if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
+                {
+                    config.FluentApiConfigurations.Add(
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            false,
+                            nameof(RelationalSequenceBuilder.IncrementsBy),
+                            sequence.IncrementBy.ToString()));
+                }
+
+                if (sequence.MinValue != Sequence.DefaultMinValue)
+                {
+                    config.FluentApiConfigurations.Add(
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            false,
+                            nameof(RelationalSequenceBuilder.HasMin),
+                            sequence.MinValue.ToString()));
+                }
+
+                if (sequence.MaxValue != Sequence.DefaultMaxValue)
+                {
+                    config.FluentApiConfigurations.Add(
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            false,
+                            nameof(RelationalSequenceBuilder.HasMax),
+                            sequence.MaxValue.ToString()));
+                }
+
+                if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
+                {
+                    config.FluentApiConfigurations.Add(
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            false,
+                            nameof(RelationalSequenceBuilder.IsCyclic)));
+                }
+
+                _sequenceConfigurations.Add(config);
             }
         }
 

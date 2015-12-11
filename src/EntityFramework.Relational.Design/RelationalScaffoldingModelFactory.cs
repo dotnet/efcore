@@ -67,16 +67,6 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
-            if (!string.IsNullOrEmpty(databaseModel.DefaultSchemaName))
-            {
-                modelBuilder.HasDefaultSchema(databaseModel.DefaultSchemaName);
-            }
-
-            if (!string.IsNullOrEmpty(databaseModel.DatabaseName))
-            {
-                modelBuilder.Model.Relational().DatabaseName = databaseModel.DatabaseName;
-            }
-
             return modelBuilder.Model;
         }
 
@@ -108,12 +98,92 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(databaseModel, nameof(databaseModel));
 
+            if (!string.IsNullOrEmpty(databaseModel.DefaultSchemaName))
+            {
+                modelBuilder.HasDefaultSchema(databaseModel.DefaultSchemaName);
+            }
+
+            if (!string.IsNullOrEmpty(databaseModel.DatabaseName))
+            {
+                modelBuilder.Model.Relational().DatabaseName = databaseModel.DatabaseName;
+            }
+
+            VisitSequences(modelBuilder, databaseModel.Sequences);
             VisitTables(modelBuilder, databaseModel.Tables);
             VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
             // TODO can we add navigation properties inline with adding foreign keys?
             VisitNavigationProperties(modelBuilder);
 
             return modelBuilder;
+        }
+
+        protected virtual ModelBuilder VisitSequences([NotNull] ModelBuilder modelBuilder, [NotNull] IList<SequenceModel> sequences)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(sequences, nameof(sequences));
+
+            foreach (var sequence in sequences)
+            {
+                VisitSequence(modelBuilder, sequence);
+            }
+
+            return modelBuilder;
+        }
+
+        protected virtual RelationalSequenceBuilder VisitSequence([NotNull] ModelBuilder modelBuilder, [NotNull] SequenceModel sequence)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(sequence, nameof(sequence));
+
+            if (string.IsNullOrEmpty(sequence.Name))
+            {
+                Logger.LogWarning(RelationalDesignStrings.SequencesRequireName);
+                return null;
+            }
+
+            Type sequenceType = null;
+            if (sequence.DataType != null)
+            {
+                sequenceType = _typeMapper.FindMapping(sequence.DataType)?.ClrType;
+            }
+
+            if (sequenceType != null
+                && !Sequence.SupportedTypes.Contains(sequenceType))
+            {
+                Logger.LogWarning(RelationalDesignStrings.BadSequenceType(sequence.Name, sequence.DataType));
+                return null;
+            }
+
+            var builder = sequenceType != null
+                ? modelBuilder.HasSequence(sequenceType, sequence.Name, sequence.SchemaName)
+                : modelBuilder.HasSequence(sequence.Name, sequence.SchemaName);
+
+            if (sequence.IncrementBy.HasValue)
+            {
+                builder.IncrementsBy(sequence.IncrementBy.Value);
+            }
+
+            if (sequence.Max.HasValue)
+            {
+                builder.HasMax(sequence.Max.Value);
+            }
+
+            if (sequence.Min.HasValue)
+            {
+                builder.HasMin(sequence.Min.Value);
+            }
+
+            if (sequence.Start.HasValue)
+            {
+                builder.StartsAt(sequence.Start.Value);
+            }
+
+            if (sequence.IsCyclic.HasValue)
+            {
+                builder.IsCyclic(sequence.IsCyclic.Value);
+            }
+
+            return builder;
         }
 
         protected virtual ModelBuilder VisitTables([NotNull] ModelBuilder modelBuilder, [NotNull] IList<TableModel> tables)

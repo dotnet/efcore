@@ -89,6 +89,7 @@
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
     <Compile Include="Scaffolding\Internal\CodeWriter.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\SequenceConfiguration.cs" />
     <Compile Include="Scaffolding\Internal\ScaffoldingServiceCollectionExtensions.cs" />
     <Compile Include="Scaffolding\Internal\ScaffoldingUtilities.cs" />
     <Compile Include="Scaffolding\Internal\ConfigurationFactory.cs" />

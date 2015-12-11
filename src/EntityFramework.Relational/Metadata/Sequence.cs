@@ -18,6 +18,14 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly IModel _model;
         private readonly string _annotationName;
 
+        public static readonly Type DefaultClrType = typeof(long);
+        public const int DefaultIncrementBy = 1;
+        public const int DefaultStartValue = 1;
+
+        public static readonly long? DefaultMaxValue = default(long?);
+        public static readonly long? DefaultMinValue = default(long?);
+        public static readonly bool DefaultIsCyclic = default(bool);
+
         public Sequence(
             [NotNull] IMutableModel model,
             [NotNull] string annotationPrefix,
@@ -38,9 +46,9 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     Name = name,
                     Schema = schema,
-                    ClrType = typeof(long),
-                    IncrementBy = 1,
-                    StartValue = 1
+                    ClrType = DefaultClrType,
+                    IncrementBy = DefaultIncrementBy,
+                    StartValue = DefaultStartValue
                 });
             }
         }
@@ -131,16 +139,21 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
+        public static IReadOnlyCollection<Type> SupportedTypes { get; } = new[]
+        {
+            typeof(byte),
+            typeof(long),
+            typeof(int),
+            typeof(short)
+        };
+
         public virtual Type ClrType
         {
             get { return GetData().ClrType; }
             [param: NotNull]
             set
             {
-                if ((value != typeof(byte))
-                    && (value != typeof(long))
-                    && (value != typeof(int))
-                    && (value != typeof(short)))
+                if (!SupportedTypes.Contains(value))
                 {
                     throw new ArgumentException(RelationalStrings.BadSequenceType);
                 }

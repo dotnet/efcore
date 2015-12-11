@@ -151,5 +151,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             return new IndexConfiguration(lambdaIdentifier, index);
         }
+
+        public virtual SequenceConfiguration CreateSequenceConfiguration()
+            => new SequenceConfiguration();
     }
 }

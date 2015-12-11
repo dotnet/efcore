@@ -116,6 +116,22 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ExistingFiles", "outputDirectoryName", "existingFiles"), outputDirectoryName, existingFiles);
         }
 
+        /// <summary>
+        /// Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
+        /// </summary>
+        public static string SequencesRequireName
+        {
+            get { return GetString("SequencesRequireName"); }
+        }
+
+        /// <summary>
+        /// For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.
+        /// </summary>
+        public static string BadSequenceType([CanBeNull] object sequenceName, [CanBeNull] object typeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadSequenceType", "sequenceName", "typeName"), sequenceName, typeName);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

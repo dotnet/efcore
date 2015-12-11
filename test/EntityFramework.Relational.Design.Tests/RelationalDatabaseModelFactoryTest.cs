@@ -587,6 +587,31 @@ namespace Microsoft.Data.Entity.Relational.Design
                         Assert.Equal("Id", id.Relational().ColumnName);
                     });
         }
+
+        [Fact]
+        public void Sequences()
+        {
+            var info = new DatabaseModel
+            {
+                Sequences =
+                {
+                    new SequenceModel { Name = "CountByThree", IncrementBy = 3 },
+                }
+            };
+
+            var model = (Model)_factory.Create(info);
+
+            Assert.Collection(model.Relational().Sequences, first =>
+                {
+                    Assert.NotNull(first);
+                    Assert.Equal("CountByThree", first.Name);
+                    Assert.Equal(3, first.IncrementBy);
+                    Assert.Null(first.Schema);
+                    Assert.Null(first.MaxValue);
+                    Assert.Null(first.MinValue);
+                    Assert.False(first.IsCyclic);
+                });
+        }
     }
 
     public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
