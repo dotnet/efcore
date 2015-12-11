@@ -197,13 +197,13 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.WithDateFixedDefault).HasDefaultValueSql("'October 20, 2015 11am'");
 
-                entity.Property(e => e.WithDefaultValue).HasDefaultValue(-1);
+                entity.Property(e => e.WithDefaultValue).HasDefaultValueSql("-1");
 
                 entity.Property(e => e.WithGuidDefaultExpression).HasDefaultValueSql("newsequentialid()");
 
                 entity.Property(e => e.WithMoneyDefaultValue)
                     .HasColumnType("money")
-                    .HasDefaultValue(0.00m);
+                    .HasDefaultValueSql("0.00");
 
                 entity.Property(e => e.WithVarcharNullDefaultValue)
                     .HasMaxLength(1)

@@ -13,11 +13,11 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.MicrosoftSqlServer.Design.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.
+        /// For column {columnId} unable to interpret default value {defaultValue}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
         /// </summary>
-        public static string CannotInterpretSqlServerStringLiteral([CanBeNull] object sqlServerStringLiteral)
+        public static string CannotInterpretDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotInterpretSqlServerStringLiteral", "sqlServerStringLiteral"), sqlServerStringLiteral);
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotInterpretDefaultValue", "columnId", "defaultValue", "propertyName", "entityTypeName"), columnId, defaultValue, propertyName, entityTypeName);
         }
 
         /// <summary>
