@@ -176,8 +176,20 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<Book>();
                 modelBuilder.Ignore<SpecialBookLabel>();
+                modelBuilder.Ignore<AnotherBookLabel>();
 
                 Assert.Empty(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName).GetDirectlyDerivedTypes());
+            }
+
+            [Fact]
+            public virtual void Do_not_run_relationship_discovery_on_entity_type_while_removing_it()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<SpecialBookLabel>();
+                modelBuilder.Entity<AnotherBookLabel>();
+                modelBuilder.Ignore<BookLabel>();
+
+                Assert.Null(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName));
             }
         }
     }

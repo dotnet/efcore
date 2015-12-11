@@ -219,11 +219,17 @@ namespace Microsoft.Data.Entity.Tests
             public int BookId { get; set; }
 
             public SpecialBookLabel SpecialBookLabel { get; set; }
+
+            public AnotherBookLabel AnotherBookLabel { get; set; }
         }
 
         private class SpecialBookLabel : BookLabel
         {
             public ICollection<BookLabel> BookLabels { get; set; }
+        }
+
+        private class AnotherBookLabel : BookLabel
+        {
         }
 
         private class Post
