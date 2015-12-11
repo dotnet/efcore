@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.True(fk.IsUnique);
             Assert.False(fk.IsRequired);
         }
-
+        
         [Fact]
         public void Matches_composite_dependent_PK_for_unique_FK()
         {
@@ -402,6 +402,40 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Same(PrincipalTypeWithCompositeKey.Metadata.FindPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
             Assert.True(fk.IsRequired);
+        }
+
+        [Fact]
+        public void Does_not_match_composite_dependent_PK_for_unique_FK_on_derived_type()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+
+            var principalTypeWithCompositeKey = modelBuilder.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Explicit);
+            principalTypeWithCompositeKey.PrimaryKey(new[] { PrincipalEntityWithCompositeKey.IdProperty, PrincipalEntityWithCompositeKey.NameProperty }, ConfigurationSource.Explicit);
+            principalTypeWithCompositeKey.Property(PrincipalEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit).IsRequired(true, ConfigurationSource.Explicit);
+
+            var dependentTypeWithCompositeKeyBase = modelBuilder.Entity(typeof(DependentCompositeBase), ConfigurationSource.Explicit);
+            var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit);
+            dependentTypeWithCompositeKey.HasBaseType(dependentTypeWithCompositeKeyBase.Metadata, ConfigurationSource.Explicit);
+            dependentTypeWithCompositeKeyBase.PrimaryKey(new[] { nameof(DependentEntityWithCompositeKey.NotId), nameof(DependentEntityWithCompositeKey.NotName) }, ConfigurationSource.Explicit);
+            
+            var relationshipBuilder = dependentTypeWithCompositeKey.Relationship(
+                principalTypeWithCompositeKey,
+                "NavProp",
+                "InverseReferenceNav", ConfigurationSource.Convention)
+                .IsUnique(true, ConfigurationSource.DataAnnotation)
+                .DependentEntityType(dependentTypeWithCompositeKey, ConfigurationSource.DataAnnotation);
+
+            var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
+
+            var fk = (IForeignKey)dependentTypeWithCompositeKey.Metadata.GetForeignKeys().Single();
+            Assert.Same(fk, newRelationshipBuilder.Metadata);
+            Assert.NotEqual(dependentTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties[0], fk.Properties[0]);
+            Assert.NotEqual(dependentTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties[1], fk.Properties[1]);
+            Assert.Equal("NavProp" + CompositePrimaryKey[0].Name + "1", fk.Properties[0].Name);
+            Assert.Equal("NavProp" + CompositePrimaryKey[1].Name + "1", fk.Properties[1].Name);
+            Assert.Same(principalTypeWithCompositeKey.Metadata.FindPrimaryKey(), fk.PrincipalKey);
+            Assert.True(fk.IsUnique);
         }
 
         [Fact]
@@ -795,18 +829,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var modelBuilder = new InternalModelBuilder(new Model());
 
             var principalType = modelBuilder.Entity(typeof(PrincipalEntity), ConfigurationSource.Explicit);
-            principalType.PrimaryKey(new[] { "PeeKay" }, ConfigurationSource.Explicit);
+            principalType.PrimaryKey(new[] { nameof(PrincipalEntity.PeeKay) }, ConfigurationSource.Explicit);
 
             var dependentType = modelBuilder.Entity(typeof(DependentEntity), ConfigurationSource.Explicit);
-            dependentType.PrimaryKey(new[] { "KayPee" }, ConfigurationSource.Explicit);
+            dependentType.PrimaryKey(new[] { nameof(DependentEntity.KayPee)}, ConfigurationSource.Explicit);
 
             var principalTypeWithCompositeKey = modelBuilder.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Explicit);
             principalTypeWithCompositeKey.PrimaryKey(new[] { PrincipalEntityWithCompositeKey.IdProperty, PrincipalEntityWithCompositeKey.NameProperty }, ConfigurationSource.Explicit);
             principalTypeWithCompositeKey.Property(PrincipalEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit).IsRequired(true, ConfigurationSource.Explicit);
 
             var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit);
-            dependentTypeWithCompositeKey.PrimaryKey(new[] { "NotId", "NotName" }, ConfigurationSource.Explicit);
-            dependentTypeWithCompositeKey.Property("NotName", typeof(string), ConfigurationSource.Explicit).IsRequired(true, ConfigurationSource.Explicit);
+            dependentTypeWithCompositeKey.PrimaryKey(new[] { nameof(DependentEntityWithCompositeKey.NotId), nameof(DependentEntityWithCompositeKey.NotName) }, ConfigurationSource.Explicit);
 
             return modelBuilder;
         }
@@ -817,10 +850,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
         private InternalEntityTypeBuilder DependentType => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention);
 
-        private IReadOnlyList<Property> CompositePrimaryKey
-        {
-            get { return PrincipalTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties; }
-        }
+        private IReadOnlyList<Property> CompositePrimaryKey => PrincipalTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties;
 
         private InternalEntityTypeBuilder PrincipalTypeWithCompositeKey => _model.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention);
 
@@ -845,7 +875,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public static readonly PropertyInfo PrincipalEntityPeEKaYProperty = typeof(DependentEntity).GetProperty("PrincipalEntityPeEKaY");
             public static readonly PropertyInfo IDProperty = typeof(DependentEntity).GetProperty("ID");
             public static readonly PropertyInfo PeEKaYProperty = typeof(DependentEntity).GetProperty("PeEKaY");
-
+            
             public int KayPee { get; set; }
             public int SomeNavID { get; set; }
             public int SomeNavPeEKaY { get; set; }
@@ -868,7 +898,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public DependentEntityWithCompositeKey InverseReferenceNav { get; set; }
         }
 
-        private class DependentEntityWithCompositeKey
+        private class DependentCompositeBase
+        {
+            public int NotId { get; set; }
+            public string NotName { get; set; }
+        }
+
+        private class DependentEntityWithCompositeKey : DependentCompositeBase
         {
             public static readonly PropertyInfo NavPropIdProperty = typeof(DependentEntityWithCompositeKey).GetProperty("NavPropId");
             public static readonly PropertyInfo NavPropNameProperty = typeof(DependentEntityWithCompositeKey).GetProperty("NavPropName");
@@ -876,9 +912,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public static readonly PropertyInfo PrincipalEntityWithCompositeKeyNameProperty = typeof(DependentEntityWithCompositeKey).GetProperty("PrincipalEntityWithCompositeKeyName");
             public static readonly PropertyInfo IdProperty = typeof(DependentEntityWithCompositeKey).GetProperty("Id");
             public static readonly PropertyInfo NameProperty = typeof(DependentEntityWithCompositeKey).GetProperty("Name");
-
-            public int NotId { get; set; }
-            public string NotName { get; set; }
 
             public int NavPropId { get; set; }
             public string NavPropName { get; set; }

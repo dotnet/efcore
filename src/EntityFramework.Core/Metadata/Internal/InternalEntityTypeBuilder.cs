@@ -97,11 +97,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var id = GetActualProperties(properties, configurationSource);
-            var key = Metadata.FindDeclaredKey(id);
+            var actualProperties = GetActualProperties(properties, configurationSource);
+            var key = Metadata.FindDeclaredKey(actualProperties);
             if (key == null)
             {
-                key = Metadata.AddKey(id, configurationSource);
+                if ((configurationSource != ConfigurationSource.Explicit) // let it throw for explicit
+                    && actualProperties.Any(p => p.FindContainingForeignKeys().Any(k => k.DeclaringEntityType != Metadata)))
+                {
+                    return null;
+                }
+
+                key = Metadata.AddKey(actualProperties, configurationSource);
             }
             else
             {
@@ -375,7 +381,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var detachedRelationships = new HashSet<RelationshipBuilderSnapshot>();
             PropertyBuildersSnapshot detachedProperties = null;
-
+            var changedRelationships = new List<InternalRelationshipBuilder>();
             IReadOnlyList<RelationshipSnapshot> relationshipsToBeRemoved = new List<RelationshipSnapshot>();
             if (baseEntityType != null)
             {
@@ -389,6 +395,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     return null;
                 }
+
+                var foreignKeysUsingKeyProperties = Metadata.GetDeclaredForeignKeys()
+                    .Where(fk => relationshipsToBeRemoved.All(r => r.ForeignKey != fk)
+                                 && fk.Properties.Any(p => baseEntityType.FindProperty(p.Name)?.IsKey() == true)).ToList();
+
+                if (foreignKeysUsingKeyProperties.Any(fk =>
+                    !configurationSource.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
+                {
+                    return null;
+                }
+
+                changedRelationships.AddRange(
+                    foreignKeysUsingKeyProperties.Select(foreignKeyUsingKeyProperties =>
+                        foreignKeyUsingKeyProperties.Builder.HasForeignKey(null, configurationSource, runConventions: false)));
 
                 foreach (var relationshipToBeRemoved in relationshipsToBeRemoved)
                 {
@@ -431,6 +451,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var detachedRelationship in detachedRelationships)
             {
                 detachedRelationship.Attach();
+            }
+
+            foreach (var changedRelationship in changedRelationships)
+            {
+                ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(changedRelationship);
             }
 
             foreach (var relationshipToBeRemoved in relationshipsToBeRemoved)
@@ -669,7 +694,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 return null;
             }
-            
+
             var removedForeignKey = Metadata.RemoveForeignKey(
                 foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType, runConventions);
 
@@ -689,7 +714,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             RemoveShadowPropertiesIfUnused(foreignKey.Properties.Where(p => p.DeclaringEntityType.FindDeclaredProperty(p.Name) != null).ToList());
             foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey);
-            
+
             return currentConfigurationSource;
         }
 

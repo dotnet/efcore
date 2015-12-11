@@ -402,6 +402,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     throw new ArgumentException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
+
+                if (property.FindContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
+                {
+                    throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
+                }
             }
 
             var key = FindKey(properties);
@@ -515,7 +520,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 if ((actualProperty == null)
                     || (actualProperty.DeclaringEntityType != property.DeclaringEntityType))
                 {
-                    throw new ArgumentException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
+                    throw new ArgumentException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
+                }
+
+                if (actualProperty.FindContainingKeys().Any(k => k.DeclaringEntityType != this))
+                {
+                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertyInKey(actualProperty.Name, this.DisplayName()));
                 }
             }
 

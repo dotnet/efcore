@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -62,8 +61,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var newRelationshipBuilder = ReplaceForeignKey(configurationSource,
-                                            navigationToPrincipalName: navigationToPrincipalName ?? "",
-                                            navigationToDependentName: navigationToDependentName ?? "");
+                navigationToPrincipalName: navigationToPrincipalName ?? "",
+                navigationToDependentName: navigationToDependentName ?? "");
 
             if (newRelationshipBuilder != null
                 && newRelationshipBuilder.Metadata.Builder == null)
@@ -828,16 +827,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => HasForeignKey(
                 GetExistingProperties(properties, Metadata.DeclaringEntityType), configurationSource, runConventions: true);
 
-        private InternalRelationshipBuilder HasForeignKey(
-            IReadOnlyList<Property> properties, ConfigurationSource configurationSource, bool runConventions)
+        public virtual InternalRelationshipBuilder HasForeignKey(
+            [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource, bool runConventions)
         {
             if (properties == null)
             {
                 return !configurationSource.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
                     ? null
                     : ReplaceForeignKey(configurationSource,
-                    dependentProperties: new Property[0],
-                    runConventions: runConventions);
+                        dependentProperties: new Property[0],
+                        runConventions: runConventions);
             }
 
             if (Metadata.Properties.SequenceEqual(properties))
@@ -857,6 +856,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             if (!configurationSource.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()))
+            {
+                return null;
+            }
+
+            if ((Metadata.DeclaringEntityType.BaseType != null)
+                && (configurationSource != ConfigurationSource.Explicit) // let it throw for explicit
+                && properties.Any(p => p.FindContainingKeys().Any(k => k.DeclaringEntityType != Metadata.DeclaringEntityType)))
             {
                 return null;
             }
@@ -905,7 +911,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private bool CanSetForeignKey(
             IReadOnlyList<Property> properties, EntityType dependentEntityType, ConfigurationSource configurationSource)
         {
-            if (properties != null && Metadata.Properties.SequenceEqual(properties))
+            if (properties != null
+                && Metadata.Properties.SequenceEqual(properties))
             {
                 return true;
             }
@@ -1609,10 +1616,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             IReadOnlyList<Property> dependentProperties = null)
         {
             var matchingRelationships = Metadata.DeclaringEntityType.Builder.GetRelationshipBuilders(
-                 Metadata.PrincipalEntityType,
-                 navigationToPrincipalName == "" ? null : navigationToPrincipalName,
-                 navigationToDependentName == "" ? null : navigationToDependentName,
-                 dependentProperties);
+                Metadata.PrincipalEntityType,
+                navigationToPrincipalName == "" ? null : navigationToPrincipalName,
+                navigationToDependentName == "" ? null : navigationToDependentName,
+                dependentProperties);
 
             matchingRelationships = matchingRelationships.Distinct().ToList();
 

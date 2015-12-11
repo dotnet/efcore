@@ -1399,6 +1399,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Adding_a_key_throws_if_any_properties_are_part_of_derived_foreign_key()
+        {
+            var model = new Model();
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
+            var fkProperty = baseType.AddProperty("fk", typeof(int));
+            var key = baseType.GetOrAddKey(new[] { idProperty});
+            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            entityType.BaseType = baseType;
+            entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
+                
+            Assert.Equal(
+                CoreStrings.KeyPropertyInForeignKey("fk", typeof(BaseType).Name),
+                Assert.Throws<InvalidOperationException>(() => baseType.GetOrAddKey(new[] { fkProperty })).Message);
+        }
+
+        [Fact]
         public void Can_remove_keys()
         {
             var model = new Model();
@@ -1598,7 +1615,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var fkProperty = entityType2.GetOrAddProperty(Order.CustomerIdProperty);
 
             Assert.Equal(
-                CoreStrings.ForeignKeyPropertiesWrongEntity("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Customer).FullName),
+                CoreStrings.ForeignKeyPropertiesWrongEntity("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Customer).Name),
                 Assert.Throws<ArgumentException>(() => entityType1.AddForeignKey(new[] { fkProperty }, entityType2.GetOrAddKey(idProperty), entityType2)).Message);
         }
 
@@ -1613,8 +1630,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             entityType.RemoveProperty(fkProperty.Name);
 
             Assert.Equal(
-                CoreStrings.ForeignKeyPropertiesWrongEntity("{'fk'}", typeof(Customer).FullName),
+                CoreStrings.ForeignKeyPropertiesWrongEntity("{'fk'}", typeof(Customer).Name),
                 Assert.Throws<ArgumentException>(() => entityType.AddForeignKey(new[] { fkProperty }, key, entityType)).Message);
+        }
+
+        [Fact]
+        public void Adding_a_foreign_key_throws_if_any_properties_are_part_of_inherited_key()
+        {
+            var model = new Model();
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
+            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int));
+            var key = baseType.GetOrAddKey(new [] { idProperty, idProperty2});
+            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            entityType.BaseType = baseType;
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
+
+            Assert.Equal(
+                CoreStrings.ForeignKeyPropertyInKey(Customer.IdProperty.Name, typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new [] { fkProperty, idProperty }, key, entityType)).Message);
         }
 
         [Fact]

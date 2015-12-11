@@ -234,6 +234,32 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void ForeignKey_throws_if_conflicting_with_inherited_key()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            dependentEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
+            var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedDependentEntityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.Convention);
+            derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
+            var idProperty = derivedDependentEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention).Metadata;
+
+            var relationship = derivedDependentEntityBuilder.Relationship(
+                principalEntityBuilder,
+                Order.CustomerProperty.Name,
+                nameof(Customer.SpecialOrders),
+                ConfigurationSource.Explicit);
+
+            Assert.Null(relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(
+                CoreStrings.ForeignKeyPropertyInKey(Order.IdProperty.Name, typeof(SpecialOrder).Name),
+                Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey(new[] { idProperty }, ConfigurationSource.Explicit)).Message);
+        }
+
+        [Fact]
         public void PrincipalKey_does_not_return_same_instance_for_same_properties()
         {
             var modelBuilder = CreateInternalModelBuilder();
@@ -669,6 +695,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             public ICollection<Order> Orders { get; set; }
             public SpecialOrder AmbiguousOrder { get; set; }
             public IEnumerable<Order> EnumerableOrders { get; set; }
+            public ICollection<SpecialOrder> SpecialOrders { get; set; }
             public Order NotCollectionOrders { get; set; }
         }
     }
