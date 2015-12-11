@@ -51,7 +51,6 @@
     <Compile Include="Internal\CSharpUniqueNamer.cs" />
     <Compile Include="Internal\CSharpUtilities.cs" />
     <Compile Include="Internal\ModelUtilities.cs" />
-    <Compile Include="Internal\TSqlConversionUtilities.cs" />
     <Compile Include="Metadata\ColumnModel.cs" />
     <Compile Include="Metadata\DatabaseModel.cs" />
     <Compile Include="Metadata\ForeignKeyModel.cs" />

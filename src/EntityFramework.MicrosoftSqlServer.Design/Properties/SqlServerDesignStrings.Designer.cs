@@ -13,11 +13,11 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.MicrosoftSqlServer.Design.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.
+        /// For column {columnId} unable to interpret default value {defaultValue}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
         /// </summary>
-        public static string CannotInterpretSqlServerStringLiteral([CanBeNull] object sqlServerStringLiteral)
+        public static string CannotInterpretDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotInterpretSqlServerStringLiteral", "sqlServerStringLiteral"), sqlServerStringLiteral);
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotInterpretDefaultValue", "columnId", "defaultValue", "propertyName", "entityTypeName"), columnId, defaultValue, propertyName, entityTypeName);
         }
 
         /// <summary>
@@ -58,14 +58,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string IndexNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("IndexNameEmpty", "schemaName", "tableName"), schemaName, tableName);
-        }
-
-        /// <summary>
-        /// For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
-        /// </summary>
-        public static string UnableToConvertDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyType, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToConvertDefaultValue", "columnId", "defaultValue", "propertyType", "propertyName", "entityTypeName"), columnId, defaultValue, propertyType, propertyName, entityTypeName);
         }
 
         /// <summary>

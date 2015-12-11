@@ -17,7 +17,6 @@ namespace Microsoft.Data.Entity.Scaffolding
             serviceCollection
                 .AddSingleton<IScaffoldingModelFactory, SqlServerScaffoldingModelFactory>()
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
-                .AddSingleton<SqlServerLiteralUtilities>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
                 .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
         }
