@@ -18,8 +18,7 @@
     "Microsoft.Extensions.Logging": "1.0.0-*",
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0-*",
     "Microsoft.Extensions.OptionsModel": "1.0.0-*",
-    "Remotion.Linq": "2.0.1",
-    "System.Collections.Immutable": "1.1.36"
+    "Remotion.Linq": "2.0.1"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {

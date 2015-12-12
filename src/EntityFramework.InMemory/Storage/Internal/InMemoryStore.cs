@@ -1,35 +1,38 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Extensions.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class InMemoryStore : IInMemoryStore
     {
+        private readonly IInMemoryTableFactory _tableFactory;
         private readonly ILogger _logger;
 
-        private readonly ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>> _tables
-            = new ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>>(
-                () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty.WithComparers(new EntityTypeNameEqualityComparer()));
+        private readonly object _lock = new object();
 
-        public InMemoryStore([NotNull] ILogger<InMemoryStore> logger)
+        private Lazy<Dictionary<IEntityType, IInMemoryTable>> _tables = CreateTables();
+
+        public InMemoryStore(
+            [NotNull] IInMemoryTableFactory tableFactory,
+            [NotNull] ILogger<InMemoryStore> logger)
         {
-            Check.NotNull(logger, nameof(logger));
-
+            _tableFactory = tableFactory;
             _logger = logger;
         }
 
@@ -41,79 +44,93 @@ namespace Microsoft.Data.Entity.Storage.Internal
         /// </returns>
         public virtual bool EnsureCreated(IModel model)
         {
-            Check.NotNull(model, nameof(model));
+            lock (_lock)
+            {
+                var returnValue = !_tables.IsValueCreated;
 
-            var returnValue = !_tables.HasValue;
+                // ReSharper disable once UnusedVariable
+                var _ = _tables.Value;
 
-            // ReSharper disable once UnusedVariable
-            var _ = _tables.Value;
-
-            return returnValue;
+                return returnValue;
+            }
         }
 
-        public virtual void Clear()
-            => _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
-
-        public virtual IEnumerable<InMemoryTable> GetTables(IEntityType entityType)
+        public virtual bool Clear()
         {
-            Check.NotNull(entityType, nameof(entityType));
-
-            if (!_tables.HasValue)
+            lock (_lock)
             {
-                yield break;
-            }
-
-            foreach (var et in entityType.GetConcreteTypesInHierarchy())
-            {
-                InMemoryTable table;
-
-                if (_tables.Value.TryGetValue(et, out table))
+                if (!_tables.IsValueCreated)
                 {
-                    yield return table;
+                    return false;
+                }
+
+                _tables = CreateTables();
+                return true;
+            }
+        }
+
+        private static Lazy<Dictionary<IEntityType, IInMemoryTable>> CreateTables()
+        {
+            return new Lazy<Dictionary<IEntityType, IInMemoryTable>>(
+                () => new Dictionary<IEntityType, IInMemoryTable>(new EntityTypeNameEqualityComparer()),
+                LazyThreadSafetyMode.PublicationOnly);
+        }
+
+        public virtual IReadOnlyList<InMemoryTableSnapshot> GetTables(IEntityType entityType)
+        {
+            var data = new List<InMemoryTableSnapshot>();
+            lock (_lock)
+            {
+                if (_tables.IsValueCreated)
+                {
+                    foreach (var et in entityType.GetConcreteTypesInHierarchy())
+                    {
+                        IInMemoryTable table;
+
+                        if (_tables.Value.TryGetValue(et, out table))
+                        {
+                            data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
+                        }
+                    }
                 }
             }
+            return data;
         }
 
         public virtual int ExecuteTransaction(IEnumerable<IUpdateEntry> entries)
         {
-            Check.NotNull(entries, nameof(entries));
-
             var rowsAffected = 0;
 
-            _tables.ExchangeValue(ts =>
+            lock (_lock)
+            {
+                foreach (var entry in entries)
                 {
-                    rowsAffected = 0;
+                    var entityType = entry.EntityType;
 
-                    foreach (var entry in entries)
+                    Debug.Assert(!entityType.IsAbstract());
+
+                    IInMemoryTable table;
+                    if (!_tables.Value.TryGetValue(entityType, out table))
                     {
-                        var entityType = entry.EntityType;
-
-                        Debug.Assert(!entityType.IsAbstract());
-
-                        InMemoryTable table;
-                        if (!ts.TryGetValue(entityType, out table))
-                        {
-                            ts = ts.Add(entityType, table = new InMemoryTable(entityType));
-                        }
-
-                        switch (entry.EntityState)
-                        {
-                            case EntityState.Added:
-                                table.Create(entry);
-                                break;
-                            case EntityState.Deleted:
-                                table.Delete(entry);
-                                break;
-                            case EntityState.Modified:
-                                table.Update(entry);
-                                break;
-                        }
-
-                        rowsAffected++;
+                        _tables.Value.Add(entityType, table = _tableFactory.Create(entityType));
                     }
 
-                    return ts;
-                });
+                    switch (entry.EntityState)
+                    {
+                        case EntityState.Added:
+                            table.Create(entry);
+                            break;
+                        case EntityState.Deleted:
+                            table.Delete(entry);
+                            break;
+                        case EntityState.Modified:
+                            table.Update(entry);
+                            break;
+                    }
+
+                    rowsAffected++;
+                }
+            }
 
             _logger.LogInformation<object>(
                 InMemoryLoggingEventId.SavedChanges,
@@ -123,52 +140,5 @@ namespace Microsoft.Data.Entity.Storage.Internal
             return rowsAffected;
         }
 
-        public virtual IEnumerator<InMemoryTable> GetEnumerator()
-            => _tables.HasValue
-                ? _tables.Value.Values.GetEnumerator()
-                : Enumerable.Empty<InMemoryTable>().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public class InMemoryTable : IEnumerable<object[]>
-        {
-            private readonly ThreadSafeLazyRef<ImmutableDictionary<IKeyValue, object[]>> _rows
-                = new ThreadSafeLazyRef<ImmutableDictionary<IKeyValue, object[]>>(
-                    () => ImmutableDictionary<IKeyValue, object[]>.Empty);
-
-            public InMemoryTable([NotNull] IEntityType entityType)
-            {
-                Check.NotNull(entityType, nameof(entityType));
-
-                EntityType = entityType;
-            }
-
-            public virtual IEntityType EntityType { get; private set; }
-
-            internal void Create(IUpdateEntry entry)
-            {
-                _rows.ExchangeValue(rs => rs.Add(entry.GetPrimaryKeyValue(), CreateValueBuffer(entry)));
-            }
-
-            internal void Delete(IUpdateEntry entry)
-            {
-                _rows.ExchangeValue(rs => rs.Remove(entry.GetPrimaryKeyValue()));
-            }
-
-            internal void Update(IUpdateEntry entry)
-            {
-                _rows.ExchangeValue(rs => rs.SetItem(entry.GetPrimaryKeyValue(), CreateValueBuffer(entry)));
-            }
-
-            private static object[] CreateValueBuffer(IUpdateEntry entry)
-                => entry.EntityType.GetProperties().Select(p => entry.GetValue(p)).ToArray();
-
-            public virtual IEnumerator<object[]> GetEnumerator()
-                => _rows.HasValue
-                    ? _rows.Value.Values.Select(os => os.ToArray()).GetEnumerator()
-                    : Enumerable.Empty<object[]>().GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        }
     }
 }

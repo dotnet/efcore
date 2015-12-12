@@ -142,7 +142,6 @@
     <Compile Include="Internal\PropertyListComparer.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
-    <Compile Include="Internal\ThreadSafeLazyRef.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder`.cs" />
