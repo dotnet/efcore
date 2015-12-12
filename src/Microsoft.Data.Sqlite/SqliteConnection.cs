@@ -179,20 +179,29 @@ namespace Microsoft.Data.Sqlite
 #if NETCORE50
         partial void OnOpened()
         {
-            var temporaryFolder = CurrentApplicationData?.TemporaryFolder.Path;
-            if (temporaryFolder != null)
+            var appDataType = CurrentApplicationData?.GetType();
+            var temporaryFolder = appDataType?.GetRuntimeProperty("TemporaryFolder").GetValue(CurrentApplicationData);
+            var temporaryFolderPath = temporaryFolder?.GetType().GetRuntimeProperty("Path").GetValue(temporaryFolder) as string;
+            if (temporaryFolderPath != null)
             {
-                DbConnectionExtensions.ExecuteNonQuery(this, "PRAGMA temp_store_directory = '" + temporaryFolder + "';");
+                DbConnectionExtensions.ExecuteNonQuery(this, "PRAGMA temp_store_directory = '" + temporaryFolderPath + "';");
             }
         }
 
-        private static dynamic CurrentApplicationData
+        private static object CurrentApplicationData
             => Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
-                ?.GetTypeInfo().GetDeclaredProperty("Current").GetValue(null);
+                ?.GetRuntimeProperty("Current").GetValue(null);
 
         private static string BaseDirectory
-            => CurrentApplicationData?.LocalFolder.Path
-                ?? AppContext.BaseDirectory;
+        {
+            get
+            {
+                var appDataType = CurrentApplicationData?.GetType();
+                var localFolder = appDataType?.GetRuntimeProperty("LocalFolder").GetValue(CurrentApplicationData);
+                return (localFolder?.GetType().GetRuntimeProperty("Path").GetValue(localFolder) as string)
+                    ?? AppContext.BaseDirectory;
+            }
+        }
 #elif NET451
         private static string BaseDirectory
             => AppDomain.CurrentDomain.GetData("APP_CONTEXT_BASE_DIRECTORY") as string
