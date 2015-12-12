@@ -144,7 +144,6 @@
     <Compile Include="Utilities\LazyRefTest.cs" />
     <Compile Include="Utilities\MultigraphTest.cs" />
     <Compile Include="Utilities\PropertyInfoExtensionsTest.cs" />
-    <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
     <Compile Include="Utilities\TypeExtensionsTest.cs" />
     <Compile Include="Utilities\TypeNameHelperTest.cs" />
     <Compile Include="ValueGeneration\GuidValueGeneratorTest.cs" />

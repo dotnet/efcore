@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             return ((InMemoryQueryContext)queryContext).Store
                 .GetTables(targetType)
                 .SelectMany(t =>
-                    t.Select(vs => new EntityLoadInfo(
+                    t.Rows.Select(vs => new EntityLoadInfo(
                         new ValueBuffer(vs), vb => materializer(t.EntityType, vb)))
                         .Where(eli => keyComparer.ShouldInclude(eli.ValueBuffer)));
         }
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             return ((InMemoryQueryContext)queryContext).Store
                 .GetTables(entityType)
                 .SelectMany(t =>
-                    t.Select(vs =>
+                    t.Rows.Select(vs =>
                         {
                             var valueBuffer = new ValueBuffer(vs);
 
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             return ((InMemoryQueryContext)queryContext).Store
                 .GetTables(entityType)
-                .SelectMany(t => t.Select(vs => new ValueBuffer(vs)));
+                .SelectMany(t => t.Rows.Select(vs => new ValueBuffer(vs)));
         }
     }
 }
