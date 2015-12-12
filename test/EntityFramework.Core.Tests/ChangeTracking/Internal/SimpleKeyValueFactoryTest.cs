@@ -167,6 +167,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType = model.AddEntityType(typeof(Kiwi));
             var property3 = entityType.AddProperty("P1", typeof(string));
             property3.IsShadowProperty = false;
+            property3.IsNullable = false;
             var property4 = entityType.AddProperty("P2", typeof(string));
             property4.IsShadowProperty = false;
 

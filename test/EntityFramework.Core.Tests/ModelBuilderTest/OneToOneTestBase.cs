@@ -2802,6 +2802,24 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
+            public virtual void Configuring_FK_properties_as_PK_sets_DeleteBehavior_Cascade()
+            {
+                var modelBuilder = HobNobBuilder();
+                var dependentType = modelBuilder.Model.FindEntityType(typeof(Hob));
+
+                modelBuilder
+                    .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
+                    .HasForeignKey<Nob>(e => e.HobId1);
+                
+                Assert.Equal(DeleteBehavior.Restrict, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
+
+                modelBuilder
+                    .Entity<Nob>().HasKey(e => e.HobId1);
+
+                Assert.Equal(DeleteBehavior.Cascade, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
+            }
+
+            [Fact]
             public virtual void Creates_shadow_FK_property_with_non_shadow_PK()
             {
                 var modelBuilder = CreateModelBuilder();

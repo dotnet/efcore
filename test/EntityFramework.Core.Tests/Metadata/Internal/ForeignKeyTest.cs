@@ -174,6 +174,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
+            property1.IsNullable = false;
             entityType.GetOrSetPrimaryKey(new[]
             {
                 property,
@@ -194,6 +195,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
+            property1.IsNullable = false;
             entityType.GetOrSetPrimaryKey(new[]
             {
                 property,
@@ -219,6 +221,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
             var property3 = entityType.AddProperty("Id2", typeof(string));
+            property3.IsNullable = false;
             entityType.GetOrSetPrimaryKey(
                 new[]
                 {
@@ -243,6 +246,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType("E");
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
+            property1.IsNullable = false;
             entityType.GetOrSetPrimaryKey(new[]
             {
                 property,

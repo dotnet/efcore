@@ -388,7 +388,7 @@
     <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.</value>
   </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
+    <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
   </data>
   <data name="ForeignKeyCannotBeOptional" xml:space="preserve">
     <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be marked as optional because it does not contain any property of a nullable type. Any foreign key can be marked as required, but only foreign keys with at least one property of a nullable type and which is not part of primary key can be marked as optional.</value>
@@ -521,6 +521,9 @@
   </data>
   <data name="KeyPropertyInForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be part of a key on '{entityType}' because it is contained in a foreign key defined on a derived entity type.</value>
+  </data>
+  <data name="NullableKey" xml:space="preserve">
+    <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
     <value>A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>

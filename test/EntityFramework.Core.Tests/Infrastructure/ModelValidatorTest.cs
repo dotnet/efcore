@@ -183,6 +183,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
                 property.IsShadowProperty = false;
                 keyProperties[i] = property;
                 keyProperties[i].RequiresValueGenerator = true;
+                keyProperties[i].IsNullable = false;
             }
             return entityType.AddKey(keyProperties);
         }
@@ -201,7 +202,6 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var foreignKey = dependEntityType.AddForeignKey(dependentProperties, principalKey, principalKey.DeclaringEntityType);
             foreignKey.IsUnique = true;
-            foreignKey.IsRequired = false;
             foreach (var property in dependentProperties)
             {
                 property.RequiresValueGenerator = false;

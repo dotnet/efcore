@@ -116,6 +116,7 @@
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\ConcurrencyDetector.cs" />
     <Compile Include="Internal\LazyRef.cs" />
+    <Compile Include="Metadata\Conventions\Internal\IKeyRemovedConvention.cs" />
     <Compile Include="Metadata\Internal\ConventionalAnnotatable.cs" />
     <Compile Include="Metadata\Internal\ConventionalAnnotation.cs" />
     <Compile Include="Metadata\Internal\ICanGetNavigations.cs" />

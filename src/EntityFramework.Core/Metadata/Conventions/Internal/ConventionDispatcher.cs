@@ -112,6 +112,17 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return keyBuilder;
         }
 
+        public virtual void OnKeyRemoved([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] Key key)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(key, nameof(key));
+
+            foreach (var keyConvention in _conventionSet.KeyRemovedConventions)
+            {
+                keyConvention.Apply(entityTypeBuilder, key);
+            }
+        }
+
         public virtual InternalKeyBuilder OnPrimaryKeySet([NotNull] InternalKeyBuilder keyBuilder, [CanBeNull] Key previousPrimaryKey)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));

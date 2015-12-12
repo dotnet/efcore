@@ -102,9 +102,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (key == null)
             {
                 if ((configurationSource != ConfigurationSource.Explicit) // let it throw for explicit
-                    && actualProperties.Any(p => p.FindContainingForeignKeys().Any(k => k.DeclaringEntityType != Metadata)))
+                    && (actualProperties.Any(p => p.FindContainingForeignKeys().Any(k => k.DeclaringEntityType != Metadata))
+                    || actualProperties.Any(p => !p.Builder.CanSetRequired(true, configurationSource))))
                 {
                     return null;
+                }
+
+                foreach (var actualProperty in actualProperties)
+                {
+                    actualProperty.Builder.IsRequired(true, configurationSource);
                 }
 
                 key = Metadata.AddKey(actualProperties, configurationSource);
@@ -118,22 +124,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual ConfigurationSource? RemoveKey(
-            [NotNull] Key key, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
+            [NotNull] Key key, ConfigurationSource configurationSource, bool runConventions = true)
         {
             var currentConfigurationSource = key.GetConfigurationSource();
-            if (!configurationSource.Overrides(currentConfigurationSource)
-                || !(canOverrideSameSource || (configurationSource != currentConfigurationSource)))
+            if (!configurationSource.Overrides(currentConfigurationSource))
             {
                 return null;
             }
 
             foreach (var foreignKey in key.FindReferencingForeignKeys().ToList())
             {
-                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
+                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource, runConventions);
                 Debug.Assert(removed.HasValue);
             }
 
-            var removedKey = Metadata.RemoveKey(key.Properties);
+            var removedKey = Metadata.RemoveKey(key.Properties, runConventions);
             if (removedKey == null)
             {
                 return null;
@@ -141,6 +146,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Debug.Assert(removedKey == key);
 
             RemoveShadowPropertiesIfUnused(key.Properties);
+            foreach (var property in key.Properties)
+            {
+                if (property.ClrType.IsNullableType())
+                {
+                    property.Builder?.IsRequired(false, configurationSource);
+                }
+            }
 
             return currentConfigurationSource;
         }
@@ -235,7 +247,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return builder;
         }
 
-        public virtual bool CanRemoveProperty(
+        private bool CanRemoveProperty(
             [NotNull] Property property, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
             Check.NotNull(property, nameof(property));
@@ -381,6 +393,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var detachedRelationships = new HashSet<RelationshipBuilderSnapshot>();
             PropertyBuildersSnapshot detachedProperties = null;
+            var removedKeys = new List<Key>();
             var changedRelationships = new List<InternalRelationshipBuilder>();
             IReadOnlyList<RelationshipSnapshot> relationshipsToBeRemoved = new List<RelationshipSnapshot>();
             if (baseEntityType != null)
@@ -427,9 +440,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 // TODO: Detach and reattach keys
                 // Issue #2611
-                foreach (var key in Metadata.GetDeclaredKeys().ToList())
+                removedKeys = Metadata.GetDeclaredKeys().ToList();
+                foreach (var key in removedKeys)
                 {
-                    var removedConfigurationSource = RemoveKey(key, configurationSource);
+                    var removedConfigurationSource = RemoveKey(key, configurationSource, runConventions: false);
                     Debug.Assert(removedConfigurationSource.HasValue);
                 }
 
@@ -475,6 +489,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(dependentEntityType, relationshipToBeRemoved.ForeignKey);
+            }
+
+            foreach (var removedKey in removedKeys)
+            {
+                ModelBuilder.Metadata.ConventionDispatcher.OnKeyRemoved(this, removedKey);
             }
 
             ModelBuilder.Metadata.ConventionDispatcher.OnBaseEntityTypeSet(this, originalBaseType);

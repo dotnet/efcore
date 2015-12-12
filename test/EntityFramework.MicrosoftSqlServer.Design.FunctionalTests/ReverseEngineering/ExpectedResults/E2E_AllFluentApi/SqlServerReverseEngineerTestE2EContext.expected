@@ -111,6 +111,10 @@ namespace E2ETest.Namespace
                     .HasName("UK_OneToOneFKToUniqueKeyDependent")
                     .IsUnique();
 
+                entity.Property(e => e.OneToOneFKToUniqueKeyDependentFK1).IsRequired();
+
+                entity.Property(e => e.OneToOneFKToUniqueKeyDependentFK2).IsRequired();
+
                 entity.Property(e => e.SomeColumn)
                     .IsRequired()
                     .HasMaxLength(20);
@@ -118,7 +122,8 @@ namespace E2ETest.Namespace
                 entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK)
                     .WithOne(p => p.OneToOneFKToUniqueKeyDependent)
                     .HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
-                    .HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
+                    .HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 })
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>
@@ -151,13 +156,18 @@ namespace E2ETest.Namespace
                     .HasName("UK_OneToOneSeparateFKDependent")
                     .IsUnique();
 
+                entity.Property(e => e.OneToOneSeparateFKDependentFK1).IsRequired();
+
+                entity.Property(e => e.OneToOneSeparateFKDependentFK2).IsRequired();
+
                 entity.Property(e => e.SomeDependentEndColumn)
                     .IsRequired()
                     .HasMaxLength(20);
 
                 entity.HasOne(d => d.OneToOneSeparateFKDependentFK)
                     .WithOne(p => p.OneToOneSeparateFKDependent)
-                    .HasForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
+                    .HasForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 })
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>

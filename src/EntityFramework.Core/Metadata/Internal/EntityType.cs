@@ -330,7 +330,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 foreach (var property in key.Properties)
                 {
-                    property.IsNullable = false;
                     _properties.Add(property.Name, property);
                 }
             }
@@ -407,6 +406,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
                 }
+
+                if (property.IsNullable)
+                {
+                    throw new InvalidOperationException(CoreStrings.NullableKey(this.DisplayName(), property.Name));
+                }
             }
 
             var key = FindKey(properties);
@@ -452,17 +456,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : null;
         }
 
-        public virtual Key RemoveKey([NotNull] IReadOnlyList<IProperty> properties)
+        public virtual Key RemoveKey([NotNull] IReadOnlyList<IProperty> properties, bool runConventions = true)
         {
             Check.NotEmpty(properties, nameof(properties));
 
             var key = FindDeclaredKey(properties);
             return key == null
                 ? null
-                : RemoveKey(key);
+                : RemoveKey(key, runConventions);
         }
 
-        private Key RemoveKey([NotNull] Key key)
+        private Key RemoveKey([NotNull] Key key, bool runConventions)
         {
             CheckKeyNotInUse(key);
 
@@ -477,6 +481,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             PropertyMetadataChanged();
 
+            if (runConventions)
+            {
+                Model.ConventionDispatcher.OnKeyRemoved(Builder, key);
+            }
             return key;
         }
 

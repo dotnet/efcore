@@ -1365,6 +1365,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             compositeKeyProperty1.IsShadowProperty = false;
             var compositeKeyProperty2 = someCompositeEntityType.AddProperty("Id2", typeof(string));
             compositeKeyProperty2.IsShadowProperty = false;
+            compositeKeyProperty2.IsNullable = false;
             someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));

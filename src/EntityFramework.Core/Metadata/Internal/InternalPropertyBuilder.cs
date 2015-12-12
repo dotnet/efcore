@@ -3,8 +3,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -19,6 +19,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (CanSetRequired(isRequired, configurationSource))
             {
+                if (!isRequired)
+                {
+                    foreach (var key in Metadata.FindContainingKeys().ToList())
+                    {
+                        var removed = key.DeclaringEntityType.Builder.RemoveKey(key, configurationSource);
+                        Debug.Assert(removed.HasValue);
+                    }
+                }
                 Metadata.SetIsNullable(!isRequired, configurationSource);
                 
                 return true;
@@ -28,8 +36,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual bool CanSetRequired(bool isRequired, ConfigurationSource configurationSource)
-            => configurationSource.Overrides(Metadata.GetIsNullableConfigurationSource())
-               || (Metadata.IsNullable == !isRequired);
+            => (configurationSource.Overrides(Metadata.GetIsNullableConfigurationSource())
+                || (Metadata.IsNullable == !isRequired))
+               && (isRequired
+                   || Metadata.ClrType.IsNullableType()
+                   || (configurationSource == ConfigurationSource.Explicit)); // let it throw for Explicit
 
         public virtual bool HasMaxLength(int maxLength, ConfigurationSource configurationSource)
             => HasAnnotation(CoreAnnotationNames.MaxLengthAnnotation, maxLength, configurationSource);

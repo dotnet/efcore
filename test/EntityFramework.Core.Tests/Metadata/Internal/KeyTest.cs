@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Customer));
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+            property2.IsNullable = false;
 
             var key = entityType.AddKey(new[] { property1, property2 }, ConfigurationSource.Convention);
 

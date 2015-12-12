@@ -47,6 +47,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 foreach (var property in previousPrimaryKey.Properties)
                 {
                     property.Builder?.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
+                    property.Builder?.RequiresValueGenerator(false, ConfigurationSource.Convention);
                 }
             }
 

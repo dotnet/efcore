@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(object));
             var principalProperty = entityType.AddProperty("Kake");
+            principalProperty.IsNullable = false;
             var key = entityType.AddKey(principalProperty);
             var dependentProperty = entityType.AddProperty("Alaska");
             entityType.AddForeignKey(dependentProperty, key, entityType);
@@ -37,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type_and_property_being_part_of_primary_key()
+        public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type()
         {
             var entityType = new Model().AddEntityType(typeof(object));
             var stringProperty = entityType.AddProperty("stringName", typeof(string));
@@ -47,10 +48,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(stringProperty.IsNullable);
             Assert.True(nullableIntProperty.IsNullable);
             Assert.False(intProperty.IsNullable);
-
-            entityType.SetPrimaryKey(stringProperty);
-
-            Assert.False(stringProperty.IsNullable);
         }
 
         [Fact]
@@ -71,7 +68,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Property_nullability_is_changed_if_property_made_part_of_primary_key()
+        public void Adding_a_nullable_property_to_a_key_throws()
         {
             var entityType = new Model().AddEntityType(typeof(object));
             var stringProperty = entityType.AddProperty("Name", typeof(string));
@@ -79,9 +76,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             stringProperty.IsNullable = true;
             Assert.True(stringProperty.IsNullable);
 
-            stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
-
-            Assert.False(stringProperty.IsNullable);
+            Assert.Equal(CoreStrings.NullableKey(typeof(object).DisplayName(), stringProperty.Name),
+                Assert.Throws<InvalidOperationException>(() =>
+                    stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
         }
 
         [Fact]
@@ -100,6 +97,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(object));
             var stringProperty = entityType.AddProperty("Name", typeof(string));
+            stringProperty.IsNullable = false;
             stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
 
             Assert.Equal(

@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -230,6 +232,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Cannot_set_required_to_false_if_nonnullable()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
+            var builder = entityBuilder.Property(nameof(Customer.Id), ConfigurationSource.Convention);
+            builder.HasClrType(typeof(int), ConfigurationSource.Convention);
+
+            Assert.False(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(CoreStrings.CannotBeNullable(nameof(Customer.Id), typeof(Customer).Name, typeof(int).Name),
+                Assert.Throws<InvalidOperationException>(() => builder.IsRequired(false, ConfigurationSource.Explicit)).Message);
+        }
+
+        [Fact]
         public void Can_only_override_lower_or_equal_source_ReadOnlyAfterSave()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -336,12 +352,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }
 
-        private InternalPropertyBuilder CreateInternalPropertyBuilder(Property property)
-        {
-            var modelBuilder = new InternalModelBuilder(property.DeclaringEntityType.Model);
-            var entityBuilder = modelBuilder.Entity(property.DeclaringEntityType.ClrType, ConfigurationSource.Convention);
-            return entityBuilder.Property(property.Name, ConfigurationSource.Convention);
-        }
+        private InternalPropertyBuilder CreateInternalPropertyBuilder(Property property) => property.Builder;
 
         private Property CreateProperty() => new Model().AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty);
 

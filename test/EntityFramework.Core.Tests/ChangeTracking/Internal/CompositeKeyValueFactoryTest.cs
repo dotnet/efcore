@@ -133,8 +133,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             property1.IsShadowProperty = false;
             var property2 = entityType.AddProperty("P2", typeof(string));
             property2.IsShadowProperty = false;
+            property2.IsNullable = false;
             var property3 = entityType.AddProperty("P3", typeof(Random));
             property3.IsShadowProperty = false;
+            property3.IsNullable = false;
             var property4 = entityType.AddProperty("P4", typeof(int));
             property4.IsShadowProperty = false;
             var property5 = entityType.AddProperty("P5", typeof(string));

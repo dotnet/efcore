@@ -18,13 +18,19 @@ namespace E2E.Sqlite
                     .HasName("sqlite_autoindex_Users_Groups_2")
                     .IsUnique();
 
+                entity.Property(e => e.GroupId).IsRequired();
+
+                entity.Property(e => e.UserId).IsRequired();
+
                 entity.HasOne(d => d.Group)
                     .WithMany(p => p.Users_Groups)
-                    .HasForeignKey(d => d.GroupId);
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Users_Groups)
-                    .HasForeignKey(d => d.UserId);
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
 

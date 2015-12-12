@@ -9,7 +9,9 @@ namespace E2ETest.Namespace
     {
         public int OneToOneFKToUniqueKeyDependentID1 { get; set; }
         public int OneToOneFKToUniqueKeyDependentID2 { get; set; }
+        [Required]
         public int? OneToOneFKToUniqueKeyDependentFK1 { get; set; }
+        [Required]
         public int? OneToOneFKToUniqueKeyDependentFK2 { get; set; }
         [Required]
         [MaxLength(20)]

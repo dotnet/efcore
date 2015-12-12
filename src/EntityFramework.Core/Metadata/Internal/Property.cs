@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.Name));
                 }
 
-                if (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) ?? false)
+                if (this.IsKey())
                 {
                     throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
                 }
@@ -119,8 +119,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        private bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) != true)
-                                          && ClrType.IsNullableType();
+        private bool DefaultIsNullable => ClrType.IsNullableType();
 
         public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _isNullableConfigurationSource;
 
@@ -334,6 +333,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IEnumerable<ForeignKey> FindContainingForeignKeys()
             => ((IProperty)this).FindContainingForeignKeys().Cast<ForeignKey>();
+
+        public virtual IEnumerable<Key> FindContainingKeys()
+            => ((IProperty)this).FindContainingKeys().Cast<Key>();
 
         private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
 

@@ -213,8 +213,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_key_SQL_Server_string_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
-            property.DeclaringEntityType.SetPrimaryKey(property);
             property.IsNullable = false;
+            property.DeclaringEntityType.SetPrimaryKey(property);
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
@@ -227,6 +227,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_foreign_key_SQL_Server_string_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
+            property.IsNullable = false;
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
@@ -242,6 +243,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_required_foreign_key_SQL_Server_string_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(string));
+            property.IsNullable = false;
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
@@ -308,8 +310,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_key_SQL_Server_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));
-            property.DeclaringEntityType.SetPrimaryKey(property);
             property.IsNullable = false;
+            property.DeclaringEntityType.SetPrimaryKey(property);
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
@@ -322,6 +324,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_foreign_key_SQL_Server_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));
+            property.IsNullable = false;
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(byte[]));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
@@ -337,6 +340,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Does_required_foreign_key_SQL_Server_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));
+            property.IsNullable = false;
             var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(byte[]));
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);

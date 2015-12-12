@@ -362,9 +362,47 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             }
             else
             {
-                Assert.Null(entityBuilder.Metadata.AddKey(entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata));
+                var property = entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata;
+                property.IsNullable = false;
+                Assert.Null(entityBuilder.Metadata.AddKey(property));
             }
             
+            Assert.NotNull(keyBuilder);
+        }
+        
+        [Fact]
+        public void OnKeyRemoved_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalKeyBuilder keyBuilder = null;
+            var convention = new Mock<IKeyRemovedConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<Key>()))
+                .Callback<InternalEntityTypeBuilder, Key>((b, k) =>
+                    {
+                        Assert.NotNull(b);
+                        Assert.NotNull(k);
+                        keyBuilder = new InternalKeyBuilder(k, b.ModelBuilder);
+                    });
+            conventions.KeyRemovedConventions.Add(convention.Object);
+
+            var extraConvention = new Mock<IKeyRemovedConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<Key>()))
+                .Callback<InternalEntityTypeBuilder, Key>((b, k) =>
+                    {
+                        Assert.NotNull(b);
+                        Assert.NotNull(k);
+                        Assert.NotNull(keyBuilder);
+                    });
+            conventions.KeyRemovedConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var key = entityBuilder.HasKey(new List<string> { "OrderId" }, ConfigurationSource.Convention).Metadata;
+
+            Assert.Same(key, entityBuilder.Metadata.RemoveKey(key.Properties));
+
             Assert.NotNull(keyBuilder);
         }
 
