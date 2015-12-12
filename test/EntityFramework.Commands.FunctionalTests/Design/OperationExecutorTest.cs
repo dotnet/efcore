@@ -69,7 +69,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                         TargetDir = TargetDir,
                         References =
                                 {
-                                    BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                     BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
@@ -147,7 +146,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                     TargetDir = targetDir,
                     References =
                             {
-                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                 BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
@@ -257,7 +255,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                     TargetDir = targetDir,
                     References =
                             {
-                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                 BuildReference.ByName("System.Reflection.Metadata", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Core"),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
@@ -329,7 +326,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                     TargetDir = targetDir,
                     References =
                                 {
-                                    BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                     BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),

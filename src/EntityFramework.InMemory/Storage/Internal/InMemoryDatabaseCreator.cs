@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -24,15 +23,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
             _model = model;
         }
 
-        public virtual bool EnsureDeleted()
-        {
-            if (_database.Store.Any())
-            {
-                _database.Store.Clear();
-                return true;
-            }
-            return false;
-        }
+        public virtual bool EnsureDeleted() 
+            => _database.Store.Clear();
 
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
             => Task.FromResult(EnsureDeleted());
