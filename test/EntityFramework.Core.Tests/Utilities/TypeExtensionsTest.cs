@@ -9,6 +9,10 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
+#if DNXCORE50
+using Moq;
+#endif
+
 namespace Microsoft.Data.Entity.Tests.Utilities
 {
     public class TypeExtensionsTest
@@ -442,5 +446,63 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         {
             Default
         }
+
+        [Fact]
+        public void GetConstructibleTypes_works()
+        {
+            var assembly = CreateMockAssembly(
+                typeof(SomeAbstractClass),
+                typeof(SomeGenericClass<>),
+                typeof(SomeGenericClass<int>),
+                typeof(SomeTypeWithoutDefaultCtor));
+
+            var types = assembly.GetConstructibleTypes().Select(t => t.AsType()).ToList();
+
+            Assert.DoesNotContain(typeof(SomeAbstractClass), types);
+            Assert.DoesNotContain(typeof(SomeGenericClass<>), types);
+            Assert.Contains(typeof(SomeGenericClass<int>), types);
+            Assert.Contains(typeof(SomeTypeWithoutDefaultCtor), types);
+        }
+
+        private abstract class SomeAbstractClass
+        {
+        }
+
+        private class SomeGenericClass<T>
+        {
+        }
+
+        private class SomeTypeWithoutDefaultCtor
+        {
+            public SomeTypeWithoutDefaultCtor(int value)
+            {
+            }
+        }
+
+        private Assembly CreateMockAssembly(params Type[] definedTypes)
+        {
+            var definedTypeInfos = definedTypes.Select(t => t.GetTypeInfo()).ToArray();
+
+#if DNXCORE50
+            var assembly = new Mock<Assembly>();
+            assembly.SetupGet(a => a.DefinedTypes).Returns(definedTypeInfos);
+
+            return assembly.Object;
+#else
+            return new MockAssembly(definedTypeInfos);
+#endif
+        }
+
+#if !DNXCORE50
+        private class MockAssembly : Assembly
+        {
+            public MockAssembly(IEnumerable<TypeInfo> definedTypes)
+            {
+                DefinedTypes = definedTypes;
+            }
+
+            public override IEnumerable<TypeInfo> DefinedTypes { get; }
+        }
+#endif
     }
 }
