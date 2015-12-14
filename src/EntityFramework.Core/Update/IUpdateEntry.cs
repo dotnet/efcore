@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Update
@@ -48,64 +47,38 @@ namespace Microsoft.Data.Entity.Update
         ///     Gets the value assigned to the property.
         /// </summary>
         /// <param name="propertyBase"> The property to get the value for. </param>
-        /// <param name="valueSource">
-        ///     A value indicating whether to get the current, original, or relationship snapshot value.
-        /// </param>
         /// <returns> The value for the property. </returns>
-        object GetValue([NotNull] IPropertyBase propertyBase, ValueSource valueSource = ValueSource.Current);
+        object GetCurrentValue([NotNull] IPropertyBase propertyBase);
+
+        /// <summary>
+        ///     Gets the value assigned to the property when it was retrieved from the database.
+        /// </summary>
+        /// <param name="propertyBase"> The property to get the value for. </param>
+        /// <returns> The value for the property. </returns>
+        object GetOriginalValue([NotNull] IPropertyBase propertyBase);
+
+        /// <summary>
+        ///     Gets the value assigned to the property.
+        /// </summary>
+        /// <param name="propertyBase"> The property to get the value for. </param>
+        /// <typeparam name="TProperty"> The type of the property. </typeparam>
+        /// <returns> The value for the property. </returns>
+        TProperty GetCurrentValue<TProperty>([NotNull] IPropertyBase propertyBase);
+
+        /// <summary>
+        ///     Gets the value assigned to the property when it was retrieved from the database.
+        /// </summary>
+        /// <param name="property"> The property to get the value for. </param>
+        /// <typeparam name="TProperty"> The type of the property. </typeparam>
+        /// <returns> The value for the property. </returns>
+        TProperty GetOriginalValue<TProperty>([NotNull] IProperty property);
 
         /// <summary>
         ///     Gets the value assigned to the property.
         /// </summary>
         /// <param name="propertyBase"> The property to set the value for. </param>
         /// <param name="value"> The value to set. </param>
-        /// <param name="valueSource">
-        ///     A value indicating whether to set the current, original, or relationship snapshot value.
-        /// </param>
-        void SetValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, ValueSource valueSource = ValueSource.Current);
-
-        /// <summary>
-        ///     Gets an object representing the values assigned to the primary key.
-        ///     <see cref="IKeyValue" /> is typically used to test the equivalence of key values.
-        /// </summary>
-        /// <param name="valueSource">
-        ///     A value indicating whether to get the current, original, or relationship snapshot value.
-        /// </param>
-        /// <returns> The values assigned to the primary key. </returns>
-        IKeyValue GetPrimaryKeyValue(ValueSource valueSource = ValueSource.Current);
-
-        /// <summary>
-        ///     Gets an object representing the values assigned to the principal key that a foreign key references.
-        ///     <see cref="IKeyValue" /> is typically used to test the equivalence of key values.
-        /// </summary>
-        /// <param name="foreignKey"> The foreign key to get the principal key values for. </param>
-        /// <param name="valueSource">
-        ///     A value indicating whether to get the current, original, or relationship snapshot value.
-        /// </param>
-        /// <returns> The values assigned to the key. </returns>
-        IKeyValue GetPrincipalKeyValue([NotNull] IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current);
-
-        /// <summary>
-        ///     Gets an object representing the values assigned to the principal key.
-        ///     <see cref="IKeyValue" /> is typically used to test the equivalence of key values.
-        /// </summary>
-        /// <param name="key"> The prinicipal key to get values for. </param>
-        /// <param name="valueSource">
-        ///     A value indicating whether to get the current, original, or relationship snapshot value.
-        /// </param>
-        /// <returns> The values assigned to the key. </returns>
-        IKeyValue GetPrincipalKeyValue([NotNull] IKey key, ValueSource valueSource = ValueSource.Current);
-
-        /// <summary>
-        ///     Gets an object representing the values assigned to a foreign key.
-        ///     <see cref="IKeyValue" /> is typically used to test the equivalence of key values.
-        /// </summary>
-        /// <param name="foreignKey"> The foreign key to get values for. </param>
-        /// <param name="valueSource">
-        ///     A value indicating whether to get the current, original, or relationship snapshot value.
-        /// </param>
-        /// <returns> The values assigned to the key. </returns>
-        IKeyValue GetDependentKeyValue([NotNull] IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current);
+        void SetCurrentValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value);
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for the entity being saved. <see cref="EntityEntry" /> is an API optimized for

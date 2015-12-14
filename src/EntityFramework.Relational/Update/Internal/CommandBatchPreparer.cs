@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -17,17 +17,20 @@ namespace Microsoft.Data.Entity.Update.Internal
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IRelationalAnnotationProvider _annotationProvider;
+        private readonly IKeyValueIndexFactorySource _keyValueIndexFactoryFactory;
 
         public CommandBatchPreparer(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IRelationalAnnotationProvider annotations)
+            [NotNull] IRelationalAnnotationProvider annotations,
+            [NotNull] IKeyValueIndexFactorySource keyValueIndexFactoryFactory)
         {
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _modificationCommandComparer = modificationCommandComparer;
             _annotationProvider = annotations;
+            _keyValueIndexFactoryFactory = keyValueIndexFactoryFactory;
         }
 
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<IUpdateEntry> entries)
@@ -101,9 +104,9 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
         // that may need to precede some other command involving that foreign key value.
-        private Dictionary<KeyValueIndex, List<ModificationCommand>> CreateKeyValuePredecessorMap(Graph<ModificationCommand> commandGraph)
+        private Dictionary<IKeyValueIndex, List<ModificationCommand>> CreateKeyValuePredecessorMap(Graph<ModificationCommand> commandGraph)
         {
-            var predecessorsMap = new Dictionary<KeyValueIndex, List<ModificationCommand>>(new KeyValueIndexComparer());
+            var predecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
                 if ((command.EntityState == EntityState.Modified)
@@ -114,6 +117,8 @@ namespace Microsoft.Data.Entity.Update.Internal
                         // TODO: Perf: Consider only adding foreign keys defined on entity types involved in a modification
                         foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                         {
+                            var keyValueIndexFactory = _keyValueIndexFactoryFactory.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
+
                             var candidateKeyValueColumnModifications =
                                 command.ColumnModifications.Where(cm =>
                                     foreignKey.PrincipalKey.Properties.Contains(cm.Property)
@@ -122,9 +127,9 @@ namespace Microsoft.Data.Entity.Update.Internal
                             if ((command.EntityState == EntityState.Added)
                                 || (candidateKeyValueColumnModifications.Count != 0))
                             {
-                                var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueSource.Current);
+                                var principalKeyValue = keyValueIndexFactory.CreatePrincipalKeyValue((InternalEntityEntry)entry, foreignKey);
 
-                                if (!principalKeyValue.KeyValue.IsInvalid)
+                                if (principalKeyValue != null)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
@@ -146,6 +151,8 @@ namespace Microsoft.Data.Entity.Update.Internal
                     {
                         foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                         {
+                            var keyValueIndexFactory = _keyValueIndexFactoryFactory.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
+
                             var currentForeignKey = foreignKey;
                             var foreignKeyValueColumnModifications =
                                 command.ColumnModifications.Where(cm =>
@@ -155,9 +162,9 @@ namespace Microsoft.Data.Entity.Update.Internal
                             if ((command.EntityState == EntityState.Deleted)
                                 || foreignKeyValueColumnModifications.Any())
                             {
-                                var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueSource.Original);
+                                var dependentKeyValue = keyValueIndexFactory.CreateDependentKeyValueFromOriginalValues((InternalEntityEntry)entry, foreignKey);
 
-                                if (!dependentKeyValue.KeyValue.IsInvalid)
+                                if (dependentKeyValue != null)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
@@ -177,7 +184,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         private void AddForeignKeyEdges(
             Multigraph<ModificationCommand, IForeignKey> commandGraph,
-            Dictionary<KeyValueIndex, List<ModificationCommand>> predecessorsMap)
+            Dictionary<IKeyValueIndex, List<ModificationCommand>> predecessorsMap)
         {
             foreach (var command in commandGraph.Vertices)
             {
@@ -188,8 +195,9 @@ namespace Microsoft.Data.Entity.Update.Internal
                     {
                         foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                         {
-                            var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueSource.Current);
-                            if (dependentKeyValue.KeyValue.IsInvalid)
+                            var keyValueIndexFactory = _keyValueIndexFactoryFactory.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
+                            var dependentKeyValue = keyValueIndexFactory.CreateDependentKeyValue((InternalEntityEntry)entry, foreignKey);
+                            if (dependentKeyValue == null)
                             {
                                 continue;
                             }
@@ -204,7 +212,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                             // If the current value set is in use by another entry which is being deleted then the
                             // CurrentValue of this entry matches with the OriginalValue of entry being deleted.
                             // To compare both the KeyValueIndex as same, set the ValueType to Original while the values are Current
-                            dependentKeyValue.ValueSource = ValueSource.Original;
+                            dependentKeyValue = dependentKeyValue.WithOriginalValuesFlag();
                             AddMatchingPredecessorEdge(predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey);
                         }
                     }
@@ -217,8 +225,9 @@ namespace Microsoft.Data.Entity.Update.Internal
                     {
                         foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                         {
-                            var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueSource.Original);
-                            if (!principalKeyValue.KeyValue.IsInvalid)
+                            var keyValueIndexFactory = _keyValueIndexFactoryFactory.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
+                            var principalKeyValue = keyValueIndexFactory.CreatePrincipalKeyValueFromOriginalValues((InternalEntityEntry)entry, foreignKey);
+                            if (principalKeyValue != null)
                             {
                                 AddMatchingPredecessorEdge(predecessorsMap, principalKeyValue, commandGraph, command, foreignKey);
                             }
@@ -229,8 +238,8 @@ namespace Microsoft.Data.Entity.Update.Internal
         }
 
         private static void AddMatchingPredecessorEdge(
-            Dictionary<KeyValueIndex, List<ModificationCommand>> predecessorsMap,
-            KeyValueIndex dependentKeyValue,
+            Dictionary<IKeyValueIndex, List<ModificationCommand>> predecessorsMap,
+            IKeyValueIndex dependentKeyValue,
             Multigraph<ModificationCommand, IForeignKey> commandGraph,
             ModificationCommand command,
             IForeignKey foreignKey)
@@ -246,41 +255,6 @@ namespace Microsoft.Data.Entity.Update.Internal
                     }
                 }
             }
-        }
-
-        private static KeyValueIndex CreatePrincipalKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
-            => new KeyValueIndex(foreignKey, entry.GetPrincipalKeyValue(foreignKey, valueSource), valueSource);
-
-        private static KeyValueIndex CreateDependentKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
-            => new KeyValueIndex(foreignKey, entry.GetDependentKeyValue(foreignKey, valueSource), valueSource);
-
-        private struct KeyValueIndex
-        {
-            public KeyValueIndex([NotNull] IForeignKey foreignKey, IKeyValue keyValueValue, ValueSource valueSource)
-            {
-                ForeignKey = foreignKey;
-                KeyValue = keyValueValue;
-                ValueSource = valueSource;
-            }
-
-            internal readonly IForeignKey ForeignKey;
-
-            internal readonly IKeyValue KeyValue;
-
-            internal ValueSource ValueSource { get; set; }
-        }
-
-        private class KeyValueIndexComparer : IEqualityComparer<KeyValueIndex>
-        {
-            public bool Equals(KeyValueIndex x, KeyValueIndex y)
-                => (x.ValueSource == y.ValueSource)
-                   && (x.ForeignKey == y.ForeignKey)
-                   && x.KeyValue.Equals(y.KeyValue);
-
-            public int GetHashCode(KeyValueIndex obj)
-                => (((obj.ValueSource.GetHashCode() * 397)
-                     ^ obj.ForeignKey.GetHashCode()) * 397)
-                   ^ obj.KeyValue.GetHashCode();
         }
     }
 }
