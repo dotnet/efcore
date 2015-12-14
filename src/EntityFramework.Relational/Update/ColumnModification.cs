@@ -73,12 +73,12 @@ namespace Microsoft.Data.Entity.Update
 
         public virtual string ColumnName { get; }
 
-        public virtual object OriginalValue => Entry.GetValue(Property, ValueSource.Original);
+        public virtual object OriginalValue => Entry.GetOriginalValue(Property);
 
         public virtual object Value
         {
-            get { return Entry.GetValue(Property); }
-            [param: CanBeNull] set { Entry.SetValue(Property, value); }
+            get { return Entry.GetCurrentValue(Property); }
+            [param: CanBeNull] set { Entry.SetCurrentValue(Property, value); }
         }
     }
 }

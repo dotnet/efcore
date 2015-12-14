@@ -257,12 +257,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => _storeGeneratedValues.GetValue<T>(currentValue, storeGeneratedIndex);
 
         internal static readonly MethodInfo GetCurrentValueMethod
-            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(GetCurrentValue));
+            = typeof(InternalEntityEntry).GetMethods()
+                .Single(m => m.Name == nameof(GetCurrentValue) && m.IsGenericMethod);
 
-        public virtual TProperty GetCurrentValue<TProperty>([NotNull] IPropertyBase propertyBase)
+        public virtual TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
             => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().CurrentValueGetter)(this);
 
-        public virtual TProperty GetOriginalValue<TProperty>([NotNull] IProperty property)
+        public virtual TProperty GetOriginalValue<TProperty>(IProperty property)
             => ((Func<InternalEntityEntry, TProperty>)property.GetPropertyAccessors().OriginalValueGetter)(this);
 
         public virtual TProperty GetRelationshipSnapshotValue<TProperty>([NotNull] IPropertyBase propertyBase)
@@ -282,7 +283,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             propertyBase.GetSetter().SetClrValue(Entity, value);
         }
 
-        public virtual object GetValue(IPropertyBase propertyBase, ValueSource valueSource = ValueSource.Current)
+        public virtual object GetValue([NotNull] IPropertyBase propertyBase, ValueSource valueSource = ValueSource.Current)
         {
             switch (valueSource)
             {
@@ -294,7 +295,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return this[propertyBase];
         }
 
-        public virtual void SetValue(IPropertyBase propertyBase, object value, ValueSource valueSource = ValueSource.Current)
+        public virtual void SetValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, ValueSource valueSource = ValueSource.Current)
         {
             switch (valueSource)
             {
@@ -311,6 +312,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     break;
             }
         }
+
+        public virtual object GetCurrentValue(IPropertyBase propertyBase)
+            => this[propertyBase];
+
+        public virtual object GetOriginalValue(IPropertyBase propertyBase)
+            => _originalValues.GetValue(this, (IProperty)propertyBase);
+
+        public virtual void SetCurrentValue(IPropertyBase propertyBase, object value) 
+            => this[propertyBase] = value;
 
         public virtual void EnsureOriginalValues()
         {
@@ -348,16 +358,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return CreateKey(key, key.Properties, valueSource);
         }
 
-        public virtual IKeyValue GetPrincipalKeyValue(IKey key, ValueSource valueSource = ValueSource.Current)
+        public virtual IKeyValue GetPrincipalKeyValue([NotNull] IKey key, ValueSource valueSource = ValueSource.Current)
             => CreateKey(key, key.Properties, valueSource);
 
-        public virtual IKeyValue GetPrincipalKeyValue(IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
+        public virtual IKeyValue GetPrincipalKeyValue([NotNull] IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
         {
             var key = foreignKey.PrincipalKey;
             return CreateKey(key, key.Properties, valueSource);
         }
 
-        public virtual IKeyValue GetDependentKeyValue(IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
+        public virtual IKeyValue GetDependentKeyValue([NotNull] IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
         {
             var key = foreignKey.PrincipalKey;
             return CreateKey(key, foreignKey.Properties, valueSource);

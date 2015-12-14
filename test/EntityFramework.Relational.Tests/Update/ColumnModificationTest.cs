@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var value = columnModification.Value;
 
-            internalEntryMock.Verify(m => m.GetValue(It.IsAny<IPropertyBase>(), ValueSource.Current), Times.Once);
+            internalEntryMock.Verify(m => m.GetCurrentValue(It.IsAny<IPropertyBase>()), Times.Once);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             columnModification.Value = value;
 
-            internalEntryMock.Verify(m => m.SetValue(property, It.IsAny<object>(), ValueSource.Current), Times.Once);
+            internalEntryMock.Verify(m => m.SetCurrentValue(property, It.IsAny<object>()), Times.Once);
         }
 
         private static Mock<InternalEntityEntry> CreateInternalEntryMock(IProperty property)

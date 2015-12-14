@@ -41,6 +41,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                     .AddSingleton<ParameterNameGeneratorFactory>()
                     .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                     .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()
+                    .AddSingleton<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>()
                     .AddSingleton<UntypedRelationalValueBufferFactoryFactory>()
                     .AddSingleton<TypedRelationalValueBufferFactoryFactory>()
                     .AddSingleton<MigrationsAnnotationProvider>()

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -12,9 +11,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class NullableKeyIdentityMap<TKey> : IdentityMap<TKey>
     {
-        private readonly Dictionary<TKey, InternalEntityEntry> _identityMap
-            = new Dictionary<TKey, InternalEntityEntry>();
-
         public NullableKeyIdentityMap(
             [NotNull] IKey key,
             [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
@@ -40,7 +36,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (key != null)
             {
-                _identityMap.Remove(key);
+                Remove(key);
             }
         }
     }

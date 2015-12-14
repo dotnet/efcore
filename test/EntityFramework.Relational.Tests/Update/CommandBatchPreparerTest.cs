@@ -361,7 +361,8 @@ namespace Microsoft.Data.Entity.Tests.Update
             return new CommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
                 new ModificationCommandComparer(),
-                new TestAnnotationProvider());
+                new TestAnnotationProvider(),
+                new KeyValueIndexFactorySource());
         }
 
         private static IModel CreateSimpleFKModel()

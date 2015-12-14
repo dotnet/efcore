@@ -101,6 +101,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual void RemoveUsingRelationshipSnapshot(InternalEntityEntry entry)
             => _identityMap.Remove(PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(entry));
 
+        protected virtual void Remove([NotNull] TKey key)
+            => _identityMap.Remove(key);
+
         private static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory(IForeignKey foreignKey)
         {
             var factorySource = foreignKey as IDependentKeyValueFactorySource;

@@ -54,13 +54,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(77, entry.GetValue(property, ValueSource.RelationshipSnapshot));
             Assert.Equal(77, entry.GetValue(property, ValueSource.Original));
-            Assert.Equal(77, entry.GetValue(property));
+            Assert.Equal(77, entry.GetCurrentValue(property));
 
             entity.DependentId = 777;
 
             Assert.Equal(77, entry.GetValue(property, ValueSource.RelationshipSnapshot));
             Assert.Equal(77, entry.GetValue(property, ValueSource.Original));
-            Assert.Equal(777, entry.GetValue(property));
+            Assert.Equal(777, entry.GetCurrentValue(property));
         }
 
         [Fact]
@@ -80,13 +80,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal("Cheese", entry.GetValue(property, ValueSource.RelationshipSnapshot));
             Assert.Equal("Cheese", entry.GetValue(property, ValueSource.Original));
-            Assert.Equal("Cheese", entry.GetValue(property));
+            Assert.Equal("Cheese", entry.GetCurrentValue(property));
 
             entity.Name = "Pickle";
 
             Assert.Equal("Pickle", entry.GetValue(property, ValueSource.RelationshipSnapshot));
             Assert.Equal("Pickle", entry.GetValue(property, ValueSource.Original));
-            Assert.Equal("Pickle", entry.GetValue(property));
+            Assert.Equal("Pickle", entry.GetCurrentValue(property));
         }
 
         [Fact]
@@ -109,12 +109,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.True(entry.HasRelationshipSnapshot);
 
             Assert.Same(category, entry.GetValue(navigation, ValueSource.RelationshipSnapshot));
-            Assert.Same(category, entry.GetValue(navigation));
+            Assert.Same(category, entry.GetCurrentValue(navigation));
 
             entity.Category = new CategoryWithChanging();
 
             Assert.Same(category, entry.GetValue(navigation, ValueSource.RelationshipSnapshot));
-            Assert.NotSame(category, entry.GetValue(navigation));
+            Assert.NotSame(category, entry.GetCurrentValue(navigation));
         }
 
         [Fact]
@@ -137,13 +137,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(77, entry.GetValue(property, ValueSource.RelationshipSnapshot));
             Assert.Equal(77, entry.GetValue(property, ValueSource.Original));
-            Assert.Equal(77, entry.GetValue(property));
+            Assert.Equal(77, entry.GetCurrentValue(property));
 
             entity.Id = 777;
 
             Assert.Equal(77, entry.GetValue(property, ValueSource.RelationshipSnapshot));
             Assert.Equal(777, entry.GetValue(property, ValueSource.Original));
-            Assert.Equal(777, entry.GetValue(property));
+            Assert.Equal(777, entry.GetCurrentValue(property));
         }
 
         [Fact]
