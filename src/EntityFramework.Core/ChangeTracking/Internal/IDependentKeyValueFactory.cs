@@ -1,0 +1,16 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
+
+namespace Microsoft.Data.Entity.ChangeTracking.Internal
+{
+    public interface IDependentKeyValueFactory<TKey>
+    {
+        bool TryCreateFromBuffer(ValueBuffer valueBuffer, [NotNull] out TKey key);
+        bool TryCreateFromCurrentValues([NotNull] InternalEntityEntry entry, [NotNull] out TKey key);
+        bool TryCreateFromOriginalValues([NotNull] InternalEntityEntry entry, [NotNull] out TKey key);
+        bool TryCreateFromRelationshipSnapshot([NotNull] InternalEntityEntry entry, [NotNull] out TKey key);
+    }
+}

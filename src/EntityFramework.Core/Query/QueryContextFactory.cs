@@ -10,21 +10,16 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class QueryContextFactory : IQueryContextFactory
     {
-        private readonly IKeyValueFactorySource _keyValueFactorySource;
-
         protected QueryContextFactory(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IKeyValueFactorySource keyValueFactorySource)
+            [NotNull] IStateManager stateManager)
         {
             Check.NotNull(stateManager, nameof(stateManager));
-            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
 
             StateManager = stateManager;
-            _keyValueFactorySource = keyValueFactorySource;
         }
 
         protected virtual IQueryBuffer CreateQueryBuffer()
-            => new QueryBuffer(StateManager, _keyValueFactorySource);
+            => new QueryBuffer(StateManager);
 
         protected virtual IStateManager StateManager { get; }
 

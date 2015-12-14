@@ -157,10 +157,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     {
                         foreach (var key in keys)
                         {
-                            stateManager.UpdateIdentityMap(
-                                entry,
-                                entry.GetPrincipalKeyValue(key, ValueSource.RelationshipSnapshot),
-                                key);
+                            stateManager.UpdateIdentityMap(entry, key);
                         }
 
                         stateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);

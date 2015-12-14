@@ -196,14 +196,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
-
             category.PrincipalId = 78;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.GetValue(entry.EntityType.FindProperty("PrincipalId"), ValueSource.RelationshipSnapshot));
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -298,18 +295,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
-            var category = new Category { Id = -1 };
+            var category = new Category { Id = -1, TagId = 777, PrincipalId = 778 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
-
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.Id = 78;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.GetValue(entry.EntityType.FindProperty("Id"), ValueSource.RelationshipSnapshot));
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -333,11 +327,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
-            var category = new Category { Id = -1 };
+            var category = new Category { Id = -1, TagId = 777, PrincipalId = 778 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
-
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var property = entry.EntityType.FindProperty("Id");
             entry.PrepareToSave();
@@ -347,8 +339,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.GetValue(property, ValueSource.RelationshipSnapshot));
-
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -376,14 +366,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
-
             category.PrincipalId = 77;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.GetValue(entry.EntityType.FindProperty("PrincipalId"), ValueSource.RelationshipSnapshot));
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -638,12 +625,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var originalCategory = new Category { Id = 77, PrincipalId = 1 };
+            var originalCategory = new Category { Id = 77, PrincipalId = 1, TagId = 777 };
             var product = new Product { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new Category { Id = 99, PrincipalId = 2 };
+            var newCategory = new Category { Id = 99, PrincipalId = 2, TagId = 778 };
             product.Category = newCategory;
 
             changeDetector.DetectChanges(entry);
@@ -834,14 +821,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
-
             product.Id = 78;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.GetValue(entry.EntityType.FindProperty("Id"), ValueSource.RelationshipSnapshot));
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1043,7 +1027,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new Category { Id = 1, TagId = 77 };
+            var category = new Category { Id = 1, TagId = 77, PrincipalId = 778 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -1075,7 +1059,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(tag);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var category = new Category { TagId = 77 };
+            var category = new Category { TagId = 77, PrincipalId = 777 };
             tag.Category = category;
 
             changeDetector.DetectChanges(stateManager);
@@ -1197,12 +1181,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
-
             category.PrincipalId = 78;
-
-            Assert.Equal(78, entry.GetValue(entry.EntityType.FindProperty("PrincipalId"), ValueSource.RelationshipSnapshot));
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1257,16 +1236,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new NotifyingCategory { Id = -1 };
+            var category = new NotifyingCategory { Id = -1, TagId = 777, PrincipalId = 778 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
-
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.Id = 78;
 
             Assert.Equal(78, entry.GetValue(entry.EntityType.FindProperty("Id"), ValueSource.RelationshipSnapshot));
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1294,12 +1270,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
-
             category.PrincipalId = 77;
 
             Assert.Equal(77, entry.GetValue(entry.EntityType.FindProperty("PrincipalId"), ValueSource.RelationshipSnapshot));
-            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1446,12 +1419,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var originalCategory = new NotifyingCategory { Id = 77, PrincipalId = 1 };
+            var originalCategory = new NotifyingCategory { Id = 77, PrincipalId = 1, TagId = 777 };
             var product = new NotifyingProduct { Id = Guid.NewGuid(), Category = originalCategory, DependentId = 1 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new NotifyingCategory { Id = 78, PrincipalId = 2 };
+            var newCategory = new NotifyingCategory { Id = 78, PrincipalId = 2, TagId = 778 };
 
             product.Category = newCategory;
             product.Category = originalCategory;
@@ -1635,7 +1608,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new NotifyingCategory { Id = 1, TagId = 77 };
+            var category = new NotifyingCategory { Id = 1, TagId = 77, PrincipalId = 777 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -1664,7 +1637,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(tag);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var category = new NotifyingCategory { TagId = 77 };
+            var category = new NotifyingCategory { PrincipalId = 777, TagId = 77 };
             tag.Category = category;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);

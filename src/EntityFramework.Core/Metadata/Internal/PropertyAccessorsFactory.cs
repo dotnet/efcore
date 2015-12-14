@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -26,10 +27,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         [UsedImplicitly]
         private static PropertyAccessors CreateGeneric<TProperty>(IPropertyBase propertyBase)
-            => new PropertyAccessors(
+        {
+            var property = propertyBase as IProperty;
+            return new PropertyAccessors(
                 CreateCurrentValueGetter<TProperty>(propertyBase),
-                CreateOriginalValueGetter<TProperty>(propertyBase),
-                CreateRelationshipSnapshotGetter<TProperty>(propertyBase));
+                property == null ? null : CreateOriginalValueGetter<TProperty>(property),
+                CreateRelationshipSnapshotGetter<TProperty>(propertyBase),
+                property == null ? null : CreateValueBufferGetter(property));
+        }
 
         private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(IPropertyBase propertyBase)
         {
@@ -64,22 +69,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .Compile();
         }
 
-        private static Func<InternalEntityEntry, TProperty> CreateOriginalValueGetter<TProperty>(IPropertyBase propertyBase)
+        private static Func<InternalEntityEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)
         {
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
-            var originalValuesIndex = (propertyBase as IProperty)?.GetOriginalValueIndex() ?? -1;
+            var originalValuesIndex = property.GetOriginalValueIndex();
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
                 originalValuesIndex >= 0
                     ? Expression.Call(
                         entryParameter,
                         InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant((IProperty)propertyBase),
+                        Expression.Constant(property),
                         Expression.Constant(originalValuesIndex))
                     : Expression.Call(
                         entryParameter,
                         InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(propertyBase)),
+                        Expression.Constant(property)),
                 entryParameter)
                 .Compile();
         }
@@ -101,6 +106,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
                         Expression.Constant(propertyBase)),
                 entryParameter)
+                .Compile();
+        }
+
+        private static Func<ValueBuffer, object> CreateValueBufferGetter(IProperty property)
+        {
+            var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
+
+            return Expression.Lambda<Func<ValueBuffer, object>>(
+                Expression.Call(
+                    valueBufferParameter,
+                    ValueBuffer.GetValueMethod,
+                    Expression.Constant(property.GetIndex())),
+                valueBufferParameter)
                 .Compile();
         }
     }

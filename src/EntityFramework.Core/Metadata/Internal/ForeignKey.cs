@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class ForeignKey : ConventionalAnnotatable, IMutableForeignKey
+    public class ForeignKey : ConventionalAnnotatable, IMutableForeignKey, IDependentKeyValueFactorySource
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
@@ -463,5 +463,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private static bool ArePropertyTypesCompatible(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
                 dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
+
+        // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+        public virtual object DependentKeyValueFactory { get; set; }
     }
 }

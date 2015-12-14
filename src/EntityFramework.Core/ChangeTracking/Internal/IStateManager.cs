@@ -16,11 +16,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     {
         InternalEntityEntry GetOrCreateEntry([NotNull] object entity);
 
-        InternalEntityEntry StartTracking([NotNull] IEntityType entityType, [NotNull] object entity, ValueBuffer valueBuffer);
+        InternalEntityEntry StartTrackingFromQuery([NotNull] IEntityType entityType, [NotNull] object entity, ValueBuffer valueBuffer);
 
         void BeginTrackingQuery();
 
-        InternalEntityEntry TryGetEntry([NotNull] IKeyValue keyValueValue);
+        InternalEntityEntry TryGetEntry([NotNull] IKey key, ValueBuffer valueBuffer, bool throwOnNullKey);
 
         InternalEntityEntry TryGetEntry([NotNull] object entity);
 
@@ -34,9 +34,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         void StopTracking([NotNull] InternalEntityEntry entry);
 
-        InternalEntityEntry GetPrincipal([NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey, ValueSource valueSource);
+        InternalEntityEntry GetPrincipal([NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey);
 
-        void UpdateIdentityMap([NotNull] InternalEntityEntry entry, [NotNull] IKeyValue oldKeyValue, [NotNull] IKey principalKey);
+        InternalEntityEntry GetPrincipalUsingRelationshipSnapshot([NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey);
+
+        void UpdateIdentityMap([NotNull] InternalEntityEntry entry, [NotNull] IKey principalKey);
 
         IEnumerable<InternalEntityEntry> GetDependentsFromNavigation([NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
 

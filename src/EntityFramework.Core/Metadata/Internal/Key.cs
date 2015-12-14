@@ -1,18 +1,27 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Key : ConventionalAnnotatable, IMutableKey
+    public class Key : ConventionalAnnotatable, IMutableKey, IIdentityMapFactorySource, IPrincipalKeyValueFactorySource
     {
         private ConfigurationSource _configurationSource;
+
+        // Warning: Never access these fields directly as access needs to be thread-safe
+        private Func<IIdentityMap> _identityMapFactory;
+        private Func<IWeakReferenceIdentityMap> _weakReferenceIdentityMap;
+        private object _principalKeyValueFactory;
 
         public Key([NotNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
@@ -43,6 +52,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys()
             => ((IKey)this).FindReferencingForeignKeys().Cast<ForeignKey>();
+
+        public virtual Func<IIdentityMap> IdentityMapFactory
+            => LazyInitializer.EnsureInitialized(
+                ref _identityMapFactory, () => new IdentityMapFactoryFactory().Create(this));
+
+        public virtual Func<IWeakReferenceIdentityMap> WeakReferenceIdentityMapFactory
+            => LazyInitializer.EnsureInitialized(
+                ref _weakReferenceIdentityMap, () => new WeakReferenceIdentityMapFactoryFactory().Create(this));
+
+        public virtual IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
+            => (IPrincipalKeyValueFactory<TKey>)LazyInitializer.EnsureInitialized(
+                ref _principalKeyValueFactory, () => new KeyValueFactoryFactory().Create<TKey>(this));
 
         IReadOnlyList<IProperty> IKey.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;

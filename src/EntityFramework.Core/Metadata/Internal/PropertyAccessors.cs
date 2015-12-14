@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -10,16 +11,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     {
         public PropertyAccessors(
             [NotNull] Delegate currentValueGetter,
-            [NotNull] Delegate originalValueGetter,
-            [NotNull] Delegate relationshipSnapshotGetter)
+            [CanBeNull] Delegate originalValueGetter,
+            [NotNull] Delegate relationshipSnapshotGetter,
+            [CanBeNull] Func<ValueBuffer, object> valueBufferGetter)
         {
             CurrentValueGetter = currentValueGetter;
             OriginalValueGetter = originalValueGetter;
             RelationshipSnapshotGetter = relationshipSnapshotGetter;
+            ValueBufferGetter = valueBufferGetter;
         }
 
         public Delegate CurrentValueGetter { get; }
         public Delegate OriginalValueGetter { get; }
         public Delegate RelationshipSnapshotGetter { get; }
+        public Func<ValueBuffer, object> ValueBufferGetter { get; }
     }
 }

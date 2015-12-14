@@ -14,9 +14,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public InMemoryQueryContextFactory(
             [NotNull] IStateManager stateManager,
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IInMemoryDatabase database)
-            : base(stateManager, keyValueFactorySource)
+            : base(stateManager)
         {
             Check.NotNull(database, nameof(database));
 

@@ -152,6 +152,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             StateManager.Notify.StateChanged(this, oldState, StateManager.SingleQueryMode == true);
         }
 
+        public virtual void MarkUnchangedFromQuery()
+        {
+            StateManager.Notify.StateChanging(this, EntityState.Unchanged);
+            _stateData.EntityState = EntityState.Unchanged;
+            StateManager.Notify.StateChanged(this, EntityState.Detached, StateManager.SingleQueryMode == true);
+        }
+
         public virtual EntityState EntityState => _stateData.EntityState;
 
         public virtual bool IsModified(IProperty property)
