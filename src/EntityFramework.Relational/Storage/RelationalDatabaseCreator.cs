@@ -69,10 +69,28 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual void CreateTables()
-            => GetCreateTablesCommands().ExecuteNonQuery(Connection);
+        {
+            var commands = GetCreateTablesCommands();
+
+            using (var transaction = Connection.BeginTransaction())
+            {
+                commands.ExecuteNonQuery(Connection);
+
+                transaction.Commit();
+            }
+        }
 
         public virtual async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => await GetCreateTablesCommands().ExecuteNonQueryAsync(Connection, cancellationToken);
+        {
+            var commands = GetCreateTablesCommands();
+
+            using (var transaction = await Connection.BeginTransactionAsync(cancellationToken))
+            {
+                await commands.ExecuteNonQueryAsync(Connection, cancellationToken);
+
+                transaction.Commit();
+            }
+        }
 
         protected virtual IEnumerable<IRelationalCommand> GetCreateTablesCommands()
             => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
