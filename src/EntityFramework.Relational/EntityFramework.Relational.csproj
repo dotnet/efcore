@@ -330,6 +330,12 @@
     <Compile Include="Storage\IParameterNameGeneratorFactory.cs" />
     <Compile Include="Update\Internal\BatchExecutor.cs" />
     <Compile Include="Update\Internal\CommandBatchPreparer.cs" />
+    <Compile Include="Update\Internal\IKeyValueIndex.cs" />
+    <Compile Include="Update\Internal\IKeyValueIndexFactory.cs" />
+    <Compile Include="Update\Internal\IKeyValueIndexFactorySource.cs" />
+    <Compile Include="Update\Internal\KeyValueIndex.cs" />
+    <Compile Include="Update\Internal\KeyValueIndexFactory.cs" />
+    <Compile Include="Update\Internal\KeyValueIndexFactorySource.cs" />
     <Compile Include="Update\Internal\ModificationCommandComparer.cs" />
     <Compile Include="Update\IUpdateSqlGenerator.cs" />
     <Compile Include="Update\ModificationCommand.cs" />

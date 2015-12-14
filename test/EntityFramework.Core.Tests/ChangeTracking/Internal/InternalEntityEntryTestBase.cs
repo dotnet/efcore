@@ -759,7 +759,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         private static object[] CreateValueBuffer(IUpdateEntry entry)
-            => entry.EntityType.GetProperties().Select(p => entry.GetValue(p)).ToArray();
+            => entry.EntityType.GetProperties().Select(p => entry.GetCurrentValue(p)).ToArray();
 
         [Fact]
         public virtual void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()

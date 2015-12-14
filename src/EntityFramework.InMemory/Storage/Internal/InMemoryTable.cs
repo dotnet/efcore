@@ -36,6 +36,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
             => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
 
         private static object[] CreateValueBuffer(IUpdateEntry entry)
-            => entry.EntityType.GetProperties().Select(p => entry.GetValue(p)).ToArray();
+            => entry.EntityType.GetProperties().Select(p => entry.GetCurrentValue(p)).ToArray();
     }
 }
