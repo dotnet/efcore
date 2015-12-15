@@ -20,18 +20,13 @@ namespace Microsoft.Data.Entity.Scaffolding
     public class SqlServerScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
         private const int DefaultTimeTimePrecision = 7;
-        private readonly SqlServerLiteralUtilities _sqlServerLiteralUtilities;
 
         public SqlServerScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IDatabaseModelFactory databaseModelFactory,
-            [NotNull] SqlServerLiteralUtilities sqlServerLiteralUtilities)
+            [NotNull] IDatabaseModelFactory databaseModelFactory)
             : base(loggerFactory, typeMapper, databaseModelFactory)
         {
-            Check.NotNull(sqlServerLiteralUtilities, nameof(sqlServerLiteralUtilities));
-
-            _sqlServerLiteralUtilities = sqlServerLiteralUtilities;
         }
 
         public override IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
@@ -150,29 +145,42 @@ namespace Microsoft.Data.Entity.Scaffolding
                 ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
                 propertyBuilder.Metadata.Relational().GeneratedValueSql = null;
 
-                var property = propertyBuilder.Metadata;
-                var defaultExpressionOrValue =
-                    _sqlServerLiteralUtilities
-                        .ConvertSqlServerDefaultValue(
-                            property.ClrType, column.DefaultValue);
-                if (defaultExpressionOrValue?.DefaultExpression != null)
+                var defaultExpression = ConvertSqlServerDefaultValue(column.DefaultValue);
+                if (defaultExpression != null)
                 {
-                    propertyBuilder.HasDefaultValueSql(defaultExpressionOrValue.DefaultExpression);
-                }
-                else if (defaultExpressionOrValue != null)
-                {
-                    // Note: defaultExpressionOrValue.DefaultValue == null is valid
-                    propertyBuilder.HasDefaultValue(defaultExpressionOrValue.DefaultValue);
+                    if (!(defaultExpression == "NULL"
+                            && propertyBuilder.Metadata.ClrType.IsNullableType()))
+                    {
+                        propertyBuilder.HasDefaultValueSql(defaultExpression);
+                    }
                 }
                 else
                 {
                     Logger.LogWarning(
-                        SqlServerDesignStrings.UnableToConvertDefaultValue(
-                            column.DisplayName, column.DefaultValue,
-                            property.ClrType, property.Name, property.DeclaringEntityType.Name));
+                        SqlServerDesignStrings.CannotInterpretDefaultValue(
+                            column.DisplayName,
+                            column.DefaultValue,
+                            propertyBuilder.Metadata.Name,
+                            propertyBuilder.Metadata.DeclaringEntityType.Name));
                 }
             }
             return propertyBuilder;
+        }
+
+        private string ConvertSqlServerDefaultValue(string sqlServerDefaultValue)
+        {
+            if (sqlServerDefaultValue.Length < 2)
+            {
+                return null;
+            }
+
+            while (sqlServerDefaultValue[0] == '('
+                   && sqlServerDefaultValue[sqlServerDefaultValue.Length - 1] == ')')
+            {
+                sqlServerDefaultValue = sqlServerDefaultValue.Substring(1, sqlServerDefaultValue.Length - 2);
+            }
+
+            return sqlServerDefaultValue;
         }
     }
 }
