@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Design;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Runtime.Common.CommandLine;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;

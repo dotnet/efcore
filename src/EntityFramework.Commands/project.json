@@ -37,6 +37,7 @@
     "dnx451": {
       "dependencies": {
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
+        "Microsoft.Dnx.Runtime": "1.0.0-*",
         "Microsoft.Extensions.CommandLineUtils.Sources": {
           "version": "1.0.0-*",
           "type": "build"
@@ -47,6 +48,7 @@
     "dnxcore50": {
       "dependencies": {
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
+        "Microsoft.Dnx.Runtime": "1.0.0-*",
         "Microsoft.Extensions.CommandLineUtils.Sources": {
           "version": "1.0.0-*",
           "type": "build"
