@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -25,7 +24,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public class RelationalEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private readonly IModel _model;
-        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
@@ -34,7 +32,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         public RelationalEntityQueryableExpressionVisitor(
             [NotNull] IModel model,
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
@@ -44,14 +41,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
             _model = model;
-            _keyValueFactorySource = keyValueFactorySource;
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
             _shaperCommandContextFactory = shaperCommandContextFactory;

@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             foreach (var value in values)
             {
-                internalEntry.SetValue(value.Key, value.Value, ValueSource.Original);
+                internalEntry.SetOriginalValue(value.Key, value.Value);
             }
         }
 

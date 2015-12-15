@@ -18,24 +18,24 @@ namespace Microsoft.Data.Entity.Update.Internal
         }
 
         public virtual IKeyValueIndex CreatePrincipalKeyValue(InternalEntityEntry entry, IForeignKey foreignKey)
-        {
-            var principalKeyValue = _principalKeyValueFactory.CreateFromCurrentValues(entry);
-
-            return new KeyValueIndex<TKey>(foreignKey, principalKeyValue, fromOriginalValues: false);
-        }
+            => new KeyValueIndex<TKey>(
+                foreignKey,
+                _principalKeyValueFactory.CreateFromCurrentValues(entry),
+                _principalKeyValueFactory.EqualityComparer,
+                fromOriginalValues: false);
 
         public virtual IKeyValueIndex CreatePrincipalKeyValueFromOriginalValues(InternalEntityEntry entry, IForeignKey foreignKey)
-        {
-            var principalKeyValue = _principalKeyValueFactory.CreateFromOriginalValues(entry);
-
-            return new KeyValueIndex<TKey>(foreignKey, principalKeyValue, fromOriginalValues: true);
-        }
+            => new KeyValueIndex<TKey>(
+                foreignKey,
+                _principalKeyValueFactory.CreateFromOriginalValues(entry),
+                _principalKeyValueFactory.EqualityComparer,
+                fromOriginalValues: true);
 
         public virtual IKeyValueIndex CreateDependentKeyValue(InternalEntityEntry entry, IForeignKey foreignKey)
         {
             TKey keyValue;
             return GetDependentKeyValueFactory(foreignKey).TryCreateFromCurrentValues(entry, out keyValue)
-                ? new KeyValueIndex<TKey>(foreignKey, keyValue, fromOriginalValues: false)
+                ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: false)
                 : null;
         }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         {
             TKey keyValue;
             return GetDependentKeyValueFactory(foreignKey).TryCreateFromOriginalValues(entry, out keyValue)
-                ? new KeyValueIndex<TKey>(foreignKey, keyValue, fromOriginalValues: true)
+                ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: true)
                 : null;
         }
 

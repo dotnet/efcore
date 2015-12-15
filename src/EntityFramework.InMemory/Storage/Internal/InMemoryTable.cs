@@ -12,12 +12,12 @@ namespace Microsoft.Data.Entity.Storage.Internal
     public class InMemoryTable<TKey> : IInMemoryTable
     {
         private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
-
-        private readonly Dictionary<TKey, object[]> _rows = new Dictionary<TKey, object[]>();
+        private readonly Dictionary<TKey, object[]> _rows;
 
         public InMemoryTable([NotNull] IPrincipalKeyValueFactory<TKey> keyValueFactory)
         {
             _keyValueFactory = keyValueFactory;
+            _rows = new Dictionary<TKey, object[]>(keyValueFactory.EqualityComparer);
         }
 
         public virtual IReadOnlyList<object[]> SnapshotRows()
@@ -36,6 +36,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
             => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
 
         private static object[] CreateValueBuffer(IUpdateEntry entry)
-            => entry.EntityType.GetProperties().Select(p => entry.GetCurrentValue(p)).ToArray();
+            => entry.EntityType.GetProperties().Select(entry.GetCurrentValue).ToArray();
     }
 }

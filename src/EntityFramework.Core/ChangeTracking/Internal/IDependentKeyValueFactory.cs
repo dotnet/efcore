@@ -8,9 +8,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public interface IDependentKeyValueFactory<TKey>
     {
-        bool TryCreateFromBuffer(ValueBuffer valueBuffer, [NotNull] out TKey key);
-        bool TryCreateFromCurrentValues([NotNull] InternalEntityEntry entry, [NotNull] out TKey key);
-        bool TryCreateFromOriginalValues([NotNull] InternalEntityEntry entry, [NotNull] out TKey key);
-        bool TryCreateFromRelationshipSnapshot([NotNull] InternalEntityEntry entry, [NotNull] out TKey key);
+        bool TryCreateFromBuffer(ValueBuffer valueBuffer, [CanBeNull] out TKey key);
+        bool TryCreateFromCurrentValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+        bool TryCreateFromOriginalValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+        bool TryCreateFromRelationshipSnapshot([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
     }
 }

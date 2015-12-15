@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -15,6 +18,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public SimplePrincipalKeyValueFactory([NotNull] PropertyAccessors propertyAccessors)
         {
             _propertyAccessors = propertyAccessors;
+            EqualityComparer = typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(typeof(TKey).GetTypeInfo())
+                ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
+                : new NoNullsEqualityComparer();
         }
 
         public virtual object CreateFromBuffer(ValueBuffer valueBuffer)
@@ -28,5 +34,24 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual TKey CreateFromRelationshipSnapshot(InternalEntityEntry entry)
             => ((Func<InternalEntityEntry, TKey>)_propertyAccessors.RelationshipSnapshotGetter)(entry);
+
+        public virtual IEqualityComparer<TKey> EqualityComparer { get; }
+
+        private sealed class NoNullsEqualityComparer : IEqualityComparer<TKey>
+        {
+            public bool Equals(TKey x, TKey y) => x.Equals(y);
+
+            public int GetHashCode(TKey obj) => obj.GetHashCode();
+        }
+
+        private sealed class NoNullsStructuralEqualityComparer : IEqualityComparer<TKey>
+        {
+            private readonly IEqualityComparer _structuralEqualityComparer
+                = StructuralComparisons.StructuralEqualityComparer;
+
+            public bool Equals(TKey x, TKey y) => _structuralEqualityComparer.Equals(x, y);
+
+            public int GetHashCode(TKey obj) => _structuralEqualityComparer.GetHashCode(obj);
+        }
     }
 }

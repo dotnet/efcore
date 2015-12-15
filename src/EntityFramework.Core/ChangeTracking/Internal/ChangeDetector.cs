@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             foreach (var property in entityType.GetProperties())
             {
                 if ((property.GetOriginalValueIndex() >= 0)
-                    && !Equals(entry[property], entry.GetValue(property, ValueSource.Original)))
+                    && !Equals(entry[property], entry.GetOriginalValue(property)))
                 {
                     entry.SetPropertyModified(property);
                 }
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             if ((keys.Count > 0)
                 || (foreignKeys.Count > 0))
             {
-                var snapshotValue = entry.GetValue(property, ValueSource.RelationshipSnapshot);
+                var snapshotValue = entry.GetRelationshipSnapshotValue(property);
                 var currentValue = entry[property];
 
                 // Note that mutation of a byte[] key is not supported or detected, but two different instances
@@ -163,14 +163,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         stateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
                     }
 
-                    entry.SetValue(property, currentValue, ValueSource.RelationshipSnapshot);
+                    entry.SetRelationshipSnapshotValue(property, currentValue);
                 }
             }
         }
 
         private void DetectNavigationChange(InternalEntityEntry entry, INavigation navigation)
         {
-            var snapshotValue = entry.GetValue(navigation, ValueSource.RelationshipSnapshot);
+            var snapshotValue = entry.GetRelationshipSnapshotValue(navigation);
             var currentValue = entry[navigation];
             var stateManager = entry.StateManager;
 
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     added.Add(currentValue);
                 }
 
-                entry.SetValue(navigation, currentValue, ValueSource.RelationshipSnapshot);
+                entry.SetRelationshipSnapshotValue(navigation, currentValue);
             }
 
             foreach (var addedEntity in added)

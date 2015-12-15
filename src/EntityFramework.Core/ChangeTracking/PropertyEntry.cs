@@ -86,8 +86,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </summary>
         public virtual object OriginalValue
         {
-            get { return _internalEntry.GetValue(Metadata, ValueSource.Original); }
-            [param: CanBeNull] set { _internalEntry.SetValue(Metadata, value, ValueSource.Original); }
+            get { return _internalEntry.GetOriginalValue(Metadata); }
+            [param: CanBeNull] set { _internalEntry.SetOriginalValue(Metadata, value); }
         }
 
         InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _internalEntry;

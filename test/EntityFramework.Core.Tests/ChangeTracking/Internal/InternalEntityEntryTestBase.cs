@@ -507,7 +507,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
+            entry.SetRelationshipSnapshotValue(fkProperty, 78);
 
             var keyValue = entry.GetDependentKeyValue(fk);
             Assert.IsType<KeyValue<int>>(keyValue);
@@ -526,7 +526,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
+            entry.SetRelationshipSnapshotValue(fkProperty, 78);
 
             var keyValue = entry.GetDependentKeyValue(fk, ValueSource.RelationshipSnapshot);
             Assert.IsType<KeyValue<int>>(keyValue);
@@ -562,7 +562,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
+            entry.SetRelationshipSnapshotValue(fkProperty, 78);
 
             entry[fkProperty] = 79;
 
@@ -581,7 +581,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
+            entry.SetRelationshipSnapshotValue(fkProperty, 78);
 
             entry[fkProperty] = 77;
 
@@ -785,23 +785,23 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Equal(1, entry.GetValue(idProperty, ValueSource.Original));
-            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal(1, entry.GetOriginalValue(idProperty));
+            Assert.Equal("Kool", entry.GetOriginalValue(nameProperty));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
 
             entry[nameProperty] = "Beans";
 
-            Assert.Equal(1, entry.GetValue(idProperty, ValueSource.Original));
-            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal(1, entry.GetOriginalValue(idProperty));
+            Assert.Equal("Kool", entry.GetOriginalValue(nameProperty));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetValue(idProperty, 3, ValueSource.Original);
-            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
+            entry.SetOriginalValue(idProperty, 3);
+            entry.SetOriginalValue(nameProperty, "Franks");
 
-            Assert.Equal(3, entry.GetValue(idProperty, ValueSource.Original));
-            Assert.Equal("Franks", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal(3, entry.GetOriginalValue(idProperty));
+            Assert.Equal("Franks", entry.GetOriginalValue(nameProperty));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
         }
@@ -835,17 +835,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal("Kool", entry.GetOriginalValue(nameProperty));
             Assert.Equal("Kool", entry[nameProperty]);
 
             entry[nameProperty] = "Beans";
 
-            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal("Kool", entry.GetOriginalValue(nameProperty));
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
+            entry.SetOriginalValue(nameProperty, "Franks");
 
-            Assert.Equal("Franks", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal("Franks", entry.GetOriginalValue(nameProperty));
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
@@ -886,7 +886,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal("Kool", entry.GetOriginalValue<string>(nameProperty));
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
 
-            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
+            entry.SetOriginalValue(nameProperty, "Franks");
 
             Assert.Equal("Franks", entry.GetOriginalValue<string>(nameProperty));
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
@@ -921,22 +921,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, null }));
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Null(entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Null(entry.GetOriginalValue(nameProperty));
             Assert.Null(entry[nameProperty]);
 
             entry[nameProperty] = "Beans";
 
-            Assert.Null(entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Null(entry.GetOriginalValue(nameProperty));
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
+            entry.SetOriginalValue(nameProperty, "Franks");
 
-            Assert.Equal("Franks", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal("Franks", entry.GetOriginalValue(nameProperty));
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.SetValue(nameProperty, null, ValueSource.Original);
+            entry.SetOriginalValue(nameProperty, null);
 
-            Assert.Null(entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Null(entry.GetOriginalValue(nameProperty));
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
@@ -978,12 +978,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entry.GetOriginalValue<string>(nameProperty));
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
 
-            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
+            entry.SetOriginalValue(nameProperty, "Franks");
 
             Assert.Equal("Franks", entry.GetOriginalValue<string>(nameProperty));
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
 
-            entry.SetValue(nameProperty, null, ValueSource.Original);
+            entry.SetOriginalValue(nameProperty, null);
 
             Assert.Null(entry.GetOriginalValue<string>(nameProperty));
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
@@ -1114,13 +1114,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetEntityState(entityState);
 
             entry[nameProperty] = "Pickle";
-            entry.SetValue(nameProperty, "Cheese", ValueSource.Original);
+            entry.SetOriginalValue(nameProperty, "Cheese");
 
             entry.AcceptChanges();
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal("Pickle", entry[nameProperty]);
-            Assert.Equal("Pickle", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal("Pickle", entry.GetOriginalValue(nameProperty));
         }
 
         [Fact]
@@ -1145,7 +1145,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal("Pickle", entry[nameProperty]);
-            Assert.Equal("Pickle", entry.GetValue(nameProperty, ValueSource.Original));
+            Assert.Equal("Pickle", entry.GetOriginalValue(nameProperty));
         }
 
         [Fact]
@@ -1185,7 +1185,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
 
-            entry.SetValue(idProperty, 7, ValueSource.Original);
+            entry.SetOriginalValue(idProperty, 7);
 
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
