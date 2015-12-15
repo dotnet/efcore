@@ -319,6 +319,7 @@
     <Compile Include="Query\Internal\ICompiledQueryCache.cs" />
     <Compile Include="Query\Internal\IIncludeKeyComparer.cs" />
     <Compile Include="Query\Internal\IWeakReferenceIdentityMap.cs" />
+    <Compile Include="Query\Internal\NullIncludeComparer.cs" />
     <Compile Include="Query\Internal\PrincipalToDependentIncludeComparer.cs" />
     <Compile Include="Query\Internal\QueryAnnotationExtractor.cs" />
     <Compile Include="Query\Internal\QueryBuffer.cs" />

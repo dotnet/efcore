@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 
@@ -15,18 +12,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     public class DependentKeyValueFactoryFactory
     {
         public virtual IDependentKeyValueFactory<TKey> Create<TKey>([NotNull] IForeignKey foreignKey)
-        {
-            if (foreignKey.Properties.Count == 1)
-            {
-                var keyType = foreignKey.PrincipalKey.Properties.Single().ClrType;
-                if (!typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(keyType.GetTypeInfo()))
-                {
-                    return CreateSimple<TKey>(foreignKey);
-                }
-            }
-
-            return (IDependentKeyValueFactory<TKey>)CreateComposite(foreignKey);
-        }
+            => foreignKey.Properties.Count == 1
+                ? CreateSimple<TKey>(foreignKey)
+                : (IDependentKeyValueFactory<TKey>)CreateComposite(foreignKey);
 
         public virtual IDependentKeyValueFactory<TKey> CreateSimple<TKey>([NotNull] IForeignKey foreignKey)
         {
@@ -34,7 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var principalType = foreignKey.PrincipalKey.Properties.Single().ClrType;
             var propertyAccessors = dependentProperty.GetPropertyAccessors();
 
-            if (dependentProperty.ClrType.IsNullableType() 
+            if (dependentProperty.ClrType.IsNullableType()
                 && principalType.IsNullableType())
             {
                 return new SimpleFullyNullableDependentKeyValueFactory<TKey>(propertyAccessors);
@@ -57,7 +45,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return new SimpleNonNullableDependentKeyValueFactory<TKey>(propertyAccessors);
         }
 
-        public virtual IDependentKeyValueFactory<IKeyValue> CreateComposite([NotNull] IForeignKey foreignKey)
+        public virtual IDependentKeyValueFactory<object[]> CreateComposite([NotNull] IForeignKey foreignKey)
             => new CompositeDependentValueFactory(foreignKey);
     }
 }

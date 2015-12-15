@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 MarkAsTemporary(property, isTemporary: false);
 
-                SetValue(property, this[property], ValueSource.Original);
+                SetOriginalValue(property, this[property]);
             }
 
             if ((currentState != EntityState.Modified)
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue));
 
         [UsedImplicitly]
-        private T ReadOriginalValue<T>(IProperty property, int originalValueIndex) 
+        private T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
             => _originalValues.GetValue<T>(this, property, originalValueIndex);
 
         internal static readonly MethodInfo ReadRelationshipSnapshotValueMethod
@@ -283,44 +283,29 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             propertyBase.GetSetter().SetClrValue(Entity, value);
         }
 
-        public virtual object GetValue([NotNull] IPropertyBase propertyBase, ValueSource valueSource = ValueSource.Current)
-        {
-            switch (valueSource)
-            {
-                case ValueSource.Original:
-                    return _originalValues.GetValue(this, (IProperty)propertyBase);
-                case ValueSource.RelationshipSnapshot:
-                    return _relationshipsSnapshot.GetValue(this, propertyBase);
-            }
-            return this[propertyBase];
-        }
-
-        public virtual void SetValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, ValueSource valueSource = ValueSource.Current)
-        {
-            switch (valueSource)
-            {
-                case ValueSource.Original:
-                    EnsureOriginalValues();
-                    _originalValues.SetValue((IProperty)propertyBase, value);
-                    break;
-                case ValueSource.RelationshipSnapshot:
-                    EnsureRelationshipSnapshot();
-                    _relationshipsSnapshot.SetValue(propertyBase, value);
-                    break;
-                default:
-                    this[propertyBase] = value;
-                    break;
-            }
-        }
-
         public virtual object GetCurrentValue(IPropertyBase propertyBase)
             => this[propertyBase];
 
         public virtual object GetOriginalValue(IPropertyBase propertyBase)
             => _originalValues.GetValue(this, (IProperty)propertyBase);
 
-        public virtual void SetCurrentValue(IPropertyBase propertyBase, object value) 
+        public virtual object GetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase)
+            => _relationshipsSnapshot.GetValue(this, propertyBase);
+
+        public virtual void SetCurrentValue(IPropertyBase propertyBase, object value)
             => this[propertyBase] = value;
+
+        public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
+        {
+            EnsureOriginalValues();
+            _originalValues.SetValue((IProperty)propertyBase, value);
+        }
+
+        public virtual void SetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
+        {
+            EnsureRelationshipSnapshot();
+            _relationshipsSnapshot.SetValue(propertyBase, value);
+        }
 
         public virtual void EnsureOriginalValues()
         {

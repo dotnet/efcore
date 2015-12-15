@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -28,11 +27,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.True(entry.HasRelationshipSnapshot);
 
-            Assert.Equal("Palmer", entry.GetValue(entry.EntityType.FindProperty("Name"), ValueSource.Original));
+            Assert.Equal("Palmer", entry.GetOriginalValue(entry.EntityType.FindProperty("Name")));
 
             entity.Name = "Luckey";
 
-            Assert.Equal("Palmer", entry.GetValue(entry.EntityType.FindProperty("Name"), ValueSource.Original));
+            Assert.Equal("Palmer", entry.GetOriginalValue(entry.EntityType.FindProperty("Name")));
         }
 
         [Fact]

@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -15,24 +14,20 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     public class InMemoryEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private readonly IModel _model;
-        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IQuerySource _querySource;
 
         public InMemoryEntityQueryableExpressionVisitor(
             [NotNull] IModel model,
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
             [CanBeNull] IQuerySource querySource)
             : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
 
             _model = model;
-            _keyValueFactorySource = keyValueFactorySource;
             _materializerFactory = materializerFactory;
             _querySource = querySource;
         }

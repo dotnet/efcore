@@ -13,8 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class IdentityMap<TKey> : IIdentityMap
     {
-        private readonly Dictionary<TKey, InternalEntityEntry> _identityMap
-            = new Dictionary<TKey, InternalEntityEntry>();
+        private readonly Dictionary<TKey, InternalEntityEntry> _identityMap;
         
         public IdentityMap(
             [NotNull] IKey key,
@@ -22,6 +21,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             Key = key;
             PrincipalKeyValueFactory = principalKeyValueFactory;
+            _identityMap = new Dictionary<TKey, InternalEntityEntry>(principalKeyValueFactory.EqualityComparer);
         }
 
         protected virtual IPrincipalKeyValueFactory<TKey> PrincipalKeyValueFactory { get; }

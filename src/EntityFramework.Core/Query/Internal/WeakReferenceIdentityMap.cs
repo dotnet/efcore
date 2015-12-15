@@ -14,11 +14,8 @@ namespace Microsoft.Data.Entity.Query.Internal
     public class WeakReferenceIdentityMap<TKey> : IWeakReferenceIdentityMap
     {
         private const int IdentityMapGarbageCollectionThreshold = 500;
-
         private int _identityMapGarbageCollectionIterations;
-
-        private readonly Dictionary<TKey, WeakReference<object>> _identityMap
-            = new Dictionary<TKey, WeakReference<object>>();
+        private readonly Dictionary<TKey, WeakReference<object>> _identityMap;
 
         public WeakReferenceIdentityMap(
             [NotNull] IKey key,
@@ -26,6 +23,8 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             Key = key;
             PrincipalKeyValueFactory = principalKeyValueFactory;
+
+            _identityMap = new Dictionary<TKey, WeakReference<object>>(principalKeyValueFactory.EqualityComparer);
         }
 
         protected virtual IPrincipalKeyValueFactory<TKey> PrincipalKeyValueFactory { get; }
@@ -78,13 +77,15 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (navigation.IsDependentToPrincipal())
             {
                 TKey keyValue;
-                GetDependentKeyValueFactory(navigation.ForeignKey).TryCreateFromBuffer(valueBuffer, out keyValue);
-                return new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory);
+                return GetDependentKeyValueFactory(navigation.ForeignKey).TryCreateFromBuffer(valueBuffer, out keyValue) 
+                    ? (IIncludeKeyComparer)new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory) 
+                    : new NullIncludeComparer();
             }
 
             return new PrincipalToDependentIncludeComparer<TKey>(
                 (TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer),
-                GetDependentKeyValueFactory(navigation.ForeignKey));
+                GetDependentKeyValueFactory(navigation.ForeignKey),
+                PrincipalKeyValueFactory);
         }
 
         public virtual IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, InternalEntityEntry entry)
@@ -92,13 +93,15 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (navigation.IsDependentToPrincipal())
             {
                 TKey keyValue;
-                GetDependentKeyValueFactory(navigation.ForeignKey).TryCreateFromCurrentValues(entry, out keyValue);
-                return new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory);
+                return GetDependentKeyValueFactory(navigation.ForeignKey).TryCreateFromCurrentValues(entry, out keyValue)
+                    ? new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
+                    : (IIncludeKeyComparer)new NullIncludeComparer();
             }
 
             return new PrincipalToDependentIncludeComparer<TKey>(
                 PrincipalKeyValueFactory.CreateFromCurrentValues(entry),
-                GetDependentKeyValueFactory(navigation.ForeignKey));
+                GetDependentKeyValueFactory(navigation.ForeignKey),
+                PrincipalKeyValueFactory);
         }
 
         private static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory(IForeignKey foreignKey)
