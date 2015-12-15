@@ -51,6 +51,7 @@
       }
     }
   },
+  "resource": [ "Properties/Microsoft.Data.Sqlite.rd.xml" ],
   "packInclude": {
     "build/net451/": "build/net451/**",
     "build/netcore50/Microsoft.Data.Sqlite.targets": "build/netcore50/Microsoft.Data.Sqlite.targets",
