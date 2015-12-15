@@ -409,6 +409,9 @@ function Scaffold-DbContext {
     $values = ProcessCommonParameters $StartupProject $Project
     $dteStartupProject = $values.StartupProject
     $dteProject = $values.Project
+    if ([string]::Compare($dteProject.Kind.ToString(), "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}", $True) -eq 0) {
+        throw "Project $Project is a Visual Basic project which is not yet supported by Scaffold-DbContext."
+    }
 
     $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject ReverseEngineer @{
         connectionString = $Connection
