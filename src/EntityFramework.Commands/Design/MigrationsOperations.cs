@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Design;
@@ -21,6 +23,7 @@ namespace Microsoft.Data.Entity.Design
     {
         private readonly ILoggerProvider _loggerProvider;
         private readonly LazyRef<ILogger> _logger;
+        private readonly string _assemblyName;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
@@ -45,6 +48,7 @@ namespace Microsoft.Data.Entity.Design
 
             _loggerProvider = loggerProvider;
             _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
+            _assemblyName = assemblyName;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _contextOperations = new DbContextOperations(
@@ -149,12 +153,21 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        private static void EnsureServices(IServiceProvider services)
+        private void EnsureServices(IServiceProvider services)
         {
             var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
             if (!(providerServices is IRelationalDatabaseProviderServices))
             {
                 throw new OperationException(CommandsStrings.NonRelationalProvider(providerServices.InvariantName));
+            }
+
+            var options = services.GetRequiredService<IDbContextOptions>();
+            var contextType = services.GetRequiredService<DbContext>().GetType();
+            var assemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly
+                ?? contextType.GetTypeInfo().Assembly.GetName().Name;
+            if (_assemblyName != assemblyName)
+            {
+                throw new OperationException(CommandsStrings.MigrationsAssemblyMismatch(_assemblyName, assemblyName));
             }
         }
     }

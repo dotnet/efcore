@@ -300,6 +300,14 @@ namespace Microsoft.Data.Entity.Internal
             get { return GetString("RootNamespaceRequired"); }
         }
 
+        /// <summary>
+        /// Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list or by using the '--targetProject' option for DNX commands. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer().MigrationsAssembly("{assembly}")
+        /// </summary>
+        public static string MigrationsAssemblyMismatch([CanBeNull] object assembly, [CanBeNull] object migrationsAssembly)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsAssemblyMismatch", "assembly", "migrationsAssembly"), assembly, migrationsAssembly);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

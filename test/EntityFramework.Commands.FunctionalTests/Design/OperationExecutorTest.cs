@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.Data.Entity.Commands.TestUtilities;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Design.Internal
@@ -77,8 +78,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
-                                    BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
-                                    BuildReference.ByName("Microsoft.CodeAnalysis.CSharp", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -154,7 +153,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
-                                BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -259,7 +257,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("EntityFramework.Core"),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
-                                BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
@@ -334,8 +331,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
-                                    BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
-                                    BuildReference.ByName("Microsoft.CodeAnalysis.CSharp", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -387,6 +382,77 @@ namespace Microsoft.Data.Entity.Design.Internal
                     var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
                     Assert.Equal(3, artifacts.Count());
                     Assert.True(Directory.Exists(Path.Combine(targetDir, @"Migrations\MySecond")));
+                }
+            }
+        }
+
+        [Fact]
+        public void GetMigrations_throws_when_target_and_migrations_assemblies_mismatch()
+        {
+            using (var directory = new TempDirectory())
+            {
+                var targetDir = directory.Path;
+                var source = new BuildSource
+                {
+                    TargetDir = targetDir,
+                    References =
+                            {
+                                BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
+                                BuildReference.ByName("System.Interactive.Async", copyLocal: true),
+                                BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
+                                BuildReference.ByName("Remotion.Linq", copyLocal: true)
+                            },
+                    Sources = { @"
+                            using Microsoft.Data.Entity;
+                            using Microsoft.Data.Entity.Infrastructure;
+                            using Microsoft.Data.Entity.Migrations;
+
+                            namespace MyProject
+                            {
+                                internal class MyContext : DbContext
+                                {
+                                    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                                    {
+                                        optionsBuilder
+                                            .UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyProject.MyContext;Integrated Security=True"")
+                                            .MigrationsAssembly(""UnknownAssembly"");
+                                    }
+                                }
+
+                                namespace Migrations
+                                {
+                                    [DbContext(typeof(MyContext))]
+                                    [Migration(""20151215152142_MyMigration"")]
+                                    public class MyMigration : Migration
+                                    {
+                                        protected override void Up(MigrationBuilder migrationBuilder)
+                                        {
+                                        }
+                                    }
+                                }
+                            }" }
+                };
+                var build = source.Build();
+                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, "MyProject"))
+                {
+                    var ex = Assert.Throws<WrappedOperationException>(
+                        () => executor.GetMigrations("MyContext"));
+
+                    Assert.Equal(
+                        CommandsStrings.MigrationsAssemblyMismatch(build.TargetName, "UnknownAssembly"),
+                        ex.Message);
                 }
             }
         }
