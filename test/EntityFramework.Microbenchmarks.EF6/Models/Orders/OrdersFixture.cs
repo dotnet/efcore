@@ -32,6 +32,9 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.Orders
             return new OrdersContext(_connectionString);
         }
 
+        protected virtual void OnDatabaseCreated(OrdersContext context)
+        { }
+
         private void EnsureDatabaseCreated()
         {
             using (var context = new OrdersContext(_connectionString))
@@ -40,12 +43,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.Orders
                 {
                     context.Database.Create();
                     InsertSeedData();
+                    OnDatabaseCreated(context);
                 }
                 else if (!IsDatabaseCorrect(context))
                 {
                     context.Database.Delete();
                     context.Database.Create();
                     InsertSeedData();
+                    OnDatabaseCreated(context);
                 }
 
                 Assert.True(IsDatabaseCorrect(context));

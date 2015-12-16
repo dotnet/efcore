@@ -48,6 +48,7 @@
     <Compile Include="Query\FuncletizationTests.cs" />
     <Compile Include="Query\Profile.cs" />
     <Compile Include="Query\QueryCompilationTests.cs" />
+    <Compile Include="Query\RawSqlQueryTests.cs" />
     <Compile Include="Query\SimpleQueryTests.cs" />
     <Compile Include="UpdatePipeline\SimpleUpdatePipelineTests.cs" />
   </ItemGroup>
