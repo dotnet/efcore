@@ -249,6 +249,56 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
+        [Benchmark]
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
+        public void RawSQL(IMetricCollector collector, bool tracking, int queriesPerIteration)
+        {
+            using (var context = _fixture.CreateContext())
+            {
+                var query = context.Products
+                    .FromSql("SELECT * FROM dbo.Product")
+                    .ApplyTracking(tracking);
+
+                using (collector.StartCollection())
+                {
+                    for (var i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(1000, query.Count());
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
+            }
+        }
+
+        [Benchmark]
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
+        public void RawSQLComposed(IMetricCollector collector, bool tracking, int queriesPerIteration)
+        {
+            using (var context = _fixture.CreateContext())
+            {
+                var query = context.Products
+                    .FromSql("SELECT * FROM dbo.Product")
+                    .ApplyTracking(tracking)
+                    .Where(p => p.Retail < 15)
+                    .OrderBy(p => p.Name);
+
+                using (collector.StartCollection())
+                {
+                    for (var i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(1000, query.Count());
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
+            }
+        }
+
         public class SimpleQueryFixture : OrdersFixture
         {
             private readonly IServiceProvider _noQueryCacheServiceProvider;
