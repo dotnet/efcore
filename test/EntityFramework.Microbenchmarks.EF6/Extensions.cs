@@ -39,5 +39,13 @@ namespace EntityFramework.Microbenchmarks.EF6
                 ? query
                 : query.AsNoTracking();
         }
+
+        public static DbSqlQuery<TEntity> ApplyTracking<TEntity>(this DbSqlQuery<TEntity> query, bool tracking)
+            where TEntity : class
+        {
+            return tracking
+                ? query
+                : query.AsNoTracking();
+        }
     }
 }

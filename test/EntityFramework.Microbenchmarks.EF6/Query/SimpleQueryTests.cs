@@ -249,6 +249,30 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
             }
         }
 
+        [Benchmark]
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
+        public void RawSQL(IMetricCollector collector, bool tracking, int queriesPerIteration)
+        {
+            using (var context = _fixture.CreateContext())
+            {
+                var query = context.Products
+                    .SqlQuery("SELECT * FROM dbo.Products")
+                    .ApplyTracking(tracking);
+
+                using (collector.StartCollection())
+                {
+                    for (var i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(1000, query.Count());
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
+            }
+        }
+
         public class SimpleQueryFixture : OrdersFixture
         {
             public SimpleQueryFixture()
