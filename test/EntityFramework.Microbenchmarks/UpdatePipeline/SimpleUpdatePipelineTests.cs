@@ -121,6 +121,11 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                 : base("Perf_UpdatePipeline_Simple", 0, 1000, 0, 0)
             {
             }
+
+            public OrdersContext CreateContext(bool disableBatching)
+            {
+                return new OrdersContext(ConnectionString, disableBatching);
+            }
         }
     }
 }

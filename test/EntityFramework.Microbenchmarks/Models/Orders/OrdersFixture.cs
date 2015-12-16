@@ -31,9 +31,9 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
         public string ConnectionString { get; }
 
-        public OrdersContext CreateContext(bool disableBatching = false)
+        public virtual OrdersContext CreateContext()
         {
-            return new OrdersContext(ConnectionString, disableBatching);
+            return new OrdersContext(ConnectionString);
         }
 
         private void EnsureDatabaseCreated()

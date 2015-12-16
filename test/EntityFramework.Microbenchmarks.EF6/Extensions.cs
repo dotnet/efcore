@@ -16,20 +16,18 @@ namespace EntityFramework.Microbenchmarks.EF6
             .GetProperty("ObjectQuery")
             .GetMethod;
 
-        public static IQueryable<TEntity> ApplyCaching<TEntity>(this IQueryable<TEntity> query, bool caching)
+        public static IQueryable<TEntity> DisableQueryCache<TEntity>(this IQueryable<TEntity> query)
             where TEntity : class
         {
-            if (!caching)
-            {
-                var internalQuery = typeof(DbQuery<TEntity>)
-                    .GetProperty("System.Data.Entity.Internal.Linq.IInternalQueryAdapter.InternalQuery", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetMethod
-                    .Invoke(query, new object[0]);
 
-                var objectQuery = (ObjectQuery)_getObjectQueryMethodInfo.Invoke(internalQuery, new object[0]);
+            var internalQuery = typeof(DbQuery<TEntity>)
+                .GetProperty("System.Data.Entity.Internal.Linq.IInternalQueryAdapter.InternalQuery", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetMethod
+                .Invoke(query, new object[0]);
 
-                objectQuery.EnablePlanCaching = false;
-            }
+            var objectQuery = (ObjectQuery)_getObjectQueryMethodInfo.Invoke(internalQuery, new object[0]);
+
+            objectQuery.EnablePlanCaching = false;
 
             return query;
         }

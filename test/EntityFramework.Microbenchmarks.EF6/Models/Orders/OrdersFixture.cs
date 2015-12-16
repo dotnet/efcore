@@ -27,7 +27,7 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.Orders
             EnsureDatabaseCreated();
         }
 
-        public OrdersContext CreateContext()
+        public virtual OrdersContext CreateContext()
         {
             return new OrdersContext(_connectionString);
         }

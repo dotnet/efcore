@@ -6,8 +6,6 @@ using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
@@ -23,13 +21,11 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
-        [BenchmarkVariation("Tracking On, Query Cache Off (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
-        public void LoadAll(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
+        public void LoadAll(IMetricCollector collector, bool tracking, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Products.ApplyTracking(tracking);
 
@@ -47,13 +43,11 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
-        [BenchmarkVariation("Tracking On, Query Cache Off (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
-        public void Where(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
+        public void Where(IMetricCollector collector, bool tracking, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
                     .ApplyTracking(tracking)
@@ -73,13 +67,11 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
-        [BenchmarkVariation("Tracking On, Query Cache Off  (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
-        public void OrderBy(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
+        public void OrderBy(IMetricCollector collector, bool tracking, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
                     .ApplyTracking(tracking)
@@ -99,11 +91,10 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default (100 queries)", true, 100)]
-        [BenchmarkVariation("Query Cache Off (100 queries)", false, 100)]
-        public void Count(IMetricCollector collector, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Default (100 queries)", 100)]
+        public void Count(IMetricCollector collector, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Products;
 
@@ -120,13 +111,11 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
-        [BenchmarkVariation("Tracking On, Query Cache Off  (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
-        public void SkipTake(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
+        public void SkipTake(IMetricCollector collector, bool tracking, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
                     .ApplyTracking(tracking)
@@ -147,11 +136,10 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default (10 queries)", true, 10)]
-        [BenchmarkVariation("Query Cache Off (10 queries)", false, 10)]
-        public void GroupBy(IMetricCollector collector, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Default (10 queries)", 10)]
+        public void GroupBy(IMetricCollector collector, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
                     .GroupBy(p => p.Retail)
@@ -176,13 +164,11 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off (1 query)", false, true, 1)]
-        [BenchmarkVariation("Tracking On, Query Cache Off  (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off, Query Cache Off  (1 query)", false, false, 1)]
-        public void Include(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
+        [BenchmarkVariation("Tracking Off (1 query)", false, 1)]
+        public void Include(IMetricCollector collector, bool tracking, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Customers
                     .ApplyTracking(tracking)
@@ -204,11 +190,10 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default (10 queries)", true, 10)]
-        [BenchmarkVariation("Query Cache Off (10 queries)", false, 10)]
-        public void Projection(IMetricCollector collector, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Default (10 queries)", 10)]
+        public void Projection(IMetricCollector collector, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
                     .Select(p => new
@@ -235,11 +220,10 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default (10 queries)", true, 10)]
-        [BenchmarkVariation("Query Cache Off (10 queries)", false, 10)]
-        public void ProjectionAcrossNavigation(IMetricCollector collector, bool caching, int queriesPerIteration)
+        [BenchmarkVariation("Default (10 queries)", 10)]
+        public void ProjectionAcrossNavigation(IMetricCollector collector, int queriesPerIteration)
         {
-            using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
+            using (var context = _fixture.CreateContext())
             {
                 var query = context.Orders
                     .Select(o => new
@@ -271,49 +255,7 @@ namespace EntityFramework.Microbenchmarks.Query
 
             public SimpleQueryFixture()
                 : base("Perf_Query_Simple", 1000, 1000, 2, 2)
-            {
-                var collection = new ServiceCollection();
-                collection.AddEntityFramework().AddSqlServer();
-                collection.AddSingleton<IMemoryCache, NonCachingMemoryCache>();
-                _noQueryCacheServiceProvider = collection.BuildServiceProvider();
-            }
-
-            public OrdersContext CreateContext(bool disableBatching = false, bool queryCachingEnabled = true)
-            {
-                if (!queryCachingEnabled)
-                {
-                    return new OrdersContext(_noQueryCacheServiceProvider, ConnectionString, disableBatching);
-                }
-
-                return base.CreateContext(disableBatching);
-            }
-
-            private class NonCachingMemoryCache : IMemoryCache
-            {
-                public bool TryGetValue(object key, out object value)
-                {
-                    value = null;
-                    return false;
-                }
-
-                public object Set(object key, object value, MemoryCacheEntryOptions options)
-                {
-                    return value;
-                }
-
-                public void Remove(object key)
-                {
-                }
-
-                public IEntryLink CreateLinkingScope()
-                {
-                    throw new NotImplementedException();
-                }
-
-                public void Dispose()
-                {
-                }
-            }
+            { }
         }
     }
 }
