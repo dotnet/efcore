@@ -4319,6 +4319,38 @@ WHERE 1 = 1",
                 Sql);
         }
 
+        public override void Substring_with_constant()
+        {
+            base.Substring_with_constant();
+
+            Assert.Equal(
+                @"SELECT TOP(1) SUBSTRING([c].[ContactName], 2, 3)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Substring_with_closure()
+        {
+            base.Substring_with_closure();
+
+            Assert.Equal(
+                @"@__start_0: 2
+
+SELECT TOP(1) SUBSTRING([c].[ContactName], @__start_0 + 1, 3)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Substring_with_client_eval()
+        {
+            base.Substring_with_client_eval();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [c].[ContactName]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Projection_null_coalesce_operator()
         {
             base.Projection_null_coalesce_operator();

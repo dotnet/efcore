@@ -4230,6 +4230,41 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Substring_with_constant()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    "ari",
+                    context.Set<Customer>().Select(c => c.ContactName.Substring(1, 3)).First());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Substring_with_closure()
+        {
+            var start = 2;
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    "ria",
+                    context.Set<Customer>().Select(c => c.ContactName.Substring(start, 3)).First());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Substring_with_client_eval()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    "ari",
+                    context.Set<Customer>().Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)).First());
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Where_chain()
         {
             AssertQuery<Order>(order => order
