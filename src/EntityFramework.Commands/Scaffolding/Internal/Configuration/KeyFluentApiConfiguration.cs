@@ -14,27 +14,40 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
     {
         public KeyFluentApiConfiguration(
             [NotNull] string lambdaIdentifier,
-            [NotNull] IReadOnlyList<Property> properties)
+            [NotNull] Key key)
         {
             Check.NotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
-            Check.NotEmpty(properties, nameof(properties));
+            Check.NotNull(key, nameof(key));
 
             LambdaIdentifier = lambdaIdentifier;
-            Properties = new List<Property>(properties);
+            Key = key;
         }
 
         public virtual string LambdaIdentifier { get; }
-        public virtual IReadOnlyList<Property> Properties { get; }
+        public virtual Key Key { get; }
 
         public virtual bool HasAttributeEquivalent { get; set; }
 
-        public virtual ICollection<string> FluentApiLines =>
-            new List<string> { string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}({1} => {2})",
-                nameof(EntityTypeBuilder.HasKey),
-                LambdaIdentifier,
-                new ScaffoldingUtilities().GenerateLambdaToKey(Properties, LambdaIdentifier))
-            };
+        public virtual ICollection<string> FluentApiLines
+        {
+            get
+            {
+                var lines = new List<string>();
+                lines.Add(string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}({1} => {2})",
+                    nameof(EntityTypeBuilder.HasKey),
+                    LambdaIdentifier,
+                    new ScaffoldingUtilities().GenerateLambdaToKey(Key.Properties, LambdaIdentifier)));
+
+                if (Key.Relational().Name != null)
+                {
+                    lines.Add("." + nameof(RelationalKeyBuilderExtensions.HasName)
+                        + "(" + CSharpUtilities.Instance.DelimitString(Key.Relational().Name) + ")");
+                }
+
+                return lines;
+            }
+        }
     }
 }

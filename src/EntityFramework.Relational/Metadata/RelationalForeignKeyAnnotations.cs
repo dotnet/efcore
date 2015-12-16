@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -40,9 +41,22 @@ namespace Microsoft.Data.Entity.Metadata
                 ForeignKey.PrincipalEntityType,
                 Annotations.ProviderPrefix);
 
-            return "FK_" + entityType.TableName +
-                "_" + principalEntityType.TableName +
-                "_" + string.Join("_", ForeignKey.Properties.Select(p => p.Name));
+            return GetDefaultForeignKeyName(entityType.TableName,
+                principalEntityType.TableName, ForeignKey.Properties.Select(p => p.Name));
+        }
+
+        public static string GetDefaultForeignKeyName(
+            [NotNull] string dependentTableName,
+            [NotNull] string principalTableName,
+            [NotNull] IEnumerable<string> dependentEndPropertyNames)
+        {
+            Check.NotEmpty(dependentTableName, nameof(dependentTableName));
+            Check.NotEmpty(principalTableName, nameof(principalTableName));
+            Check.NotNull(dependentEndPropertyNames, nameof(dependentEndPropertyNames));
+
+            return "FK_" + dependentTableName +
+                "_" + principalTableName +
+                "_" + string.Join("_", dependentEndPropertyNames);
         }
     }
 }

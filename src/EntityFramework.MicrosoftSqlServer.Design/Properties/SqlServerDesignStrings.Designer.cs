@@ -53,6 +53,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Found a foreign key on table [{schemaName}].[{tableName}] with an empty or null name. Skipping foreign key.
+        /// </summary>
+        public static string ForeignKeyNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyNameEmpty", "schemaName", "tableName"), schemaName, tableName);
+        }
+
+        /// <summary>
         /// Found an index on table [{schemaName}].[{tableName}] with an empty or null name. Skipping index.
         /// </summary>
         public static string IndexNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)

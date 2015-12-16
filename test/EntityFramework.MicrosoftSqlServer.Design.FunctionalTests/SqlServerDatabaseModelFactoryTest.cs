@@ -106,6 +106,13 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                         Assert.True(clusteredIndex.IsClustered);
                         Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.Columns.Select(c => c.Name).ToList());
                     },
+                pkIndex =>
+                {
+                    Assert.StartsWith("PK__Place", pkIndex.Name);
+                    Assert.True(pkIndex.IsUnique);
+                    Assert.False(pkIndex.IsClustered);
+                    Assert.Equal(new List<string> { "Id" }, pkIndex.Columns.Select(c => c.Name).ToList());
+                },
                 unique =>
                     {
                         Assert.True(unique.IsUnique);
