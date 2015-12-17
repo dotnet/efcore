@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "[name]",
                                 "The name of the migration");
                             var outputDir = add.Option(
-                                "-o|--output-dir",
+                                "-o|--output-dir <path>",
                                 "The directory (and sub-namespace) to use. If omitted, \"Migrations\" is used.");
                             var context = add.Option(
                                 "-c|--context <context>",
