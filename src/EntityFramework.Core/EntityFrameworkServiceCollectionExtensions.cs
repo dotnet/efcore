@@ -85,7 +85,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetInitializer, DbSetInitializer>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
-                .AddSingleton<IKeyValueFactorySource, KeyValueFactorySource>()
                 .AddSingleton<ICollectionTypeFactory, CollectionTypeFactory>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
                 .AddSingleton<IMemberMapper, MemberMapper>()

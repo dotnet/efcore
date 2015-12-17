@@ -41,14 +41,9 @@
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntryTest.cs" />
-    <Compile Include="ChangeTracking\Internal\CompositeKeyValueFactoryTest.cs" />
-    <Compile Include="ChangeTracking\Internal\EntityKeyFactorySourceTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalMixedEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntryTest.cs" />
-    <Compile Include="ChangeTracking\Internal\SimpleKeyValueFactoryTest.cs" />
-    <Compile Include="ChangeTracking\Internal\EntityKeyTest.cs" />
-    <Compile Include="ChangeTracking\Internal\SimpleNullableEntityKeyFactoryTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryFactoryTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntryEntrySubscriberTest.cs" />

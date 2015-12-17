@@ -460,99 +460,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public virtual void Can_create_primary_key()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var keyProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
-            entry[keyProperty] = 77;
-
-            var keyValue = entry.GetPrimaryKeyValue();
-            Assert.IsType<KeyValue<int>>(keyValue);
-            Assert.Equal(77, keyValue.Value);
-            Assert.Same(entityType.FindPrimaryKey(), keyValue.Key);
-        }
-
-        [Fact]
-        public virtual void Can_create_composite_primary_key()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var keyProperties = new[] { entityType.FindProperty("Id1"), entityType.FindProperty("Id2") };
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
-            entry[keyProperties[0]] = 77;
-            entry[keyProperties[1]] = "SmokeyBacon";
-
-            var entityKey = (KeyValue<object[]>)entry.GetPrimaryKeyValue();
-            var keyValue = (object[])entityKey.Value;
-
-            Assert.Equal(77, keyValue[0]);
-            Assert.Equal("SmokeyBacon", keyValue[1]);
-            Assert.Same(entityType.FindPrimaryKey(), entityKey.Key);
-        }
-
-        [Fact]
-        public virtual void Can_create_foreign_key_value_based_on_dependent_values()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var fk = entityType.GetForeignKeys().Single();
-            var fkProperty = fk.Properties.Single();
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
-            entry[fkProperty] = 77;
-            entry.SetRelationshipSnapshotValue(fkProperty, 78);
-
-            var keyValue = entry.GetDependentKeyValue(fk);
-            Assert.IsType<KeyValue<int>>(keyValue);
-            Assert.Equal(77, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.FindPrimaryKey(), keyValue.Key);
-        }
-
-        [Fact]
-        public virtual void Can_create_foreign_key_value_based_on_snapshot_dependent_values()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var fk = entityType.GetForeignKeys().Single();
-            var fkProperty = fk.Properties.Single();
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
-            entry[fkProperty] = 77;
-            entry.SetRelationshipSnapshotValue(fkProperty, 78);
-
-            var keyValue = entry.GetDependentKeyValue(fk, ValueSource.RelationshipSnapshot);
-            Assert.IsType<KeyValue<int>>(keyValue);
-            Assert.Equal(78, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.FindPrimaryKey(), keyValue.Key);
-        }
-
-        [Fact]
-        public virtual void Can_create_foreign_key_value_based_on_snapshot_dependent_values_if_value_not_yet_snapshotted()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var fk = entityType.GetForeignKeys().Single();
-            var fkProperty = fk.Properties.Single();
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
-            entry[fkProperty] = 77;
-
-            var keyValue = entry.GetDependentKeyValue(fk, ValueSource.RelationshipSnapshot);
-            Assert.IsType<KeyValue<int>>(keyValue);
-            Assert.Equal(77, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.FindPrimaryKey(), keyValue.Key);
-        }
-
-        [Fact]
         public virtual void Notification_that_an_FK_property_has_changed_updates_the_snapshot()
         {
             var model = BuildModel();
@@ -566,9 +473,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry[fkProperty] = 79;
 
-            var keyValue = entry.GetDependentKeyValue(entityType.GetForeignKeys().Single(), ValueSource.RelationshipSnapshot);
-            Assert.IsType<KeyValue<int>>(keyValue);
-            Assert.Equal(79, keyValue.Value);
+            var keyValue = entry.GetRelationshipSnapshotValue(entityType.GetForeignKeys().Single().Properties.Single());
+            Assert.Equal(79, keyValue);
         }
 
         [Fact]
@@ -585,88 +491,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry[fkProperty] = 77;
 
-            var keyValue = entry.GetDependentKeyValue(entityType.GetForeignKeys().Single(), ValueSource.RelationshipSnapshot);
-            Assert.IsType<KeyValue<int>>(keyValue);
-            Assert.Equal(78, keyValue.Value);
-        }
-
-        [Fact]
-        public virtual void Can_create_foreign_key_value_based_on_principal_end_values()
-        {
-            var model = BuildModel();
-            var principalType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var dependentType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var key = principalType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, principalType, new SomeEntity());
-            entry[key] = 77;
-
-            var fk = dependentType.GetForeignKeys().Single();
-            var keyValue = entry.GetPrincipalKeyValue(fk);
-            Assert.IsType<KeyValue<int>>(keyValue);
-            Assert.Equal(77, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.FindPrimaryKey(), keyValue.Key);
-        }
-
-        [Fact]
-        public virtual void Can_create_composite_foreign_key_value_based_on_dependent_values()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeMoreDependentEntity).FullName);
-            var fk = entityType.GetForeignKeys().Single();
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, entityType, new SomeMoreDependentEntity());
-            entry[fk.Properties[0]] = 77;
-            entry[fk.Properties[1]] = "CheeseAndOnion";
-
-            var entityKey = (KeyValue<object[]>)entry.GetDependentKeyValue(fk);
-            var keyValue = (object[])entityKey.Value;
-
-            Assert.Equal(77, keyValue[0]);
-            Assert.Equal("CheeseAndOnion", keyValue[1]);
-            Assert.Same(fk.PrincipalEntityType.FindPrimaryKey(), entityKey.Key);
-        }
-
-        [Fact]
-        public virtual void Can_create_composite_foreign_key_value_based_on_principal_end_values()
-        {
-            var model = BuildModel();
-            var principalType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var dependentType = model.FindEntityType(typeof(SomeMoreDependentEntity).FullName);
-            var keyProperties = new[] { principalType.FindProperty("Id1"), principalType.FindProperty("Id2") };
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, principalType, new SomeDependentEntity());
-            entry[keyProperties[0]] = 77;
-            entry[keyProperties[1]] = "PrawnCocktail";
-
-            var entityKey = (KeyValue<object[]>)entry.GetPrincipalKeyValue(dependentType.GetForeignKeys().Single());
-            var keyValue = (object[])entityKey.Value;
-
-            Assert.Equal(77, keyValue[0]);
-            Assert.Equal("PrawnCocktail", keyValue[1]);
-            Assert.Same(principalType.FindPrimaryKey(), entityKey.Key);
-        }
-
-        [Fact]
-        public virtual void Can_create_composite_foreign_key_value_based_on_principal_end_values_with_nulls()
-        {
-            var model = BuildModel();
-            var principalType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
-            var dependentType = model.FindEntityType(typeof(SomeMoreDependentEntity).FullName);
-            var keyProperties = new[] { principalType.FindProperty("Id1"), principalType.FindProperty("Id2") };
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(configuration, principalType, new SomeDependentEntity());
-            entry[keyProperties[0]] = 77;
-            entry[keyProperties[1]] = null;
-
-            var fk = dependentType.GetForeignKeys().Single();
-            var keyValue = entry.GetPrincipalKeyValue(fk);
-            Assert.True(keyValue.IsInvalid);
-            Assert.Null(keyValue.Key);
+            var keyValue = entry.GetRelationshipSnapshotValue(entityType.GetForeignKeys().Single().Properties.Single());
+            Assert.Equal(78, keyValue);
         }
 
         [Fact]

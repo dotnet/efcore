@@ -46,7 +46,6 @@ namespace Microsoft.Data.Entity.Utilities
 
     internal partial class ImplyGeneric<T>
     {
-        public SimpleKeyValueFactory<T> KeyFactoryType;
         public IAsyncEnumerable<T> AsyncEnum;
 
         public ClrPropertyGetter<object, T> GetterProp;
