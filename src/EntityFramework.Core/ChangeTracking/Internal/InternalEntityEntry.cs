@@ -2,12 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -337,47 +335,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _relationshipsSnapshot.AddToCollection(propertyBase, addedEntity);
         }
 
-        public virtual IKeyValue GetPrimaryKeyValue(ValueSource valueSource = ValueSource.Current)
-        {
-            var key = EntityType.FindPrimaryKey();
-            return CreateKey(key, key.Properties, valueSource);
-        }
-
-        public virtual IKeyValue GetPrincipalKeyValue([NotNull] IKey key, ValueSource valueSource = ValueSource.Current)
-            => CreateKey(key, key.Properties, valueSource);
-
-        public virtual IKeyValue GetPrincipalKeyValue([NotNull] IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
-        {
-            var key = foreignKey.PrincipalKey;
-            return CreateKey(key, key.Properties, valueSource);
-        }
-
-        public virtual IKeyValue GetDependentKeyValue([NotNull] IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
-        {
-            var key = foreignKey.PrincipalKey;
-            return CreateKey(key, foreignKey.Properties, valueSource);
-        }
-
-        private IKeyValue CreateKey(
-            [NotNull] IKey key,
-            [NotNull] IReadOnlyList<IProperty> properties,
-            ValueSource valueSource = ValueSource.Current)
-        {
-            var value = properties.Count == 1
-                ? (valueSource == ValueSource.Current
-                    ? this[properties[0]]
-                    : valueSource == ValueSource.Original
-                        ? _originalValues.GetValue(this, properties[0])
-                        : _relationshipsSnapshot.GetValue(this, properties[0]))
-                : (valueSource == ValueSource.Current
-                    ? properties.Select(p => this[p]).ToArray()
-                    : valueSource == ValueSource.Original
-                        ? properties.Select(p => _originalValues.GetValue(this, p)).ToArray()
-                        : properties.Select(p => _relationshipsSnapshot.GetValue(this, p)).ToArray());
-
-            return StateManager.CreateKey(key, value);
-        }
-
         public virtual object this[[NotNull] IPropertyBase propertyBase]
         {
             get
@@ -574,9 +531,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                || property.ClrType.IsDefaultValue(this[property]);
 
         public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
-
-        [UsedImplicitly]
-        private string DebuggerDisplay => GetPrimaryKeyValue() + " - " + EntityState;
 
         public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
     }

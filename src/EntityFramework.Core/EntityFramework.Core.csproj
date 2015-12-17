@@ -72,7 +72,6 @@
     <Compile Include="ChangeTracking\Internal\IIdentityMap.cs" />
     <Compile Include="ChangeTracking\Internal\IPrincipalKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ISnapshot.cs" />
-    <Compile Include="ChangeTracking\Internal\KeyValue.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\KeyValueFactoryFactory.cs" />
@@ -83,7 +82,6 @@
     <Compile Include="ChangeTracking\Internal\RelationshipSnapshotFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ShadowValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleNonNullableDependentKeyValueFactory.cs" />
-    <Compile Include="ChangeTracking\Internal\SimpleKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleNullableDependentKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleNullablePrincipalDependentKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SimplePrincipalKeyValueFactory.cs" />
@@ -101,7 +99,6 @@
     <Compile Include="Infrastructure\AnnotatableExtensions.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
     <Compile Include="Infrastructure\IDbContextFactory.cs" />
-    <Compile Include="Infrastructure\IKeyValue.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger`.cs" />
     <Compile Include="Infrastructure\ModelSource.cs" />
@@ -162,7 +159,6 @@
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityEntryGraphIterator.cs" />
-    <Compile Include="ChangeTracking\Internal\IKeyValueFactorySource.cs" />
     <Compile Include="ChangeTracking\Internal\IInternalEntityEntryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IInternalEntityEntryNotifier.cs" />
     <Compile Include="ChangeTracking\Internal\IInternalEntityEntrySubscriber.cs" />
@@ -174,10 +170,7 @@
     <Compile Include="ChangeTracking\Internal\IKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationListener.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntry.cs" />
-    <Compile Include="ChangeTracking\Internal\CompositeKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityEntryGraphIterator.cs" />
-    <Compile Include="ChangeTracking\Internal\KeyValueFactory.cs" />
-    <Compile Include="ChangeTracking\Internal\KeyValueFactorySource.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityStateListener.cs" />
     <Compile Include="ChangeTracking\Internal\IPropertyListener.cs" />
     <Compile Include="ChangeTracking\Internal\IForeignKeyListener.cs" />
@@ -465,7 +458,6 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\Internal\SharedTypeExtensions.cs</Link>
     </Compile>
-    <Compile Include="Update\ValueSource.cs" />
     <Compile Include="Utilities\Imply.cs" />
     <Compile Include="Update\IUpdateEntry.cs" />
     <Compile Include="Utilities\ImplyGen.cs">

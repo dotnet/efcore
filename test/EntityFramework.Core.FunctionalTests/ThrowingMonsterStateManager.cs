@@ -18,12 +18,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             IInternalEntityEntrySubscriber subscriber,
             IInternalEntityEntryNotifier notifier,
             IValueGenerationManager valueGeneration,
-            IKeyValueFactorySource keyValueFactorySource,
             IModel model,
             IDatabase database,
             IConcurrencyDetector concurrencyDetector,
             DbContext context)
-            : base(factory, subscriber, notifier, valueGeneration, keyValueFactorySource, model, database, concurrencyDetector, context)
+            : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, context)
         {
         }
 

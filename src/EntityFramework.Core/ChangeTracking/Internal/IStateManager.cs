@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
@@ -55,7 +54,5 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         DbContext Context { get; }
 
         bool? SingleQueryMode { get; set; }
-
-        IKeyValue CreateKey([NotNull] IKey key, [CanBeNull] object value);
     }
 }
