@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -150,15 +149,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var newKeyValues = foreignKey.PrincipalKey.Properties.Select(p => entry[p]).ToList();
 
-                var oldKey = entry.GetPrincipalKeyValue(foreignKey, ValueSource.RelationshipSnapshot);
-                if (!oldKey.IsInvalid)
+                foreach (var dependentEntry in entry.StateManager.GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                 {
-                    foreach (var dependent in entry.StateManager.Entries.Where(
-                        e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType)
-                             && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToList())
-                    {
-                        SetForeignKeyValue(foreignKey, dependent, newKeyValues);
-                    }
+                    SetForeignKeyValue(foreignKey, dependentEntry, newKeyValues);
                 }
             }
         }

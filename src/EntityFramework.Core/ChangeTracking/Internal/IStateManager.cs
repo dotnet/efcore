@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -43,6 +42,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         IEnumerable<InternalEntityEntry> GetDependentsFromNavigation([NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
 
         IEnumerable<InternalEntityEntry> GetDependents([NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
+
+        IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
+            [NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
 
         int SaveChanges(bool acceptAllChangesOnSuccess);
 
