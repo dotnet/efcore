@@ -235,6 +235,11 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
+            public IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(InternalEntityEntry principalEntry, IForeignKey foreignKey)
+            {
+                throw new NotImplementedException();
+            }
+
             public IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();
