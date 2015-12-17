@@ -16,11 +16,11 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection ImportDnxServices(
             [NotNull] this IServiceCollection services)
         {
-            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.Application));
-            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.Runtime));
-            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.AssemblyLoadContextAccessor));
-            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.AssemblyLoaderContainer));
-            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.LibraryManager));
+            services.TryAddSingleton(PlatformServices.Default.Application);
+            services.TryAddSingleton(PlatformServices.Default.Runtime);
+            services.TryAddSingleton(PlatformServices.Default.AssemblyLoadContextAccessor);
+            services.TryAddSingleton(PlatformServices.Default.AssemblyLoaderContainer);
+            services.TryAddSingleton(PlatformServices.Default.LibraryManager);
 
             return services;
         }
