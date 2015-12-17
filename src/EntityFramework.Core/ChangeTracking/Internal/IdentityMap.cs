@@ -104,6 +104,41 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         protected virtual void Remove([NotNull] TKey key)
             => _identityMap.Remove(key);
 
+        public virtual IEnumerable<InternalEntityEntry> GetMatchingDependentsFromRelationshipSnapshot(
+            IForeignKey foreignKey,
+            InternalEntityEntry principalEntry,
+            IEnumerable<InternalEntityEntry> candidateDependents)
+            => GetMatchingDependents(foreignKey, PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), candidateDependents);
+
+        public virtual IEnumerable<InternalEntityEntry> GetMatchingDependents(
+            IForeignKey foreignKey,
+            InternalEntityEntry principalEntry,
+            IEnumerable<InternalEntityEntry> candidateDependents) 
+            => GetMatchingDependents(foreignKey, PrincipalKeyValueFactory.CreateFromCurrentValues(principalEntry), candidateDependents);
+
+        private IEnumerable<InternalEntityEntry> GetMatchingDependents(
+            IForeignKey foreignKey,
+            TKey principalKey,
+            IEnumerable<InternalEntityEntry> candidateDependents)
+        {
+            var dependentKeyValueFactory = GetDependentKeyValueFactory(foreignKey);
+            var equalityComparer = PrincipalKeyValueFactory.EqualityComparer;
+            var declaringEntityType = foreignKey.DeclaringEntityType;
+
+            foreach (var dependentEntry in candidateDependents)
+            {
+                TKey dependentKey;
+                if (declaringEntityType.IsAssignableFrom(dependentEntry.EntityType)
+                    && dependentKeyValueFactory.TryCreateFromCurrentValues(dependentEntry, out dependentKey)
+                    && equalityComparer.Equals(principalKey, dependentKey))
+                {
+                    yield return dependentEntry;
+                }
+            }
+        }
+
+        public virtual IEnumerable<InternalEntityEntry> Entries => _identityMap.Values;
+
         private static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory(IForeignKey foreignKey)
         {
             var factorySource = foreignKey as IDependentKeyValueFactorySource;
