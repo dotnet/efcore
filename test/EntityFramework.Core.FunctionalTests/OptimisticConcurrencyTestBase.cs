@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             if (internalEntry.EntityType.ClrType == typeof(Driver))
             {
-                var id = (int)internalEntry.GetPrimaryKeyValue().Value;
+                var id = ((Driver)internalEntry.Entity).Id;
                 return context.Set<Driver>()
                     .Where(d => d.Id == id)
                     .Select(d => d.GetValues(internalEntry.EntityType))
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             if (internalEntry.EntityType.ClrType == typeof(Engine))
             {
-                var id = (int)internalEntry.GetPrimaryKeyValue().Value;
+                var id = ((Engine)internalEntry.Entity).Id;
                 return context.Set<Engine>()
                     .Where(d => d.Id == id)
                     .Select(d => d.GetValues(internalEntry.EntityType))

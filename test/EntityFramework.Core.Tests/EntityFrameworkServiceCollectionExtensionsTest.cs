@@ -45,7 +45,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IDbSetFinder>();
             VerifySingleton<IDbSetInitializer>();
             VerifySingleton<IDbSetSource>();
-            VerifySingleton<IKeyValueFactorySource>();
             VerifySingleton<ICollectionTypeFactory>();
             VerifySingleton<IEntityMaterializerSource>();
             VerifySingleton<IMemberMapper>();

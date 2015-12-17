@@ -220,11 +220,6 @@ namespace Microsoft.Data.Entity.Tests
             public bool SaveChangesAsyncCalled { get; set; }
             public virtual bool? SingleQueryMode { get; set; }
 
-            public IKeyValue CreateKey(IKey key, object value)
-            {
-                throw new NotImplementedException();
-            }
-
             public void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey)
             {
                 throw new NotImplementedException();
@@ -1755,7 +1750,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.IsType<KeyValueFactorySource>(context.GetService<IKeyValueFactorySource>());
+                Assert.IsType<DbSetFinder>(context.GetService<IDbSetFinder>());
             }
         }
 

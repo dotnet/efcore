@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -30,7 +29,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
-        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IModel _model;
         private readonly IDatabase _database;
         private IConcurrencyDetector _concurrencyDetector;
@@ -40,7 +38,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IInternalEntityEntrySubscriber subscriber,
             [NotNull] IInternalEntityEntryNotifier notifier,
             [NotNull] IValueGenerationManager valueGeneration,
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IModel model,
             [NotNull] IDatabase database,
             [NotNull] IConcurrencyDetector concurrencyDetector,
@@ -48,7 +45,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             _factory = factory;
             _subscriber = subscriber;
-            _keyValueFactorySource = keyValueFactorySource;
             Notify = notifier;
             ValueGeneration = valueGeneration;
             _model = model;
@@ -62,9 +58,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual IInternalEntityEntryNotifier Notify { get; }
 
         public virtual IValueGenerationManager ValueGeneration { get; }
-
-        public virtual IKeyValue CreateKey(IKey key, object value)
-            => _keyValueFactorySource.GetKeyFactory(key).Create(value);
 
         public virtual InternalEntityEntry GetOrCreateEntry(object entity)
         {
