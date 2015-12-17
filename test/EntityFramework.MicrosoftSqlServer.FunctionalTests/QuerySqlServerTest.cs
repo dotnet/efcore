@@ -4114,6 +4114,39 @@ WHERE ([o].[CustomerID] = 'QUICK') AND ([o].[OrderDate] > '1998-01-01T00:00:00.0
                 Sql);
         }
 
+        public override void OfType_Select()
+        {
+            base.OfType_Select();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [o.Customer].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [t0]
+INNER JOIN [Customers] AS [o.Customer] ON [t0].[CustomerID] = [o.Customer].[CustomerID]
+ORDER BY [t0].[OrderID]",
+                Sql);
+        }
+
+        public override void OfType_Select_OfType_Select()
+        {
+            base.OfType_Select_OfType_Select();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [o.Customer].[City]
+FROM (
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+    ) AS [t0]
+) AS [t1]
+INNER JOIN [Customers] AS [o.Customer] ON [t1].[CustomerID] = [o.Customer].[CustomerID]
+ORDER BY [t1].[OrderID]",
+                Sql);
+        }
+
         public override void OrderBy_null_coalesce_operator()
         {
             base.OrderBy_null_coalesce_operator();

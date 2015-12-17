@@ -4272,6 +4272,37 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
         }
 
+        [ConditionalFact]
+        public virtual void OfType_Select()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    "Reims",
+                    context.Set<Order>()
+                        .OfType<Order>()
+                        .OrderBy(o => o.OrderID)
+                        .Select(o => o.Customer.City)
+                        .First());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void OfType_Select_OfType_Select()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    "Reims",
+                    context.Set<Order>()
+                        .OfType<Order>()
+                        .Select(o => o)
+                        .OfType<Order>()
+                        .OrderBy(o => o.OrderID)
+                        .Select(o => o.Customer.City)
+                        .First());
+            }
+        }
 
         [ConditionalFact]
         public virtual void OrderBy_null_coalesce_operator()

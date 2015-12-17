@@ -146,6 +146,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             {
                 _entityQueryProvider
                     = (node.Value as IQueryable)?.Provider as IAsyncQueryProvider;
+
+                var parent = _parentvisitor;
+                while (parent != null)
+                {
+                    parent._entityQueryProvider = _entityQueryProvider;
+                    parent = parent._parentvisitor;
+                }
             }
 
             return node;
