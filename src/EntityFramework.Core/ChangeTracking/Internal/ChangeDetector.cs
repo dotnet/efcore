@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private static void DetectKeyChange(InternalEntityEntry entry, IProperty property)
         {
             var keys = property.FindContainingKeys().ToList();
-            var foreignKeys = property.FindContainingForeignKeys(entry.EntityType).ToList();
+            var foreignKeys = property.FindContainingForeignKeys().ToList();
 
             if ((keys.Count > 0)
                 || (foreignKeys.Count > 0))

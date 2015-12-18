@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void PropagateValue(InternalEntityEntry entry, IProperty property)
         {
-            Debug.Assert(property.IsForeignKey(entry.EntityType));
+            Debug.Assert(property.IsForeignKey());
 
             if (!TryPropagateValue(entry, property)
                 && property.IsKey())

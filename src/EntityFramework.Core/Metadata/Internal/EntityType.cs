@@ -22,8 +22,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         IPropertyCountsAccessor,
         ISnapshotFactorySource
     {
-        private static readonly char[] _simpleNameChars = { '.', '+' };
-
         private readonly SortedDictionary<IReadOnlyList<IProperty>, ForeignKey> _foreignKeys
             = new SortedDictionary<IReadOnlyList<IProperty>, ForeignKey>(PropertyListComparer.Instance);
 
@@ -306,6 +304,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 foreach (var property in _primaryKey.Properties)
                 {
                     _properties.Remove(property.Name);
+                    property.PrimaryKey = null;
                 }
 
                 _primaryKey = null;
@@ -324,6 +323,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 foreach (var property in key.Properties)
                 {
                     _properties.Remove(property.Name);
+                    property.PrimaryKey = key;
                 }
 
                 _primaryKey = key;
@@ -422,6 +422,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             key = new Key(properties, configurationSource);
             _keys.Add(properties, key);
 
+            foreach (var property in properties)
+            {
+                var currentKeys = property.Keys;
+                if (currentKeys == null)
+                {
+                    property.Keys = new IKey[] { key };
+                }
+                else
+                {
+                    var newKeys = currentKeys.ToList();
+                    newKeys.Add(key);
+                    property.Keys = newKeys;
+                }
+            }
+
             PropertyMetadataChanged();
 
             return Model.ConventionDispatcher.OnKeyAdded(key.Builder)?.Metadata;
@@ -478,6 +493,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             _keys.Remove(key.Properties);
             key.Builder = null;
+
+            foreach (var property in key.Properties)
+            {
+                property.Keys =
+                    property.Keys != null
+                    && property.Keys.Count > 1
+                        ? property.Keys.Where(k => k != key).ToList()
+                        : null;
+            }
 
             PropertyMetadataChanged();
 
@@ -558,6 +582,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             _foreignKeys.Add(properties, foreignKey);
+
+            foreach (var property in properties)
+            {
+                var currentKeys = property.ForeignKeys;
+                if (currentKeys == null)
+                {
+                    property.ForeignKeys = new IForeignKey[] { foreignKey };
+                }
+                else
+                {
+                    var newKeys = currentKeys.ToList();
+                    newKeys.Add(foreignKey);
+                    property.ForeignKeys = newKeys;
+                }
+            }
 
             PropertyMetadataChanged();
 
@@ -675,6 +714,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var removed = _foreignKeys.Remove(foreignKey.Properties);
             foreignKey.Builder = null;
+
+            foreach (var property in foreignKey.Properties)
+            {
+                property.ForeignKeys =
+                    property.ForeignKeys != null
+                    && property.ForeignKeys.Count > 1
+                        ? property.ForeignKeys.Where(k => k != foreignKey).ToList()
+                        : null;
+            }
 
             PropertyMetadataChanged();
 

@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         protected virtual bool RequiresKeyMapping([NotNull] IProperty property)
-            => property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey);
+            => property.IsKey() || property.IsForeignKey();
 
         protected virtual RelationalTypeMapping GetStringMapping(
             [NotNull] IProperty property,

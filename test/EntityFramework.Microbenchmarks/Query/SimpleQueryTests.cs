@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Models.Orders;
@@ -251,8 +250,6 @@ namespace EntityFramework.Microbenchmarks.Query
 
         public class SimpleQueryFixture : OrdersFixture
         {
-            private readonly IServiceProvider _noQueryCacheServiceProvider;
-
             public SimpleQueryFixture()
                 : base("Perf_Query_Simple", 1000, 1000, 2, 2)
             { }
