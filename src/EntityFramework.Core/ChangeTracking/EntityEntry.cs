@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -22,6 +25,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
     [DebuggerDisplay("{_internalEntityEntry,nq}")]
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
+        private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
+
         private readonly InternalEntityEntry _internalEntityEntry;
 
         /// <summary>
@@ -58,7 +63,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _internalEntityEntry.EntityState; }
             set
             {
-                Check.IsDefined(value, nameof(value));
+                if (value < 0
+                    || (int)value > _maxEntityState)
+                {
+                    throw new ArgumentException(CoreStrings.InvalidEnumValue(nameof(value), typeof(EntityState)));
+                }
 
                 _internalEntityEntry.SetEntityState(value);
             }

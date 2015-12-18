@@ -110,19 +110,6 @@ namespace Microsoft.Data.Entity.Utilities
             return value;
         }
 
-        public static T IsDefined<T>(T value, [InvokerParameterName] [NotNull] string parameterName)
-            where T : struct
-        {
-            if (!Enum.IsDefined(typeof(T), value))
-            {
-                NotEmpty(parameterName, nameof(parameterName));
-
-                throw new ArgumentException(CoreStrings.InvalidEnumValue(parameterName, typeof(T)));
-            }
-
-            return value;
-        }
-
         public static Type ValidEntityType(Type value, [InvokerParameterName] [NotNull] string parameterName)
         {
             if (!value.GetTypeInfo().IsClass)

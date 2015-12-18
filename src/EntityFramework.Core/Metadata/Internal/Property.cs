@@ -155,8 +155,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
             else
             {
-                Check.IsDefined(valueGenerated.Value, nameof(valueGenerated));
-
                 SetFlag(valueGenerated.Value == ValueGenerated.OnAdd, PropertyFlags.ValueGeneratedOnAdd);
                 SetFlag(valueGenerated.Value == ValueGenerated.OnAddOrUpdate, PropertyFlags.ValueGeneratedOnAddOrUpdate);
                 UpdateValueGeneratedConfigurationSource(configurationSource);
@@ -405,9 +403,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual IKey PrimaryKey { get; set; }
-        public virtual IReadOnlyList<IKey> Keys { get; set; }
-        public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; set; }
+        public virtual IKey PrimaryKey { get; [param: CanBeNull] set; }
+        public virtual IReadOnlyList<IKey> Keys { get;[param: CanBeNull] set; }
+        public virtual IReadOnlyList<IForeignKey> ForeignKeys { get;[param: CanBeNull] set; }
 
         private PropertyIndexes CalculateIndexes() => DeclaringEntityType.CalculateIndexes(this);
     }
