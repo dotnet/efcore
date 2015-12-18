@@ -63,13 +63,6 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         }
 
         [Fact]
-        public void Is_defined_throws_when_enum_out_of_range()
-        {
-            // ReSharper disable once NotResolvedInText
-            Assert.Throws<ArgumentException>(() => Check.IsDefined((EntityState)42, "foo"));
-        }
-
-        [Fact]
         public void Valid_entity_type_throws_when_type_is_not_class()
         {
             Assert.Equal(

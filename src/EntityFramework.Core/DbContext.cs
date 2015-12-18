@@ -490,7 +490,7 @@ namespace Microsoft.Data.Entity
         public virtual EntityEntry<TEntity> Add<TEntity>(
             [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, IsDefined(behavior));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
@@ -508,7 +508,7 @@ namespace Microsoft.Data.Entity
         public virtual EntityEntry<TEntity> Attach<TEntity>(
             [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, IsDefined(behavior));
 
         /// <summary>
         ///     <para>
@@ -534,7 +534,7 @@ namespace Microsoft.Data.Entity
         public virtual EntityEntry<TEntity> Update<TEntity>(
             [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, IsDefined(behavior));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -594,7 +594,7 @@ namespace Microsoft.Data.Entity
         public virtual EntityEntry Add(
             [NotNull] object entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, IsDefined(behavior));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity
         public virtual EntityEntry Attach(
             [NotNull] object entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, IsDefined(behavior));
 
         /// <summary>
         ///     <para>
@@ -635,7 +635,7 @@ namespace Microsoft.Data.Entity
         public virtual EntityEntry Update(
             [NotNull] object entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, IsDefined(behavior));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -741,7 +741,7 @@ namespace Microsoft.Data.Entity
         public virtual void AddRange(
             [NotNull] IEnumerable<object> entities,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added, IsDefined(behavior));
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
@@ -754,7 +754,7 @@ namespace Microsoft.Data.Entity
         public virtual void AttachRange(
             [NotNull] IEnumerable<object> entities,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged, IsDefined(behavior));
 
         /// <summary>
         ///     <para>
@@ -774,7 +774,7 @@ namespace Microsoft.Data.Entity
         public virtual void UpdateRange(
             [NotNull] IEnumerable<object> entities,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified, IsDefined(behavior));
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
@@ -824,5 +824,16 @@ namespace Microsoft.Data.Entity
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
         public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class => _setInitializer.Value.CreateSet<TEntity>(this);
+
+        private static GraphBehavior IsDefined(GraphBehavior behavior)
+        {
+            if (behavior != GraphBehavior.IncludeDependents
+                && behavior != GraphBehavior.SingleObject)
+            {
+                throw new ArgumentException(CoreStrings.InvalidEnumValue(nameof(behavior), typeof(GraphBehavior)));
+            }
+
+            return behavior;
+        }
     }
 }

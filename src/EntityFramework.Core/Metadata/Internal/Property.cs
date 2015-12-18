@@ -155,8 +155,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
             else
             {
-                Check.IsDefined(valueGenerated.Value, nameof(valueGenerated));
-
                 SetFlag(valueGenerated.Value == ValueGenerated.OnAdd, PropertyFlags.ValueGeneratedOnAdd);
                 SetFlag(valueGenerated.Value == ValueGenerated.OnAddOrUpdate, PropertyFlags.ValueGeneratedOnAddOrUpdate);
                 UpdateValueGeneratedConfigurationSource(configurationSource);
