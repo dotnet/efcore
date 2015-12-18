@@ -48,9 +48,15 @@ namespace Microsoft.Data.Entity
     {
         private static readonly ConcurrentDictionary<Type, Type> _optionsTypes = new ConcurrentDictionary<Type, Type>();
 
-        private LazyRef<IDbContextServices> _contextServices;
-        private LazyRef<IDbSetInitializer> _setInitializer;
-        private LazyRef<ChangeTracker> _changeTracker;
+        private IServiceProvider _globalServiceProvider;
+        private DbContextOptions _options;
+        private IDbContextServices _contextServices;
+        private IDbSetInitializer _setInitializer;
+        private ChangeTracker _changeTracker;
+        private IStateManager _stateManager;
+        private IChangeDetector _changeDetector;
+        private IEntityGraphAttacher _graphAttacher;
+        private IModel _model;
         private ILogger _logger;
 
         private bool _initializing;
@@ -144,10 +150,9 @@ namespace Microsoft.Data.Entity
 
         private void Initialize(IServiceProvider serviceProvider, DbContextOptions options)
         {
+            _globalServiceProvider = serviceProvider;
+            _options = options;
             InitializeSets(serviceProvider, options);
-            _contextServices = new LazyRef<IDbContextServices>(() => InitializeServices(serviceProvider, options));
-            _setInitializer = new LazyRef<IDbSetInitializer>(() => ServiceProvider.GetRequiredService<IDbSetInitializer>());
-            _changeTracker = new LazyRef<ChangeTracker>(() => ServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
         }
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)
@@ -171,9 +176,13 @@ namespace Microsoft.Data.Entity
             return options ?? new DbContextOptions<DbContext>();
         }
 
-        private IChangeDetector GetChangeDetector() => ServiceProvider.GetRequiredService<IChangeDetector>();
+        private IChangeDetector ChangeDetector
+            => _changeDetector
+               ?? (_changeDetector = ServiceProvider.GetRequiredService<IChangeDetector>());
 
-        private IStateManager GetStateManager() => ServiceProvider.GetRequiredService<IStateManager>();
+        private IStateManager StateManager
+            => _stateManager
+               ?? (_stateManager = ServiceProvider.GetRequiredService<IStateManager>());
 
         private IServiceProvider ServiceProvider
         {
@@ -183,7 +192,7 @@ namespace Microsoft.Data.Entity
                 {
                     throw new ObjectDisposedException(GetType().Name);
                 }
-                return _contextServices.Value.ServiceProvider;
+                return (_contextServices ?? (_contextServices = InitializeServices(_globalServiceProvider, _options))).ServiceProvider;
             }
         }
 
@@ -309,7 +318,7 @@ namespace Microsoft.Data.Entity
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            var stateManager = GetStateManager();
+            var stateManager = StateManager;
 
             TryDetectChanges(stateManager);
 
@@ -333,7 +342,7 @@ namespace Microsoft.Data.Entity
         {
             if (ChangeTracker.AutoDetectChangesEnabled)
             {
-                GetChangeDetector().DetectChanges(stateManager);
+                ChangeDetector.DetectChanges(stateManager);
             }
         }
 
@@ -385,11 +394,11 @@ namespace Microsoft.Data.Entity
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = GetStateManager();
+            var stateManager = StateManager;
 
             if (ChangeTracker.AutoDetectChangesEnabled)
             {
-                GetChangeDetector().DetectChanges(stateManager);
+                ChangeDetector.DetectChanges(stateManager);
             }
 
             try
@@ -428,13 +437,13 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, nameof(entity));
 
-            TryDetectChanges(GetStateManager());
+            TryDetectChanges(StateManager);
 
             return EntryWithoutDetectChanges(entity);
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity) where TEntity : class
-            => new EntityEntry<TEntity>(GetStateManager().GetOrCreateEntry(entity));
+            => new EntityEntry<TEntity>(StateManager.GetOrCreateEntry(entity));
 
         /// <summary>
         ///     <para>
@@ -453,20 +462,22 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, nameof(entity));
 
-            TryDetectChanges(GetStateManager());
+            TryDetectChanges(StateManager);
 
             return EntryWithoutDetectChanges(entity);
         }
 
         private EntityEntry EntryWithoutDetectChanges(object entity)
-            => new EntityEntry(GetStateManager().GetOrCreateEntry(entity));
+            => new EntityEntry(StateManager.GetOrCreateEntry(entity));
 
         private void SetEntityState(InternalEntityEntry entry, EntityState entityState, GraphBehavior behavior)
         {
             if ((behavior == GraphBehavior.IncludeDependents)
                 && (entry.EntityState == EntityState.Detached))
             {
-                ServiceProvider.GetRequiredService<IEntityGraphAttacher>().AttachGraph(entry, entityState);
+                (_graphAttacher
+                 ?? (_graphAttacher = ServiceProvider.GetRequiredService<IEntityGraphAttacher>()))
+                    .AttachGraph(entry, entityState);
             }
             else
             {
@@ -722,7 +733,7 @@ namespace Microsoft.Data.Entity
 
         private void SetEntityStates(IEnumerable<object> entities, EntityState entityState, GraphBehavior behavior)
         {
-            var stateManager = GetStateManager();
+            var stateManager = StateManager;
 
             foreach (var entity in entities)
             {
@@ -790,7 +801,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entities, nameof(entities));
 
-            var stateManager = GetStateManager();
+            var stateManager = StateManager;
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
             // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
@@ -811,19 +822,25 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
-        public virtual ChangeTracker ChangeTracker => _changeTracker.Value;
+        public virtual ChangeTracker ChangeTracker
+            => _changeTracker
+               ?? (_changeTracker = ServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
         /// </summary>
-        public virtual IModel Model => ServiceProvider.GetRequiredService<IModel>();
+        public virtual IModel Model
+            => _model
+               ?? (_model = ServiceProvider.GetRequiredService<IModel>());
 
         /// <summary>
         ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
-        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class => _setInitializer.Value.CreateSet<TEntity>(this);
+        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class
+            => (_setInitializer
+                ?? (_setInitializer = ServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
 
         private static GraphBehavior IsDefined(GraphBehavior behavior)
         {
