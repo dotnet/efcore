@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             using (var context = new MyContext(options))
             {
                 context.Database.EnsureCreated();
-                context.Add(new Child { ParentId = 4 });
+                context.AddWithChildren(new Child { ParentId = 4 });
                 if (suppress)
                 {
                     context.SaveChanges();
@@ -104,8 +104,8 @@ CREATE TABLE Comment (
 
             using (var context = new BloggingContext(options))
             {
-                var entry = context.User.Add(new User { AltId = 1356524 });
-                context.Comments.Add(new Comment { User = entry.Entity });
+                var entry = context.User.AddWithChildren(new User { AltId = 1356524 });
+                context.Comments.AddWithChildren(new Comment { User = entry.Entity });
                 context.SaveChanges();
                 id = entry.Entity.Id;
             }

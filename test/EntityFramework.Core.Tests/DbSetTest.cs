@@ -16,19 +16,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context()
         {
-            TrackEntitiesTest((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Added);
+            TrackEntitiesTest((c, e) => c.Add(e ), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached()
         {
-            TrackEntitiesTest((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged);
+            TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_updated()
         {
-            TrackEntitiesTest((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Modified);
+            TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
         }
 
         [Fact]
@@ -40,19 +40,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_graph()
         {
-            TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+            TrackEntitiesTest((c, e) => c.AddWithChildren(e), (c, e) => c.AddWithChildren(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached_graph()
         {
-            TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            TrackEntitiesTest((c, e) => c.AttachWithChildren(e), (c, e) => c.AttachWithChildren(e), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_updated_graph()
         {
-            TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            TrackEntitiesTest((c, e) => c.UpdateWithChildren(e), (c, e) => c.UpdateWithChildren(e), EntityState.Modified);
         }
 
         private static void TrackEntitiesTest(
@@ -96,19 +96,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_multiple_new_entities_to_set()
         {
-            TrackMultipleEntitiesTest((c, e) => c.Categories.AddRange(e[0], e[1]), (c, e) => c.Products.AddRange(e[0], e[1]), EntityState.Added);
+            TrackMultipleEntitiesTest((c, e) => c.Categories.AddRangeWithChildren(e[0], e[1]), (c, e) => c.Products.AddRangeWithChildren(e[0], e[1]), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_attached()
         {
-            TrackMultipleEntitiesTest((c, e) => c.Categories.AttachRange(e[0], e[1]), (c, e) => c.Products.AttachRange(e[0], e[1]), EntityState.Unchanged);
+            TrackMultipleEntitiesTest((c, e) => c.Categories.AttachRangeWithChildren(e[0], e[1]), (c, e) => c.Products.AttachRangeWithChildren(e[0], e[1]), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_updated()
         {
-            TrackMultipleEntitiesTest((c, e) => c.Categories.UpdateRange(e[0], e[1]), (c, e) => c.Products.UpdateRange(e[0], e[1]), EntityState.Modified);
+            TrackMultipleEntitiesTest((c, e) => c.Categories.UpdateRangeWithChildren(e[0], e[1]), (c, e) => c.Products.UpdateRangeWithChildren(e[0], e[1]), EntityState.Modified);
         }
 
         [Fact]
@@ -151,19 +151,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_no_new_entities_to_set()
         {
-            TrackNoEntitiesTest(c => c.Categories.AddRange(), c => c.Products.AddRange());
+            TrackNoEntitiesTest(c => c.Categories.AddRangeWithChildren(), c => c.Products.AddRangeWithChildren());
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_attached()
         {
-            TrackNoEntitiesTest(c => c.Categories.AttachRange(), c => c.Products.AttachRange());
+            TrackNoEntitiesTest(c => c.Categories.AttachRangeWithChildren(), c => c.Products.AttachRangeWithChildren());
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_updated()
         {
-            TrackNoEntitiesTest(c => c.Categories.UpdateRange(), c => c.Products.UpdateRange());
+            TrackNoEntitiesTest(c => c.Categories.UpdateRangeWithChildren(), c => c.Products.UpdateRangeWithChildren());
         }
 
         [Fact]
@@ -185,19 +185,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_multiple_new_entities_to_set_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Products.AddRange(e, behavior: GraphBehavior.SingleObject), EntityState.Added);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Products.AttachRange(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Products.UpdateRange(e, behavior: GraphBehavior.SingleObject), EntityState.Modified);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e), EntityState.Modified);
         }
 
         [Fact]
@@ -209,19 +209,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_multiple_new_entities_to_set_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e), EntityState.Added);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRangeWithChildren(e), (c, e) => c.Products.AddRangeWithChildren(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e), EntityState.Unchanged);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRangeWithChildren(e), (c, e) => c.Products.AttachRangeWithChildren(e), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e), EntityState.Modified);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRangeWithChildren(e), (c, e) => c.Products.UpdateRangeWithChildren(e), EntityState.Modified);
         }
 
         private static void TrackMultipleEntitiesTestEnumerable(
@@ -258,19 +258,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_no_new_entities_to_set_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Products.AddRange(e, behavior: GraphBehavior.SingleObject));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Products.AttachRange(e, behavior: GraphBehavior.SingleObject));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Products.UpdateRange(e, behavior: GraphBehavior.SingleObject));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
         }
 
         [Fact]
@@ -282,19 +282,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_no_new_entities_to_set_Enumerable_graph()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRangeWithChildren(e), (c, e) => c.Products.AddRangeWithChildren(e));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable_graph()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRangeWithChildren(e), (c, e) => c.Products.AttachRangeWithChildren(e));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable_graph()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRangeWithChildren(e), (c, e) => c.Products.UpdateRangeWithChildren(e));
         }
 
         private static void TrackNoEntitiesTestEnumerable(
@@ -312,31 +312,31 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Add_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Detached, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Deleted, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Modified, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Added, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Detached, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Unchanged, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Deleted, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Modified, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Added, EntityState.Added);
         }
 
         [Fact]
         public void Can_use_Attach_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Detached, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Deleted, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Modified, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Added, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Detached, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Deleted, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Modified, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Added, EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_use_Update_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Detached, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Deleted, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Modified, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Added, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Detached, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Unchanged, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Deleted, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Modified, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Added, EntityState.Modified);
         }
 
         [Fact]
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_with_key_generation()
         {
-            TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e).Entity);
+            TrackEntitiesWithKeyGenerationTest((c, e) => c.AddWithChildren(e).Entity);
         }
 
         private static void TrackEntitiesWithKeyGenerationTest(Func<DbSet<TheGu>, TheGu, TheGu> adder)

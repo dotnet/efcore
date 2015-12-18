@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 entityEntry.GetInfrastructure()[nameProperty] = "A";
 
-                context.Update(entityFromStore);
+                context.UpdateWithChildren(entityFromStore);
 
                 context.SaveChanges();
             }

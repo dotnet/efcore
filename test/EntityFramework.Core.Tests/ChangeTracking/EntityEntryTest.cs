@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = new Chunky();
-                context.Add(entity);
+                context.AddWithChildren(entity);
 
                 Assert.Same(entity, context.Entry(entity).Entity);
                 Assert.Same(entity, context.Entry((object)entity).Entity);
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
 
                 Assert.Same(context, context.Entry(entity).Context);
                 Assert.Same(context, context.Entry((object)entity).Context);
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
                 var entry = context.ChangeTracker.GetInfrastructure().GetOrCreateEntry(entity);
 
                 Assert.Same(entry, context.Entry(entity).GetInfrastructure());
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
                 var entityType = context.Model.FindEntityType(typeof(Chunky));
 
                 Assert.Same(entityType, context.Entry(entity).Metadata);
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = new Chunky();
-                var entry = context.Add(entity).GetInfrastructure();
+                var entry = context.AddWithChildren(entity).GetInfrastructure();
 
                 context.Entry(entity).State = EntityState.Modified;
                 Assert.Equal(EntityState.Modified, entry.EntityState);
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entry = context.Add(new Chunky());
+                var entry = context.AddWithChildren(new Chunky());
 
                 entry.State = initialState;
                 entry.State = expectedState;
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
 
                 Assert.Equal("Monkey", context.Entry(entity).Property("Monkey").Metadata.Name);
                 Assert.Equal("Monkey", context.Entry((object)entity).Property("Monkey").Metadata.Name);
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
 
                 Assert.Equal("Monkey", context.Entry(entity).Property<int>("Monkey").Metadata.Name);
             }
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
 
                 Assert.Equal(CoreStrings.WrongGenericPropertyType("Monkey", entity.GetType(), typeof(int).Name, typeof(string).Name),
                     Assert.Throws<ArgumentException>(() => context.Entry(entity).Property<string>("Monkey")).Message);
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
 
                 Assert.Equal("Monkey", context.Entry(entity).Property(e => e.Monkey).Metadata.Name);
             }
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new FreezerContext())
             {
-                var entity = context.Add(new Chunky()).Entity;
+                var entity = context.AddWithChildren(new Chunky()).Entity;
 
                 Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property("Chimp").Metadata.Name).Message);

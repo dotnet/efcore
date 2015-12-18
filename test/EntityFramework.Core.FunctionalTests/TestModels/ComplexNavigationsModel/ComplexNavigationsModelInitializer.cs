@@ -64,10 +64,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 var l3s = new[] { l3_01, l3_02, l3_03, l3_04, l3_05, l3_06, l3_07, l3_08, l3_09, l3_10 };
                 var l4s = new[] { l4_01, l4_02, l4_03, l4_04, l4_05, l4_06, l4_07, l4_08, l4_09, l4_10 };
 
-                context.LevelOne.AddRange(l1s);
-                context.LevelTwo.AddRange(l2s);
-                context.LevelThree.AddRange(l3s);
-                context.LevelFour.AddRange(l4s);
+                context.LevelOne.AddRangeWithChildren(l1s);
+                context.LevelTwo.AddRangeWithChildren(l2s);
+                context.LevelThree.AddRangeWithChildren(l3s);
+                context.LevelFour.AddRangeWithChildren(l4s);
 
                 l1s[0].OneToOne_Required_PK = l2s[0];
                 l1s[1].OneToOne_Required_PK = l2s[1];
@@ -278,7 +278,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 {
                     var language = new ComplexNavigationLanguage { Name = "Language" + i, CultureString = "Foo" + i };
 
-                    context.Languages.Add(language);
+                    context.Languages.AddWithChildren(language);
                 }
 
                 context.SaveChanges();
@@ -289,7 +289,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                     var globalization = new ComplexNavigationGlobalization { Text = "Globalization" + ii, Language = l };
                     ii++;
 
-                    context.Globalizations.Add(globalization);
+                    context.Globalizations.AddWithChildren(globalization);
                 }
 
                 context.SaveChanges();
@@ -301,13 +301,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 var mls3 = new ComplexNavigationString { DefaultText = "MLS3", Globalizations = globalizations.Skip(6).Take(3).ToList() };
                 var mls4 = new ComplexNavigationString { DefaultText = "MLS4", Globalizations = globalizations.Skip(9).ToList() };
 
-                context.MultilingualStrings.AddRange(new[] { mls1, mls2, mls3, mls4 });
+                context.MultilingualStrings.AddRangeWithChildren(new[] { mls1, mls2, mls3, mls4 });
                 context.SaveChanges();
 
                 var field1 = new ComplexNavigationField { Name = "Field1", Label = mls1, Placeholder = null };
                 var field2 = new ComplexNavigationField { Name = "Field2", Label = mls3, Placeholder = mls4 };
 
-                context.Fields.AddRange(new[] { field1, field2 });
+                context.Fields.AddRangeWithChildren(new[] { field1, field2 });
                 context.SaveChanges();
             }
         }

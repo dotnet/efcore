@@ -32,7 +32,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 {
                     foreach (var customer in customers)
                     {
-                        context.Customers.Add(customer);
+                        context.Customers.AddWithChildren(customer);
                     }
                 }
             }
@@ -51,7 +51,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
                 using (collector.StartCollection())
                 {
-                    context.Customers.AddRange(customers);
+                    context.Customers.AddRangeWithChildren(customers);
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 {
                     foreach (var customer in customers)
                     {
-                        context.Customers.Attach(customer);
+                        context.Customers.AttachWithChildren(customer);
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
                 using (collector.StartCollection())
                 {
-                    context.Customers.AttachRange(customers);
+                    context.Customers.AttachRangeWithChildren(customers);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
+                context.Customers.AttachRangeWithChildren(customers);
 
                 using (collector.StartCollection())
                 {
@@ -127,7 +127,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
+                context.Customers.AttachRangeWithChildren(customers);
 
                 using (collector.StartCollection())
                 {
@@ -146,13 +146,13 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
+                context.Customers.AttachRangeWithChildren(customers);
 
                 using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
                     {
-                        context.Customers.Update(customer);
+                        context.Customers.UpdateWithChildren(customer);
                     }
                 }
             }
@@ -168,11 +168,11 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
+                context.Customers.AttachRangeWithChildren(customers);
 
                 using (collector.StartCollection())
                 {
-                    context.Customers.UpdateRange(customers);
+                    context.Customers.UpdateRangeWithChildren(customers);
                 }
             }
         }

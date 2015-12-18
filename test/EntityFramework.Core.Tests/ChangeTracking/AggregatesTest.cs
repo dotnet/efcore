@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var posts = new[] { new Post { Comments = comments0.ToList() }, new Post { Comments = comments1.ToList() } };
                 var blog = new Blog { Posts = posts.ToList() };
 
-                context.Add(blog);
+                context.AddWithChildren(blog);
 
                 Assert.Equal(EntityState.Added, context.Entry(blog).State);
                 Assert.Equal(EntityState.Added, context.Entry(posts[0]).State);
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var statistics = new BlogCategoryStatistics();
                 var category = new BlogCategory { Statistics = statistics };
 
-                context.Add(category);
+                context.AddWithChildren(category);
 
                 Assert.Equal(EntityState.Added, context.Entry(category).State);
                 Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 };
                 var blog = new Blog { Id = 66, Posts = posts.ToList() };
 
-                context.Attach(blog);
+                context.AttachWithChildren(blog);
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(blog).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(posts[0]).State);
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var statistics = new BlogCategoryStatistics { Id = 11, BlogCategoryId = 22 };
                 var category = new BlogCategory { Id = 22, Statistics = statistics };
 
-                context.Attach(category);
+                context.AttachWithChildren(category);
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category.Statistics).State);
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var posts = new[] { new Post { Comments = comments0.ToList() }, new Post { Comments = comments1.ToList() } };
                 var blog = new Blog { Posts = posts.ToList() };
 
-                context.Attach(blog);
+                context.AttachWithChildren(blog);
 
                 Assert.Equal(EntityState.Added, context.Entry(blog).State);
                 Assert.Equal(EntityState.Added, context.Entry(posts[0]).State);
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var statistics = new BlogCategoryStatistics();
                 var category = new BlogCategory { Statistics = statistics };
 
-                context.Attach(category);
+                context.AttachWithChildren(category);
 
                 Assert.Equal(EntityState.Added, context.Entry(category).State);
                 Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 };
                 var blog = new Blog { Id = 66, Posts = posts.ToList() };
 
-                context.Attach(blog);
+                context.AttachWithChildren(blog);
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(blog).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(posts[0]).State);
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var statistics = new BlogCategoryStatistics { BlogCategoryId = 22 };
                 var category = new BlogCategory { Id = 22, Statistics = statistics };
 
-                context.Attach(category);
+                context.AttachWithChildren(category);
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 };
                 var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
 
-                context.Add(blog);
+                context.AddWithChildren(blog);
 
                 Assert.Equal(EntityState.Added, context.Entry(blog).State);
                 Assert.Equal(EntityState.Added, context.Entry(posts[0]).State);
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 comments0[0].Post = posts[0];
                 posts[0].Blog = blog;
 
-                context.Add(author);
+                context.AddWithChildren(author);
 
                 Assert.Equal(EntityState.Detached, context.Entry(blog).State);
                 Assert.Equal(EntityState.Detached, context.Entry(posts[0]).State);
@@ -250,7 +250,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 };
                 var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
 
-                context.Attach(blog);
+                context.AttachWithChildren(blog);
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(blog).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(posts[0]).State);
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 };
                 var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
 
-                context.AddRange(blog, author);
+                context.AddRangeWithChildren(blog, author);
 
                 Assert.Equal(EntityState.Added, context.Entry(blog).State);
                 Assert.Equal(EntityState.Added, context.Entry(posts[0]).State);

@@ -127,7 +127,7 @@ namespace EntityFramework.Microbenchmarks
                     {
                         using (var context = AdventureWorksFixture.CreateContext())
                         {
-                            context.Currency.Add(new Currency
+                            context.Currency.AddWithChildren(new Currency
                             {
                                 CurrencyCode = "TMP",
                                 Name = "Temporary"

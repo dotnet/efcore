@@ -475,22 +475,45 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
+        ///     Begins tracking the given entity and any of its children (dependents) that are not already being tracked
+        ///     in the <see cref="EntityState.Added" /> state such that it will
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to add. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add<TEntity>(
-            [NotNull] TEntity entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual EntityEntry<TEntity> AddWithChildren<TEntity>([NotNull] TEntity entity) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, GraphBehavior.IncludeDependents);
+
+        /// <summary>
+        ///     Begins tracking the given entityin the <see cref="EntityState.Added" /> state such that it will
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
+        /// <param name="entity"> The entity to add. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, GraphBehavior.SingleObject);
+
+        /// <summary>
+        ///     Begins tracking the given entity and any of its children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Unchanged" /> state such that no
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
+        /// <param name="entity"> The entity to attach. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry<TEntity> AttachWithChildren<TEntity>([NotNull] TEntity entity) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, GraphBehavior.IncludeDependents);
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
@@ -498,17 +521,34 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to attach. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach<TEntity>(
-            [NotNull] TEntity entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, GraphBehavior.SingleObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity and any of its children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Modified" /> state such that it will
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
+        ///         <see cref="AttachWithChildren{TEntity}" /> to begin tracking the entity in the
+        ///         <see cref="EntityState.Unchanged" /> state and then use the returned <see cref="EntityEntry{TEntity}" />
+        ///         to mark the desired properties as modified.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
+        /// <param name="entity"> The entity to update. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry<TEntity> UpdateWithChildren<TEntity>([NotNull] TEntity entity) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, GraphBehavior.IncludeDependents);
 
         /// <summary>
         ///     <para>
@@ -517,24 +557,19 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach{TEntity}(TEntity, GraphBehavior)" /> to begin tracking the entity in the
+        ///         <see cref="Attach{TEntity}" /> to begin tracking the entity in the
         ///         <see cref="EntityState.Unchanged" /> state and then use the returned <see cref="EntityEntry{TEntity}" />
         ///         to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to update. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update<TEntity>(
-            [NotNull] TEntity entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, GraphBehavior.SingleObject);
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -580,38 +615,74 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
+        ///     Begins tracking the given entity and any of its children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Added" /> state such that it will
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Add(
-            [NotNull] object entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual EntityEntry AddWithChildren([NotNull] object entity)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, GraphBehavior.IncludeDependents);
+
+        /// <summary>
+        ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <param name="entity"> The entity to add. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry Add([NotNull] object entity)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, GraphBehavior.SingleObject);
+
+        /// <summary>
+        ///     Begins tracking the given entity and any of its children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Unchanged" /> state such that no
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <param name="entity"> The entity to attach. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry AttachWithChildren([NotNull] object entity)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, GraphBehavior.IncludeDependents);
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Attach(
-            [NotNull] object entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual EntityEntry Attach([NotNull] object entity)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, GraphBehavior.SingleObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity and any of its children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Modified" /> state such that it will
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
+        ///         <see cref="AttachWithChildren" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
+        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to update. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry UpdateWithChildren([NotNull] object entity)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, GraphBehavior.IncludeDependents);
 
         /// <summary>
         ///     <para>
@@ -620,22 +691,17 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object, GraphBehavior)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Update(
-            [NotNull] object entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual EntityEntry Update([NotNull] object entity)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, GraphBehavior.SingleObject);
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -677,12 +743,30 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        ///     Begins tracking the given entities and any of their children (dependents) that are not already being tracked 
+        /// in the <see cref="EntityState.Added" /> state such that they will
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        public virtual void AddRangeWithChildren([NotNull] params object[] entities)
+            => AddRangeWithChildren((IEnumerable<object>)entities);
+
+        /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange([NotNull] params object[] entities)
             => AddRange((IEnumerable<object>)entities);
+
+        /// <summary>
+        ///     Begins tracking the given entities and any of their children (dependents) that are not already being tracked 
+        ///  in the <see cref="EntityState.Unchanged" /> state such that no
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <param name="entities"> The entities to attach. </param>
+        public virtual void AttachRangeWithChildren([NotNull] params object[] entities)
+            => AttachRangeWithChildren((IEnumerable<object>)entities);
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
@@ -694,12 +778,28 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
+        ///         Begins tracking the given entities and any of their children (dependents) that are not already being tracked 
+        ///  in the <see cref="EntityState.Modified" /> state such that they will
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
+        ///         <see cref="AttachWithChildren" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to update. </param>
+        public virtual void UpdateRangeWithChildren([NotNull] params object[] entities)
+            => UpdateRangeWithChildren((IEnumerable<object>)entities);
+
+        /// <summary>
+        ///     <para>
         ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
         ///         be updated in the database when <see cref="SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object, GraphBehavior)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
@@ -731,30 +831,54 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
+        ///     Begins tracking the given entities and any of their children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Added" /> state such that they will
+        ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <param name="entities"> The entities to add. </param>
+        public virtual void AddRangeWithChildren([NotNull] IEnumerable<object> entities)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added, GraphBehavior.IncludeDependents);
+
+        /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entities or also other related entities.
-        /// </param>
-        public virtual void AddRange(
-            [NotNull] IEnumerable<object> entities,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual void AddRange([NotNull] IEnumerable<object> entities)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added, GraphBehavior.SingleObject);
+
+        /// <summary>
+        ///     Begins tracking the given entities and any of their children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Unchanged" /> state such that no
+        ///     operation will be performed when <see cref="SaveChanges()" /> is called.
+        /// </summary>
+        /// <param name="entities"> The entities to attach. </param>
+        public virtual void AttachRangeWithChildren([NotNull] IEnumerable<object> entities)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged, GraphBehavior.IncludeDependents);
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entities or also other related entities.
-        /// </param>
-        public virtual void AttachRange(
-            [NotNull] IEnumerable<object> entities,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual void AttachRange([NotNull] IEnumerable<object> entities)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged, GraphBehavior.SingleObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entities and any of their children (dependents) that are not already being tracked
+        ///  in the <see cref="EntityState.Modified" /> state such that they will
+        ///         be updated in the database when <see cref="SaveChanges()" /> is called.
+        ///     </para>
+        ///     <para>
+        ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
+        ///         <see cref="AttachWithChildren" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
+        ///     </para>
+        /// </summary>
+        /// <param name="entities"> The entities to update. </param>
+        public virtual void UpdateRangeWithChildren([NotNull] IEnumerable<object> entities)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified, GraphBehavior.IncludeDependents);
 
         /// <summary>
         ///     <para>
@@ -763,18 +887,13 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object, GraphBehavior)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entities or also other related entities.
-        /// </param>
-        public virtual void UpdateRange(
-            [NotNull] IEnumerable<object> entities,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
+        public virtual void UpdateRange([NotNull] IEnumerable<object> entities)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified, GraphBehavior.SingleObject);
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
@@ -824,5 +943,11 @@ namespace Microsoft.Data.Entity
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
         public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class => _setInitializer.Value.CreateSet<TEntity>(this);
+
+        private enum GraphBehavior
+        {
+            IncludeDependents,
+            SingleObject
+        }
     }
 }

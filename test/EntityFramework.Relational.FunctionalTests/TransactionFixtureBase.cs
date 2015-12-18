@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             foreach (var customer in Customers)
             {
-                context.Add(customer);
+                context.AddWithChildren(customer);
             }
 
             context.SaveChanges();

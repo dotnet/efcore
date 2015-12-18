@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         Members = new List<Gear>()
                     };
 
-                context.Squads.Add(deltaSquad);
+                context.Squads.AddWithChildren(deltaSquad);
                 context.SaveChanges();
 
                 var kiloSquad = new Squad
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         Members = new List<Gear>()
                     };
 
-                context.Squads.Add(kiloSquad);
+                context.Squads.AddWithChildren(kiloSquad);
                 context.SaveChanges();
 
                 var jacinto = new City
@@ -56,10 +56,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         Name = "Unknown"
                     };
 
-                context.Cities.Add(jacinto);
-                context.Cities.Add(ephyra);
-                context.Cities.Add(hanover);
-                context.Cities.Add(unknown);
+                context.Cities.AddWithChildren(jacinto);
+                context.Cities.AddWithChildren(ephyra);
+                context.Cities.AddWithChildren(hanover);
+                context.Cities.AddWithChildren(unknown);
 
                 context.SaveChanges();
 
@@ -123,16 +123,16 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         Name = "Mauler's Flail"
                     };
 
-                context.Weapons.Add(marcusLancer);
-                context.Weapons.Add(marcusGnasher);
-                context.Weapons.Add(domsHammerburst);
-                context.Weapons.Add(domsGnasher);
-                context.Weapons.Add(colesGnasher);
-                context.Weapons.Add(colesMulcher);
-                context.Weapons.Add(bairdsLancer);
-                context.Weapons.Add(bairdsGnasher);
-                context.Weapons.Add(paduksMarkza);
-                context.Weapons.Add(maulersFlail);
+                context.Weapons.AddWithChildren(marcusLancer);
+                context.Weapons.AddWithChildren(marcusGnasher);
+                context.Weapons.AddWithChildren(domsHammerburst);
+                context.Weapons.AddWithChildren(domsGnasher);
+                context.Weapons.AddWithChildren(colesGnasher);
+                context.Weapons.AddWithChildren(colesMulcher);
+                context.Weapons.AddWithChildren(bairdsLancer);
+                context.Weapons.AddWithChildren(bairdsGnasher);
+                context.Weapons.AddWithChildren(paduksMarkza);
+                context.Weapons.AddWithChildren(maulersFlail);
                 context.SaveChanges();
 
                 var marcusTag = new CogTag
@@ -171,12 +171,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         Note = "K.I.A."
                     };
 
-                context.Tags.Add(marcusTag);
-                context.Tags.Add(domsTag);
-                context.Tags.Add(colesTag);
-                context.Tags.Add(bairdsTag);
-                context.Tags.Add(paduksTag);
-                context.Tags.Add(kiaTag);
+                context.Tags.AddWithChildren(marcusTag);
+                context.Tags.AddWithChildren(domsTag);
+                context.Tags.AddWithChildren(colesTag);
+                context.Tags.AddWithChildren(bairdsTag);
+                context.Tags.AddWithChildren(paduksTag);
+                context.Tags.AddWithChildren(kiaTag);
                 context.SaveChanges();
 
                 var dom = new Gear
@@ -239,11 +239,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         Weapons = new List<Weapon> { marcusLancer, marcusGnasher }
                     };
 
-                context.Gears.Add(marcus);
-                context.Gears.Add(dom);
-                context.Gears.Add(cole);
-                context.Gears.Add(baird);
-                context.Gears.Add(paduk);
+                context.Gears.AddWithChildren(marcus);
+                context.Gears.AddWithChildren(dom);
+                context.Gears.AddWithChildren(cole);
+                context.Gears.AddWithChildren(baird);
+                context.Gears.AddWithChildren(paduk);
 
                 context.SaveChanges();
             }

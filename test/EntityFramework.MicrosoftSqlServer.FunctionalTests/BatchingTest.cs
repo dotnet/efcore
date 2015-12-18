@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 for (var i = 1; i < 1101; i++)
                 {
                     var blog = new Blog { Id = i, Name = "Foo" + i };
-                    context.Blogs.Add(blog);
+                    context.Blogs.AddWithChildren(blog);
                 }
 
                 context.SaveChanges();

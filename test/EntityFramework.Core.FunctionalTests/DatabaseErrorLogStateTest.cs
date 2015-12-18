@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = new BloggingContext(serviceProvider))
             {
-                context.Blogs.Add(new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
+                context.Blogs.AddWithChildren(new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
                 context.SaveChanges();
                 context.ChangeTracker.Entries().Single().State = EntityState.Added;
 
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = new BloggingContext(serviceProvider))
             {
-                context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
+                context.Blogs.AddWithChildren(new BloggingContext.Blog(false) { Url = "http://sample.com" });
                 context.SaveChanges();
                 var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
                 context.ChangeTracker.GetInfrastructure().StopTracking(entry);
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = new BloggingContext(serviceProvider))
             {
-                context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
+                context.Blogs.AddWithChildren(new BloggingContext.Blog(false) { Url = "http://sample.com" });
 
                 ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
 

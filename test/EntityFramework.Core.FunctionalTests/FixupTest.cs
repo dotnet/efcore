@@ -17,30 +17,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = new FixupContext())
             {
-                context.Add(new Category { Id = 11 });
-                context.Add(new Category { Id = 12 });
-                context.Add(new Category { Id = 13 });
+                context.AddWithChildren(new Category { Id = 11 });
+                context.AddWithChildren(new Category { Id = 12 });
+                context.AddWithChildren(new Category { Id = 13 });
 
-                context.Add(new Product { Id = 21, CategoryId = 11 });
+                context.AddWithChildren(new Product { Id = 21, CategoryId = 11 });
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 22, CategoryId = 11 });
+                context.AddWithChildren(new Product { Id = 22, CategoryId = 11 });
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 23, CategoryId = 11 });
+                context.AddWithChildren(new Product { Id = 23, CategoryId = 11 });
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 24, CategoryId = 12 });
+                context.AddWithChildren(new Product { Id = 24, CategoryId = 12 });
                 AssertAllFixedUp(context);
-                context.Add(new Product { Id = 25, CategoryId = 12 });
+                context.AddWithChildren(new Product { Id = 25, CategoryId = 12 });
                 AssertAllFixedUp(context);
 
-                context.Add(new SpecialOffer { Id = 31, ProductId = 22 });
+                context.AddWithChildren(new SpecialOffer { Id = 31, ProductId = 22 });
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 32, ProductId = 22 });
+                context.AddWithChildren(new SpecialOffer { Id = 32, ProductId = 22 });
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 33, ProductId = 24 });
+                context.AddWithChildren(new SpecialOffer { Id = 33, ProductId = 24 });
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 34, ProductId = 24 });
+                context.AddWithChildren(new SpecialOffer { Id = 34, ProductId = 24 });
                 AssertAllFixedUp(context);
-                context.Add(new SpecialOffer { Id = 35, ProductId = 24 });
+                context.AddWithChildren(new SpecialOffer { Id = 35, ProductId = 24 });
                 AssertAllFixedUp(context);
 
                 Assert.Equal(3, context.ChangeTracker.Entries<Category>().Count());
@@ -126,33 +126,33 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 product24.SpecialOffers.Add(specialOffer34);
                 product24.SpecialOffers.Add(specialOffer35);
 
-                context.Add(category11);
+                context.AddWithChildren(category11);
                 AssertAllFixedUp(context);
-                context.Add(category12);
+                context.AddWithChildren(category12);
                 AssertAllFixedUp(context);
-                context.Add(category13);
-                AssertAllFixedUp(context);
-
-                context.Add(product21);
-                AssertAllFixedUp(context);
-                context.Add(product22);
-                AssertAllFixedUp(context);
-                context.Add(product23);
-                AssertAllFixedUp(context);
-                context.Add(product24);
-                AssertAllFixedUp(context);
-                context.Add(product25);
+                context.AddWithChildren(category13);
                 AssertAllFixedUp(context);
 
-                context.Add(specialOffer31);
+                context.AddWithChildren(product21);
                 AssertAllFixedUp(context);
-                context.Add(specialOffer32);
+                context.AddWithChildren(product22);
                 AssertAllFixedUp(context);
-                context.Add(specialOffer33);
+                context.AddWithChildren(product23);
                 AssertAllFixedUp(context);
-                context.Add(specialOffer34);
+                context.AddWithChildren(product24);
                 AssertAllFixedUp(context);
-                context.Add(specialOffer35);
+                context.AddWithChildren(product25);
+                AssertAllFixedUp(context);
+
+                context.AddWithChildren(specialOffer31);
+                AssertAllFixedUp(context);
+                context.AddWithChildren(specialOffer32);
+                AssertAllFixedUp(context);
+                context.AddWithChildren(specialOffer33);
+                AssertAllFixedUp(context);
+                context.AddWithChildren(specialOffer34);
+                AssertAllFixedUp(context);
+                context.AddWithChildren(specialOffer35);
                 AssertAllFixedUp(context);
 
                 Assert.Equal(3, category11.Products.Count);

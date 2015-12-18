@@ -114,14 +114,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public static void Seed(DataAnnotationContext context)
         {
-            context.Ones.Add(new One { RequiredColumn = "First", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
-            context.Ones.Add(new One { RequiredColumn = "Second", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
+            context.Ones.AddWithChildren(new One { RequiredColumn = "First", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
+            context.Ones.AddWithChildren(new One { RequiredColumn = "Second", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
 
 
-            context.Twos.Add(new Two { Data = "First" });
-            context.Twos.Add(new Two { Data = "Second" });
+            context.Twos.AddWithChildren(new Two { Data = "First" });
+            context.Twos.AddWithChildren(new Two { Data = "Second" });
 
-            context.Books.Add(new Book { Id = "Book1" });
+            context.Books.AddWithChildren(new Book { Id = "Book1" });
 
             context.SaveChanges();
         }

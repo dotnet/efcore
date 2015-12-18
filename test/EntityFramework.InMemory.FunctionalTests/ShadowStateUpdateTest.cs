@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                context.Add(customer);
+                context.AddWithChildren(customer);
 
                 // TODO: Better API for shadow state access
                 var customerEntry = context.Entry(customer).GetInfrastructure();
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 var customerEntry = context.Entry(customer).GetInfrastructure();
                 customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
 
-                context.Update(customer);
+                context.UpdateWithChildren(customer);
 
                 await context.SaveChangesAsync();
             }

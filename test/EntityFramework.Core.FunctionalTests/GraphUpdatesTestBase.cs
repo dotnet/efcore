@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(new1, new2a, new2b);
+                    context.AddRangeWithChildren(new1, new2a, new2b);
                     context.SaveChanges();
                 }
             }
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2a, new2b);
+                    context.AddRangeWithChildren(new1, new2a, new2b);
                 }
 
                 switch (changeMechanism)
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot, new1, new2a, new2b);
+                    context.AddRangeWithChildren(newRoot, new1, new2a, new2b);
                     context.SaveChanges();
                 }
             }
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2a, new2b);
+                    context.AddRangeWithChildren(new1, new2a, new2b);
                 }
 
                 switch (changeMechanism)
@@ -334,7 +334,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(new1, new2);
+                    context.AddRangeWithChildren(new1, new2);
                     context.SaveChanges();
                 }
             }
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2);
+                    context.AddRangeWithChildren(new1, new2);
                 }
 
                 switch (changeMechanism)
@@ -446,14 +446,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Dependent:
-                        context.Add(new1);
+                        context.AddWithChildren(new1);
                         new1.Root = root;
                         break;
                     case ChangeMechanism.Principal:
                         root.RequiredSingle = new1;
                         break;
                     case ChangeMechanism.FK:
-                        context.Add(new1);
+                        context.AddWithChildren(new1);
                         new1.Id = root.Id;
                         break;
                     default:
@@ -500,7 +500,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot, new1, new2);
+                    context.AddRangeWithChildren(newRoot, new1, new2);
                     context.SaveChanges();
                 }
             }
@@ -522,7 +522,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(newRoot, new1, new2);
+                    context.AddRangeWithChildren(newRoot, new1, new2);
                 }
 
                 switch (changeMechanism)
@@ -727,7 +727,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot);
+                    context.AddRangeWithChildren(newRoot);
                     context.SaveChanges();
                 }
             }
@@ -802,7 +802,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot);
+                    context.AddRangeWithChildren(newRoot);
                     context.SaveChanges();
                 }
             }
@@ -851,7 +851,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot);
+                    context.AddRangeWithChildren(newRoot);
                     context.SaveChanges();
                 }
             }
@@ -928,7 +928,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(new1, new2a, new2b);
+                    context.AddRangeWithChildren(new1, new2a, new2b);
                     context.SaveChanges();
                 }
             }
@@ -948,7 +948,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2a, new2b);
+                    context.AddRangeWithChildren(new1, new2a, new2b);
                 }
 
                 switch (changeMechanism)
@@ -1017,7 +1017,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot, new1, new2a, new2b);
+                    context.AddRangeWithChildren(newRoot, new1, new2a, new2b);
                     context.SaveChanges();
                 }
             }
@@ -1037,7 +1037,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2a, new2b);
+                    context.AddRangeWithChildren(new1, new2a, new2b);
                 }
 
                 switch (changeMechanism)
@@ -1221,7 +1221,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(new1, new2);
+                    context.AddRangeWithChildren(new1, new2);
                     context.SaveChanges();
                 }
             }
@@ -1243,7 +1243,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2);
+                    context.AddRangeWithChildren(new1, new2);
                 }
 
                 switch (changeMechanism)
@@ -1307,7 +1307,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot, new1, new2);
+                    context.AddRangeWithChildren(newRoot, new1, new2);
                     context.SaveChanges();
                 }
             }
@@ -1329,7 +1329,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(newRoot, new1, new2);
+                    context.AddRangeWithChildren(newRoot, new1, new2);
                 }
 
                 switch (changeMechanism)
@@ -1387,7 +1387,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.AddRange(newRoot, new1, new2);
+                    context.AddRangeWithChildren(newRoot, new1, new2);
                     context.SaveChanges();
                 }
             }
@@ -1409,7 +1409,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2);
+                    context.AddRangeWithChildren(new1, new2);
                 }
 
                 switch (changeMechanism)
@@ -1614,7 +1614,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.Add(newRoot);
+                    context.AddWithChildren(newRoot);
                     context.SaveChanges();
                 }
             }
@@ -1689,7 +1689,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.Add(newRoot);
+                    context.AddWithChildren(newRoot);
                     context.SaveChanges();
                 }
             }
@@ -1764,7 +1764,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    context.Add(newRoot);
+                    context.AddWithChildren(newRoot);
                     context.SaveChanges();
                 }
             }

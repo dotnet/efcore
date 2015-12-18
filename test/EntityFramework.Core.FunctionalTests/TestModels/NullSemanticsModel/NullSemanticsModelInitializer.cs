@@ -90,8 +90,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemanticsModel
                     }
                 }
 
-                context.Entities1.AddRange(entities1);
-                context.Entities2.AddRange(entities2);
+                context.Entities1.AddRangeWithChildren(entities1);
+                context.Entities2.AddRangeWithChildren(entities2);
                 context.SaveChanges();
             }
         }

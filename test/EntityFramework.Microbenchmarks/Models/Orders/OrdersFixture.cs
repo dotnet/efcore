@@ -89,21 +89,21 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
             var products = CreateProducts(_productCount, setPrimaryKeys: false);
             using (var context = new OrdersContext(ConnectionString))
             {
-                context.Products.AddRange(products);
+                context.Products.AddRangeWithChildren(products);
                 context.SaveChanges();
             }
 
             var customers = CreateCustomers(_customerCount, setPrimaryKeys: false);
             using (var context = new OrdersContext(ConnectionString))
             {
-                context.Customers.AddRange(customers);
+                context.Customers.AddRangeWithChildren(customers);
                 context.SaveChanges();
             }
 
             var orders = CreateOrders(customers, _ordersPerCustomer, setPrimaryKeys: false);
             using (var context = new OrdersContext(ConnectionString))
             {
-                context.Orders.AddRange(orders);
+                context.Orders.AddRangeWithChildren(orders);
                 context.SaveChanges();
             }
 
@@ -111,7 +111,7 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
             using (var context = new OrdersContext(ConnectionString))
             {
-                context.OrderLines.AddRange(lines);
+                context.OrderLines.AddRangeWithChildren(lines);
                 context.SaveChanges();
             }
         }

@@ -62,12 +62,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             usa.Animals.Add(eagle);
 
-            context.Set<Animal>().Add(kiwi);
-            context.Set<Bird>().Add(eagle);
-            context.Set<Country>().Add(nz);
-            context.Set<Country>().Add(usa);
-            context.Set<Rose>().Add(rose);
-            context.Set<Daisy>().Add(daisy);
+            context.Set<Animal>().AddWithChildren(kiwi);
+            context.Set<Bird>().AddWithChildren(eagle);
+            context.Set<Country>().AddWithChildren(nz);
+            context.Set<Country>().AddWithChildren(usa);
+            context.Set<Rose>().AddWithChildren(rose);
+            context.Set<Daisy>().AddWithChildren(daisy);
 
             context.SaveChanges();
         }

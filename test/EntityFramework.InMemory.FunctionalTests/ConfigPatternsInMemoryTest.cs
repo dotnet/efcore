@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             using (var context = new ImplicitServicesAndConfigBlogContext())
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new ImplicitServicesExplicitConfigBlogContext(optionsBuilder.Options))
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new ExplicitServicesImplicitConfigBlogContext(serviceProvider))
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, optionsBuilder.Options))
             {
-                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 context.SaveChanges();
             }
 
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     {
                         using (var context = new NoServicesAndNoConfigBlogContext())
                         {
-                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                            context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                             context.SaveChanges();
                         }
                     }).Message);
@@ -196,7 +196,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     {
                         using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
                         {
-                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                            context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                             context.SaveChanges();
                         }
                     }).Message);
@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public void Test()
             {
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -299,7 +299,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public void Test()
             {
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public void Test()
             {
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -420,7 +420,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsBlogContext>>(
                     _context.GetService<IDbContextOptions>());
 
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -446,7 +446,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsAccountContext>>(
                     _context.GetService<IDbContextOptions>());
 
-                _context.Accounts.Add(new Account { Name = "Eeky Bear" });
+                _context.Accounts.AddWithChildren(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();
 
                 var account = _context.Accounts.SingleOrDefault();
@@ -548,7 +548,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>>(
                     _context.GetService<IDbContextOptions>());
 
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.Blogs.AddWithChildren(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
 
                 var blog = _context.Blogs.SingleOrDefault();
@@ -574,7 +574,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>>(
                     _context.GetService<IDbContextOptions>());
 
-                _context.Accounts.Add(new Account { Name = "Eeky Bear" });
+                _context.Accounts.AddWithChildren(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();
 
                 var account = _context.Accounts.SingleOrDefault();

@@ -43,8 +43,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 for (var i = 0; i < 50; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Rainbow Dash " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 context.SaveChanges();
@@ -82,8 +82,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 for (var i = 0; i < 50; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Rainbow Dash " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();

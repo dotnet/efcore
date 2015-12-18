@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category = context.Add(new Category()).Entity;
-                var product = context.Add(new Product()).Entity;
+                var category = context.AddWithChildren(new Category()).Entity;
+                var product = context.AddWithChildren(new Product()).Entity;
 
                 Assert.Equal(
                     new object[] { category, product },
@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category = context.Add(new Category()).Entity;
-                var product = context.Add(new Product()).Entity;
+                var category = context.AddWithChildren(new Category()).Entity;
+                var product = context.AddWithChildren(new Product()).Entity;
 
                 Assert.Equal(
                     new object[] { product },
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var existingProduct = context.Attach(new Product { Id = 2, CategoryId = 1 }).Entity;
+                var existingProduct = context.AttachWithChildren(new Product { Id = 2, CategoryId = 1 }).Entity;
 
                 var category = new Category
                 {
@@ -443,14 +443,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     }
                 };
 
-                context.Add(product1);
-                context.Add(product1.Details);
-                context.Add(product1.Details.Tag);
-                context.Add(product1.Details.Tag.TagDetails);
-                context.Add(product2);
-                context.Add(product2.Details);
-                context.Add(product2.Details.Tag);
-                context.Add(product2.Details.Tag.TagDetails);
+                context.AddWithChildren(product1);
+                context.AddWithChildren(product1.Details);
+                context.AddWithChildren(product1.Details.Tag);
+                context.AddWithChildren(product1.Details.Tag.TagDetails);
+                context.AddWithChildren(product2);
+                context.AddWithChildren(product2.Details);
+                context.AddWithChildren(product2.Details.Tag);
+                context.AddWithChildren(product2.Details.Tag.TagDetails);
 
                 AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
             }
@@ -479,14 +479,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     }
                 };
 
-                context.Add(tagDetails1);
-                context.Add(tagDetails1.Tag);
-                context.Add(tagDetails1.Tag.Details);
-                context.Add(tagDetails1.Tag.Details.Product);
-                context.Add(tagDetails2);
-                context.Add(tagDetails2.Tag);
-                context.Add(tagDetails2.Tag.Details);
-                context.Add(tagDetails2.Tag.Details.Product);
+                context.AddWithChildren(tagDetails1);
+                context.AddWithChildren(tagDetails1.Tag);
+                context.AddWithChildren(tagDetails1.Tag.Details);
+                context.AddWithChildren(tagDetails1.Tag.Details.Product);
+                context.AddWithChildren(tagDetails2);
+                context.AddWithChildren(tagDetails2.Tag);
+                context.AddWithChildren(tagDetails2.Tag.Details);
+                context.AddWithChildren(tagDetails2.Tag.Details.Product);
 
                 AssertProductAndDetailsFixedUp(context, tagDetails1, tagDetails2);
             }
@@ -515,14 +515,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     }
                 };
 
-                context.Add(tagDetails1);
-                context.Add(tagDetails2);
-                context.Add(tagDetails1.Tag);
-                context.Add(tagDetails2.Tag);
-                context.Add(tagDetails2.Tag.Details);
-                context.Add(tagDetails1.Tag.Details);
-                context.Add(tagDetails1.Tag.Details.Product);
-                context.Add(tagDetails2.Tag.Details.Product);
+                context.AddWithChildren(tagDetails1);
+                context.AddWithChildren(tagDetails2);
+                context.AddWithChildren(tagDetails1.Tag);
+                context.AddWithChildren(tagDetails2.Tag);
+                context.AddWithChildren(tagDetails2.Tag.Details);
+                context.AddWithChildren(tagDetails1.Tag.Details);
+                context.AddWithChildren(tagDetails1.Tag.Details.Product);
+                context.AddWithChildren(tagDetails2.Tag.Details.Product);
 
                 AssertProductAndDetailsFixedUp(context, tagDetails1, tagDetails2);
             }
@@ -551,14 +551,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     }
                 };
 
-                context.Add(tagDetails1.Tag);
-                context.Add(tagDetails2.Tag);
-                context.Add(tagDetails1);
-                context.Add(tagDetails2);
-                context.Add(tagDetails2.Tag.Details);
-                context.Add(tagDetails1.Tag.Details);
-                context.Add(tagDetails1.Tag.Details.Product);
-                context.Add(tagDetails2.Tag.Details.Product);
+                context.AddWithChildren(tagDetails1.Tag);
+                context.AddWithChildren(tagDetails2.Tag);
+                context.AddWithChildren(tagDetails1);
+                context.AddWithChildren(tagDetails2);
+                context.AddWithChildren(tagDetails2.Tag.Details);
+                context.AddWithChildren(tagDetails1.Tag.Details);
+                context.AddWithChildren(tagDetails1.Tag.Details.Product);
+                context.AddWithChildren(tagDetails2.Tag.Details.Product);
 
                 AssertProductAndDetailsFixedUp(context, tagDetails1, tagDetails2);
             }
@@ -590,14 +590,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     }
                 };
 
-                context.Add(product1.Details);
-                context.Add(product2.Details);
-                context.Add(product1.Details.Tag.TagDetails);
-                context.Add(product1);
-                context.Add(product1.Details.Tag);
-                context.Add(product2.Details.Tag);
-                context.Add(product2.Details.Tag.TagDetails);
-                context.Add(product2);
+                context.AddWithChildren(product1.Details);
+                context.AddWithChildren(product2.Details);
+                context.AddWithChildren(product1.Details.Tag.TagDetails);
+                context.AddWithChildren(product1);
+                context.AddWithChildren(product1.Details.Tag);
+                context.AddWithChildren(product2.Details.Tag);
+                context.AddWithChildren(product2.Details.Tag.TagDetails);
+                context.AddWithChildren(product2);
 
                 AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
             }
@@ -618,14 +618,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var tag2 = new ProductDetailsTag();
                 var tagDetails2 = new ProductDetailsTagDetails();
 
-                context.Add(product1);
-                context.Add(tagDetails2);
-                context.Add(details1);
-                context.Add(tag2);
-                context.Add(details2);
-                context.Add(tag1);
-                context.Add(tagDetails1);
-                context.Add(product2);
+                context.AddWithChildren(product1);
+                context.AddWithChildren(tagDetails2);
+                context.AddWithChildren(details1);
+                context.AddWithChildren(tag2);
+                context.AddWithChildren(details2);
+                context.AddWithChildren(tag1);
+                context.AddWithChildren(tagDetails1);
+                context.AddWithChildren(product2);
 
                 product1.Details = details1;
                 details1.Tag = tag1;
@@ -656,14 +656,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var tag2 = new ProductDetailsTag();
                 var tagDetails2 = new ProductDetailsTagDetails();
 
-                context.Add(product1);
-                context.Add(tagDetails2);
-                context.Add(details1);
-                context.Add(tag2);
-                context.Add(details2);
-                context.Add(tag1);
-                context.Add(tagDetails1);
-                context.Add(product2);
+                context.AddWithChildren(product1);
+                context.AddWithChildren(tagDetails2);
+                context.AddWithChildren(details1);
+                context.AddWithChildren(tag2);
+                context.AddWithChildren(details2);
+                context.AddWithChildren(tag1);
+                context.AddWithChildren(tagDetails1);
+                context.AddWithChildren(product2);
 
                 tagDetails1.Tag = tag1;
                 tag1.Details = details1;
@@ -741,14 +741,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var orderDetails2a = new OrderDetails { Order = order2, Product = product1 };
                 var orderDetails2b = new OrderDetails { Order = order2, Product = product2 };
 
-                context.Add(product1);
-                context.Add(order1);
-                context.Add(orderDetails1a);
-                context.Add(orderDetails1b);
-                context.Add(product2);
-                context.Add(order2);
-                context.Add(orderDetails2a);
-                context.Add(orderDetails2b);
+                context.AddWithChildren(product1);
+                context.AddWithChildren(order1);
+                context.AddWithChildren(orderDetails1a);
+                context.AddWithChildren(orderDetails1b);
+                context.AddWithChildren(product2);
+                context.AddWithChildren(order2);
+                context.AddWithChildren(orderDetails2a);
+                context.AddWithChildren(orderDetails2b);
 
                 AssertOrderAndDetailsFixedUp(context, orderDetails1a, orderDetails1b, orderDetails2a, orderDetails2b);
             }
@@ -770,14 +770,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var orderDetails2a = new OrderDetails { Order = order2, Product = product1 };
                 var orderDetails2b = new OrderDetails { Order = order2, Product = product2 };
 
-                context.Add(orderDetails1a);
-                context.Add(orderDetails2a);
-                context.Add(orderDetails1b);
-                context.Add(orderDetails2b);
-                context.Add(order1);
-                context.Add(product1);
-                context.Add(order2);
-                context.Add(product2);
+                context.AddWithChildren(orderDetails1a);
+                context.AddWithChildren(orderDetails2a);
+                context.AddWithChildren(orderDetails1b);
+                context.AddWithChildren(orderDetails2b);
+                context.AddWithChildren(order1);
+                context.AddWithChildren(product1);
+                context.AddWithChildren(order2);
+                context.AddWithChildren(product2);
 
                 AssertOrderAndDetailsFixedUp(context, orderDetails1a, orderDetails1b, orderDetails2a, orderDetails2b);
             }
@@ -850,7 +850,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
+                var entry = context.AttachWithChildren(new Product { Id = 1, CategoryId = 66 });
 
                 entry.Entity.CategoryId = 77;
 
@@ -878,7 +878,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
+                var entry = context.AttachWithChildren(new Product { Id = 1, CategoryId = 66 });
 
                 entry.Entity.CategoryId = 77;
 
@@ -904,7 +904,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
+                var entry = context.AttachWithChildren(new Product { Id = 1, CategoryId = 66 });
 
                 entry.Entity.CategoryId = 77;
 
@@ -942,7 +942,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new EarlyLearningCenter())
             {
                 Assert.Equal(CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
-                    Assert.Throws<InvalidOperationException>(() => context.Add(new SpecialProduct())).Message);
+                    Assert.Throws<InvalidOperationException>(() => context.AddWithChildren(new SpecialProduct())).Message);
             }
         }
 

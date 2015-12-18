@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
-                context.Add(customer);
+                context.AddWithChildren(customer);
 
                 await context.SaveChangesAsync();
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
             {
                 customer.Name = "Theon Greyjoy";
-                context.Update(customer);
+                context.UpdateWithChildren(customer);
 
                 await context.SaveChangesAsync();
             }
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             using (var db = new SimpleContext())
             {
-                db.Artists.Add(new SimpleContext.Artist { ArtistId = "JDId", Name = "John Doe" });
+                db.Artists.AddWithChildren(new SimpleContext.Artist { ArtistId = "JDId", Name = "John Doe" });
                 await db.SaveChangesAsync();
             }
 

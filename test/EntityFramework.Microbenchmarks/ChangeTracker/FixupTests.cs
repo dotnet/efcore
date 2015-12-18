@@ -26,7 +26,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
-                context.Customers.AttachRange(customers);
+                context.Customers.AttachRangeWithChildren(customers);
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
 
@@ -34,7 +34,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 {
                     foreach (var order in orders)
                     {
-                        context.Orders.Add(order);
+                        context.Orders.AddWithChildren(order);
                     }
                 }
 
@@ -49,7 +49,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
-                context.Orders.AddRange(orders);
+                context.Orders.AddRangeWithChildren(orders);
 
                 Assert.All(customers, c => Assert.Null(c.Orders));
 
@@ -57,7 +57,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 {
                     foreach (var customer in customers)
                     {
-                        context.Customers.Add(customer);
+                        context.Customers.AddWithChildren(customer);
                     }
                 }
 
@@ -72,7 +72,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
+                context.Customers.AttachRangeWithChildren(customers);
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
 
@@ -80,7 +80,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 {
                     foreach (var order in orders)
                     {
-                        context.Orders.Attach(order);
+                        context.Orders.AttachWithChildren(order);
                     }
                 }
 
@@ -95,7 +95,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
-                context.Orders.AttachRange(orders);
+                context.Orders.AttachRangeWithChildren(orders);
 
                 Assert.All(customers, c => Assert.Null(c.Orders));
 
@@ -103,7 +103,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 {
                     foreach (var customer in customers)
                     {
-                        context.Customers.Attach(customer);
+                        context.Customers.AttachWithChildren(customer);
                     }
                 }
 

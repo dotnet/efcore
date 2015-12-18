@@ -50,18 +50,18 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         public static void Seed(NorthwindContext context)
         {
-            context.Set<Customer>().AddRange(CreateCustomers());
+            context.Set<Customer>().AddRangeWithChildren(CreateCustomers());
 
             var titleProperty = context.Model.FindEntityType(typeof(Employee)).FindProperty("Title");
             foreach (var employee in CreateEmployees())
             {
-                context.Set<Employee>().Add(employee);
+                context.Set<Employee>().AddWithChildren(employee);
                 context.Entry(employee).GetInfrastructure()[titleProperty] = employee.Title;
             }
 
-            context.Set<Order>().AddRange(CreateOrders());
-            context.Set<Product>().AddRange(CreateProducts());
-            context.Set<OrderDetail>().AddRange(CreateOrderDetails());
+            context.Set<Order>().AddRangeWithChildren(CreateOrders());
+            context.Set<Product>().AddRangeWithChildren(CreateProducts());
+            context.Set<OrderDetail>().AddRangeWithChildren(CreateOrderDetails());
 
             context.SaveChanges();
         }
