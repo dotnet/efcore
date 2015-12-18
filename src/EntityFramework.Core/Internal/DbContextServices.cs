@@ -29,7 +29,6 @@ namespace Microsoft.Data.Entity.Internal
             Check.NotNull(scopedProvider, nameof(scopedProvider));
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(context, nameof(context));
-            Check.IsDefined(serviceProviderSource, nameof(serviceProviderSource));
 
             _provider = scopedProvider;
             _contextOptions = contextOptions;

@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
@@ -52,7 +53,12 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual TBuilder QueryClientEvaluationBehavior(QueryClientEvaluationBehavior queryClientEvaluationBehavior)
         {
-            Check.IsDefined(queryClientEvaluationBehavior, nameof(queryClientEvaluationBehavior));
+            if (queryClientEvaluationBehavior < 0
+                || (int)queryClientEvaluationBehavior > 2)
+            {
+                throw new ArgumentException(CoreStrings.InvalidEnumValue(
+                    nameof(queryClientEvaluationBehavior), typeof(QueryClientEvaluationBehavior)));
+            }
 
             return SetOption(e => e.QueryClientEvaluationBehavior = queryClientEvaluationBehavior);
         }

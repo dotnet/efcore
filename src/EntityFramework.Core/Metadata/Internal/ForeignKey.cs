@@ -266,7 +266,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual void SetDeleteBehavior(DeleteBehavior deleteBehavior, ConfigurationSource configurationSource)
         {
-            Check.IsDefined(deleteBehavior, nameof(deleteBehavior));
             _deleteBehavior = deleteBehavior;
             UpdateDeleteBehaviorConfigurationSource(configurationSource);
         }
