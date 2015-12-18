@@ -17,8 +17,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         [CanBeNull]
         public virtual TableModel PrincipalTable { get; [param: CanBeNull] set; }
 
-        public virtual IList<ColumnModel> Columns { get; } = new List<ColumnModel>();
-        public virtual IList<ColumnModel> PrincipalColumns { get; } = new List<ColumnModel>();
+        public virtual ICollection<ForeignKeyColumnModel> Columns { get; } = new List<ForeignKeyColumnModel>();
 
         [NotNull]
         public virtual string Name { get; [param: CanBeNull] set; }
@@ -29,6 +28,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         //public virtual ReferentialAction OnUpdate { get; [param: NotNull] set; }
 
         public virtual string DisplayName
-            => Table?.DisplayName + "(" + string.Join(",", Columns.Select(f => f.Name)) + ")";
+            => Table?.DisplayName + "(" + string.Join(",", Columns.OrderBy(f => f.Ordinal).Select(f => f.Column.Name)) + ")";
     }
 }

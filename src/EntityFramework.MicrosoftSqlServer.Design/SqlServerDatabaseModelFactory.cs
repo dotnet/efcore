@@ -306,7 +306,8 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
     i.name AS [index_name],
     i.is_unique,
     c.name AS [column_name],
-    i.type_desc
+    i.type_desc,
+    ic.key_ordinal
 FROM sys.indexes i
     INNER JOIN sys.index_columns ic  ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     INNER JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
@@ -358,6 +359,8 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     }
 
                     var columnName = reader.GetStringOrNull(4);
+                    var indexOrdinal = reader.GetByte(6);
+
                     ColumnModel column = null;
                     if (string.IsNullOrEmpty(columnName))
                     {
@@ -373,7 +376,14 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     }
                     else
                     {
-                        index.Columns.Add(column);
+                        var indexColumn = new IndexColumnModel
+                        {
+                            Index = index,
+                            Column = column,
+                            Ordinal = indexOrdinal
+                        };
+
+                        index.IndexColumns.Add(indexColumn);
                     }
                 }
             }
@@ -392,10 +402,11 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
     col_name(fc.referenced_object_id, fc.referenced_column_id) AS referenced_column_name,
     is_disabled,
     delete_referential_action_desc,
-    update_referential_action_desc
+    update_referential_action_desc,
+    fc.constraint_column_id
 FROM sys.foreign_keys AS f
     INNER JOIN sys.foreign_key_columns AS fc ON f.object_id = fc.constraint_object_id
-ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.constraint_column_id";
+ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
             using (var reader = command.ExecuteReader())
             {
                 var lastFkName = string.Empty;
@@ -440,17 +451,23 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         {
                             Name = fkName,
                             Table = table,
-                            PrincipalTable = principalTable
-                        };
+                            PrincipalTable = principalTable,
+                            OnDelete = ConvertToReferentialAction(reader.GetStringOrNull(8))
+                    };
 
                         table.ForeignKeys.Add(fkInfo);
                     }
+
+                    var fkColumn = new ForeignKeyColumnModel
+                    {
+                        Ordinal = reader.GetInt32(10)
+                    };
 
                     var fromColumnName = reader.GetStringOrNull(5);
                     ColumnModel fromColumn;
                     if ((fromColumn = FindColumnForForeignKey(fromColumnName, fkInfo.Table, fkName)) != null)
                     {
-                        fkInfo.Columns.Add(fromColumn);
+                        fkColumn.Column = fromColumn;
                     }
 
                     if (fkInfo.PrincipalTable != null)
@@ -459,11 +476,11 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         ColumnModel toColumn;
                         if ((toColumn = FindColumnForForeignKey(toColumnName, fkInfo.PrincipalTable, fkName)) != null)
                         {
-                            fkInfo.PrincipalColumns.Add(toColumn);
+                            fkColumn.PrincipalColumn = toColumn;
                         }
                     }
 
-                    fkInfo.OnDelete = ConvertToReferentialAction(reader.GetStringOrNull(8));
+                    fkInfo.Columns.Add(fkColumn);
                 }
             }
         }

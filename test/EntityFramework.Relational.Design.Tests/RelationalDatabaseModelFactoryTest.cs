@@ -194,9 +194,9 @@ namespace Microsoft.Data.Entity.Relational.Design
                 }
             };
 
-            info.Tables[0].Columns.Add(new ColumnModel
+            info.Tables.First().Columns.Add(new ColumnModel
             {
-                Table = info.Tables[0],
+                Table = info.Tables.First(),
                 Name = "Coli",
                 DataType = dataType
             });
@@ -241,10 +241,38 @@ namespace Microsoft.Data.Entity.Relational.Design
                     new ColumnModel { Name = "C3", DataType = "long" }
                 }
             };
-            table.Indexes.Add(new IndexModel { Name = "IDX_C1", Columns = { table.Columns[0] }, IsUnique = false });
-            table.Indexes.Add(new IndexModel { Name = "UNQ_C2", Columns = { table.Columns[1] }, IsUnique = true });
-            table.Indexes.Add(new IndexModel { Name = "IDX_C2_C1", Columns = { table.Columns[1], table.Columns[0] }, IsUnique = false });
-            table.Indexes.Add(new IndexModel { /*Name ="UNQ_C3_C1",*/ Columns = { table.Columns[2], table.Columns[0] }, IsUnique = true });
+            table.Indexes.Add(new IndexModel
+            {
+                Name = "IDX_C1",
+                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(0) } },
+                IsUnique = false
+            });
+            table.Indexes.Add(new IndexModel
+            {
+                Name = "UNQ_C2",
+                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
+                IsUnique = true
+            });
+            table.Indexes.Add(new IndexModel
+            {
+                Name = "IDX_C2_C1",
+                IndexColumns = {
+                    new IndexColumnModel { Column = table.Columns.ElementAt(1) },
+                    new IndexColumnModel { Column = table.Columns.ElementAt(0) }
+                },
+                IsUnique = false
+            });
+            table.Indexes.Add(new IndexModel
+            {
+                /*Name ="UNQ_C3_C1",*/
+                IndexColumns =
+                {
+                    new IndexColumnModel { Column = table.Columns.ElementAt(2) },
+                    new IndexColumnModel { Column = table.Columns.ElementAt(0) }
+                },
+                IsUnique = true
+            });
+
             var info = new DatabaseModel { Tables = { table } };
 
             var entityType = (EntityType)_factory.Create(info).GetEntityTypes().Single();
@@ -299,10 +327,17 @@ namespace Microsoft.Data.Entity.Relational.Design
             childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                Columns = { childrenTable.Columns[1] },
                 PrincipalTable = parentTable,
-                PrincipalColumns = { parentTable.Columns[0] },
-                OnDelete = Migrations.ReferentialAction.Cascade
+                OnDelete = Migrations.ReferentialAction.Cascade,
+                Columns = 
+                {
+                    new ForeignKeyColumnModel 
+                    {
+                        Ordinal = 1,
+                        Column = childrenTable.Columns.ElementAt(1),
+                        PrincipalColumn = parentTable.Columns.ElementAt(0)
+                    }
+                }
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
@@ -331,10 +366,17 @@ namespace Microsoft.Data.Entity.Relational.Design
             childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                Columns = { childrenTable.Columns[0] },
                 PrincipalTable = parentTable,
-                PrincipalColumns = { parentTable.Columns[0] },
-                OnDelete = Migrations.ReferentialAction.NoAction
+                OnDelete = Migrations.ReferentialAction.NoAction,
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = childrenTable.Columns.ElementAt(0),
+                        PrincipalColumn = parentTable.Columns.ElementAt(0)
+                    }
+                }
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
@@ -372,10 +414,23 @@ namespace Microsoft.Data.Entity.Relational.Design
             childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                Columns = { childrenTable.Columns[1], childrenTable.Columns[2] },
                 PrincipalTable = parentTable,
-                PrincipalColumns = { parentTable.Columns[0], parentTable.Columns[1] },
-                OnDelete = Migrations.ReferentialAction.SetNull
+                OnDelete = Migrations.ReferentialAction.SetNull,
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = childrenTable.Columns.ElementAt(1),
+                        PrincipalColumn = parentTable.Columns.ElementAt(0)
+                    },
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = childrenTable.Columns.ElementAt(2),
+                        PrincipalColumn = parentTable.Columns.ElementAt(1)
+                    },
+                }
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
@@ -413,9 +468,16 @@ namespace Microsoft.Data.Entity.Relational.Design
             table.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = table,
-                Columns = { table.Columns[1] },
                 PrincipalTable = table,
-                PrincipalColumns = { table.Columns[0] }
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = table.Columns.ElementAt(1),
+                        PrincipalColumn = table.Columns.ElementAt(0)
+                    }
+                }
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { table } });
@@ -453,16 +515,23 @@ namespace Microsoft.Data.Entity.Relational.Design
             childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                Columns = { childrenTable.Columns[1] },
                 PrincipalTable = parentTable,
-                PrincipalColumns = { parentTable.Columns[1] }
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = childrenTable.Columns.ElementAt(1),
+                        PrincipalColumn = parentTable.Columns.ElementAt(1)
+                    }
+                }
             });
 
             _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
             Assert.Contains("Warning: " +
                             RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
-                                childrenTable.ForeignKeys[0].DisplayName, "NotPkId", "Parent"),
+                                childrenTable.ForeignKeys.ElementAt(0).DisplayName, "NotPkId", "Parent"),
                 _logger.FullLog);
         }
 
@@ -478,13 +547,24 @@ namespace Microsoft.Data.Entity.Relational.Design
                     new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = false }
                 }
             };
-            table.Indexes.Add(new IndexModel { Columns = { table.Columns[1] }, IsUnique = true });
+            table.Indexes.Add(new IndexModel
+            {
+                IndexColumns = { new IndexColumnModel { Column = table.Columns.ElementAt(1) } },
+                IsUnique = true
+            });
             table.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = table,
-                Columns = { table.Columns[1] },
                 PrincipalTable = table,
-                PrincipalColumns = { table.Columns[0] }
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = table.Columns.ElementAt(1),
+                        PrincipalColumn = table.Columns.ElementAt(0)
+                    }
+                }
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { table } }).FindEntityType("Friends");
@@ -517,13 +597,33 @@ namespace Microsoft.Data.Entity.Relational.Design
                     new ColumnModel { Name = "ParentId_B", DataType = "long" }
                 }
             };
-            childrenTable.Indexes.Add(new IndexModel { IsUnique = true, Columns = { childrenTable.Columns[1], childrenTable.Columns[2] } });
+            childrenTable.Indexes.Add(new IndexModel
+            {
+                IsUnique = true,
+                IndexColumns = {
+                    new IndexColumnModel { Column = childrenTable.Columns.ElementAt(1) },
+                    new IndexColumnModel { Column = childrenTable.Columns.ElementAt(2) }
+                }
+            });
             childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                Columns = { childrenTable.Columns[1], childrenTable.Columns[2] },
                 PrincipalTable = parentTable,
-                PrincipalColumns = { parentTable.Columns[0], parentTable.Columns[1] }
+                Columns =
+                {
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = childrenTable.Columns.ElementAt(1),
+                        PrincipalColumn = parentTable.Columns.ElementAt(0)
+                    },
+                    new ForeignKeyColumnModel
+                    {
+                        Ordinal = 1,
+                        Column = childrenTable.Columns.ElementAt(2),
+                        PrincipalColumn = parentTable.Columns.ElementAt(1)
+                    },
+                }
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
@@ -555,8 +655,8 @@ namespace Microsoft.Data.Entity.Relational.Design
                 }
             };
 
-            info.Tables[0].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables[0] });
-            info.Tables[1].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables[1] });
+            info.Tables.ElementAt(0).Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables.ElementAt(0) });
+            info.Tables.ElementAt(1).Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables.ElementAt(1) });
 
             var model = _factory.Create(info);
 

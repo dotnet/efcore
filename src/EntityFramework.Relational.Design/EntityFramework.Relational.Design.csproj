@@ -53,7 +53,9 @@
     <Compile Include="Internal\ModelUtilities.cs" />
     <Compile Include="Metadata\ColumnModel.cs" />
     <Compile Include="Metadata\DatabaseModel.cs" />
+    <Compile Include="Metadata\ForeignKeyColumnModel.cs" />
     <Compile Include="Metadata\ForeignKeyModel.cs" />
+    <Compile Include="Metadata\IndexColumnModel.cs" />
     <Compile Include="Metadata\IndexModel.cs" />
     <Compile Include="Metadata\ScaffoldingModelAnnotations.cs" />
     <Compile Include="Metadata\SequenceModel.cs" />

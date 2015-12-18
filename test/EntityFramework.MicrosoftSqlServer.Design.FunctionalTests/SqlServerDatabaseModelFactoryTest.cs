@@ -52,8 +52,8 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("Mountains", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
-            Assert.Equal("RangeId", fk.Columns.Single().Name);
-            Assert.Equal("Id", fk.PrincipalColumns.Single().Name);
+            Assert.Equal("RangeId", fk.Columns.Single().Column.Name);
+            Assert.Equal("Id", fk.Columns.Single().PrincipalColumn.Name);
             Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
         }
 
@@ -71,15 +71,15 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("Mountains1", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
             Assert.Equal("Ranges1", fk.PrincipalTable.Name);
-            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Name).ToArray());
-            Assert.Equal(new[] { "Id", "AltId" }, fk.PrincipalColumns.Select(c => c.Name).ToArray());
+            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Column.Name).ToArray());
+            Assert.Equal(new[] { "Id", "AltId" }, fk.Columns.Select(c => c.PrincipalColumn.Name).ToArray());
             Assert.Equal(ReferentialAction.NoAction, fk.OnDelete);
         }
 
         [Fact]
         public void It_reads_indexes()
         {
-            var sql = "CREATE TABLE Place ( Id int PRIMARY KEY NONCLUSTERED, Name int UNIQUE, Location int );" +
+            var sql = "CREATE TABLE Place ( Id int PRIMARY KEY NONCLUSTERED, Name int UNIQUE, Location int);" +
                       "CREATE CLUSTERED INDEX IX_Location_Name ON Place (Location, Name);" +
                       "CREATE NONCLUSTERED INDEX IX_Location ON Place (Location);";
             var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "Place" }));
@@ -97,26 +97,27 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                     {
                         Assert.Equal("IX_Location", nonClustered.Name);
                         Assert.False(nonClustered.SqlServer().IsClustered);
-                        Assert.Equal("Location", nonClustered.Columns.Select(c => c.Name).Single());
+                        Assert.Equal("Location", nonClustered.IndexColumns.Select(ic => ic.Column.Name).Single());
                     },
                 clusteredIndex =>
                     {
                         Assert.Equal("IX_Location_Name", clusteredIndex.Name);
                         Assert.False(clusteredIndex.IsUnique);
                         Assert.True(clusteredIndex.SqlServer().IsClustered);
-                        Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.Columns.Select(c => c.Name).ToList());
+                        Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
+                        Assert.Equal(new List<int> { 1, 2 }, clusteredIndex.IndexColumns.Select(ic => ic.Ordinal).ToList());
                     },
                 pkIndex =>
                 {
                     Assert.StartsWith("PK__Place", pkIndex.Name);
                     Assert.True(pkIndex.IsUnique);
                     Assert.False(pkIndex.SqlServer().IsClustered);
-                    Assert.Equal(new List<string> { "Id" }, pkIndex.Columns.Select(c => c.Name).ToList());
+                    Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
                 },
                 unique =>
                     {
                         Assert.True(unique.IsUnique);
-                        Assert.Equal("Name", unique.Columns.Single().Name);
+                        Assert.Equal("Name", unique.IndexColumns.Single().Column.Name);
                     });
         }
 

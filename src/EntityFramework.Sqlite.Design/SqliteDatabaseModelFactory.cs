@@ -69,6 +69,7 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             var command = _connection.CreateCommand();
             command.CommandText = "SELECT type, name, tbl_name FROM sqlite_master ORDER BY type DESC";
+
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -189,7 +190,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     var indexColumns = _connection.CreateCommand();
                     indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
 
-                    index.Columns = new List<ColumnModel>();
+                    index.IndexColumns = new List<IndexColumnModel>();
                     using (var reader = indexColumns.ExecuteReader())
                     {
                         while (reader.Read())
@@ -200,9 +201,16 @@ namespace Microsoft.Data.Entity.Scaffolding
                                 continue;
                             }
 
-                            var column = _tableColumns[ColumnKey(table, columnName)];
+                            var indexOrdinal = reader.GetInt32((int)IndexInfoColumns.Seqno);
+                            var column = _tableColumns[ColumnKey(index.Table, columnName)];
 
-                            index.Columns.Add(column);
+                            var indexColumn = new IndexColumnModel
+                            {
+                                Ordinal = indexOrdinal,
+                                Column = column
+                            };
+
+                            index.IndexColumns.Add(indexColumn);
                         }
                     }
                 }
@@ -235,6 +243,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     while (reader.Read())
                     {
                         var id = reader.GetInt32((int)ForeignKeyList.Id);
+                        var fkOrdinal = reader.GetInt32((int)ForeignKeyList.Seq);
                         var principalTableName = reader.GetString((int)ForeignKeyList.Table);
 
                         ForeignKeyModel foreignKey;
@@ -245,13 +254,19 @@ namespace Microsoft.Data.Entity.Scaffolding
                             foreignKey = new ForeignKeyModel
                             {
                                 Table = dependentTable,
-                                PrincipalTable = principalTable
+                                PrincipalTable = principalTable,
+                                OnDelete = ConvertToReferentialAction(reader.GetString((int)ForeignKeyList.OnDelete))
                             };
                             tableForeignKeys.Add(id, foreignKey);
                         }
 
                         var fromColumnName = reader.GetString((int)ForeignKeyList.From);
-                        foreignKey.Columns.Add(_tableColumns[ColumnKey(dependentTable, fromColumnName)]);
+                        var fkColumn = new ForeignKeyColumnModel
+                        {
+                            Ordinal = fkOrdinal
+                        };
+
+                        fkColumn.Column = _tableColumns[ColumnKey(dependentTable, fromColumnName)];
 
                         if (foreignKey.PrincipalTable != null)
                         {
@@ -261,11 +276,10 @@ namespace Microsoft.Data.Entity.Scaffolding
                             {
                                 toColumn = new ColumnModel { Name = toColumnName };
                             }
-                            foreignKey.PrincipalColumns.Add(toColumn);
+                            fkColumn.PrincipalColumn = toColumn;
                         }
 
-                        foreignKey.OnDelete = ConvertToReferentialAction(
-                            reader.GetString((int)ForeignKeyList.OnDelete));
+                        foreignKey.Columns.Add(fkColumn);
                     }
                 }
 
@@ -286,13 +300,13 @@ namespace Microsoft.Data.Entity.Scaffolding
                 case "CASCADE":
                     return ReferentialAction.Cascade;
 
-                case "SET_NULL":
+                case "SET NULL":
                     return ReferentialAction.SetNull;
 
-                case "SET_DEFAULT":
+                case "SET DEFAULT":
                     return ReferentialAction.SetDefault;
 
-                case "NO_ACTION":
+                case "NO ACTION":
                     return ReferentialAction.NoAction;
 
                 default:

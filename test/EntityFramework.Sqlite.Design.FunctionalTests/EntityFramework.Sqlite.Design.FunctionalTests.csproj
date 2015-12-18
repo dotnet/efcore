@@ -143,7 +143,9 @@
     <Compile Include="ReverseEngineering\SqliteAllFluentApiE2ETest.cs" />
     <Compile Include="ReverseEngineering\SqliteAttributesInsteadOfFluentApiE2ETest.cs" />
     <Compile Include="ReverseEngineering\SqliteE2ETestBase.cs" />
+    <Compile Include="SqliteScaffoldingModelFactoryTest.cs" />
     <Compile Include="SqliteDatabaseModelFactoryTest.cs" />
+    <Compile Include="TestLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

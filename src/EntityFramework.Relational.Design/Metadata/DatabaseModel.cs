@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         [CanBeNull]
         public virtual string DefaultSchemaName { get; [param: CanBeNull] set; }
 
-        public virtual IList<TableModel> Tables { get; } = new List<TableModel>();
-        public virtual IList<SequenceModel> Sequences { get; } = new List<SequenceModel>();
+        public virtual ICollection<TableModel> Tables { get; } = new List<TableModel>();
+        public virtual ICollection<SequenceModel> Sequences { get; } = new List<SequenceModel>();
     }
 }

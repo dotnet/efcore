@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         public virtual string DependentEndNavigation
         {
             get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.DependentEndNavigation); }
-            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.DependentEndNavigation, Check.NullButNotEmpty(value, nameof(value)));  }
+            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.DependentEndNavigation, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
         public virtual string PrincipalEndNavigation

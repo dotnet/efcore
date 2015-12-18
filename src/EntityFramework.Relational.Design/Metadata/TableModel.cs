@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         [CanBeNull]
         public virtual string SchemaName { get; [param: CanBeNull] set; }
 
-        public virtual IList<ColumnModel> Columns { get; [param: NotNull] set; } = new List<ColumnModel>();
-        public virtual IList<IndexModel> Indexes { get; } = new List<IndexModel>();
-        public virtual IList<ForeignKeyModel> ForeignKeys { get; } = new List<ForeignKeyModel>();
+        public virtual ICollection<ColumnModel> Columns { get; [param: NotNull] set; } = new List<ColumnModel>();
+        public virtual ICollection<IndexModel> Indexes { get; } = new List<IndexModel>();
+        public virtual ICollection<ForeignKeyModel> ForeignKeys { get; } = new List<ForeignKeyModel>();
 
         public virtual string DisplayName
             => (!string.IsNullOrEmpty(SchemaName) ? SchemaName + "." : "") + Name;
