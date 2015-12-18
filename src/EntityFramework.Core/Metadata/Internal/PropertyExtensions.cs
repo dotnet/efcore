@@ -17,15 +17,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return property.DeclaringEntityType.GetDerivedTypesInclusive();
         }
 
-        public static IEnumerable<IForeignKey> FindContainingForeignKeys(
-            [NotNull] this IProperty property, [NotNull] IEntityType entityType)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(property, nameof(entityType));
-
-            return entityType.GetForeignKeys().Where(k => k.Properties.Contains(property));
-        }
-
         public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -183,8 +174,5 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public static bool IsKeyOrForeignKey([NotNull] this IProperty property)
             => property.IsKey()
                || property.IsForeignKey();
-
-        public static bool IsForeignKey([NotNull] this IProperty property, [NotNull] IEntityType entityType)
-            => FindContainingForeignKeys(property, entityType).Any();
     }
 }

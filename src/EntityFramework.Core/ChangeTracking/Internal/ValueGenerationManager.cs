@@ -5,7 +5,6 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -27,7 +26,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var isForeignKey = property.IsForeignKey(entry.EntityType);
+                var isForeignKey = property.IsForeignKey();
 
                 if ((property.RequiresValueGenerator || isForeignKey)
                     && property.ClrType.IsDefaultValue(entry[property]))

@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Storage
                     ? _boundedStringMappings.GetOrAdd(maxLength.Value, boundedMapping)
                     : unboundedMapping
                 : ((keyMapping != null)
-                   && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
+                   && (property.IsKey() || property.IsForeignKey())
                     ? keyMapping
                     : defaultMapping);
         }
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Storage
                     ? _boundedBinaryMappings.GetOrAdd(maxLength.Value, boundedMapping)
                     : unboundedMapping
                 : ((keyMapping != null)
-                   && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
+                   && (property.IsKey() || property.IsForeignKey())
                     ? keyMapping
                     : defaultMapping);
         }

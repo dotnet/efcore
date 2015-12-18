@@ -36,7 +36,17 @@ namespace Microsoft.Data.Entity
         ///     True if the property is used as a foreign key, otherwise false.
         /// </returns>
         public static bool IsForeignKey([NotNull] this IProperty property)
-            => FindContainingForeignKeys(property).Any();
+        {
+            Check.NotNull(property, nameof(property));
+
+            var keyMetadata = property as IPropertyKeyMetadata;
+            if (keyMetadata != null)
+            {
+                return keyMetadata.ForeignKeys != null;
+            }
+
+            return FindContainingForeignKeys(property).Any();
+        }
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
@@ -57,7 +67,17 @@ namespace Microsoft.Data.Entity
         ///     True if the property is part of a key, otherwise false.
         /// </returns>
         public static bool IsKey([NotNull] this IProperty property)
-            => FindContainingKeys(property).Any();
+        {
+            Check.NotNull(property, nameof(property));
+
+            var keyMetadata = property as IPropertyKeyMetadata;
+            if (keyMetadata != null)
+            {
+                return keyMetadata.Keys != null;
+            }
+
+            return FindContainingKeys(property).Any();
+        }
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -70,6 +90,12 @@ namespace Microsoft.Data.Entity
         public static IEnumerable<IForeignKey> FindContainingForeignKeys([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
+
+            var keyMetadata = property as IPropertyKeyMetadata;
+            if (keyMetadata != null)
+            {
+                return keyMetadata.ForeignKeys ?? Enumerable.Empty<IForeignKey>();
+            }
 
             var entityType = property.DeclaringEntityType;
             return entityType.GetAllBaseTypesInclusive()
@@ -109,6 +135,12 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(property, nameof(property));
 
+            var keyMetadata = property as IPropertyKeyMetadata;
+            if (keyMetadata != null)
+            {
+                return keyMetadata.PrimaryKey;
+            }
+
             var pk = property.DeclaringEntityType.FindPrimaryKey();
             if ((pk != null)
                 && pk.Properties.Contains(property))
@@ -130,6 +162,12 @@ namespace Microsoft.Data.Entity
         public static IEnumerable<IKey> FindContainingKeys([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
+
+            var keyMetadata = property as IPropertyKeyMetadata;
+            if (keyMetadata != null)
+            {
+                return keyMetadata.Keys ?? Enumerable.Empty<IKey>();
+            }
 
             return property.DeclaringEntityType.GetKeys().Where(e => e.Properties.Contains(property));
         }

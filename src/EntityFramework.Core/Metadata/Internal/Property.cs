@@ -14,7 +14,8 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
-    public class Property : ConventionalAnnotatable, IMutableProperty, IPropertyBaseAccessors, IPropertyIndexesAccessor
+    public class Property
+        : ConventionalAnnotatable, IMutableProperty, IPropertyBaseAccessors, IPropertyIndexesAccessor, IPropertyKeyMetadata
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
@@ -103,7 +104,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.Name));
                 }
 
-                if (this.IsKey())
+                if (Keys != null)
                 {
                     throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
                 }
@@ -198,7 +199,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual void SetIsReadOnlyAfterSave(bool readOnlyAfterSave, ConfigurationSource configurationSource)
         {
             if (!readOnlyAfterSave
-                && this.IsKey())
+                && Keys != null)
             {
                 throw new NotSupportedException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
             }
@@ -209,7 +210,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private bool DefaultIsReadOnlyAfterSave
             => ((ValueGenerated == ValueGenerated.OnAddOrUpdate)
                 && !IsStoreGeneratedAlways)
-               || this.IsKey();
+               || Keys != null;
 
         public virtual ConfigurationSource? GetIsReadOnlyAfterSaveConfigurationSource() => _isReadOnlyAfterSaveConfigurationSource;
 
@@ -403,6 +404,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
         }
+
+        public virtual IKey PrimaryKey { get; set; }
+        public virtual IReadOnlyList<IKey> Keys { get; set; }
+        public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; set; }
 
         private PropertyIndexes CalculateIndexes() => DeclaringEntityType.CalculateIndexes(this);
     }
