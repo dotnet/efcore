@@ -92,10 +92,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
             {
-                foreach (var property in EntityType.GetProperties().Where(
-                    p => !p.IsReadOnlyAfterSave))
+                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified, flagged: true);
+
+                // Hot path; do not use LINQ
+                foreach (var property in EntityType.GetProperties())
                 {
-                    _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isFlagged: true);
+                    if (property.IsReadOnlyAfterSave)
+                    {
+                        _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isFlagged: false);
+                    }
                 }
 
                 StateManager.SingleQueryMode = false;
