@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
 
-        private PropertyFlags _flags;
-        private PropertyFlags _setFlags;
+        private int _flags;
+
         private Type _clrType;
 
         private ConfigurationSource _configurationSource;
@@ -91,7 +91,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsNullable
         {
-            get { return GetFlag(PropertyFlags.IsNullable) ?? DefaultIsNullable; }
+            get
+            {
+                bool value;
+                return TryGetFlag(PropertyFlags.IsNullable, out value) ? value : DefaultIsNullable;
+            }
             set { SetIsNullable(value, ConfigurationSource.Explicit); }
         }
 
@@ -131,32 +135,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             get
             {
-                var isIdentity = GetFlag(PropertyFlags.ValueGeneratedOnAdd);
-                var isComputed = GetFlag(PropertyFlags.ValueGeneratedOnAddOrUpdate);
+                var value = _flags & (int)PropertyFlags.ValueGenerated;
 
-                return (isIdentity == null) && (isComputed == null)
-                    ? DefaultValueGenerated
-                    : isIdentity.HasValue && isIdentity.Value
-                        ? ValueGenerated.OnAdd
-                        : isComputed.HasValue && isComputed.Value
-                            ? ValueGenerated.OnAddOrUpdate
-                            : ValueGenerated.Never;
+                return value == 0 ? DefaultValueGenerated : (ValueGenerated)((value >> 8) - 1);
             }
             set { SetValueGenerated(value, ConfigurationSource.Explicit); }
         }
 
         public virtual void SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
+            _flags &= ~(int)PropertyFlags.ValueGenerated;
+
             if (valueGenerated == null)
             {
-                SetFlag(null, PropertyFlags.ValueGeneratedOnAdd);
-                SetFlag(null, PropertyFlags.ValueGeneratedOnAddOrUpdate);
                 _valueGeneratedConfigurationSource = null;
             }
             else
             {
-                SetFlag(valueGenerated.Value == ValueGenerated.OnAdd, PropertyFlags.ValueGeneratedOnAdd);
-                SetFlag(valueGenerated.Value == ValueGenerated.OnAddOrUpdate, PropertyFlags.ValueGeneratedOnAddOrUpdate);
+                _flags |= ((int)valueGenerated + 1) << 8;
                 UpdateValueGeneratedConfigurationSource(configurationSource);
             }
         }
@@ -169,7 +165,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsReadOnlyBeforeSave
         {
-            get { return GetFlag(PropertyFlags.IsReadOnlyBeforeSave) ?? DefaultIsReadOnlyBeforeSave; }
+            get
+            {
+                bool value;
+                return TryGetFlag(PropertyFlags.IsReadOnlyBeforeSave, out value) ? value : DefaultIsReadOnlyBeforeSave;
+            }
             set { SetIsReadOnlyBeforeSave(value, ConfigurationSource.Explicit); }
         }
 
@@ -190,7 +190,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsReadOnlyAfterSave
         {
-            get { return GetFlag(PropertyFlags.IsReadOnlyAfterSave) ?? DefaultIsReadOnlyAfterSave; }
+            get
+            {
+                bool value;
+                return TryGetFlag(PropertyFlags.IsReadOnlyAfterSave, out value) ? value  : DefaultIsReadOnlyAfterSave;
+            }
             set { SetIsReadOnlyAfterSave(value, ConfigurationSource.Explicit); }
         }
 
@@ -217,7 +221,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool RequiresValueGenerator
         {
-            get { return GetFlag(PropertyFlags.RequiresValueGenerator) ?? DefaultRequiresValueGenerator; }
+            get
+            {
+                bool value;
+                return TryGetFlag(PropertyFlags.RequiresValueGenerator, out value) ? value : DefaultRequiresValueGenerator;
+            }
             set { SetRequiresValueGenerator(value, ConfigurationSource.Explicit); }
         }
 
@@ -235,7 +243,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsShadowProperty
         {
-            get { return GetFlag(PropertyFlags.IsShadowProperty) ?? DefaultIsShadowProperty; }
+            get
+            {
+                bool value;
+                return TryGetFlag(PropertyFlags.IsShadowProperty, out value) ? value : DefaultIsShadowProperty;
+            }
             set { SetIsShadowProperty(value, ConfigurationSource.Explicit); }
         }
 
@@ -286,7 +298,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsConcurrencyToken
         {
-            get { return GetFlag(PropertyFlags.IsConcurrencyToken) ?? DefaultIsConcurrencyToken; }
+            get
+            {
+                bool value;
+                return TryGetFlag(PropertyFlags.IsConcurrencyToken, out value) ? value : DefaultIsConcurrencyToken;
+            }
             set { SetIsConcurrencyToken(value, ConfigurationSource.Explicit); }
         }
 
@@ -309,7 +325,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsStoreGeneratedAlways
         {
-            get { return GetFlag(PropertyFlags.StoreGeneratedAlways) ?? DefaultStoreGeneratedAlways; }
+            get
+            {
+                bool value;
+                return TryGetFlag(PropertyFlags.StoreGeneratedAlways, out value) ? value : DefaultStoreGeneratedAlways;
+            }
             set { SetIsStoreGeneratedAlways(value, ConfigurationSource.Explicit); }
         }
 
@@ -336,12 +356,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual IEnumerable<Key> FindContainingKeys()
             => ((IProperty)this).FindContainingKeys().Cast<Key>();
 
-        private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
-
-        private void SetFlag(bool? value, PropertyFlags flag)
+        private bool TryGetFlag(PropertyFlags flag, out bool value)
         {
-            _setFlags = value.HasValue ? _setFlags | flag : _setFlags & ~flag;
-            _flags = value.HasValue && value.Value ? _flags | flag : _flags & ~flag;
+            var coded = _flags & (int)flag;
+            value = coded == (int)flag;
+            return coded != 0;
+        }
+
+        private void SetFlag(bool value, PropertyFlags flag)
+        {
+            if (value)
+            {
+                _flags |= (int)flag;
+            }
+            else
+            {
+                var falseValue = ((int)flag << 1) & (int)flag;
+                _flags = (_flags & ~(int)flag) | falseValue;
+            }
         }
 
         internal static string Format(IEnumerable<IProperty> properties)
@@ -350,18 +382,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
 
-        [Flags]
-        private enum PropertyFlags : ushort
+        private enum PropertyFlags
         {
-            IsConcurrencyToken = 1,
-            IsNullable = 2,
-            IsReadOnlyBeforeSave = 4,
-            IsReadOnlyAfterSave = 8,
-            ValueGeneratedOnAdd = 16,
-            ValueGeneratedOnAddOrUpdate = 32,
-            RequiresValueGenerator = 64,
-            IsShadowProperty = 128,
-            StoreGeneratedAlways = 256
+            IsConcurrencyToken = 3,
+            IsNullable = 3 << 2,
+            IsReadOnlyBeforeSave = 3 << 4,
+            IsReadOnlyAfterSave = 3 << 6,
+            ValueGenerated = 7 << 8,
+            RequiresValueGenerator = 3 << 11,
+            IsShadowProperty = 3 << 13,
+            StoreGeneratedAlways = 3 << 15
         }
 
         public static bool AreCompatible([NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
