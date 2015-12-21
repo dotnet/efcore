@@ -86,6 +86,9 @@ namespace Microsoft.Data.Entity.Storage
             throw new NotSupportedException(RelationalStrings.UnsupportedType(property.ClrType.Name));
         }
 
+        protected virtual bool RequiresKeyMapping([NotNull] IProperty property)
+            => property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey);
+
         protected virtual RelationalTypeMapping GetStringMapping(
             [NotNull] IProperty property,
             int maxBoundedLength,
@@ -104,7 +107,7 @@ namespace Microsoft.Data.Entity.Storage
                     ? _boundedStringMappings.GetOrAdd(maxLength.Value, boundedMapping)
                     : unboundedMapping
                 : ((keyMapping != null)
-                   && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
+                   && RequiresKeyMapping(property)
                     ? keyMapping
                     : defaultMapping);
         }
@@ -135,7 +138,7 @@ namespace Microsoft.Data.Entity.Storage
                     ? _boundedBinaryMappings.GetOrAdd(maxLength.Value, boundedMapping)
                     : unboundedMapping
                 : ((keyMapping != null)
-                   && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
+                   && RequiresKeyMapping(property)
                     ? keyMapping
                     : defaultMapping);
         }
