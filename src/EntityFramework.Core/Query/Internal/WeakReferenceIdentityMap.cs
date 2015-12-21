@@ -77,14 +77,14 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (navigation.IsDependentToPrincipal())
             {
                 TKey keyValue;
-                return GetDependentKeyValueFactory(navigation.ForeignKey).TryCreateFromBuffer(valueBuffer, out keyValue) 
+                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out keyValue) 
                     ? (IIncludeKeyComparer)new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory) 
                     : new NullIncludeComparer();
             }
 
             return new PrincipalToDependentIncludeComparer<TKey>(
                 (TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer),
-                GetDependentKeyValueFactory(navigation.ForeignKey),
+                navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
                 PrincipalKeyValueFactory);
         }
 
@@ -93,24 +93,15 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (navigation.IsDependentToPrincipal())
             {
                 TKey keyValue;
-                return GetDependentKeyValueFactory(navigation.ForeignKey).TryCreateFromCurrentValues(entry, out keyValue)
+                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(entry, out keyValue)
                     ? new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
                     : (IIncludeKeyComparer)new NullIncludeComparer();
             }
 
             return new PrincipalToDependentIncludeComparer<TKey>(
                 PrincipalKeyValueFactory.CreateFromCurrentValues(entry),
-                GetDependentKeyValueFactory(navigation.ForeignKey),
+                navigation.ForeignKey.GetDependentKeyValueFactory<TKey>(),
                 PrincipalKeyValueFactory);
-        }
-
-        private static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory(IForeignKey foreignKey)
-        {
-            var factorySource = foreignKey as IDependentKeyValueFactorySource;
-
-            return factorySource != null
-                ? (IDependentKeyValueFactory<TKey>)factorySource.DependentKeyValueFactory
-                : new DependentKeyValueFactoryFactory().Create<TKey>(foreignKey);
         }
     }
 }

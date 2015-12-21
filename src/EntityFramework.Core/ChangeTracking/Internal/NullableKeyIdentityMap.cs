@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (key != null)
             {
-                Remove(key);
+                Remove(key, entry);
             }
         }
     }

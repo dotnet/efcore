@@ -283,37 +283,34 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             identityMap.Add(entry);
         }
 
+        public virtual void UpdateDependentMap(InternalEntityEntry entry, IForeignKey foreignKey)
+        {
+            if (entry.EntityState == EntityState.Detached)
+            {
+                return;
+            }
+
+            FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey())
+                ?.FindDependentsMap(foreignKey)
+                ?.Update(entry);
+        }
+
         public virtual IEnumerable<InternalEntityEntry> GetDependents(
             InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
-            if (dependentIdentityMap != null)
-            {
-                var principalIdentityMap = FindIdentityMap(foreignKey.PrincipalKey);
-                if (principalIdentityMap != null)
-                {
-                    return principalIdentityMap.GetMatchingDependents(foreignKey, principalEntry, dependentIdentityMap.Entries);
-                }
-            }
-
-            return Enumerable.Empty<InternalEntityEntry>();
+            return dependentIdentityMap != null 
+                ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry) 
+                : Enumerable.Empty<InternalEntityEntry>();
         }
 
         public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
             InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
-            if (dependentIdentityMap != null)
-            {
-                var principalIdentityMap = FindIdentityMap(foreignKey.PrincipalKey);
-                if (principalIdentityMap != null)
-                {
-                    return principalIdentityMap.GetMatchingDependentsFromRelationshipSnapshot(
-                        foreignKey, principalEntry, dependentIdentityMap.Entries);
-                }
-            }
-
-            return Enumerable.Empty<InternalEntityEntry>();
+            return dependentIdentityMap != null
+                ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependentsUsingRelationshipSnapshot(principalEntry)
+                : Enumerable.Empty<InternalEntityEntry>();
         }
 
         public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey)

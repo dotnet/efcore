@@ -151,6 +151,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     if (foreignKeys.Count > 0)
                     {
                         stateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+
+                        foreach (var foreignKey in foreignKeys)
+                        {
+                            stateManager.UpdateDependentMap(entry, foreignKey);
+                        }
                     }
 
                     if (keys.Count > 0)
