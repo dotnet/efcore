@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         public virtual IKeyValueIndex CreateDependentKeyValue(InternalEntityEntry entry, IForeignKey foreignKey)
         {
             TKey keyValue;
-            return GetDependentKeyValueFactory(foreignKey).TryCreateFromCurrentValues(entry, out keyValue)
+            return foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(entry, out keyValue)
                 ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: false)
                 : null;
         }
@@ -42,18 +42,9 @@ namespace Microsoft.Data.Entity.Update.Internal
         public virtual IKeyValueIndex CreateDependentKeyValueFromOriginalValues(InternalEntityEntry entry, IForeignKey foreignKey)
         {
             TKey keyValue;
-            return GetDependentKeyValueFactory(foreignKey).TryCreateFromOriginalValues(entry, out keyValue)
+            return foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromOriginalValues(entry, out keyValue)
                 ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: true)
                 : null;
-        }
-
-        private static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory(IForeignKey foreignKey)
-        {
-            var factorySource = foreignKey as IDependentKeyValueFactorySource;
-
-            return factorySource != null
-                ? (IDependentKeyValueFactory<TKey>)factorySource.DependentKeyValueFactory
-                : new DependentKeyValueFactoryFactory().Create<TKey>(foreignKey);
         }
     }
 }

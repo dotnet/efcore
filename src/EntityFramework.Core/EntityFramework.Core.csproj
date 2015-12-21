@@ -63,12 +63,15 @@
     <Compile Include="ChangeTracking\Internal\CompositeDependentValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\CompositePrincipalKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\DependentKeyValueFactoryFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\DependentsMap.cs" />
+    <Compile Include="ChangeTracking\Internal\DependentsMapFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EmptyShadowValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\IdentityMap.cs" />
     <Compile Include="ChangeTracking\Internal\IdentityMapFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IdentityMapFactoryFactoryBase.cs" />
     <Compile Include="ChangeTracking\Internal\IDependentKeyValueFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\IDependentsMap.cs" />
     <Compile Include="ChangeTracking\Internal\IIdentityMap.cs" />
     <Compile Include="ChangeTracking\Internal\IPrincipalKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ISnapshot.cs" />
@@ -121,6 +124,7 @@
     <Compile Include="Metadata\Internal\ConventionalAnnotation.cs" />
     <Compile Include="Metadata\Internal\ICanGetNavigations.cs" />
     <Compile Include="Metadata\Internal\IDependentKeyValueFactorySource.cs" />
+    <Compile Include="Metadata\Internal\IDependentsMapFactorySource.cs" />
     <Compile Include="Metadata\Internal\IIdentityMapFactorySource.cs" />
     <Compile Include="Metadata\Internal\INavigationAccessors.cs" />
     <Compile Include="Metadata\Internal\IPrincipalKeyValueFactorySource.cs" />

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -216,6 +217,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 ? foreignKey.DeclaringEntityType
                 : foreignKey.PrincipalEntityType;
+        }
+
+        public static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory<TKey>(
+            [NotNull] this IForeignKey foreignKey)
+        {
+            var factorySource = foreignKey as IDependentKeyValueFactorySource;
+
+            return factorySource != null
+                ? (IDependentKeyValueFactory<TKey>)factorySource.DependentKeyValueFactory
+                : new DependentKeyValueFactoryFactory().Create<TKey>(foreignKey);
+        }
+
+        public static IDependentsMap CreateDependentsMapFactory([NotNull] this IForeignKey foreignKey)
+        {
+            var factorySource = foreignKey as IDependentsMapFactorySource;
+
+            return factorySource != null
+                ? factorySource.DependentsMapFactory()
+                : new DependentsMapFactoryFactory().Create(foreignKey)();
         }
     }
 }
