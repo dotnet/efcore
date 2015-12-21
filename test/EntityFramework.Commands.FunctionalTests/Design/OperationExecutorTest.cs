@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
-                                    BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                         Sources = { @"
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
                                 BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
                     Sources = { @"
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
-                                    BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                     Sources = { @"
