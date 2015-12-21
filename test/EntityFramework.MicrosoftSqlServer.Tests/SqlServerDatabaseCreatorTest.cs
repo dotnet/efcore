@@ -228,21 +228,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GetTypeInfo()
                 .DeclaredConstructors;
 
-            SqlError error;
-            if (!TestPlatformHelper.IsWindows
-                && !TestPlatformHelper.IsMono)
-            {
-                // On coreclr, SqlError's internal constructor has an additional parameter
-                error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
-                    .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
-            }
-            else
-            {
-                // On Windows-CoreClr & Mono, SqlError is type-forwarded to full .NET
-                error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
+#if NET451
+            var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                     .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
-            }
-
+#else
+            // CoreCLR internal constructor has an additional parameter
+            var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
+                .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
+#endif
             var errors = (SqlErrorCollection)typeof(SqlErrorCollection)
                 .GetTypeInfo()
                 .DeclaredConstructors
