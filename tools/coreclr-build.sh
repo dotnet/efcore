@@ -13,7 +13,12 @@ if [ ! -e $DNVM_LOCATION ]; then
 fi
 
 source $DNVM_LOCATION
-DNX_UNSTABLE_FEED=https://www.myget.org/F/aspnetcidev/ dnvm upgrade -u -r coreclr
+
+if [ -z $SKIP_DNX_INSTALL ]; then
+    DNX_UNSTABLE_FEED=https://www.myget.org/F/aspnetcidev/ dnvm install latest -u -r coreclr -alias default
+fi
+
+dnvm use default
 dnu restore --quiet
 
 ERRORS=()
