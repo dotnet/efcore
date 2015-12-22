@@ -20,10 +20,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        public void AddChildren(IMetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AddChildren(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
                 customers.ForEach(c => context.Customers.Attach(c));
@@ -46,10 +50,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         //       only happens during SaveChanges for EF6.x (not during Add)
 
         [Benchmark]
-        public void AttachChildren(IMetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AttachChildren(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
                 customers.ForEach(c => context.Customers.Attach(c));
@@ -69,10 +77,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        public void AttachParents(IMetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AttachParents(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
                 orders.ForEach(o => context.Orders.Attach(o));

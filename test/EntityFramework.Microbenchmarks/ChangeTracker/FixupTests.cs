@@ -20,10 +20,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void AddChildren(IMetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AddChildren(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
                 context.Customers.AttachRange(customers);
@@ -43,10 +47,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void AddParents(IMetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AddParents(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
                 context.Orders.AddRange(orders);
@@ -66,10 +74,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void AttachChildren(IMetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AttachChildren(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
@@ -89,10 +101,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void AttachParents(IMetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AttachParents(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
                 context.Orders.AttachRange(orders);
