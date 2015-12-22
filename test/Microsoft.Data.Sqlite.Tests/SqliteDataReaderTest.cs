@@ -252,6 +252,12 @@ namespace Microsoft.Data.Sqlite
                 new byte[] { 0x7e, 0x57 });
 
         [Fact]
+        public void GetFieldValue_of_byteArray_empty() =>
+            GetFieldValue_works(
+                "SELECT X'';",
+                new byte[0] );
+
+        [Fact]
         public void GetFieldValue_of_byteArray_throws_when_null() =>
             GetX_throws_when_null(
                 r => r.GetFieldValue<byte[]>(0));

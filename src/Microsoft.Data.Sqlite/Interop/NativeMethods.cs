@@ -86,12 +86,15 @@ namespace Microsoft.Data.Sqlite.Interop
         public static int sqlite3_close_v2(IntPtr db)
             => Sqlite3.close_v2(db);
 
+        // TODO can be Array.Empty<T>() when upgrading to net46
+        private static byte[] EmptyByteArray = new byte[0];
+
         public static byte[] sqlite3_column_blob(Sqlite3StmtHandle pStmt, int iCol)
         {
             var ptr = Sqlite3.column_blob(pStmt, iCol);
             if (ptr == IntPtr.Zero)
             {
-                return null;
+                return EmptyByteArray;
             }
 
             var bytes = Sqlite3.column_bytes(pStmt, iCol);
