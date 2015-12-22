@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -14,7 +15,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     public class IdentityMap<TKey> : IIdentityMap
     {
         private readonly Dictionary<TKey, InternalEntityEntry> _identityMap;
-        
+        private readonly IList<IForeignKey> _foreignKeys;
+        private Dictionary<IForeignKey, IDependentsMap> _dependentMaps;
+
         public IdentityMap(
             [NotNull] IKey key,
             [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
@@ -22,6 +25,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             Key = key;
             PrincipalKeyValueFactory = principalKeyValueFactory;
             _identityMap = new Dictionary<TKey, InternalEntityEntry>(principalKeyValueFactory.EqualityComparer);
+
+            if (key.IsPrimaryKey())
+            {
+                _foreignKeys = key.DeclaringEntityType
+                    .GetDerivedTypesInclusive()
+                    .SelectMany(e => e.GetForeignKeys())
+                    .Distinct()
+                    .ToList();
+            }
         }
 
         protected virtual IPrincipalKeyValueFactory<TKey> PrincipalKeyValueFactory { get; }
@@ -37,7 +49,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual bool Contains(IForeignKey foreignKey, ValueBuffer valueBuffer)
         {
             TKey key;
-            return GetDependentKeyValueFactory(foreignKey).TryCreateFromBuffer(valueBuffer, out key)
+            return foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out key)
                    && _identityMap.ContainsKey(key);
         }
 
@@ -57,7 +69,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             TKey key;
             InternalEntityEntry entry;
-            return GetDependentKeyValueFactory(foreignKey).TryCreateFromCurrentValues(dependentEntry, out key)
+            return foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(dependentEntry, out key)
                    && _identityMap.TryGetValue(key, out entry)
                 ? entry
                 : null;
@@ -67,16 +79,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             TKey key;
             InternalEntityEntry entry;
-            return GetDependentKeyValueFactory(foreignKey).TryCreateFromRelationshipSnapshot(dependentEntry, out key)
+            return foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromRelationshipSnapshot(dependentEntry, out key)
                    && _identityMap.TryGetValue(key, out entry)
                 ? entry
                 : null;
         }
 
         public virtual void AddOrUpdate(InternalEntityEntry entry)
-            => _identityMap[PrincipalKeyValueFactory.CreateFromCurrentValues(entry)] = entry;
+            => AddInternal(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
 
-        public virtual void Add(InternalEntityEntry entry) 
+        public virtual void Add(InternalEntityEntry entry)
             => Add(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
 
         protected virtual void Add([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
@@ -91,61 +103,82 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             else
             {
-                _identityMap[key] = entry;
+                AddInternal(key, entry);
             }
         }
 
-        public virtual void Remove(InternalEntityEntry entry)
-            => _identityMap.Remove(PrincipalKeyValueFactory.CreateFromCurrentValues(entry));
-
-        public virtual void RemoveUsingRelationshipSnapshot(InternalEntityEntry entry)
-            => _identityMap.Remove(PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(entry));
-
-        protected virtual void Remove([NotNull] TKey key)
-            => _identityMap.Remove(key);
-
-        public virtual IEnumerable<InternalEntityEntry> GetMatchingDependentsFromRelationshipSnapshot(
-            IForeignKey foreignKey,
-            InternalEntityEntry principalEntry,
-            IEnumerable<InternalEntityEntry> candidateDependents)
-            => GetMatchingDependents(foreignKey, PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), candidateDependents);
-
-        public virtual IEnumerable<InternalEntityEntry> GetMatchingDependents(
-            IForeignKey foreignKey,
-            InternalEntityEntry principalEntry,
-            IEnumerable<InternalEntityEntry> candidateDependents) 
-            => GetMatchingDependents(foreignKey, PrincipalKeyValueFactory.CreateFromCurrentValues(principalEntry), candidateDependents);
-
-        private IEnumerable<InternalEntityEntry> GetMatchingDependents(
-            IForeignKey foreignKey,
-            TKey principalKey,
-            IEnumerable<InternalEntityEntry> candidateDependents)
+        private void AddInternal(TKey key, InternalEntityEntry entry)
         {
-            var dependentKeyValueFactory = GetDependentKeyValueFactory(foreignKey);
-            var equalityComparer = PrincipalKeyValueFactory.EqualityComparer;
-            var declaringEntityType = foreignKey.DeclaringEntityType;
+            _identityMap[key] = entry;
 
-            foreach (var dependentEntry in candidateDependents)
+            if (_dependentMaps != null
+                && _foreignKeys != null)
             {
-                TKey dependentKey;
-                if (declaringEntityType.IsAssignableFrom(dependentEntry.EntityType)
-                    && dependentKeyValueFactory.TryCreateFromCurrentValues(dependentEntry, out dependentKey)
-                    && equalityComparer.Equals(principalKey, dependentKey))
+                foreach (var foreignKey in _foreignKeys)
                 {
-                    yield return dependentEntry;
+                    IDependentsMap map;
+                    if (_dependentMaps.TryGetValue(foreignKey, out map))
+                    {
+                        map.Add(entry);
+                    }
                 }
             }
         }
 
-        public virtual IEnumerable<InternalEntityEntry> Entries => _identityMap.Values;
-
-        private static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory(IForeignKey foreignKey)
+        public virtual IDependentsMap GetDependentsMap(IForeignKey foreignKey)
         {
-            var factorySource = foreignKey as IDependentKeyValueFactorySource;
+            if (_dependentMaps == null)
+            {
+                _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(ReferenceEqualityComparer.Instance);
+            }
 
-            return factorySource != null
-                ? (IDependentKeyValueFactory<TKey>)factorySource.DependentKeyValueFactory
-                : new DependentKeyValueFactoryFactory().Create<TKey>(foreignKey);
+            IDependentsMap map;
+            if (!_dependentMaps.TryGetValue(foreignKey, out map))
+            {
+                map = foreignKey.CreateDependentsMapFactory();
+
+                foreach (var value in _identityMap.Values)
+                {
+                    map.Add(value);
+                }
+
+                _dependentMaps[foreignKey] = map;
+            }
+
+            return map;
+        }
+
+        public virtual IDependentsMap FindDependentsMap(IForeignKey foreignKey)
+        {
+            IDependentsMap map;
+            return _dependentMaps != null
+                   && _dependentMaps.TryGetValue(foreignKey, out map) 
+                   ? map 
+                   : null;
+        }
+
+        public virtual void Remove(InternalEntityEntry entry)
+            => Remove(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
+
+        public virtual void RemoveUsingRelationshipSnapshot(InternalEntityEntry entry)
+            => Remove(PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(entry), entry);
+
+        protected virtual void Remove([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
+        {
+            _identityMap.Remove(key);
+
+            if (_dependentMaps != null
+                && _foreignKeys != null)
+            {
+                foreach (var foreignKey in _foreignKeys)
+                {
+                    IDependentsMap map;
+                    if (_dependentMaps.TryGetValue(foreignKey, out map))
+                    {
+                        map.Remove(entry);
+                    }
+                }
+            }
         }
     }
 }

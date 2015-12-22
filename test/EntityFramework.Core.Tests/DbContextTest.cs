@@ -230,6 +230,11 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
+            public void UpdateDependentMap(InternalEntityEntry entry, IForeignKey foreignKey)
+            {
+                throw new NotImplementedException();
+            }
+
             public IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();
