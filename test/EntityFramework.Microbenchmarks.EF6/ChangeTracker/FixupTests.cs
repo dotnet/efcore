@@ -30,6 +30,8 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
 
+                context.Configuration.AutoDetectChangesEnabled = false;
+
                 using (collector.StartCollection())
                 {
                     foreach (var order in orders)
@@ -56,6 +58,8 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
 
+                context.Configuration.AutoDetectChangesEnabled = false;
+
                 using (collector.StartCollection())
                 {
                     foreach (var order in orders)
@@ -78,6 +82,8 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 orders.ForEach(o => context.Orders.Attach(o));
 
                 Assert.All(customers, c => Assert.Null(c.Orders));
+
+                context.Configuration.AutoDetectChangesEnabled = false;
 
                 using (collector.StartCollection())
                 {
