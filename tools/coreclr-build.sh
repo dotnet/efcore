@@ -2,8 +2,11 @@
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+CYAN='\033[1;36m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
+
+# Setup DNVM
 
 DNVM_LOCATION=packages/dnvm.sh
 
@@ -14,12 +17,23 @@ fi
 
 source $DNVM_LOCATION
 
+# Install dnx coreclr
+
 if [ -z $SKIP_DNX_INSTALL ]; then
     DNX_UNSTABLE_FEED=https://www.myget.org/F/aspnetcidev/ dnvm install latest -u -r coreclr -alias default
 fi
 
-dnvm use default
+dnvm use default -r coreclr
+
+# Restore
+
 dnu restore --quiet
+if [[ $? != 0 ]]; then
+    printf "${RED}Package restore failed${NC}\n"
+    exit 1
+fi
+
+# Execute tests
 
 ERRORS=()
 SKIPPED=()
@@ -35,15 +49,17 @@ for t in `grep -l "xunit.runner" test/*/project.json`; do
         continue
     fi
     
-    printf "${GREEN}Running tests on ${TEST_DIR}${NC}\n"
+    printf "${CYAN}Running tests on ${TEST_DIR}${NC}\n"
 
-    (cd $TEST_DIR && dnvm run default -r coreclr test $@)
+    (cd $TEST_DIR && dnx test $@)
     rc=$?
     if [[ $rc != 0 ]]; then
         printf "${RED}Test ${TEST_DIR} failed error code ${rc}${NC}\n"
         ERRORS+=("${TEST_DIR} failed")
     fi
 done
+
+# Summary and exit
 
 echo "============= TEST SUMMARY =============="
 
