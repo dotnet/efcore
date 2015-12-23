@@ -21,6 +21,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionVisitors;
+using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query
@@ -795,12 +796,19 @@ namespace Microsoft.Data.Entity.Query
 
             if (selector.Type != sequenceType)
             {
-                _expression
-                    = Expression.Call(
-                        LinqOperatorProvider.Select
-                            .MakeGenericMethod(CurrentParameter.Type, selector.Type),
-                        _expression,
-                        Expression.Lambda(selector, CurrentParameter));
+                if(!queryModel.ResultOperators
+                    .Select(ro => ro.GetType())
+                    .Any(t =>
+                        t == typeof(GroupResultOperator)
+                        || t == typeof(AllResultOperator)))
+                {
+                    _expression
+                        = Expression.Call(
+                            LinqOperatorProvider.Select
+                                .MakeGenericMethod(CurrentParameter.Type, selector.Type),
+                            _expression,
+                            Expression.Lambda(selector, CurrentParameter));
+                }
             }
         }
 

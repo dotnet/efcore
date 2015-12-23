@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10),
                 assertOrder: true);
         }
-        
+
         [ConditionalFact]
         public virtual void Take_subquery_projection()
         {
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [ConditionalFact]
         public virtual void Any_nested_negated2()
-            {
+        {
             AssertQuery<Customer, Order>(
                 (cs, os) => cs.Where(c => c.City != "London"
                                           && !os.Any(o => o.CustomerID.StartsWith("A"))));
@@ -295,7 +295,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer, Order>(
                 (cs, os) => cs.Where(c => !os.Any(o => o.CustomerID.StartsWith("A"))
                                           && c.City != "London"));
-            }
+        }
 
         [ConditionalFact]
         public virtual void Any_nested()
@@ -1027,7 +1027,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => DateTime.Now != myDatetime),
                 entryCount: 91);
         }
-        
+
         [ConditionalFact]
         public virtual void Where_datetime_utcnow()
         {
@@ -2301,7 +2301,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
                 select new { c, o });
         }
-        
+
         [ConditionalFact]
         public virtual void Join_local_collection_int_closure_is_cached_correctly()
         {
@@ -2944,8 +2944,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
         }
 
-
-
         [ConditionalFact]
         public virtual void GroupBy_with_element_selector()
         {
@@ -3051,6 +3049,107 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .GroupBy(e => e.EmployeeID)
                     .SelectMany(g => g)
                     .Select(g => EF.Property<string>(g, "Title")));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_GroupBy()
+        {
+            AssertQuery<Order>(
+                os => os.Select(o => new ProjectedType
+                {
+                    Order = o.OrderID,
+                    Customer = o.CustomerID
+                })
+                .GroupBy(p => p.Customer),
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        var efGroupings = efResults.Cast<IGrouping<string, ProjectedType>>().ToList();
+
+                        foreach (IGrouping<string, ProjectedType> l2oGrouping in l2oResults)
+                        {
+                            var efGrouping = efGroupings.Single(efg => efg.Key == l2oGrouping.Key);
+
+                            Assert.Equal(l2oGrouping.OrderBy(p => p.Order), efGrouping.OrderBy(p => p.Order));
+                        }
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Select_GroupBy_SelectMany()
+        {
+            AssertQuery<Order>(
+                os => os.Select(o => new ProjectedType
+                {
+                    Order = o.OrderID,
+                    Customer = o.CustomerID
+                })
+                .GroupBy(o => o.Order)
+                .SelectMany(g => g));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_All()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    false,
+                    context
+                        .Set<Order>()
+                        .Select(o => new ProjectedType
+                        {
+                            Order = o.OrderID,
+                            Customer = o.CustomerID
+                        })
+                        .All(p => p.Customer == "ALFKI")
+                    );
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_GroupBy_All()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    false,
+                    context
+                        .Set<Order>()
+                        .Select(o => new ProjectedType
+                        {
+                            Order = o.OrderID,
+                            Customer = o.CustomerID
+                        })
+                        .GroupBy(a => a.Customer)
+                        .All(a => a.Key == "ALFKI")
+                    );
+            }
+        }
+
+        private class ProjectedType
+        {
+            public int Order { get; set; }
+            public string Customer { get; set; }
+
+            protected bool Equals(ProjectedType other) => string.Equals(Order, other.Order);
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
+                return obj.GetType() == GetType()
+                       && Equals((ProjectedType)obj);
+            }
+
+            public override int GetHashCode() => Order.GetHashCode();
         }
 
         [ConditionalFact]
@@ -4096,7 +4195,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
 
-            ids = new []{ "ABCDE" };
+            ids = new[] { "ABCDE" };
 
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)));

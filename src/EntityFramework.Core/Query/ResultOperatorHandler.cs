@@ -181,9 +181,6 @@ namespace Microsoft.Data.Entity.Query
             GroupResultOperator groupResultOperator,
             QueryModel queryModel)
         {
-            var sequenceType
-                = entityQueryModelVisitor.Expression.Type.GetSequenceType();
-
             var keySelector
                 = entityQueryModelVisitor
                     .ReplaceClauseReferences(
@@ -200,7 +197,7 @@ namespace Microsoft.Data.Entity.Query
                 = Expression.Call(
                     entityQueryModelVisitor.LinqOperatorProvider.GroupBy
                         .MakeGenericMethod(
-                            sequenceType,
+                            entityQueryModelVisitor.Expression.Type.GetSequenceType(),
                             keySelector.Type,
                             elementSelector.Type),
                     entityQueryModelVisitor.Expression,
@@ -208,7 +205,7 @@ namespace Microsoft.Data.Entity.Query
                     Expression.Lambda(elementSelector, entityQueryModelVisitor.CurrentParameter));
 
             entityQueryModelVisitor.CurrentParameter
-                = Expression.Parameter(sequenceType, groupResultOperator.ItemName);
+                = Expression.Parameter(expression.Type.GetSequenceType(), groupResultOperator.ItemName);
 
             entityQueryModelVisitor
                 .AddOrUpdateMapping(groupResultOperator, entityQueryModelVisitor.CurrentParameter);
