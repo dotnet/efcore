@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.Scaffolding
     {
         public static bool Allows(this TableSelectionSet tableSet, string tableName)
         {
-            if (tableSet == null
-                || tableSet.Tables.Count == 0)
+            if ((tableSet == null)
+                || (tableSet.Tables.Count == 0))
             {
                 return true;
             }
