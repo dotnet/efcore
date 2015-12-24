@@ -268,7 +268,7 @@ namespace Microsoft.Data.Entity.Update
                 commandStringBuilder
                     .Append("(")
                     .AppendJoin(operations.Select(
-                        o => SqlGenerationHelper.GenerateParameterName(o.ParameterName)))
+                        o => o.IsWrite ? SqlGenerationHelper.GenerateParameterName(o.ParameterName) : "DEFAULT"))
                     .Append(")");
             }
         }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
@@ -12,28 +13,73 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class BatchingTest : IDisposable
     {
-        [Fact]
-        public void Batches_are_divided_correctly_with_two_inserted_columns()
+        [Theory]
+        [InlineData(true, true, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, false, false)]
+        public void Inserts_are_batched_correctly(bool clientPk, bool clientFk, bool clientOrder)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(_testStore.Connection);
 
+            var expectedBlogs = new List<Blog>();
             using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
             {
                 context.Database.EnsureCreated();
+                var owner1 = new Owner();
+                var owner2 = new Owner();
+                context.Owners.Add(owner1);
+                context.Owners.Add(owner2);
 
-                for (var i = 1; i < 1101; i++)
+                for (var i = 1; i < 500; i++)
                 {
-                    var blog = new Blog { Id = i, Name = "Foo" + i };
-                    context.Blogs.Add(blog);
-                }
+                    var blog = new Blog();
+                    if (clientPk)
+                    {
+                        blog.Id = Guid.NewGuid();
+                    }
 
+                    if (clientFk)
+                    {
+                        blog.Owner = i % 2 == 0 ? owner1 : owner2;
+                    }
+
+                    if (clientOrder)
+                    {
+                        blog.Order = i;
+                    }
+
+                    context.Blogs.Add(blog);
+                    expectedBlogs.Add(blog);
+                }
+                
                 context.SaveChanges();
             }
 
+            expectedBlogs = clientOrder
+                ? expectedBlogs.OrderBy(b => b.Order).ToList()
+                : expectedBlogs.OrderBy(b => b.Id).ToList();
             using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
             {
-                Assert.Equal(1100, context.Blogs.Count());
+                var actualBlogs = clientOrder
+                    ? context.Blogs.OrderBy(b => b.Order).ToList()
+                    : expectedBlogs.OrderBy(b => b.Id).ToList();
+                Assert.Equal(expectedBlogs.Count, actualBlogs.Count);
+
+                for (int i = 0; i < actualBlogs.Count; i++)
+                {
+                    var expected = expectedBlogs[i];
+                    var actual = actualBlogs[i];
+                    Assert.Equal(expected.Id, actual.Id);
+                    Assert.Equal(expected.Order, actual.Order);
+                    Assert.Equal(expected.OwnerId, actual.OwnerId);
+                    Assert.Equal(expected.Version, actual.Version);
+                }
             }
         }
 
@@ -46,17 +92,29 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Blog>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Blog>(b =>
+                    {
+                        b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
+                        b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                    });
             }
 
             public DbSet<Blog> Blogs { get; set; }
+            public DbSet<Owner> Owners { get; set; }
         }
 
-        public class Blog
+        private class Blog
+        {
+            public Guid Id { get; set; }
+            public int Order { get; set; }
+            public int? OwnerId { get; set; }
+            public Owner Owner { get; set; }
+            public byte[] Version { get; set; }
+        }
+
+        public class Owner
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string Description { get; set; }
         }
 
         private readonly SqlServerTestStore _testStore;
@@ -72,9 +130,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .BuildServiceProvider();
         }
 
-        public void Dispose()
-        {
-            _testStore.Dispose();
-        }
+        public void Dispose() => _testStore.Dispose();
     }
 }

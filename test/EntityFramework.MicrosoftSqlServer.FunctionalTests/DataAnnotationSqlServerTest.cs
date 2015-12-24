@@ -181,24 +181,24 @@ WHERE [r].[Id] = 1
 @p2: System.Byte[]
 
 SET NOCOUNT ON;
-DECLARE @generated0 TABLE ([Timestamp] varbinary(8));
+DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
 UPDATE [Two] SET [Data] = @p1
 OUTPUT INSERTED.[Timestamp]
-INTO @generated0
+INTO @inserted0
 WHERE [Id] = @p0 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @generated0;
+SELECT [Timestamp] FROM @inserted0;
 
 @p0: 1
 @p1: ChangedData
 @p2: System.Byte[]
 
 SET NOCOUNT ON;
-DECLARE @generated0 TABLE ([Timestamp] varbinary(8));
+DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
 UPDATE [Two] SET [Data] = @p1
 OUTPUT INSERTED.[Timestamp]
-INTO @generated0
+INTO @inserted0
 WHERE [Id] = @p0 AND [Timestamp] = @p2;
-SELECT [Timestamp] FROM @generated0;",
+SELECT [Timestamp] FROM @inserted0;",
                 Sql);
         }
 
