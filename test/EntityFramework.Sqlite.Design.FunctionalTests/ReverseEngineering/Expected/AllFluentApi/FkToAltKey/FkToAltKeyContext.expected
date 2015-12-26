@@ -5,9 +5,9 @@ namespace E2E.Sqlite
 {
     public partial class FkToAltKeyContext : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            options.UseSqlite(@"Data Source=FkToAltKeyFluentApi.db;Cache=Private");
+            optionsBuilder.UseSqlite(@"Data Source=FkToAltKeyFluentApi.db;Cache=Private");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

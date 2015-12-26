@@ -5,9 +5,9 @@ namespace E2ETest.Namespace
 {
     public partial class AttributesContext : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            options.UseSqlServer(@"{{connectionString}}");
+            optionsBuilder.UseSqlServer(@"{{connectionString}}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
