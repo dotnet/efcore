@@ -5,9 +5,9 @@ namespace E2E.Sqlite
 {
     public partial class ManyToManyFluentApiContext : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            options.UseSqlite(@"Data Source=ManyToManyFluentApi.db;Cache=Private");
+            optionsBuilder.UseSqlite(@"Data Source=ManyToManyFluentApi.db;Cache=Private");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

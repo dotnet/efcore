@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
         public virtual void AddOnConfiguring()
         {
-            _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder options)");
+            _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
             _sb.AppendLine("{");
             using (_sb.Indent())
             {
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                         continue;
                     }
 
-                    _sb.Append("options." + optionsBuilderConfig.FluentApiLines.First());
+                    _sb.Append("optionsBuilder." + optionsBuilderConfig.FluentApiLines.First());
                     using (_sb.Indent())
                     {
                         foreach(var line in optionsBuilderConfig.FluentApiLines.Skip(1))
