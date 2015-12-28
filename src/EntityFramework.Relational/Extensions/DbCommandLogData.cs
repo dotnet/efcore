@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] string commandText,
             CommandType commandType,
             int commandTimeout,
-            [NotNull] IReadOnlyDictionary<string, object> parameters,
+            [NotNull] IReadOnlyDictionary<string, string> parameters,
             long? elapsedMilliseconds)
         {
             CommandText = commandText;
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Storage
         public virtual string CommandText { get; }
         public virtual CommandType CommandType { get; }
         public virtual int CommandTimeout { get; }
-        public virtual IReadOnlyDictionary<string, object> Parameters { get; }
+        public virtual IReadOnlyDictionary<string, string> Parameters { get; }
         public virtual long? ElapsedMilliseconds { get; }
     }
 }

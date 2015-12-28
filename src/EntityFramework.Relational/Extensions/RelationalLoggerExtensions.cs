@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -37,14 +38,14 @@ namespace Microsoft.Data.Entity.Storage
                             command.CommandTimeout,
                             command.Parameters
                                 .Cast<DbParameter>()
-                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
+                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? FormatParameterValue(p.Value) : "?"),
                             elapsedMilliseconds);
                     },
                 state =>
                     RelationalStrings.RelationalLoggerExecutedCommand(
                         string.Format($"{elapsedMilliseconds:N0}"),
                         state.Parameters
-                            .Select(kv => $"{kv.Key}='{Convert.ToString(kv.Value, CultureInfo.InvariantCulture)}'")
+                            .Select(kv => $"{kv.Key}='{kv.Value}'")
                             .Join(),
                         state.CommandType,
                         state.CommandTimeout,
@@ -59,6 +60,22 @@ namespace Microsoft.Data.Entity.Storage
             {
                 logger.Log(LogLevel.Information, (int)eventId, state(), null, (s, _) => formatter((TState)s));
             }
+        }
+
+        private static string FormatParameterValue(object parameterValue)
+        {
+            if (parameterValue.GetType() != typeof(byte[]))
+            {
+                return Convert.ToString(parameterValue, CultureInfo.InvariantCulture);
+            }
+            var stringValueBuilder = new StringBuilder();
+            var buffer = (byte[])parameterValue;
+            stringValueBuilder.Append("0x");
+            foreach (var t in buffer)
+            {
+                stringValueBuilder.Append(t.ToString("X2", CultureInfo.InvariantCulture));
+            }
+            return stringValueBuilder.ToString();
         }
 
         public static void LogDebug(
