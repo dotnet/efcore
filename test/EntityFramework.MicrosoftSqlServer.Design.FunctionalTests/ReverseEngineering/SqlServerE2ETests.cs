@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 "OneToOneFKToUniqueKeyPrincipal",
                 "ReferredToByTableWithUnmappablePrimaryKeyColumn",
                 "TableWithUnmappablePrimaryKeyColumn",
-                "SelfReferencing",
+                "selfreferencing",
             });
 
         public SqlServerE2ETests(SqlServerE2EFixture fixture, ITestOutputHelper output)
