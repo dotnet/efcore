@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 for (var i = 0; i < count; i++)
                 {
-                    context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos " + i });
+                    context.Chips.AddWithChildren(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos " + i });
                 }
                 context.SaveChanges();
             }

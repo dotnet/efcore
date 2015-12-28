@@ -399,7 +399,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             return ConcurrencyTestAsync(
                 c =>
-                    c.Teams.Add(
+                    c.Teams.AddWithChildren(
                         new Team
                         {
                             Id = -1,
@@ -514,7 +514,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateF1Context())
             {
-                var entry = context.Drivers.Add(
+                var entry = context.Drivers.AddWithChildren(
                     new Driver
                     {
                         Name = "Larry David",
@@ -531,7 +531,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateF1Context())
             {
-                var entry = context.Drivers.Add(
+                var entry = context.Drivers.AddWithChildren(
                     new Driver
                     {
                         Name = "Larry David",

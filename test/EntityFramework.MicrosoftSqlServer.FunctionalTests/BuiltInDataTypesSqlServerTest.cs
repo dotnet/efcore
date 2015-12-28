@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(
+                context.Set<MappedNullableDataTypes>().AddWithChildren(
                     new MappedNullableDataTypes
                     {
                         Int = 999,
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(
+                context.Set<MappedNullableDataTypes>().AddWithChildren(
                     new MappedNullableDataTypes
                     {
                         Int = 911,
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedDataTypes>().Add(
+                context.Set<MappedDataTypes>().AddWithChildren(
                     new MappedDataTypes
                         {
                             Int = 77,
@@ -454,7 +454,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(
+                context.Set<MappedNullableDataTypes>().AddWithChildren(
                     new MappedNullableDataTypes
                         {
                             Int = 77,
@@ -560,7 +560,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(
+                context.Set<MappedNullableDataTypes>().AddWithChildren(
                     new MappedNullableDataTypes
                         {
                             Int = 78
@@ -620,7 +620,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypes>().Add(
+                context.Set<MappedSizedDataTypes>().AddWithChildren(
                     new MappedSizedDataTypes
                         {
                             Id = 77,
@@ -667,7 +667,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypes>().Add(
+                context.Set<MappedSizedDataTypes>().AddWithChildren(
                     new MappedSizedDataTypes
                         {
                             Id = 78
@@ -701,7 +701,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedScaledDataTypes>().Add(
+                context.Set<MappedScaledDataTypes>().AddWithChildren(
                     new MappedScaledDataTypes
                         {
                             Id = 77,
@@ -736,7 +736,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedPrecisionAndScaledDataTypes>().Add(
+                context.Set<MappedPrecisionAndScaledDataTypes>().AddWithChildren(
                     new MappedPrecisionAndScaledDataTypes
                         {
                             Id = 77,

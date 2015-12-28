@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Id = 66, Name = "One Unicorn" }, new Blog { Id = 67, Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Id = 66, Name = "One Unicorn" }, new Blog { Id = 67, Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(
+                    context.AddRangeWithChildren(
                         new NullableKeyBlog { Id = 0, Name = "One Unicorn" },
                         new NullableKeyBlog { Id = 1, Name = "Two Unicorns" });
 
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) }
                     };
 
-                    context.AddRange(blogs);
+                    context.AddRangeWithChildren(blogs);
 
                     context.SaveChanges();
 
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(
+                    context.AddRangeWithChildren(
                         new Blog { Name = "One Unicorn" },
                         new Blog { Name = "Two Unicorns" });
 
@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    var blog = context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
+                    var blog = context.AddWithChildren(new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
                     context.SaveChanges();
 
@@ -372,7 +372,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BlogContext())
                 {
-                    var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
+                    var blog = context.AddWithChildren(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
 
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BlogContext())
                 {
-                    var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
+                    var blog = context.AddWithChildren(new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
 
@@ -441,7 +441,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Id = 2, Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Id = 2, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
                     // inner exception for details.
@@ -463,7 +463,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
                     // inner exception for details.
@@ -485,7 +485,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -519,7 +519,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+                    context.AddRangeWithChildren(new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     // The property 'Id' on entity type 'Blog' is defined to be read-only before it is 
                     // saved, but its value has been set to something other than a temporary or default value.
@@ -551,7 +551,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.AddRange(
+                    context.AddRangeWithChildren(
                         new Blog { Name = "One Unicorn" },
                         new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) });
 
@@ -582,7 +582,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
+                    context.AddWithChildren(new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
 
                     // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is 
                     // saved, but its value has been set to something other than a temporary or default value.
@@ -610,7 +610,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    context.Add(new FullNameBlog { FirstName = "One", LastName = "Unicorn" });
+                    context.AddWithChildren(new FullNameBlog { FirstName = "One", LastName = "Unicorn" });
 
                     context.SaveChanges();
                 }
@@ -649,7 +649,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = new BlogContext())
                 {
-                    var blog = context.Add(new ConcurrentBlog { Name = "One Unicorn" }).Entity;
+                    var blog = context.AddWithChildren(new ConcurrentBlog { Name = "One Unicorn" }).Entity;
 
                     context.SaveChanges();
 

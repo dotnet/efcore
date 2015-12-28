@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                context.Set<MaxLengthDataTypes>().Add(
+                context.Set<MaxLengthDataTypes>().AddWithChildren(
                     new MaxLengthDataTypes
                     {
                         Id = 799,
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<BuiltInDataTypes>().Add(
+                context.Set<BuiltInDataTypes>().AddWithChildren(
                     new BuiltInDataTypes
                     {
                         Id = 11,
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<BuiltInNullableDataTypes>().Add(
+                context.Set<BuiltInNullableDataTypes>().AddWithChildren(
                     new BuiltInNullableDataTypes
                     {
                         Id = 11,
@@ -319,7 +319,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<BuiltInNullableDataTypes>().Add(
+                context.Set<BuiltInNullableDataTypes>().AddWithChildren(
                     new BuiltInNullableDataTypes
                     {
                         Id = 711,
@@ -416,7 +416,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<BuiltInDataTypes>().Add(
+                context.Set<BuiltInDataTypes>().AddWithChildren(
                     new BuiltInDataTypes
                         {
                             Id = 1,
@@ -489,7 +489,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                context.Set<MaxLengthDataTypes>().Add(
+                context.Set<MaxLengthDataTypes>().AddWithChildren(
                     new MaxLengthDataTypes
                         {
                             Id = 79,
@@ -523,13 +523,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                context.Set<BinaryKeyDataType>().Add(
+                context.Set<BinaryKeyDataType>().AddWithChildren(
                     new BinaryKeyDataType
                         {
                             Id = new byte[] { 1, 2, 3 }
                         });
 
-                context.Set<BinaryForeignKeyDataType>().Add(
+                context.Set<BinaryForeignKeyDataType>().AddWithChildren(
                     new BinaryForeignKeyDataType
                         {
                             Id = 77,
@@ -556,7 +556,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<BinaryForeignKeyDataType>().Add(
+                context.Set<BinaryForeignKeyDataType>().AddWithChildren(
                     new BinaryForeignKeyDataType
                         {
                             Id = 78
@@ -578,13 +578,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<StringKeyDataType>().Add(
+                context.Set<StringKeyDataType>().AddWithChildren(
                     new StringKeyDataType
                         {
                             Id = "Gumball!"
                         });
 
-                context.Set<StringForeignKeyDataType>().Add(
+                context.Set<StringForeignKeyDataType>().AddWithChildren(
                     new StringForeignKeyDataType
                         {
                             Id = 77,
@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<StringForeignKeyDataType>().Add(
+                context.Set<StringForeignKeyDataType>().AddWithChildren(
                     new StringForeignKeyDataType
                         {
                             Id = 78
@@ -641,7 +641,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<BuiltInNullableDataTypes>().Add(
+                context.Set<BuiltInNullableDataTypes>().AddWithChildren(
                     new BuiltInNullableDataTypes
                         {
                             Id = 100,
@@ -685,7 +685,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<BuiltInNullableDataTypes>().Add(
+                context.Set<BuiltInNullableDataTypes>().AddWithChildren(
                     new BuiltInNullableDataTypes
                         {
                             Id = 101,

@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Add(new Gumball { Id = 1 });
+                context.AddWithChildren(new Gumball { Id = 1 });
 
                 Assert.Equal(
                     CoreStrings.PropertyReadOnlyBeforeSave("Id", "Gumball"),
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entry = context.Add(new Gumball { Identity = "Masami" });
+                var entry = context.AddWithChildren(new Gumball { Identity = "Masami" });
                 entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.Identity).Metadata);
 
                 context.SaveChanges();
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Add(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
+                context.AddWithChildren(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
 
                 Assert.Equal(
                     CoreStrings.PropertyReadOnlyBeforeSave("IdentityReadOnlyBeforeSave", "Gumball"),
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball { Identity = "Masami" }).Entity;
+                var entity = context.AddWithChildren(new Gumball { Identity = "Masami" }).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
+                var entry = context.AddWithChildren(new Gumball { AlwaysIdentity = "Masami" });
                 entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.AlwaysIdentity).Metadata);
 
                 context.SaveChanges();
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
+                context.AddWithChildren(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
 
                 Assert.Equal(
                     CoreStrings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
@@ -269,7 +269,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball { AlwaysIdentity = "Masami" }).Entity;
+                var entity = context.AddWithChildren(new Gumball { AlwaysIdentity = "Masami" }).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -387,7 +387,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entry = context.Add(new Gumball { Computed = "Masami" });
+                var entry = context.AddWithChildren(new Gumball { Computed = "Masami" });
                 entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.Computed).Metadata);
 
                 context.SaveChanges();
@@ -409,7 +409,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -428,7 +428,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Add(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
+                context.AddWithChildren(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
 
                 Assert.Equal(
                     CoreStrings.PropertyReadOnlyBeforeSave("ComputedReadOnlyBeforeSave", "Gumball"),
@@ -443,7 +443,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball { Computed = "Masami" }).Entity;
+                var entity = context.AddWithChildren(new Gumball { Computed = "Masami" }).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -464,7 +464,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -492,7 +492,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -525,7 +525,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -561,7 +561,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
+                var entry = context.AddWithChildren(new Gumball { AlwaysComputed = "Masami" });
                 entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.AlwaysComputed).Metadata);
 
                 context.SaveChanges();
@@ -583,7 +583,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -602,7 +602,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
+                context.AddWithChildren(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
 
                 Assert.Equal(
                     CoreStrings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
@@ -617,7 +617,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball { AlwaysComputed = "Masami" }).Entity;
+                var entity = context.AddWithChildren(new Gumball { AlwaysComputed = "Masami" }).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -638,7 +638,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -666,7 +666,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;
@@ -699,7 +699,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var entity = context.Add(new Gumball()).Entity;
+                var entity = context.AddWithChildren(new Gumball()).Entity;
 
                 context.SaveChanges();
                 id = entity.Id;

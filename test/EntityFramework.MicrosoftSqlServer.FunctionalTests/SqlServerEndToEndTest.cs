@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     db.Entry(toUpdate).State = EntityState.Modified;
                     db.Entry(toDelete).State = EntityState.Deleted;
 
-                    var toAdd = db.Add(new Blog
+                    var toAdd = db.AddWithChildren(new Blog
                         {
                             Name = "Blog to Insert",
                             George = true,
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
-                    var toAdd = db.Blogs.Add(new Blog
+                    var toAdd = db.Blogs.AddWithChildren(new Blog
                     {
                         Name = "Blog to Insert",
                         George = true,
@@ -296,8 +296,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     context.Connection = testDatabase.Connection;
 
-                    context.Add(new Jack { MyKey = 1 });
-                    context.Add(new Black { MyKey = 2 });
+                    context.AddWithChildren(new Jack { MyKey = 1 });
+                    context.AddWithChildren(new Black { MyKey = 2 });
                     context.SaveChanges();
                 }
 
@@ -424,7 +424,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     blog2.NotFigTime = new DateTime();
                     blog2.AndChew = null;
 
-                    var blog3 = context.Add(new TBlog()).Entity;
+                    var blog3 = context.AddWithChildren(new TBlog()).Entity;
 
                     await context.SaveChangesAsync();
 
@@ -455,7 +455,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context) where TBlog : class, IBlog, new()
         {
             await context.Database.EnsureCreatedAsync();
-            var blog1 = context.Add(new TBlog
+            var blog1 = context.AddWithChildren(new TBlog
             {
                 Name = "Blog1",
                 George = true,
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
                 AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
             }).Entity;
-            var blog2 = context.Add(new TBlog
+            var blog2 = context.AddWithChildren(new TBlog
             {
                 Name = "Blog2",
                 George = false,

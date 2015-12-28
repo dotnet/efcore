@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = CreateContext())
             {
                 var product = new Product { Name = "blah" };
-                context.Products.Add(product);
+                context.Products.AddWithChildren(product);
                 context.SaveChanges();
 
                 var firstVersion = product.Version;
@@ -51,20 +51,20 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var productToBeUpdated1 = new Product { Name = "u1" };
                 var productToBeUpdated2 = new Product { Name = "u2" };
-                context.Products.Add(productToBeUpdated1);
-                context.Products.Add(productToBeUpdated2);
+                context.Products.AddWithChildren(productToBeUpdated1);
+                context.Products.AddWithChildren(productToBeUpdated2);
 
                 var productToBeDeleted1 = new Product { Name = "d1" };
                 var productToBeDeleted2 = new Product { Name = "d2" };
-                context.Products.Add(productToBeDeleted1);
-                context.Products.Add(productToBeDeleted2);
+                context.Products.AddWithChildren(productToBeDeleted1);
+                context.Products.AddWithChildren(productToBeDeleted2);
 
                 context.SaveChanges();
 
                 var productToBeAdded1 = new Product { Name = "a1" };
                 var productToBeAdded2 = new Product { Name = "a2" };
-                context.Products.Add(productToBeAdded1);
-                context.Products.Add(productToBeAdded2);
+                context.Products.AddWithChildren(productToBeAdded1);
+                context.Products.AddWithChildren(productToBeAdded2);
 
                 productToBeUpdated1.Name = "n1";
                 productToBeUpdated2.Name = "n2";

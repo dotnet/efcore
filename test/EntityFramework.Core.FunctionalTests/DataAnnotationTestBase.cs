@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Ones.Add(new One { RequiredColumn = "Third", RowVersion = new Guid("00000000-0000-0000-0000-000000000003") });
+                context.Ones.AddWithChildren(new One { RequiredColumn = "Third", RowVersion = new Guid("00000000-0000-0000-0000-000000000003") });
 
                 context.SaveChanges();
             }
@@ -64,14 +64,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Ones.Add(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000001"), MaxLengthProperty = "Short" });
+                context.Ones.AddWithChildren(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000001"), MaxLengthProperty = "Short" });
 
                 context.SaveChanges();
             }
 
             using (var context = CreateContext())
             {
-                context.Ones.Add(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000002"), MaxLengthProperty = "VeryVeryVeryVeryVeryVeryLongString" });
+                context.Ones.AddWithChildren(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000002"), MaxLengthProperty = "VeryVeryVeryVeryVeryVeryLongString" });
 
                 Assert.Equal("An error occurred while updating the entries. See the inner exception for details.",
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.BookDetails.Add(new BookDetail { BookId = "Book1" });
+                context.BookDetails.AddWithChildren(new BookDetail { BookId = "Book1" });
 
                 context.SaveChanges();
             }
 
             using (var context = CreateContext())
             {
-                context.BookDetails.Add(new BookDetail());
+                context.BookDetails.AddWithChildren(new BookDetail());
 
                 Assert.Equal("An error occurred while updating the entries. See the inner exception for details.",
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
@@ -129,14 +129,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Ones.Add(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000001") });
+                context.Ones.AddWithChildren(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000001") });
 
                 context.SaveChanges();
             }
 
             using (var context = CreateContext())
             {
-                context.Ones.Add(new One { RequiredColumn = null, RowVersion = new Guid("00000000-0000-0000-0000-000000000002") });
+                context.Ones.AddWithChildren(new One { RequiredColumn = null, RowVersion = new Guid("00000000-0000-0000-0000-000000000002") });
 
                 Assert.Equal("An error occurred while updating the entries. See the inner exception for details.",
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
@@ -148,14 +148,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Twos.Add(new Two { Data = "ValidString" });
+                context.Twos.AddWithChildren(new Two { Data = "ValidString" });
 
                 context.SaveChanges();
             }
 
             using (var context = CreateContext())
             {
-                context.Twos.Add(new Two { Data = "ValidButLongString" });
+                context.Twos.AddWithChildren(new Two { Data = "ValidButLongString" });
 
                 Assert.Equal("An error occurred while updating the entries. See the inner exception for details.",
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);

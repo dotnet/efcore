@@ -28,7 +28,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                 using (context.Database.BeginTransaction())
                 {
                     var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
-                    context.Customers.AddRange(customers);
+                    context.Customers.AddRangeWithChildren(customers);
 
                     collector.StartCollection();
                     var records = context.SaveChanges();
@@ -94,7 +94,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                     var existingCustomers = context.Customers.ToArray();
 
                     var newCustomers = _fixture.CreateCustomers(333, setPrimaryKeys: false);
-                    context.Customers.AddRange(newCustomers);
+                    context.Customers.AddRangeWithChildren(newCustomers);
 
                     for (var i = 0; i < 1000; i += 3)
                     {

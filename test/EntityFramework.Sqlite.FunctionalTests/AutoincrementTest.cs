@@ -22,14 +22,14 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             using (var context = CreateContext())
             {
                 context.Database.EnsureCreated();
-                context.People.Add(new Person { Name = "Bruce" });
+                context.People.AddWithChildren(new Person { Name = "Bruce" });
                 context.SaveChanges();
 
                 var hero = context.People.First(p => p.Id == 1);
 
                 context.People.Remove(hero);
                 context.SaveChanges();
-                context.People.Add(new Person { Name = "Batman" });
+                context.People.AddWithChildren(new Person { Name = "Batman" });
                 context.SaveChanges();
                 var gone = context.People.FirstOrDefault(p => p.Id == 1);
                 var begins = context.People.FirstOrDefault(p => p.Id == 2);

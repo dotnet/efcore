@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                         }
                 })
             {
-                context.Add(engineSupplier);
+                context.AddWithChildren(engineSupplier);
             }
 
             // TODO: Change to context.EngineSuppliers.Local once local queries work
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                     cosworthEngine
                 })
             {
-                context.Engines.Add(engine);
+                context.Engines.AddWithChildren(engine);
             }
 
             foreach (var team in new List<Team>
@@ -334,7 +334,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                         }
                 })
             {
-                context.Teams.Add(team);
+                context.Teams.AddWithChildren(team);
             }
 
             foreach (var driver in new List<Driver>
@@ -845,7 +845,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                         }
                 })
             {
-                context.Drivers.Add(driver);
+                context.Drivers.AddWithChildren(driver);
             }
 
             var shell = new Sponsor
@@ -878,7 +878,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                     fia
                 })
             {
-                context.Sponsors.Add(sponsor);
+                context.Sponsors.AddWithChildren(sponsor);
             }
 
             // TODO: Change to context.Teams.Local once local queries work

@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await context.Database.EnsureDeletedAsync();
                 await context.Database.EnsureCreatedAsync();
 
-                context.Products.Add(new Product { Name = "Product 1" });
+                context.Products.AddWithChildren(new Product { Name = "Product 1" });
                 context.SaveChanges();
             }
 
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await context.Database.EnsureDeletedAsync();
                 await context.Database.EnsureCreatedAsync();
 
-                context.Products.Add(new Product { Name = "Product 1" });
+                context.Products.AddWithChildren(new Product { Name = "Product 1" });
                 context.SaveChanges();
             }
 
@@ -210,8 +210,8 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
                         var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 } };
                         var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 } };
 
-                        context.Customers.AddRange(customer1, customer2);
-                        context.Orders.AddRange(order11, order12, order21, order22, order23);
+                        context.Customers.AddRangeWithChildren(customer1, customer2);
+                        context.Orders.AddRangeWithChildren(order11, order12, order21, order22, order23);
                         context.SaveChanges();
                     });
         }
@@ -333,9 +333,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                             };
 
                         var daenerys = new Targaryen { Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion } };
-                        context.Targaryens.AddRange(daenerys, aerys);
-                        context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
-                        context.Details.Add(details);
+                        context.Targaryens.AddRangeWithChildren(daenerys, aerys);
+                        context.Dragons.AddRangeWithChildren(drogon, rhaegal, viserion, balerion);
+                        context.Details.AddWithChildren(details);
 
                         context.SaveChanges();
                     });
@@ -590,8 +590,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     c2.Orders3.AddRange(new[] { o231, o232 });
                     c2.Orders4.Add(o241);
 
-                    context.Customers.AddRange(c1, c2);
-                    context.Orders.AddRange(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
+                    context.Customers.AddRangeWithChildren(c1, c2);
+                    context.Orders.AddRangeWithChildren(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
 
                     context.SaveChanges();
                 });

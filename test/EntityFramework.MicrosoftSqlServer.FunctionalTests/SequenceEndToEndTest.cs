@@ -60,8 +60,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Rainbow Dash " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 context.SaveChanges();
@@ -114,8 +114,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Rainbow Dash " + i });
+                    context.AddWithChildren(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();
@@ -216,8 +216,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 for (var i = 1; i < 11; i++)
                 {
-                    context.Add(new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
-                    context.Add(new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
+                    context.AddWithChildren(new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
+                    context.AddWithChildren(new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
                 }
 
                 context.SaveChanges();
@@ -325,8 +325,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    context.Add(new Unicon { Name = "Twilight Sparkle " + i });
-                    context.Add(new Unicon { Name = "Rarity " + i });
+                    context.AddWithChildren(new Unicon { Name = "Twilight Sparkle " + i });
+                    context.AddWithChildren(new Unicon { Name = "Rarity " + i });
                 }
 
                 context.SaveChanges();
