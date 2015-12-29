@@ -1,13 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{547020C0-976F-4542-81CE-7FD465595614}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Core", "src\EntityFramework.Core\EntityFramework.Core.csproj", "{71415CEC-8111-4C73-8751-512D22F10602}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64C1A2BF-3D45-4486-A2AF-7D21574C62FE} = {64C1A2BF-3D45-4486-A2AF-7D21574C62FE}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.InMemory", "src\EntityFramework.InMemory\EntityFramework.InMemory.csproj", "{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}"
 EndProject
@@ -68,6 +71,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Design.FunctionalTests", "test\EntityFramework.Sqlite.Design.FunctionalTests\EntityFramework.Sqlite.Design.FunctionalTests.csproj", "{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.Design.FunctionalTests", "test\EntityFramework.Relational.Design.FunctionalTests\EntityFramework.Relational.Design.FunctionalTests.csproj", "{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{A9EBE371-13D8-4147-B702-18AEAEAAA08C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Analyzers", "tools\Analyzers\EntityFramework.Analyzers.csproj", "{64C1A2BF-3D45-4486-A2AF-7D21574C62FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Analyzers.Tests", "tools\Analyzers.Test\EntityFramework.Analyzers.Tests.csproj", "{7C089662-BDDE-4D36-BFFA-FD2B97AA6085}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -199,6 +208,14 @@ Global
 		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64C1A2BF-3D45-4486-A2AF-7D21574C62FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64C1A2BF-3D45-4486-A2AF-7D21574C62FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64C1A2BF-3D45-4486-A2AF-7D21574C62FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64C1A2BF-3D45-4486-A2AF-7D21574C62FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C089662-BDDE-4D36-BFFA-FD2B97AA6085}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C089662-BDDE-4D36-BFFA-FD2B97AA6085}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C089662-BDDE-4D36-BFFA-FD2B97AA6085}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C089662-BDDE-4D36-BFFA-FD2B97AA6085}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -235,5 +252,7 @@ Global
 		{20EB96D6-18F3-4585-AEE0-E627C59C63FA} = {547020C0-976F-4542-81CE-7FD465595614}
 		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD} = {547020C0-976F-4542-81CE-7FD465595614}
 		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8} = {547020C0-976F-4542-81CE-7FD465595614}
+		{64C1A2BF-3D45-4486-A2AF-7D21574C62FE} = {A9EBE371-13D8-4147-B702-18AEAEAAA08C}
+		{7C089662-BDDE-4D36-BFFA-FD2B97AA6085} = {A9EBE371-13D8-4147-B702-18AEAEAAA08C}
 	EndGlobalSection
 EndGlobal
