@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         protected override ModelValidator CreateModelValidator()
             => new NonThrowingModelValidator(
                 new Logger<NonThrowingModelValidator>(
-                    new ListLoggerFactory(Log, l => l == typeof(NonThrowingModelValidator).FullName)));
+                    new ListLoggerFactory(Log, l => l == typeof(NonThrowingModelValidator).FullName.Replace('+', '.'))));
 
         private class NonThrowingModelValidator : LoggingModelValidator
         {
