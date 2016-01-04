@@ -563,8 +563,7 @@ FROM [Orders] AS [o]",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE [o.Customer].[CustomerID] IN ('ALFKI')",
+WHERE [o].[CustomerID] IN ('ALFKI')",
                 Sql);
         }
 

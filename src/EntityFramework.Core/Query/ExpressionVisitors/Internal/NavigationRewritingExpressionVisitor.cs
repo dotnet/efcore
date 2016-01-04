@@ -261,8 +261,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             if (navigations.Any())
                             {
                                 if ((navigations.Count == 1)
-                                    && navigations[0].IsDependentToPrincipal() 
-                                    && navigations[0].ForeignKey.IsRequired)
+                                    && navigations[0].IsDependentToPrincipal())
                                 {
                                     var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(node, navigations[0]);
                                     if (foreignKeyMemberAccess != null)
@@ -298,11 +297,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             var principalKey = navigation.ForeignKey.PrincipalKey;
             if (principalKey.Properties.Count == 1)
             {
-                var principalKeyProperty = principalKey.Properties[0];
-                if (principalKeyProperty.Name == memberExpression.Member.Name)
-                {
-                    Debug.Assert(navigation.ForeignKey.Properties.Count == 1);
+                Debug.Assert(navigation.ForeignKey.Properties.Count == 1);
 
+                var principalKeyProperty = principalKey.Properties[0];
+                if (principalKeyProperty.Name == memberExpression.Member.Name 
+                    && principalKeyProperty.ClrType == navigation.ForeignKey.Properties[0].ClrType)
+                {
                     var declaringExpression = ((MemberExpression)memberExpression.Expression).Expression;
                     var foreignKeyPropertyExpression = CreateKeyAccessExpression(declaringExpression, navigation.ForeignKey.Properties);
 
