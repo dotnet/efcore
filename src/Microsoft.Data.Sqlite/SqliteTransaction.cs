@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite
         private readonly IsolationLevel _isolationLevel;
         private bool _completed;
 
-        internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
+        internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel, int commandTimeout)
         {
             _connection = connection;
             _isolationLevel = isolationLevel;
@@ -40,7 +40,10 @@ namespace Microsoft.Data.Sqlite
             }
 
             // TODO: Register transaction hooks to detect when a user manually completes a transaction created using this API
-            connection.ExecuteNonQuery("BEGIN;");
+            var beginCommand = (isolationLevel == IsolationLevel.Serializable)
+                ? "BEGIN IMMEDIATE"
+                : "BEGIN";
+            connection.ExecuteNonQuery(beginCommand, commandTimeout);
         }
 
         public new virtual SqliteConnection Connection => _connection;

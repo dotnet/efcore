@@ -7,20 +7,22 @@ namespace Microsoft.Data.Sqlite.Utilities
 {
     internal static class DbConnectionExtensions
     {
-        public static int ExecuteNonQuery(this DbConnection connection, string commandText)
+        public static int ExecuteNonQuery(this DbConnection connection, string commandText, int timeout = SqliteCommand.DefaultCommandTimeout)
         {
             var command = connection.CreateCommand();
+            command.CommandTimeout = timeout;
             command.CommandText = commandText;
 
             return command.ExecuteNonQuery();
         }
 
-        public static T ExecuteScalar<T>(this DbConnection connection, string commandText) =>
-            (T)connection.ExecuteScalar(commandText);
+        public static T ExecuteScalar<T>(this DbConnection connection, string commandText, int timeout = SqliteCommand.DefaultCommandTimeout) =>
+            (T)connection.ExecuteScalar(commandText, timeout);
 
-        private static object ExecuteScalar(this DbConnection connection, string commandText)
+        private static object ExecuteScalar(this DbConnection connection, string commandText, int timeout)
         {
             var command = connection.CreateCommand();
+            command.CommandTimeout = timeout;
             command.CommandText = commandText;
 
             return command.ExecuteScalar();

@@ -19,6 +19,8 @@ namespace Microsoft.Data.Sqlite
     /// </summary>
     public class SqliteCommand : DbCommand
     {
+        internal const int DefaultCommandTimeout = 30;
+
         private readonly Lazy<SqliteParameterCollection> _parameters = new Lazy<SqliteParameterCollection>(
             () => new SqliteParameterCollection());
 
@@ -74,7 +76,7 @@ namespace Microsoft.Data.Sqlite
 
         public new virtual SqliteParameterCollection Parameters => _parameters.Value;
         protected override DbParameterCollection DbParameterCollection => Parameters;
-        public override int CommandTimeout { get; set; } = 30;
+        public override int CommandTimeout { get; set; } = DefaultCommandTimeout;
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
         public new virtual SqliteParameter CreateParameter() => new SqliteParameter();

@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using Microsoft.Data.Sqlite.Utilities;
+using static Microsoft.Data.Sqlite.Interop.Constants;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -212,6 +213,24 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+            }
+        }
+
+        [Fact]
+        public void Serializable_locks()
+        {
+            using (var connectionA = new SqliteConnection("Data Source=testdb;Mode=Memory;Cache=Shared"))
+            {
+                connectionA.Open();
+                using (var transactionA = connectionA.BeginTransaction(IsolationLevel.Serializable))
+                {
+                    using (var connectionB = new SqliteConnection("Data Source=testdb;Mode=Memory;Cache=Shared"))
+                    {
+                        connectionB.Open();
+                        var ex = Assert.Throws<SqliteException>(() => new SqliteTransaction(connectionB, IsolationLevel.Serializable, 1));
+                        Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
+                    }
+                }
             }
         }
 

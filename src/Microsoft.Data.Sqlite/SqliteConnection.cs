@@ -252,7 +252,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.ParallelTransactionsNotSupported);
             }
 
-            return Transaction = new SqliteTransaction(this, isolationLevel);
+            return Transaction = new SqliteTransaction(this, isolationLevel, SqliteCommand.DefaultCommandTimeout);
         }
 
         public override void ChangeDatabase(string databaseName)
