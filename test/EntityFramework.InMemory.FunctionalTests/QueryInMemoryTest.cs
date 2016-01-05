@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable RedundantOverridenMember
@@ -20,12 +19,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public override void Default_if_empty_top_level_arg()
         {
             base.Default_if_empty_top_level_arg();
-        }
-
-        [UseCulture("en-US")]
-        public override void Where_string_to_lower()
-        {
-            base.Where_string_to_lower();
         }
     }
 }
