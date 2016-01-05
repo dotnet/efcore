@@ -38,6 +38,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
             get { return _alias; }
             [param: NotNull]
+            // TODO: Remove mutability here
             set
             {
                 Check.NotNull(value, nameof(value));
@@ -88,8 +89,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 : this;
         }
 
-        public override string ToString()
-            => this.TryGetColumnExpression()?.ToString() ?? Expression.NodeType + " " + Alias;
+        public override string ToString() 
+            => Alias != null ? "(" + _expression + ") AS " + Alias : _expression.ToString();
 
         public override bool Equals(object obj)
         {
@@ -103,7 +104,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 return true;
             }
 
-            return (obj.GetType() == GetType())
+            return obj.GetType() == GetType()
                    && Equals((AliasExpression)obj);
         }
 

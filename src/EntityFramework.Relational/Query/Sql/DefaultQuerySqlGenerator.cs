@@ -243,7 +243,8 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                             if (columnExpression != null)
                             {
-                                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
+                                _relationalCommandBuilder
+                                    .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
                                     .Append(".");
                             }
 

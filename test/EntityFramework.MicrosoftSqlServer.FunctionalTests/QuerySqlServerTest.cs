@@ -4461,6 +4461,48 @@ OFFSET @__p_1 ROWS",
                 Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Select_take_skip_null_coalesce_operator2()
+        {
+            base.Select_take_skip_null_coalesce_operator2();
+
+            Assert.Equal(
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [t0].*
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY COALESCE([c].[Region], 'ZZ')
+) AS [t0]
+ORDER BY COALESCE([t0].[Region], 'ZZ')
+OFFSET @__p_1 ROWS",
+                Sql);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Select_take_skip_null_coalesce_operator3()
+        {
+            base.Select_take_skip_null_coalesce_operator3();
+
+            Assert.Equal(
+                @"@__p_0: 10
+@__p_1: 5
+
+SELECT [t0].*
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY COALESCE([c].[Region], 'ZZ')
+) AS [t0]
+ORDER BY COALESCE([t0].[Region], 'ZZ')
+OFFSET @__p_1 ROWS",
+                Sql);
+        }
+
         public override void Selected_column_can_coalesce()
         {
             base.Selected_column_can_coalesce();

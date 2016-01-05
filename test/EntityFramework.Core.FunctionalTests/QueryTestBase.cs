@@ -4354,14 +4354,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Select_take_null_coalesce_operator()
         {
             AssertQuery<Customer>(
-            cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(5));
+                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(5));
         }
 
         [ConditionalFact]
         public virtual void Select_take_skip_null_coalesce_operator()
         {
             AssertQuery<Customer>(
-            cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5));
+                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, Region = c.Region ?? "ZZ" }).OrderBy(c => c.Region).Take(10).Skip(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_skip_null_coalesce_operator2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => new { c.CustomerID, c.CompanyName, c.Region }).OrderBy(c => c.Region ?? "ZZ").Take(10).Skip(5));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_take_skip_null_coalesce_operator3()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.Region ?? "ZZ").Take(10).Skip(5), 
+                entryCount: 5);
         }
 
         [ConditionalFact]

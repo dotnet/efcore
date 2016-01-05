@@ -258,6 +258,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             subquery.AddTables(_tables);
             subquery.AddToOrderBy(_orderBy);
+
             subquery.Predicate = Predicate;
 
             subquery._limit = _limit;
@@ -271,6 +272,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             _isDistinct = false;
 
             Predicate = null;
+
             ClearTables();
             ClearProjection();
             ClearOrderBy();
@@ -380,12 +382,17 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
                 if (alias != null)
                 {
-                    foreach (var orderByAliasExpression in _orderBy.Select(o => o.Expression).OfType<AliasExpression>())
+                    foreach (var orderByAliasExpression 
+                        in _orderBy.Select(o => o.Expression).OfType<AliasExpression>())
                     {
-                        if (orderByAliasExpression.Expression.ToString() == expression.ToString())
+                        if (orderByAliasExpression.TryGetColumnExpression() == null)
                         {
-                            orderByAliasExpression.Alias = alias;
-                            orderByAliasExpression.Projected = true;
+                            // TODO: This seems bad
+                            if (orderByAliasExpression.Expression.ToString() == expression.ToString())
+                            {
+                                orderByAliasExpression.Alias = alias;
+                                orderByAliasExpression.Projected = true;
+                            }
                         }
                     }
                 }
@@ -787,13 +794,14 @@ namespace Microsoft.Data.Entity.Query.Expressions
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            var aliasExpression = expression as AliasExpression;
             var columnExpression = expression as ColumnExpression;
 
             if (columnExpression != null)
             {
                 return new ColumnExpression(columnExpression.Name, columnExpression.Property, tableExpression);
             }
+
+            var aliasExpression = expression as AliasExpression;
 
             if (aliasExpression != null)
             {

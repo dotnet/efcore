@@ -1124,7 +1124,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-         [Fact]
+        [Fact]
         public virtual void Include_references_then_include_multi_level()
         {
             using (var context = CreateContext())
@@ -1136,6 +1136,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
+            }
+        }
+
+        [Fact]
+        public virtual void Include_with_take()
+        {
+            using (var context = CreateContext())
+            {
+                var customers 
+                    = context.Set<Customer>()
+                        .OrderByDescending(c => c.City)
+                        .Include(c => c.Orders)
+                        .Take(10)
+                        .ToList();
+
+                Assert.True(customers.All(c => c.Orders.Count > 0));
             }
         }
     }

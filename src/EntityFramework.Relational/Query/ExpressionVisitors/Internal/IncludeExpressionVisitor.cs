@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     = ((ConstantExpression)node.Arguments[2]).Value
                         as Shaper;
 
-                if ((entityShaper != null)
+                if (entityShaper != null
                     && entityShaper.IsShaperForQuerySource(_querySource))
                 {
                     var resultType = node.Method.GetGenericArguments()[0];
@@ -124,6 +124,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
             var canProduceInnerJoin = true;
             var navigationCount = 0;
+
             foreach (var navigation in navigationPath)
             {
                 var queryIndex = _queryIndexes[navigationCount];
@@ -331,7 +332,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 targetSelectExpression.AddToOrderBy(new Ordering(newExpression, ordering.OrderingDirection));
             }
 
-            innerJoinSelectExpression.ClearOrderBy();
+            if (innerJoinSelectExpression.Limit == null
+                && innerJoinSelectExpression.Offset == null)
+            {
+                innerJoinSelectExpression.ClearOrderBy();
+            }
         }
 
         private Expression BuildJoinEqualityExpression(
