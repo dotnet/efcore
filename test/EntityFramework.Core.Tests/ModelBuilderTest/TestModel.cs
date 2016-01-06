@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Tests
             public ICollection<Hob> Hobs { get; set; }
         }
 
-        private class SelfRef
+        protected class SelfRef
         {
             public int Id { get; set; }
             public SelfRef SelfRef1 { get; set; }

@@ -2876,6 +2876,27 @@ namespace Microsoft.Data.Entity.Tests
                     CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Zeta>().HasOne<Alpha>().WithOne()).Message);
             }
+
+            [Fact]
+            public virtual void Can_create_one_to_one_self_referencing_relationship_without_navigations()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<SelfRef>(b =>
+                    {
+                        b.Ignore(e => e.SelfRef1);
+                        b.Ignore(e => e.SelfRef2);
+                    });
+                var relationship = modelBuilder.Entity<SelfRef>()
+                    .HasOne<SelfRef>()
+                    .WithOne()
+                    .Metadata;
+
+                var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
+                Assert.Empty(entityType.GetNavigations());
+                Assert.Same(relationship, entityType.GetForeignKeys().Single());
+                Assert.Null(relationship.PrincipalToDependent);
+                Assert.Null(relationship.DependentToPrincipal);
+            }
         }
     }
 }

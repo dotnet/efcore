@@ -114,6 +114,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
         {
             if (Builder.Metadata.IsSelfReferencing()
+                && (reference != null)
                 && (ReferenceName == reference))
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateNavigation(
