@@ -38,10 +38,7 @@
       "dependencies": {
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
         "Microsoft.Dnx.Runtime": "1.0.0-*",
-        "Microsoft.Extensions.CommandLineUtils.Sources": {
-          "version": "1.0.0-*",
-          "type": "build"
-        },
+        "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
         "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
       }
     },
@@ -49,10 +46,7 @@
       "dependencies": {
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
         "Microsoft.Dnx.Runtime": "1.0.0-*",
-        "Microsoft.Extensions.CommandLineUtils.Sources": {
-          "version": "1.0.0-*",
-          "type": "build"
-        },
+        "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
         "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
         "System.Console": "4.0.0-*",
         "System.IO.FileSystem": "4.0.1-*"

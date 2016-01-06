@@ -4,7 +4,7 @@
 #if DNX451 || DNXCORE50
 
 using JetBrains.Annotations;
-using Microsoft.Dnx.Runtime.Common.CommandLine;
+using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Design.Internal
