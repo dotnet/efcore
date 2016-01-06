@@ -1830,7 +1830,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             string navigationToDependentName,
             ConfigurationSource configurationSource)
         {
-            if (principalEntityType == dependentEntityType)
+            if (principalEntityType.IsSameHierarchy(dependentEntityType))
             {
                 // The dependent end cannot be determined based on entity types, so use navigations
                 if (((navigationToPrincipalName != null)
@@ -1844,12 +1844,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            if (Metadata.DeclaringEntityType != dependentEntityType)
+            if (!Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityType))
             {
                 return false;
             }
 
-            if (Metadata.PrincipalEntityType != principalEntityType)
+            if (!Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityType))
             {
                 return false;
             }

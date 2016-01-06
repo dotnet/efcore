@@ -941,10 +941,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             InternalRelationshipBuilder relationship;
             InternalRelationshipBuilder newRelationship = null;
-            var existingForeignKey = Metadata.FindForeignKeysInHierarchy(dependentProperties).FirstOrDefault();
-            if ((existingForeignKey == null)
-                || (existingForeignKey.DeclaringEntityType != Metadata))
+            RelationshipBuilderSnapshot detachedRelationship = null;
+            var existingForeignKey = Metadata.FindForeignKeys(dependentProperties).FirstOrDefault();
+            if (existingForeignKey == null)
             {
+                var derivedForeignKey = Metadata.FindDerivedForeignKeys(dependentProperties).FirstOrDefault();
+                if (derivedForeignKey != null)
+                {
+                    detachedRelationship = DetachRelationship(derivedForeignKey);
+                }
                 newRelationship = Relationship(principalEntityTypeBuilder, configurationSource);
                 relationship = newRelationship;
             }
@@ -955,11 +960,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             relationship = relationship.HasForeignKey(dependentProperties, configurationSource);
-            if ((relationship == null)
-                && (newRelationship != null))
+            if (relationship == null
+                && newRelationship != null)
             {
                 RemoveForeignKey(newRelationship.Metadata, configurationSource);
             }
+
+            detachedRelationship?.Attach();
 
             return relationship;
         }

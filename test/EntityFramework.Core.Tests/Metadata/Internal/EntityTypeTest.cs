@@ -861,8 +861,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_foreignKey_throws_when_parent_type_has_foreignKey_on_same_properties()
         {
             var model = new Model();
@@ -872,19 +871,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+            orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             specialOrderType.HasBaseType(orderType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(SpecialOrder).FullName, typeof(Order).FullName),
+                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(SpecialOrder).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    specialOrderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                    specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_foreignKey_throws_when_grandparent_type_has_foreignKey_on_same_properties()
         {
             var model = new Model();
@@ -894,7 +892,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+            orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             specialOrderType.HasBaseType(orderType);
@@ -903,13 +901,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             verySpecialOrderType.HasBaseType(specialOrderType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(VerySpecialOrder).FullName, typeof(Order).FullName),
+                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(VerySpecialOrder).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    verySpecialOrderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                    verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_foreignKey_throws_when_child_type_has_foreignKey_on_same_properties()
         {
             var model = new Model();
@@ -921,17 +918,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
-            specialOrderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
             specialOrderType.HasBaseType(orderType);
+            specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(Order).FullName, typeof(SpecialOrder).FullName),
+                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(Order).Name, typeof(SpecialOrder).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                    orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_foreignKey_throws_when_grandchild_type_has_foreignKey_on_same_properties()
         {
             var model = new Model();
@@ -947,12 +943,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var verySpecialOrderType = model.AddEntityType(typeof(VerySpecialOrder));
             verySpecialOrderType.HasBaseType(specialOrderType);
-            verySpecialOrderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+            verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(Order).FullName, typeof(VerySpecialOrder).FullName),
+                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(Order).Name, typeof(VerySpecialOrder).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                    orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
         [Fact]

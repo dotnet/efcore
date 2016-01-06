@@ -549,8 +549,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var property in properties)
             {
                 var actualProperty = FindProperty(property.Name);
-                if ((actualProperty == null)
-                    || (actualProperty.DeclaringEntityType != property.DeclaringEntityType))
+                if (actualProperty == null
+                    || !actualProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType))
                 {
                     throw new ArgumentException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }

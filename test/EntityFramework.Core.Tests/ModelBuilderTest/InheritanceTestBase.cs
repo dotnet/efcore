@@ -128,9 +128,9 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Empty(otherDerivedDependentEntityBuilder.Metadata.GetDeclaredNavigations());
                 Assert.Empty(principalEntityBuilder.Metadata.GetNavigations());
 
-                derivedDependentEntityBuilder
-                    .HasOne(e => (SpecialCustomer)e.Customer)
-                    .WithMany(e => e.SpecialOrders);
+                derivedPrincipalEntityBuilder
+                    .HasMany(e => e.SpecialOrders)
+                    .WithOne(e => (SpecialCustomer)e.Customer);
 
                 Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
                 Assert.Empty(dependentEntityBuilder.Metadata.GetNavigations());
