@@ -245,12 +245,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                                 .Last(o => o.IsAliasWithColumnExpression())
                                 .TryGetColumnExpression().TableAlias);
 
-                    innerJoinSelectExpression.IsDistinct = true;
                     innerJoinSelectExpression.ClearProjection();
 
                     var innerJoinExpression = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);
 
                     LiftOrderBy(innerJoinSelectExpression, targetSelectExpression, innerJoinExpression);
+
+                    innerJoinSelectExpression.IsDistinct = true;
 
                     innerJoinExpression.Predicate
                         = BuildJoinEqualityExpression(

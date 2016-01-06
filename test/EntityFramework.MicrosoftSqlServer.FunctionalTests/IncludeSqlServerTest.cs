@@ -970,6 +970,35 @@ ORDER BY [c].[City] DESC, [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_with_skip()
+        {
+            base.Include_with_skip();
+
+            Assert.Equal(
+                @"@__p_0: 80
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[ContactName], [c].[CustomerID]
+OFFSET @__p_0 ROWS
+
+@__p_0: 80
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [t0].*
+    FROM (
+        SELECT [c].[ContactName], [c].[CustomerID]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[ContactName], [c].[CustomerID]
+        OFFSET @__p_0 ROWS
+    ) AS [t0]
+) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [c].[ContactName], [c].[CustomerID]",
+                Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

@@ -1154,5 +1154,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(customers.All(c => c.Orders.Count > 0));
             }
         }
+
+        [Fact]
+        public virtual void Include_with_skip()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Customers
+                        .Include(c => c.Orders)
+                        .OrderBy(c => c.ContactName)
+                        .Skip(80)
+                        .ToList();
+
+                Assert.True(customers.All(c => c.Orders.Count > 0));
+            }
+        }
     }
 }
