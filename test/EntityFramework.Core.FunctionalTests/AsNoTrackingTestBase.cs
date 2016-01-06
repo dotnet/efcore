@@ -10,10 +10,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class AsNoTrackingTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Entity_not_added_to_state_manager()
         {
             using (var context = CreateContext())
@@ -26,7 +27,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Applied_to_body_clause()
         {
             using (var context = CreateContext())
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Applied_to_multiple_body_clauses()
         {
             using (var context = CreateContext())
@@ -62,7 +62,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Applied_to_body_clause_with_projection()
         {
             using (var context = CreateContext())
@@ -80,7 +79,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Applied_to_projection()
         {
             using (var context = CreateContext())
@@ -99,7 +98,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_get_current_values()
         {
             using (var db = CreateContext())
@@ -114,7 +113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_reference_and_collection()
         {
             using (var context = CreateContext())
@@ -130,7 +129,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_simple_shadow()
         {
             using (var context = CreateContext())
@@ -145,7 +144,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void SelectMany_simple()
         {
             using (var context = CreateContext())

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -13,7 +14,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class MusicStoreQueryTests
     {
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public void Music_store_project_to_mapped_entity()
         {
             var serviceProvider

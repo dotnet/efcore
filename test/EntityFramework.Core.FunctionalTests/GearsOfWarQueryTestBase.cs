@@ -11,11 +11,12 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class GearsOfWarQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : GearsOfWarQueryFixtureBase<TTestStore>, new()
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_many()
         {
             using (var context = CreateContext())
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
         {
             using (var context = CreateContext())
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_multiple_one_to_one_optional_and_one_to_one_required()
         {
             using (var context = CreateContext())
@@ -61,7 +62,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_one_and_one_to_many()
         {
             using (var context = CreateContext())
@@ -73,7 +74,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_multiple_circular()
         {
             using (var context = CreateContext())
@@ -89,7 +90,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_multiple_circular_with_filter()
         {
             using (var context = CreateContext())
@@ -103,7 +104,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_using_alternate_key()
         {
             using (var context = CreateContext())
@@ -120,7 +121,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_multiple_include_then_include()
         {
             var gearAssignedCities = new Dictionary<string, string>();
@@ -225,7 +226,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_navigation_on_derived_type()
         {
             using (var context = CreateContext())
@@ -247,7 +248,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Included()
         {
             using (var context = CreateContext())
@@ -262,7 +263,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_join_reference1()
         {
             using (var context = CreateContext())
@@ -280,7 +281,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Include_with_join_reference2()
         {
             using (var context = CreateContext())
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_join_collection1()
         {
             using (var context = CreateContext())
@@ -315,7 +315,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Include_with_join_collection2()
         {
             using (var context = CreateContext())
@@ -332,7 +331,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_join_multi_level()
         {
             using (var context = CreateContext())
@@ -349,7 +348,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_join_and_inheritance1()
         {
             using (var context = CreateContext())
@@ -366,7 +365,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_join_and_inheritance2()
         {
             using (var context = CreateContext())
@@ -383,7 +382,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_join_and_inheritance3()
         {
             using (var context = CreateContext())
@@ -400,7 +399,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_with_nested_navigation_in_order_by()
         {
             using (var context = CreateContext())
@@ -423,7 +422,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_enum()
         {
             using (var context = CreateContext())
@@ -436,7 +435,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_nullable_enum_with_constant()
         {
             using (var context = CreateContext())
@@ -449,7 +448,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_nullable_enum_with_null_constant()
         {
             using (var context = CreateContext())
@@ -462,7 +461,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        //[Fact] Issue #3424
+        //[ConditionalFact] Issue #3424
         public virtual void Where_nullable_enum_with_non_nullable_parameter()
         {
             var ammunitionType = AmmunitionType.Cartridge;
@@ -477,7 +476,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Where_nullable_enum_with_nullable_parameter()
         {
             AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
@@ -503,7 +502,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation()
         {
             using (var context = CreateContext())
@@ -517,7 +516,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             using (var context = CreateContext())
@@ -532,7 +531,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
             using (var context = CreateContext())
@@ -547,7 +546,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Client()
         {
             using (var context = CreateContext())
@@ -561,7 +560,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Null()
         {
             using (var context = CreateContext())
@@ -575,7 +574,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Null_Reverse()
         {
             using (var context = CreateContext())
@@ -589,7 +588,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Equals_Navigation()
         {
             using (var context = CreateContext())
@@ -604,7 +603,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Singleton_Navigation_With_Member_Access()
         {
             using (var context = CreateContext())
@@ -620,7 +619,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Singleton_Navigation_With_Member_Access()
         {
             using (var context = CreateContext())
@@ -636,7 +635,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void GroupJoin_Composite_Key()
         {
             using (var context = CreateContext())
@@ -654,7 +653,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Join_navigation_translated_to_subquery_composite_key()
         {
             List<Gear> gears;
@@ -687,7 +685,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_with_inheritance_and_join_include_joined()
         {
             using (var context = CreateContext())
@@ -703,7 +701,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_with_inheritance_and_join_include_source()
         {
             using (var context = CreateContext())

@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 // ReSharper disable UseCollectionCountProperty
 
@@ -12,10 +13,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class QueryNavigationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation()
         {
             using (var context = CreateContext())
@@ -29,7 +31,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Select_Where_Navigation_Async()
         {
             using (var context = CreateContext())
@@ -43,7 +45,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             using (var context = CreateContext())
@@ -58,7 +60,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
         {
             using (var context = CreateContext())
@@ -73,7 +75,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Client()
         {
             using (var context = CreateContext())
@@ -87,7 +89,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Deep()
         {
             using (var context = CreateContext())
@@ -101,7 +103,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Null()
         {
             using (var context = CreateContext())
@@ -115,7 +117,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Null_Reverse()
         {
             using (var context = CreateContext())
@@ -129,7 +131,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Null_Deep()
         {
             using (var context = CreateContext())
@@ -143,7 +145,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Equals_Navigation()
         {
             using (var context = CreateContext())
@@ -158,7 +160,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Included()
         {
             using (var context = CreateContext())
@@ -173,7 +175,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Singleton_Navigation_With_Member_Access()
         {
             using (var context = CreateContext())
@@ -189,7 +191,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Singleton_Navigation_With_Member_Access()
         {
             using (var context = CreateContext())
@@ -205,7 +207,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Select_Singleton_Navigation_With_Member_Access_Async()
         {
             using (var context = CreateContext())
@@ -221,7 +223,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigations()
         {
             using (var context = CreateContext())
@@ -236,7 +238,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Multiple_Access()
         {
             using (var context = CreateContext())
@@ -251,7 +253,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Navigation()
         {
             using (var context = CreateContext())
@@ -265,7 +267,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Navigations()
         {
             using (var context = CreateContext())
@@ -279,7 +281,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_Navigations_Where_Navigations()
         {
             using (var context = CreateContext())
@@ -295,7 +297,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_collection_navigation_simple()
         {
             using (var context = CreateContext())
@@ -311,7 +313,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_collection_navigation_multi_part()
         {
             using (var context = CreateContext())
@@ -327,7 +329,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_any()
         {
             using (var context = CreateContext())
@@ -341,7 +343,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_any()
         {
             using (var context = CreateContext())
@@ -355,7 +357,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_any_predicate()
         {
             using (var context = CreateContext())
@@ -369,7 +371,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_all()
         {
             using (var context = CreateContext())
@@ -383,7 +385,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_all_client()
         {
             using (var context = CreateContext())
@@ -397,7 +399,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_all()
         {
             using (var context = CreateContext())
@@ -411,7 +413,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_all_client()
         {
             using (var context = CreateContext())
@@ -425,7 +427,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_count()
         {
             using (var context = CreateContext())
@@ -438,7 +440,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_count()
         {
             using (var context = CreateContext())
@@ -452,7 +454,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_count_reverse()
         {
             using (var context = CreateContext())
@@ -466,7 +468,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_orderby_nav_prop_count()
         {
             using (var context = CreateContext())
@@ -480,7 +482,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_long_count()
         {
             using (var context = CreateContext())
@@ -493,7 +495,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Select_multiple_complex_projections()
         {
             using (var context = CreateContext())
@@ -516,7 +518,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_sum()
         {
             using (var context = CreateContext())
@@ -529,7 +531,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_sum()
         {
             using (var context = CreateContext())
@@ -543,7 +545,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async Task Collection_where_nav_prop_sum_async()
         {
             using (var context = CreateContext())
@@ -557,7 +559,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_first_or_default()
         {
             using (var context = CreateContext())
@@ -570,7 +572,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop()
         {
             using (var context = CreateContext())
@@ -583,7 +585,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_fk_based_inside_contains()
         {
             using (var context = CreateContext())
@@ -600,7 +602,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_inside_contains()
         {
             using (var context = CreateContext())
@@ -616,7 +618,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_inside_contains_nested()
         {
             using (var context = CreateContext())
@@ -632,7 +634,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_from_join_clause_inside_contains()
         {
             using (var context = CreateContext())
@@ -648,7 +650,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query()
         {
             using (var context = CreateContext())

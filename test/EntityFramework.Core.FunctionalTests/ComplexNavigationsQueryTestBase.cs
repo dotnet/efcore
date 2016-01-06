@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Navigation_key_access_required_comparison()
         {
             List<Level2> levelTwos;
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Join_navigation_in_outer_selector_translated_to_extra_join()
         {
             List<Level1> levelOnes;
@@ -751,7 +751,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3186
-        ////[Fact]
+        ////[ConditionalFact]
         public virtual void Select_nav_prop_reference_optional()
         {
             List<string> expected;
@@ -779,7 +779,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3186
-        ////[Fact]
+        ////[ConditionalFact]
         public virtual void Where_nav_prop_reference_optional1()
         {
             List<int> expected;
@@ -811,7 +811,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3186
-        ////[Fact]
+        ////[ConditionalFact]
         public virtual void Where_nav_prop_reference_optional2()
         {
             List<int> expected;
@@ -843,7 +843,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3186
-        ////[Fact]
+        ////[ConditionalFact]
         public virtual void OrderBy_nav_prop_reference_optional()
         {
             List<int> expected;
@@ -873,7 +873,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         // issue #3186
-        ////[Fact]
+        ////[ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional()
         {
             int expected;

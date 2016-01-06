@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemanticsModel;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
@@ -261,7 +262,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.NullableStringA == prm)));
         }
 
-        [Fact]
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
         public virtual void Join_uses_database_semantics()
         {
             using (var context = CreateContext())
