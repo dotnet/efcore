@@ -117,55 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
-    <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'.  Some columns in the foreign key could not be scaffolded.</value>
-  </data>
-  <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the primary key for '{tableName}'. Some columns in the primary key could not be scaffolded.</value>
-  </data>
-  <data name="MissingPrimaryKey" xml:space="preserve">
-    <value>Unable to identify the primary key for table '{tableName}'.</value>
-  </data>
-  <data name="ProviderReturnedNullModel" xml:space="preserve">
-    <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
-  </data>
-  <data name="ReadOnlyFiles" xml:space="preserve">
-    <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
-  </data>
-  <data name="UnableToGenerateEntityType" xml:space="preserve">
-    <value>Unable to generate entity type for table '{tableName}'.</value>
-  </data>
-  <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
-    <value>Unable to scaffold the index '{indexName}' because at least one of the properties it contains could not be scaffolded.</value>
-  </data>
-  <data name="MissingUseProviderMethodNameAnnotation" xml:space="preserve">
-    <value>Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.</value>
-  </data>
-  <data name="ExistingFiles" xml:space="preserve">
-    <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
-  </data>
-  <data name="SequencesRequireName" xml:space="preserve">
-    <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
-  </data>
-  <data name="BadSequenceType" xml:space="preserve">
-    <value>For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.</value>
-  </data>
-  <data name="MissingSchema" xml:space="preserve">
-    <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
-  </data>
-  <data name="MissingTable" xml:space="preserve">
-    <value>Unable to find a table in the database matching the selected table {table}.</value>
+  <data name="UsingSchemaSelectionsWarning" xml:space="preserve">
+    <value>You have specified some schema selections. This Sqlite provider does not support these and they will be ignored. Note: it does support table selections.</value>
   </data>
 </root>

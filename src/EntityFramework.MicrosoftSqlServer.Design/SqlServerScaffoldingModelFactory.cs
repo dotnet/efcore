@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;

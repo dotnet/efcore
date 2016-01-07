@@ -132,6 +132,22 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("BadSequenceType", "sequenceName", "typeName"), sequenceName, typeName);
         }
 
+        /// <summary>
+        /// Unable to find a schema in the database matching the selected schema {schema}.
+        /// </summary>
+        public static string MissingSchema([CanBeNull] object schema)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingSchema", "schema"), schema);
+        }
+
+        /// <summary>
+        /// Unable to find a table in the database matching the selected table {table}.
+        /// </summary>
+        public static string MissingTable([CanBeNull] object table)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingTable", "table"), table);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
