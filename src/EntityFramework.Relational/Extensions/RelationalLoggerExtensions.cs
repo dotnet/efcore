@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Storage
             }
         }
 
-        private static string FormatParameterValue(object parameterValue)
+        public static string FormatParameterValue(object parameterValue)
         {
             if (parameterValue.GetType() != typeof(byte[]))
             {
@@ -71,9 +71,14 @@ namespace Microsoft.Data.Entity.Storage
             var stringValueBuilder = new StringBuilder();
             var buffer = (byte[])parameterValue;
             stringValueBuilder.Append("0x");
-            foreach (var t in buffer)
+            for (var i = 0; i < buffer.Length; i++)
             {
-                stringValueBuilder.Append(t.ToString("X2", CultureInfo.InvariantCulture));
+                if (i > 31)
+                {
+                    stringValueBuilder.Append("...");
+                    break;
+                }
+                stringValueBuilder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
             }
             return stringValueBuilder.ToString();
         }

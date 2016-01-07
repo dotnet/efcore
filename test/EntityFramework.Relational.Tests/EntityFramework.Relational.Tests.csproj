@@ -95,6 +95,7 @@
     <Compile Include="Update\ReaderModificationCommandBatchTest.cs" />
     <Compile Include="Update\ModificationCommandComparerTest.cs" />
     <Compile Include="Update\ModificationCommandTest.cs" />
+    <Compile Include="Utilities\RelationalLoggerExtensionsTest.cs" />
     <Compile Include="Utilities\StringBuilderExtensionsTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
