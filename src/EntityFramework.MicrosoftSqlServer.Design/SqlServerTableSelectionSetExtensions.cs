@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -9,26 +10,68 @@ namespace Microsoft.Data.Entity.Scaffolding
 {
     internal static class SqlServerTableSelectionSetExtensions
     {
+        private static readonly List<string> schemaPatterns = new List<string>
+            {
+                "{schema}",
+                "[{schema}]",
+            };
+
+        private static readonly List<string> tablePatterns = new List<string>
+            {
+                "{schema}.{table}",
+                "[{schema}].[{table}]",
+                "{schema}.[{table}]",
+                "[{schema}].{table}",
+                "{table}",
+                "[{table}]",
+            };
+
+        /// <summary>
+        /// Tests whether the schema/table is allowed by the <see cref="TableSelectionSet" />
+        /// and updates the <see cref="TableSelectionSet" />'s <see cref="TableSelectionSet.Selection" />(s)
+        /// to mark that they have been matched.
+        /// </summary>
+        /// <param name="tableSelectionSet"> the <see cref="TableSelectionSet" /> to test </param>
+        /// <param name="schemaName"> name of the database schema to check </param>
+        /// <param name="tableName"> name of the database table to check </param>
+        /// <returns> whether or not the schema/table is allowed </returns>
         public static bool Allows(this TableSelectionSet tableSelectionSet, [NotNull] string schemaName, [NotNull] string tableName)
         {
-            if ((tableSelectionSet == null)
-                || ((tableSelectionSet.Schemas.Count == 0)
-                && (tableSelectionSet.Tables.Count == 0)))
+            if (tableSelectionSet == null
+                || (tableSelectionSet.Schemas.Count == 0
+                    && tableSelectionSet.Tables.Count == 0))
             {
                 return true;
             }
 
-            if (tableSelectionSet.Schemas.Contains(schemaName))
+            var result = false;
+
+            //TODO: look into performance for large selection sets and numbers of tables
+            foreach (var pattern in schemaPatterns)
             {
-                return true;
+                var patternToMatch = pattern.Replace("{schema}", schemaName);
+                var matchingSchemaSelections = tableSelectionSet.Schemas.Where(
+                    s => s.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase));
+                if (matchingSchemaSelections.Any())
+                {
+                    matchingSchemaSelections.ToList().ForEach(selection => selection.IsMatched = true);
+                    result = true;
+                }
             }
 
-            return tableSelectionSet.Tables.Contains($"{schemaName}.{tableName}", StringComparer.OrdinalIgnoreCase)
-                || tableSelectionSet.Tables.Contains($"[{schemaName}].[{tableName}]", StringComparer.OrdinalIgnoreCase)
-                || tableSelectionSet.Tables.Contains($"{schemaName}.[{tableName}]", StringComparer.OrdinalIgnoreCase)
-                || tableSelectionSet.Tables.Contains($"[{schemaName}].{tableName}", StringComparer.OrdinalIgnoreCase)
-                || tableSelectionSet.Tables.Contains($"{tableName}", StringComparer.OrdinalIgnoreCase)
-                || tableSelectionSet.Tables.Contains($"[{tableName}]", StringComparer.OrdinalIgnoreCase);
+            foreach (var pattern in tablePatterns)
+            {
+                var patternToMatch = pattern.Replace("{schema}", schemaName).Replace("{table}", tableName);
+                var matchingTableSelections = tableSelectionSet.Tables.Where(
+                    t => t.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase));
+                if (matchingTableSelections.Any())
+                {
+                    matchingTableSelections.ToList().ForEach(selection => selection.IsMatched = true);
+                    result = true;
+                }
+            }
+
+            return result;
         }
     }
 }
