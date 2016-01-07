@@ -16,52 +16,63 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 {
     public class ModelSnapshotTest
     {
-        public class EntityWithOneProperty
+        private class EntityWithOneProperty
         {
             public int Id { get; set; }
         }
 
-        public class EntityWithTwoProperties
+        private class EntityWithTwoProperties
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
         }
 
-        public class EntityWithStringProperty
+        private class EntityWithStringProperty
         {
             public int Id { get; set; }
             public string Name { get; set; }
         }
 
-        public class EntityWithStringKey
+        private class EntityWithStringKey
         {
             public string Id { get; set; }
         }
 
-        public class EntityWithGenericKey<TKey>
+        private class EntityWithGenericKey<TKey>
         {
             public Guid Id { get; set; }
         }
 
-        public class EntityWithGenericProperty<TProperty>
+        private class EntityWithGenericProperty<TProperty>
         {
             public int Id { get; set; }
             public TProperty Property { get; set; }
         }
 
-        public class BaseEntity
+        private class BaseEntity
         {
             public int Id { get; set; }
         }
 
-        public class DerivedEntity : BaseEntity
+        private class DerivedEntity : BaseEntity
         {
             public string Name { get; set; }
         }
 
-        public class AnotherDerivedEntity : BaseEntity
+        private class AnotherDerivedEntity : BaseEntity
         {
             public string Title { get; set; }
+        }
+
+        private class BaseType
+        {
+             public int Id { get; set; }
+
+            public EntityWithOneProperty Navigation { get; set; }
+        }
+
+        private class DerivedType : BaseType
+        {
         }
 
         #region Model
@@ -996,6 +1007,58 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 
                     Assert.Equal(originalIndex.SqlServer().Name, index.SqlServer().Name);
                 });
+        }
+
+        [Fact]
+        public void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<BaseType>();
+                    builder.Entity<DerivedType>();
+                },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseType"", b =>
+    {
+        b.ToTable(""BaseType"");
+
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<int?>(""NavigationId"");
+
+        b.HasKey(""Id"");
+
+        b.HasIndex(""NavigationId"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.ToTable(""EntityWithOneProperty"");
+
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedType"", b =>
+    {
+        b.HasBaseType(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseType"");
+
+        b.ToTable(""DerivedType"");
+
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseType"", b =>
+    {
+        b.HasOne(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"")
+            .WithMany()
+            .HasForeignKey(""NavigationId"");
+    });
+",
+                o => {  });
         }
 
         #endregion

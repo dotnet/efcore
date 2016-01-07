@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 GenerateEntityType(builderName, entityType, stringBuilder);
             }
 
-            foreach (var entityType in entityTypes.Where(e => e.GetForeignKeys().Any()))
+            foreach (var entityType in entityTypes.Where(e => e.GetDeclaredForeignKeys().Any()))
             {
                 stringBuilder.AppendLine();
 
@@ -105,7 +105,6 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 using (stringBuilder.Indent())
                 {
-
                     GenerateBaseType(entityType.BaseType, stringBuilder);
 
                     GenerateTableName(entityType, stringBuilder);
