@@ -1372,6 +1372,19 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void Select_anonymous_conditional_expression()
+        {
+            base.Select_anonymous_conditional_expression();
+
+            Assert.Equal(
+                @"SELECT [p].[ProductID], CASE
+    WHEN [p].[UnitsInStock] > 0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Products] AS [p]",
+                Sql);
+        }
+
         public override void Select_scalar_primitive_after_take()
         {
             base.Select_scalar_primitive_after_take();

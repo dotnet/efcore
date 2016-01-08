@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual = context.Set<Weapon>()
-                    .FromSql(@"SELECT ""Id"", ""Name"", ""AmmunitionType"", ""OwnerFullName"", ""SynergyWithId"" FROM ""Weapon"" ORDER BY ""Name""")
+                    .FromSql(@"SELECT ""Id"", ""Name"", ""IsAutomatic"", ""AmmunitionType"", ""OwnerFullName"", ""SynergyWithId"" FROM ""Weapon"" ORDER BY ""Name""")
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);

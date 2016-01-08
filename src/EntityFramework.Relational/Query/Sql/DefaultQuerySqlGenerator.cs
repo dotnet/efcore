@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                     _relationalCommandBuilder.Append(", ");
                 }
 
-                VisitJoin(selectExpression.Projection);
+                VisitProjection(selectExpression.Projection);
 
                 projectionAdded = true;
             }
@@ -225,6 +225,13 @@ namespace Microsoft.Data.Entity.Query.Sql
             }
 
             return selectExpression;
+        }
+
+        protected virtual void VisitProjection([NotNull] IReadOnlyList<Expression> projections)
+        {
+            var nullComparisonTransformer = new NullComparisonTransformingVisitor(_parametersValues);
+
+            VisitJoin(projections.Select(e => nullComparisonTransformer.Visit(e)).ToList());
         }
 
         protected virtual void GenerateOrderBy([NotNull] IReadOnlyList<Ordering> orderings)

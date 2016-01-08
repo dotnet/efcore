@@ -503,6 +503,72 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Select_inverted_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var automaticWeapons = context.Weapons
+                    .Where(w => w.IsAutomatic)
+                    .Select(w => new { w.Id, Manual = !w.IsAutomatic })
+                    .ToList();
+
+                Assert.True(automaticWeapons.All(t => t.Manual == false));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_comparison_with_null()
+        {
+            AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
+            using (var context = CreateContext())
+            {
+                var cartidgeWeapons = context.Weapons
+                    .Where(w => w.AmmunitionType == ammunitionType)
+                    .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType })
+                    .ToList();
+
+                Assert.True(cartidgeWeapons.All(t => t.Cartidge == true));
+            }
+
+            ammunitionType = null;
+            using (var context = CreateContext())
+            {
+                var cartidgeWeapons = context.Weapons
+                    .Where(w => w.AmmunitionType == ammunitionType)
+                    .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType })
+                    .ToList();
+
+                Assert.True(cartidgeWeapons.All(t => t.Cartidge == true));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_ternary_operation_with_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Select(w => new { w.Id, Num = w.IsAutomatic ? 1 : 0})
+                    .ToList();
+
+                Assert.Equal(3, weapons.Count(w => w.Num == 1));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_ternary_operation_with_inverted_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Select(w => new { w.Id, Num = !w.IsAutomatic ? 1 : 0 })
+                    .ToList();
+
+                Assert.Equal(7, weapons.Count(w => w.Num == 1));
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation()
         {
             using (var context = CreateContext())

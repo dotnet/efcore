@@ -9,6 +9,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         public int Id { get; set; }
         public string Name { get; set; }
         public AmmunitionType? AmmunitionType { get; set; }
+        public bool IsAutomatic { get; set; }
 
         // 1 - 1 self reference
         public int? SynergyWithId { get; set; }

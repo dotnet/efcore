@@ -19,6 +19,18 @@ namespace System.Linq.Expressions
                    || (expression.NodeType == ExpressionType.OrElse);
         }
 
+        public static bool IsComparisonOperation([NotNull] this Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return expression.NodeType == ExpressionType.Equal
+                || expression.NodeType == ExpressionType.NotEqual
+                || expression.NodeType == ExpressionType.LessThan
+                || expression.NodeType == ExpressionType.LessThanOrEqual
+                || expression.NodeType == ExpressionType.GreaterThan
+                || expression.NodeType == ExpressionType.GreaterThanOrEqual;
+        }
+
         public static ColumnExpression TryGetColumnExpression([NotNull] this Expression expression)
             => (expression as AliasExpression)?.TryGetColumnExpression();
 

@@ -1230,7 +1230,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer, Employee>((cs, es) =>
                 from c in cs
                 from e in es
-                // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
                 where (c.City == "London" && c.Country == "UK")
                         && (e.City == "London" && e.Country == "UK")
                 select new { c, e });
@@ -1595,6 +1595,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.CustomerID, Expression = c.CustomerID.Length + 5 }));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_anonymous_conditional_expression()
+        {
+            AssertQuery<Product>(
+                ps => ps.Select(p => new { p.ProductID, IsAvailable = p.UnitsInStock > 0 }));
         }
 
         [ConditionalFact]
@@ -4474,7 +4481,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Select_take_skip_null_coalesce_operator3()
         {
             AssertQuery<Customer>(
-                cs => cs.OrderBy(c => c.Region ?? "ZZ").Take(10).Skip(5), 
+                cs => cs.OrderBy(c => c.Region ?? "ZZ").Take(10).Skip(5),
                 entryCount: 5);
         }
 
@@ -4561,9 +4568,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orderDetails
                     = (from od in context.Set<OrderDetail>()
-                        select (from o in context.Set<Order>()
-                            where od.OrderID == o.OrderID
-                            select o).First())
+                       select (from o in context.Set<Order>()
+                               where od.OrderID == o.OrderID
+                               select o).First())
                         .Take(2)
                         .ToList();
 

@@ -66,61 +66,71 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                 var marcusLancer = new Weapon
                     {
                         Name = "Marcus' Lancer",
-                        AmmunitionType = AmmunitionType.Cartridge
+                        AmmunitionType = AmmunitionType.Cartridge,
+                        IsAutomatic = true
                     };
 
                 var marcusGnasher = new Weapon
                     {
                         Name = "Marcus' Gnasher",
                         AmmunitionType = AmmunitionType.Shell,
+                        IsAutomatic = false,
                         SynergyWith = marcusLancer
                     };
 
                 var domsHammerburst = new Weapon
                     {
                         Name = "Dom's Hammerburst",
-                        AmmunitionType = AmmunitionType.Cartridge
+                        AmmunitionType = AmmunitionType.Cartridge,
+                        IsAutomatic = false
                     };
 
                 var domsGnasher = new Weapon
                     {
                         Name = "Dom's Gnasher",
-                        AmmunitionType = AmmunitionType.Shell
+                        AmmunitionType = AmmunitionType.Shell,
+                        IsAutomatic = false
                     };
 
                 var colesGnasher = new Weapon
                     {
                         Name = "Cole's Gnasher",
-                        AmmunitionType = AmmunitionType.Shell
+                        AmmunitionType = AmmunitionType.Shell,
+                        IsAutomatic = false
                     };
 
                 var colesMulcher = new Weapon
                     {
                         Name = "Cole's Mulcher",
-                        AmmunitionType = AmmunitionType.Cartridge
+                        AmmunitionType = AmmunitionType.Cartridge,
+                        IsAutomatic = true
                     };
 
                 var bairdsLancer = new Weapon
                     {
                         Name = "Baird's Lancer",
-                        AmmunitionType = AmmunitionType.Cartridge
+                        AmmunitionType = AmmunitionType.Cartridge,
+                        IsAutomatic = true
                     };
 
                 var bairdsGnasher = new Weapon
                     {
                         Name = "Baird's Gnasher",
-                        AmmunitionType = AmmunitionType.Shell
+                        AmmunitionType = AmmunitionType.Shell,
+                        IsAutomatic = false
                     };
 
                 var paduksMarkza = new Weapon
                     {
                         Name = "Paduk's Markza",
-                        AmmunitionType = AmmunitionType.Cartridge
+                        AmmunitionType = AmmunitionType.Cartridge,
+                        IsAutomatic = false
                     };
 
                 var maulersFlail = new Weapon
                     {
-                        Name = "Mauler's Flail"
+                        Name = "Mauler's Flail",
+                        IsAutomatic = false
                     };
 
                 context.Weapons.Add(marcusLancer);
@@ -228,7 +238,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     };
 
                 var marcus = new Officer
-                {
+                    {
                         Nickname = "Marcus",
                         FullName = "Marcus Fenix",
                         SquadId = deltaSquad.Id,

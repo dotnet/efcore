@@ -1217,6 +1217,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual async Task Select_anonymous_conditional_expression()
+        {
+            await AssertQuery<Product>(
+                ps => ps.Select(p => new { p.ProductID, IsAvailable = p.UnitsInStock > 0 }));
+        }
+
+        [ConditionalFact]
         public virtual async Task Select_customer_table()
         {
             await AssertQuery<Customer>(
