@@ -6,8 +6,8 @@ namespace E2ETest.Namespace
     public partial class SelfReferencing
     {
         public int SelfReferencingID { get; set; }
-        public string Description { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
         public int? SelfReferenceFK { get; set; }
 
         public virtual SelfReferencing SelfReferenceFKNavigation { get; set; }

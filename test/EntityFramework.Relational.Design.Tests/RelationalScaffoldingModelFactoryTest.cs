@@ -174,8 +174,56 @@ namespace Microsoft.Data.Entity.Relational.Design
                     }
                 }
             };
+
             var property = (Property)_factory.Create(info).FindEntityType("A").FindProperty("Col");
+
             Assert.Equal(expectedColumnType, property.Relational().ColumnType);
+        }
+
+        [Fact]
+        public void Column_ordinal_annotation()
+        {
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new TableModel
+                    {
+                        Name = "A",
+                        Columns =
+                        {
+                            new ColumnModel
+                            {
+                                Name = "Col1",
+                                DataType = "string",
+                                PrimaryKeyOrdinal = 1,
+                                Ordinal = 1
+                            },
+                            new ColumnModel
+                            {
+                                Name = "Col2",
+                                DataType = "string",
+                                Ordinal = 2
+                            },
+                            new ColumnModel
+                            {
+                                Name = "Col3",
+                                DataType = "string",
+                                Ordinal = 3
+                            }
+                        }
+                    }
+                }
+            };
+
+            var entityTypeA = _factory.Create(info).FindEntityType("A");
+            var property1 = (Property)entityTypeA.FindProperty("Col1");
+            var property2 = (Property)entityTypeA.FindProperty("Col2");
+            var property3 = (Property)entityTypeA.FindProperty("Col3");
+
+            Assert.Equal(1, property1.Scaffolding().ColumnOrdinal);
+            Assert.Equal(2, property2.Scaffolding().ColumnOrdinal);
+            Assert.Equal(3, property3.Scaffolding().ColumnOrdinal);
         }
 
         [Theory]

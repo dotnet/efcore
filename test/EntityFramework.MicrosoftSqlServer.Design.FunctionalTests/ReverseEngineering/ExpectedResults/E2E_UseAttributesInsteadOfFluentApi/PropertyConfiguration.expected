@@ -8,21 +8,21 @@ namespace E2ETest.Namespace
     public partial class PropertyConfiguration
     {
         public byte PropertyConfigurationID { get; set; }
-        public int A { get; set; }
-        public int B { get; set; }
-        [Column("PropertyConfiguration")]
-        public int? PropertyConfiguration1 { get; set; }
-        [Required]
-        public byte[] RowversionColumn { get; set; }
-        public int? SumOfAAndB { get; set; }
         public DateTime WithDateDefaultExpression { get; set; }
         public DateTime WithDateFixedDefault { get; set; }
         public DateTime? WithDateNullDefault { get; set; }
-        public int WithDefaultValue { get; set; }
         public Guid WithGuidDefaultExpression { get; set; }
-        public decimal WithMoneyDefaultValue { get; set; }
-        public short? WithNullDefaultValue { get; set; }
         [MaxLength(1)]
         public string WithVarcharNullDefaultValue { get; set; }
+        public int WithDefaultValue { get; set; }
+        public short? WithNullDefaultValue { get; set; }
+        public decimal WithMoneyDefaultValue { get; set; }
+        public int A { get; set; }
+        public int B { get; set; }
+        public int? SumOfAAndB { get; set; }
+        [Required]
+        public byte[] RowversionColumn { get; set; }
+        [Column("PropertyConfiguration")]
+        public int? PropertyConfiguration1 { get; set; }
     }
 }

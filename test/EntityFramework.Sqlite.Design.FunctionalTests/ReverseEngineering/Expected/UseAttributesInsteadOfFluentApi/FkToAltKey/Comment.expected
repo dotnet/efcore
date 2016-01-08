@@ -8,8 +8,8 @@ namespace E2E.Sqlite
     public partial class Comment
     {
         public long Id { get; set; }
-        public string Contents { get; set; }
         public long UserAltId { get; set; }
+        public string Contents { get; set; }
 
         public virtual User UserAlt { get; set; }
     }

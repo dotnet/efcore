@@ -9,11 +9,11 @@ namespace E2ETest.Namespace
     {
         public int OneToManyDependentID1 { get; set; }
         public int OneToManyDependentID2 { get; set; }
-        public int? OneToManyDependentFK1 { get; set; }
-        public int? OneToManyDependentFK2 { get; set; }
         [Required]
         [MaxLength(20)]
         public string SomeDependentEndColumn { get; set; }
+        public int? OneToManyDependentFK2 { get; set; }
+        public int? OneToManyDependentFK1 { get; set; }
 
         [ForeignKey("OneToManyDependentFK1,OneToManyDependentFK2")]
         [InverseProperty("OneToManyDependent")]

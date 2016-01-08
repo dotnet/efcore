@@ -7,9 +7,9 @@ namespace E2ETest.Namespace
     {
         public int OneToOneSeparateFKDependentID1 { get; set; }
         public int OneToOneSeparateFKDependentID2 { get; set; }
+        public string SomeDependentEndColumn { get; set; }
         public int? OneToOneSeparateFKDependentFK1 { get; set; }
         public int? OneToOneSeparateFKDependentFK2 { get; set; }
-        public string SomeDependentEndColumn { get; set; }
 
         public virtual OneToOneSeparateFKPrincipal OneToOneSeparateFKDependentFK { get; set; }
     }

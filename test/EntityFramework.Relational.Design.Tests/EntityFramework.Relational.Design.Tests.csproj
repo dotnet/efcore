@@ -35,7 +35,7 @@
     <Compile Include="CSharpNamerTest.cs" />
     <Compile Include="CSharpUniqueNamerTest.cs" />
     <Compile Include="NullLogger.cs" />
-    <Compile Include="RelationalDatabaseModelFactoryTest.cs" />
+    <Compile Include="RelationalScaffoldingModelFactoryTest.cs" />
     <Compile Include="ScaffoldingMetadataExtenstionsTest.cs" />
     <Compile Include="TestLogger.cs" />
     <None Include="project.json" />

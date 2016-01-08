@@ -58,6 +58,7 @@
     <Compile Include="Metadata\IndexColumnModel.cs" />
     <Compile Include="Metadata\IndexModel.cs" />
     <Compile Include="Metadata\ScaffoldingModelAnnotations.cs" />
+    <Compile Include="Metadata\ScaffoldingPropertyAnnotations.cs" />
     <Compile Include="Metadata\SequenceModel.cs" />
     <Compile Include="Metadata\TableModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

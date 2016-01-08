@@ -15,6 +15,9 @@ namespace Microsoft.Data.Entity.Metadata
         public static ScaffoldingModelAnnotations Scaffolding([NotNull] this IModel model)
             => new ScaffoldingModelAnnotations(Check.NotNull(model, nameof(model)), ScaffoldingAnnotationNames.AnnotationPrefix);
 
+        public static ScaffoldingPropertyAnnotations Scaffolding([NotNull] this IProperty property)
+            => new ScaffoldingPropertyAnnotations(Check.NotNull(property, nameof(property)), ScaffoldingAnnotationNames.AnnotationPrefix);
+
         public static ScaffoldingForeignKeyAnnotations Scaffolding([NotNull] this IForeignKey foreignKey)
             => new ScaffoldingForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), ScaffoldingAnnotationNames.AnnotationPrefix);
     }

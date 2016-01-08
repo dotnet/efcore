@@ -10,12 +10,12 @@ namespace E2ETest.Namespace
         public int OneToOneSeparateFKDependentID1 { get; set; }
         public int OneToOneSeparateFKDependentID2 { get; set; }
         [Required]
+        [MaxLength(20)]
+        public string SomeDependentEndColumn { get; set; }
+        [Required]
         public int? OneToOneSeparateFKDependentFK1 { get; set; }
         [Required]
         public int? OneToOneSeparateFKDependentFK2 { get; set; }
-        [Required]
-        [MaxLength(20)]
-        public string SomeDependentEndColumn { get; set; }
 
         [ForeignKey("OneToOneSeparateFKDependentFK1,OneToOneSeparateFKDependentFK2")]
         [InverseProperty("OneToOneSeparateFKDependent")]
