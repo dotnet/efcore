@@ -53,6 +53,29 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Can_create_two_FKs_using_the_same_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<CustomerDetails>().HasOne(d => d.Customer).WithOne(c => c.Details)
+                    .HasForeignKey<CustomerDetails>(c => c.Id);
+                modelBuilder.Entity<CustomerDetails>().HasOne<Order>().WithOne()
+                    .HasPrincipalKey<Order>(e => e.OrderId)
+                    .HasForeignKey<CustomerDetails>(c => c.Id);
+                
+                var foreignKeys = model.FindEntityType(typeof(CustomerDetails)).GetForeignKeys()
+                    .Where(fk => fk.Properties.Single().Name == nameof(CustomerDetails.Id)).ToList();
+
+                Assert.Equal(2, foreignKeys.Count);
+                var customerFk = foreignKeys.Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+                var orderFk = foreignKeys.Single(fk => fk.PrincipalEntityType.ClrType == typeof(Order));
+                Assert.Equal(nameof(CustomerDetails.Customer), customerFk.DependentToPrincipal.Name);
+                Assert.Equal(nameof(Customer.Details), customerFk.PrincipalToDependent.Name);
+                Assert.Null(orderFk.DependentToPrincipal);
+                Assert.Null(orderFk.PrincipalToDependent);
+            }
+
+            [Fact]
             public virtual void Replaces_existing_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();

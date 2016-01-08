@@ -283,7 +283,7 @@
     <value>The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.</value>
   </data>
   <data name="DuplicateForeignKey" xml:space="preserve">
-    <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
+    <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {key} on '{principalType}'.</value>
   </data>
   <data name="DuplicateIndex" xml:space="preserve">
     <value>The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.</value>
@@ -343,7 +343,10 @@
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
-    <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties} and it is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'."</value>
+    <value>The key {key} contains properties in shadow state and is referenced by a relationship from '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.</value>
+  </data>
+  <data name="ReferencedShadowKeyWithoutNavigations" xml:space="preserve">
+    <value>The key {key} on entity type '{entityType}' contains properties in shadow state and is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'. Configure a non-shadow principal key for this relationship.</value>
   </data>
   <data name="ShadowKey" xml:space="preserve">
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>

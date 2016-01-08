@@ -70,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             protected void AssertEqual(
                 IEnumerable<IForeignKey> expectedForeignKeys,
                 IEnumerable<IForeignKey> actualForeignKeys,
-                ForeignKeyComparer foreignKeyComparer = null)
+                ForeignKeyStrictComparer foreignKeyComparer = null)
             {
-                foreignKeyComparer = foreignKeyComparer ?? new ForeignKeyComparer();
+                foreignKeyComparer = foreignKeyComparer ?? new ForeignKeyStrictComparer();
                 Assert.Equal(
                     new SortedSet<IForeignKey>(expectedForeignKeys, foreignKeyComparer),
                     new SortedSet<IForeignKey>(actualForeignKeys, foreignKeyComparer),

@@ -1749,7 +1749,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders).HasForeignKey(e => e.AnotherCustomerId);
 
                 Assert.Equal(
-                    CoreStrings.ReferencedShadowKey("{'AnotherCustomerId'}", typeof(Customer).FullName, "{'AnotherCustomerId'}", "{'AnotherCustomerId'}", typeof(Order).FullName),
+                    CoreStrings.ReferencedShadowKey(
+                        "{'AnotherCustomerId'}",
+                        typeof(Customer).Name + "." + nameof(Customer.Orders),
+                        typeof(Order).Name + "." + nameof(Order.Customer)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -1779,12 +1782,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var alphaFk = model.FindEntityType(typeof(Eta)).FindNavigation(nameof(Eta.Alpha)).ForeignKey;
                 Assert.Null(alphaFk.PrincipalToDependent);
+                Assert.False(alphaFk.IsUnique);
                 Assert.Equal(nameof(Eta.Id), alphaFk.Properties.Single().Name);
 
                 var etasFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Etas)).ForeignKey;
                 Assert.Null(etasFk.DependentToPrincipal);
+                Assert.False(etasFk.IsUnique);
                 Assert.NotSame(alphaFk, etasFk);
-                Assert.False(alphaFk.IsUnique);
+
                 Assert.Equal(nameof(Alpha) + nameof(Alpha.Id), etasFk.Properties.First().Name);
             }
 
@@ -1797,11 +1802,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var model = modelBuilder.Model;
 
-                Assert.Null(model.FindEntityType(typeof(Theta)).FindNavigation("Alpha").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AlphaId", model.FindEntityType(typeof(Theta)).FindNavigation("Alpha").ForeignKey.Properties.First().Name);
+                var thetasFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Thetas)).ForeignKey;
+                Assert.Null(thetasFk.DependentToPrincipal);
+                Assert.False(thetasFk.IsUnique);
+                Assert.Equal(nameof(Alpha.Id), thetasFk.Properties.Single().Name);
 
-                Assert.Null(model.FindEntityType(typeof(Alpha)).FindNavigation("Thetas").ForeignKey.DependentToPrincipal);
-                Assert.Equal("Id", model.FindEntityType(typeof(Alpha)).FindNavigation("Thetas").ForeignKey.Properties.First().Name);
+                var alphaFk = model.FindEntityType(typeof(Theta)).FindNavigation(nameof(Theta.Alpha)).ForeignKey;
+                Assert.Null(alphaFk.PrincipalToDependent);
+                Assert.False(alphaFk.IsUnique);
+                Assert.NotSame(alphaFk, thetasFk);
+                Assert.Equal(nameof(Alpha) + nameof(Alpha.Id), alphaFk.Properties.First().Name);
             }
 
             [Fact]

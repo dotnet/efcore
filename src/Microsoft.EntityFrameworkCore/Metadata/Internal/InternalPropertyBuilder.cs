@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
                 Metadata.SetIsNullable(!isRequired, configurationSource);
-                
+
                 return true;
             }
 
@@ -82,24 +82,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
-        public virtual bool IsShadow(bool isShadowProperty, ConfigurationSource configurationSource)
+        public virtual bool IsShadow(bool isShadowProperty, ConfigurationSource? configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetIsShadowPropertyConfigurationSource())
-                || (Metadata.IsShadowProperty == isShadowProperty))
+            if ((Metadata.IsShadowProperty == isShadowProperty)
+                || (configurationSource.HasValue
+                    && configurationSource.Value.Overrides(Metadata.GetIsShadowPropertyConfigurationSource())))
             {
-                Metadata.SetIsShadowProperty(isShadowProperty, configurationSource);
+                if (configurationSource.HasValue)
+                {
+                    Metadata.SetIsShadowProperty(isShadowProperty, configurationSource.Value);
+                }
                 return true;
             }
 
             return false;
         }
 
-        public virtual bool HasClrType([NotNull] Type propertyType, ConfigurationSource configurationSource)
+        public virtual bool HasClrType([NotNull] Type propertyType, ConfigurationSource? configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetClrTypeConfigurationSource())
-                || (Metadata.ClrType == propertyType))
+            if ((Metadata.ClrType == propertyType)
+                || (configurationSource.HasValue
+                    && configurationSource.Value.Overrides(Metadata.GetClrTypeConfigurationSource())))
             {
-                Metadata.HasClrType(propertyType, configurationSource);
+                if (configurationSource.HasValue)
+                {
+                    Metadata.HasClrType(propertyType, configurationSource.Value);
+                }
                 return true;
             }
 

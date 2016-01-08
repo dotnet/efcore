@@ -99,7 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created foreign key. </returns>
         IMutableForeignKey AddForeignKey(
-            [NotNull] IReadOnlyList<IMutableProperty> properties, [NotNull] IMutableKey principalKey, [NotNull] IMutableEntityType principalEntityType);
+            [NotNull] IReadOnlyList<IMutableProperty> properties,
+            [NotNull] IMutableKey principalKey,
+            [NotNull] IMutableEntityType principalEntityType);
 
         /// <summary>
         ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns null
@@ -135,7 +137,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     base type of the hierarchy).
         /// </param>
         /// <returns></returns>
-        IMutableForeignKey RemoveForeignKey([NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType);
+        IMutableForeignKey RemoveForeignKey(
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType);
 
         /// <summary>
         ///     Adds an index to this entity.

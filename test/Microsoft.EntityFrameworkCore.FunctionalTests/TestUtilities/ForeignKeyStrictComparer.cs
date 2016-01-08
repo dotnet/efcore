@@ -3,23 +3,23 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
 {
-    public class ForeignKeyComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
+    public class ForeignKeyStrictComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
     {
         private readonly bool _compareAnnotations;
         private readonly bool _compareNavigations;
 
-        public ForeignKeyComparer(bool compareAnnotations = true, bool compareNavigations = true)
+        public ForeignKeyStrictComparer(bool compareAnnotations = true, bool compareNavigations = true)
         {
             _compareAnnotations = compareAnnotations;
             _compareNavigations = compareNavigations;
         }
 
-        public int Compare(IForeignKey x, IForeignKey y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
+        public int Compare(IForeignKey x, IForeignKey y) => ForeignKeyComparer.Instance.Compare(x, y);
 
         public bool Equals(IForeignKey x, IForeignKey y)
         {
@@ -33,17 +33,15 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
                 return false;
             }
 
-            return PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
-                   && PropertyListComparer.Instance.Equals(x.PrincipalKey.Properties, y.PrincipalKey.Properties)
-                   && x.PrincipalEntityType.Name.Equals(y.PrincipalEntityType.Name)
-                   && x.IsUnique == y.IsUnique
-                   && x.IsRequired == y.IsRequired
+            return ForeignKeyComparer.Instance.Equals(x, y)
+                   && (x.IsUnique == y.IsUnique)
+                   && (x.IsRequired == y.IsRequired)
                    && (!_compareNavigations
                        || (new NavigationComparer(_compareAnnotations).Equals(x.DependentToPrincipal, y.DependentToPrincipal)
                            && new NavigationComparer(_compareAnnotations).Equals(x.PrincipalToDependent, y.PrincipalToDependent)))
                    && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(IForeignKey obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);
+        public int GetHashCode(IForeignKey obj) => ForeignKeyComparer.Instance.GetHashCode(obj);
     }
 }

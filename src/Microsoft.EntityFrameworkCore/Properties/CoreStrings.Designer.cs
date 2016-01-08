@@ -453,11 +453,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}'.
+        /// The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {key} on '{principalType}'.
         /// </summary>
-        public static string DuplicateForeignKey([CanBeNull] object foreignKey, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+        public static string DuplicateForeignKey([CanBeNull] object foreignKey, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType, [CanBeNull] object key, [CanBeNull] object principalType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKey", "foreignKey", "entityType", "duplicateEntityType"), foreignKey, entityType, duplicateEntityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKey", "foreignKey", "entityType", "duplicateEntityType", "key", "principalType"), foreignKey, entityType, duplicateEntityType, key, principalType);
         }
 
         /// <summary>
@@ -613,11 +613,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties} and it is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'."
+        /// The key {key} contains properties in shadow state and is referenced by a relationship from  '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.
         /// </summary>
-        public static string ReferencedShadowKey([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object shadowProperties, [CanBeNull] object foreignKey, [CanBeNull] object referencingEntityType)
+        public static string ReferencedShadowKey([CanBeNull] object key, [CanBeNull] object referencingEntityTypeWithNavigation, [CanBeNull] object referencedEntityTypeWithNavigation)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ReferencedShadowKey", "key", "entityType", "shadowProperties", "foreignKey", "referencingEntityType"), key, entityType, shadowProperties, foreignKey, referencingEntityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferencedShadowKey", "key", "referencingEntityTypeWithNavigation", "referencedEntityTypeWithNavigation"), key, referencingEntityTypeWithNavigation, referencedEntityTypeWithNavigation);
+        }
+
+        /// <summary>
+        /// The key {key} on entity type '{entityType}' contains properties in shadow state and is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'. Configure a non-shadow principal key for this relationship.
+        /// </summary>
+        public static string ReferencedShadowKeyWithoutNavigations([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object referencingEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferencedShadowKeyWithoutNavigations", "key", "entityType", "foreignKey", "referencingEntityType"), key, entityType, foreignKey, referencingEntityType);
         }
 
         /// <summary>

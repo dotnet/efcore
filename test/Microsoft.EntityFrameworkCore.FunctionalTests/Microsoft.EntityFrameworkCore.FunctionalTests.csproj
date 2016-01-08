@@ -164,7 +164,7 @@
     <Compile Include="TestStore.cs" />
     <Compile Include="TestUtilities\AnnotationComparer.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
-    <Compile Include="TestUtilities\ForeignKeyComparer.cs" />
+    <Compile Include="TestUtilities\ForeignKeyStrictComparer.cs" />
     <Compile Include="TestUtilities\IndexComparer.cs" />
     <Compile Include="TestUtilities\KeyComparer.cs" />
     <Compile Include="TestUtilities\NavigationComparer.cs" />

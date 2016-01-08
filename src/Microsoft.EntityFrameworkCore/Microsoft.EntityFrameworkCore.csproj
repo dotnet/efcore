@@ -207,7 +207,6 @@
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\Multigraph.cs" />
     <Compile Include="Internal\ProductInfo.cs" />
-    <Compile Include="Internal\PropertyListComparer.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
     <Compile Include="Internal\ServiceProviderCache.cs" />
@@ -308,6 +307,7 @@
     <Compile Include="Metadata\Internal\EntityTypeNameComparer.cs" />
     <Compile Include="Metadata\Internal\FieldMatcher.cs" />
     <Compile Include="Metadata\Internal\ForeignKey.cs" />
+    <Compile Include="Metadata\Internal\ForeignKeyComparer.cs" />
     <Compile Include="Metadata\Internal\ForeignKeyExtensions.cs" />
     <Compile Include="Metadata\Internal\ICanGetNavigations.cs" />
     <Compile Include="Metadata\Internal\IClrCollectionAccessor.cs" />
@@ -355,6 +355,7 @@
     <Compile Include="Metadata\Internal\PropertyCounts.cs" />
     <Compile Include="Metadata\Internal\PropertyExtensions.cs" />
     <Compile Include="Metadata\Internal\PropertyIndexes.cs" />
+    <Compile Include="Metadata\Internal\PropertyListComparer.cs" />
     <Compile Include="Metadata\IProperty.cs" />
     <Compile Include="Metadata\IPropertyBase.cs" />
     <Compile Include="Metadata\SimpleModelFactory.cs" />

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -33,34 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
         {
-            foreach (var entityType in model.GetEntityTypes())
+            var messages = KeyConvention.GetShadowKeyExceptionMessage(model, key => key.Properties.Any(p => p.IsShadowProperty));
+            if (messages == null)
             {
-                foreach (var key in entityType.GetKeys())
-                {
-                    if (key.Properties.Any(p => p.IsShadowProperty))
-                    {
-                        string message;
-                        var referencingFk = key.FindReferencingForeignKeys().FirstOrDefault();
-                        if (referencingFk != null)
-                        {
-                            message = CoreStrings.ReferencedShadowKey(
-                                Property.Format(key.Properties),
-                                entityType.Name,
-                                Property.Format(key.Properties.Where(p => p.IsShadowProperty)),
-                                Property.Format(referencingFk.Properties),
-                                referencingFk.DeclaringEntityType.Name);
-                        }
-                        else
-                        {
-                            message = CoreStrings.ShadowKey(
-                                Property.Format(key.Properties),
-                                entityType.Name,
-                                Property.Format(key.Properties.Where(p => p.IsShadowProperty)));
-                        }
+                return;
+            }
 
-                        ShowWarning(message);
-                    }
-                }
+            foreach (var message in messages)
+            {
+                ShowWarning(message);
             }
         }
 
