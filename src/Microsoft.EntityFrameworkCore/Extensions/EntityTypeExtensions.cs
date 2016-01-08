@@ -78,6 +78,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Gets the least derived type between the specified two.
+        /// </summary>
+        /// <param name="entityType"> The type to compare. </param>
+        /// <param name="otherEntityType"> The other entity type to compare with. </param>
+        /// <returns>
+        ///     The least derived type between the specified two.
+        ///     If the given entity types are not related, then <c>null</c> is returned.
+        /// </returns>
+        public static IEntityType LeastDerivedType([NotNull] this IEntityType entityType, [NotNull] IEntityType otherEntityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(otherEntityType, nameof(otherEntityType));
+
+            return entityType.IsAssignableFrom(otherEntityType)
+                ? entityType
+                : otherEntityType.IsAssignableFrom(entityType)
+                    ? otherEntityType
+                    : null;
+        }
+
+        /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns null if no key is defined
         ///     for the given property.
         /// </summary>

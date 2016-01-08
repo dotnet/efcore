@@ -159,15 +159,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Can_create_relationship_between_base_type_and_derived_type()
             {
                 var modelBuilder = CreateModelBuilder();
-                var relationshipBuilder = modelBuilder.Entity<BookLabel>().HasOne(e => e.SpecialBookLabel).WithMany(e => e.BookLabels);
+                var relationshipBuilder = modelBuilder.Entity<BookLabel>()
+                    .HasOne(e => e.SpecialBookLabel)
+                    .WithOne(e => e.BookLabel)
+                    .HasPrincipalKey<SpecialBookLabel>(e => e.Id);
 
                 Assert.NotNull(relationshipBuilder);
                 Assert.Equal(typeof(BookLabel), relationshipBuilder.Metadata.DeclaringEntityType.ClrType);
                 Assert.Equal(typeof(SpecialBookLabel), relationshipBuilder.Metadata.PrincipalEntityType.ClrType);
-                Assert.Equal("SpecialBookLabel", relationshipBuilder.Metadata.DependentToPrincipal.Name);
-                Assert.Equal("BookLabels", relationshipBuilder.Metadata.PrincipalToDependent.Name);
+                Assert.Equal(nameof(BookLabel.SpecialBookLabel), relationshipBuilder.Metadata.DependentToPrincipal.Name);
+                Assert.Equal(nameof(SpecialBookLabel.BookLabel), relationshipBuilder.Metadata.PrincipalToDependent.Name);
                 Assert.Equal("SpecialBookLabelId", relationshipBuilder.Metadata.Properties.Single().Name);
-                Assert.False(relationshipBuilder.Metadata.IsRequired);
             }
 
             [Fact]
@@ -190,6 +192,27 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Ignore<BookLabel>();
 
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName));
+            }
+
+            [Fact]
+            public virtual void Can_reconfigure_inherited_intraHierarchical_relationship()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Book>();
+                var bookLabelEntityBuilder = modelBuilder.Entity<BookLabel>();
+                bookLabelEntityBuilder.Ignore(e => e.AnotherBookLabel);
+                bookLabelEntityBuilder.HasOne(e => e.SpecialBookLabel)
+                    .WithOne(e => e.BookLabel)
+                    .HasPrincipalKey<BookLabel>(e => e.Id);
+
+                var extraSpecialBookLabelEntityBuilder = modelBuilder.Entity<ExtraSpecialBookLabel>();
+                modelBuilder.Entity<SpecialBookLabel>()
+                    .HasOne(e => (ExtraSpecialBookLabel)e.SpecialBookLabel)
+                    .WithOne(e => (SpecialBookLabel)e.BookLabel);
+
+                var fk = bookLabelEntityBuilder.Metadata.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
+                Assert.Equal(nameof(SpecialBookLabel.BookLabel), fk.DependentToPrincipal.Name);
+                Assert.Same(fk, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys().Single());
             }
         }
     }

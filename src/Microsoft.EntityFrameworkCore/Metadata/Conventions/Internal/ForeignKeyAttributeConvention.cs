@@ -106,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var newRelationshipBuilder = relationshipBuilder;
             if (invert)
             {
-                newRelationshipBuilder = newRelationshipBuilder.DependentEntityType(foreignKey.PrincipalEntityType, ConfigurationSource.DataAnnotation);
+                newRelationshipBuilder = newRelationshipBuilder.RelatedEntityTypes(
+                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.DataAnnotation);
             }
             if (upgradeDependentToPrincipalNavigationSource)
             {

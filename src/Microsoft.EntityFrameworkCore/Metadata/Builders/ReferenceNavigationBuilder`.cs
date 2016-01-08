@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         and it is not designed to be directly constructed in your application code.
         ///     </para>
         /// </summary>
+        /// <param name="declaringEntityType"> The entity type that the reference is declared on. </param>
         /// <param name="relatedEntityType"> The entity type that the reference points to. </param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on the end of the relationship that configuration began
@@ -42,10 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <param name="builder"> The internal builder being used to configure the relationship. </param>
         public ReferenceNavigationBuilder(
+            [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType relatedEntityType,
             [CanBeNull] string navigationName,
             [NotNull] InternalRelationshipBuilder builder)
-            : base(relatedEntityType, navigationName, builder)
+            : base(declaringEntityType, relatedEntityType, navigationName, builder)
         {
         }
 
@@ -72,7 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(WithOneBuilder(reference?.GetPropertyAccess().Name));
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+                WithOneBuilder(reference?.GetPropertyAccess().Name),
+                DeclaringEntityType,
+                RelatedEntityType);
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.
@@ -96,6 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne([CanBeNull] string reference = null)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
+                WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))),
+                DeclaringEntityType,
+                RelatedEntityType);
     }
 }

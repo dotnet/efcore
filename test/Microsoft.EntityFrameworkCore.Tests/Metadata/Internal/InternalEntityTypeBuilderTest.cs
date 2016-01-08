@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Replaces_derived_relationship_of_lower_or_equal_source()
+        public void Promotes_derived_relationship()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
@@ -222,18 +222,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             dependentEntityBuilder.HasBaseType(baseDependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
 
             Assert.Empty(baseDependentEntityBuilder.Metadata.GetForeignKeys());
-
-            Assert.Null(baseDependentEntityBuilder.Relationship(
-                basePrincipalEntityBuilder,
-                Order.CustomerProperty.Name,
-                Customer.OrdersProperty.Name,
-                ConfigurationSource.Convention));
-
+            
             var relationship = baseDependentEntityBuilder.Relationship(
                 basePrincipalEntityBuilder,
                 Order.CustomerProperty.Name,
                 Customer.OrdersProperty.Name,
-                ConfigurationSource.DataAnnotation);
+                ConfigurationSource.Convention);
 
             Assert.Same(relationship.Metadata, dependentEntityBuilder.Metadata.GetForeignKeys().Single());
             Assert.Same(relationship.Metadata, principalEntityBuilder.Metadata.GetNavigations().Single().ForeignKey);
@@ -1783,7 +1777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderRelationship = dependentEntityBuilder.Relationship(principalEntityBuilder, Order.CustomerProperty.Name, null, ConfigurationSource.DataAnnotation);
             Assert.NotNull(orderRelationship);
             var customerRelationship = dependentEntityBuilder.Relationship(principalEntityBuilder, null, Customer.NotCollectionOrdersProperty.Name, ConfigurationSource.Convention)
-                .DependentEntityType(dependentEntityBuilder, ConfigurationSource.Convention);
+                .RelatedEntityTypes(principalEntityBuilder.Metadata, dependentEntityBuilder.Metadata, ConfigurationSource.Convention);
             Assert.NotNull(customerRelationship);
 
             Assert.Null(principalEntityBuilder.Relationship(dependentEntityBuilder, Customer.NotCollectionOrdersProperty.Name, Order.CustomerProperty.Name, ConfigurationSource.Convention));
@@ -1806,7 +1800,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderRelationship = dependentEntityBuilder.Relationship(principalEntityBuilder, Order.CustomerProperty, null, ConfigurationSource.Convention);
             Assert.NotNull(orderRelationship);
             var customerRelationship = dependentEntityBuilder.Relationship(principalEntityBuilder, null, Customer.NotCollectionOrdersProperty, ConfigurationSource.DataAnnotation)
-                .PrincipalEntityType(principalEntityBuilder, ConfigurationSource.DataAnnotation);
+                .RelatedEntityTypes(principalEntityBuilder.Metadata, dependentEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);
             Assert.NotNull(customerRelationship);
 
             Assert.Null(dependentEntityBuilder.Relationship(principalEntityBuilder, Customer.NotCollectionOrdersProperty, Order.CustomerProperty, ConfigurationSource.Convention));
@@ -1944,12 +1938,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             dependentEntityBuilder.Relationship(
                 principalEntityBuilder, Order.CustomerProperty.Name, null, ConfigurationSource.DataAnnotation)
-                .DependentEntityType(dependentEntityBuilder, ConfigurationSource.DataAnnotation);
+                .RelatedEntityTypes(principalEntityBuilder.Metadata, dependentEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);
 
             var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedDependentEntityBuilder.Relationship(
                 principalEntityBuilder, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit)
-                .PrincipalEntityType(derivedDependentEntityBuilder, ConfigurationSource.Explicit);
+                .RelatedEntityTypes(derivedDependentEntityBuilder.Metadata, principalEntityBuilder.Metadata, ConfigurationSource.Explicit);
 
             Assert.Null(derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Null(derivedDependentEntityBuilder.Metadata.BaseType);

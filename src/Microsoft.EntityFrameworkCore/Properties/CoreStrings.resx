@@ -525,6 +525,9 @@
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
     <value>A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
   </data>
+  <data name="EntityTypesNotInRelationship" xml:space="preserve">
+    <value>The specified entity types '{invalidDependentType}' and '{invalidPrincipalType}' are invalid. They should be '{dependentType}' and '{principalType}' or entity types in the same hierarchy.</value>
+  </data>
   <data name="InvalidSetType" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
   </data>

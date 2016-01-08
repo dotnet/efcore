@@ -226,7 +226,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class SpecialBookLabel : BookLabel
         {
-            public ICollection<BookLabel> BookLabels { get; set; }
+            public BookLabel BookLabel { get; set; }
+        }
+
+        private class ExtraSpecialBookLabel : SpecialBookLabel
+        {
         }
 
         private class AnotherBookLabel : BookLabel

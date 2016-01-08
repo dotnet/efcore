@@ -324,10 +324,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key_throws()
+            public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 var entityBuilder = modelBuilder.Entity<Customer>();
                 entityBuilder.HasKey(e => e.Id);
@@ -337,10 +336,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Ignoring_shadow_properties_when_they_have_been_added_explicitly_throws()
+            public virtual void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 var entityBuilder = modelBuilder.Entity<Customer>();
                 entityBuilder.Property<string>("Shadow");

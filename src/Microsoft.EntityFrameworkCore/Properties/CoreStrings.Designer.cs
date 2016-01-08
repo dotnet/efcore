@@ -1092,12 +1092,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("NullableKey", "entityType", "property"), entityType, property);
         }
 
-        // <summary>
-        // A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
-        // </summary>
+        /// <summary>
+        /// A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
+        /// </summary>
         public static string ConcurrentMethodInvocation
         {
             get { return GetString("ConcurrentMethodInvocation"); }
+        }
+
+        /// <summary>
+        /// The specified entity types '{invalidDependentType}' and '{invalidPrincipalType}' are invalid. They should be '{dependentType}' and '{principalType}' or entity types in the same hierarchy.
+        /// </summary>
+        public static string EntityTypesNotInRelationship([CanBeNull] object invalidDependentType, [CanBeNull] object invalidPrincipalType, [CanBeNull] object dependentType, [CanBeNull] object principalType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypesNotInRelationship", "invalidDependentType", "invalidPrincipalType", "dependentType", "principalType"), invalidDependentType, invalidPrincipalType, dependentType, principalType);
         }
 
         // <summary>

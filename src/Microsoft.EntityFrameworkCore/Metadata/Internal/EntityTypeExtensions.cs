@@ -198,6 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                    || secondEntityType.IsAssignableFrom(firstEntityType);
         }
 
+        public static EntityType LeastDerivedType([NotNull] this EntityType entityType, [NotNull] EntityType otherEntityType)
+            => (EntityType)((IEntityType)entityType).LeastDerivedType(otherEntityType);
+
         public static bool IsAbstract([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

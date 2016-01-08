@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
-        private readonly string _navigationToPrincipalName;
-        private readonly string _navigationToDependentName;
+        private readonly EntityType _declaringEntityType;
+        private readonly EntityType _relatedEntityType;
         private readonly bool? _required;
 
         /// <summary>
@@ -40,12 +40,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="builder"> The internal builder being used to configure this relationship. </param>
-        public ReferenceReferenceBuilder([NotNull] InternalRelationshipBuilder builder)
+        /// <param name="declaringEntityType"> The first entity type in the relationship. </param>
+        /// <param name="relatedEntityType"> The second entity type in the relationship. </param>
+        public ReferenceReferenceBuilder(
+            [NotNull] InternalRelationshipBuilder builder,
+            [NotNull] EntityType declaringEntityType,
+            [NotNull] EntityType relatedEntityType)
             : this(builder, null)
         {
             Check.NotNull(builder, nameof(builder));
-            _navigationToPrincipalName = builder.Metadata.DependentToPrincipal?.Name;
-            _navigationToDependentName = builder.Metadata.PrincipalToDependent?.Name;
+            _declaringEntityType = declaringEntityType;
+            _relatedEntityType = relatedEntityType;
         }
 
         /// <summary>
@@ -76,21 +81,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             bool requiredSet = false)
         {
             Builder = builder;
+
             if (oldBuilder != null)
             {
                 if (inverted)
                 {
                     if ((oldBuilder._foreignKeyProperties != null)
                         || (oldBuilder._principalKeyProperties != null))
-
                     {
                         throw new InvalidOperationException(CoreStrings.RelationshipCannotBeInverted);
                     }
-
-                    var navigationName = _navigationToDependentName;
-                    _navigationToDependentName = _navigationToPrincipalName;
-                    _navigationToPrincipalName = navigationName;
                 }
+
+                _declaringEntityType = oldBuilder._declaringEntityType;
+                _relatedEntityType = oldBuilder._relatedEntityType;
 
                 _foreignKeyProperties = foreignKeySet
                     ? builder.Metadata.Properties
@@ -106,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 ForeignKey.AreCompatible(
                     foreignKey.PrincipalEntityType,
                     foreignKey.DeclaringEntityType,
-                    _navigationToPrincipalName,
-                    _navigationToDependentName,
+                    foreignKey.DependentToPrincipal?.Name,
+                    foreignKey.PrincipalToDependent?.Name,
                     _foreignKeyProperties,
                     _principalKeyProperties,
                     foreignKey.IsUnique,
@@ -235,29 +239,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] string dependentEntityTypeName)
         {
-            var builder = Builder.DependentEntityType(dependentEntityTypeName, ConfigurationSource.Explicit);
-            if (builder == null)
+            var entityType = ResolveEntityType(dependentEntityTypeName);
+            if (entityType == null)
             {
                 throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
-                    Metadata.DeclaringEntityType.DisplayName(),
-                    Metadata.PrincipalEntityType.DisplayName(),
+                    _declaringEntityType.DisplayName(),
+                    _relatedEntityType.DisplayName(),
                     dependentEntityTypeName));
             }
-            return builder;
+
+            return Builder.RelatedEntityTypes(GetOtherEntityType(entityType), entityType, ConfigurationSource.Explicit);
         }
 
         protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] Type dependentEntityType)
-        {
-            var builder = Builder.DependentEntityType(dependentEntityType, ConfigurationSource.Explicit);
-            if (builder == null)
-            {
-                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
-                    Metadata.DeclaringEntityType.DisplayName(),
-                    Metadata.PrincipalEntityType.DisplayName(),
-                    dependentEntityType.Name));
-            }
-            return builder;
-        }
+            => SetDependentEntityType(dependentEntityType.DisplayName());
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -311,31 +306,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 principalKeySet: true);
         }
 
-        protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] Type principalEntityType)
-        {
-            var builder = Builder.PrincipalEntityType(principalEntityType, ConfigurationSource.Explicit);
-            if (builder == null)
-            {
-                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
-                    Metadata.DeclaringEntityType.DisplayName(),
-                    Metadata.PrincipalEntityType.DisplayName(),
-                    principalEntityType.Name));
-            }
-            return builder;
-        }
-
         protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] string principalEntityTypeName)
         {
-            var builder = Builder.PrincipalEntityType(principalEntityTypeName, ConfigurationSource.Explicit);
-            if (builder == null)
+            var entityType = ResolveEntityType(principalEntityTypeName);
+            if (entityType == null)
             {
                 throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
-                    Metadata.DeclaringEntityType.DisplayName(),
-                    Metadata.PrincipalEntityType.DisplayName(),
+                    _declaringEntityType.DisplayName(),
+                    _relatedEntityType.DisplayName(),
                     principalEntityTypeName));
             }
-            return builder;
+
+            return Builder.RelatedEntityTypes(entityType, GetOtherEntityType(entityType), ConfigurationSource.Explicit);
         }
+
+        protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] Type principalEntityType)
+            => SetPrincipalEntityType(principalEntityType.DisplayName());
+
+        private EntityType ResolveEntityType(string entityTypeName)
+        {
+            if (_declaringEntityType.Name == entityTypeName)
+            {
+                return _declaringEntityType;
+            }
+
+            if (_relatedEntityType.Name == entityTypeName)
+            {
+                return _relatedEntityType;
+            }
+
+            return null;
+        }
+
+        private EntityType GetOtherEntityType(EntityType entityType)
+            => _declaringEntityType == entityType ? _relatedEntityType : _declaringEntityType;
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can

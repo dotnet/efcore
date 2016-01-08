@@ -227,6 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var navigationName = reference?.GetPropertyAccess().Name;
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+                Builder.Metadata,
                 relatedEntityType,
                 navigationName,
                 ReferenceBuilder(relatedEntityType, navigationName));

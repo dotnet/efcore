@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         // Invert only if principal side has matching property & dependent does not have
                         relationshipBuilder = relationshipBuilder
-                            .DependentEntityType(foreignKey.PrincipalEntityType, ConfigurationSource.Convention)
+                            .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention)
                             .HasForeignKey(candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
 
                         Debug.Assert(relationshipBuilder != null);
@@ -72,8 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         // Invert and set one to one if principal side has matching property & dependent side does not have
                         relationshipBuilder = relationshipBuilder
-                            .DependentEntityType(foreignKey.PrincipalEntityType, ConfigurationSource.Convention)
-                            .IsUnique(true, ConfigurationSource.Convention)
+                            .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention)
                             .HasForeignKey(candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
 
                         Debug.Assert(relationshipBuilder != null);
@@ -117,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var baseName in baseNames)
             {
-                var match = FindMatchingNonShadowProperties(foreignKey, baseName, onDependent);
+                var match = FindMatchingProperties(foreignKey, baseName, onDependent);
                 if (match != null)
                 {
                     return match;
@@ -144,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return null;
         }
 
-        private IReadOnlyList<Property> FindMatchingNonShadowProperties(
+        private IReadOnlyList<Property> FindMatchingProperties(
             ForeignKey foreignKey, string baseName, bool onDependent)
         {
             var dependentEntityType = onDependent
@@ -227,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var property in entityType.GetProperties())
             {
                 if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
-                    && !property.IsShadowProperty
+                    && (!property.IsShadowProperty || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource())) 
                     && (property.ClrType.UnwrapNullableType() == type))
                 {
                     return property;

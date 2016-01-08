@@ -219,6 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
 
             return new ReferenceNavigationBuilder(
+                Builder.Metadata,
                 relatedEntityType,
                 navigationName,
                 ReferenceBuilder(relatedEntityType, navigationName));
@@ -254,6 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var relatedEntityType = Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
 
             return new ReferenceNavigationBuilder(
+                Builder.Metadata,
                 relatedEntityType,
                 navigationName,
                 ReferenceBuilder(relatedEntityType, navigationName));
@@ -357,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => Builder.ModelBuilder.Entity(relatedEntityType.Name, ConfigurationSource.Explicit)
                 .Relationship(Builder, ConfigurationSource.Explicit)
-                .DependentEntityType(relatedEntityType, ConfigurationSource.Explicit)
+                .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
 

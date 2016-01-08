@@ -34,8 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <param name="builder"> The internal builder being used to configure this relationship. </param>
-        public ReferenceReferenceBuilder([NotNull] InternalRelationshipBuilder builder)
-            : base(builder)
+        /// <param name="declaringEntityType"> The first entity type in the relationship. </param>
+        /// <param name="relatedEntityType"> The second entity type in the relationship. </param>
+        public ReferenceReferenceBuilder(
+            [NotNull] InternalRelationshipBuilder builder,
+            [NotNull] EntityType declaringEntityType,
+            [NotNull] EntityType relatedEntityType)
+            : base(builder, declaringEntityType, relatedEntityType)
         {
         }
 
