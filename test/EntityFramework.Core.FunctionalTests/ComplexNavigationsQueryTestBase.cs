@@ -752,7 +752,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // issue #3186
         ////[ConditionalFact]
-        public virtual void Select_nav_prop_reference_optional()
+        public virtual void Select_nav_prop_reference_optional1()
         {
             List<string> expected;
             using (var context = CreateContext())
@@ -768,6 +768,104 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = context.LevelOne.Select(e => e.OneToOne_Optional_FK.Name);
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        // issue #4262
+        ////[ConditionalFact]
+        public virtual void Select_nav_prop_reference_optional1_via_DefaultIfEmpty()
+        {
+            List<string> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select l2 == null ? null : l2.Name).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select l2 == null ? null : l2.Name;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        // issue #3186
+        ////[ConditionalFact]
+        public virtual void Select_nav_prop_reference_optional2()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .Select(e => e.OneToOne_Optional_FK.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.Select(e => e.OneToOne_Optional_FK.Id);
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        // issue #4262
+        ////[ConditionalFact]
+        public virtual void Select_nav_prop_reference_optional2_via_DefaultIfEmpty()
+        {
+            List<int?> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select l2 == null ? null : (int?)l2.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select l2 == null ? null : (int?)l2.Id;
+
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -799,6 +897,47 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var query = context.LevelOne
                     .Where(e => e.OneToOne_Optional_FK.Name == "L2 05" || e.OneToOne_Optional_FK.Name == "L2 07")
                     .Select(e => e.Id);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        // issue #4262
+        ////[ConditionalFact]
+        public virtual void Where_nav_prop_reference_optional1_via_DefaultIfEmpty()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2Left in l2s on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
+                            from l2Left in groupJoinLeft.DefaultIfEmpty()
+                            join l2Right in l2s on l1.Id equals l2Right.Level1_Optional_Id into groupJoinRight
+                            from l2Right in groupJoinRight.DefaultIfEmpty()
+                            where (l2Left == null ? null : l2Left.Name) == "L2 05" || (l2Right == null ? null : l2Right.Name) == "L2 07"
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2Left in context.LevelTwo on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
+                            from l2Left in groupJoinLeft.DefaultIfEmpty()
+                            join l2Right in context.LevelTwo on l1.Id equals l2Right.Level1_Optional_Id into groupJoinRight
+                            from l2Right in groupJoinRight.DefaultIfEmpty()
+                            where (l2Left == null ? null : l2Left.Name) == "L2 05" || (l2Right == null ? null : l2Right.Name) == "L2 07"
+                            select l1.Id;
 
                 var result = query.ToList();
 
@@ -842,6 +981,47 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        // issue #4262
+        ////[ConditionalFact]
+        public virtual void Where_nav_prop_reference_optional2_via_DefaultIfEmpty()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2Left in l2s on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
+                            from l2Left in groupJoinLeft.DefaultIfEmpty()
+                            join l2Right in l2s on l1.Id equals l2Right.Level1_Optional_Id into groupJoinRight
+                            from l2Right in groupJoinRight.DefaultIfEmpty()
+                            where (l2Left == null ? null : l2Left.Name) == "L2 05" || (l2Right == null ? null : l2Right.Name) != "L2 42"
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2Left in context.LevelTwo on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
+                            from l2Left in groupJoinLeft.DefaultIfEmpty()
+                            join l2Right in context.LevelTwo on l1.Id equals l2Right.Level1_Optional_Id into groupJoinRight
+                            from l2Right in groupJoinRight.DefaultIfEmpty()
+                            where (l2Left == null ? null : l2Left.Name) == "L2 05" || (l2Right == null ? null : l2Right.Name) != "L2 42"
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
         // issue #3186
         ////[ConditionalFact]
         public virtual void OrderBy_nav_prop_reference_optional()
@@ -872,6 +1052,43 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        // issue #4262
+        ////[ConditionalFact]
+        public virtual void OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty()
+        {
+            List<int> expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            orderby l2 == null ? null : l2.Name
+                            select l1.Id).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            orderby l2 == null ? null : l2.Name
+                            select l1.Id;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
         // issue #3186
         ////[ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional()
@@ -890,6 +1107,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var result = context.LevelOne.Sum(e => e.OneToOne_Optional_FK.Level1_Required_Id);
+
+                Assert.Equal(expected, result);
+            }
+        }
+
+        // issue #4262
+        ////[ConditionalFact]
+        public virtual void Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty()
+        {
+            int expected;
+            using (var context = CreateContext())
+            {
+                var l1s = context.LevelOne.ToList();
+                var l2s = context.LevelTwo.ToList();
+
+                expected = (from l1 in l1s
+                            join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                            from l2 in groupJoin.DefaultIfEmpty()
+                            select l2).Sum(e => e == null ? 0 : e.Level1_Required_Id);
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var result = (from l1 in context.LevelOne
+                              join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                              from l2 in groupJoin.DefaultIfEmpty()
+                              select l2).Sum(e => e == null ? 0 : e.Level1_Required_Id);
 
                 Assert.Equal(expected, result);
             }

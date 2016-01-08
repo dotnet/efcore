@@ -360,6 +360,114 @@ ORDER BY [l0].[Id], [l0].[Id0]",
                 Sql);
         }
 
+        public override void Select_nav_prop_reference_optional1()
+        {
+            base.Select_nav_prop_reference_optional1();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Select_nav_prop_reference_optional1_via_DefaultIfEmpty()
+        {
+            base.Select_nav_prop_reference_optional1_via_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Select_nav_prop_reference_optional2()
+        {
+            base.Select_nav_prop_reference_optional2();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Select_nav_prop_reference_optional2_via_DefaultIfEmpty()
+        {
+            base.Select_nav_prop_reference_optional2_via_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Where_nav_prop_reference_optional1()
+        {
+            base.Where_nav_prop_reference_optional1();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Where_nav_prop_reference_optional1_via_DefaultIfEmpty()
+        {
+            base.Where_nav_prop_reference_optional1_via_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Where_nav_prop_reference_optional2()
+        {
+            base.Where_nav_prop_reference_optional2();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Where_nav_prop_reference_optional2_via_DefaultIfEmpty()
+        {
+            base.Where_nav_prop_reference_optional2_via_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void OrderBy_nav_prop_reference_optional()
+        {
+            base.OrderBy_nav_prop_reference_optional();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty()
+        {
+            base.OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Result_operator_nav_prop_reference_optional()
+        {
+            base.Result_operator_nav_prop_reference_optional();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty()
+        {
+            base.Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
         // issue #3491
         //[Fact]
         public virtual void Multiple_complex_includes_from_sql()
