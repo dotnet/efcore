@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Storage
             }
         }
 
-        public static string FormatParameterValue(object parameterValue)
+        public static object FormatParameterValue(object parameterValue)
         {
             if (parameterValue.GetType() != typeof(byte[]))
             {
