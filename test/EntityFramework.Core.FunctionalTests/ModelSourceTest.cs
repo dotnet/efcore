@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Infrastructure.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -36,12 +38,39 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact] // Issue #2992
+        public void Can_customize_ModelBuilder()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<JustSomeContext>()
+                .ServiceCollection()
+                .AddSingleton<IModelCustomizer, MyModelCustomizer>()
+                .BuildServiceProvider();
+
+            using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
+            {
+                var model = context.Model;
+                Assert.Equal("Us!", model["AllYourModelAreBelongTo"]);
+                Assert.Equal("Us!", model.GetEntityTypes().Single(e => e.DisplayName() == "Base")["AllYourBaseAreBelongTo"]);
+                Assert.Contains("Peak", model.GetEntityTypes().Select(e => e.DisplayName()));
+            }
+        }
+
+        private class MyModelCustomizer : ModelCustomizer
+        {
+            public override void Customize(ModelBuilder modelBuilder, DbContext dbContext)
+            {
+                base.Customize(modelBuilder, dbContext);
+                modelBuilder.Model["AllYourModelAreBelongTo"] = "Us!";
+            }
+        }
+
         private class MyModelSource : InMemoryModelSource
         {
-            public MyModelSource(
-                IDbSetFinder setFinder,
-                ICoreConventionSetBuilder coreConventionSetBuilder)
-                : base(setFinder, coreConventionSetBuilder)
+            public MyModelSource(IDbSetFinder setFinder, ICoreConventionSetBuilder coreConventionSetBuilder, IModelCustomizer modelCustomizer, IModelCacheKeyFactory modelCacheKeyFactory)
+                : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
             {
             }
 

@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -20,9 +21,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Action<ModelBuilder> onModelCreating,
             IDbSetFinder setFinder,
             ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(setFinder,  coreConventionSetBuilder)
+            : base(setFinder,  coreConventionSetBuilder, new ModelCustomizer())
         {
-            _testModelSource = new TestModelSource(onModelCreating, setFinder, coreConventionSetBuilder);
+            _testModelSource = new TestModelSource(onModelCreating, setFinder, coreConventionSetBuilder, new ModelCustomizer());
         }
 
         public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator) 

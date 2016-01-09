@@ -9,10 +9,8 @@ namespace Microsoft.Data.Entity.Infrastructure.Internal
 {
     public class SqliteModelSource : ModelSource
     {
-        public SqliteModelSource(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(setFinder, coreConventionSetBuilder)
+        public SqliteModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
+            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
         {
         }
     }

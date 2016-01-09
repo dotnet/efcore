@@ -9,10 +9,8 @@ namespace Microsoft.Data.Entity.Infrastructure.Internal
 {
     public class InMemoryModelSource : ModelSource
     {
-        public InMemoryModelSource(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(setFinder, coreConventionSetBuilder)
+        public InMemoryModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
+            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
         {
         }
     }

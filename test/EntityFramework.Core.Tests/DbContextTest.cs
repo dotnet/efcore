@@ -20,6 +20,7 @@ using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -1638,7 +1639,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
@@ -1682,7 +1683,7 @@ namespace Microsoft.Data.Entity.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
@@ -1730,7 +1731,7 @@ namespace Microsoft.Data.Entity.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
             { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)

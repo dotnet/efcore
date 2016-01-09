@@ -14,11 +14,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
-        public TestModelSource(
-            Action<ModelBuilder> onModelCreating,
-            IDbSetFinder setFinder,
-            ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(setFinder, coreConventionSetBuilder)
+        public TestModelSource(Action<ModelBuilder> onModelCreating, IDbSetFinder setFinder, ICoreConventionSetBuilder coreConventionSetBuilder, IModelCustomizer modelCustomizer, IModelCacheKeyFactory modelCacheKeyFactory)
+            : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)
         {
             _onModelCreating = onModelCreating;
         }

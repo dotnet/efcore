@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -96,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests
         private class ConcreteModelSource : ModelSource
         {
             public ConcreteModelSource(IDbSetFinder setFinder)
-                : base(setFinder, new CoreConventionSetBuilder())
+                : base(setFinder, new CoreConventionSetBuilder(), new ModelCustomizer(), new ModelCacheKeyFactory())
             {
             }
         }

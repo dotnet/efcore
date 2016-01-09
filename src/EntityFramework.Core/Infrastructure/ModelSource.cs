@@ -25,19 +25,24 @@ namespace Microsoft.Data.Entity.Infrastructure
     /// </summary>
     public abstract class ModelSource : IModelSource
     {
-        private readonly ConcurrentDictionary<Type, IModel> _models = new ConcurrentDictionary<Type, IModel>();
+        private readonly ConcurrentDictionary<object, IModel> _models = new ConcurrentDictionary<object, IModel>();
         protected virtual IDbSetFinder SetFinder { get; }
         protected virtual ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 
-        protected ModelSource(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
+        protected virtual IModelCustomizer ModelCustomizer { get; }
+        protected virtual IModelCacheKeyFactory ModelCacheKeyFactory { get; }
+
+        protected ModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
         {
             Check.NotNull(setFinder, nameof(setFinder));
             Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
+            Check.NotNull(modelCustomizer, nameof(modelCustomizer));
+            Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
 
             SetFinder = setFinder;
             CoreConventionSetBuilder = coreConventionSetBuilder;
+            ModelCustomizer = modelCustomizer;
+            ModelCacheKeyFactory = modelCacheKeyFactory;
         }
 
         /// <summary>
@@ -48,7 +53,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <param name="validator"> The validator to verify the model can be successfully used with the context. </param>
         /// <returns> The model to be used. </returns>
         public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
-            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, conventionSetBuilder, validator));
+            => _models.GetOrAdd(ModelCacheKeyFactory.Create(context), k => CreateModel(context, conventionSetBuilder, validator));
 
         /// <summary>
         ///     Creates the model. This method is called when the model was not found in the cache.
@@ -74,7 +79,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             FindSets(modelBuilder, context);
 
-            OnModelCreating(context, modelBuilder);
+            ModelCustomizer.Customize(modelBuilder, context);
 
             internalModelBuilder.Validate();
 
@@ -110,12 +115,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Runs <see cref="DbContext.OnModelCreating(ModelBuilder)" /> from the context.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="modelBuilder"></param>
-        public static void OnModelCreating([NotNull] DbContext context, [NotNull] ModelBuilder modelBuilder)
-            => context.OnModelCreating(modelBuilder);
     }
 }
+

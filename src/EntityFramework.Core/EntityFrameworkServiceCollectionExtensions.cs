@@ -90,6 +90,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<IMemberMapper, MemberMapper>()
                 .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<ICoreConventionSetBuilder, CoreConventionSetBuilder>()
+                .AddSingleton<IModelCustomizer, ModelCustomizer>()
+                .AddSingleton<IModelCacheKeyFactory, ModelCacheKeyFactory>()
                 .AddSingleton<LoggingModelValidator>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()
