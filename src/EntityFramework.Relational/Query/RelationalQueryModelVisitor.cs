@@ -911,9 +911,9 @@ namespace Microsoft.Data.Entity.Query
                     RelationalQueryModelVisitor subQueryModelVisitor;
                     if (_subQueryModelVisitorsBySource.TryGetValue(querySource, out subQueryModelVisitor))
                     {
-                        selectExpression = subQueryModelVisitor.Queries.Single();
+                        selectExpression = subQueryModelVisitor.Queries.SingleOrDefault();
 
-                        selectExpression
+                        selectExpression?
                             .AddToProjection(
                                 _relationalAnnotationProvider.For(property).ColumnName,
                                 property,

@@ -374,7 +374,10 @@ ORDER BY [l0].[Id], [l0].[Id0]",
             base.Select_nav_prop_reference_optional1_via_DefaultIfEmpty();
 
             Assert.Equal(
-                @"",
+                @"SELECT [l2].[Id], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+ORDER BY [l1].[Id]",
                 Sql);
         }
 
@@ -392,7 +395,10 @@ ORDER BY [l0].[Id], [l0].[Id0]",
             base.Select_nav_prop_reference_optional2_via_DefaultIfEmpty();
 
             Assert.Equal(
-                @"",
+                @"SELECT [l2].[Id], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+ORDER BY [l1].[Id]",
                 Sql);
         }
 
@@ -410,7 +416,13 @@ ORDER BY [l0].[Id], [l0].[Id0]",
             base.Where_nav_prop_reference_optional1_via_DefaultIfEmpty();
 
             Assert.Equal(
-                @"",
+                @"SELECT [l2Right].[Id], [l2Right].[Level1_Optional_Id], [l2Right].[Level1_Required_Id], [l2Right].[Name], [l2Right].[OneToMany_Optional_InverseId], [l2Right].[OneToMany_Optional_Self_InverseId], [l2Right].[OneToMany_Required_InverseId], [l2Right].[OneToMany_Required_Self_InverseId], [l2Right].[OneToOne_Optional_PK_InverseId], [l2Right].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2Right]
+
+SELECT [l2Left].[Id], [l2Left].[Level1_Optional_Id], [l2Left].[Level1_Required_Id], [l2Left].[Name], [l2Left].[OneToMany_Optional_InverseId], [l2Left].[OneToMany_Optional_Self_InverseId], [l2Left].[OneToMany_Required_InverseId], [l2Left].[OneToMany_Required_Self_InverseId], [l2Left].[OneToOne_Optional_PK_InverseId], [l2Left].[OneToOne_Optional_SelfId], [l1].[Id]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l2Left] ON [l1].[Id] = [l2Left].[Level1_Optional_Id]
+ORDER BY [l1].[Id]",
                 Sql);
         }
 
@@ -428,7 +440,13 @@ ORDER BY [l0].[Id], [l0].[Id0]",
             base.Where_nav_prop_reference_optional2_via_DefaultIfEmpty();
 
             Assert.Equal(
-                @"",
+                @"SELECT [l2Right].[Id], [l2Right].[Level1_Optional_Id], [l2Right].[Level1_Required_Id], [l2Right].[Name], [l2Right].[OneToMany_Optional_InverseId], [l2Right].[OneToMany_Optional_Self_InverseId], [l2Right].[OneToMany_Required_InverseId], [l2Right].[OneToMany_Required_Self_InverseId], [l2Right].[OneToOne_Optional_PK_InverseId], [l2Right].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l2Right]
+
+SELECT [l2Left].[Id], [l2Left].[Level1_Optional_Id], [l2Left].[Level1_Required_Id], [l2Left].[Name], [l2Left].[OneToMany_Optional_InverseId], [l2Left].[OneToMany_Optional_Self_InverseId], [l2Left].[OneToMany_Required_InverseId], [l2Left].[OneToMany_Required_Self_InverseId], [l2Left].[OneToOne_Optional_PK_InverseId], [l2Left].[OneToOne_Optional_SelfId], [l1].[Id]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l2Left] ON [l1].[Id] = [l2Left].[Level1_Optional_Id]
+ORDER BY [l1].[Id]",
                 Sql);
         }
 
@@ -446,7 +464,10 @@ ORDER BY [l0].[Id], [l0].[Id0]",
             base.OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty();
 
             Assert.Equal(
-                @"",
+                @"SELECT [l2].[Id], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId], [l1].[Id]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+ORDER BY [l1].[Id]",
                 Sql);
         }
 
@@ -464,7 +485,10 @@ ORDER BY [l0].[Id], [l0].[Id0]",
             base.Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty();
 
             Assert.Equal(
-                @"",
+                @"SELECT [l2].[Id], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l1]
+LEFT JOIN [Level2] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+ORDER BY [l1].[Id]",
                 Sql);
         }
 
