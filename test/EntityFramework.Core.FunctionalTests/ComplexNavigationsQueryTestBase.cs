@@ -7,6 +7,9 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 using System.Collections.Generic;
+// ReSharper disable MergeConditionalExpression
+// ReSharper disable ReplaceWithSingleCallToSingle
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -15,10 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TTestStore : TestStore
         where TFixture : ComplexNavigationsQueryFixtureBase<TTestStore>, new()
     {
-        protected ComplexNavigationsContext CreateContext()
-        {
-            return Fixture.CreateContext(TestStore);
-        }
+        protected ComplexNavigationsContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected ComplexNavigationsQueryTestBase(TFixture fixture)
         {
@@ -35,10 +35,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
         }
 
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
+        public void Dispose() => TestStore.Dispose();
 
         [ConditionalFact]
         public virtual void Data_reader_is_closed_correct_number_of_times_for_include_queries_on_optional_navigations()
@@ -156,10 +153,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [ConditionalFact]
         public virtual void Multi_level_include_with_short_circuiting()
         {
-            var fieldLabels = new Dictionary<string, string>();
-            var fieldPlaceholders = new Dictionary<string, string>();
-            var stringGlobalizations = new Dictionary<string, List<string>>();
-            var globalizationLanguages = new Dictionary<string, string>();
+            Dictionary<string, string> fieldLabels;
+            Dictionary<string, string> fieldPlaceholders;
+            Dictionary<string, List<string>> stringGlobalizations;
+            Dictionary<string, string> globalizationLanguages;
 
             using (var context = CreateContext())
             {
@@ -198,10 +195,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var expectedFieldCount = 2;
                 Assert.Equal(expectedFieldCount, result.Count);
-                Assert.True((result.Select(r => r.Name).Contains("Field1")));
-                Assert.True((result.Select(r => r.Name).Contains("Field2")));
+                Assert.True(result.Select(r => r.Name).Contains("Field1"));
+                Assert.True(result.Select(r => r.Name).Contains("Field2"));
 
-                for (int i = 0; i < expectedFieldCount; i++)
+                for (var i = 0; i < expectedFieldCount; i++)
                 {
                     Assert.Equal(fieldLabels[result[i]?.Name], result[i].Label?.DefaultText);
                     Assert.Equal(fieldPlaceholders[result[i]?.Name], result[i].Placeholder?.DefaultText);
@@ -743,7 +740,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.Equal(expected[i].Count, result[i].Count());
                 }
@@ -771,15 +768,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
             }
         }
 
-        // issue #4262
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_nav_prop_reference_optional1_via_DefaultIfEmpty()
         {
             List<string> expected;
@@ -806,7 +802,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
@@ -834,15 +830,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
             }
         }
 
-        // issue #4262
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_nav_prop_reference_optional2_via_DefaultIfEmpty()
         {
             List<int?> expected;
@@ -869,7 +864,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
@@ -901,15 +896,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
             }
         }
 
-        // issue #4262
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Where_nav_prop_reference_optional1_via_DefaultIfEmpty()
         {
             List<int> expected;
@@ -942,7 +936,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
@@ -974,15 +968,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
             }
         }
 
-        // issue #4262
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Where_nav_prop_reference_optional2_via_DefaultIfEmpty()
         {
             List<int> expected;
@@ -1015,7 +1008,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
@@ -1045,15 +1038,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.Equal(expected[i], result[i]);
                 }
             }
         }
 
-        // issue #4262
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty()
         {
             List<int> expected;
@@ -1082,7 +1074,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
-                for (int i = 0; i < result.Count; i++)
+                for (var i = 0; i < result.Count; i++)
                 {
                     Assert.True(expected.Contains(result[i]));
                 }
@@ -1099,7 +1091,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 expected = context.LevelOne
                     .Include(e => e.OneToOne_Optional_FK)
                     .ToList()
-                    .Sum(e => (e.OneToOne_Optional_FK?.Level1_Required_Id ?? 0));
+                    .Sum(e => e.OneToOne_Optional_FK?.Level1_Required_Id ?? 0);
             }
 
             ClearLog();
@@ -1112,8 +1104,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        // issue #4262
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty()
         {
             int expected;
