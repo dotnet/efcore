@@ -217,7 +217,7 @@ Register-TabExpansion Script-Migration @{
     Specifies the ending migration. If omitted, the last migration is used.
 
 .PARAMETER Idempotent
-    Generates an idempotent script that can used on a database at any migration.
+    Generates an idempotent script that can be used on a database at any migration.
 
 .PARAMETER Context
     Specifies the DbContext to use. If omitted, the default DbContext is used.
