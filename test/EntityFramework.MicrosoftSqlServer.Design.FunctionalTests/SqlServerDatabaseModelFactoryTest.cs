@@ -108,12 +108,12 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                         Assert.Equal(new List<int> { 1, 2 }, clusteredIndex.IndexColumns.Select(ic => ic.Ordinal).ToList());
                     },
                 pkIndex =>
-                {
-                    Assert.StartsWith("PK__Place", pkIndex.Name);
-                    Assert.True(pkIndex.IsUnique);
-                    Assert.False(pkIndex.SqlServer().IsClustered);
-                    Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
-                },
+                    {
+                        Assert.StartsWith("PK__Place", pkIndex.Name);
+                        Assert.True(pkIndex.IsUnique);
+                        Assert.False(pkIndex.SqlServer().IsClustered);
+                        Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
+                    },
                 unique =>
                     {
                         Assert.True(unique.IsUnique);
@@ -186,10 +186,10 @@ CREATE TABLE [dbo].[MountainsColumns] (
                         Assert.Equal("('October 20, 2015 11am')", created.DefaultValue);
                     },
                 discovered =>
-                     {
-                         Assert.Equal("DiscoveredDate", discovered.Name);
-                         Assert.Equal(7, discovered.SqlServer().DateTimePrecision);
-                     },
+                    {
+                        Assert.Equal("DiscoveredDate", discovered.Name);
+                        Assert.Equal(7, discovered.SqlServer().DateTimePrecision);
+                    },
                 sum =>
                     {
                         Assert.Equal("Sum", sum.Name);

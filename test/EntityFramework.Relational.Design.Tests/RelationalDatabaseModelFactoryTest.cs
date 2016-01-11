@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -40,16 +41,16 @@ namespace Microsoft.Data.Entity.Relational.Design
                     new TableModel
                     {
                         Name = "tableWithSchema", SchemaName = "public",
-                         Columns = { IdColumn }
+                        Columns = { IdColumn }
                     },
                     new TableModel
                     {
                         Name = "noSchema",
-                         Columns = { IdColumn }
+                        Columns = { IdColumn }
                     },
                     new TableModel
                     {
-                        Name = "notScaffoldable",
+                        Name = "notScaffoldable"
                     }
                 }
             };
@@ -256,7 +257,8 @@ namespace Microsoft.Data.Entity.Relational.Design
             table.Indexes.Add(new IndexModel
             {
                 Name = "IDX_C2_C1",
-                IndexColumns = {
+                IndexColumns =
+                {
                     new IndexColumnModel { Column = table.Columns.ElementAt(1) },
                     new IndexColumnModel { Column = table.Columns.ElementAt(0) }
                 },
@@ -328,10 +330,10 @@ namespace Microsoft.Data.Entity.Relational.Design
             {
                 Table = childrenTable,
                 PrincipalTable = parentTable,
-                OnDelete = Migrations.ReferentialAction.Cascade,
-                Columns = 
+                OnDelete = ReferentialAction.Cascade,
+                Columns =
                 {
-                    new ForeignKeyColumnModel 
+                    new ForeignKeyColumnModel
                     {
                         Ordinal = 1,
                         Column = childrenTable.Columns.ElementAt(1),
@@ -367,7 +369,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             {
                 Table = childrenTable,
                 PrincipalTable = parentTable,
-                OnDelete = Migrations.ReferentialAction.NoAction,
+                OnDelete = ReferentialAction.NoAction,
                 Columns =
                 {
                     new ForeignKeyColumnModel
@@ -415,7 +417,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             {
                 Table = childrenTable,
                 PrincipalTable = parentTable,
-                OnDelete = Migrations.ReferentialAction.SetNull,
+                OnDelete = ReferentialAction.SetNull,
                 Columns =
                 {
                     new ForeignKeyColumnModel
@@ -429,7 +431,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                         Ordinal = 1,
                         Column = childrenTable.Columns.ElementAt(2),
                         PrincipalColumn = parentTable.Columns.ElementAt(1)
-                    },
+                    }
                 }
             });
 
@@ -600,7 +602,8 @@ namespace Microsoft.Data.Entity.Relational.Design
             childrenTable.Indexes.Add(new IndexModel
             {
                 IsUnique = true,
-                IndexColumns = {
+                IndexColumns =
+                {
                     new IndexColumnModel { Column = childrenTable.Columns.ElementAt(1) },
                     new IndexColumnModel { Column = childrenTable.Columns.ElementAt(2) }
                 }
@@ -622,7 +625,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                         Ordinal = 1,
                         Column = childrenTable.Columns.ElementAt(2),
                         PrincipalColumn = parentTable.Columns.ElementAt(1)
-                    },
+                    }
                 }
             });
 
@@ -695,7 +698,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             {
                 Sequences =
                 {
-                    new SequenceModel { Name = "CountByThree", IncrementBy = 3 },
+                    new SequenceModel { Name = "CountByThree", IncrementBy = 3 }
                 }
             };
 
@@ -716,7 +719,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
     public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
-        public IModel Create(DatabaseModel databaseModel) => base.CreateFromDatabaseModel(databaseModel);
+        public IModel Create(DatabaseModel databaseModel) => CreateFromDatabaseModel(databaseModel);
 
         public FakeScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory)
@@ -742,18 +745,18 @@ namespace Microsoft.Data.Entity.Relational.Design
 
         private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
             = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(string), _string },
-                    { typeof(long), _long }
-                };
+            {
+                { typeof(string), _string },
+                { typeof(long), _long }
+            };
 
         private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
             = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "string", _string },
-                    { "alias for string", _string },
-                    { "long", _long }
-                };
+            {
+                { "string", _string },
+                { "alias for string", _string },
+                { "long", _long }
+            };
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
             => _simpleMappings;

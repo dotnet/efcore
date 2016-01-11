@@ -31,9 +31,10 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         public bool Exists(int index) => Exists(Files[index]);
         public bool Exists(string filepath) => _fileService.FileExists(Directory, filepath);
         public string Contents(int index) => Contents(Files[index]);
-        public string Contents(string filepath) => 
+
+        public string Contents(string filepath) =>
             _contentsReplacementFunc == null
-            ? _fileService.RetrieveFileContents(Directory, filepath)
-            : _contentsReplacementFunc(_fileService.RetrieveFileContents(Directory, filepath));
+                ? _fileService.RetrieveFileContents(Directory, filepath)
+                : _contentsReplacementFunc(_fileService.RetrieveFileContents(Directory, filepath));
     }
 }

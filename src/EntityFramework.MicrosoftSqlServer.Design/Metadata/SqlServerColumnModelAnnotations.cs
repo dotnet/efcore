@@ -19,15 +19,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
 
         public virtual int? DateTimePrecision
         {
-            get
-            {
-                return _column[SqlServerDatabaseModelAnnotationNames.DateTimePrecision] as int?;
-            }
-            [param: CanBeNull]
-            set
-            {
-                _column[SqlServerDatabaseModelAnnotationNames.DateTimePrecision] = value;
-            }
+            get { return _column[SqlServerDatabaseModelAnnotationNames.DateTimePrecision] as int?; }
+            [param: CanBeNull] set { _column[SqlServerDatabaseModelAnnotationNames.DateTimePrecision] = value; }
         }
 
         public virtual bool IsIdentity
@@ -37,11 +30,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
                 var value = _column[SqlServerDatabaseModelAnnotationNames.IsIdentity];
                 return value is bool ? (bool)value : false;
             }
-            [param: NotNull]
-            set
-            {
-                _column[SqlServerDatabaseModelAnnotationNames.IsIdentity] = value;
-            }
+            [param: NotNull] set { _column[SqlServerDatabaseModelAnnotationNames.IsIdentity] = value; }
         }
     }
 }

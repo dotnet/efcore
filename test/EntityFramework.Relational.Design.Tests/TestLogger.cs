@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
         public TestLogger Logger { get; }
     }
+
     public class TestLoggerProvider : ILoggerProvider
     {
         private readonly ILogger _logger;

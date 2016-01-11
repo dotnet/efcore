@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
 {
-
     public class TestLoggerProvider : ILoggerProvider
     {
         private readonly ILogger _logger;

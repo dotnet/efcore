@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Design
@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void It_adds_reads_nav_prop_names()
         {
-            var modelBuilder = new ModelBuilder(new Metadata.Conventions.ConventionSet());
-            IMutableForeignKey fk = null; 
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            IMutableForeignKey fk = null;
             modelBuilder.Entity("A", b =>
                 {
                     b.Property<int>("Id");
@@ -54,13 +54,13 @@ namespace Microsoft.Data.Entity.Relational.Design
 
         [Fact]
         public void It_sets_gets_entity_type_errors()
-        { 
+        {
             var model = new Model();
 
             model.Scaffolding().EntityTypeErrors.Add("ET", "FAIL!");
             Assert.Equal("FAIL!", model.Scaffolding().EntityTypeErrors["ET"]);
 
-            model.Scaffolding().EntityTypeErrors = new Dictionary<string,string>();
+            model.Scaffolding().EntityTypeErrors = new Dictionary<string, string>();
             Assert.Empty(model.Scaffolding().EntityTypeErrors.Values);
 
             model.Scaffolding().EntityTypeErrors["ET"] = "FAIL 2!";

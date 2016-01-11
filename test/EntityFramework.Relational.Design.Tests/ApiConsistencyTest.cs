@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly 
+        protected override Assembly TargetAssembly
             => typeof(IScaffoldingModelFactory).GetTypeInfo().Assembly;
     }
 }

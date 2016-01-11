@@ -11,25 +11,25 @@ namespace Microsoft.Data.Entity.Scaffolding
     internal static class SqlServerTableSelectionSetExtensions
     {
         private static readonly List<string> schemaPatterns = new List<string>
-            {
-                "{schema}",
-                "[{schema}]",
-            };
+        {
+            "{schema}",
+            "[{schema}]"
+        };
 
         private static readonly List<string> tablePatterns = new List<string>
-            {
-                "{schema}.{table}",
-                "[{schema}].[{table}]",
-                "{schema}.[{table}]",
-                "[{schema}].{table}",
-                "{table}",
-                "[{table}]",
-            };
+        {
+            "{schema}.{table}",
+            "[{schema}].[{table}]",
+            "{schema}.[{table}]",
+            "[{schema}].{table}",
+            "{table}",
+            "[{table}]"
+        };
 
         /// <summary>
-        /// Tests whether the schema/table is allowed by the <see cref="TableSelectionSet" />
-        /// and updates the <see cref="TableSelectionSet" />'s <see cref="TableSelectionSet.Selection" />(s)
-        /// to mark that they have been matched.
+        ///     Tests whether the schema/table is allowed by the <see cref="TableSelectionSet" />
+        ///     and updates the <see cref="TableSelectionSet" />'s <see cref="TableSelectionSet.Selection" />(s)
+        ///     to mark that they have been matched.
         /// </summary>
         /// <param name="tableSelectionSet"> the <see cref="TableSelectionSet" /> to test </param>
         /// <param name="schemaName"> name of the database schema to check </param>

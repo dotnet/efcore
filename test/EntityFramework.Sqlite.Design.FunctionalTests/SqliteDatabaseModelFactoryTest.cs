@@ -82,29 +82,26 @@ namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
 
             var indexes = dbModel.Tables.Single().Indexes;
 
-            Assert.All(indexes, c =>
-            {
-                Assert.Equal("Place", c.Table.Name);
-            });
+            Assert.All(indexes, c => { Assert.Equal("Place", c.Table.Name); });
 
             Assert.Collection(indexes.OrderBy(i => i.Name),
                 index =>
-                {
-                    Assert.Equal("IX_Location_Name", index.Name);
-                    Assert.False(index.IsUnique);
-                    Assert.Equal(new List<string> { "Location", "Name" }, index.IndexColumns.Select(ic => ic.Column.Name).ToList());
-                    Assert.Equal(new List<int> { 0, 1 }, index.IndexColumns.Select(ic => ic.Ordinal).ToList());
-                },
+                    {
+                        Assert.Equal("IX_Location_Name", index.Name);
+                        Assert.False(index.IsUnique);
+                        Assert.Equal(new List<string> { "Location", "Name" }, index.IndexColumns.Select(ic => ic.Column.Name).ToList());
+                        Assert.Equal(new List<int> { 0, 1 }, index.IndexColumns.Select(ic => ic.Ordinal).ToList());
+                    },
                 pkIndex =>
-                {
-                    Assert.True(pkIndex.IsUnique);
-                    Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
-                },
+                    {
+                        Assert.True(pkIndex.IsUnique);
+                        Assert.Equal(new List<string> { "Id" }, pkIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
+                    },
                 unique =>
-                {
-                    Assert.True(unique.IsUnique);
-                    Assert.Equal("Name", unique.IndexColumns.Single().Column.Name);
-                });
+                    {
+                        Assert.True(unique.IsUnique);
+                        Assert.Equal("Name", unique.IndexColumns.Single().Column.Name);
+                    });
         }
 
         [Fact]
@@ -121,48 +118,45 @@ CREATE TABLE [MountainsColumns] (
 
             var columns = dbModel.Tables.Single().Columns.OrderBy(c => c.Ordinal);
 
-            Assert.All(columns, c =>
-            {
-                Assert.Equal("MountainsColumns", c.Table.Name);
-            });
+            Assert.All(columns, c => { Assert.Equal("MountainsColumns", c.Table.Name); });
 
             Assert.Collection(columns,
                 id =>
-                {
-                    Assert.Equal("Id", id.Name);
-                    Assert.Equal("integer", id.DataType);
-                    Assert.Equal(1, id.PrimaryKeyOrdinal);
-                    Assert.False(id.IsNullable);
-                    Assert.Equal(0, id.Ordinal);
-                    Assert.Null(id.DefaultValue);
-                },
+                    {
+                        Assert.Equal("Id", id.Name);
+                        Assert.Equal("integer", id.DataType);
+                        Assert.Equal(1, id.PrimaryKeyOrdinal);
+                        Assert.False(id.IsNullable);
+                        Assert.Equal(0, id.Ordinal);
+                        Assert.Null(id.DefaultValue);
+                    },
                 name =>
-                {
-                    Assert.Equal("Name", name.Name);
-                    Assert.Equal("string", name.DataType);
-                    Assert.Null(name.PrimaryKeyOrdinal);
-                    Assert.False(name.IsNullable);
-                    Assert.Equal(1, name.Ordinal);
-                    Assert.Null(name.DefaultValue);
-                },
+                    {
+                        Assert.Equal("Name", name.Name);
+                        Assert.Equal("string", name.DataType);
+                        Assert.Null(name.PrimaryKeyOrdinal);
+                        Assert.False(name.IsNullable);
+                        Assert.Equal(1, name.Ordinal);
+                        Assert.Null(name.DefaultValue);
+                    },
                 lat =>
-                {
-                    Assert.Equal("Latitude", lat.Name);
-                    Assert.Equal("numeric", lat.DataType);
-                    Assert.Null(lat.PrimaryKeyOrdinal);
-                    Assert.True(lat.IsNullable);
-                    Assert.Equal(2, lat.Ordinal);
-                    Assert.Equal("0.0", lat.DefaultValue);
-                    Assert.Null(lat.Precision);
-                    Assert.Null(lat.Scale);
-                    Assert.Null(lat.MaxLength);
-                },
+                    {
+                        Assert.Equal("Latitude", lat.Name);
+                        Assert.Equal("numeric", lat.DataType);
+                        Assert.Null(lat.PrimaryKeyOrdinal);
+                        Assert.True(lat.IsNullable);
+                        Assert.Equal(2, lat.Ordinal);
+                        Assert.Equal("0.0", lat.DefaultValue);
+                        Assert.Null(lat.Precision);
+                        Assert.Null(lat.Scale);
+                        Assert.Null(lat.MaxLength);
+                    },
                 created =>
-                {
-                    Assert.Equal("Created", created.Name);
-                    Assert.Equal("datetime", created.DataType);
-                    Assert.Equal("'October 20, 2015 11am'", created.DefaultValue);
-                });
+                    {
+                        Assert.Equal("Created", created.Name);
+                        Assert.Equal("datetime", created.DataType);
+                        Assert.Equal("'October 20, 2015 11am'", created.DefaultValue);
+                    });
         }
 
         [Fact]

@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             while (_usedNames.Contains(name))
             {
-                name = input + (suffix++);
+                name = input + suffix++;
             }
 
             _usedNames.Add(name);

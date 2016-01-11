@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             Check.NotNull(uniquifier, nameof(uniquifier));
 
             var proposedIdentifier =
-                (identifier.Length > 1 && identifier[0] == '@')
+                identifier.Length > 1 && identifier[0] == '@'
                     ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
                     : _invalidCharsRegex.Replace(identifier, "_");
             if (string.IsNullOrEmpty(proposedIdentifier))
@@ -289,7 +289,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             { typeof(decimal), "decimal" }
         };
 
-
         public virtual string GetTypeName([NotNull] Type propertyType)
         {
             Check.NotNull(propertyType, nameof(propertyType));
@@ -326,7 +325,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             }
 
             var nameLength = name.Length;
-            for (int i = 1; i < nameLength; i++)
+            for (var i = 1; i < nameLength; i++)
             {
                 if (!IsIdentifierPartCharacter(name[i]))
                 {
@@ -347,7 +346,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 }
 
                 return ch <= 'Z'
-                    || ch == '_';
+                       || ch == '_';
             }
             if (ch <= 'z')
             {
@@ -368,11 +367,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 if (ch < 'A')
                 {
                     return ch >= '0'
-                        && ch <= '9';
+                           && ch <= '9';
                 }
 
                 return ch <= 'Z'
-                    || ch == '_';
+                       || ch == '_';
             }
             if (ch <= 'z')
             {

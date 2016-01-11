@@ -8,14 +8,14 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
+using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
     {
         protected override string ProviderName => "EntityFramework.MicrosoftSqlServer.Design";
 
-        protected override void ConfigureDesignTimeServices(IServiceCollection services) 
+        protected override void ConfigureDesignTimeServices(IServiceCollection services)
             => new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
         public virtual string TestNamespace => "E2ETest.Namespace";
@@ -32,7 +32,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         public virtual string CustomizedTemplateDir => Path.Combine("E2ETest", "CustomizedTemplate", "Dir");
 
         public static TableSelectionSet Filter
-            => new TableSelectionSet(new List<string>{
+            => new TableSelectionSet(new List<string>
+            {
                 "AllDataTypes",
                 "PropertyConfiguration",
                 "Test Spaces Keywords Table",
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 "OneToOneFKToUniqueKeyPrincipal",
                 "ReferredToByTableWithUnmappablePrimaryKeyColumn",
                 "TableWithUnmappablePrimaryKeyColumn",
-                "selfreferencing",
+                "selfreferencing"
             });
 
         public SqlServerE2ETests(SqlServerE2EFixture fixture, ITestOutputHelper output)
@@ -57,51 +58,54 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         protected override E2ECompiler GetCompiler() => new E2ECompiler
         {
             NamedReferences =
-                    {
-                        "EntityFramework.Core",
-                        "EntityFramework.Relational",
-                        "EntityFramework.MicrosoftSqlServer",
+            {
+                "EntityFramework.Core",
+                "EntityFramework.Relational",
+                // ReSharper disable once RedundantCommaInInitializer
+                "EntityFramework.MicrosoftSqlServer",
 #if DNXCORE50 || NETCORE50
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",
                         "System.ComponentModel.Annotations",
 #else
-                    },
+            },
             References =
-                    {
-                        MetadataReference.CreateFromFile(
-                            Assembly.Load(new AssemblyName(
-                                "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
-                        MetadataReference.CreateFromFile(
-                            Assembly.Load(new AssemblyName(
-                                "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location),
+            {
+                MetadataReference.CreateFromFile(
+                    Assembly.Load(new AssemblyName(
+                        "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
+                MetadataReference.CreateFromFile(
+                    Assembly.Load(new AssemblyName(
+                        "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location)
 #endif
-                    }
+            }
         };
 
         // weird extenstion method call because the compiler can't disambiguate without adding a project reference
         // ApplyConfiguration swaps out the Server if this tests are configured to run against something different that localdb.
-        private string _connectionString = SqlConnectionStringBuilderExtensions.ApplyConfiguration(
-            new SqlConnectionStringBuilder(@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30"))
+        // ReSharper disable once InvokeAsExtensionMethod
+        private readonly string _connectionString =
+            SqlConnectionStringBuilderExtensions.ApplyConfiguration(
+                new SqlConnectionStringBuilder(@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30"))
                 .ConnectionString;
 
         private static readonly List<string> _expectedEntityTypeFiles = new List<string>
-            {
-                "AllDataTypes.expected",
-                "OneToManyDependent.expected",
-                "OneToManyPrincipal.expected",
-                "OneToOneDependent.expected",
-                "OneToOneFKToUniqueKeyDependent.expected",
-                "OneToOneFKToUniqueKeyPrincipal.expected",
-                "OneToOnePrincipal.expected",
-                "OneToOneSeparateFKDependent.expected",
-                "OneToOneSeparateFKPrincipal.expected",
-                "PropertyConfiguration.expected",
-                "ReferredToByTableWithUnmappablePrimaryKeyColumn.expected",
-                "SelfReferencing.expected",
-                "Test_Spaces_Keywords_Table.expected"
-            };
+        {
+            "AllDataTypes.expected",
+            "OneToManyDependent.expected",
+            "OneToManyPrincipal.expected",
+            "OneToOneDependent.expected",
+            "OneToOneFKToUniqueKeyDependent.expected",
+            "OneToOneFKToUniqueKeyPrincipal.expected",
+            "OneToOnePrincipal.expected",
+            "OneToOneSeparateFKDependent.expected",
+            "OneToOneSeparateFKPrincipal.expected",
+            "PropertyConfiguration.expected",
+            "ReferredToByTableWithUnmappablePrimaryKeyColumn.expected",
+            "SelfReferencing.expected",
+            "Test_Spaces_Keywords_Table.expected"
+        };
 
         [Fact]
         [UseCulture("en-US")]
@@ -114,7 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 ProjectPath = TestProjectDir + Path.DirectorySeparatorChar, // tests that ending DirectorySeparatorChar does not affect namespace
                 ProjectRootNamespace = TestNamespace,
                 OutputPath = TestSubDir,
-                TableSelectionSet = Filter,
+                TableSelectionSet = Filter
             };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
@@ -129,25 +133,25 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir)
                     .Replace("{{connectionString}}", _connectionString))
             {
-                Files = (new List<string> { "AttributesContext.expected" })
+                Files = new List<string> { "AttributesContext.expected" }
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
             AssertLog(new LoggerMessages
             {
                 Warn =
-                        {
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
-                            RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex"),
-                            SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID","tinyint"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                            RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
-                            RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"),
-                        }
+                {
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
+                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex"),
+                    SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
+                    RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn")
+                }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
@@ -164,7 +168,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 ProjectRootNamespace = TestNamespace,
                 OutputPath = null, // not used for this test
                 UseFluentApiOnly = true,
-                TableSelectionSet = Filter,
+                TableSelectionSet = Filter
             };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
@@ -178,25 +182,25 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_AllFluentApi"),
                 inputFile => inputFile.Replace("{{connectionString}}", _connectionString))
             {
-                Files = (new List<string> { "SqlServerReverseEngineerTestE2EContext.expected" })
+                Files = new List<string> { "SqlServerReverseEngineerTestE2EContext.expected" }
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 
             AssertLog(new LoggerMessages
             {
                 Warn =
-                        {
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
-                            RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex"),
-                            SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID","tinyint"),
-                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                            RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
-                            RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"),
-                        }
+                {
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
+                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex"),
+                    SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
+                    RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
+                    RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn")
+                }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
@@ -243,7 +247,7 @@ CREATE SEQUENCE NumericSequence
                     ConnectionString = scratch.Connection.ConnectionString,
                     ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
                     ProjectRootNamespace = TestNamespace,
-                    ContextClassName = "SequenceContext",
+                    ContextClassName = "SequenceContext"
                 };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "ExpectedResults"),

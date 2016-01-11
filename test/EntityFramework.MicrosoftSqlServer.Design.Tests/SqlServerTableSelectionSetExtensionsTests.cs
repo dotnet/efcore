@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
             // When Allows() runs against a table which matches just on a schema then
             // those schema selections' IsMatched are marked true (regardless of square brackets)
             // but the table selections' IsMatched remain false
-            Assert.True(SqlServerTableSelectionSetExtensions.Allows(tableSelectionSet, "schemaA", "tableOther"));
+            Assert.True(tableSelectionSet.Allows("schemaA", "tableOther"));
             Assert.True(schemaASelection.IsMatched);
             Assert.True(schemaASelectionWithSquareBrackets.IsMatched);
             Assert.False(schemaBSelection.IsMatched);
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
             // When Allows() runs against a table which matches just on a table then
             // those table selections' IsMatched are marked true (regardless of square brackets)
             // the schema selections' IsMatched remain as they were before
-            Assert.True(SqlServerTableSelectionSetExtensions.Allows(tableSelectionSet, "schemaOther", "table0"));
+            Assert.True(tableSelectionSet.Allows("schemaOther", "table0"));
             Assert.True(schemaASelection.IsMatched);
             Assert.True(schemaASelectionWithSquareBrackets.IsMatched);
             Assert.False(schemaBSelection.IsMatched);
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
             Assert.False(table1SelectionWithSquareBrackets.IsMatched);
 
             // When Allows() runs against a non-selected schema/table no further schema or table selection is marked true
-            Assert.False(SqlServerTableSelectionSetExtensions.Allows(tableSelectionSet, "schemaOther", "tableOther"));
+            Assert.False(tableSelectionSet.Allows("schemaOther", "tableOther"));
             Assert.True(schemaASelection.IsMatched);
             Assert.True(schemaASelectionWithSquareBrackets.IsMatched);
             Assert.False(schemaBSelection.IsMatched);
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
             // When Allows() runs against a table which matches on both schema and table then
             // both the matching schema selections' and the matching table selections' IsMatched
             // are marked true (regardless of square brackets)
-            Assert.True(SqlServerTableSelectionSetExtensions.Allows(tableSelectionSet, "schemaB", "table1"));
+            Assert.True(tableSelectionSet.Allows("schemaB", "table1"));
             Assert.True(schemaASelection.IsMatched);
             Assert.True(schemaASelectionWithSquareBrackets.IsMatched);
             Assert.True(schemaBSelection.IsMatched);
@@ -94,11 +94,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         public void Allows_updates_IsMatched_for_matching_table_selections_which_specify_schema()
         {
             var tableNames = new List<string>
-                {
-                    "schema0.table0", "[schema0].[table0]", "[schema0].table0", "schema0.[table0]",
-                    "schema0.table1", "[schema0].[table1]", "[schema0].table1", "schema0.[table1]",
-                    "schema1.table0", "[schema1].[table0]", "[schema1].table0", "schema1.[table0]",
-                };
+            {
+                "schema0.table0", "[schema0].[table0]", "[schema0].table0", "schema0.[table0]",
+                "schema0.table1", "[schema0].[table1]", "[schema0].table1", "schema0.[table1]",
+                "schema1.table0", "[schema1].[table0]", "[schema1].table0", "schema1.[table0]"
+            };
             var tableSelectionSet = new TableSelectionSet(tableNames, null);
 
             Assert.Equal(0, tableSelectionSet.Schemas.Count);
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
                 Assert.False(table.IsMatched);
             }
 
-            Assert.True(SqlServerTableSelectionSetExtensions.Allows(tableSelectionSet, "schema0", "table0"));
+            Assert.True(tableSelectionSet.Allows("schema0", "table0"));
             foreach (var table in tableSelectionSet.Tables.Take(4))
             {
                 Assert.True(table.IsMatched);

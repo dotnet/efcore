@@ -24,11 +24,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
                 var value = _index[SqlServerDatabaseModelAnnotationNames.IsClustered];
                 return value is bool ? (bool)value : false;
             }
-            [param: NotNull]
-            set
-            {
-                _index[SqlServerDatabaseModelAnnotationNames.IsClustered] = value;
-            }
+            [param: NotNull] set { _index[SqlServerDatabaseModelAnnotationNames.IsClustered] = value; }
         }
     }
 }

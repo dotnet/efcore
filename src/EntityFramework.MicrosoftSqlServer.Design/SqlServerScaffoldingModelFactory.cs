@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
@@ -11,7 +10,6 @@ using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Scaffolding
@@ -39,7 +37,7 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             var propertyBuilder = base.VisitColumn(builder, column);
 
-            if(propertyBuilder == null)
+            if (propertyBuilder == null)
             {
                 return null;
             }
@@ -55,7 +53,7 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             var keyBuilder = base.VisitPrimaryKey(builder, table);
 
-            if(keyBuilder == null)
+            if (keyBuilder == null)
             {
                 return null;
             }
@@ -67,7 +65,8 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             // TODO use KeyConvention directly to detect when it will be applied
             var pkColumns = table.Columns.Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
-            if (pkColumns.Count != 1 || pkColumns[0].SqlServer().IsIdentity)
+            if (pkColumns.Count != 1
+                || pkColumns[0].SqlServer().IsIdentity)
             {
                 return keyBuilder;
             }
@@ -115,7 +114,8 @@ namespace Microsoft.Data.Entity.Scaffolding
                 }
             }
 
-            if (column.SqlServer().DateTimePrecision.HasValue && column.SqlServer().DateTimePrecision != DefaultTimeTimePrecision)
+            if (column.SqlServer().DateTimePrecision.HasValue
+                && column.SqlServer().DateTimePrecision != DefaultTimeTimePrecision)
             {
                 propertyBuilder.Metadata.SetMaxLength(null);
                 propertyBuilder.HasColumnType($"{column.DataType}({column.SqlServer().DateTimePrecision.Value})");
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 if (defaultExpression != null)
                 {
                     if (!(defaultExpression == "NULL"
-                            && propertyBuilder.Metadata.ClrType.IsNullableType()))
+                          && propertyBuilder.Metadata.ClrType.IsNullableType()))
                     {
                         propertyBuilder.HasDefaultValueSql(defaultExpression);
                     }

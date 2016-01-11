@@ -351,7 +351,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         {
                             Table = table,
                             Name = indexName,
-                            IsUnique = reader.IsDBNull(3) ? false : reader.GetBoolean(3),
+                            IsUnique = reader.IsDBNull(3) ? false : reader.GetBoolean(3)
                         };
                         index.SqlServer().IsClustered = reader.GetStringOrNull(5) == "CLUSTERED";
 
@@ -453,7 +453,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                             Table = table,
                             PrincipalTable = principalTable,
                             OnDelete = ConvertToReferentialAction(reader.GetStringOrNull(8))
-                    };
+                        };
 
                         table.ForeignKeys.Add(fkInfo);
                     }

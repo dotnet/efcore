@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
             GetModel(sql);
 
             Assert.Contains("Warning: " +
-                RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound("Children(ParentId)"),
+                            RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound("Children(ParentId)"),
                 _logger.FullLog);
         }
 

@@ -9,9 +9,9 @@ namespace Microsoft.Data.Entity.Scaffolding
     internal static class SqliteTableSelectionSetExtensions
     {
         /// <summary>
-        /// Tests whether the table is allowed by the <see cref="TableSelectionSet" /> and
-        /// updates the <see cref="TableSelectionSet" />'s <see cref="TableSelectionSet.Selection" />(s)
-        /// to mark that they have been matched.
+        ///     Tests whether the table is allowed by the <see cref="TableSelectionSet" /> and
+        ///     updates the <see cref="TableSelectionSet" />'s <see cref="TableSelectionSet.Selection" />(s)
+        ///     to mark that they have been matched.
         /// </summary>
         /// <param name="tableSelectionSet"> the <see cref="TableSelectionSet" /> to test </param>
         /// <param name="tableName"> name of the database table to check </param>

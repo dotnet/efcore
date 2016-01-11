@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 {
     public class TableSelectionSet
     {
-        public readonly static TableSelectionSet All = new TableSelectionSet();
+        public static readonly TableSelectionSet All = new TableSelectionSet();
 
         public TableSelectionSet()
             : this(null, null)

@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
                 {
                     Assert.Contains(message, actual);
                 }
-                
+
                 Assert.Equal(expected.Count, actual.Count);
             }
             catch (Exception)

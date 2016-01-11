@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design
             }
 
             // When Allows() runs the matching table selection is marked true
-            Assert.True(SqliteTableSelectionSetExtensions.Allows(tableSelectionSet, "table0"));
+            Assert.True(tableSelectionSet.Allows("table0"));
             var table0Selection = tableSelectionSet.Tables.First();
             var table1Selection = tableSelectionSet.Tables.Skip(1).First();
             var table2Selection = tableSelectionSet.Tables.Last();
@@ -34,13 +34,13 @@ namespace Microsoft.Data.Entity.Sqlite.Design
             Assert.False(table2Selection.IsMatched);
 
             // When Allows() runs again the 2nd table selection is also marked true
-            Assert.True(SqliteTableSelectionSetExtensions.Allows(tableSelectionSet, "table1"));
+            Assert.True(tableSelectionSet.Allows("table1"));
             Assert.True(table0Selection.IsMatched);
             Assert.True(table1Selection.IsMatched);
             Assert.False(table2Selection.IsMatched);
 
             // When Allows() runs a third time against a non-selected table no further table selection is marked true
-            Assert.False(SqliteTableSelectionSetExtensions.Allows(tableSelectionSet, "tableOther"));
+            Assert.False(tableSelectionSet.Allows("tableOther"));
             Assert.True(table0Selection.IsMatched);
             Assert.True(table1Selection.IsMatched);
             Assert.False(table2Selection.IsMatched);

@@ -237,7 +237,7 @@ CREATE TABLE Users_Groups (
                     Warn =
                     {
                         RelationalDesignStrings.MissingPrimaryKey("Alicia"),
-                        errorMessage,
+                        errorMessage
                     }
                 };
                 AssertLog(expectedLog);
@@ -283,7 +283,7 @@ CREATE TABLE Principal ( Id INT);");
                     Files =
                     {
                         "NoPrincipalPk" + DbSuffix + "Context.expected",
-                        "Dependent.expected",
+                        "Dependent.expected"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)
