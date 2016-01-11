@@ -522,23 +522,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
             using (var context = CreateContext())
             {
-                var cartidgeWeapons = context.Weapons
+                var cartridgeWeapons = context.Weapons
                     .Where(w => w.AmmunitionType == ammunitionType)
                     .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType })
                     .ToList();
 
-                Assert.True(cartidgeWeapons.All(t => t.Cartidge == true));
+                Assert.True(cartridgeWeapons.All(t => t.Cartidge == true));
             }
 
             ammunitionType = null;
             using (var context = CreateContext())
             {
-                var cartidgeWeapons = context.Weapons
+                var cartridgeWeapons = context.Weapons
                     .Where(w => w.AmmunitionType == ammunitionType)
                     .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType })
                     .ToList();
 
-                Assert.True(cartidgeWeapons.All(t => t.Cartidge == true));
+                Assert.True(cartridgeWeapons.All(t => t.Cartidge == true));
             }
         }
 
@@ -565,6 +565,73 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .ToList();
 
                 Assert.Equal(7, weapons.Count(w => w.Num == 1));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_ternary_operation_with_has_value_not_null()
+        {
+            using (var context = CreateContext())
+            {
+                var cartridgeWeapons = context.Weapons
+                    .Where(w => w.AmmunitionType.HasValue && w.AmmunitionType == AmmunitionType.Cartridge)
+                    .Select(w => new { w.Id, IsCartidge = w.AmmunitionType.HasValue && w.AmmunitionType.Value == AmmunitionType.Cartridge ? "Yes" : "No"})
+                    .ToList();
+
+                Assert.All(cartridgeWeapons,
+                    t => Assert.Equal("Yes", t.IsCartidge));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_ternary_operation_multiple_conditions()
+        {
+            using (var context = CreateContext())
+            {
+                var cartridgeWeapons = context.Weapons
+                    .Select(w => new { w.Id, IsCartidge = w.AmmunitionType == AmmunitionType.Shell && w.SynergyWithId == 1 ? "Yes" : "No" })
+                    .ToList();
+
+                Assert.Equal(9 , cartridgeWeapons.Count(w => w.IsCartidge == "No"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_ternary_operation_multiple_conditions_2()
+        {
+            using (var context = CreateContext())
+            {
+                var cartridgeWeapons = context.Weapons
+                    .Select(w => new { w.Id, IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1 ? "Yes" : "No" })
+                    .ToList();
+
+                Assert.Equal(9, cartridgeWeapons.Count(w => w.IsCartidge == "No"));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_multiple_conditions()
+        {
+            using (var context = CreateContext())
+            {
+                var cartridgeWeapons = context.Weapons
+                    .Select(w => new { w.Id, IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1})
+                    .ToList();
+
+                Assert.Equal(9, cartridgeWeapons.Count(w => !w.IsCartidge));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Select_nested_ternary_operations()
+        {
+            using (var context = CreateContext())
+            {
+                var cartridgeWeapons = context.Weapons
+                    .Select(w => new { w.Id, IsManualCartidge = !w.IsAutomatic ? w.AmmunitionType == AmmunitionType.Cartridge ? "ManualCartridge" : "Manual" : "Auto" })
+                    .ToList();
+
+                Assert.Equal(2, cartridgeWeapons.Count(w => w.IsManualCartidge == "ManualCartridge"));
             }
         }
 

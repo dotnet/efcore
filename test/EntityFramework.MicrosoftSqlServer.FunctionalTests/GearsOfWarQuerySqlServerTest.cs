@@ -606,6 +606,76 @@ FROM [Weapon] AS [w]",
                 Sql);
         }
 
+        public override void Select_ternary_operation_with_has_value_not_null()
+        {
+            // TODO: Optimize this query (See #4267)
+            base.Select_ternary_operation_with_has_value_not_null();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], CASE
+    WHEN [w].[AmmunitionType] IS NOT NULL AND (([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL)
+    THEN 'Yes' ELSE 'No'
+END
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] IS NOT NULL AND (([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL)",
+                Sql);
+        }
+
+        public override void Select_ternary_operation_multiple_conditions()
+        {
+            base.Select_ternary_operation_multiple_conditions();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], CASE
+    WHEN ([w].[AmmunitionType] = 2) AND ([w].[SynergyWithId] = 1)
+    THEN 'Yes' ELSE 'No'
+END
+FROM [Weapon] AS [w]",
+                Sql);
+        }
+
+        public override void Select_ternary_operation_multiple_conditions_2()
+        {
+            base.Select_ternary_operation_multiple_conditions_2();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], CASE
+    WHEN [w].[IsAutomatic] = 0 AND (([w].[SynergyWithId] = 1) AND [w].[SynergyWithId] IS NOT NULL)
+    THEN 'Yes' ELSE 'No'
+END
+FROM [Weapon] AS [w]",
+                Sql);
+        }
+
+        public override void Select_multiple_conditions()
+        {
+            base.Select_multiple_conditions();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], CASE
+    WHEN [w].[IsAutomatic] = 0 AND (([w].[SynergyWithId] = 1) AND [w].[SynergyWithId] IS NOT NULL)
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Weapon] AS [w]",
+                Sql);
+        }
+
+        public override void Select_nested_ternary_operations()
+        {
+            base.Select_nested_ternary_operations();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], CASE
+    WHEN [w].[IsAutomatic] = 0
+    THEN CASE
+        WHEN ([w].[AmmunitionType] = 1) AND [w].[AmmunitionType] IS NOT NULL
+        THEN 'ManualCartridge' ELSE 'Manual'
+    END ELSE 'Auto'
+END
+FROM [Weapon] AS [w]",
+                Sql);
+        }
+
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();

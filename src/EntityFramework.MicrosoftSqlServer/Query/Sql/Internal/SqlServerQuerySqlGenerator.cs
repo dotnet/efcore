@@ -102,9 +102,12 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
 
         private class ProjectionComparisonTransformingVisitor : RelinqExpressionVisitor
         {
+            private bool _insideConditionalTest = false;
+
             protected override Expression VisitUnary(UnaryExpression node)
             {
-                if (node.NodeType == ExpressionType.Not
+                if (!_insideConditionalTest
+                    && node.NodeType == ExpressionType.Not
                     && node.Operand is AliasExpression)
                 {
                     return Expression.Condition(
@@ -118,8 +121,10 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
 
             protected override Expression VisitBinary(BinaryExpression node)
             {
-                if (node.IsComparisonOperation())
-                {
+                if (!_insideConditionalTest
+                    && (node.IsComparisonOperation()
+                        || node.IsLogicalOperation()))
+                    {
                     return Expression.Condition(
                         node,
                         Expression.Constant(true, typeof(bool)),
@@ -132,7 +137,9 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
 
             protected override Expression VisitConditional(ConditionalExpression node)
             {
+                _insideConditionalTest = true;
                 var test = Visit(node.Test);
+                _insideConditionalTest = false;
                 if (test is AliasExpression)
                 {
                     return Expression.Condition(
@@ -149,7 +156,9 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
                         Visit(node.IfTrue),
                         Visit(node.IfFalse));
                 }
-                return base.VisitConditional(node);
+                return Expression.Condition(test,
+                    Visit(node.IfTrue),
+                    Visit(node.IfFalse));
             }
         }
 

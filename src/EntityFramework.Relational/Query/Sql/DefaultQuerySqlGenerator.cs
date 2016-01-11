@@ -174,22 +174,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 }
                 else
                 {
-                    var predicate
-                        = new NullComparisonTransformingVisitor(_parametersValues)
-                            .Visit(selectExpression.Predicate);
-
-                    var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
-                    var newPredicate = relationalNullsOptimizedExpandingVisitor.Visit(predicate);
-
-                    predicate
-                        = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
-                            ? newPredicate
-                            : new RelationalNullsExpandingVisitor().Visit(predicate);
-
-                    predicate = new PredicateNegationExpressionOptimizer().Visit(predicate);
-                    predicate = new ReducingExpressionVisitor().Visit(predicate);
-
-                    Visit(predicate);
+                    Visit(ApplyNullSemantics(selectExpression.Predicate));
 
                     if (selectExpression.Predicate is ParameterExpression
                         || selectExpression.Predicate.IsAliasWithColumnExpression()
@@ -227,12 +212,30 @@ namespace Microsoft.Data.Entity.Query.Sql
             return selectExpression;
         }
 
-        protected virtual void VisitProjection([NotNull] IReadOnlyList<Expression> projections)
+        private Expression ApplyNullSemantics(Expression expression)
         {
-            var nullComparisonTransformer = new NullComparisonTransformingVisitor(_parametersValues);
+            var newExpression
+                        = new NullComparisonTransformingVisitor(_parametersValues)
+                            .Visit(expression);
 
-            VisitJoin(projections.Select(e => nullComparisonTransformer.Visit(e)).ToList());
+            var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
+            var optimizedExpression = relationalNullsOptimizedExpandingVisitor.Visit(newExpression);
+
+            newExpression
+                = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
+                    ? optimizedExpression
+                    : new RelationalNullsExpandingVisitor().Visit(newExpression);
+
+            newExpression = new PredicateNegationExpressionOptimizer().Visit(newExpression);
+            newExpression = new ReducingExpressionVisitor().Visit(newExpression);
+
+            return newExpression;
         }
+
+        protected virtual void VisitProjection([NotNull] IReadOnlyList<Expression> projections) => VisitJoin(
+            projections
+                .Select(ApplyNullSemantics)
+                .ToList());
 
         protected virtual void GenerateOrderBy([NotNull] IReadOnlyList<Ordering> orderings)
         {
