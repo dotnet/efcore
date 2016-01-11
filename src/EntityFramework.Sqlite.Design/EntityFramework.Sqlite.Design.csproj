@@ -36,6 +36,12 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Shared\Check.cs</Link>
     </Compile>
@@ -49,10 +55,23 @@
       <Link>Shared\SharedTypeExtensions.cs</Link>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Properties\SqliteDesignStrings.Designer.cs">
+      <DependentUpon>SqliteDesignStrings.resx</DependentUpon>
+    </Compile>
     <Compile Include="SqliteScaffoldingModelFactory.cs" />
     <Compile Include="SqliteTableSelectionSetExtensions.cs" />
     <Compile Include="SqliteDesignTimeServices.cs" />
     <Compile Include="SqliteDatabaseModelFactory.cs" />
+    <EmbeddedResource Include="Properties\SqliteDesignStrings.resx">
+      <LogicalName>EntityFramework.Sqlite.Design.SqliteDesignStrings.resources</LogicalName>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
+    </Content>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

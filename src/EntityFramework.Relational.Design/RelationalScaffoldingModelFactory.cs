@@ -51,9 +51,26 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            var schemaInfo = _databaseModelFactory.Create(connectionString, tableSelectionSet ?? TableSelectionSet.All);
+            var databaseModel = _databaseModelFactory.Create(connectionString, tableSelectionSet ?? TableSelectionSet.All);
+            if (tableSelectionSet != null)
+            {
+                CheckSelectionsMatched(tableSelectionSet);
+            }
 
-            return CreateFromDatabaseModel(schemaInfo);
+            return CreateFromDatabaseModel(databaseModel);
+        }
+
+        public virtual void CheckSelectionsMatched([NotNull] TableSelectionSet tableSelectionSet)
+        {
+            foreach (var schemaSelection in tableSelectionSet.Schemas.Where(s => !s.IsMatched))
+            {
+                Logger.LogWarning(RelationalDesignStrings.MissingSchema(schemaSelection.Text));
+            }
+
+            foreach (var tableSelection in tableSelectionSet.Tables.Where(t => !t.IsMatched))
+            {
+                Logger.LogWarning(RelationalDesignStrings.MissingTable(tableSelection.Text));
+            }
         }
 
         protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel)
