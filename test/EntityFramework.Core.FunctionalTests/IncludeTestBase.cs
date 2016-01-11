@@ -1155,9 +1155,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        //[Fact]
-        // TODO: #4260
-        [ConditionalFact]
+        [Fact]
         public virtual void Include_with_skip()
         {
             using (var context = CreateContext())

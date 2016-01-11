@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,6 +9,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class IncludeSqlServerTest : IncludeTestBase<NorthwindQuerySqlServerFixture>
     {
+        private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
+
         public IncludeSqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
@@ -477,7 +478,7 @@ ORDER BY [c].[CustomerID]",
         {
             base.Include_duplicate_collection();
 
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            if (SupportsOffset)
             {
                 Assert.Equal(
                     @"@__p_0: 2
@@ -543,7 +544,7 @@ ORDER BY [t0].[CustomerID]",
         {
             base.Include_duplicate_collection_result_operator();
 
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            if (SupportsOffset)
             {
                 Assert.Equal(
                     @"@__p_1: 1
@@ -653,7 +654,7 @@ CROSS JOIN [Customers] AS [c]",
         public override void Include_duplicate_collection_result_operator2()
         {
             base.Include_duplicate_collection_result_operator2();
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            if (SupportsOffset)
             {
                 Assert.Equal(
                     @"@__p_1: 1
@@ -736,7 +737,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]",
         {
             base.Include_duplicate_reference();
 
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            if (SupportsOffset)
             {
                 Assert.Equal(
                     @"@__p_0: 2
@@ -763,7 +764,7 @@ LEFT JOIN [Customers] AS [c0] ON [t1].[CustomerID] = [c0].[CustomerID]",
         {
             base.Include_duplicate_reference2();
 
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            if (SupportsOffset)
             {
                 Assert.Equal(
                     @"@__p_0: 2
@@ -789,7 +790,7 @@ LEFT JOIN [Customers] AS [c] ON [t0].[CustomerID] = [c].[CustomerID]",
         {
             base.Include_duplicate_reference3();
 
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            if (SupportsOffset)
             {
                 Assert.Equal(
                     @"@__p_0: 2
@@ -971,14 +972,13 @@ ORDER BY [c].[City] DESC, [c].[CustomerID]",
                 Sql);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Include_with_skip()
         {
             base.Include_with_skip();
-
-            Assert.Equal(
-                @"@__p_0: 80
+            if (SupportsOffset)
+            {
+                Assert.Equal(
+                    @"@__p_0: 80
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -999,7 +999,8 @@ INNER JOIN (
     ) AS [t0]
 ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [c].[ContactName], [c].[CustomerID]",
-                Sql);
+                    Sql);
+            }
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

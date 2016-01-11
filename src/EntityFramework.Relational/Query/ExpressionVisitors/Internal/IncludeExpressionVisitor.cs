@@ -207,7 +207,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 else
                 {
                     var principalTable
-                        = selectExpression.Tables.Last(t => t.QuerySource == querySource);
+                        = (selectExpression.Tables.Count == 1)
+                            && selectExpression.Tables.OfType<SelectExpression>().Any(s => s.Tables.Any(t => t.QuerySource == querySource))
+                            // true when select is wrapped e.g. when RowNumber paging is enabled
+                            ? selectExpression.Tables[0]
+                            : selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
                     foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
                     {
