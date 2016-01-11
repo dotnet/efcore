@@ -3,6 +3,7 @@
   <PropertyGroup>
     <!-- TODO: Consider alternate solutions for working with project.json -->
     <CopyNuGetImplementations>true</CopyNuGetImplementations>
+    <_EfCommandsReferenced>true</_EfCommandsReferenced>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)..\..\lib\net451\**">

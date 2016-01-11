@@ -105,5 +105,8 @@
         "System.Threading.Tasks": "4.0.10"
       }
     }
+  },
+  "packInclude": {
+    "build/": "build/**",
   }
 }
