@@ -591,7 +591,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     if (![Type]::GetType('Microsoft.Data.Entity.Design.OperationResultHandler')) {
         Add-Type -Path (Join-Path $PSScriptRoot OperationHandlers.cs) -CompilerParameters (
             New-Object CodeDom.Compiler.CompilerParameters -Property @{
-                CompilerOptions = '/d:ENABLE_HANDLERS'
+                CompilerOptions = '/d:ENABLE_HANDLERS;NET451'
             })
     }
 

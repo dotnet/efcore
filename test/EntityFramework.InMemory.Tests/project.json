@@ -1,16 +1,16 @@
 {
   "compilationOptions": {
-    "keyFile":  "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
     "EntityFramework.Core.Tests": "1.0.0",
     "EntityFramework.InMemory.FunctionalTests": "1.0.0"
   },
+  "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net451": { },
     "dnx451": { },
     "dnxcore50": { }
   }

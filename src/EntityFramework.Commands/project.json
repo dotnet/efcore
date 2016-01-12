@@ -19,58 +19,20 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.ComponentModel.DataAnnotations": "4.0.0.0",
-        "System.IO": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Text.Encoding": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Threading.Tasks": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
         "System.Xml": "4.0.0.0",
         "System.Xml.Linq": "4.0.0.0"
       }
     },
-    "dnx451": {
+    "dotnet5.4": {
       "dependencies": {
-        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
-        "Microsoft.Dnx.Runtime": "1.0.0-*",
-        "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
-      },
-      "frameworkAssemblies": {
-        "System.Xml": "4.0.0.0",
-        "System.Xml.Linq": "4.0.0.0"
-      }
-    },
-    "dnxcore50": {
-      "dependencies": {
-        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
-        "Microsoft.Dnx.Runtime": "1.0.0-*",
-        "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-        "System.Console": "4.0.0-*",
+        "System.IO": "4.0.11-*",
         "System.IO.FileSystem": "4.0.1-*",
         "System.Xml.XDocument": "4.0.11-*"
-      }
-    },
-    "netcore50": {
-      "bin": {
-        "assembly": "lib\\netcore50\\_._"
       }
     }
   },
   "packInclude": {
     "build/": "build/**",
-    "lib/": "lib/**",
     "tools/": [ "tools/**", "Design\\OperationHandlers.cs" ]
-  },
-  "commands": {
-    "ef": "EntityFramework.Commands"
   }
 }

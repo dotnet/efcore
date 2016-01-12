@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-#if NET451 || DNX451
+#if NET451
 using System.Transactions;
 #endif
 using JetBrains.Annotations;
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Storage
 
         private void CheckForAmbientTransactions()
         {
-#if NET451 || DNX451
+#if NET451
             if (_throwOnAmbientTransaction
                 && (Transaction.Current != null))
             {

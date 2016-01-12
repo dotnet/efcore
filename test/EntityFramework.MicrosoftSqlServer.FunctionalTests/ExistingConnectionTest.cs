@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                 closeCount++;
                             }
                         };
-#if !DNXCORE50
+#if DNX451
                     connection.Disposed += (_, __) => disposeCount++;
 #endif
 

@@ -17,7 +17,7 @@
   "namedResource": {
     "EntityFramework.Relational.RelationalStrings": "Properties/RelationalStrings.resx"
   },
-  "resource": ["Properties/EntityFramework.Relational.rd.xml"],
+  "resource": [ "Properties/EntityFramework.Relational.rd.xml" ],
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
@@ -27,16 +27,8 @@
     },
     "dotnet5.4": {
       "dependencies": {
-        "System.Data.Common": "4.0.1-*",
-        "System.Text.RegularExpressions": "4.0.11-*",
-        "Microsoft.CSharp": "4.0.1-*"
-      }
-    },
-    "netcore50": {
-      "dependencies": {
-        "Microsoft.CSharp": "4.0.0",
-        "System.Data.Common": "4.0.0",
-        "System.Dynamic.Runtime": "4.0.10"
+        "Microsoft.CSharp": "4.0.1-*",
+        "System.Data.Common": "4.0.1-*"
       }
     }
   }

@@ -5,7 +5,7 @@ using System;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
-#if !DNXCORE50
+#if DNX451
     public partial class NullMetricCollector : MarshalByRefObject
     {
         private partial class Scope : MarshalByRefObject

@@ -68,31 +68,47 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
             }
 
 #if DNX451 || DNXCORE50
-            var libraryExport = CompilationServices.Default.LibraryExporter.GetExport(name);
-            if (libraryExport != null)
+            if (CompilationServices.Default != null)
             {
-                foreach(var metadataReference in libraryExport.MetadataReferences)
+                var libraryExport = CompilationServices.Default.LibraryExporter.GetExport(name);
+                if (libraryExport != null)
                 {
-                    var roslynReference = metadataReference as IRoslynMetadataReference;
-                    if (roslynReference != null)
+                    foreach(var metadataReference in libraryExport.MetadataReferences)
                     {
-                        _references.Add(roslynReference.MetadataReference);
-                        return;
-                    }
+                        var roslynReference = metadataReference as IRoslynMetadataReference;
+                        if (roslynReference != null)
+                        {
+                            _references.Add(roslynReference.MetadataReference);
+                            return;
+                        }
 
-                    var fileMetadataReference = metadataReference as IMetadataFileReference;
-                    if (fileMetadataReference != null)
-                    {
-                        var metadata = AssemblyMetadata.CreateFromStream(File.OpenRead(fileMetadataReference.Path));
-                        _references.Add(metadata.GetReference());
-                        return;
+                        var fileMetadataReference = metadataReference as IMetadataFileReference;
+                        if (fileMetadataReference != null)
+                        {
+                            var metadata = AssemblyMetadata.CreateFromStream(File.OpenRead(fileMetadataReference.Path));
+                            _references.Add(metadata.GetReference());
+                            return;
+                        }
+
+                        var metadataProjectReference = metadataReference as IMetadataProjectReference;
+                        if (metadataProjectReference != null)
+                        {
+                            using (var stream = new MemoryStream())
+                            {
+                                metadataProjectReference.EmitReferenceAssembly(stream);
+
+                                _references.Add(MetadataReference.CreateFromStream(stream));
+                                return;
+                            }
+                        }
                     }
                 }
             }
-
-            throw new InvalidOperationException("Unable to create metadata reference from name: " + name);
-#else
+#endif
+#if NET451 || DNX451
             _references.Add(MetadataReference.CreateFromFile(Assembly.Load(name).Location));
+#else
+            throw new InvalidOperationException("Unable to create metadata reference from name: " + name);
 #endif
         }
     }

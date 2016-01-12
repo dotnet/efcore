@@ -404,7 +404,7 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-#if NET451 || DNX451
+#if DNX451
         [Fact]
         public void Throws_when_using_with_IListSource()
         {

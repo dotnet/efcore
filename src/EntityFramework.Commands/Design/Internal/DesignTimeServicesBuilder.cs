@@ -35,7 +35,6 @@ namespace Microsoft.Data.Entity.Design.Internal
 
             var services = new ServiceCollection();
             ConfigureServices(services);
-            ConfigureDnxServices(services);
 
             var contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
             ConfigureContextServices(contextServices, services);
@@ -55,7 +54,6 @@ namespace Microsoft.Data.Entity.Design.Internal
 
             var services = new ServiceCollection();
             ConfigureServices(services);
-            ConfigureDnxServices(services);
             ConfigureProviderServices(provider, services, throwOnError: true);
             ConfigureUserServices(services);
 
@@ -71,13 +69,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
                 .AddSingleton<RuntimeTypeDiscoverer>()
                 .AddScaffolding();
-
-        partial void ConfigureDnxServices(IServiceCollection services);
-
-#if DNX451 || DNXCORE50
-        partial void ConfigureDnxServices(IServiceCollection services)
-            => services.ImportDnxServices();
-#endif
 
         private void ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
             => _startup.ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);

@@ -18,12 +18,7 @@
     "EntityFramework.Sqlite.Design.SqliteDesignStrings": "Properties/SqliteDesignStrings.resx"
   },
   "frameworks": {
-    "net451": {
-      "frameworkAssemblies": {
-        "System.Data": "4.0.0.0"
-      }
-    },
-    "dotnet5.4": { },
-    "netcore50": { }
+    "net451": { },
+    "dotnet5.4": { }
   }
 }

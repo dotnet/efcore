@@ -10,10 +10,8 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query.Internal;
-#if NET451 || DNX451
+#if NET451
 using System.ComponentModel;
-#endif
-#if NET451 || DNX451
 using Microsoft.Data.Entity.Internal;
 #endif
 
@@ -316,7 +314,7 @@ namespace Microsoft.Data.Entity
         }
     }
 
-#if NET451 || DNX451
+#if NET451
 
     public abstract partial class DbSet<TEntity> : IListSource
         where TEntity : class

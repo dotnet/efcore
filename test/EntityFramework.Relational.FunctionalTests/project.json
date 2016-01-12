@@ -11,10 +11,6 @@
   "frameworks": {
     "net451": { },
     "dnx451": { },
-    "dnxcore50": {
-      "dependencies": {
-        "System.Threading": "4.0.11-*"
-      }
-    }
+    "dnxcore50": { }
   }
 }

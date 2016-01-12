@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
         { get; }
         = new List<BuildReference>
             {
-#if !DNXCORE50
+#if DNX451
             BuildReference.ByName("mscorlib")
 #else
             BuildReference.ByName("System.Runtime")
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                         $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
-#if !DNXCORE50
+#if DNX451
                 assembly = Assembly.Load(stream.ToArray());
 #else
                 assembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")

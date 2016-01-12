@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 "EntityFramework.Relational",
                 // ReSharper disable once RedundantCommaInInitializer
                 "EntityFramework.MicrosoftSqlServer",
-#if DNXCORE50 || NETCORE50
+#if DNXCORE50
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",

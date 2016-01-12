@@ -7,14 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-#if DNXCORE50 || DNX451
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.PlatformAbstractions;
 using XunitDiagnosticMessage = Xunit.DiagnosticMessage;
-#else
-using XunitDiagnosticMessage = Xunit.Sdk.DiagnosticMessage;
-
-#endif
 
 namespace EntityFramework.Microbenchmarks.Core
 {
@@ -128,12 +123,8 @@ namespace EntityFramework.Microbenchmarks.Core
 
         private static string GetFramework()
         {
-#if DNX451 || DNXCORE50
             var env = PlatformServices.Default.Runtime;
             return "DNX." + env.RuntimeType;
-#else
-            return ".NETFramework";
-#endif
         }
 
         private static string GetMachineName()

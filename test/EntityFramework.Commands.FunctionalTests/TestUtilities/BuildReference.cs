@@ -2,17 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-
-#if DNX451 || DNXCORE50
-using System.Diagnostics;
-using System.Linq;
-using Microsoft.Extensions.CompilationAbstractions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Dnx.Compilation.CSharp;
-#endif
+using Microsoft.Extensions.CompilationAbstractions;
+using IOPath = System.IO.Path;
 
 namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
@@ -33,33 +29,50 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
         public static BuildReference ByName(string name, bool copyLocal = false)
         {
-#if DNX451 || DNXCORE50
-            var library = CompilationServices.Default.LibraryExporter.GetExport(name);
-            if (library != null)
+            if (CompilationServices.Default != null)
             {
-                var metadataReference = library.MetadataReferences.Single();
-
-                var roslynMetadataReference = metadataReference as IRoslynMetadataReference;
-                if (roslynMetadataReference != null)
+                var library = CompilationServices.Default.LibraryExporter.GetExport(name);
+                if (library != null)
                 {
-                    if (copyLocal)
+                    var metadataReference = library.MetadataReferences.Single();
+
+                    var roslynMetadataReference = metadataReference as IRoslynMetadataReference;
+                    if (roslynMetadataReference != null)
                     {
-                        throw new InvalidOperationException(
-                            $"In-memory assembly '{name}' cannot be copied locally.");
+                        if (copyLocal)
+                        {
+                            throw new InvalidOperationException(
+                                $"In-memory assembly '{name}' cannot be copied locally.");
+                        }
+
+                        return new BuildReference(roslynMetadataReference.MetadataReference);
                     }
 
-                    return new BuildReference(roslynMetadataReference.MetadataReference);
+                    var metadataFileReference = metadataReference as IMetadataFileReference;
+                    if (metadataFileReference != null)
+                    {
+                        return ByPath(metadataFileReference.Path, copyLocal);
+                    }
+
+                    var metadataProjectReference = metadataReference as IMetadataProjectReference;
+                    if (metadataProjectReference != null)
+                    {
+                        if (copyLocal)
+                        {
+                            throw new InvalidOperationException(
+                                $"In-memory assembly '{name}' cannot be copied locally.");
+                        }
+
+                        using (var stream = new MemoryStream())
+                        {
+                            metadataProjectReference.EmitReferenceAssembly(stream);
+
+                            return new BuildReference(MetadataReference.CreateFromStream(stream));
+                        }
+                    }
                 }
-
-                var metadataFileReference = metadataReference as IMetadataFileReference;
-                Debug.Assert(
-                    metadataFileReference != null,
-                    "Unexpected metadata reference type: " + metadataReference.GetType().Name);
-
-                return ByPath(metadataFileReference.Path, copyLocal);
             }
-#endif
-#if !DNXCORE50
+#if DNX451
             var assembly = Assembly.Load(name);
             if (!string.IsNullOrEmpty(assembly.Location))
             {

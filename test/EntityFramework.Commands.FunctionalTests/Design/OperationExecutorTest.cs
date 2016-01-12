@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451
+#if DNX451
 
 using System;
 using System.IO;
@@ -509,7 +509,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
                                 BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
                     Sources = { @"

@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     Database.SetCommandTimeout(commandTimeout);
                 }
 
-                protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 {
                     var connectionMock = new Mock<DbConnection>();
                     optionsBuilder.UseSqlServer(connectionMock.Object);

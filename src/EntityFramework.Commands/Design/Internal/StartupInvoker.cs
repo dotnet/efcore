@@ -8,10 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#if DNX451 || DNXCORE50
-using Microsoft.AspNet.Hosting;
-#endif
-
 namespace Microsoft.Data.Entity.Design.Internal
 {
     public class StartupInvoker
@@ -94,12 +90,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         }
 
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
-            => services
-#if DNX451 || DNXCORE50
-                .ImportDnxServices()
-                .AddSingleton<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = _environment })
-#endif
-                .AddLogging();
+            => services.AddLogging();
 
         private IServiceProvider GetHostServices()
             => ConfigureHostServices(new ServiceCollection()).BuildServiceProvider();

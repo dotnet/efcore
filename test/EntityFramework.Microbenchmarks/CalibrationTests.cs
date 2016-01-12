@@ -27,28 +27,5 @@ namespace EntityFramework.Microbenchmarks
                 Thread.Sleep(100);
             }
         }
-
-#if !DNXCORE50 && !DNX451
-        [Benchmark]
-        public void ColdStartSandbox_100ms(IMetricCollector collector)
-        {
-            using (var sandbox = new ColdStartSandbox())
-            {
-                var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
-                testClass.Sleep100ms(collector);
-            }
-        }
-
-        private class ColdStartEnabledTests : MarshalByRefObject
-        {
-            public void Sleep100ms(IMetricCollector collector)
-            {
-                using (collector.StartCollection())
-                {
-                    Thread.Sleep(100);
-                }
-            }
-        }
-#endif
     }
 }

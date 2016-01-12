@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
                 throw new NotImplementedException();
             }
         }
-#if NET451 || DNX451
+#if DNX451
         public override DataRowVersion SourceVersion
         {
             get

@@ -10,8 +10,8 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational.Design": "7.0.0-*",
-    "EntityFramework.MicrosoftSqlServer": "7.0.0-*"
+    "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
+    "EntityFramework.Relational.Design": "7.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
@@ -19,7 +19,6 @@
   },
   "frameworks": {
     "net451": { },
-    "dotnet5.4": { },
-    "netcore50": { }
+    "dotnet5.4": { }
   }
 }

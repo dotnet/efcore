@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
-#if !DNXCORE50
+#if DNX451
     public partial class MetricCollector : MarshalByRefObject
     {
         private partial class Scope : MarshalByRefObject

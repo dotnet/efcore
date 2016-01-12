@@ -1,14 +1,13 @@
 {
   "dependencies": {
     "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
-    "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*"
+    "EntityFramework.Microbenchmarks.Core": "1.0.0-*"
   },
+  "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net451": { },
     "dnxcore50": {
       "dependencies": {
         "xunit.runner.aspnet": "2.0.0-aspnet-*"

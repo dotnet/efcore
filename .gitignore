@@ -29,3 +29,5 @@ nuget.exe
 .vs/
 config.test.json
 *.log
+/.build/
+.testPublish/

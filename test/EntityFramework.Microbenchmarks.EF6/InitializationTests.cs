@@ -16,7 +16,7 @@ namespace EntityFramework.Microbenchmarks.EF6
     public class InitializationTests : IClassFixture<AdventureWorksFixture>
     {
         [Benchmark]
-#if !DNX451
+#if DNXCORE50
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
         [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
@@ -27,7 +27,7 @@ namespace EntityFramework.Microbenchmarks.EF6
 
         [Benchmark]
         [AdventureWorksDatabaseRequired]
-#if !DNX451
+#if DNXCORE50
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
@@ -38,7 +38,7 @@ namespace EntityFramework.Microbenchmarks.EF6
 
         [Benchmark]
         [AdventureWorksDatabaseRequired]
-#if !DNX451
+#if DNXCORE50
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
         [BenchmarkVariation("Warm (100 instances)", false, 100)]

@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 
         public int CloseCount { get; private set; }
 
-#if NET451 || DNX451
+#if DNX451
         public override void Close()
         {
             CloseCount++;
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
             throw new NotImplementedException();
         }
 
-#if NET451 || DNX451
+#if DNX451
         public override DataTable GetSchemaTable()
         {
             throw new NotImplementedException();

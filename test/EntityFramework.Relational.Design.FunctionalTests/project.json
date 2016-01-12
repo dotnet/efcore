@@ -1,18 +1,58 @@
 {
   "version": "7.0.0-*",
   "description": "Reusable EntityFramework.Relational.Design functional tests for provider writers.",
+  "compilationOptions": {
+    "keyFile": "../../tools/Key.snk"
+  },
   "dependencies": {
-    "EntityFramework.Core.FunctionalTests": "7.0.0-*",
     "EntityFramework.Commands": "7.0.0-*",
     "EntityFramework.Relational.Design": "7.0.0-*",
+    "EntityFramework.Relational.FunctionalTests": "7.0.0-*",
     "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*"
   },
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
-    "net451": { },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Diagnostics.Tracing": {
+          "version": "4.0.10.0",
+          "type": "build"
+        },
+        "System.IO": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
+        "System.Reflection.Primitives": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
+        "System.Resources.ResourceManager": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
+        "System.Runtime.InteropServices": {
+          "version": "4.0.10.0",
+          "type": "build"
+        },
+        "System.Text.Encoding": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
+        "System.Text.Encoding.Extensions": {
+          "version": "4.0.0.0",
+          "type": "build"
+        }
+      }
+    },
     "dnx451": {
+      "frameworkAssemblies": {
+        "System.Diagnostics.Tracing": "4.0.10.0",
+        "System.IO": "4.0.0.0",
+        "System.Reflection.Primitives": "4.0.0.0",
+        "System.Resources.ResourceManager": "4.0.0.0",
+        "System.Runtime.InteropServices": "4.0.10.0",
+        "System.Text.Encoding": "4.0.0.0",
+        "System.Text.Encoding.Extensions": "4.0.0.0"
+      },
       "dependencies": {
         "Microsoft.Dnx.Runtime": "1.0.0-*"
       }

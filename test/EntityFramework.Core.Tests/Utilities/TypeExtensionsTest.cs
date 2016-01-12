@@ -493,7 +493,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 #endif
         }
 
-#if !DNXCORE50
+#if DNX451
         private class MockAssembly : Assembly
         {
             public MockAssembly(IEnumerable<TypeInfo> definedTypes)
