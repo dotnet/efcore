@@ -27,10 +27,61 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             base.Default_if_empty_top_level();
 
-            Assert.StartsWith(
+            Assert.Equal(
+                @"SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
+FROM (
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN (
+    SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+    FROM [Employees] AS [c]
+    WHERE [c].[EmployeeID] = -1
+) AS [t0] ON 1 = 1",
+                Sql);
+        }
+
+        public override void Default_if_empty_top_level_positive()
+        {
+            base.Default_if_empty_top_level_positive();
+            
+            Assert.Equal(
+                @"SELECT [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
+FROM (
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN (
+    SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+    FROM [Employees] AS [c]
+    WHERE [c].[EmployeeID] > 0
+) AS [t0] ON 1 = 1",
+                Sql);
+        }
+
+        public override void Default_if_empty_top_level_arg()
+        {
+            base.Default_if_empty_top_level_arg();
+            
+            Assert.Equal(
                 @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
 WHERE [c].[EmployeeID] = -1",
+                Sql);
+        }
+
+        public override void Default_if_empty_top_level_projection()
+        {
+            base.Default_if_empty_top_level_projection();
+
+            Assert.Equal(
+                @"SELECT [t0].[EmployeeID]
+FROM (
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN (
+    SELECT [e].[EmployeeID]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] = -1
+) AS [t0] ON 1 = 1",
                 Sql);
         }
 
@@ -2646,11 +2697,19 @@ ORDER BY [c].[CustomerID]",
             base.SelectMany_Joined_DefaultIfEmpty();
 
             Assert.StartsWith(
-                @"SELECT [c].[CustomerID], [c].[ContactName]
+                @"SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [c].[ContactName]
 FROM [Customers] AS [c]
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+CROSS APPLY (
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty]
+    LEFT JOIN (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [o].[CustomerID] = [c].[CustomerID]
+    ) AS [t0] ON 1 = 1
+) AS [t1]",
                 Sql);
         }
 
@@ -2659,11 +2718,19 @@ FROM [Orders] AS [o]",
             base.SelectMany_Joined_DefaultIfEmpty2();
 
             Assert.StartsWith(
-                @"SELECT [c].[CustomerID]
+                @"SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM [Customers] AS [c]
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+CROSS APPLY (
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty]
+    LEFT JOIN (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [o].[CustomerID] = [c].[CustomerID]
+    ) AS [t0] ON 1 = 1
+) AS [t1]",
                 Sql);
         }
 
@@ -2672,7 +2739,7 @@ FROM [Orders] AS [o]",
             base.SelectMany_Joined_Take();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [c].[ContactName]
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [c].[ContactName]
 FROM [Customers] AS [c]
 CROSS APPLY (
     SELECT TOP(1000) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]

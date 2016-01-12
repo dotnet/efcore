@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Query
         {
             get { return _expression; }
             [param: NotNull]
-            protected set
+            set
             {
                 Check.NotNull(value, nameof(value));
 

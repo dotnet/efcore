@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             if (selectExpression.IsProjectStar)
             {
                 _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Tables.Single().Alias))
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Tables.Last().Alias))
                     .Append(".*");
 
                 projectionAdded = true;

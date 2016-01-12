@@ -1842,18 +1842,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [ConditionalFact]
         public virtual async Task Default_if_empty_top_level()
         {
-            await AssertQuery<Employee>(cs =>
-                from c in cs.Where(c => c.EmployeeID == -1).DefaultIfEmpty()
-                select c);
+            await AssertQuery<Employee>(es =>
+                from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty()
+                select e);
         }
 
         [ConditionalFact]
         public virtual async Task Default_if_empty_top_level_arg()
         {
-            await AssertQuery<Employee>(cs =>
-                from c in cs.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
-                select c,
+            await AssertQuery<Employee>(es =>
+                from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
+                select e,
                 entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Default_if_empty_top_level_positive()
+        {
+            await AssertQuery<Employee>(es =>
+                from e in es.Where(c => c.EmployeeID > 0).DefaultIfEmpty()
+                select e,
+                entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Default_if_empty_top_level_projection()
+        {
+            await AssertQuery<Employee>(es =>
+                from e in es.Where(e => e.EmployeeID == -1).Select(e => e.EmployeeID).DefaultIfEmpty()
+                select e);
         }
 
         [ConditionalFact]

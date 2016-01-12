@@ -12,8 +12,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public abstract class ExpressionVisitorBase : RelinqExpressionVisitor
     {
         public override Expression Visit([CanBeNull] Expression node)
-            => (node == null)
-               || (node.NodeType == ExpressionType.Block)
+            => node == null
+               || node.NodeType == ExpressionType.Block
                 ? node
                 : base.Visit(node);
     }

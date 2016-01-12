@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Storage
                 () =>
                     {
                         var logParameterValues
-                            = (command.Parameters.Count > 0)
+                            = command.Parameters.Count > 0
                               && logger.LogSensitiveData;
 
                         return new DbCommandLogData(

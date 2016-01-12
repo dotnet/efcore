@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo GroupJoinMethod { get; }
         MethodInfo GroupByMethod { get; }
         MethodInfo ShapedQueryMethod { get; }
+        MethodInfo DefaultIfEmptyShapedQueryMethod { get; }
         MethodInfo QueryMethod { get; }
         MethodInfo GetResultMethod { get; }
         MethodInfo IncludeMethod { get; }

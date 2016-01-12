@@ -304,6 +304,12 @@ namespace Microsoft.Data.Entity.Query
 
                     if (previousSelectExpression != null)
                     {
+                        if (!QueryCompilationContext.QuerySourceRequiresMaterialization(previousQuerySource))
+                        {
+                            previousSelectExpression.ClearProjection();
+                            previousSelectExpression.IsProjectStar = false;
+                        }
+
                         var readerOffset = previousSelectExpression.Projection.Count;
 
                         var correlated = selectExpression.IsCorrelated();
@@ -584,7 +590,7 @@ namespace Microsoft.Data.Entity.Query
 
                     AddQuery(querySource, subSelectExpression);
 
-                    var liftSubQuery
+                    var newExpression
                         = new QuerySourceUpdater(
                             querySource,
                             QueryCompilationContext,
@@ -592,8 +598,7 @@ namespace Microsoft.Data.Entity.Query
                             subSelectExpression)
                             .Visit(subQueryModelVisitor.Expression);
 
-                    return
-                        liftSubQuery;
+                    return newExpression;
                 }
             }
 

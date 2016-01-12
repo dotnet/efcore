@@ -34,6 +34,82 @@ namespace Microsoft.Data.Entity.Query
                 queryIndex: null)
                 .Select(vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
 
+        public virtual MethodInfo DefaultIfEmptyShapedQueryMethod => _defaultIfEmptyShapedQueryMethodInfo;
+
+        private static readonly MethodInfo _defaultIfEmptyShapedQueryMethodInfo
+            = typeof(AsyncQueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod(nameof(_DefaultIfEmptyShapedQuery));
+
+        [UsedImplicitly]
+        internal static IAsyncEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
+            QueryContext queryContext,
+            ShaperCommandContext shaperCommandContext,
+            IShaper<T> shaper)
+            => new DefaultIfEmptyAsyncEnumerable(
+                new AsyncQueryingEnumerable(
+                    (RelationalQueryContext)queryContext,
+                    shaperCommandContext,
+                    queryIndex: null))
+                .Select(vb => shaper.Shape(queryContext, vb));
+
+        private sealed class DefaultIfEmptyAsyncEnumerable : IAsyncEnumerable<ValueBuffer>
+        {
+            private readonly IAsyncEnumerable<ValueBuffer> _source;
+
+            public DefaultIfEmptyAsyncEnumerable(IAsyncEnumerable<ValueBuffer> source)
+            {
+                _source = source;
+            }
+
+            public IAsyncEnumerator<ValueBuffer> GetEnumerator()
+                => new DefaultIfEmptyAsyncEnumerator(_source.GetEnumerator());
+
+            private sealed class DefaultIfEmptyAsyncEnumerator : IAsyncEnumerator<ValueBuffer>
+            {
+                private readonly IAsyncEnumerator<ValueBuffer> _enumerator;
+
+                private bool _checkedEmpty;
+
+                public DefaultIfEmptyAsyncEnumerator(IAsyncEnumerator<ValueBuffer> enumerator)
+                {
+                    _enumerator = enumerator;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (!await _enumerator.MoveNext())
+                    {
+                        return false;
+                    }
+
+                    if (!_checkedEmpty)
+                    {
+                        var empty = true;
+
+                        for (var i = 0; i < _enumerator.Current.Count; i++)
+                        {
+                            empty &= _enumerator.Current[i] == null;
+                        }
+
+                        if (empty)
+                        {
+                            return false;
+                        }
+
+                        _checkedEmpty = true;
+                    }
+
+                    return true;
+                }
+
+                public ValueBuffer Current => _enumerator.Current;
+
+                public void Dispose() => _enumerator.Dispose();
+            }
+        }
+
+        // TODO: Pass shaper to underlying enumerable
+
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
         private static readonly MethodInfo _queryMethodInfo

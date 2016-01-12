@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Storage;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -78,6 +77,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 { typeof(ContainsResultOperator), HandleContains },
                 { typeof(CountResultOperator), HandleCount },
                 { typeof(LongCountResultOperator), HandleLongCount },
+                { typeof(DefaultIfEmptyResultOperator), HandleDefaultIfEmpty },
                 { typeof(DistinctResultOperator), HandleDistinct },
                 { typeof(FirstResultOperator), HandleFirst },
                 { typeof(GroupResultOperator), HandleGroup },
@@ -255,65 +255,66 @@ namespace Microsoft.Data.Entity.Query.Internal
             return TransformClientExpression<int>(handlerContext);
         }
 
-        private static Expression HandleLongCount(HandlerContext handlerContext)
+        private static Expression HandleDefaultIfEmpty(HandlerContext handlerContext)
         {
-            handlerContext.SelectExpression
-                .SetProjectionExpression(new CountExpression(typeof(long)));
+            var defaultIfEmptyResultOperator = (DefaultIfEmptyResultOperator)handlerContext.ResultOperator;
 
-            handlerContext.SelectExpression.ClearOrderBy();
-
-            return TransformClientExpression<long>(handlerContext);
-        }
-
-        private static Expression HandleMin(HandlerContext handlerContext)
-        {
-            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            if (defaultIfEmptyResultOperator.OptionalDefaultValue != null)
             {
-                var minExpression
-                    = new MinExpression(handlerContext.SelectExpression.Projection.Single());
-
-                handlerContext.SelectExpression.SetProjectionExpression(minExpression);
-
-                return (Expression)_transformClientExpressionMethodInfo
-                    .MakeGenericMethod(minExpression.Type)
-                    .Invoke(null, new object[] { handlerContext });
+                return handlerContext.EvalOnClient();
             }
 
-            return handlerContext.EvalOnClient();
+            var selectExpression = handlerContext.SelectExpression;
+
+            selectExpression.PushDownSubquery();
+            selectExpression.ExplodeStarProjection();
+
+            var subquery = selectExpression.Tables.Single();
+
+            selectExpression.ClearTables();
+
+            var emptySelectExpression = handlerContext.SelectExpressionFactory.Create("empty");
+            emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
+
+            selectExpression.AddTable(emptySelectExpression);
+
+            var leftOuterJoinExpression = new LeftOuterJoinExpression(subquery);
+            var constant1 = Expression.Constant(1);
+
+            leftOuterJoinExpression.Predicate = Expression.Equal(constant1, constant1);
+
+            selectExpression.AddTable(leftOuterJoinExpression);
+
+            handlerContext.QueryModelVisitor.Expression
+                = new DefaultIfEmptyExpressionVisitor(
+                    handlerContext.QueryModelVisitor.QueryCompilationContext)
+                    .Visit(handlerContext.QueryModelVisitor.Expression);
+
+            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
         }
 
-        private static Expression HandleMax(HandlerContext handlerContext)
+        private sealed class DefaultIfEmptyExpressionVisitor : ExpressionVisitor
         {
-            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
+
+            public DefaultIfEmptyExpressionVisitor(RelationalQueryCompilationContext relationalQueryCompilationContext)
             {
-                var maxExpression
-                    = new MaxExpression(handlerContext.SelectExpression.Projection.Single());
-
-                handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
-
-                return (Expression)_transformClientExpressionMethodInfo
-                    .MakeGenericMethod(maxExpression.Type)
-                    .Invoke(null, new object[] { handlerContext });
+                _relationalQueryCompilationContext = relationalQueryCompilationContext;
             }
 
-            return handlerContext.EvalOnClient();
-        }
-
-        private static Expression HandleSum(HandlerContext handlerContext)
-        {
-            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                var sumExpression
-                    = new SumExpression(handlerContext.SelectExpression.Projection.Single());
+                if (methodCallExpression.Method.MethodIsClosedFormOf(
+                    _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+                {
+                    return Expression.Call(
+                        _relationalQueryCompilationContext.QueryMethodProvider.DefaultIfEmptyShapedQueryMethod
+                            .MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()),
+                        methodCallExpression.Arguments);
+                }
 
-                handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
-
-                return (Expression)_transformClientExpressionMethodInfo
-                    .MakeGenericMethod(sumExpression.Type)
-                    .Invoke(null, new object[] { handlerContext });
+                return base.VisitMethodCall(methodCallExpression);
             }
-
-            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleDistinct(HandlerContext handlerContext)
@@ -411,6 +412,50 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
 
             return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+        }
+
+        private static Expression HandleLongCount(HandlerContext handlerContext)
+        {
+            handlerContext.SelectExpression
+                .SetProjectionExpression(new CountExpression(typeof(long)));
+
+            handlerContext.SelectExpression.ClearOrderBy();
+
+            return TransformClientExpression<long>(handlerContext);
+        }
+
+        private static Expression HandleMin(HandlerContext handlerContext)
+        {
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            {
+                var minExpression
+                    = new MinExpression(handlerContext.SelectExpression.Projection.Single());
+
+                handlerContext.SelectExpression.SetProjectionExpression(minExpression);
+
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(minExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient();
+        }
+
+        private static Expression HandleMax(HandlerContext handlerContext)
+        {
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            {
+                var maxExpression
+                    = new MaxExpression(handlerContext.SelectExpression.Projection.Single());
+
+                handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
+
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(maxExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleOfType(HandlerContext handlerContext)
@@ -533,6 +578,23 @@ namespace Microsoft.Data.Entity.Query.Internal
             handlerContext.SelectExpression.Offset = skipResultOperator.Count;
 
             return handlerContext.EvalOnServer;
+        }
+
+        private static Expression HandleSum(HandlerContext handlerContext)
+        {
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            {
+                var sumExpression
+                    = new SumExpression(handlerContext.SelectExpression.Projection.Single());
+
+                handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
+
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(sumExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleTake(HandlerContext handlerContext)

@@ -52,6 +52,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         ? (MethodCallExpression)innerLambda.Body
                         : (MethodCallExpression)methodCallExpression.Arguments[1];
 
+                if (innerShapedQuery.Method.Name == "DefaultIfEmpty")
+                {
+                    innerShapedQuery = (MethodCallExpression)innerShapedQuery.Arguments.Single();
+                }
+
                 var innerShaper = (Shaper)((ConstantExpression)innerShapedQuery.Arguments[2]).Value;
 
                 var innerEntityShaper = innerShaper as EntityShaper;

@@ -38,6 +38,48 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
+        public virtual MethodInfo DefaultIfEmptyShapedQueryMethod => _defaultIfEmptyShapedQueryMethodInfo;
+
+        private static readonly MethodInfo _defaultIfEmptyShapedQueryMethodInfo
+            = typeof(QueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod(nameof(_DefaultIfEmptyShapedQuery));
+
+        [UsedImplicitly]
+        internal static IEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
+            QueryContext queryContext,
+            ShaperCommandContext shaperCommandContext,
+            IShaper<T> shaper)
+        {
+            var checkedEmpty = false;
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var valueBuffer
+                in new QueryingEnumerable(
+                    (RelationalQueryContext)queryContext,
+                    shaperCommandContext,
+                    queryIndex: null))
+            {
+                if (!checkedEmpty)
+                {
+                    var empty = true;
+
+                    for (var i = 0; i < valueBuffer.Count; i++)
+                    {
+                        empty &= valueBuffer[i] == null;
+                    }
+
+                    if (empty)
+                    {
+                        yield break;
+                    }
+                    
+                    checkedEmpty = true;
+                }
+
+                yield return shaper.Shape(queryContext, valueBuffer);
+            }
+        }
+        
         // TODO: Pass shaper to underlying enumerable
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
