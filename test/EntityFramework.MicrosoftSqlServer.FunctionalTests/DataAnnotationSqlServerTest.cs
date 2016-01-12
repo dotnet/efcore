@@ -178,7 +178,7 @@ WHERE [r].[Id] = 1
 
 @p0: 1
 @p1: ModifiedData
-@p2: System.Byte[]
+@p2: 0x00000000000007D1
 
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
@@ -190,7 +190,7 @@ SELECT [Timestamp] FROM @inserted0;
 
 @p0: 1
 @p1: ChangedData
-@p2: System.Byte[]
+@p2: 0x00000000000007D1
 
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
