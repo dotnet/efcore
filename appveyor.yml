@@ -9,7 +9,4 @@ deploy: off
 services:
   - mssql2014
 environment:
-  Test__SqlServer__DataSource: (local)\SQL2014
-  Test__SqlServer__UserId: sa
-  Test__SqlServer__Password: Password12!
-  Test__SqlServer__IntegratedSecurity: false
+  Test__SqlServer__DefaultConnection: Server=(local)\SQL2014;Database=master;User ID=sa;Password=Password12!

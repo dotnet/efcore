@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
@@ -148,7 +148,7 @@ CREATE TABLE Users_Groups (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
@@ -190,7 +190,7 @@ CREATE TABLE Users_Groups (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
@@ -225,7 +225,7 @@ CREATE TABLE Users_Groups (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
@@ -260,7 +260,7 @@ CREATE TABLE Principal ( Id INT);");
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
@@ -327,7 +327,7 @@ CREATE TABLE String (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
@@ -364,7 +364,7 @@ CREATE TABLE Comment (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = testStore.Connection.ConnectionString,
+                    ConnectionString = testStore.ConnectionString,
                     ContextClassName = "FkToAltKeyContext",
                     ProjectPath = TestProjectPath,
                     ProjectRootNamespace = "E2E.Sqlite",

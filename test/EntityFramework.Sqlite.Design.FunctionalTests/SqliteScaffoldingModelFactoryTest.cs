@@ -282,7 +282,7 @@ CREATE TABLE Gum ( A, B PRIMARY KEY,
         private IModel GetModel(string createSql)
         {
             _testStore.ExecuteNonQuery(createSql);
-            return _scaffoldingModelFactory.Create(_testStore.Connection.ConnectionString, TableSelectionSet.All);
+            return _scaffoldingModelFactory.Create(_testStore.ConnectionString, TableSelectionSet.All);
         }
 
         public void Dispose() => _testStore.Dispose();

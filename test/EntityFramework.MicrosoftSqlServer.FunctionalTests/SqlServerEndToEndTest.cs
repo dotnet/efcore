@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 optionsBuilder
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(testDatabase.Connection.ConnectionString);
+                    .UseSqlServer(testDatabase.ConnectionString);
 
                 using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
+                optionsBuilder.UseSqlServer(testDatabase.ConnectionString);
 
                 int updatedId;
                 int deletedId;
@@ -379,7 +379,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
+                optionsBuilder.UseSqlServer(testDatabase.ConnectionString);
 
                 int blog1Id;
                 int blog2Id;

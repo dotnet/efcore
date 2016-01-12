@@ -34,7 +34,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private SqlConnection _connection;
         private SqlTransaction _transaction;
         private readonly string _name;
+        private string _connectionString;
         private bool _deleteDatabase;
+
+        public override string ConnectionString => _connectionString;
 
         // Use async static factory method
         private SqlServerTestStore(string name)
@@ -58,8 +61,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private SqlServerTestStore CreateShared(Action initializeDatabase)
         {
             CreateShared(typeof(SqlServerTestStore).Name + _name, initializeDatabase);
-
-            _connection = new SqlConnection(CreateConnectionString(_name));
+            
+            _connectionString = CreateConnectionString(_name);
+            _connection = new SqlConnection(_connectionString);
 
             _connection.Open();
 
@@ -272,7 +276,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private async Task<SqlServerTestStore> CreateTransientAsync(bool createDatabase)
         {
-            _connection = new SqlConnection(CreateConnectionString(_name));
+            _connectionString = CreateConnectionString(_name);
+            _connection = new SqlConnection(_connectionString);
 
             if (createDatabase)
             {
@@ -298,7 +303,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private SqlServerTestStore CreateTransient(bool createDatabase)
         {
-            _connection = new SqlConnection(CreateConnectionString(_name));
+            _connectionString = CreateConnectionString(_name);
+            _connection = new SqlConnection(_connectionString);
 
             if (createDatabase)
             {
@@ -479,14 +485,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         public static string CreateConnectionString(string name)
-        {
-            var connStrBuilder = new SqlConnectionStringBuilder
+            => new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
                 //MultipleActiveResultSets = false,
                 MultipleActiveResultSets = new Random().Next(0, 2) == 1,
                 InitialCatalog = name
-            };
-            return connStrBuilder.ApplyConfiguration().ConnectionString;
-        }
+            }.ConnectionString;
     }
 }

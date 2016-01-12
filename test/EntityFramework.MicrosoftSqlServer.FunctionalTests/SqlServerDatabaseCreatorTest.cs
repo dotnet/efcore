@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
+                optionsBuilder.UseSqlServer(testDatabase.ConnectionString);
 
                 using (var context = new BloggingContext(serviceProvider, optionsBuilder.Options))
                 {
@@ -375,7 +375,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceCollection.AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>();
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
+            optionsBuilder.UseSqlServer(testStore.ConnectionString);
 
             return ((IInfrastructure<IServiceProvider>)new BloggingContext(
                 serviceCollection.BuildServiceProvider(),

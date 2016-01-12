@@ -44,14 +44,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         private static string CreateConnectionString(string name)
-        {
-            var connStrBuilder = new SqlConnectionStringBuilder
+            => new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
                 MultipleActiveResultSets = true,
                 InitialCatalog = name
-            };
-            return connStrBuilder.ApplyConfiguration().ConnectionString;
-        }
+            }.ConnectionString;
 
         protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
         {

@@ -21,6 +21,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .GetSection("Test:SqlServer");
         }
 
+        private const string DefaultConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30";
+
+        public static string DefaultConnection => Config["DefaultConnection"] ?? DefaultConnectionString;
+
         public static bool? GetFlag(string key)
         {
             bool flag;

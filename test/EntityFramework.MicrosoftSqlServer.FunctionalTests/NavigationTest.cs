@@ -102,13 +102,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .ServiceCollection()
                 .BuildServiceProvider();
 
-            var connStrBuilder = new SqlConnectionStringBuilder
+            var connStrBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
                 InitialCatalog = "StateManagerBug",
                 MultipleActiveResultSets = true,
                 ["Trusted_Connection"] = true
             };
-            connStrBuilder.ApplyConfiguration();
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(connStrBuilder.ConnectionString);

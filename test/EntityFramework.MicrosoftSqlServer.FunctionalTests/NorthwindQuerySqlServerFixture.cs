@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var sqlServerDbContextOptionsBuilder
                 = optionsBuilder
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(_testStore.Connection.ConnectionString);
+                    .UseSqlServer(_testStore.ConnectionString);
 
             ConfigureOptions(sqlServerDbContextOptionsBuilder);
 

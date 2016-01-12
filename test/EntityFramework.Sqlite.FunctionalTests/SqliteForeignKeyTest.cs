@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public void It_enforces_foreign_key(bool suppress)
         {
             var builder = new DbContextOptionsBuilder();
-            var sqliteBuilder = builder.UseSqlite(_testStore.Connection.ConnectionString);
+            var sqliteBuilder = builder.UseSqlite(_testStore.ConnectionString);
             if (suppress)
             {
                 sqliteBuilder.SuppressForeignKeyEnforcement();
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public void It_allows_foreign_key_to_unique_index()
         {
             var builder = new DbContextOptionsBuilder();
-            var sqliteBuilder = builder.UseSqlite(_testStore.Connection.ConnectionString);
+            var sqliteBuilder = builder.UseSqlite(_testStore.ConnectionString);
             var options = builder.Options;
             _testStore.ExecuteNonQuery(@"
 CREATE TABLE User (

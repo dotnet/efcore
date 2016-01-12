@@ -39,6 +39,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             _name = name;
         }
+        
+        public override string ConnectionString => Connection.ConnectionString;
 
         private SqliteTestStore CreateShared(Action initializeDatabase)
         {

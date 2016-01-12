@@ -176,7 +176,7 @@ CREATE TABLE [Kilimanjaro] ( Id int);";
         {
             _testStore.ExecuteNonQuery(createSql);
 
-            return _factory.Create(_testStore.Connection.ConnectionString, selection ?? TableSelectionSet.All);
+            return _factory.Create(_testStore.ConnectionString, selection ?? TableSelectionSet.All);
         }
 
         public void Dispose() => _testStore.Dispose();

@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             using (var testStore = SqliteTestStore.CreateScratch())
             {
-                var creator = GetDatabaseCreator(testStore.Connection.ConnectionString);
+                var creator = GetDatabaseCreator(testStore.ConnectionString);
 
                 Assert.True(creator.Exists());
             }

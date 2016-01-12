@@ -4,11 +4,13 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class SqlServerConditionAttribute : Attribute, ITestCondition
+    [TraitDiscoverer("Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlServerConditionTraitDiscoverer", "EntityFramework.MicrosoftSqlServer.FunctionalTests")]
+    public class SqlServerConditionAttribute : Attribute, ITestCondition, ITraitAttribute
     {
         public SqlServerCondition Conditions { get; set; }
 
@@ -30,6 +32,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
                 }
+                if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
+                {
+                    isMet &= TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                }
                 return isMet;
             }
         }
@@ -46,6 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public enum SqlServerCondition
     {
         SupportsSequences = 1 << 0,
-        SupportsOffset = 1 << 1
+        SupportsOffset = 1 << 1,
+        IsSqlAzure = 1 << 2
     }
 }

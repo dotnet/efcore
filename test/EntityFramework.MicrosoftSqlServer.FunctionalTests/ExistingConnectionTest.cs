@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var closeCount = 0;
                 var disposeCount = 0;
 
-                using (var connection = new SqlConnection(store.Connection.ConnectionString))
+                using (var connection = new SqlConnection(store.ConnectionString))
                 {
                     if (openConnection)
                     {

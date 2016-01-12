@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _testDatabase = SqlServerNorthwindContext.GetSharedStore();
 
             var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
-            optionsBuilder.UseSqlServer(_testDatabase.Connection.ConnectionString);
+            optionsBuilder.UseSqlServer(_testDatabase.ConnectionString);
             _options = optionsBuilder.Options;
         }
 

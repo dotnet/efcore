@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override DbContext CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
+            optionsBuilder.UseSqlServer(testStore.ConnectionString);
 
             return new DbContext(_serviceProvider, optionsBuilder.Options);
         }

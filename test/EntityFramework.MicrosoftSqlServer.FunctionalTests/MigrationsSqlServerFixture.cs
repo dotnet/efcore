@@ -22,11 +22,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .ServiceCollection()
                 .BuildServiceProvider();
 
-            var connectionStringBuilder = new SqlConnectionStringBuilder
+            var connectionStringBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
                 InitialCatalog = nameof(MigrationsSqlServerTest)
             };
-            connectionStringBuilder.ApplyConfiguration();
 
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(connectionStringBuilder.ConnectionString);

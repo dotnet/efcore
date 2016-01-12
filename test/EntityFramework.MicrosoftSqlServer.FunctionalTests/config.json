@@ -1,11 +1,9 @@
 {
     "Test": {
-        "SqlServer": {
-            "DataSource": "(localdb)\\MSSQLLocalDB",
-            "IntegratedSecurity": true,
-            "ConnectTimeout": 30,
-            "UserID": null,
-            "Password": null
-        }
+      "SqlServer": {
+        "DefaultConnection": "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30",
+        "SupportsSequences": true,
+        "SupportsOffset": true
+      }
     }
 }

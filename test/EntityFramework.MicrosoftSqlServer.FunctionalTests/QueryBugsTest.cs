@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     @"CREATE TABLE ZeroKey (Id int);
                       INSERT ZeroKey VALUES (NULL)");
 
-                using (var context = new NullKeyContext(testStore.Connection.ConnectionString))
+                using (var context = new NullKeyContext(testStore.ConnectionString))
                 {
                     Assert.Equal(
                         CoreStrings.InvalidKeyValue("ZeroKey"),

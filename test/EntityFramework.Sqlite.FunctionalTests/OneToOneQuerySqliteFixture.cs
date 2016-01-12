@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             _testStore = SqliteTestStore.CreateScratch();
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString);
+            optionsBuilder.UseSqlite(_testStore.ConnectionString);
             _options = optionsBuilder.Options;
 
             using (var context = new DbContext(_serviceProvider, _options))

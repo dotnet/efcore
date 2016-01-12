@@ -86,9 +86,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         // ApplyConfiguration swaps out the Server if this tests are configured to run against something different that localdb.
         // ReSharper disable once InvokeAsExtensionMethod
         private readonly string _connectionString =
-            SqlConnectionStringBuilderExtensions.ApplyConfiguration(
-                new SqlConnectionStringBuilder(@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30"))
-                .ConnectionString;
+            new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
+            {
+                InitialCatalog = "SqlServerReverseEngineerTestE2E"
+            }.ConnectionString;
 
         private static readonly List<string> _expectedEntityTypeFiles = new List<string>
         {
@@ -244,14 +245,14 @@ CREATE SEQUENCE NumericSequence
 
                 var configuration = new ReverseEngineeringConfiguration
                 {
-                    ConnectionString = scratch.Connection.ConnectionString,
+                    ConnectionString = scratch.ConnectionString,
                     ProjectPath = TestProjectDir + Path.DirectorySeparatorChar,
                     ProjectRootNamespace = TestNamespace,
                     ContextClassName = "SequenceContext"
                 };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
                     Path.Combine("ReverseEngineering", "ExpectedResults"),
-                    contents => contents.Replace("{{connectionString}}", scratch.Connection.ConnectionString))
+                    contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
                     Files = new List<string> { "SequenceContext.expected" }
                 };

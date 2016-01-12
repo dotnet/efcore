@@ -340,7 +340,7 @@ CREATE SEQUENCE [NumericSequence_defaults]
 
             var reader = new SqlServerDatabaseModelFactory(new LoggerFactory());
 
-            return reader.Create(_testStore.Connection.ConnectionString, selection ?? TableSelectionSet.All);
+            return reader.Create(_testStore.ConnectionString, selection ?? TableSelectionSet.All);
         }
 
         public void ExecuteNonQuery(string sql) => _testStore.ExecuteNonQuery(sql);

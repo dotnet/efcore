@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+                optionsBuilder.UseSqlServer(_testStore.ConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
