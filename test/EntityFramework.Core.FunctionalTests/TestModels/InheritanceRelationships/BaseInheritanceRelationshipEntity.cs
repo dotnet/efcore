@@ -13,6 +13,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
         public string Name { get; set; }
 
         [NotMapped]
+        public DerivedInheritanceRelationshipEntity DerivedSefReferenceOnBase { get; set; }
+
+        [NotMapped]
         public BaseReferenceOnBase BaseReferenceOnBase { get; set; }
         [NotMapped]
         public DerivedReferenceOnBase DerivedReferenceOnBase { get; set; }

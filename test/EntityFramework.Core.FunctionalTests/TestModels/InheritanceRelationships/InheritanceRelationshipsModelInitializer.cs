@@ -166,6 +166,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
             var derivedEntity1 = new DerivedInheritanceRelationshipEntity
             {
                 Name = "Derived1(4)",
+                BaseSelfRerefenceOnDerived = baseEntity1,
                 BaseReferenceOnBase = drob1,
                 DerivedReferenceOnBase = drob3,
                 ReferenceOnBase = rob3,
@@ -184,6 +185,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
             var derivedEntity2 = new DerivedInheritanceRelationshipEntity
             {
                 Name = "Derived2(5)",
+                BaseSelfRerefenceOnDerived = baseEntity2,
                 ReferenceOnBase = rob4,
                 BaseReferenceOnBase = brob2,
                 CollectionOnBase = new List<CollectionOnBase> { cob41 },
@@ -196,6 +198,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
             var derivedEntity3 = new DerivedInheritanceRelationshipEntity
             {
                 Name = "Derived3(6)",
+                BaseSelfRerefenceOnDerived = baseEntity3,
                 DerivedReferenceOnBase = drob4,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { bcob21 },
                 DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob41 },
@@ -206,6 +209,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
             };
 
             context.BaseEntities.AddRange(derivedEntity1, derivedEntity2, derivedEntity3);
+
+            baseEntity1.DerivedSefReferenceOnBase = derivedEntity1;
+            baseEntity2.DerivedSefReferenceOnBase = derivedEntity2;
+            baseEntity3.DerivedSefReferenceOnBase = derivedEntity3;
+
             context.SaveChanges();
         }
     }

@@ -31,6 +31,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<NestedCollectionBase>().HasKey(e => e.Id);
 
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
+                .HasOne(e => e.DerivedSefReferenceOnBase)
+                .WithOne(e => e.BaseSelfRerefenceOnDerived)
+                .HasForeignKey<DerivedInheritanceRelationshipEntity>(e => e.BaseId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
                 .HasOne(e => e.BaseReferenceOnBase)
                 .WithOne(e => e.BaseParent)
                 .HasForeignKey<BaseReferenceOnBase>(e => e.BaseParentId)
@@ -55,8 +61,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .IsRequired(false);
 
             //TODO: See issue #3289
-            modelBuilder.Entity<DerivedReferenceOnDerived>().Property(typeof(int?), "DerivedInheritanceRelationshipEntityId");
-
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasOne(e => e.DerivedReferenceOnDerived)
                 .WithOne()

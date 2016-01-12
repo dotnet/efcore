@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             var discriminatorColumn
                 = selectExpression.Projection
                     .OfType<AliasExpression>()
-                    .Single(c => c.TryGetColumnExpression()?.Property == discriminatorProperty);
+                    .Last(c => c.TryGetColumnExpression()?.Property == discriminatorProperty);
 
             var firstDiscriminatorValue
                 = Expression.Constant(

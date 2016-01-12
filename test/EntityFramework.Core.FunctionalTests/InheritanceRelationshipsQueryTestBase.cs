@@ -50,6 +50,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_self_refence_with_inheritence()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.BaseEntities.Include(e => e.DerivedSefReferenceOnBase);
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Include_self_refence_with_inheritence_reverse()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.DerivedEntities.Include(e => e.BaseSelfRerefenceOnDerived);
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Include_reference_with_inheritance_with_filter1()
         {
             using (var context = CreateContext())

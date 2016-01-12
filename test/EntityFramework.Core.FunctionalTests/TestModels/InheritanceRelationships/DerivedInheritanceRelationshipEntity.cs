@@ -7,9 +7,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
 {
     public class DerivedInheritanceRelationshipEntity : BaseInheritanceRelationshipEntity
     {
+        public int? BaseId { get; set; }
+
         public BaseReferenceOnDerived BaseReferenceOnDerived { get; set; }
         public DerivedReferenceOnDerived DerivedReferenceOnDerived { get; set; }
         public ReferenceOnDerived ReferenceOnDerived { get; set; }
+        public BaseInheritanceRelationshipEntity BaseSelfRerefenceOnDerived { get; set; }
 
         public List<BaseCollectionOnDerived> BaseCollectionOnDerived { get; set; }
         public List<DerivedCollectionOnDerived> DerivedCollectionOnDerived { get; set; }
