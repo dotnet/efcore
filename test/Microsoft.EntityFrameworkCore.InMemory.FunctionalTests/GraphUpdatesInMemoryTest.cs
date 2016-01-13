@@ -131,6 +131,30 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             // Cascade nulls not supported by in-memory database
         }
 
+        [ConditionalFact]
+        public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added()
+        {
+            // Cascade nulls not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_one_to_one_are_cascade_detached_when_Added()
+        {
+            // Cascade nulls not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added()
+        {
+            // Cascade nulls not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added()
+        {
+            // Cascade nulls not supported by in-memory database
+        }
+
         public class GraphUpdatesInMemoryFixture : GraphUpdatesFixtureBase
         {
             private readonly IServiceProvider _serviceProvider;

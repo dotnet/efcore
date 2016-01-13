@@ -43,17 +43,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(() => (EntityQueryable<TEntity>)source);
         }
 
-        public override EntityEntry<TEntity> Add(TEntity entity, GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => _context.Add(Check.NotNull(entity, nameof(entity)), behavior);
+        public override EntityEntry<TEntity> Add(TEntity entity)
+            => _context.Add(Check.NotNull(entity, nameof(entity)));
 
-        public override EntityEntry<TEntity> Attach(TEntity entity, GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => _context.Attach(Check.NotNull(entity, nameof(entity)), behavior);
+        public override EntityEntry<TEntity> Attach(TEntity entity)
+            => _context.Attach(Check.NotNull(entity, nameof(entity)));
 
         public override EntityEntry<TEntity> Remove(TEntity entity)
             => _context.Remove(Check.NotNull(entity, nameof(entity)));
 
-        public override EntityEntry<TEntity> Update(TEntity entity, GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => _context.Update(Check.NotNull(entity, nameof(entity)), behavior);
+        public override EntityEntry<TEntity> Update(TEntity entity)
+            => _context.Update(Check.NotNull(entity, nameof(entity)));
 
         public override void AddRange(params TEntity[] entities)
             => _context.AddRange(Check.NotNull(entities, nameof(entities)));
@@ -67,17 +67,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public override void UpdateRange(params TEntity[] entities)
             => _context.UpdateRange(Check.NotNull(entities, nameof(entities)));
 
-        public override void AddRange(IEnumerable<TEntity> entities, GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => _context.AddRange(Check.NotNull(entities, nameof(entities)), behavior);
+        public override void AddRange(IEnumerable<TEntity> entities)
+            => _context.AddRange(Check.NotNull(entities, nameof(entities)));
 
-        public override void AttachRange(IEnumerable<TEntity> entities, GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => _context.AttachRange(Check.NotNull(entities, nameof(entities)), behavior);
+        public override void AttachRange(IEnumerable<TEntity> entities)
+            => _context.AttachRange(Check.NotNull(entities, nameof(entities)));
 
         public override void RemoveRange(IEnumerable<TEntity> entities)
             => _context.RemoveRange(Check.NotNull(entities, nameof(entities)));
 
-        public override void UpdateRange(IEnumerable<TEntity> entities, GraphBehavior behavior = GraphBehavior.IncludeDependents)
-            => _context.UpdateRange(Check.NotNull(entities, nameof(entities)), behavior);
+        public override void UpdateRange(IEnumerable<TEntity> entities)
+            => _context.UpdateRange(Check.NotNull(entities, nameof(entities)));
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => _entityQueryable.Value.GetEnumerator();
 

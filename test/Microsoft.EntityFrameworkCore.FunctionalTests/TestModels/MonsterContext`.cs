@@ -1338,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
 
             foreach (var entity in toAdd.SelectMany(l => l))
             {
-                Add(entity, behavior: GraphBehavior.SingleObject);
+                Add(entity);
             }
 
             if (saveChanges)

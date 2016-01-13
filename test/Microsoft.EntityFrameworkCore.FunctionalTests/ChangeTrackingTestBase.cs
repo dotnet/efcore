@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(EntityState.Modified, firstTrackedEntity.State);
 
-                context.Attach(customer, behavior: GraphBehavior.SingleObject);
+                context.Attach(customer);
 
                 Assert.Equal(customer.CustomerID, firstTrackedEntity.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(EntityState.Modified, firstTrackedEntity.State);
 
-                context.Customers.Attach(customer, behavior: GraphBehavior.SingleObject);
+                context.Customers.Attach(customer);
 
                 Assert.Equal(customer.CustomerID, firstTrackedEntity.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal(EntityState.Modified, trackedEntity0.State);
                 Assert.Equal(EntityState.Modified, trackedEntity1.State);
 
-                context.AttachRange(customers, behavior: GraphBehavior.SingleObject);
+                context.AttachRange(customers);
 
                 Assert.Equal(customer0.CustomerID, trackedEntity0.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(customer1.CustomerID, trackedEntity1.Property(c => c.CustomerID).CurrentValue);
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal(EntityState.Modified, trackedEntity0.State);
                 Assert.Equal(EntityState.Modified, trackedEntity1.State);
 
-                context.Customers.AttachRange(customers, behavior: GraphBehavior.SingleObject);
+                context.Customers.AttachRange(customers);
 
                 Assert.Equal(customer0.CustomerID, trackedEntity0.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(customer1.CustomerID, trackedEntity1.Property(c => c.CustomerID).CurrentValue);

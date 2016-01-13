@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_add_aggregate_with_linked_aggregate_not_added()
+        public void Can_add_aggregate_with_linked_aggregate_also_added()
         {
             using (var context = new AggregateContext())
             {
@@ -191,14 +191,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Equal(EntityState.Added, context.Entry(comments0[1]).State);
                 Assert.Equal(EntityState.Added, context.Entry(comments1[0]).State);
                 Assert.Equal(EntityState.Added, context.Entry(comments1[1]).State);
-                Assert.Equal(EntityState.Detached, context.Entry(author).State);
-                Assert.Equal(EntityState.Detached, context.Entry(reminders[0]).State);
-                Assert.Equal(EntityState.Detached, context.Entry(reminders[1]).State);
+                Assert.Equal(EntityState.Added, context.Entry(author).State);
+                Assert.Equal(EntityState.Added, context.Entry(reminders[0]).State);
+                Assert.Equal(EntityState.Added, context.Entry(reminders[1]).State);
             }
         }
 
         [Fact]
-        public void Can_add_aggregate_with_other_linked_aggregate_not_attached()
+        public void Can_add_aggregate_with_other_linked_aggregate_also_attached()
         {
             using (var context = new AggregateContext())
             {
@@ -220,9 +220,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
                 context.Add(author);
 
-                Assert.Equal(EntityState.Detached, context.Entry(blog).State);
-                Assert.Equal(EntityState.Detached, context.Entry(posts[0]).State);
-                Assert.Equal(EntityState.Detached, context.Entry(posts[1]).State);
+                Assert.Equal(EntityState.Added, context.Entry(blog).State);
+                Assert.Equal(EntityState.Added, context.Entry(posts[0]).State);
+                Assert.Equal(EntityState.Added, context.Entry(posts[1]).State);
                 Assert.Equal(EntityState.Added, context.Entry(comments0[0]).State);
                 Assert.Equal(EntityState.Added, context.Entry(comments0[1]).State);
                 Assert.Equal(EntityState.Added, context.Entry(comments1[0]).State);
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_attach_aggregate_with_linked_aggregate_not_attached()
+        public void Can_attach_aggregate_with_linked_aggregate_also_attached()
         {
             using (var context = new AggregateContext())
             {
@@ -259,9 +259,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 Assert.Equal(EntityState.Unchanged, context.Entry(comments0[1]).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(comments1[0]).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(comments1[1]).State);
-                Assert.Equal(EntityState.Detached, context.Entry(author).State);
-                Assert.Equal(EntityState.Detached, context.Entry(reminders[0]).State);
-                Assert.Equal(EntityState.Detached, context.Entry(reminders[1]).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(author).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(reminders[0]).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(reminders[1]).State);
             }
         }
 

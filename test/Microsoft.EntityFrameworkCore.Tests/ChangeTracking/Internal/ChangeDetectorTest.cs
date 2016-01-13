@@ -1512,11 +1512,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
-            Assert.Same(product3, testListener.ReferenceChange.Item1.Entity);
-            Assert.Same(testListener.ReferenceChange.Item1.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
-            Assert.Null(testListener.ReferenceChange.Item3);
-            Assert.Equal(category, testListener.ReferenceChange.Item4);
-
+            Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.PrincipalKeyChange);
 
@@ -1564,11 +1560,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(77, testListener.ForeignKeyChange.Item3);
             Assert.Null(testListener.ForeignKeyChange.Item4);
 
-            Assert.Same(product1, testListener.ReferenceChange.Item1.Entity);
-            Assert.Same(testListener.ReferenceChange.Item1.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
-            Assert.Equal(category, testListener.ReferenceChange.Item3);
-            Assert.Null(testListener.ReferenceChange.Item4);
-
+            Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.PrincipalKeyChange);
 
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
