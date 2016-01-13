@@ -79,6 +79,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     GetSequences();
                 }
 
+                GetTypeAliases();
                 GetTables();
                 GetColumns();
                 GetIndexes();
@@ -98,6 +99,41 @@ namespace Microsoft.Data.Entity.Scaffolding
                 }
                 return false;
             }
+        }
+
+        private void GetTypeAliases()
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = @"SELECT
+                        [type_name],
+                        [underlying_system_type]
+                        FROM
+                        (SELECT
+                          t1.[name] as [type_name],
+                          ( CASE WHEN t1.[xusertype] = t1.[xtype] THEN NULL
+                            ELSE
+                              ( SELECT t2.[name]
+                                FROM [sys].[systypes] AS t2
+                                WHERE t2.[xusertype] = t2.[xtype]
+                                AND t2.[xusertype] = t1.[xtype] )
+                            END) as [underlying_system_type]
+                          FROM [sys].[systypes] AS t1
+                        ) AS t
+                        WHERE [underlying_system_type] IS NOT NULL";
+
+
+            var typeAliasMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var alias = reader.GetString(0);
+                    var underlyingSystemType = reader.GetString(1);
+                    typeAliasMap.Add(alias, underlyingSystemType);
+                }
+            }
+
+            _databaseModel.SqlServer().TypeAliases = typeAliasMap;
         }
 
         private void GetSequences()
@@ -128,6 +164,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 {
                     var sequence = new SequenceModel
                     {
+                        Database = _databaseModel,
                         SchemaName = reader.GetStringOrNull(dboIdx),
                         Name = reader.GetStringOrNull(nameIdx),
                         DataType = reader.GetStringOrNull(typeIdx),
@@ -171,6 +208,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 {
                     var table = new TableModel
                     {
+                        Database = _databaseModel,
                         SchemaName = reader.GetString(0),
                         Name = reader.GetString(1)
                     };

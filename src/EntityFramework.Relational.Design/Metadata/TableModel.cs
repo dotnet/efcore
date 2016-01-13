@@ -9,6 +9,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
     public class TableModel : Annotatable
     {
+        public virtual DatabaseModel Database { get; [param: NotNull] set; }
+
         public virtual string Name { get; [param: NotNull] set; }
 
         [CanBeNull]

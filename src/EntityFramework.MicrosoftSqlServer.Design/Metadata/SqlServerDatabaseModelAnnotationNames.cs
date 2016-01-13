@@ -6,6 +6,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
     public static class SqlServerDatabaseModelAnnotationNames
     {
         public const string Prefix = "SqlServerDatabaseModel:";
+        public const string TypeAliases = Prefix + "TypeAliases";
         public const string IsIdentity = Prefix + "IsIdentity";
         public const string IsClustered = Prefix + "IsClustered";
         public const string DateTimePrecision = Prefix + "DateTimePrecision";

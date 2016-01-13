@@ -12,5 +12,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
 
         public static SqlServerIndexModelAnnotations SqlServer([NotNull] this IndexModel index)
             => new SqlServerIndexModelAnnotations(index);
+
+        public static SqlServerDatabaseModelAnnotations SqlServer([NotNull] this DatabaseModel databaseModel)
+            => new SqlServerDatabaseModelAnnotations(databaseModel);
     }
 }

@@ -8,6 +8,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
     public class SequenceModel : Annotatable
     {
+        public virtual DatabaseModel Database { get; [param: NotNull] set; }
+
         public virtual string Name { get; [param: NotNull] set; }
         public virtual string SchemaName { get; [param: CanBeNull] set; }
         public virtual string DataType { get; [param: CanBeNull] set; }
