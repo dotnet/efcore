@@ -4124,7 +4124,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void GroupJoin_DefaultIfEmpty3()
         {
             AssertQuery<Customer, Order>((cs, os) =>
-                from c in cs//.Take(1)
+                from c in cs.Take(1)
                 join o in os on c.CustomerID equals o.CustomerID into orders
                 from o in orders.DefaultIfEmpty()
                 select o);

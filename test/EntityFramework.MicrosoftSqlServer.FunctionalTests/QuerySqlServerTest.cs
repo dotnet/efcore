@@ -2563,10 +2563,15 @@ ORDER BY [e].[EmployeeID]",
             base.GroupJoin_DefaultIfEmpty3();
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID]",
+                @"@__p_0: 1
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [c].*
+    FROM [Customers] AS [c]
+) AS [t0]
+LEFT JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
+ORDER BY [t0].[CustomerID]",
                 Sql);
         }
 
