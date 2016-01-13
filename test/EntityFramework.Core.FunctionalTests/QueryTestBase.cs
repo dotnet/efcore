@@ -1841,13 +1841,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     });
         }
 
-        // TODO: [ConditionalFact] See #153
+        [ConditionalFact]
+        public virtual void Where_subquery_on_bool()
+        {
+            AssertQuery<Product, Product>((pr, pr2) =>
+                from p in pr
+                where pr2.Select(p2 => p2.ProductName).Contains("Chai")
+                select p);
+        }
+
+        [ConditionalFact]
         public virtual void Where_subquery_on_collection()
         {
             AssertQuery<Product, OrderDetail>((pr, od) =>
-                from p in pr
-                where p.OrderDetails.Contains(od.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
-                select p);
+                pr.Where(
+                        p => od
+                            .Where(o => o.ProductID == p.ProductID)
+                            .Select(odd => odd.Quantity).Contains<short>(5)));
         }
 
         [ConditionalFact]

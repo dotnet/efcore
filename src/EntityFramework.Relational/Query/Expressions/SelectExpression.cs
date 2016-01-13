@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         public SelectExpression(
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] string alias)
-            : base(null, Check.NotEmpty(alias, nameof(alias)))
+            : base(null, Check.NotNull(alias, nameof(alias)))
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual SelectExpression Clone([NotNull] string alias)
         {
-            Check.NotEmpty(alias, nameof(alias));
+            Check.NotNull(alias, nameof(alias));
 
             var selectExpression
                 = new SelectExpression(_querySqlGeneratorFactory, alias)

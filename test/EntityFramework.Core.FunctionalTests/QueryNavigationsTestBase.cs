@@ -650,6 +650,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        // TODO: [ConditionalFact] See #153
+        public virtual void Where_subquery_on_navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from p in context.Products
+                            where p.OrderDetails.Contains(context.OrderDetails.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
+                            select p;
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
         [ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query()
         {

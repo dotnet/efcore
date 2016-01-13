@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Storage;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
 
@@ -213,7 +214,36 @@ namespace Microsoft.Data.Entity.Query.Internal
             => handlerContext.EvalOnClient(requiresClientResultOperator: false);
 
         private static Expression HandleContains(HandlerContext handlerContext)
-            => handlerContext.EvalOnClient(requiresClientResultOperator: false);
+        {
+            var filteringVisitor
+                = handlerContext.SqlTranslatingExpressionVisitorFactory
+                    .Create(
+                        handlerContext.QueryModelVisitor,
+                        handlerContext.SelectExpression);
+
+            var item
+                = filteringVisitor.Visit(
+                    ((ContainsResultOperator)handlerContext.ResultOperator).Item);
+
+            if (item != null)
+            {
+                // Add empty alias to ensure select expression is generated as a subquery
+                var innerSelectExpression = handlerContext.SelectExpression.Clone("");
+
+                SetProjectionConditionalExpression(
+                    handlerContext,
+                    Expression.Condition(
+                        new InExpression(
+                            new AliasExpression(item), innerSelectExpression),
+                        Expression.Constant(true),
+                        Expression.Constant(false),
+                        typeof(bool)));
+
+                return TransformClientExpression<bool>(handlerContext);
+            }
+
+            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+        }
 
         private static Expression HandleCount(HandlerContext handlerContext)
         {

@@ -4109,6 +4109,45 @@ FROM [Orders] AS [o]
                 Sql);
         }
 
+        public override void Where_subquery_on_bool()
+        {
+            base.Where_subquery_on_bool();
+
+            Assert.Equal(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (
+    SELECT CASE
+        WHEN 'Chai' IN (
+            SELECT [p2].[ProductName]
+            FROM [Products] AS [p2]
+        )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
+        public override void Where_subquery_on_collection()
+        {
+            base.Where_subquery_on_collection();
+
+            Assert.Equal(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (
+    SELECT CASE
+        WHEN 5 IN (
+            SELECT [o].[Quantity]
+            FROM [Order Details] AS [o]
+            WHERE [o].[ProductID] = [p].[ProductID]
+        )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
         public override void Select_many_cross_join_same_collection()
         {
             base.Select_many_cross_join_same_collection();
@@ -4389,6 +4428,23 @@ WHERE 1 = 0",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 = 1",
+                Sql);
+        }
+
+        public override void Contains_top_level()
+        {
+            base.Contains_top_level();
+
+            Assert.Equal(
+                @"@__p_0: ALFKI
+
+SELECT CASE
+    WHEN @__p_0 IN (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+    )
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
                 Sql);
         }
 
