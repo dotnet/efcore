@@ -1338,7 +1338,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             foreach (var entity in toAdd.SelectMany(l => l))
             {
-                Add(entity, behavior: GraphBehavior.SingleObject);
+                ChangeTracker.AutoDetectChangesEnabled = false;
+                Entry(entity).State = EntityState.Added;
+                ChangeTracker.AutoDetectChangesEnabled = true;
             }
 
             if (saveChanges)

@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Query.Internal;
 #if NET451
 using System.ComponentModel;
 using Microsoft.Data.Entity.Internal;
+
 #endif
 
 namespace Microsoft.Data.Entity
@@ -44,39 +45,31 @@ namespace Microsoft.Data.Entity
         where TEntity : class
     {
         /// <summary>
-        ///     Begins tracking the given entity in the <see cref="EntityState.Added" /> state such that it will
+        ///     Begins tracking the given entity, and any of its children (dependents) that are
+        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add(
-            [NotNull] TEntity entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+        public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
+        ///     Begins tracking the given entity, and any of its children (dependents) that are
+        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach(
-            [NotNull] TEntity entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+        public virtual EntityEntry<TEntity> Attach([NotNull] TEntity entity)
         {
             throw new NotImplementedException();
         }
@@ -86,13 +79,20 @@ namespace Microsoft.Data.Entity
         ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
-        ///     If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
-        ///     stop tracking the entity (rather than marking it as <see cref="EntityState.Deleted" />) since the
-        ///     entity was previously added to the context and does not exist in the database.
+        ///     <para>
+        ///         If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
+        ///         stop tracking the entity (rather than marking it as <see cref="EntityState.Deleted" />) since the
+        ///         entity was previously added to the context and does not exist in the database.
+        ///     </para>
+        ///     <para>
+        ///         Any children (dependents) that are not already being tracked will be tracked in the same way that
+        ///         they would be if <see cref="Attach(TEntity)" /> was called before calling this method.
+        ///         This allows any cascading actions to be applied when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Remove([NotNull] TEntity entity)
@@ -102,32 +102,29 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entity in the <see cref="EntityState.Modified" /> state such that it will
+        ///         Begins tracking the given entity, and any of its children (dependents) that are
+        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that it will
         ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(TEntity, GraphBehavior)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(TEntity)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entity or also other related entities.
-        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update(
-            [NotNull] TEntity entity,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+        public virtual EntityEntry<TEntity> Update([NotNull] TEntity entity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
+        ///     Begins tracking the given entities, and any of their children (dependents) that are
+        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
@@ -137,7 +134,8 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
+        ///     Begins tracking the given entities, and any of their children (dependents) that are
+        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
@@ -147,13 +145,20 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
         ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
-        ///     If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
-        ///     stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
-        ///     entities were previously added to the context and do not exist in the database.
+        ///     <para>
+        ///         If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
+        ///         stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
+        ///         entities were previously added to the context and do not exist in the database.
+        ///     </para>
+        ///     <para>
+        ///         Any children (dependents) that are not already being tracked will be tracked in the same way that
+        ///         they would be if <see cref="AttachRange(TEntity[])" /> was called before calling this method.
+        ///         This allows any cascading actions to be applied when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange([NotNull] params TEntity[] entities)
@@ -163,12 +168,13 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
+        ///         Begins tracking the given entities, and any of their children (dependents) that are
+        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
         ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(TEntity, GraphBehavior)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(TEntity)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
@@ -179,43 +185,42 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Begins tracking the given entities in the <see cref="EntityState.Added" /> state such that they will
+        ///     Begins tracking the given entities, and any of their children (dependents) that are
+        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entities or also other related entities.
-        /// </param>
-        public virtual void AddRange(
-            [NotNull] IEnumerable<TEntity> entities,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
+        ///     Begins tracking the given entities, and any of their children (dependents) that are
+        ///     not already being tracked, in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entities or also other related entities.
-        /// </param>
-        public virtual void AttachRange(
-            [NotNull] IEnumerable<TEntity> entities,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+        public virtual void AttachRange([NotNull] IEnumerable<TEntity> entities)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
         ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
-        ///     If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
-        ///     stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
-        ///     entities were previously added to the context and do not exist in the database.
+        ///     <para>
+        ///         If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
+        ///         stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
+        ///         entities were previously added to the context and do not exist in the database.
+        ///     </para>
+        ///     <para>
+        ///         Any children (dependents) that are not already being tracked will be tracked in the same way that
+        ///         they would be if <see cref="AttachRange(IEnumerable{TEntity})" /> was called before calling this method.
+        ///         This allows any cascading actions to be applied when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange([NotNull] IEnumerable<TEntity> entities)
@@ -225,22 +230,18 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking the given entities in the <see cref="EntityState.Modified" /> state such that they will
+        ///         Begins tracking the given entities, and any of their children (dependents) that are
+        ///         not already being tracked, in the <see cref="EntityState.Modified" /> state such that they will
         ///         be updated in the database when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(TEntity, GraphBehavior)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(TEntity)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        /// <param name="behavior">
-        ///     Determines whether the context will bring in only the given entities or also other related entities.
-        /// </param>
-        public virtual void UpdateRange(
-            [NotNull] IEnumerable<TEntity> entities,
-            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities)
         {
             throw new NotImplementedException();
         }
