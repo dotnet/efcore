@@ -84,6 +84,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     {
                         var table = new TableModel
                         {
+                            Database = _databaseModel,
                             Name = name
                         };
                         _databaseModel.Tables.Add(table);

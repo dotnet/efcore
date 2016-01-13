@@ -50,6 +50,8 @@ namespace E2ETest.Namespace
                     .HasColumnType("timestamp")
                     .ValueGeneratedOnAddOrUpdate();
 
+                entity.Property(e => e.typeAliasColumn).HasColumnType("TestTypeAlias");
+
                 entity.Property(e => e.varbinaryColumn).HasColumnType("varbinary");
 
                 entity.Property(e => e.varcharColumn).HasColumnType("varchar");

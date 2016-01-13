@@ -26,11 +26,11 @@ namespace Microsoft.Data.Entity.Scaffolding
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
         protected virtual ILogger Logger { get; }
+        protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         private Dictionary<TableModel, CSharpUniqueNamer<ColumnModel>> _columnNamers;
         private readonly TableModel _nullTable = new TableModel();
         private CSharpUniqueNamer<TableModel> _tableNamer;
-        private readonly IRelationalTypeMapper _typeMapper;
         private readonly IDatabaseModelFactory _databaseModelFactory;
 
         public RelationalScaffoldingModelFactory(
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
 
             Logger = loggerFactory.CreateCommandsLogger();
-            _typeMapper = typeMapper;
+            TypeMapper = typeMapper;
             _databaseModelFactory = databaseModelFactory;
         }
 
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Scaffolding
             Type sequenceType = null;
             if (sequence.DataType != null)
             {
-                sequenceType = _typeMapper.FindMapping(sequence.DataType)?.ClrType;
+                sequenceType = TypeMapper.FindMapping(sequence.DataType)?.ClrType;
             }
 
             if (sequenceType != null
@@ -264,21 +264,16 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(column, nameof(column));
 
-            var mapping = column.DataType != null
-                ? _typeMapper.FindMapping(column.DataType)
-                : null;
-
-            if (mapping?.ClrType == null)
+            var clrType = GetTypeMapping(column);
+            if (clrType == null)
             {
                 Logger.LogWarning(RelationalDesignStrings.CannotFindTypeMappingForColumn(column.DisplayName, column.DataType));
                 return null;
             }
 
-            var clrType = column.IsNullable ? mapping.ClrType.MakeNullable() : mapping.ClrType;
-
             var property = builder.Property(clrType, GetPropertyName(column));
 
-            if (_typeMapper.GetMapping(property.Metadata).DefaultTypeName != column.DataType
+            if (TypeMapper.GetMapping(property.Metadata).DefaultTypeName != column.DataType
                 && !string.IsNullOrWhiteSpace(column.DataType))
             {
                 property.HasColumnType(column.DataType);
@@ -313,6 +308,22 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             property.Metadata.Scaffolding().ColumnOrdinal = column.Ordinal;
             return property;
+        }
+
+        protected virtual Type GetTypeMapping([NotNull] ColumnModel column)
+        {
+            Check.NotNull(column, nameof(column));
+
+            var mapping = column.DataType != null
+                ? TypeMapper.FindMapping(column.DataType)
+                : null;
+
+            if (mapping?.ClrType == null)
+            {
+                return null;
+            }
+
+            return column.IsNullable ? mapping.ClrType.MakeNullable() : mapping.ClrType;
         }
 
         protected virtual KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)

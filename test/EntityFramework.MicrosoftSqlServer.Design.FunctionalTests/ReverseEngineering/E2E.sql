@@ -38,6 +38,10 @@ if exists (select * from sysobjects where id = object_id('dbo.AllDataTypes') and
 	DROP TABLE "dbo"."AllDataTypes"
 GO
 
+if exists (select * from systypes where name = 'TestTypeAlias')
+	drop TYPE "dbo"."TestTypeAlias"
+GO
+
 if exists (select * from sysobjects where id = object_id('dbo.PropertyConfiguration') and sysstat & 0xf = 3)
 	DROP TABLE "dbo"."PropertyConfiguration"
 GO
@@ -94,6 +98,9 @@ if exists (select * from sysobjects where id = object_id('dbo.FilteredOut') and 
 	drop table "dbo"."FilteredOut"
 GO
 
+CREATE TYPE TestTypeAlias FROM nvarchar(max)
+GO
+
 CREATE TABLE "dbo"."AllDataTypes" (
 	"AllDataTypesID" "int" IDENTITY(1, 1) PRIMARY KEY,
 	"bigintColumn" "bigint" NOT NULL,
@@ -132,6 +139,7 @@ CREATE TABLE "dbo"."AllDataTypes" (
 	"xmlColumn" "xml" NULL,
 	"geographyColumn" "geography" NULL,
 	"geometryColumn" "geometry" NULL,
+	"typeAliasColumn" "TestTypeAlias" NULL,
 )
 
 GO

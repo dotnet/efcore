@@ -45,5 +45,6 @@ namespace E2ETest.Namespace
         public byte[] varbinaryColumn { get; set; }
         public byte[] timestampColumn { get; set; }
         public Guid? uniqueidentifierColumn { get; set; }
+        public string typeAliasColumn { get; set; }
     }
 }

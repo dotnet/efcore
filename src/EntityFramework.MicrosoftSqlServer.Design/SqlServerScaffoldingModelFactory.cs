@@ -49,6 +49,29 @@ namespace Microsoft.Data.Entity.Scaffolding
             return propertyBuilder;
         }
 
+        protected override Type GetTypeMapping([NotNull] ColumnModel column)
+        {
+            RelationalTypeMapping mapping = null;
+            if (column.DataType != null)
+            {
+                string underlyingDataType = null;
+                var typeAliases = column.Table.Database.SqlServer().TypeAliases;
+                if (typeAliases != null)
+                {
+                    typeAliases.TryGetValue(column.DataType, out underlyingDataType);
+                }
+
+                mapping = TypeMapper.FindMapping(underlyingDataType ?? column.DataType);
+            }
+
+            if (mapping?.ClrType == null)
+            {
+                return null;
+            }
+
+            return column.IsNullable ? mapping.ClrType.MakeNullable() : mapping.ClrType;
+        }
+
         protected override KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
         {
             var keyBuilder = base.VisitPrimaryKey(builder, table);
