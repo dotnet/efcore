@@ -16,9 +16,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
         }
 
-        public override void Default_if_empty_top_level_arg()
+        public override void GroupJoin_DefaultIfEmpty3()
         {
-            base.Default_if_empty_top_level_arg();
+            // TODO: #4311
+            //base.GroupJoin_DefaultIfEmpty3();
         }
     }
 }
