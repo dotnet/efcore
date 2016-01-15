@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -24,15 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         public DatabaseOperations(
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] string assemblyName,
-            [NotNull] string startupAssemblyName,
+            [NotNull] Assembly assembly,
+            [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
-            Check.NotEmpty(assemblyName, nameof(assemblyName));
-            Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
+            Check.NotNull(assembly, nameof(assembly));
+            Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
 
-            var startup = new StartupInvoker(startupAssemblyName, environment);
+            var startup = new StartupInvoker(startupAssembly, environment);
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 

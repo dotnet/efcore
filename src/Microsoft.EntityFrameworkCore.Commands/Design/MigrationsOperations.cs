@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     {
         private readonly ILoggerProvider _loggerProvider;
         private readonly LazyRef<ILogger> _logger;
-        private readonly string _assemblyName;
+        private readonly Assembly _assembly;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
@@ -31,15 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         public MigrationsOperations(
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] string assemblyName,
-            [NotNull] string startupAssemblyName,
+            [NotNull] Assembly assembly,
+            [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
-            Check.NotEmpty(assemblyName, nameof(assemblyName));
-            Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
+            Check.NotNull(assembly, nameof(assembly));
+            Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
@@ -48,17 +48,17 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             _loggerProvider = loggerProvider;
             _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
-            _assemblyName = assemblyName;
+            _assembly = assembly;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _contextOperations = new DbContextOperations(
                 loggerProvider,
-                assemblyName,
-                startupAssemblyName,
+                assembly,
+                startupAssembly,
                 projectDir,
                 environment);
 
-            var startup = new StartupInvoker(startupAssemblyName, environment);
+            var startup = new StartupInvoker(startupAssembly, environment);
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
@@ -162,13 +162,16 @@ namespace Microsoft.EntityFrameworkCore.Design
                 throw new OperationException(CommandsStrings.NonRelationalProvider(providerServices.InvariantName));
             }
 
+            var assemblyName = _assembly.GetName();
             var options = services.GetRequiredService<IDbContextOptions>();
             var contextType = services.GetRequiredService<DbContext>().GetType();
-            var assemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly
+            var migrationsAssemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly
                 ?? contextType.GetTypeInfo().Assembly.GetName().Name;
-            if (_assemblyName != assemblyName)
+            if (assemblyName.Name != migrationsAssemblyName
+                && assemblyName.FullName != migrationsAssemblyName)
             {
-                throw new OperationException(CommandsStrings.MigrationsAssemblyMismatch(_assemblyName, assemblyName));
+                throw new OperationException(
+                    CommandsStrings.MigrationsAssemblyMismatch(assemblyName.Name, migrationsAssemblyName));
             }
         }
     }

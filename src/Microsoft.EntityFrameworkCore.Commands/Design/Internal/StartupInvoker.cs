@@ -16,16 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _environment;
 
         public StartupInvoker(
-            [NotNull] string startupAssemblyName,
+            [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment)
         {
-            Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
+            Check.NotNull(startupAssembly, nameof(startupAssembly));
 
             _environment = !string.IsNullOrEmpty(environment)
                 ? environment
                 : "Development";
 
-            var startupAssembly = Assembly.Load(new AssemblyName(startupAssemblyName));
             _startupType = startupAssembly.DefinedTypes.Where(t => t.Name == "Startup" + _environment)
                 .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "Startup"))
                 .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "Program"))

@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0-*",
+  "description": "Entity Framework Core Commands for .NET Core CLI.",
+  "compilationOptions": {
+    "warningsAsErrors": true,
+    "emitEntryPoint": true
+  },
+  "compile": "..\\Shared\\*.cs",
+  "dependencies": {
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
+    "Microsoft.DotNet.ProjectModel.Loader": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*"
+  },
+  "frameworks": {
+    "dnxcore50": {
+      "imports": "portable-net452+win81",
+      "dependencies": {
+        "Microsoft.NETCore.Platforms": "1.0.1-*",
+        "System.Security.Cryptography.Algorithms": "4.0.0-*"
+      }
+    }
+  }
+}

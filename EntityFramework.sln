@@ -69,6 +69,10 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Sqlite.Design.Tests", "test\Microsoft.EntityFrameworkCore.Sqlite.Design.Tests\Microsoft.EntityFrameworkCore.Sqlite.Design.Tests.xproj", "{BFF1BBE8-C6CE-4103-9C75-6184C8B8D936}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "dotnet-ef", "src\dotnet-ef\dotnet-ef.xproj", "{5C1B3280-F11D-4E4E-81B3-BCDA4942E097}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "dotnet-ef.Tests", "test\dotnet-ef.Tests\dotnet-ef.Tests.xproj", "{93D7AB4E-2E04-4217-BBE5-43EC0D54344F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,6 +203,14 @@ Global
 		{BFF1BBE8-C6CE-4103-9C75-6184C8B8D936}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFF1BBE8-C6CE-4103-9C75-6184C8B8D936}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFF1BBE8-C6CE-4103-9C75-6184C8B8D936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C1B3280-F11D-4E4E-81B3-BCDA4942E097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C1B3280-F11D-4E4E-81B3-BCDA4942E097}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C1B3280-F11D-4E4E-81B3-BCDA4942E097}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C1B3280-F11D-4E4E-81B3-BCDA4942E097}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93D7AB4E-2E04-4217-BBE5-43EC0D54344F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93D7AB4E-2E04-4217-BBE5-43EC0D54344F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93D7AB4E-2E04-4217-BBE5-43EC0D54344F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93D7AB4E-2E04-4217-BBE5-43EC0D54344F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -235,5 +247,7 @@ Global
 		{D4A29871-788D-4EA3-B637-1F8D14DA23B4} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{000FF28B-AA1E-4DD2-8582-0259CF07B025} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 		{BFF1BBE8-C6CE-4103-9C75-6184C8B8D936} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
+		{5C1B3280-F11D-4E4E-81B3-BCDA4942E097} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
+		{93D7AB4E-2E04-4217-BBE5-43EC0D54344F} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 	EndGlobalSection
 EndGlobal

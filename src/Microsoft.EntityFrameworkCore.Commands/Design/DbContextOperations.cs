@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Design
     public class DbContextOperations
     {
         private readonly ILoggerProvider _loggerProvider;
-        private readonly string _assemblyName;
-        private readonly string _startupAssemblyName;
+        private readonly Assembly _assembly;
+        private readonly Assembly _startupAssembly;
         private readonly string _projectDir;
         private readonly LazyRef<ILogger> _logger;
         private readonly IServiceProvider _runtimeServices;
@@ -33,23 +33,23 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         public DbContextOperations(
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] string assemblyName,
-            [NotNull] string startupAssemblyName,
+            [NotNull] Assembly assembly,
+            [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
             [CanBeNull] string environment)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
-            Check.NotEmpty(assemblyName, nameof(assemblyName));
-            Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
+            Check.NotNull(assembly, nameof(assembly));
+            Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotEmpty(projectDir, nameof(projectDir));
 
             _loggerProvider = loggerProvider;
-            _assemblyName = assemblyName;
-            _startupAssemblyName = startupAssemblyName;
+            _assembly = assembly;
+            _startupAssembly = startupAssembly;
             _projectDir = projectDir;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
-            var startup = new StartupInvoker(startupAssemblyName, environment);
+            var startup = new StartupInvoker(startupAssembly, environment);
             _runtimeServices = startup.ConfigureServices();
 
             _servicesBuilder = new DesignTimeServicesBuilder(startup);
@@ -125,11 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         {
             _logger.Value.LogDebug(CommandsStrings.LogFindingContexts);
 
-            var startupAssembly = Assembly.Load(new AssemblyName(_startupAssemblyName));
             var contexts = new Dictionary<Type, Func<DbContext>>();
 
             // Look for IDbContextFactory implementations
-            var contextFactories = startupAssembly.GetConstructibleTypes()
+            var contextFactories = _startupAssembly.GetConstructibleTypes()
                 .Where(t => typeof(IDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
             foreach (var factory in contextFactories)
             {
@@ -157,18 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
 
             // Look for DbContext classes in assemblies
-            Assembly assembly;
-            try
-            {
-                assembly = Assembly.Load(new AssemblyName(_assemblyName));
-            }
-            catch (Exception ex)
-            {
-                throw new OperationException(CommandsStrings.UnreferencedAssembly(_assemblyName, _startupAssemblyName), ex);
-            }
-
-            var types = startupAssembly.GetConstructibleTypes()
-                .Concat(assembly.GetConstructibleTypes())
+            var types = _startupAssembly.GetConstructibleTypes()
+                .Concat(_assembly.GetConstructibleTypes())
                 .Select(i => i.AsType());
             var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t))
                 .Concat(

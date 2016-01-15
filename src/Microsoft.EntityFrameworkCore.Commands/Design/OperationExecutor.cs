@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -34,25 +35,37 @@ namespace Microsoft.EntityFrameworkCore.Design
             var projectDir = (string)args["projectDir"];
             var rootNamespace = (string)args["rootNamespace"];
 
+            var startupAssembly = Assembly.Load(new AssemblyName(startupTargetName));
+
+            Assembly assembly;
+            try
+            {
+                assembly = Assembly.Load(new AssemblyName(targetName));
+            }
+            catch (Exception ex)
+            {
+                throw new OperationException(CommandsStrings.UnreferencedAssembly(targetName, startupTargetName), ex);
+            }
+
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
                     loggerProvider,
-                    targetName,
-                    startupTargetName,
+                    assembly,
+                    startupAssembly,
                     projectDir, environment));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     loggerProvider,
-                    targetName,
-                    startupTargetName,
+                    assembly,
+                    startupAssembly,
                     environment,
                     projectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     loggerProvider,
-                    targetName,
-                    startupTargetName,
+                    assembly,
+                    startupAssembly,
                     environment,
                     projectDir,
                     rootNamespace));
@@ -318,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         public class ScaffoldRuntimeDirectives : OperationBase
         {
-            public ScaffoldRuntimeDirectives([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args) 
+            public ScaffoldRuntimeDirectives([NotNull] OperationExecutor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
