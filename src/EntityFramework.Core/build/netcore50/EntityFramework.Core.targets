@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Target Name="EnsureEntityFrameworkRdXml" BeforeTargets="Build; BeforeBuild" Condition="'$(UseDotNetNativeToolchain)' != ''">
+    <Target Name="EnsureEntityFrameworkRdXml" BeforeTargets="Build; BeforeBuild" Condition="'$(UseDotNetNativeToolchain)' == 'true'">
         <PropertyGroup>
             <_GenerateInstruction>Generate this file by executing 'Scaffold-Directives' command from the Package Manager Console.</_GenerateInstruction>
             <_GenerateInstruction Condition="'$(_EfCommandsReferenced)' == ''">Install the EntityFramework.Commands package and execute 'Scaffold-Directives' from the Package Manager Console.</_GenerateInstruction>
