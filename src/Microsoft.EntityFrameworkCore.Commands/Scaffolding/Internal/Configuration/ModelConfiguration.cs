@@ -349,8 +349,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
             AddRequiredConfiguration(propertyConfiguration);
-            AddMaxLengthConfiguration(propertyConfiguration);
             AddColumnNameAndTypeConfiguration(propertyConfiguration);
+            AddMaxLengthConfiguration(propertyConfiguration);
             AddDefaultValueConfiguration(propertyConfiguration);
             AddDefaultExpressionConfiguration(propertyConfiguration);
             AddValueGeneratedConfiguration(propertyConfiguration);

@@ -321,6 +321,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Fact]
+        public void Does_non_key_SQL_Server_fixed_length_binary_mapping()
+        {
+            var property = CreateEntityType().AddProperty("MyBinaryProp", typeof(byte[]));
+            property.Relational().ColumnType = "binary";
+
+            var typeMapping = new SqlServerTypeMapper().GetMapping(property);
+
+            Assert.Equal(DbType.Binary, typeMapping.StoreType);
+            Assert.Equal("binary", typeMapping.DefaultTypeName);
+        }
+
+        [Fact]
         public void Does_key_SQL_Server_binary_mapping()
         {
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));

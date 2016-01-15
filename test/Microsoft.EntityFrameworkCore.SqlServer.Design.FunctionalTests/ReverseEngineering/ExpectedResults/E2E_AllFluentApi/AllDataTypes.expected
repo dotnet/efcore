@@ -27,16 +27,44 @@ namespace E2ETest.Namespace
         public TimeSpan? timeColumn { get; set; }
         public TimeSpan? time4Column { get; set; }
         public string charColumn { get; set; }
+        public string char10Column { get; set; }
         public string textColumn { get; set; }
         public string varcharColumn { get; set; }
+        public string varchar66Column { get; set; }
+        public string varcharMaxColumn { get; set; }
         public string ncharColumn { get; set; }
+        public string nchar99Column { get; set; }
         public string ntextColumn { get; set; }
         public string nvarcharColumn { get; set; }
+        public string nvarchar100Column { get; set; }
+        public string nvarcharMaxColumn { get; set; }
         public byte[] binaryColumn { get; set; }
+        public byte[] binary111Column { get; set; }
         public byte[] imageColumn { get; set; }
         public byte[] varbinaryColumn { get; set; }
+        public byte[] varbinary123Column { get; set; }
+        public byte[] varbinaryMaxColumn { get; set; }
         public byte[] timestampColumn { get; set; }
         public Guid? uniqueidentifierColumn { get; set; }
         public string typeAliasColumn { get; set; }
+        public byte[] binaryVaryingColumn { get; set; }
+        public byte[] binaryVarying133Column { get; set; }
+        public byte[] binaryVaryingMaxColumn { get; set; }
+        public string charVaryingColumn { get; set; }
+        public string charVarying144Column { get; set; }
+        public string charVaryingMaxColumn { get; set; }
+        public string characterColumn { get; set; }
+        public string character155Column { get; set; }
+        public string characterVaryingColumn { get; set; }
+        public string characterVarying166Column { get; set; }
+        public string characterVaryingMaxColumn { get; set; }
+        public string nationalCharacterColumn { get; set; }
+        public string nationalCharacter171Column { get; set; }
+        public string nationalCharVaryingColumn { get; set; }
+        public string nationalCharVarying177Column { get; set; }
+        public string nationalCharVaryingMaxColumn { get; set; }
+        public string nationalCharacterVaryingColumn { get; set; }
+        public string nationalCharacterVarying188Column { get; set; }
+        public string nationalCharacterVaryingMaxColumn { get; set; }
     }
 }

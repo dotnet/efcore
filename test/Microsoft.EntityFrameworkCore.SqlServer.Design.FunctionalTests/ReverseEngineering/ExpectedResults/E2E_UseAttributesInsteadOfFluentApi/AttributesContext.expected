@@ -15,9 +15,29 @@ namespace E2ETest.Namespace
         {
             modelBuilder.Entity<AllDataTypes>(entity =>
             {
-                entity.Property(e => e.binaryColumn).HasColumnType("binary");
+                entity.Property(e => e.binary111Column).HasColumnType("binary(111)");
 
-                entity.Property(e => e.charColumn).HasColumnType("char");
+                entity.Property(e => e.binaryColumn).HasColumnType("binary(1)");
+
+                entity.Property(e => e.char10Column).HasColumnType("char(10)");
+
+                entity.Property(e => e.charColumn).HasColumnType("char(1)");
+
+                entity.Property(e => e.charVarying144Column).HasColumnType("varchar(144)");
+
+                entity.Property(e => e.charVaryingColumn).HasColumnType("varchar(1)");
+
+                entity.Property(e => e.charVaryingMaxColumn).HasColumnType("varchar(max)");
+
+                entity.Property(e => e.character155Column).HasColumnType("char(155)");
+
+                entity.Property(e => e.characterColumn).HasColumnType("char(1)");
+
+                entity.Property(e => e.characterVarying166Column).HasColumnType("varchar(166)");
+
+                entity.Property(e => e.characterVaryingColumn).HasColumnType("varchar(1)");
+
+                entity.Property(e => e.characterVaryingMaxColumn).HasColumnType("varchar(max)");
 
                 entity.Property(e => e.dateColumn).HasColumnType("date");
 
@@ -33,7 +53,13 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.moneyColumn).HasColumnType("money");
 
-                entity.Property(e => e.ncharColumn).HasColumnType("nchar");
+                entity.Property(e => e.nationalCharacter171Column).HasColumnType("nchar(171)");
+
+                entity.Property(e => e.nationalCharacterColumn).HasColumnType("nchar(1)");
+
+                entity.Property(e => e.nchar99Column).HasColumnType("nchar(99)");
+
+                entity.Property(e => e.ncharColumn).HasColumnType("nchar(1)");
 
                 entity.Property(e => e.ntextColumn).HasColumnType("ntext");
 
@@ -53,9 +79,11 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.typeAliasColumn).HasColumnType("TestTypeAlias");
 
-                entity.Property(e => e.varbinaryColumn).HasColumnType("varbinary");
+                entity.Property(e => e.varchar66Column).HasColumnType("varchar(66)");
 
-                entity.Property(e => e.varcharColumn).HasColumnType("varchar");
+                entity.Property(e => e.varcharColumn).HasColumnType("varchar(1)");
+
+                entity.Property(e => e.varcharMaxColumn).HasColumnType("varchar(max)");
             });
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
@@ -148,7 +176,7 @@ namespace E2ETest.Namespace
                     .HasColumnType("money")
                     .HasDefaultValueSql("0.00");
 
-                entity.Property(e => e.WithVarcharNullDefaultValue).HasColumnType("varchar");
+                entity.Property(e => e.WithVarcharNullDefaultValue).HasColumnType("varchar(1)");
             });
 
             modelBuilder.Entity<ReferredToByTableWithUnmappablePrimaryKeyColumn>(entity =>

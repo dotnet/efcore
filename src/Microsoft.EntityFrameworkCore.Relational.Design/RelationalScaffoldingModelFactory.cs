@@ -264,11 +264,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(column, nameof(column));
 
-            var clrType = GetTypeMapping(column);
+            var typeMapping = GetTypeMapping(column);
+
+            var clrType = typeMapping?.ClrType;
             if (clrType == null)
             {
                 Logger.LogWarning(RelationalDesignStrings.CannotFindTypeMappingForColumn(column.DisplayName, column.DataType));
                 return null;
+            }
+
+            if (column.IsNullable)
+            {
+                clrType = clrType.MakeNullable();
             }
 
             var property = builder.Property(clrType, GetPropertyName(column));
@@ -310,20 +317,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             return property;
         }
 
-        protected virtual Type GetTypeMapping([NotNull] ColumnModel column)
+        protected virtual RelationalTypeMapping GetTypeMapping([NotNull] ColumnModel column)
         {
             Check.NotNull(column, nameof(column));
 
-            var mapping = column.DataType != null
-                ? TypeMapper.FindMapping(column.DataType)
-                : null;
-
-            if (mapping?.ClrType == null)
-            {
-                return null;
-            }
-
-            return column.IsNullable ? mapping.ClrType.MakeNullable() : mapping.ClrType;
+            return column.DataType == null ? null : TypeMapper.FindMapping(column.DataType);
         }
 
         protected virtual KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)

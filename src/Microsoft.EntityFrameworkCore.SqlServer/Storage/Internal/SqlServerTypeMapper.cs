@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly SqlServerMaxLengthMapping _char = new SqlServerMaxLengthMapping("char", typeof(string), DbType.AnsiStringFixedLength);
         private readonly SqlServerMaxLengthMapping _varchar = new SqlServerMaxLengthMapping("varchar", typeof(string), DbType.AnsiString);
         private readonly SqlServerMaxLengthMapping _varbinary = new SqlServerMaxLengthMapping("varbinary", typeof(byte[]), DbType.Binary);
+        private readonly SqlServerMaxLengthMapping _binary = new SqlServerMaxLengthMapping("binary", typeof(byte[]), DbType.Binary);
         private readonly RelationalTypeMapping _datetime2 = new RelationalTypeMapping("datetime2", typeof(DateTime), DbType.DateTime2);
         private readonly RelationalTypeMapping _double = new RelationalTypeMapping("float", typeof(double));
         private readonly RelationalTypeMapping _datetimeoffset = new RelationalTypeMapping("datetimeoffset", typeof(DateTimeOffset));
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 {
                     { "bigint", _bigint },
                     { "binary varying", _varbinary },
-                    { "binary", _varbinary },
+                    { "binary", _binary },
                     { "bit", _bit },
                     { "char varying", _varchar },
                     { "char varying(max)", _varcharmax },

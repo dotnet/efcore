@@ -12,7 +12,6 @@ namespace E2ETest.Namespace
         public DateTime WithDateFixedDefault { get; set; }
         public DateTime? WithDateNullDefault { get; set; }
         public Guid WithGuidDefaultExpression { get; set; }
-        [MaxLength(1)]
         public string WithVarcharNullDefaultValue { get; set; }
         public int WithDefaultValue { get; set; }
         public short? WithNullDefaultValue { get; set; }
