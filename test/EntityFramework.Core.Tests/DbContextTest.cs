@@ -28,6 +28,19 @@ namespace Microsoft.Data.Entity.Tests
     public class DbContextTest
     {
         [Fact]
+        public void Set_throws_for_type_not_in_model()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseInMemoryDatabase();
+
+            using (var context = new DbContext(TestHelpers.Instance.CreateServiceProvider(), optionsBuilder.Options))
+            {
+                var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>());
+                Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
+            }
+        }
+
+        [Fact]
         public void Each_context_gets_new_scoped_services()
         {
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider();

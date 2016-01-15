@@ -1108,6 +1108,14 @@ namespace Microsoft.Data.Entity.Internal
             get { return GetString("ConcurrentMethodInvocation"); }
         }
 
+        // <summary>
+        // Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.
+        // <summary>
+        public static string InvalidSetType([CanBeNull] object typeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidSetType", "typeName"), typeName);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

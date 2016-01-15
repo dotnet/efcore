@@ -528,4 +528,7 @@
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
     <value>A second operation started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.</value>
   </data>
+  <data name="InvalidSetType" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
+  </data>
 </root>

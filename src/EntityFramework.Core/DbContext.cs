@@ -839,8 +839,15 @@ namespace Microsoft.Data.Entity
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
         public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class
-            => (_setInitializer
+        {
+            if (Model.FindEntityType(typeof(TEntity)) == null)
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).Name));
+            }
+
+            return (_setInitializer
                 ?? (_setInitializer = ServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
+        }
 
         private static GraphBehavior IsDefined(GraphBehavior behavior)
         {
