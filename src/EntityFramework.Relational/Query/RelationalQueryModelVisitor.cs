@@ -233,7 +233,6 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
-            Check.NotNull(accessorLambda, nameof(accessorLambda));
 
             Expression
                 = _includeExpressionVisitorFactory

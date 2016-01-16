@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using System.Linq;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
@@ -94,5 +95,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         protected override Expression VisitLambda<T>(Expression<T> node) => node;
 
         protected override Expression VisitInvocation(InvocationExpression node) => node;
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            var referenceSource = node.Arguments.FirstOrDefault() as QuerySourceReferenceExpression;
+            if(node.Method.IsGenericMethod 
+                && node.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo
+                && referenceSource?.ReferencedQuerySource.Equals(_targetQuerySource) == true)
+            {
+                return node;
+            }
+            return base.VisitMethodCall(node);
+        }
     }
 }
