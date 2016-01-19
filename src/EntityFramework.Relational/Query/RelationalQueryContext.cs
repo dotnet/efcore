@@ -43,8 +43,8 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
-            if (!Connection.IsMultipleActiveResultSetsEnabled
-                && _activeQueries.Count > 0)
+            if (_activeQueries.Count > 0
+                && !Connection.IsMultipleActiveResultSetsEnabled)
             {
                 _activeQueries.Last().BufferAll();
             }
@@ -63,8 +63,8 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
-            if (!Connection.IsMultipleActiveResultSetsEnabled
-                && _activeQueries.Count > 0)
+            if (_activeQueries.Count > 0
+                && !Connection.IsMultipleActiveResultSetsEnabled)
             {
                 await _activeQueries.Last().BufferAllAsync(cancellationToken);
             }

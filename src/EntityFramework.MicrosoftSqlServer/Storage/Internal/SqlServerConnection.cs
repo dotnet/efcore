@@ -11,6 +11,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     {
+        private bool? _multipleActiveResultSetsEnabled;
+
         // Compensate for slow SQL Server database creation
         internal const int DefaultMasterConnectionCommandTimeout = 60;
 
@@ -20,18 +22,13 @@ namespace Microsoft.Data.Entity.Storage.Internal
             [NotNull] ILogger<SqlServerConnection> logger)
             : base(options, logger)
         {
-            IsMultipleActiveResultSetsEnabled = InitializeMultipleActiveResultSetsEnabled();
         }
 
         private SqlServerConnection(
             [NotNull] IDbContextOptions options, [NotNull] ILogger logger)
             : base(options, logger)
         {
-            IsMultipleActiveResultSetsEnabled = InitializeMultipleActiveResultSetsEnabled();
         }
-
-        private bool InitializeMultipleActiveResultSetsEnabled()
-            => new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets;
 
         protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
 
@@ -46,6 +43,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
             return new SqlServerConnection(optionsBuilder.Options, Logger);
         }
 
-        public override bool IsMultipleActiveResultSetsEnabled { get; }
+        public override bool IsMultipleActiveResultSetsEnabled
+            => (bool)(_multipleActiveResultSetsEnabled
+                      ?? (_multipleActiveResultSetsEnabled
+                          = new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets));
     }
 }
