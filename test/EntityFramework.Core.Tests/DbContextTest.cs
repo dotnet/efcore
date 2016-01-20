@@ -409,7 +409,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
 
                 Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Equal(expectedState, categoryEntry2.State);
+                Assert.Equal(expectedState, categoryEntry1.State);
                 Assert.Same(category2, categoryEntry2.Entity);
                 Assert.Equal(expectedState, categoryEntry2.State);
 
@@ -477,6 +477,105 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(expectedState, context.Entry(product1).State);
                 Assert.Same(product2, context.Entry(product2).Entity);
                 Assert.Equal(expectedState, context.Entry(product2).State);
+            }
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_with_default_value_to_context_to_be_deleted()
+        {
+            TrackEntitiesDefaultValueTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+        }
+
+        [Fact]
+        public void Can_add_new_entities_with_default_value_to_context_with_graph_method()
+        {
+            TrackEntitiesDefaultValueTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_with_default_value_to_context_to_be_attached_with_graph_method()
+        {
+            TrackEntitiesDefaultValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_with_default_value_to_context_to_be_updated_with_graph_method()
+        {
+            TrackEntitiesDefaultValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+        }
+
+        // Issue #3890
+        private static void TrackEntitiesDefaultValueTest(
+            Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
+            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
+            {
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
+
+                var categoryEntry1 = categoryAdder(context, category1);
+                var productEntry1 = productAdder(context, product1);
+
+                Assert.Same(category1, categoryEntry1.Entity);
+                Assert.Same(product1, productEntry1.Entity);
+
+                Assert.Same(category1, categoryEntry1.Entity);
+                Assert.Equal(expectedState, categoryEntry1.State);
+
+                Assert.Same(product1, productEntry1.Entity);
+                Assert.Equal(expectedState, productEntry1.State);
+
+                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
+                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
+            }
+        }
+
+        [Fact]
+        public void Can_add_multiple_new_entities_with_default_values_to_context()
+        {
+            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRange(e[0]), (c, e) => c.AddRange(e[0]), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached()
+        {
+            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AttachRange(e[0]), (c, e) => c.AttachRange(e[0]), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated()
+        {
+            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.UpdateRange(e[0]), (c, e) => c.UpdateRange(e[0]), EntityState.Modified);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted()
+        {
+            TrackMultipleEntitiesDefaultValuesTest((c, e) => c.RemoveRange(e[0]), (c, e) => c.RemoveRange(e[0]), EntityState.Deleted);
+        }
+
+        // Issue #3890
+        private static void TrackMultipleEntitiesDefaultValuesTest(
+            Action<DbContext, object[]> categoryAdder,
+            Action<DbContext, object[]> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
+            {
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
+
+                categoryAdder(context, new[] { category1 });
+                productAdder(context, new[] { product1 });
+
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Same(product1, context.Entry(product1).Entity);
+
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Equal(expectedState, context.Entry(category1).State);
+
+                Assert.Same(product1, context.Entry(product1).Entity);
+                Assert.Equal(expectedState, context.Entry(product1).State);
             }
         }
 
@@ -560,7 +659,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
 
                 Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Equal(expectedState, categoryEntry2.State);
+                Assert.Equal(expectedState, categoryEntry1.State);
                 Assert.Same(category2, categoryEntry2.Entity);
                 Assert.Equal(expectedState, categoryEntry2.State);
 
@@ -628,6 +727,105 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(expectedState, context.Entry(product1).State);
                 Assert.Same(product2, context.Entry(product2).Entity);
                 Assert.Equal(expectedState, context.Entry(product2).State);
+            }
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_with_default_value_to_context_to_be_deleted_non_generic()
+        {
+            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+        }
+
+        [Fact]
+        public void Can_add_new_entities_with_default_value_to_context_non_generic_graph()
+        {
+            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_with_default_value_to_context_to_be_attached_non_generic_graph()
+        {
+            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_with_default_value_to_context_to_be_updated_non_generic_graph()
+        {
+            TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+        }
+
+        // Issue #3890
+        private static void TrackEntitiesDefaultValuesTestNonGeneric(
+            Func<DbContext, object, EntityEntry> categoryAdder,
+            Func<DbContext, object, EntityEntry> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
+            {
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
+
+                var categoryEntry1 = categoryAdder(context, category1);
+                var productEntry1 = productAdder(context, product1);
+
+                Assert.Same(category1, categoryEntry1.Entity);
+                Assert.Same(product1, productEntry1.Entity);
+
+                Assert.Same(category1, categoryEntry1.Entity);
+                Assert.Equal(expectedState, categoryEntry1.State);
+
+                Assert.Same(product1, productEntry1.Entity);
+                Assert.Equal(expectedState, productEntry1.State);
+
+                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
+                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
+            }
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted_Enumerable()
+        {
+            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
+        }
+
+        [Fact]
+        public void Can_add_multiple_new_entities_with_default_values_to_context_Enumerable_graph()
+        {
+            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached_Enumerable_graph()
+        {
+            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated_Enumerable_graph()
+        {
+            TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Modified);
+        }
+
+        // Issue #3890
+        private static void TrackMultipleEntitiesDefaultValueTestEnumerable(
+            Action<DbContext, IEnumerable<object>> categoryAdder,
+            Action<DbContext, IEnumerable<object>> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
+            {
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
+
+                categoryAdder(context, new List<Category> { category1 });
+                productAdder(context, new List<Product> { product1 });
+
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Same(product1, context.Entry(product1).Entity);
+
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Equal(expectedState, context.Entry(category1).State);
+
+                Assert.Same(product1, context.Entry(product1).Entity);
+                Assert.Equal(expectedState, context.Entry(product1).State);
             }
         }
 
