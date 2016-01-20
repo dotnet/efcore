@@ -53,7 +53,7 @@
 
     <Type Name="System.Linq.Queryable">
 
-<# foreach(var method in typeof(Enumerable).GetTypeInfo()
+<# foreach(var method in typeof(Queryable).GetTypeInfo()
 		.DeclaredMethods
 		.Where(m => m.ContainsGenericParameters && m.GetGenericArguments().Length <= 4)
 		.GroupBy( m => new { m.Name, m.GetGenericArguments().Length })

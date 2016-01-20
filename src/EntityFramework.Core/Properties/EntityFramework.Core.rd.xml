@@ -428,10 +428,6 @@
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="AsEnumerable{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
         <Method Name="Average{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
@@ -440,25 +436,7 @@
             <GenericParameter Name="TResult" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All" />
         </Method>
-        <Method Name="CastIterator{TResult}" >
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All" />
-        </Method>
-        <Method Name="CombinePredicates{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="CombineSelectors{TSource, TMiddle, TResult}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TMiddle" />
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TMiddle, TResult}" Dynamic="Required All" />
-        </Method>
         <Method Name="Concat{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ConcatIterator{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
@@ -474,15 +452,7 @@
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="DefaultIfEmptyIterator{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
         <Method Name="Distinct{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="DistinctIterator{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
@@ -494,15 +464,7 @@
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="Empty{TResult}" >
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All" />
-        </Method>
         <Method Name="Except{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ExceptIterator{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
@@ -539,29 +501,11 @@
             <GenericParameter Name="TResult" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TOuter, TInner, TKey, TResult}" Dynamic="Required All" />
         </Method>
-        <Method Name="GroupJoinIterator{TOuter, TInner, TKey, TResult}" >
-            <GenericParameter Name="TOuter" />
-            <GenericParameter Name="TInner" />
-            <GenericParameter Name="TKey" />
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TOuter, TInner, TKey, TResult}" Dynamic="Required All" />
-        </Method>
         <Method Name="Intersect{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="IntersectIterator{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
         <Method Name="Join{TOuter, TInner, TKey, TResult}" >
-            <GenericParameter Name="TOuter" />
-            <GenericParameter Name="TInner" />
-            <GenericParameter Name="TKey" />
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TOuter, TInner, TKey, TResult}" Dynamic="Required All" />
-        </Method>
-        <Method Name="JoinIterator{TOuter, TInner, TKey, TResult}" >
             <GenericParameter Name="TOuter" />
             <GenericParameter Name="TInner" />
             <GenericParameter Name="TKey" />
@@ -602,10 +546,6 @@
             <GenericParameter Name="TResult" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All" />
         </Method>
-        <Method Name="OfTypeIterator{TResult}" >
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All" />
-        </Method>
         <Method Name="OrderBy{TSource, TKey}" >
             <GenericParameter Name="TSource" />
             <GenericParameter Name="TKey" />
@@ -616,28 +556,11 @@
             <GenericParameter Name="TKey" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey}" Dynamic="Required All" />
         </Method>
-        <Method Name="Repeat{TResult}" >
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All" />
-        </Method>
-        <Method Name="RepeatIterator{TResult}" >
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TResult}" Dynamic="Required All" />
-        </Method>
         <Method Name="Reverse{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="ReverseIterator{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
         <Method Name="Select{TSource, TResult}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TResult}" Dynamic="Required All" />
-        </Method>
-        <Method Name="SelectIterator{TSource, TResult}" >
             <GenericParameter Name="TSource" />
             <GenericParameter Name="TResult" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TResult}" Dynamic="Required All" />
@@ -648,17 +571,6 @@
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TResult}" Dynamic="Required All" />
         </Method>
         <Method Name="SelectMany{TSource, TCollection, TResult}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TCollection" />
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TCollection, TResult}" Dynamic="Required All" />
-        </Method>
-        <Method Name="SelectManyIterator{TSource, TResult}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TResult}" Dynamic="Required All" />
-        </Method>
-        <Method Name="SelectManyIterator{TSource, TCollection, TResult}" >
             <GenericParameter Name="TSource" />
             <GenericParameter Name="TCollection" />
             <GenericParameter Name="TResult" />
@@ -680,15 +592,7 @@
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="SkipIterator{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
         <Method Name="SkipWhile{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="SkipWhileIterator{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
@@ -700,15 +604,7 @@
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="TakeIterator{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
         <Method Name="TakeWhile{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="TakeWhileIterator{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
@@ -722,41 +618,7 @@
             <GenericParameter Name="TKey" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey}" Dynamic="Required All" />
         </Method>
-        <Method Name="ToArray{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ToDictionary{TSource, TKey}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TKey" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ToDictionary{TSource, TKey, TElement}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TKey" />
-            <GenericParameter Name="TElement" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey, TElement}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ToList{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ToLookup{TSource, TKey}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TKey" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ToLookup{TSource, TKey, TElement}" >
-            <GenericParameter Name="TSource" />
-            <GenericParameter Name="TKey" />
-            <GenericParameter Name="TElement" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource, TKey, TElement}" Dynamic="Required All" />
-        </Method>
         <Method Name="Union{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
-        <Method Name="UnionIterator{TSource}" >
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
@@ -764,17 +626,7 @@
             <GenericParameter Name="TSource" />
             <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
         </Method>
-        <Method Name="WhereIterator{TSource}" >
-            <GenericParameter Name="TSource" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TSource}" Dynamic="Required All" />
-        </Method>
         <Method Name="Zip{TFirst, TSecond, TResult}" >
-            <GenericParameter Name="TFirst" />
-            <GenericParameter Name="TSecond" />
-            <GenericParameter Name="TResult" />
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator{TFirst, TSecond, TResult}" Dynamic="Required All" />
-        </Method>
-        <Method Name="ZipIterator{TFirst, TSecond, TResult}" >
             <GenericParameter Name="TFirst" />
             <GenericParameter Name="TSecond" />
             <GenericParameter Name="TResult" />
