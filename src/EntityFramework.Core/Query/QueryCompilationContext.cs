@@ -159,10 +159,7 @@ namespace Microsoft.Data.Entity.Query
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && ReferenceEquals(
-                        methodCallExpression.Method.GetGenericMethodDefinition(),
-                        EntityQueryModelVisitor.PropertyMethodInfo))
+                if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
                 {
                     _requiresBuffering = true;
 

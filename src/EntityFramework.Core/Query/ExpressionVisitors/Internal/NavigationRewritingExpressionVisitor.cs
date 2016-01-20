@@ -17,6 +17,7 @@ using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
+using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
@@ -511,10 +512,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             .ToArray()));
         }
 
+        private static readonly MethodInfo PropertyMethodInfo 
+            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));
+
+        [CallsMakeGenericMethod(nameof(Property), typeof(TypeArgumentCategory.Properties), TargetType = typeof(EF))]
+        [CallsMakeGenericMethod(nameof(Property), typeof(TypeArgumentCategory.NavigationProperties), TargetType = typeof(EF))]
         private static Expression CreatePropertyExpression(Expression target, IProperty property)
             => Expression.Call(
                 null,
-                EntityQueryModelVisitor.PropertyMethodInfo.MakeGenericMethod(property.ClrType),
+                PropertyMethodInfo.MakeGenericMethod(property.ClrType),
                 target,
                 Expression.Constant(property.Name));
 

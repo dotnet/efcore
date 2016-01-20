@@ -98,8 +98,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var referenceSource = node.Arguments.FirstOrDefault() as QuerySourceReferenceExpression;
-            if(node.Method.IsGenericMethod 
-                && node.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo
+            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method)
                 && referenceSource?.ReferencedQuerySource.Equals(_targetQuerySource) == true)
             {
                 return node;

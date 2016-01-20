@@ -125,22 +125,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         private class ShadowStateAccessRewriter : ExpressionVisitorBase
         {
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Method.IsGenericMethod)
-                {
-                    var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
-
-                    if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo))
-                    {
-                        return Expression.Property(
-                            methodCallExpression.Arguments[0],
-                            (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
-                    }
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
+            protected override Expression VisitMethodCall(MethodCallExpression expression)
+                => (EntityQueryModelVisitor.IsPropertyMethod(expression.Method))
+                    ? Expression.Property(
+                        expression.Arguments[0],
+                        (string)((ConstantExpression)expression.Arguments[1]).Value)
+                    : base.VisitMethodCall(expression);
         }
 
         private static DateTime ParseDate(string date)
@@ -152,7 +142,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 #endif
         }
 
-#region Customers
+        #region Customers
 
         private static readonly Customer[] _customers = CreateCustomers();
 
@@ -1437,9 +1427,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
                 };
         }
 
-#endregion
+        #endregion
 
-#region Employees
+        #region Employees
 
         private static readonly Employee[] _employees = CreateEmployees();
 
@@ -1668,9 +1658,9 @@ Winchester Way",
                 };
         }
 
-#endregion
+        #endregion
 
-#region Products
+        #region Products
 
         private static readonly Product[] _products = CreateProducts();
 
@@ -2682,9 +2672,9 @@ Winchester Way",
                 };
         }
 
-#endregion
+        #endregion
 
-#region Orders
+        #region Orders
 
         private static readonly Order[] _orders = CreateOrders();
 
@@ -16805,9 +16795,9 @@ Winchester Way",
                 };
         }
 
-#endregion
+        #endregion
 
-#region OrderDetails
+        #region OrderDetails
 
         private static readonly OrderDetail[] _orderDetails = CreateOrderDetails();
 
@@ -34058,6 +34048,6 @@ Winchester Way",
             };
         }
 
-#endregion
+        #endregion
     }
 }

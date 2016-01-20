@@ -150,10 +150,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             MethodCallExpression newExpression = null;
             Expression firstArgument = null;
 
-            if (node.Method.IsGenericMethod
-                && ReferenceEquals(
-                    node.Method.GetGenericMethodDefinition(),
-                    EntityQueryModelVisitor.PropertyMethodInfo))
+            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
                 var newArguments
                     = VisitAndConvert(node.Arguments, "VisitMethodCall");

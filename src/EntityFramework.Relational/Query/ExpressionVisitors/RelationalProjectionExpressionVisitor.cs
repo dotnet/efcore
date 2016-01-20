@@ -43,24 +43,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             Check.NotNull(node, nameof(node));
 
-            if (node.Method.IsGenericMethod)
+            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
-                var methodInfo = node.Method.GetGenericMethodDefinition();
+                var newArg0 = Visit(node.Arguments[0]);
 
-                if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo))
+                if (newArg0 != node.Arguments[0])
                 {
-                    var newArg0 = Visit(node.Arguments[0]);
-
-                    if (newArg0 != node.Arguments[0])
-                    {
-                        return Expression.Call(
-                            node.Method,
-                            newArg0,
-                            node.Arguments[1]);
-                    }
-
-                    return node;
+                    return Expression.Call(
+                        node.Method,
+                        newArg0,
+                        node.Arguments[1]);
                 }
+
+                return node;
             }
 
             return base.VisitMethodCall(node);

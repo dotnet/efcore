@@ -515,8 +515,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         var methodCallItem = contains.Item as MethodCallExpression;
 
                         if (methodCallItem != null
-                            && methodCallItem.Method.IsGenericMethod
-                            && methodCallItem.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo)
+                            && EntityQueryModelVisitor.IsPropertyMethod(methodCallItem.Method))
                         {
                             var aliasExpression = (AliasExpression)VisitMethodCall(methodCallItem);
 

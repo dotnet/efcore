@@ -33,8 +33,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         {
             var newMethodCallExpression = (MethodCallExpression)base.VisitMethodCall(node);
 
-            if (node.Method.IsGenericMethod
-                && (node.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo))
+            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
                 var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
                 var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector as QuerySourceReferenceExpression;

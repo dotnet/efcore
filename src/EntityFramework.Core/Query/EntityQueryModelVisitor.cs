@@ -32,8 +32,14 @@ namespace Microsoft.Data.Entity.Query
         public static readonly ParameterExpression QueryContextParameter
             = Expression.Parameter(typeof(QueryContext), "queryContext");
 
-        public static readonly MethodInfo PropertyMethodInfo
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
+        private static readonly string EFTypeName = typeof(EF).FullName;
+
+        public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
+            methodInfo != null
+            && methodInfo.IsGenericMethod
+            // string comparison because MethodInfo.Equals is not .NET Native-safe
+            && methodInfo.Name == nameof(EF.Property)
+            && methodInfo.DeclaringType.FullName == EFTypeName;
 
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
@@ -395,7 +401,7 @@ namespace Microsoft.Data.Entity.Query
                 foreach (
                     var navigation in
                         from propertyInfo in chainedNavigationProperties
-                        // ReSharper disable once AssignNullToNotNullAttribute
+                            // ReSharper disable once AssignNullToNotNullAttribute
                         let entityType = QueryCompilationContext.Model.FindEntityType(propertyInfo.DeclaringType)
                         select entityType?.FindNavigation(propertyInfo.Name))
                 {
@@ -809,7 +815,7 @@ namespace Microsoft.Data.Entity.Query
 
             if (selector.Type != sequenceType)
             {
-                if(!queryModel.ResultOperators
+                if (!queryModel.ResultOperators
                     .Select(ro => ro.GetType())
                     .Any(t =>
                         t == typeof(GroupResultOperator)
@@ -1175,34 +1181,29 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            if (methodCallExpression.Method.IsGenericMethod)
+            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
             {
-                var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
+                var querySourceReferenceExpression
+                    = methodCallExpression.Arguments[0].GetRootExpression<QuerySourceReferenceExpression>();
 
-                if (ReferenceEquals(methodInfo, PropertyMethodInfo))
+                if (querySourceReferenceExpression == null
+                    || querySource == null
+                    || querySource == querySourceReferenceExpression.ReferencedQuerySource)
                 {
-                    var querySourceReferenceExpression
-                        = methodCallExpression.Arguments[0].GetRootExpression<QuerySourceReferenceExpression>();
+                    var entityType
+                        = QueryCompilationContext.Model
+                            .FindEntityType(methodCallExpression.Arguments[0].Type);
 
-                    if (querySourceReferenceExpression == null
-                        || querySource == null
-                        || querySource == querySourceReferenceExpression.ReferencedQuerySource)
+                    if (entityType != null)
                     {
-                        var entityType 
-                            = QueryCompilationContext.Model
-                                .FindEntityType(methodCallExpression.Arguments[0].Type);
+                        var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        var property = entityType.FindProperty(propertyName);
 
-                        if (entityType != null)
+                        if (property != null)
                         {
-                            var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                            var property = entityType.FindProperty(propertyName);
-
-                            if (property != null)
-                            {
-                                return methodCallBinder(
-                                    property,
-                                    querySourceReferenceExpression?.ReferencedQuerySource);
-                            }
+                            return methodCallBinder(
+                                property,
+                                querySourceReferenceExpression?.ReferencedQuerySource);
                         }
                     }
                 }
