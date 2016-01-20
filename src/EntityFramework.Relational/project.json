@@ -30,6 +30,13 @@
         "Microsoft.CSharp": "4.0.1-*",
         "System.Data.Common": "4.0.1-*"
       }
+    },
+    "netcore50": {
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.0",
+        "System.Data.Common": "4.0.0",
+        "System.Dynamic.Runtime": "4.0.10"
+      }
     }
   }
 }
