@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 context.Attach(blog);
 
-                Assert.Equal(EntityState.Added, context.Entry(blog).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(blog).State); // See Issue #3890
                 Assert.Equal(EntityState.Added, context.Entry(posts[0]).State);
                 Assert.Equal(EntityState.Added, context.Entry(posts[1]).State);
                 Assert.Equal(EntityState.Added, context.Entry(comments0[0]).State);
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 context.Attach(category);
 
-                Assert.Equal(EntityState.Added, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State); // See Issue #3890
                 Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
             }
         }

@@ -32,7 +32,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return false;
             }
 
-            if (!internalEntityEntry.IsKeySet)
+            if (n.InboundNavigation != null
+                && !internalEntityEntry.IsKeySet)
             {
                 n.NodeState = EntityState.Added;
             }
