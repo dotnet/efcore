@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 
         public List<Tuple<LogLevel, string>> LogMessages { get; }
 
-        public void Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             var message = new StringBuilder();
             if (formatter != null)

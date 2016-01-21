@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.Log(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
+                logger.Log<object>(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
             }
         }
 

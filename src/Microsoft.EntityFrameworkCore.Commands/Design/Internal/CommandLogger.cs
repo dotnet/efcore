@@ -39,12 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             throw new NotImplementedException();
         }
 
-        public virtual void Log(
+        public virtual void Log<TState>(
             LogLevel logLevel,
-            int eventId,
-            object state,
+            EventId eventId,
+            TState state,
             Exception exception,
-            Func<object, Exception, string> formatter)
+            Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel))
             {

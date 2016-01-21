@@ -247,14 +247,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 public IDisposable BeginScopeImpl(object state) => NullScope.Instance;
 
-                public void Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
                 {
                     var error = state as DatabaseErrorLogState;
                     if (error != null)
                     {
                         LastDatabaseErrorState = error;
                         LastDatabaseErrorException = exception;
-                        LastDatabaseErrorFormatter = formatter;
+                        LastDatabaseErrorFormatter = (s, e) => formatter((TState)s, e);
                     }
                 }
 

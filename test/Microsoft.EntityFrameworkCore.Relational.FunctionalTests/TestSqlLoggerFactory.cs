@@ -99,12 +99,12 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 return loggerData;
             }
 
-            public void Log(
+            public void Log<TState>(
                 LogLevel logLevel,
-                int eventId,
-                object state,
+                EventId eventId,
+                TState state,
                 Exception exception,
-                Func<object, Exception, string> formatter)
+                Func<TState, Exception, string> formatter)
             {
                 var format = formatter(state, exception)?.Trim();
 

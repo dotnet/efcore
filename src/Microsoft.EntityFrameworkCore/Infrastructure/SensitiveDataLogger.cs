@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        void ILogger.Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+        void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             => _logger.Log(logLevel, eventId, state, exception, formatter);
 
         bool ILogger.IsEnabled(LogLevel logLevel) => _logger.IsEnabled(logLevel);
