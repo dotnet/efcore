@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryBuffer : IQueryBuffer
     {
         private readonly IStateManager _stateManager;
+        private readonly IChangeDetector _changeDetector;
 
         private IWeakReferenceIdentityMap _identityMap0;
         private IWeakReferenceIdentityMap _identityMap1;
@@ -29,9 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = new ConditionalWeakTable<object, object>();
 
         public QueryBuffer(
-            [NotNull] IStateManager stateManager)
+            [NotNull] IStateManager stateManager,
+            [NotNull] IChangeDetector changeDetector)
         {
             _stateManager = stateManager;
+            _changeDetector = changeDetector;
         }
 
         public virtual object GetEntity(
@@ -235,59 +238,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return identityMap.CreateIncludeKeyComparer(navigation, (ValueBuffer)boxedValueBuffer);
         }
 
-        private static void LoadNavigationProperties(
+        private void LoadNavigationProperties(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
             int currentNavigationIndex,
             IReadOnlyList<object> relatedEntities)
         {
-            if (navigationPath[currentNavigationIndex].IsDependentToPrincipal()
-                && relatedEntities.Any())
+            _changeDetector.Suspend();
+            try
             {
-                navigationPath[currentNavigationIndex]
-                    .GetSetter()
-                    .SetClrValue(entity, relatedEntities[0]);
-
-                var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
-
-                if (inverseNavigation != null)
-                {
-                    if (inverseNavigation.IsCollection())
-                    {
-                        inverseNavigation
-                            .GetCollectionAccessor()
-                            .AddRange(relatedEntities[0], new[] { entity });
-                    }
-                    else
-                    {
-                        inverseNavigation
-                            .GetSetter()
-                            .SetClrValue(relatedEntities[0], entity);
-                    }
-                }
-            }
-            else
-            {
-                if (navigationPath[currentNavigationIndex].IsCollection())
-                {
-                    navigationPath[currentNavigationIndex]
-                        .GetCollectionAccessor()
-                        .AddRange(entity, relatedEntities);
-
-                    var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
-
-                    if (inverseNavigation != null)
-                    {
-                        var clrPropertySetter
-                            = inverseNavigation.GetSetter();
-
-                        foreach (var relatedEntity in relatedEntities)
-                        {
-                            clrPropertySetter.SetClrValue(relatedEntity, entity);
-                        }
-                    }
-                }
-                else if (relatedEntities.Any())
+                if (navigationPath[currentNavigationIndex].IsDependentToPrincipal()
+                    && relatedEntities.Any())
                 {
                     navigationPath[currentNavigationIndex]
                         .GetSetter()
@@ -295,9 +256,59 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
-                    inverseNavigation?.GetSetter()
-                        .SetClrValue(relatedEntities[0], entity);
+                    if (inverseNavigation != null)
+                    {
+                        if (inverseNavigation.IsCollection())
+                        {
+                            inverseNavigation
+                                .GetCollectionAccessor()
+                                .AddRange(relatedEntities[0], new[] { entity });
+                        }
+                        else
+                        {
+                            inverseNavigation
+                                .GetSetter()
+                                .SetClrValue(relatedEntities[0], entity);
+                        }
+                    }
                 }
+                else
+                {
+                    if (navigationPath[currentNavigationIndex].IsCollection())
+                    {
+                        navigationPath[currentNavigationIndex]
+                            .GetCollectionAccessor()
+                            .AddRange(entity, relatedEntities);
+
+                        var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
+
+                        if (inverseNavigation != null)
+                        {
+                            var clrPropertySetter
+                                = inverseNavigation.GetSetter();
+
+                            foreach (var relatedEntity in relatedEntities)
+                            {
+                                clrPropertySetter.SetClrValue(relatedEntity, entity);
+                            }
+                        }
+                    }
+                    else if (relatedEntities.Any())
+                    {
+                        navigationPath[currentNavigationIndex]
+                            .GetSetter()
+                            .SetClrValue(entity, relatedEntities[0]);
+
+                        var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
+
+                        inverseNavigation?.GetSetter()
+                            .SetClrValue(relatedEntities[0], entity);
+                    }
+                }
+            }
+            finally
+            {
+                _changeDetector.Resume();
             }
         }
 

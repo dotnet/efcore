@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +16,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class ChangeDetector : IChangeDetector
     {
         private readonly IEntityGraphAttacher _attacher;
+        private bool _suspended;
 
         public ChangeDetector([NotNull] IEntityGraphAttacher attacher)
         {
             _attacher = attacher;
         }
 
+        public virtual void Suspend()
+        {
+            _suspended = true;
+        }
+
+        public virtual void Resume()
+        {
+            _suspended = false;
+        }
+
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
+            if (_suspended)
+            {
+                return;
+            }
+
             var property = propertyBase as IProperty;
             if (property != null)
             {
@@ -45,6 +62,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
+            if (_suspended)
+            {
+                return;
+            }
+
             if (!entry.EntityType.UseEagerSnapshots())
             {
                 entry.EnsureOriginalValues();

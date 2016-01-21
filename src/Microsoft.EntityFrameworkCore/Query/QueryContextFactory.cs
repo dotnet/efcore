@@ -12,17 +12,22 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected QueryContextFactory(
             [NotNull] IStateManager stateManager,
-            [NotNull] IConcurrencyDetector concurrencyDetector)
+            [NotNull] IConcurrencyDetector concurrencyDetector,
+            [NotNull] IChangeDetector changeDetector)
         {
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(concurrencyDetector, nameof(concurrencyDetector));
+            Check.NotNull(changeDetector, nameof(changeDetector));
 
             StateManager = stateManager;
             ConcurrencyDetector = concurrencyDetector;
+            ChangeDetector = changeDetector;
         }
 
         protected virtual IQueryBuffer CreateQueryBuffer()
-            => new QueryBuffer(StateManager);
+            => new QueryBuffer(StateManager, ChangeDetector);
+
+        protected virtual IChangeDetector ChangeDetector { get; }
 
         protected virtual IStateManager StateManager { get; }
 

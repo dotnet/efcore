@@ -15,8 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public InMemoryQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] IInMemoryDatabase database)
-            : base(stateManager, concurrencyDetector)
+            [NotNull] IInMemoryDatabase database,
+            [NotNull] IChangeDetector changeDetector)
+            : base(stateManager, concurrencyDetector, changeDetector)
         {
             Check.NotNull(database, nameof(database));
 

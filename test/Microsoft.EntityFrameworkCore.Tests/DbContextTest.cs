@@ -362,6 +362,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
             {
             }
+
+            public virtual void Suspend()
+            {
+            }
+
+            public virtual void Resume()
+            {
+            }
         }
 
         [Fact]

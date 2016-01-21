@@ -14,8 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public RelationalQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] IRelationalConnection connection)
-            : base(stateManager, concurrencyDetector)
+            [NotNull] IRelationalConnection connection,
+            [NotNull] IChangeDetector changeDetector)
+            : base(stateManager, concurrencyDetector, changeDetector)
         {
             _connection = connection;
         }

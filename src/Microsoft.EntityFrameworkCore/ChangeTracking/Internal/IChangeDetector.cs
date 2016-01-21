@@ -9,5 +9,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         void DetectChanges([NotNull] IStateManager stateManager);
         void DetectChanges([NotNull] InternalEntityEntry entry);
+
+        void Suspend();
+        void Resume();
     }
 }
