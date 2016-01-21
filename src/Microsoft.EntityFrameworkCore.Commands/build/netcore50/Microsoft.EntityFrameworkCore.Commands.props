@@ -5,11 +5,4 @@
     <CopyNuGetImplementations>true</CopyNuGetImplementations>
     <_EfCommandsReferenced>true</_EfCommandsReferenced>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)..\..\lib\net451\**">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>False</Visible>
-    </Content>
-  </ItemGroup>
 </Project>
