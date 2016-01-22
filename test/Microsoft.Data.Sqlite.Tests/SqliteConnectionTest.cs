@@ -4,7 +4,7 @@
 using System;
 using System.Data;
 using System.IO;
-using Microsoft.AspNet.Testing.xunit;
+using Microsoft.AspNetCore.Testing.xunit;
 using Microsoft.Data.Sqlite.Utilities;
 using Microsoft.Extensions.PlatformAbstractions;
 using Xunit;

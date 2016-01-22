@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Sqlite.Interop;
-using Microsoft.AspNet.Testing.xunit;
+using Microsoft.AspNetCore.Testing.xunit;
 
 namespace Microsoft.Data.Sqlite
 {
