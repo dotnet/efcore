@@ -128,6 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Tests
             return new TestRelationalTypeMapper().GetMapping(property);
         }
 
-        private static EntityType CreateEntityType() => new Entity.Metadata.Internal.Model().AddEntityType("MyType");
+        private static EntityType CreateEntityType() => new EntityFrameworkCore.Metadata.Internal.Model().AddEntityType("MyType");
     }
 }

@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            var model = new Entity.Metadata.Internal.Model();
+            var model = new EntityFrameworkCore.Metadata.Internal.Model();
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.AddProperty("Id", typeof(int));

@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (Metadata.IsKey())
                 {
                     RequiresValueGenerator(
-                        valueGenerated == Entity.Metadata.ValueGenerated.OnAdd,
+                        valueGenerated == EntityFrameworkCore.Metadata.ValueGenerated.OnAdd,
                         ConfigurationSource.Convention);
                 }
 

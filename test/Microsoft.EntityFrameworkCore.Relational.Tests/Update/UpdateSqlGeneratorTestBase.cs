@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private EntityType GetDuckType()
         {
-            var entityType = new Entity.Metadata.Internal.Model().AddEntityType(typeof(Duck));
+            var entityType = new EntityFrameworkCore.Metadata.Internal.Model().AddEntityType(typeof(Duck));
             var id = entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Id)));
             entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Name)));
             entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Quacks)));
