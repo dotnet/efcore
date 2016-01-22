@@ -21,15 +21,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Action<ModelBuilder> onModelCreating,
             IDbSetFinder setFinder,
             ICoreConventionSetBuilder coreConventionSetBuilder)
-            : base(setFinder,  coreConventionSetBuilder, new ModelCustomizer())
+            : base(setFinder, coreConventionSetBuilder, new ModelCustomizer(), new ModelCacheKeyFactory())
         {
-            _testModelSource = new TestModelSource(onModelCreating, setFinder, coreConventionSetBuilder, new ModelCustomizer());
+            _testModelSource = new TestModelSource(onModelCreating, setFinder, coreConventionSetBuilder, new ModelCustomizer(), new ModelCacheKeyFactory());
         }
 
-        public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator) 
+        public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
             => _testModelSource.GetModel(context, conventionSetBuilder, validator);
 
-        public static Func<IServiceProvider, SqlServerModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
+        public static Func<IServiceProvider, SqlServerModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
             => p => new TestSqlServerModelSource(
                 onModelCreating,
                 p.GetRequiredService<IDbSetFinder>(),
