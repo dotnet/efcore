@@ -13,7 +13,7 @@ using Xunit;
 using Moq;
 #endif
 
-namespace Microsoft.Data.Entity.Tests.Utilities
+namespace Microsoft.EntityFrameworkCore.Tests.Utilities
 {
     public class TypeExtensionsTest
     {

@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 
-namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compilation
 {
     public class RoslynCompilationService
     {

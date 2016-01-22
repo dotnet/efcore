@@ -1,10 +1,10 @@
-﻿using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.EF6.Models.Orders;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Models.Orders;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.EF6.Query
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Query
 {
     class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
     {

@@ -3,12 +3,12 @@
 
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqliteScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {

@@ -7,15 +7,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 #if NET451
 using System.ComponentModel;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 #endif
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     <para>

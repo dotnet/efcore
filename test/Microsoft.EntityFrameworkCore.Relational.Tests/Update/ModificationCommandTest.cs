@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Tests.Update
 {
     public class ModificationCommandTest
     {

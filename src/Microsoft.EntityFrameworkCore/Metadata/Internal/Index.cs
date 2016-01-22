@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : ConventionalAnnotatable, IMutableIndex

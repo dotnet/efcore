@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Tests
+namespace Microsoft.EntityFrameworkCore.Metadata.Tests
 {
     public class RelationalMetadataExtensionsTest
     {

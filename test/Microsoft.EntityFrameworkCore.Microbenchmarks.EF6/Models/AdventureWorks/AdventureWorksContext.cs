@@ -3,9 +3,9 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks;
 
-namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Models.AdventureWorks
 {
     public class AdventureWorksContext : DbContext
     {

@@ -1,12 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class RelationalPropertyDiscoveryConvention : PropertyDiscoveryConvention
     {

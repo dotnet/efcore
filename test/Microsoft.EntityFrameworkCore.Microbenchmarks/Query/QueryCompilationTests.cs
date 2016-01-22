@@ -1,13 +1,13 @@
-﻿using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Models.Orders;
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
 {
     class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
     {

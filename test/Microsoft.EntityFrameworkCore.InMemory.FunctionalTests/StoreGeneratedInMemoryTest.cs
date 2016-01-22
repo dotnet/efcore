@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class StoreGeneratedInMemoryTest
         : StoreGeneratedTestBase<InMemoryTestStore, StoreGeneratedInMemoryTest.StoreGeneratedInMemoryFixture>

@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ForeignKey 
         : ConventionalAnnotatable, IMutableForeignKey, IDependentKeyValueFactorySource, IDependentsMapFactorySource

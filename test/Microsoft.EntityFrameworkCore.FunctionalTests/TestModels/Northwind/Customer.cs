@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
 {
     public class Customer
     {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,10 +8,10 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
     ///     Produces runtime directive xml from reflection objects

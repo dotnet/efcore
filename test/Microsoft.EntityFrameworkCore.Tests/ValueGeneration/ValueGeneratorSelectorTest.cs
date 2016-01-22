@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
 {
     public class ValueGeneratorSelectorTest
     {

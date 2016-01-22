@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Data.Entity.Commands.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     public class WrappedOperationException : Exception
     {

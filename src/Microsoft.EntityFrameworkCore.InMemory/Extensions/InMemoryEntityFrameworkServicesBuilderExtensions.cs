@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace

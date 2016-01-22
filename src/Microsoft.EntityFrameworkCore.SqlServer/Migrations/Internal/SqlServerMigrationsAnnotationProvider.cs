@@ -1,12 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.Data.Entity.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {

@@ -4,10 +4,10 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>

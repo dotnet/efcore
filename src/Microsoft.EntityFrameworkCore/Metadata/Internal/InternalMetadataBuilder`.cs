@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public abstract class InternalMetadataBuilder<TMetadata> : InternalMetadataBuilder
         where TMetadata : ConventionalAnnotatable

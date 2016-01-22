@@ -4,18 +4,18 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.Tests
+namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 {
     public class InMemoryDatabaseTest
     {

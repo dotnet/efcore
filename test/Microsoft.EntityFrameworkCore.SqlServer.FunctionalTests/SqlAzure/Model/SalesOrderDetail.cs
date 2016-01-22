@@ -4,7 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure.Model
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 {
     [Table("SalesOrderDetail", Schema = "SalesLT")]
     public class SalesOrderDetail

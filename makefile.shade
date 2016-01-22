@@ -13,9 +13,9 @@ k-standard-goals
         var BUILD_DIR = Path.Combine(TARGET_DIR, "build");
         var Configuration = E("Configuration") ?? "Debug";
 
-        var projectFiles = Files.Include("test/EntityFramework.Relational.FunctionalTests/project.json")
-            .Include("test/EntityFramework.Core.FunctionalTests/project.json")
-            .Include("test/EntityFramework.Relational.Design.FunctionalTests/project.json");
+        var projectFiles = Files.Include("test/Microsoft.EntityFrameworkCore.Relational.FunctionalTests/project.json")
+            .Include("test/Microsoft.EntityFrameworkCore.FunctionalTests/project.json")
+            .Include("test/Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests/project.json");
         foreach (var projectFile in projectFiles)
         {
             DotnetPack(projectFile, BUILD_DIR, Configuration);

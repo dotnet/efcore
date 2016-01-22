@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Utilities
+namespace Microsoft.EntityFrameworkCore.Tests.Utilities
 {
     public class ExpressionExtensionsTest
     {

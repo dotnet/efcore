@@ -3,13 +3,13 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class DbContextServices : IDbContextServices
     {

@@ -3,12 +3,12 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     // TODO: Test matching
     public class MigrationsModelDifferTest : MigrationsModelDifferTestBase

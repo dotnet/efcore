@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public class ThrowingMonsterStateManager : StateManager
     {

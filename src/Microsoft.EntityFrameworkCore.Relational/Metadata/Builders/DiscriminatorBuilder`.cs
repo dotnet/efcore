@@ -3,9 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     public class DiscriminatorBuilder<TDiscriminator>
     {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace EntityFramework.Microbenchmarks.Core.Models.AdventureWorks
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks
 {
     public class BusinessEntityContact
     {

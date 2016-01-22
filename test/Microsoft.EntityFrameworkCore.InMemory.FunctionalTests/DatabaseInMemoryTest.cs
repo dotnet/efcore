@@ -3,13 +3,13 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class DatabaseInMemoryTest
     {

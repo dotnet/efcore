@@ -5,10 +5,10 @@ using System;
 using System.Data.Common;
 using System.IO;
 using System.Threading;
-using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Data.Sqlite;
 
-namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class SqliteTestStore : RelationalTestStore
     {

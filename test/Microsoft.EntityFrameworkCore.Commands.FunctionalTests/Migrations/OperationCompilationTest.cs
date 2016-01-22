@@ -4,14 +4,14 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Commands.TestUtilities;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Design;
-using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Commands.Migrations
+namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
     public class OperationCompilationTest
     {
@@ -1772,11 +1772,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     BuildReference.ByName("System.Linq.Expressions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
-                    BuildReference.ByName("EntityFramework.Relational"),
-                    BuildReference.ByName("EntityFramework.Relational.Design")
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design")
                 },
                 Sources = { @"
-                    using Microsoft.Data.Entity.Migrations;
+                    using Microsoft.EntityFrameworkCore.Migrations;
 
                     public static class OperationsFactory
                     {

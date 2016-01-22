@@ -7,14 +7,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
 
-namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 {
     public class IncludeResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {

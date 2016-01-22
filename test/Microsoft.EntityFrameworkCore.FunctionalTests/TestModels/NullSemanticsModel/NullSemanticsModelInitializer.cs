@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemanticsModel
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel
 {
     public class NullSemanticsModelInitializer
     {

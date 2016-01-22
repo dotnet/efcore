@@ -1,10 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure.Model;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 {
     public class BatchingSqlAzureFixture : SqlAzureFixture
     {

@@ -3,13 +3,13 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
     {

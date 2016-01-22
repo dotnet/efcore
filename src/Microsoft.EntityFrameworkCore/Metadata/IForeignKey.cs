@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     Represents a relationship where a foreign key property(s) in a dependent entity type

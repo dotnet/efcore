@@ -3,7 +3,7 @@
 #if DNX451
 using Xunit;
 
-namespace Microsoft.Data.Entity.Design
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public class OperationLogHandlerTest
     {

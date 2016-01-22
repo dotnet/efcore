@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,9 +7,9 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class RelationalSqlGenerationHelper : ISqlGenerationHelper
     {

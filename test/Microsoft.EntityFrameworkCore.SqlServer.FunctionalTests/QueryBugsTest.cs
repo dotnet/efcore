@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -18,7 +18,7 @@ using Xunit;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {

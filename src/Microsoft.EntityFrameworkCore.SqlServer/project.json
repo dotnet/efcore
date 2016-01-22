@@ -10,13 +10,13 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational": "7.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.MicrosoftSqlServer.SqlServerStrings": "Properties/SqlServerStrings.resx"
+    "Microsoft.EntityFrameworkCore.SqlServer.SqlServerStrings": "Properties/SqlServerStrings.resx"
   },
-  "resource": [ "Properties/EntityFramework.MicrosoftSqlServer.rd.xml" ],
+  "resource": [ "Properties/Microsoft.EntityFrameworkCore.SqlServer.rd.xml" ],
   "frameworks": {
     "net451": { },
     "dotnet5.4": {

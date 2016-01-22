@@ -18,9 +18,9 @@
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.Core.CoreStrings": "Properties/CoreStrings.resx"
+    "Microsoft.EntityFrameworkCore.CoreStrings": "Properties/CoreStrings.resx"
   },
-  "resource": [ "Properties/EntityFramework.Core.rd.xml" ],
+  "resource": [ "Properties/Microsoft.EntityFrameworkCore.rd.xml" ],
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {

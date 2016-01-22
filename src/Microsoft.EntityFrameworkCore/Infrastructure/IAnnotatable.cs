@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>

@@ -1,12 +1,12 @@
 {
   "version": "7.0.0-*",
-  "description": "Reusable EntityFramework.Core functional tests for provider writers.",
+  "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-    "EntityFramework.InMemory": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.InMemory": "7.0.0-*",
     "xunit": "2.1.0"
   },
   "testRunner": "xunit",

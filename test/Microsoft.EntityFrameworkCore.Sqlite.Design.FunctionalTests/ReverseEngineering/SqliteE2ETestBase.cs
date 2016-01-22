@@ -1,20 +1,20 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Internal;
-using Microsoft.Data.Entity.Sqlite.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
     public abstract class SqliteE2ETestBase : E2ETestBase
     {
@@ -396,9 +396,9 @@ CREATE TABLE Comment (
         {
             NamedReferences =
             {
-                "EntityFramework.Core",
-                "EntityFramework.Relational",
-                "EntityFramework.Sqlite",
+                "Microsoft.EntityFrameworkCore",
+                "Microsoft.EntityFrameworkCore.Relational",
+                "Microsoft.EntityFrameworkCore.Sqlite",
                 // ReSharper disable once RedundantCommaInInitializer
                 "Microsoft.Data.Sqlite",
 #if DNXCORE50

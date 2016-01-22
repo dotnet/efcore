@@ -4,13 +4,13 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics;
-using Microsoft.Data.Entity.Query;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemanticsModel
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel
 {
     public class NullSemanticsData
     {

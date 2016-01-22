@@ -9,7 +9,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Microsoft.Data.Entity.Commands.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     public class BuildSource
     {

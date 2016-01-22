@@ -3,18 +3,18 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Storage
 
         /// <summary>
         ///     Gets the <see cref="IValueGeneratorSelector" /> for the database provider. By default, EF will register a default implementation
-        ///     (<see cref="Microsoft.Data.Entity.ValueGeneration.ValueGeneratorSelector" />) which provides basic functionality but can be
+        ///     (<see cref="Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelector" />) which provides basic functionality but can be
         ///     overridden if needed.
         /// </summary>
         public virtual IValueGeneratorSelector ValueGeneratorSelector => GetService<ValueGeneratorSelector>();

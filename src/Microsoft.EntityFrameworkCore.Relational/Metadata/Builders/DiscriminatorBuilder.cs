@@ -3,10 +3,10 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.Data.Entity.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     public class DiscriminatorBuilder
     {

@@ -5,15 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Update;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     // TODO: Remove these once available in the product
     internal static class TestExtensions

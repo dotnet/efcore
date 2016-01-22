@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class EntityQueryable<TResult> : QueryableBase<TResult>, IAsyncEnumerable<TResult>
     {

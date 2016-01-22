@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class RelationalCommandListBuilder
     {

@@ -1,11 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 #pragma warning disable 0169
 
-using Microsoft.Data.Entity.Query;
+using Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     internal class ImplyGeneric<T1, T2, T3, T4>
     {

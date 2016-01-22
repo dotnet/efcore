@@ -8,12 +8,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineeringGenerator
     {

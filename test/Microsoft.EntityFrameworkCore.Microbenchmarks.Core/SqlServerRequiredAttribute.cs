@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.PlatformAbstractions;
 
-namespace EntityFramework.Microbenchmarks.Core
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
 	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
 	public class SqlServerRequiredAttribute : Attribute, ITestCondition

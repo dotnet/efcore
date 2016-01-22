@@ -6,15 +6,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Design;
+using Microsoft.EntityFrameworkCore.Design;
 
-namespace Microsoft.Data.Entity.Commands.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     // NOTE: If you break this file, you probably broke the PowerShell module too.
     public class OperationExecutorWrapper : IDisposable
     {
-        private const string AssemblyName = "EntityFramework.Commands";
-        private const string TypeName = "Microsoft.Data.Entity.Design.OperationExecutor";
+        private const string AssemblyName = "Microsoft.EntityFrameworkCore.Commands";
+        private const string TypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
 
         private readonly string _targetDir;
         private readonly AppDomain _domain;

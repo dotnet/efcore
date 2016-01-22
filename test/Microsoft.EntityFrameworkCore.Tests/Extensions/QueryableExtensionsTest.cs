@@ -7,12 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class QueryableExtensionsTest
     {

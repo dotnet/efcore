@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Utilities
+namespace Microsoft.EntityFrameworkCore.Tests.Utilities
 {
     public class PropertyInfoExtensionsTest
     {

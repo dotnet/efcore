@@ -3,9 +3,9 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 
-namespace Microsoft.Data.Entity.Query.Sql
+namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     public interface ISqlExpressionVisitor
     {

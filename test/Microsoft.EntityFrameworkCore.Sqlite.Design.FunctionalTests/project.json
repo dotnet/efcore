@@ -1,11 +1,11 @@
-﻿{
+{
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*",
-    "EntityFramework.Sqlite.FunctionalTests": "1.0.0",
-    "EntityFramework.Sqlite.Design": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Sqlite.Design": "7.0.0-*"
   },
   "content": "**/*.expected",
   "testRunner": "xunit",

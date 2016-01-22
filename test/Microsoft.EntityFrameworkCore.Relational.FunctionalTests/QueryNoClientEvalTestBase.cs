@@ -1,15 +1,15 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture, new()
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 Assert.Equal(RelationalStrings.ClientEvalDisabled(
-                    "{from Customer c2 in value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}"),
+                    "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .Where(c1 => context.Customers

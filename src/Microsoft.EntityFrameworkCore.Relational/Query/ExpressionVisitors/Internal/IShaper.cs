@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public interface IShaper<out T>
     {

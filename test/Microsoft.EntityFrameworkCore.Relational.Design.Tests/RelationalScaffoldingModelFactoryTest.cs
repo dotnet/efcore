@@ -5,17 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Design
+namespace Microsoft.EntityFrameworkCore.Relational.Design
 {
     public class RelationalDatabaseModelFactoryTest
     {

@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public interface IMigrator
     {

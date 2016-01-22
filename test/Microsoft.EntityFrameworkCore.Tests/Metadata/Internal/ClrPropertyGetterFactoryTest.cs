@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 {
     public class ClrPropertyGetterFactoryTest
     {

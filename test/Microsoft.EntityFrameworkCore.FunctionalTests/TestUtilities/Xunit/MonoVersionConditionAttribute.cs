@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly, AllowMultiple = false)]
     public class MonoVersionConditionAttribute : Attribute, ITestCondition

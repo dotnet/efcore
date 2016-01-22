@@ -4,7 +4,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.Data.Entity.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsIdGenerator : IMigrationsIdGenerator
     {

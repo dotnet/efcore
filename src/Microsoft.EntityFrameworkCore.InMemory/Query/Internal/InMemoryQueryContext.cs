@@ -3,11 +3,11 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class InMemoryQueryContext : QueryContext
     {

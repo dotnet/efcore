@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
     [DebuggerStepThrough]
     public abstract class ExpressionVisitorBase : RelinqExpressionVisitor

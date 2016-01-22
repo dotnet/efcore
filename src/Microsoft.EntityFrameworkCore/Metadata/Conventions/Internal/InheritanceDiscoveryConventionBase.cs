@@ -3,10 +3,10 @@
 
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class InheritanceDiscoveryConventionBase
     {

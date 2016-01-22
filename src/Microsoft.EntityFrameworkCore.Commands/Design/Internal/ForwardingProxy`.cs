@@ -8,9 +8,9 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Design.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
     ///     This is a small piece of Remoting magic. It enables us to invoke methods on a

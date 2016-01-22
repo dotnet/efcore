@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
     ///     Method uses reflection to create a generic method. e.g. MethodInfo.MakeGenericMethod().

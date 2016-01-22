@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class TransactionFixtureBase<TTestStore>
         where TTestStore : TestStore

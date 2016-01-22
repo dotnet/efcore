@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public interface IDbSetInitializer
     {

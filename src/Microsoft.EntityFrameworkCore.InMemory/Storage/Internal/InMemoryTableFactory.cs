@@ -5,11 +5,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.Data.Entity.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class InMemoryTableFactory : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
     {

@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using EntityFramework.Microbenchmarks.Core.Models.Orders;
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.Orders;
+using Microsoft.EntityFrameworkCore;
 
-namespace EntityFramework.Microbenchmarks.Models.Orders
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders
 {
     public class OrdersContext : DbContext
     {

@@ -1,16 +1,16 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class MigrationsSqliteTest : MigrationsTestBase<MigrationsSqliteFixture>
     {
@@ -78,7 +78,7 @@ WHERE ""MigrationId"" = '00000000000001_Migration1';
         {
             base.Can_get_active_provider();
 
-            Assert.Equal("EntityFramework.Sqlite", ActiveProvider);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", ActiveProvider);
         }
 
         protected override void AssertFirstMigration(DbConnection connection)

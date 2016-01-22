@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public abstract class RelationalConventionSetBuilder : IConventionSetBuilder
     {

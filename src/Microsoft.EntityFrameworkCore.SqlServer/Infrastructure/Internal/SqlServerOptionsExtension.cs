@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Infrastructure.Internal
+namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {

@@ -5,19 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 // ReSharper disable ReplaceWithSingleCallToCount
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable AccessToModifiedClosure
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>

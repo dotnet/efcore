@@ -4,15 +4,15 @@
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
     public class RelationalProjectionExpressionVisitor : ProjectionExpressionVisitor
     {

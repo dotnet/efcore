@@ -3,8 +3,8 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Core.Tests": "1.0.0",
-    "EntityFramework.Relational.FunctionalTests": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Tests": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "7.0.0-*"
   },
   "testRunner": "xunit",
   "commands": {

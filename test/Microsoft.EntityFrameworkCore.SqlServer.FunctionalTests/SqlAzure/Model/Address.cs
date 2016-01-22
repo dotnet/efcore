@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure.Model
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 {
     [Table("Address", Schema = "SalesLT")]
     public class Address

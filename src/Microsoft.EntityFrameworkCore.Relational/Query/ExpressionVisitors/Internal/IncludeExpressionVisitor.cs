@@ -7,15 +7,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class IncludeExpressionVisitor : ExpressionVisitorBase
     {

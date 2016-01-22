@@ -357,7 +357,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Specifies the connection string of the database.
 
 .PARAMETER Provider
-    Specifies the provider to use. For example, EntityFramework.MicrosoftSqlServer.
+    Specifies the provider to use. For example, Microsoft.EntityFrameworkCore.SqlServer.
 
 .PARAMETER OutputDirectory
     Specifies the directory to use to output the classes. If omitted, the top-level project directory is used.
@@ -570,9 +570,9 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
 
     Write-Verbose "Using project '$projectName'"
 
-    $package = Get-Package -ProjectName $startupProjectName | ? Id -eq EntityFramework.Commands
+    $package = Get-Package -ProjectName $startupProjectName | ? Id -eq Microsoft.EntityFrameworkCore.Commands
     if (!($package)) {
-        throw "Cannot execute this command because EntityFramework.Commands is not installed in the startup project '$startupProjectName'."
+        throw "Cannot execute this command because Microsoft.EntityFrameworkCore.Commands is not installed in the startup project '$startupProjectName'."
     }
 
     if (!$skipBuild) {
@@ -588,14 +588,14 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
         Write-Verbose 'Build succeeded.'
     }
 
-    if (![Type]::GetType('Microsoft.Data.Entity.Design.OperationResultHandler')) {
+    if (![Type]::GetType('Microsoft.EntityFrameworkCore.Design.OperationResultHandler')) {
         Add-Type -Path (Join-Path $PSScriptRoot OperationHandlers.cs) -CompilerParameters (
             New-Object CodeDom.Compiler.CompilerParameters -Property @{
                 CompilerOptions = '/d:ENABLE_HANDLERS;NET451'
             })
     }
 
-    $logHandler = New-Object Microsoft.Data.Entity.Design.OperationLogHandler @(
+    $logHandler = New-Object Microsoft.EntityFrameworkCore.Design.OperationLogHandler @(
         { param ($message) Write-Error $message }
         { param ($message) Write-Warning $message }
         { param ($message) Write-Host $message }
@@ -643,8 +643,8 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
         $domain.SetData('DataDirectory', $dataDirectory)
     }
     try {
-        $commandsAssembly = 'EntityFramework.Commands'
-        $operationExecutorTypeName = 'Microsoft.Data.Entity.Design.OperationExecutor'
+        $commandsAssembly = 'Microsoft.EntityFrameworkCore.Commands'
+        $operationExecutorTypeName = 'Microsoft.EntityFrameworkCore.Design.OperationExecutor'
         $targetAssemblyName = GetProperty $properties AssemblyName
         $startupAssemblyName = GetProperty $startupProperties AssemblyName
         $rootNamespace = GetProperty $properties RootNamespace
@@ -668,7 +668,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
             $null,
             $null)
 
-        $resultHandler = New-Object Microsoft.Data.Entity.Design.OperationResultHandler
+        $resultHandler = New-Object Microsoft.EntityFrameworkCore.Design.OperationResultHandler
         $currentDirectory = [IO.Directory]::GetCurrentDirectory()
 
         Write-Verbose "Using current directory '$startupTargetDir'."
@@ -694,7 +694,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     }
 
     if ($resultHandler.ErrorType) {
-        if ($resultHandler.ErrorType -eq 'Microsoft.Data.Entity.Design.OperationException') {
+        if ($resultHandler.ErrorType -eq 'Microsoft.EntityFrameworkCore.Design.OperationException') {
             Write-Verbose $resultHandler.ErrorStackTrace
         }
         else {

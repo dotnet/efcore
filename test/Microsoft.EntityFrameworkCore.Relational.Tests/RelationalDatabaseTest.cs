@@ -4,15 +4,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class RelationalDatabaseTest
     {

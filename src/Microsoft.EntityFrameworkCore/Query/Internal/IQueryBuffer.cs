@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public delegate IEnumerable<EntityLoadInfo> RelatedEntitiesLoader(
         IIncludeKeyComparer keyComparer);

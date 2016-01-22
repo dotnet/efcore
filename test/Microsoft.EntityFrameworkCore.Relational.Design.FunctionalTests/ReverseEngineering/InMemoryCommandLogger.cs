@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Design.Internal;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering
 {
     public class InMemoryCommandLogger : CommandLogger
     {

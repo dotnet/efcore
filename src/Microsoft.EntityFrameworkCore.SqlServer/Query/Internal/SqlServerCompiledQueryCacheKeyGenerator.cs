@@ -1,14 +1,14 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCacheKeyGenerator
     {

@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class MigrationFiles
     {

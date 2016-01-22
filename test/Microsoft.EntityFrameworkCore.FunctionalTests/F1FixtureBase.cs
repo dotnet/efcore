@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class F1FixtureBase<TTestStore>
         where TTestStore : TestStore

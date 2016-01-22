@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -10,13 +10,13 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Extensions.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Query.ResultOperators.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
@@ -25,7 +25,7 @@ using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class QueryCompiler : IQueryCompiler
     {

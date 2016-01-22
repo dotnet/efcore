@@ -1,12 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Core.Models.Orders;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.Orders;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.EF6.Models.Orders
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Models.Orders
 {
     public class OrdersFixture : OrdersFixtureBase
     {

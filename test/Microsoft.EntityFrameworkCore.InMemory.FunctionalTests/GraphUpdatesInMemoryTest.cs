@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Storage.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class GraphUpdatesInMemoryTest
         : GraphUpdatesTestBase<InMemoryTestStore, GraphUpdatesInMemoryTest.GraphUpdatesInMemoryFixture>

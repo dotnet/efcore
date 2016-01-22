@@ -4,9 +4,9 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
     {

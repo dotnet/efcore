@@ -1,22 +1,22 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Expressions.Internal;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class SqlServerQueryModelVisitor : RelationalQueryModelVisitor
     {

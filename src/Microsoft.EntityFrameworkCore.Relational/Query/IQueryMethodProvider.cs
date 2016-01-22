@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public interface IQueryMethodProvider
     {

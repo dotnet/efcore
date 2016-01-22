@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     Provides Entity Framework specific APIs for configuring services in an <see cref="IServiceCollection" />.

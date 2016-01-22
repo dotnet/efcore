@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class SqlServerMaxLengthMapping : RelationalTypeMapping
     {

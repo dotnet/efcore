@@ -10,14 +10,14 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational": "7.0.0-*",
     "Microsoft.Data.Sqlite": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
+    "Microsoft.EntityFrameworkCore.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
   },
-  "resource": [ "Properties/EntityFramework.Sqlite.rd.xml" ],
+  "resource": [ "Properties/Microsoft.EntityFrameworkCore.Sqlite.rd.xml" ],
   "frameworks": {
     "net451": { },
     "dotnet5.4": {

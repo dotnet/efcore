@@ -6,11 +6,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Design.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     // TODO: Consider replacing with something besides Logging
     public abstract class CommandLogger : ILogger

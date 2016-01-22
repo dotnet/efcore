@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class LoggingModelValidator : ModelValidator
     {

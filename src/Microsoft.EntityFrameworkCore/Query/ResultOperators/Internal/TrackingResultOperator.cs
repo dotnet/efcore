@@ -9,7 +9,7 @@ using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
 
-namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 {
     public class TrackingResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {

@@ -3,13 +3,13 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Tests.Update
 {
     public class BatchExecutorTest
     {

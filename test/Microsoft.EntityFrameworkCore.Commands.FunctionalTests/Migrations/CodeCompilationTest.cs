@@ -1,19 +1,19 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Microsoft.Data.Entity.Commands.TestUtilities;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Design;
-using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Commands.Migrations
+namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
     public class CodeCompilationTest
     {
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Assert.Equal(
                 @"using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
@@ -70,11 +70,11 @@ namespace MyNamespace
                 new Model { ["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(
                 @"using System;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Commands.Migrations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Commands.Migrations;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
@@ -104,8 +104,8 @@ namespace MyNamespace
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
-                    BuildReference.ByName("EntityFramework.Core"),
-                    BuildReference.ByName("EntityFramework.Relational")
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
                 Sources = { migrationCode, migrationMetadataCode }
             };
@@ -142,11 +142,11 @@ namespace MyNamespace
                 "MySnapshot",
                 new Model { ["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(@"using System;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Commands.Migrations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Commands.Migrations;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
@@ -174,8 +174,8 @@ namespace MyNamespace
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
-                    BuildReference.ByName("EntityFramework.Core"),
-                    BuildReference.ByName("EntityFramework.Relational")
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
                 Sources = { modelSnapshotCode }
             };

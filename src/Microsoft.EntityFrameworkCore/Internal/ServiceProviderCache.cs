@@ -5,10 +5,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class ServiceProviderCache
     {

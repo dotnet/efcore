@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {

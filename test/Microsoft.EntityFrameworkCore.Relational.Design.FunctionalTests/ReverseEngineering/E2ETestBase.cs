@@ -4,15 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering
 {
     public abstract class E2ETestBase
     {

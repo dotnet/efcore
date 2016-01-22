@@ -6,12 +6,12 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class TransactionTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : RelationalTestStore

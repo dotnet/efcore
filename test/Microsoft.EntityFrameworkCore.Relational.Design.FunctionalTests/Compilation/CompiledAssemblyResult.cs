@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compilation
 {
     public class CompiledAssemblyResult
     {

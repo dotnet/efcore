@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class CollectionTypeFactoryTest
     {

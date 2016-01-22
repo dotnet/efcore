@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations.Operations.Builders
+namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 {
     public class OperationBuilder<TOperation> : IInfrastructure<TOperation>
         where TOperation : MigrationOperation

@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.FunctionalTests.TestModels;
-using Microsoft.Data.Entity.InMemory.FunctionalTests;
-using Microsoft.Data.Entity.Sqlite.FunctionalTests;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public class SharedCrossStoreFixture : CrossStoreFixture
     {

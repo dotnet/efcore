@@ -6,12 +6,12 @@
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.Data.Entity.Commands.TestUtilities;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Data.Entity.Design.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class OperationExecutorTest
     {
@@ -82,11 +82,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                    BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -97,9 +97,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                         Sources = { @"
-                            using Microsoft.Data.Entity;
-                            using Microsoft.Data.Entity.Infrastructure;
-                            using Microsoft.Data.Entity.Migrations;
+                            using Microsoft.EntityFrameworkCore;
+                            using Microsoft.EntityFrameworkCore.Infrastructure;
+                            using Microsoft.EntityFrameworkCore.Migrations;
 
                             namespace SimpleProject
                             {
@@ -157,11 +157,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -172,9 +172,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
                     Sources = { @"
-                        using Microsoft.Data.Entity;
-                        using Microsoft.Data.Entity.Infrastructure;
-                        using Microsoft.Data.Entity.Migrations;
+                        using Microsoft.EntityFrameworkCore;
+                        using Microsoft.EntityFrameworkCore.Infrastructure;
+                        using Microsoft.EntityFrameworkCore.Migrations;
 
                         namespace MyProject
                         {
@@ -239,11 +239,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                     TargetDir = targetDir,
                     References =
                             {
-                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Commands", copyLocal: true)
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true)
                             },
                     Sources = { @"
-                        using Microsoft.Data.Entity;
+                        using Microsoft.EntityFrameworkCore;
 
                         namespace MyProject
                         {
@@ -263,9 +263,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                     References =
                             {
                                 BuildReference.ByName("System.Reflection.Metadata", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Core"),
-                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
@@ -273,9 +273,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByPath(contextsBuild.TargetPath)
                             },
                     Sources = { @"
-                        using Microsoft.Data.Entity;
-                        using Microsoft.Data.Entity.Infrastructure;
-                        using Microsoft.Data.Entity.Migrations;
+                        using Microsoft.EntityFrameworkCore;
+                        using Microsoft.EntityFrameworkCore.Infrastructure;
+                        using Microsoft.EntityFrameworkCore.Migrations;
 
                         namespace MyProject
                         {
@@ -335,11 +335,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                    BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -350,9 +350,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                     Sources = { @"
-                            using Microsoft.Data.Entity;
-                            using Microsoft.Data.Entity.Infrastructure;
-                            using Microsoft.Data.Entity.Migrations;
+                            using Microsoft.EntityFrameworkCore;
+                            using Microsoft.EntityFrameworkCore.Infrastructure;
+                            using Microsoft.EntityFrameworkCore.Migrations;
 
                             namespace MyProject
                             {
@@ -410,11 +410,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                    BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
-                                    BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
                                     BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
                                     BuildReference.ByName("Microsoft.CodeAnalysis.CSharp", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                     Sources = { @"using System;
-                                using Microsoft.Data.Entity;
+                                using Microsoft.EntityFrameworkCore;
 
                                 namespace MyProject
                                 {
@@ -468,7 +468,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                 using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, "MyProject"))
                 {
                     executor.ScaffoldRuntimeDirectives();
-                    var expectedFile = Path.Combine(targetDir, @"Properties\EntityFramework.g.rd.xml");
+                    var expectedFile = Path.Combine(targetDir, @"Properties\Microsoft.EntityFrameworkCore.g.rd.xml");
 
                     Assert.True(File.Exists(expectedFile));
 
@@ -476,7 +476,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                     _output?.WriteLine(contents);
 
                     // original values snapshot
-                    Assert.Contains("<TypeInstantiation Name=\"Microsoft.Data.Entity.ChangeTracking.Internal.Snapshot\" "
+                    Assert.Contains("<TypeInstantiation Name=\"Microsoft.EntityFrameworkCore.ChangeTracking.Internal.Snapshot\" "
                         + "Arguments=\"System.Int32, System.DateTime, System.String\" "
                         + "Dynamic=\"Required All\" />", 
                         contents);
@@ -498,11 +498,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -513,9 +513,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
                     Sources = { @"
-                            using Microsoft.Data.Entity;
-                            using Microsoft.Data.Entity.Infrastructure;
-                            using Microsoft.Data.Entity.Migrations;
+                            using Microsoft.EntityFrameworkCore;
+                            using Microsoft.EntityFrameworkCore.Infrastructure;
+                            using Microsoft.EntityFrameworkCore.Migrations;
 
                             namespace MyProject
                             {

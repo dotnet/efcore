@@ -3,10 +3,10 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     Provided as the state to <see cref="ILogger" /> when logging an exception that occurred while accessing the database.

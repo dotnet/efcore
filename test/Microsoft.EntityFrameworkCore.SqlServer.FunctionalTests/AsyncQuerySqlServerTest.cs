@@ -4,14 +4,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Xunit;
 using Xunit.Abstractions;
 
 #pragma warning disable 1998
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class AsyncQuerySqlServerTest : AsyncQueryTestBase<NorthwindQuerySqlServerFixture>
     {

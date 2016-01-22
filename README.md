@@ -2,7 +2,7 @@ Entity Framework
 ===
 Entity Framework is Microsoft's recommended data access technology for new applications in .NET.
 
-Travis: [![Travis build Status](https://travis-ci.org/aspnet/EntityFramework.svg?branch=dev)](https://travis-ci.org/aspnet/EntityFramework) (CoreCLR only, no SQL Server)
+Travis: [![Travis build Status](https://travis-ci.org/aspnet/Microsoft.EntityFrameworkCore.svg?branch=dev)](https://travis-ci.org/aspnet/EntityFramework) (CoreCLR only, no SQL Server)
 
 AppVeyor: [![AppVeyor](https://ci.appveyor.com/api/projects/status/v9xbkondjev2gkhn/branch/dev?svg=true)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
 

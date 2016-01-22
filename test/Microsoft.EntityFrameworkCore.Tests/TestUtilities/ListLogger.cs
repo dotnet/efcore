@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Tests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 {
     public class ListLogger : ILogger
     {

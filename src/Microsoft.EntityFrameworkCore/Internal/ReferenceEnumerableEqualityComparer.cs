@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public sealed class ReferenceEnumerableEqualityComparer<TEnumerable, TValue> : IEqualityComparer<TEnumerable>
         where TEnumerable : IEnumerable<TValue>

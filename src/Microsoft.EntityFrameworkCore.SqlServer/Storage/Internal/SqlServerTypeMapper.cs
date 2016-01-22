@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class SqlServerTypeMapper : RelationalTypeMapper
     {

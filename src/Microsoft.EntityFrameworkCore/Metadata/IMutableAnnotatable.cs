@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>

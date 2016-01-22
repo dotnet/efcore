@@ -11,11 +11,11 @@ using System.IO;
 using Microsoft.Extensions.CompilationAbstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
 
-namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compilation
 {
     public class MetadataReferencesProvider
     {
@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
             _references.Add(MetadataReference.CreateFromFile(
                 Assembly.Load(new AssemblyName("Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")).Location));
 #endif
-            AddReferenceFromName("EntityFramework.Core");
-            AddReferenceFromName("EntityFramework.Relational.Design");
+            AddReferenceFromName("Microsoft.EntityFrameworkCore");
+            AddReferenceFromName("Microsoft.EntityFrameworkCore.Relational.Design");
         }
 
         public virtual void Add(MetadataReference reference)

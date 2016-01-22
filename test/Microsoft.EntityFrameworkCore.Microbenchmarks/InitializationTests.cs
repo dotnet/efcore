@@ -3,17 +3,17 @@
 
 using System;
 using System.Linq;
-using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks;
-using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers;
-using EntityFramework.Microbenchmarks.Models.AdventureWorks;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks
 {
     public class InitializationTests : IClassFixture<AdventureWorksFixture>
     {

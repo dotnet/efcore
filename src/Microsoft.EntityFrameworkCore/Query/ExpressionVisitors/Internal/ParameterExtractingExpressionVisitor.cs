@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,12 +6,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {

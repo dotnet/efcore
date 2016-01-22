@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,18 +8,18 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class NavigationRewritingExpressionVisitor : RelinqExpressionVisitor
     {

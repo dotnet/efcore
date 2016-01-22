@@ -8,18 +8,18 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Design.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Design
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public class DbContextOperations
     {
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Design
             }
             var xml = generator.GenerateXml(members);
 
-            var filename = Path.Combine(_projectDir, "Properties", "EntityFramework.g.rd.xml");
+            var filename = Path.Combine(_projectDir, "Properties", "Microsoft.EntityFrameworkCore.g.rd.xml");
 
             Directory.CreateDirectory(Path.GetDirectoryName(filename));
 

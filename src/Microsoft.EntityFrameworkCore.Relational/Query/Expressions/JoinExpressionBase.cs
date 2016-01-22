@@ -3,9 +3,9 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Query.Expressions
+namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     public abstract class JoinExpressionBase : TableExpressionBase
     {

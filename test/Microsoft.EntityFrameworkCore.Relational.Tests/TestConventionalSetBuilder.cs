@@ -1,11 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class TestConventionalSetBuilder : RelationalConventionSetBuilder
     {

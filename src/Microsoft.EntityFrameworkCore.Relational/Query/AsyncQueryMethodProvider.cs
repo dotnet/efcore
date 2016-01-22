@@ -8,12 +8,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncQueryMethodProvider : IQueryMethodProvider
     {

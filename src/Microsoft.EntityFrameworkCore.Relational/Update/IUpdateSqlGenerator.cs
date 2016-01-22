@@ -4,7 +4,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Update
+namespace Microsoft.EntityFrameworkCore.Update
 {
     public interface IUpdateSqlGenerator
     {

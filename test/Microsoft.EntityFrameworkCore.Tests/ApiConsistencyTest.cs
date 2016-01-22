@@ -4,11 +4,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

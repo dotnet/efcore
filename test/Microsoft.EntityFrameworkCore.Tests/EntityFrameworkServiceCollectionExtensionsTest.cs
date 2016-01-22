@@ -3,22 +3,22 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract class EntityFrameworkServiceCollectionExtensionsTest : IDisposable
     {

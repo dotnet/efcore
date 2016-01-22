@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsIdGeneratorTest
     {

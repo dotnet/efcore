@@ -1,11 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Data.Entity.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering
 {
     public class InMemoryFileService : IFileService
     {

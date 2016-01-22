@@ -5,7 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Query.Expressions
+namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     public class NotNullableExpression : Expression
     {

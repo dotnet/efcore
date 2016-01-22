@@ -3,14 +3,14 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class IncludeAsyncTestBase<TFixture> : IClassFixture<TFixture>

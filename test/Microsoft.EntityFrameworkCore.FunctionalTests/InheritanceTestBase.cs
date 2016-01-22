@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Inheritance;
 using Xunit;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringEndsWithIsCultureSpecific
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class InheritanceTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : InheritanceFixtureBase, new()

@@ -4,14 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 {
     public class ChangeTrackerTest
     {

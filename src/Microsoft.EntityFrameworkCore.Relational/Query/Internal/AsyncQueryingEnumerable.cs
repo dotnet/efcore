@@ -7,9 +7,9 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class AsyncQueryingEnumerable : IAsyncEnumerable<ValueBuffer>
     {

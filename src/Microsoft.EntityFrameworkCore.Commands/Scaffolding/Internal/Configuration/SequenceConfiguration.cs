@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 {
     public class SequenceConfiguration
     {

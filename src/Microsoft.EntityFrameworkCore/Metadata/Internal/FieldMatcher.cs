@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class FieldMatcher : IFieldMatcher
     {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Threading;
-using EntityFramework.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
 
-namespace EntityFramework.Microbenchmarks
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks
 {
     public class CalibrationTests
     {

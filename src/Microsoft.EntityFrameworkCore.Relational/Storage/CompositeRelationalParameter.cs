@@ -3,9 +3,9 @@
 
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class CompositeRelationalParameter : IRelationalParameter
     {

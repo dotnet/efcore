@@ -7,7 +7,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class RemappingUntypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {

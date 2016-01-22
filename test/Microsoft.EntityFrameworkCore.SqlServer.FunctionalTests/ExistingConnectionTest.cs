@@ -5,11 +5,11 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class ExistingConnectionTest
     {

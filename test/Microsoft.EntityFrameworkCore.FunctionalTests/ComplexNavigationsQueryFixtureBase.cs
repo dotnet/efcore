@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class ComplexNavigationsQueryFixtureBase<TTestStore>
         where TTestStore : TestStore

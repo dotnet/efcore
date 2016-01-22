@@ -6,13 +6,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class MemberAccessBindingExpressionVisitor : RelinqExpressionVisitor
     {

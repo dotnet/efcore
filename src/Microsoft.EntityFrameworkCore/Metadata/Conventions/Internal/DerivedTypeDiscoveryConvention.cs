@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class DerivedTypeDiscoveryConvention : InheritanceDiscoveryConventionBase, IEntityTypeConvention
     {

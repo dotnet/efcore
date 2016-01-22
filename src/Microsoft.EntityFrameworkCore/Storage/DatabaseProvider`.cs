@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>

@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class InMemoryTableSnapshot
     {

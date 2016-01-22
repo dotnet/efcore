@@ -1,19 +1,19 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding.Internal;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
     {

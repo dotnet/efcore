@@ -5,10 +5,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     Provides access to database related information and operations for a context.

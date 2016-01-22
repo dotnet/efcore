@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Design;
+using Microsoft.EntityFrameworkCore.Design;
 
-namespace Microsoft.Data.Entity.Commands.Tests
+namespace Microsoft.EntityFrameworkCore.Commands.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
@@ -17,8 +17,8 @@ namespace Microsoft.Data.Entity.Commands.Tests
         {
             // NOTE: These classes are compiled by the PowerShell module and must not reference external types.
             return base.GetAllTypes(types).Where(
-                t => t.FullName != "Microsoft.Data.Entity.Design.IOperationResultHandler"
-                     && t.FullName != "Microsoft.Data.Entity.Design.IOperationLogHandler");
+                t => t.FullName != "Microsoft.EntityFrameworkCore.Design.IOperationResultHandler"
+                     && t.FullName != "Microsoft.EntityFrameworkCore.Design.IOperationLogHandler");
         }
     }
 }

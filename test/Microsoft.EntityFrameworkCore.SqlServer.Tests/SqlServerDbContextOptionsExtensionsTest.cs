@@ -3,11 +3,11 @@
 
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerDbContextOptionsExtensionsTest
     {

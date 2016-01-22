@@ -6,7 +6,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
     internal class SkipXunitTheoryTestCase : XunitTheoryTestCase
     {

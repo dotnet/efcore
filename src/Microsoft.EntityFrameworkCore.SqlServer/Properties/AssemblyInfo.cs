@@ -3,10 +3,10 @@
 
 using System.Reflection;
 using System.Resources;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
-    fullyQualifiedTypeName: "Microsoft.Data.Entity.Scaffolding.SqlServerDesignTimeServices, EntityFramework.MicrosoftSqlServer.Design",
-    packageName: "EntityFramework.MicrosoftSqlServer.Design")]
+    fullyQualifiedTypeName: "Microsoft.EntityFrameworkCore.Scaffolding.SqlServerDesignTimeServices, Microsoft.EntityFrameworkCore.SqlServer.Design",
+    packageName: "Microsoft.EntityFrameworkCore.SqlServer.Design")]

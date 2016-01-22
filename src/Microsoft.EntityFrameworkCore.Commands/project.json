@@ -11,10 +11,10 @@
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.Commands.CommandsStrings": "Properties/CommandsStrings.resx"
+    "Microsoft.EntityFrameworkCore.Commands.CommandsStrings": "Properties/CommandsStrings.resx"
   },
   "dependencies": {
-    "EntityFramework.Relational.Design": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Design": "7.0.0-*"
   },
   "frameworks": {
     "net451": {

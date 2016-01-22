@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerOptionsExtensionTest
     {

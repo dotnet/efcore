@@ -1,13 +1,13 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerFixture>
     {
@@ -180,7 +180,7 @@ GO
         {
             base.Can_get_active_provider();
 
-            Assert.Equal("EntityFramework.MicrosoftSqlServer", ActiveProvider);
+            Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", ActiveProvider);
         }
 
         protected override async Task AssertFirstMigrationAsync(DbConnection connection)

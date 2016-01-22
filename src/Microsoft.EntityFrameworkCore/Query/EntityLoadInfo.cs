@@ -4,9 +4,9 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public struct EntityLoadInfo
     {

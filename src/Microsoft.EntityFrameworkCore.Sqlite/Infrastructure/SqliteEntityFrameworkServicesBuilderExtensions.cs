@@ -2,20 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Query.ExpressionTranslators.Internal;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update.Internal;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace

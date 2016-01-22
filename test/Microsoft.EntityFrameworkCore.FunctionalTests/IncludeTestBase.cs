@@ -3,12 +3,12 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class IncludeTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()

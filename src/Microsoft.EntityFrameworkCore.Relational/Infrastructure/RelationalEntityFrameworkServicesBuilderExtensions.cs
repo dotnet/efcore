@@ -5,28 +5,28 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public static class RelationalEntityFrameworkServicesBuilderExtensions
     {
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             builder.GetInfrastructure()
                 .TryAdd(new ServiceCollection()
-                    .AddSingleton(s => new DiagnosticListener("Microsoft.Data.Entity"))
+                    .AddSingleton(s => new DiagnosticListener("Microsoft.EntityFrameworkCore"))
                     .AddSingleton<DiagnosticSource>(s => s.GetService<DiagnosticListener>())
                     .AddSingleton<ParameterNameGeneratorFactory>()
                     .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()

@@ -3,11 +3,11 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.Data.Entity.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ValueGenerationManager : IValueGenerationManager
     {

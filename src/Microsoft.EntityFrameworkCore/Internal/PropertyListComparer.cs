@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class PropertyListComparer : IComparer<IReadOnlyList<IProperty>>, IEqualityComparer<IReadOnlyList<IProperty>>
     {

@@ -7,9 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.Data.Entity.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities
 {
     [DebuggerStepThrough]
     internal static class Check

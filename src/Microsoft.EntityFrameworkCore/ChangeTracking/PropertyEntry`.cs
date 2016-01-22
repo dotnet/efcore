@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
     ///     <para>

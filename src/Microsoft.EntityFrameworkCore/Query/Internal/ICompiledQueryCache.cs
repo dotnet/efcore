@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public interface ICompiledQueryCache
     {

@@ -4,7 +4,7 @@
 using System.Linq.Expressions;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class EqualityPredicateExpandingVisitor : RelinqExpressionVisitor
     {

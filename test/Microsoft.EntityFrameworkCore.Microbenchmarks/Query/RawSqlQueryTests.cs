@@ -1,13 +1,13 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Models.Orders;
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
 {
     [SqlServerRequired]
     public class RawSqlQueryTests : IClassFixture<RawSqlQueryTests.RawSqlQueryFixture>

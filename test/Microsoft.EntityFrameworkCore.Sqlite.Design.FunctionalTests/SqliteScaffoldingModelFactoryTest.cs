@@ -4,17 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Internal;
-using Microsoft.Data.Entity.Sqlite.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 {
     public class SqliteScaffoldingModelFactoryTest : IDisposable
     {

@@ -4,17 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.TestUtilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerHistoryRepositoryTest
     {

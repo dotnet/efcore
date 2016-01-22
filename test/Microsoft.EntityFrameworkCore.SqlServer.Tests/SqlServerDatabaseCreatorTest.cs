@@ -8,13 +8,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -23,7 +23,7 @@ using Xunit;
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable MemberCanBePrivate.Local
 
-namespace Microsoft.Data.Entity.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Cannot immitate SqlError on this version of Mono")]
     public class SqlServerDatabaseCreatorTest

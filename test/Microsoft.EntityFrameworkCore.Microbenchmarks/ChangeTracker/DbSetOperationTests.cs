@@ -1,11 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Models.Orders;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.ChangeTracker
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
 {
     [SqlServerRequired]
     public class DbSetOperationTests : IClassFixture<DbSetOperationTests.DbSetOperationFixture>

@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
     public class SqlServerCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {

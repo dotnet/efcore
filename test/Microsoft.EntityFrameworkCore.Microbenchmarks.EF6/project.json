@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "EntityFramework": "6.1.2",
-    "EntityFramework.Microbenchmarks.Core": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0"
   },
   "testRunner": "xunit",
   "commands": {

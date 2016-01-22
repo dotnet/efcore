@@ -3,13 +3,13 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.Tests
+namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 {
     public class InMemoryOptionsExtensionTest
     {

@@ -3,9 +3,9 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class RelationalColumnAttributeConvention : PropertyAttributeConvention<ColumnAttribute>
     {

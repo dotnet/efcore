@@ -3,11 +3,11 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class EntityTypeAttributeConventionTest
     {

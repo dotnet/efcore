@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Design.Internal;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Design
+namespace Microsoft.EntityFrameworkCore.Design
 {
     public class DatabaseOperations
     {

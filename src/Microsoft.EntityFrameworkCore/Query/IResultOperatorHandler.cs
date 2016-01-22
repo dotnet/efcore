@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.EntityFrameworkCore.Query
 {
     public interface IResultOperatorHandler
     {

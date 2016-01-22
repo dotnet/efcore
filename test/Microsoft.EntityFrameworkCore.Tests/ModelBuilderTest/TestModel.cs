@@ -9,7 +9,7 @@ using System.Reflection;
 
 // ReSharper disable once CheckNamespace
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract partial class ModelBuilderTest
     {

@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "7.0.0-*",
   "description": "Design-time Entity Framework functionality for SQLite",
   "repository": {
@@ -10,12 +10,12 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational.Design": "7.0.0-*",
-    "EntityFramework.Sqlite": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Design": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Sqlite": "7.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.Sqlite.Design.SqliteDesignStrings": "Properties/SqliteDesignStrings.resx"
+    "Microsoft.EntityFrameworkCore.Sqlite.Design.SqliteDesignStrings": "Properties/SqliteDesignStrings.resx"
   },
   "frameworks": {
     "net451": { },

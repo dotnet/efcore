@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Tests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public abstract class MigrationSqlGeneratorTestBase
     {

@@ -1,12 +1,12 @@
 {
   "version": "7.0.0-*",
-  "description": "Reusable EntityFramework.Relational functional tests for provider writers.",
+  "description": "Reusable Microsoft.EntityFrameworkCore.Relational functional tests for provider writers.",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Core.FunctionalTests": "7.0.0-*",
-    "EntityFramework.Relational": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.FunctionalTests": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational": "7.0.0-*"
   },
   "frameworks": {
     "net451": { },

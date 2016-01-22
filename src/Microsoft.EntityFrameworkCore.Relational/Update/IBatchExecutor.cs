@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Update
+namespace Microsoft.EntityFrameworkCore.Update
 {
     public interface IBatchExecutor
     {

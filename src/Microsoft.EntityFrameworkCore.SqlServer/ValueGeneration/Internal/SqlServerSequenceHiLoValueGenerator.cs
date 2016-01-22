@@ -4,13 +4,13 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
     public class SqlServerSequenceHiLoValueGenerator<TValue> : HiLoValueGenerator<TValue>
     {

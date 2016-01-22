@@ -4,13 +4,13 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class InternalRelationalMetadataBuilderExtensionsTest
     {

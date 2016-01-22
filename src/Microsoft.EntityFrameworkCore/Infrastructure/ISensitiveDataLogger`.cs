@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public interface ISensitiveDataLogger<out T> : ILogger<T>, ISensitiveDataLogger
     {

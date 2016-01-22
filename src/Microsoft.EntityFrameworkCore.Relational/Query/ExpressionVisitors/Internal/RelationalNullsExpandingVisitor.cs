@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class RelationalNullsExpandingVisitor : RelationalNullsExpressionVisitorBase
     {

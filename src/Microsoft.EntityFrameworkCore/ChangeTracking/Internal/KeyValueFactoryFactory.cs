@@ -3,10 +3,10 @@
 
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.Data.Entity.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class KeyValueFactoryFactory
     {

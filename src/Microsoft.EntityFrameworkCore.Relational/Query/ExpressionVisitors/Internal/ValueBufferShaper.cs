@@ -3,10 +3,10 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class ValueBufferShaper : Shaper, IShaper<ValueBuffer>
     {

@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Tests;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.Tests
+namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 {
     public class InMemoryIntegerValueGeneratorFactoryTest
     {

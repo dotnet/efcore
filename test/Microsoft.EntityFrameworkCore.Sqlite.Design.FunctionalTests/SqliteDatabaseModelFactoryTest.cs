@@ -4,13 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
-using Microsoft.Data.Entity.Sqlite.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 {
     public class SqliteDatabaseModelFactoryTest : IDisposable
     {

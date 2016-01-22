@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Migrations.Operations.Builders;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class MigrationBuilder
     {

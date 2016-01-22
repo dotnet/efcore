@@ -3,11 +3,11 @@
 
 using System;
 using System.Data.SqlClient;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class MigrationsSqlServerFixture : MigrationsFixtureBase
     {

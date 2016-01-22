@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public interface IAsyncQueryProvider : IQueryProvider
     {

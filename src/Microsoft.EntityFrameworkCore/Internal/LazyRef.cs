@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     [DebuggerStepThrough]
     public sealed class LazyRef<T>

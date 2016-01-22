@@ -4,7 +4,7 @@
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
     public class ConditionalTheoryDiscoverer : TheoryDiscoverer
     {

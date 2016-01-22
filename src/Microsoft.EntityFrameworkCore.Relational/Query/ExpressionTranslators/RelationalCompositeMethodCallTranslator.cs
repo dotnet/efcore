@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTranslators
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
     public abstract class RelationalCompositeMethodCallTranslator : IMethodCallTranslator
     {

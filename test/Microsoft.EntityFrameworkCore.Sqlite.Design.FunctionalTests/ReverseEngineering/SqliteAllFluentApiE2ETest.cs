@@ -1,10 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
 using Xunit.Abstractions;
 
-namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
     public class SqliteAllFluentApiE2ETest : SqliteE2ETestBase
     {
@@ -17,6 +17,6 @@ namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests.ReverseEngineering
         protected override bool UseFluentApiOnly { get; } = true;
         protected override string ExpectedResultsParentDir { get; } = Path.Combine("ReverseEngineering", "Expected", "AllFluentApi");
 
-        protected override string ProviderName => "EntityFramework.Sqlite.Design";
+        protected override string ProviderName => "Microsoft.EntityFrameworkCore.Sqlite.Design";
     }
 }

@@ -3,9 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>

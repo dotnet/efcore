@@ -2,18 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract class RelationalEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {

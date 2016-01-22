@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public interface IEntityEntryGraphIterator
     {

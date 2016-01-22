@@ -4,11 +4,11 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
     {

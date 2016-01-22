@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 // ReSharper disable ReplaceWithSingleCallToSingle
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class GearsOfWarQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable

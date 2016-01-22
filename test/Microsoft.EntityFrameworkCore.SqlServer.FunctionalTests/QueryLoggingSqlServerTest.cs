@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 #if DNXCORE50
 using System.Threading;
 #endif
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture>
     {
@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 Assert.NotNull(customers);
                 Assert.StartsWith(
-                    @"    Compiling query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
-    Optimized query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
+                    @"    Compiling query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind.Customer])'
+    Optimized query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind.Customer])'
     TRACKED: True
 (QueryContext queryContext) => IEnumerable<Customer> _ShapedQuery(
     queryContext: queryContext, 
@@ -70,9 +70,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => Include([c].Orders)'
-    Optimized query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
-    Including navigation: 'Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer.Orders'
+                Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind.Customer]) => Include([c].Orders)'
+    Optimized query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind.Customer])'
+    Including navigation: 'Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind.Customer.Orders'
     TRACKED: True
 (QueryContext queryContext) => IEnumerable<Customer> _Include(
     queryContext: (RelationalQueryContext) queryContext, 

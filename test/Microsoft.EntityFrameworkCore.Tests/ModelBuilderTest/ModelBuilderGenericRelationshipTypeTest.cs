@@ -4,11 +4,11 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // ReSharper disable once CheckNamespace
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
     {

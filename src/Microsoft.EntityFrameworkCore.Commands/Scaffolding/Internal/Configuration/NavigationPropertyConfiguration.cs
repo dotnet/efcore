@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 {
     public class NavigationPropertyConfiguration
     {

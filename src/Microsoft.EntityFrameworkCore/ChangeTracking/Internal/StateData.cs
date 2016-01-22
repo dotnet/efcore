@@ -3,7 +3,7 @@
 
 using System.Linq;
 
-namespace Microsoft.Data.Entity.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract partial class InternalEntityEntry
     {

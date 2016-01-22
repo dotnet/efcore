@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.TestUtilities;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests.Update
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 {
     public class SqlServerModificationCommandBatchTest
     {

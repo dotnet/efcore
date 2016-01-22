@@ -3,19 +3,19 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalDatabaseProviderServices : DatabaseProviderServices, IRelationalDatabaseProviderServices
     {

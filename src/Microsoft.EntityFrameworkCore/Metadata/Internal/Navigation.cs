@@ -7,10 +7,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
     public class Navigation : ConventionalAnnotatable, IMutableNavigation, INavigationAccessors, IPropertyIndexesAccessor

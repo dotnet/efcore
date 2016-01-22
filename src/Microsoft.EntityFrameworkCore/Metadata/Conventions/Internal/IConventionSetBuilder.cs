@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public interface IConventionSetBuilder
     {

@@ -1,11 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 {
     public class InternalShadowEntityEntryTest : InternalEntityEntryTestBase
     {

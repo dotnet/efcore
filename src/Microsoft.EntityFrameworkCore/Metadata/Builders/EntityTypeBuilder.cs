@@ -4,12 +4,12 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>

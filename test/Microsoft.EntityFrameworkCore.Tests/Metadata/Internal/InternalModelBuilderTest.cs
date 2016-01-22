@@ -3,10 +3,10 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Internal.Test
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal.Test
 {
     public class InternalModelBuilderTest
     {

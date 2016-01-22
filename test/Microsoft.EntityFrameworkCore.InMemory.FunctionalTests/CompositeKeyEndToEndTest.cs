@@ -5,12 +5,12 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class CompositeKeyEndToEndTest
     {

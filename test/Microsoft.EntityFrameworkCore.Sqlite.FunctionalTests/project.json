@@ -3,8 +3,8 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational.FunctionalTests": "7.0.0-*",
-    "EntityFramework.Sqlite": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Sqlite": "7.0.0-*"
   },
   "exclude": ".testPublish/**",
   "content": "northwind.db",

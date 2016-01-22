@@ -3,13 +3,13 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract partial class ModelBuilderTest
     {

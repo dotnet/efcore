@@ -3,7 +3,7 @@
 
 using System.Data.Common;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class RelationalTestStore : TestStore
     {

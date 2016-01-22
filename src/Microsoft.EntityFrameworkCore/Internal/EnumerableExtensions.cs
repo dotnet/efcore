@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     [DebuggerStepThrough]
     public static class EnumerableExtensions

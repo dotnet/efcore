@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Data.Entity.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
     ///     Generates <see cref="Guid" /> values using <see cref="Guid.NewGuid()" />.

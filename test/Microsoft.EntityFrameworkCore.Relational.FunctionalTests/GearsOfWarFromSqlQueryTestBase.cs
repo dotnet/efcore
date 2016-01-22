@@ -1,12 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel;
 using Xunit;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class GearsOfWarFromSqlQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TFixture : GearsOfWarQueryRelationalFixture<TTestStore>, new()

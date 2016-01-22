@@ -3,13 +3,13 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
-namespace Microsoft.Data.Entity.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
     ///     <para>

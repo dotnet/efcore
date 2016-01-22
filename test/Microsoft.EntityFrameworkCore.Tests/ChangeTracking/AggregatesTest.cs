@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 {
     public class AggregatesTest
     {

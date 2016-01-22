@@ -4,11 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Query.ResultOperators;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class QueryAnnotationExtractor : IQueryAnnotationExtractor
     {

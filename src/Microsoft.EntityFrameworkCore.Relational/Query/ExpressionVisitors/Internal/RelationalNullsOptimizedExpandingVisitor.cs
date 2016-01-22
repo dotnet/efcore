@@ -3,7 +3,7 @@
 
 using System.Linq.Expressions;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class RelationalNullsOptimizedExpandingVisitor : RelationalNullsExpressionVisitorBase
     {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 using System.Threading;
 #endif
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
     {

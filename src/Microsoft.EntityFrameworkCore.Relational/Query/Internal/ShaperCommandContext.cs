@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class ShaperCommandContext
     {

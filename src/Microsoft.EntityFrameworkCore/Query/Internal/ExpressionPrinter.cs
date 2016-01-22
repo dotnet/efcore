@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class ExpressionPrinter : ExpressionVisitor, IExpressionPrinter
     {
@@ -492,8 +492,8 @@ namespace Microsoft.Data.Entity.Query.Internal
         protected virtual string PostProcess([NotNull] string queryPlan)
         {
             var processedPlan = queryPlan
-                .Replace("Microsoft.Data.Entity.Query.", "")
-                .Replace("Microsoft.Data.Entity.", "")
+                .Replace("Microsoft.EntityFrameworkCore.Query.", "")
+                .Replace("Microsoft.EntityFrameworkCore.", "")
                 .Replace(Environment.NewLine + Environment.NewLine, Environment.NewLine);
 
             return processedPlan;

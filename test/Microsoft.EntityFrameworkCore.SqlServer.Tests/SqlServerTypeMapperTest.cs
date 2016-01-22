@@ -4,14 +4,14 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerTypeMapperTest
     {

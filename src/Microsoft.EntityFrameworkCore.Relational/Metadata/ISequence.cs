@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public interface ISequence
     {

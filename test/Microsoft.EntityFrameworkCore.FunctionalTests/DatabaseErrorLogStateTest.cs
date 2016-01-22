@@ -4,9 +4,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -15,7 +15,7 @@ using Xunit;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringStartsWithIsCultureSpecific
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public class DatabaseErrorLogStateTest
     {

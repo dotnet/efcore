@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Design.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class StartupInvokerTest
     {

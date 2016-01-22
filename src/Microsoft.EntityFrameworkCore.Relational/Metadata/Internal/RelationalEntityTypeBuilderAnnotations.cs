@@ -5,10 +5,10 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class RelationalEntityTypeBuilderAnnotations : RelationalEntityTypeAnnotations
     {

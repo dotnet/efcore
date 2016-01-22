@@ -1,15 +1,15 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Data.Common;
 using System.Diagnostics;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     internal static class RelationalDiagnostics
     {
-        private const string NamePrefix = "Microsoft.Data.Entity.";
+        private const string NamePrefix = "Microsoft.EntityFrameworkCore.";
 
         public const string BeforeExecuteCommand = NamePrefix + nameof(BeforeExecuteCommand);
         public const string AfterExecuteCommand = NamePrefix + nameof(AfterExecuteCommand);

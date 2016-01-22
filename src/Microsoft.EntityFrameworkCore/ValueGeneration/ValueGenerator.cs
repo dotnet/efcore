@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Data.Entity.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
     ///     Generates values for properties when an entity is added to a context.

@@ -3,10 +3,10 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>

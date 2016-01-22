@@ -3,9 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public struct DbSetProperty
     {

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.ResultOperators;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -14,7 +14,7 @@ using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Transformations;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class QueryOptimizer : SubQueryFromClauseFlattener, IQueryOptimizer
     {

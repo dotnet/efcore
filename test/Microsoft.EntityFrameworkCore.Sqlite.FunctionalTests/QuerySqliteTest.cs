@@ -1,17 +1,17 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
 #if DNXCORE50
 using System.Threading;
 #endif
 
-namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>
     {

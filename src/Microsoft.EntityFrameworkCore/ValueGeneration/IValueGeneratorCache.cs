@@ -3,9 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
     ///     <para>

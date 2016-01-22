@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class PropertyEntryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore

@@ -8,10 +8,10 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {

@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 {
     public class PropertyEntryTest
     {

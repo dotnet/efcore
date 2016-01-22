@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Update;
+using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     An exception that is thrown when a concurrency violation is encountered while saving to the database. A concurrency violation

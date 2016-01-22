@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class CompiledQueryCache : ICompiledQueryCache
     {

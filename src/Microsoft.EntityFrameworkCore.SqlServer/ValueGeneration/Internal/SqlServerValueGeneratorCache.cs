@@ -3,10 +3,10 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
     public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
     {

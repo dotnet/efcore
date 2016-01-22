@@ -3,11 +3,11 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.InMemory.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class ShadowStateUpdateTest : IClassFixture<InMemoryFixture>
     {

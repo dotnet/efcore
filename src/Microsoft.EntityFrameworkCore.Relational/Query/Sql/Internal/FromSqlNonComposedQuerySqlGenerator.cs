@@ -6,12 +6,12 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Query.Sql.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 {
     public class FromSqlNonComposedQuerySqlGenerator : DefaultQuerySqlGenerator
     {

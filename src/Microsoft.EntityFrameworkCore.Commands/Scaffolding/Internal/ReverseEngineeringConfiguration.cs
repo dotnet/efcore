@@ -3,9 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.Data.Entity.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineeringConfiguration
     {

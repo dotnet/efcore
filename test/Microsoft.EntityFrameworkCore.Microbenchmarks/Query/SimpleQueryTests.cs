@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Models.Orders;
-using Microsoft.Data.Entity;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
 {
     [SqlServerRequired]
     public class SimpleQueryTests : IClassFixture<SimpleQueryTests.SimpleQueryFixture>

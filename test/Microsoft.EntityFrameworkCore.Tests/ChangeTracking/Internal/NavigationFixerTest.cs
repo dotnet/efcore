@@ -5,12 +5,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 {
     public class NavigationFixerTest
     {

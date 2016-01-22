@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class SensitiveDataLogger<T> : ISensitiveDataLogger<T>
     {

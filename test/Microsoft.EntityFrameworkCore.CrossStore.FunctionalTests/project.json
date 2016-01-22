@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "EntityFramework.InMemory.FunctionalTests": "1.0.0",
-    "EntityFramework.Sqlite.FunctionalTests": "1.0.0",
-    "EntityFramework.MicrosoftSqlServer.FunctionalTests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": "1.0.0",
+    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
   },
   "testRunner": "xunit",
   "commands": {

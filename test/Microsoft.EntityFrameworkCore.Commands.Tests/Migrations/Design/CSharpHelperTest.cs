@@ -4,11 +4,11 @@
 using System;
 using System.Globalization;
 using System.Threading;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpHelperTest 
     {

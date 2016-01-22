@@ -5,7 +5,7 @@ using System;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Relational.Design
+namespace Microsoft.EntityFrameworkCore.Relational.Design
 {
     public class TestLoggerFactory : LoggerFactory
     {

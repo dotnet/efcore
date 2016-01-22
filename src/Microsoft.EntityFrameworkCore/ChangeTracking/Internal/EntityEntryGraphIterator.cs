@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class EntityEntryGraphIterator : IEntityEntryGraphIterator
     {

@@ -1,15 +1,15 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit.Sdk;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    [TraitDiscoverer("Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlServerConditionTraitDiscoverer", "EntityFramework.MicrosoftSqlServer.FunctionalTests")]
+    [TraitDiscoverer("Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlServerConditionTraitDiscoverer", "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests")]
     public class SqlServerConditionAttribute : Attribute, ITestCondition, ITraitAttribute
     {
         public SqlServerCondition Conditions { get; set; }

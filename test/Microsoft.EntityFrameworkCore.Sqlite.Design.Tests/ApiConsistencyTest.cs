@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 
-namespace Microsoft.Data.Entity.Sqlite.Design
+namespace Microsoft.EntityFrameworkCore.Sqlite.Design
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 
@@ -14,7 +14,7 @@ using Xunit;
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable UnusedMember.Local
 
-namespace Microsoft.Data.Entity.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 {
     public class ClrCollectionAccessorFactoryTest
     {

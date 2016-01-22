@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.PlatformAbstractions;
 using XunitDiagnosticMessage = Xunit.DiagnosticMessage;
 
-namespace EntityFramework.Microbenchmarks.Core
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
     public class BenchmarkTestCaseRunner : XunitTestCaseRunner
     {

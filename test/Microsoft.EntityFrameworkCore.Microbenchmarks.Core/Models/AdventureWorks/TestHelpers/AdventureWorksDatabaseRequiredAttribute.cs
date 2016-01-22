@@ -1,11 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Data.SqlClient;
 using Xunit.Sdk;
 
-namespace EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class AdventureWorksDatabaseRequiredAttribute : Attribute, ITestCondition

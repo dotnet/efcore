@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class MemberMapperTest
     {

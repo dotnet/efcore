@@ -4,16 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests
 {
     public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFixture>
     {

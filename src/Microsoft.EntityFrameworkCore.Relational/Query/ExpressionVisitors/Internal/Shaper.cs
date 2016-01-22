@@ -5,7 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public abstract class Shaper
     {

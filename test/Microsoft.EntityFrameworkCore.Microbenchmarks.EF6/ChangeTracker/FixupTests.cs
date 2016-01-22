@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Core.Models.Orders;
-using EntityFramework.Microbenchmarks.EF6.Models.Orders;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.Orders;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Models.Orders;
 using Xunit;
 
-namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
 {
     [SqlServerRequired]
     public class FixupTests : IClassFixture<FixupTests.FixupFixture>

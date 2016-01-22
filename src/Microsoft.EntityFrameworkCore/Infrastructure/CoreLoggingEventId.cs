@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     Values that are used as the eventId when logging messages from this assembly via <see cref="ILogger" />.

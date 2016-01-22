@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
 {
     public class TemporaryStringValueGeneratorTest
     {

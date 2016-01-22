@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 
-namespace Microsoft.Data.Entity.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
     public class TemporaryDateTimeOffsetValueGenerator : ValueGenerator<DateTimeOffset>
     {

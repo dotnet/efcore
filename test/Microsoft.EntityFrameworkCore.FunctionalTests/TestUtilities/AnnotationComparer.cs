@@ -1,11 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
 {
     internal class AnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<IAnnotation>
     {

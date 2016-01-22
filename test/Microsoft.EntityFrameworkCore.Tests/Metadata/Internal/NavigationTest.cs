@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class NavigationTest
     {

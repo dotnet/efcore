@@ -6,7 +6,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public interface IRelationalConnection : IRelationalTransactionManager, IDisposable
     {

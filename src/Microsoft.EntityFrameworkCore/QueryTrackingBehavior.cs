@@ -1,9 +1,9 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     Indicates how the results of a query are tracked by the <see cref="ChangeTracker" />.

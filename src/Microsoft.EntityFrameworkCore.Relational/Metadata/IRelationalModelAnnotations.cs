@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public interface IRelationalModelAnnotations
     {

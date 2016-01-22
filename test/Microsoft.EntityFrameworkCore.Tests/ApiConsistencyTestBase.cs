@@ -8,13 +8,13 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable StringStartsWithIsCultureSpecific
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.EntityFrameworkCore
 {
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Mono < 4.2.0 does not implement reflection APIs used in this test")]
     public abstract class ApiConsistencyTestBase

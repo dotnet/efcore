@@ -3,10 +3,10 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public abstract class RelationalNullsExpressionVisitorBase : RelinqExpressionVisitor
     {

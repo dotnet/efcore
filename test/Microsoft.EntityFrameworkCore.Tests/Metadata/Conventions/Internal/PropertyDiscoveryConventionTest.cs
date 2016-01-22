@@ -4,11 +4,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
 {
     public class PropertyDiscoveryConventionTest
     {

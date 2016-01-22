@@ -3,11 +3,11 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.Expressions
+namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     public class FromSqlExpression : TableExpressionBase
     {

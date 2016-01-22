@@ -5,11 +5,11 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class CompositeKeyEndToEndTest
     {

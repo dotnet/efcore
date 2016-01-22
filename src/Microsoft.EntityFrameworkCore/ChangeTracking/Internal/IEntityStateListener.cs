@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     // TODO: Consider which of listerners/events/interceptors/etc is better here
     // See issue #737

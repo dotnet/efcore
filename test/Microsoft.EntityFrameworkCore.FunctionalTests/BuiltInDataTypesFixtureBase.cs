@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class BuiltInDataTypesFixtureBase : IDisposable
     {

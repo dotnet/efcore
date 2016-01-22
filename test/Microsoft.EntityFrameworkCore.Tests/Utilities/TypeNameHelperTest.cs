@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Utilities
+namespace Microsoft.EntityFrameworkCore.Tests.Utilities
 {
     public class TypeNameHelperTest
     {
@@ -25,27 +25,27 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 typeof(List<List<string>>).DisplayName());
 
             // Classes inside NonGeneric class
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+A",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+A",
                 typeof(A).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+B<int>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+B<int>",
                 typeof(B<int>).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+C<int, string>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+C<int, string>",
                 typeof(C<int, string>).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+C<int, Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+B<string>>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+C<int, Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+B<string>>",
                 typeof(C<int, B<string>>).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+B<Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+B<string>>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+B<Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+B<string>>",
                 typeof(B<B<string>>).DisplayName());
 
             // Classes inside Generic class
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+Outer<int>+D",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+Outer<int>+D",
                 typeof(Outer<int>.D).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<int>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<int>",
                 typeof(Outer<int>.E<int>).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+Outer<int>+F<int, string>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+Outer<int>+F<int, string>",
                 typeof(Outer<int>.F<int, string>).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+Outer<int>+F<int, Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<string>>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+Outer<int>+F<int, Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<string>>",
                 typeof(Outer<int>.F<int, Outer<int>.E<string>>).DisplayName());
-            Assert.Equal("Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<Microsoft.Data.Entity.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<string>>",
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<Microsoft.EntityFrameworkCore.Tests.Utilities.TypeNameHelperTest+Outer<int>+E<string>>",
                 typeof(Outer<int>.E<Outer<int>.E<string>>).DisplayName());
         }
 

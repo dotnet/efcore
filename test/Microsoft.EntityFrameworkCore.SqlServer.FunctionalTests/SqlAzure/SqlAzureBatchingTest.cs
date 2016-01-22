@@ -1,14 +1,14 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure.Model;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 {
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureBatchingTest : IClassFixture<BatchingSqlAzureFixture>

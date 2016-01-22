@@ -7,9 +7,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpUtilities
     {

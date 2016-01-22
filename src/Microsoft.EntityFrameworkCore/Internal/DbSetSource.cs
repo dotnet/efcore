@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class DbSetSource : IDbSetSource
     {

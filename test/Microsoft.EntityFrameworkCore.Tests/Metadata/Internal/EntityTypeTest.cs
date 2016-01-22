@@ -7,13 +7,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ImplicitlyCapturedClosure
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class EntityTypeTest
     {
@@ -1199,9 +1199,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Name_is_prettified_CLR_full_name()
         {
-            Assert.Equal("Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest", new Model().AddEntityType(typeof(EntityTypeTest)).Name);
-            Assert.Equal("Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest+Customer", new Model().AddEntityType(typeof(Customer)).Name);
-            Assert.Equal("System.Collections.Generic.List<Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest+Customer>", new Model().AddEntityType(typeof(List<Customer>)).Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest", new Model().AddEntityType(typeof(EntityTypeTest)).Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest+Customer", new Model().AddEntityType(typeof(Customer)).Name);
+            Assert.Equal("System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest+Customer>", new Model().AddEntityType(typeof(List<Customer>)).Name);
         }
 
         [Fact]

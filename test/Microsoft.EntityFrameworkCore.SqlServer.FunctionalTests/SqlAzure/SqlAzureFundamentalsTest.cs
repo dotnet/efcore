@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure.Model;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 {
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureFundamentalsTest : IClassFixture<SqlAzureFixture>

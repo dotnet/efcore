@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
 {
     public abstract class MonsterContext : DbContext
     {

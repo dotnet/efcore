@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 // ReSharper disable AccessToDisposedClosure
@@ -18,7 +18,7 @@ using Xunit;
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable StringEndsWithIsCultureSpecific
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Async queries will not work on Mono < 4.2.0 due to differences in the IQueryable interface")]
     public abstract class AsyncQueryTestBase<TFixture> : IClassFixture<TFixture>

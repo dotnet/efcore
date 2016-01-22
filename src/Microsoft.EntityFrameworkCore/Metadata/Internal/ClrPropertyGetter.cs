@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ClrPropertyGetter<TEntity, TValue> : IClrPropertyGetter
         where TEntity : class

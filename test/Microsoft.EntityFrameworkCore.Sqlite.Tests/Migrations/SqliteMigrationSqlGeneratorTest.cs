@@ -3,14 +3,14 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.TestUtilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {

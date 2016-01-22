@@ -3,12 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 {
     public class MetadataBuilderTest
     {

@@ -3,10 +3,10 @@
 
 using System.Reflection;
 using System.Resources;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
-    fullyQualifiedTypeName: "Microsoft.Data.Entity.Scaffolding.SqliteDesignTimeServices, EntityFramework.Sqlite.Design",
-    packageName: "EntityFramework.Sqlite.Design")]
+    fullyQualifiedTypeName: "Microsoft.EntityFrameworkCore.Scaffolding.SqliteDesignTimeServices, Microsoft.EntityFrameworkCore.Sqlite.Design",
+    packageName: "Microsoft.EntityFrameworkCore.Sqlite.Design")]

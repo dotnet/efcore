@@ -6,7 +6,7 @@ using System.Data.Common;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class CommandConfigurationTests
     {

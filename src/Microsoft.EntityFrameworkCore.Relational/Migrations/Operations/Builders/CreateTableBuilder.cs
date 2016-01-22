@@ -7,9 +7,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations.Operations.Builders
+namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 {
     public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperation>
     {

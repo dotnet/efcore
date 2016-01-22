@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 
-namespace Microsoft.Data.Entity.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
     ///     Generates sequential <see cref="Guid" /> values using the same algorithm as NEWSEQUENTIALID()

@@ -6,7 +6,7 @@ using System.Reflection;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ClrPropertySetterFactoryTest
     {

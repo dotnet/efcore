@@ -6,9 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
 {
     public class ChangedOnlyMonsterContext : MonsterContext<
         ChangedOnlyMonsterContext.Customer, ChangedOnlyMonsterContext.Barcode, ChangedOnlyMonsterContext.IncorrectScan,

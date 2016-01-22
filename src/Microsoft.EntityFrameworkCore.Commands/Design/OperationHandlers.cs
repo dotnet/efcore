@@ -5,7 +5,7 @@
 using System;
 #endif
 
-namespace Microsoft.Data.Entity.Design
+namespace Microsoft.EntityFrameworkCore.Design
 {
 #if !OMIT_HANDLER_INTERFACES
     public interface IOperationResultHandler

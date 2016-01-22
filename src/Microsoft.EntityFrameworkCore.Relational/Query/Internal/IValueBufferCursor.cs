@@ -3,9 +3,9 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public interface IValueBufferCursor
     {

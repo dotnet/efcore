@@ -1,11 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Builders
 {
     public class SqliteBuilderExtensionsTest
     {

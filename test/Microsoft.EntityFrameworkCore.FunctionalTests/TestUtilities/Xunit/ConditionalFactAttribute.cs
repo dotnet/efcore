@@ -5,10 +5,10 @@ using System;
 using Xunit;
 using Xunit.Sdk;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method)]
-    [XunitTestCaseDiscoverer("Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit.ConditionalFactDiscoverer", "EntityFramework.Core.FunctionalTests")]
+    [XunitTestCaseDiscoverer("Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit.ConditionalFactDiscoverer", "Microsoft.EntityFrameworkCore.FunctionalTests")]
     public class ConditionalFactAttribute : FactAttribute
     {
     }

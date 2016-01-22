@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     public interface ISqlServerUpdateSqlGenerator : IUpdateSqlGenerator
     {

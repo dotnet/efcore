@@ -3,14 +3,14 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Sqlite.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class NorthwindQuerySqliteFixture : NorthwindQueryRelationalFixture, IDisposable
     {

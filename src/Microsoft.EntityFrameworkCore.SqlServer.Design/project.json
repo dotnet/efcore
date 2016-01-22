@@ -10,12 +10,12 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
-    "EntityFramework.Relational.Design": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.SqlServer": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design": "7.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.MicrosoftSqlServer.Design.SqlServerDesignStrings": "Properties/SqlServerDesignStrings.resx"
+    "Microsoft.EntityFrameworkCore.SqlServer.Design.SqlServerDesignStrings": "Properties/SqlServerDesignStrings.resx"
   },
   "frameworks": {
     "net451": { },

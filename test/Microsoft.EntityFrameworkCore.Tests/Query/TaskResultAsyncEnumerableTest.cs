@@ -3,10 +3,10 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Query
+namespace Microsoft.EntityFrameworkCore.Tests.Query
 {
     public class TaskResultAsyncEnumerableTest
     {

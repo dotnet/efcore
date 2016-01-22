@@ -3,10 +3,10 @@
 
 using System;
 using System.Text;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class UpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {

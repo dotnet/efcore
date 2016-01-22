@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 using System.Linq;
 
-namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class SqliteForeignKeyTest : IDisposable
     {

@@ -4,7 +4,7 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTranslators
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
     public interface IMethodCallTranslator
     {

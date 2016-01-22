@@ -3,7 +3,7 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Migrations.Operations
+namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
     public class DropSequenceOperation : MigrationOperation
     {

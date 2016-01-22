@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
 {
     public class SnapshotMonsterContext : MonsterContext<
         SnapshotMonsterContext.Customer, SnapshotMonsterContext.Barcode, SnapshotMonsterContext.IncorrectScan,

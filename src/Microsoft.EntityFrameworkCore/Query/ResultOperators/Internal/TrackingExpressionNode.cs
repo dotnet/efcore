@@ -7,7 +7,7 @@ using System.Reflection;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
-namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 {
     public class TrackingExpressionNode : ResultOperatorExpressionNodeBase
     {

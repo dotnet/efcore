@@ -1,14 +1,14 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 #if DNX451
 
 using System;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Design.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     internal interface IMagic
     {
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                     TargetDir = directory.Path,
                     Sources = { @"
                         using System;
-                        namespace Microsoft.Data.Entity.Design.Internal
+                        namespace Microsoft.EntityFrameworkCore.Design.Internal
                         {
                             // NOTE: This interface will have a different identity than the one above
                             internal interface IMagic
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                 {
                     var target = domain.CreateInstanceAndUnwrap(
                         build.TargetName,
-                        "Microsoft.Data.Entity.Design.Internal.Magic");
+                        "Microsoft.EntityFrameworkCore.Design.Internal.Magic");
                     var forwardingProxy = new ForwardingProxy<IMagic>(target);
                     var transparentProxy = forwardingProxy.GetTransparentProxy();
 

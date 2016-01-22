@@ -1,13 +1,13 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Tests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     {

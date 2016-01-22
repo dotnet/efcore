@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Data.Sqlite;
 
-namespace Microsoft.Data.Entity.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqliteDatabaseModelFactory : IDatabaseModelFactory
     {

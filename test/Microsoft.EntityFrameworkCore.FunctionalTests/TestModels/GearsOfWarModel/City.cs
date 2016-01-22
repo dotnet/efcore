@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel
 {
     public class City
     {

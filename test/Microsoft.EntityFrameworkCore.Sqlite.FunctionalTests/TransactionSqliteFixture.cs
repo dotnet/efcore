@@ -3,10 +3,10 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class TransactionSqliteFixture : TransactionFixtureBase<SqliteTestStore>
     {

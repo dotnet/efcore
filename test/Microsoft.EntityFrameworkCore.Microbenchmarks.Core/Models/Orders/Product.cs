@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EntityFramework.Microbenchmarks.Core.Models.Orders
+namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.Orders
 {
     public class Product
     {

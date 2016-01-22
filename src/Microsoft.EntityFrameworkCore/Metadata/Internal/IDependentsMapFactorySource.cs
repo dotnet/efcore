@@ -3,9 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public interface IDependentsMapFactorySource
     {

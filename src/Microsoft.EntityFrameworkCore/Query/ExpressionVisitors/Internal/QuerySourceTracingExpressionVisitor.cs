@@ -7,7 +7,7 @@ using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using System.Linq;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class QuerySourceTracingExpressionVisitor : ExpressionVisitorBase
     {

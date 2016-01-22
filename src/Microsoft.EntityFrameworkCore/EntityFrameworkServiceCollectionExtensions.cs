@@ -3,19 +3,19 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     <para>
         ///         The database you are using will also define extension methods that can be called on the returned
         ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services required by the database.
-        ///         For example, when using EntityFramework.MicrosoftSqlServer you would call
+        ///         For example, when using Microsoft.EntityFrameworkCore.SqlServer you would call
         ///         <c>collection.AddEntityFramework().AddSqlServer()</c>.
         ///     </para>
         ///     <para>

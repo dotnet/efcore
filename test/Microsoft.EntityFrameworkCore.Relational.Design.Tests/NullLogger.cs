@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Relational.Design
+namespace Microsoft.EntityFrameworkCore.Relational.Design
 {
     public class NullLogger : ILogger
     {

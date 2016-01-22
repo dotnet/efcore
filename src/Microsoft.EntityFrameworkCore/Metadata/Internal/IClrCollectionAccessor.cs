@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public interface IClrCollectionAccessor
     {

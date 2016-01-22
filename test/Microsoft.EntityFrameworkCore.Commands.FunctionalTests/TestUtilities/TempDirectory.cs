@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using IOPath = System.IO.Path;
 
-namespace Microsoft.Data.Entity.Commands.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     internal class TempDirectory : IDisposable
     {

@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : BuiltInDataTypesFixtureBase, new()

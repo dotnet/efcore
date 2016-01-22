@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class NullKeysTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NullKeysTestBase<TFixture>.NullKeysFixtureBase, new()

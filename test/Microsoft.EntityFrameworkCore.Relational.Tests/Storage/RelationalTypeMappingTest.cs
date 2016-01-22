@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.Common;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalTypeMappingTest
     {

@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpMigrationsGenerator : MigrationsCodeGenerator
     {
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             {
                 "System",
                 "System.Collections.Generic",
-                "Microsoft.Data.Entity.Migrations"
+                "Microsoft.EntityFrameworkCore.Migrations"
             };
             namespaces.AddRange(GetNamespaces(upOperations.Concat(downOperations)));
             foreach (var n in namespaces.Distinct())
@@ -116,10 +116,10 @@ namespace Microsoft.Data.Entity.Migrations.Design
             var namespaces = new List<string>
             {
                 "System",
-                "Microsoft.Data.Entity",
-                "Microsoft.Data.Entity.Infrastructure",
-                "Microsoft.Data.Entity.Metadata",
-                "Microsoft.Data.Entity.Migrations",
+                "Microsoft.EntityFrameworkCore",
+                "Microsoft.EntityFrameworkCore.Infrastructure",
+                "Microsoft.EntityFrameworkCore.Metadata",
+                "Microsoft.EntityFrameworkCore.Migrations",
                 contextType.Namespace
             };
             namespaces.AddRange(GetNamespaces(targetModel));
@@ -175,10 +175,10 @@ namespace Microsoft.Data.Entity.Migrations.Design
             var namespaces = new List<string>
             {
                 "System",
-                "Microsoft.Data.Entity",
-                "Microsoft.Data.Entity.Infrastructure",
-                "Microsoft.Data.Entity.Metadata",
-                "Microsoft.Data.Entity.Migrations",
+                "Microsoft.EntityFrameworkCore",
+                "Microsoft.EntityFrameworkCore.Infrastructure",
+                "Microsoft.EntityFrameworkCore.Metadata",
+                "Microsoft.EntityFrameworkCore.Migrations",
                 contextType.Namespace
             };
             namespaces.AddRange(GetNamespaces(model));

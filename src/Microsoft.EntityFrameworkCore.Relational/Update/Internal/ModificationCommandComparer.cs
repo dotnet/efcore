@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Data.Entity.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     public class ModificationCommandComparer : IComparer<ModificationCommand>
     {

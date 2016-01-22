@@ -1,4 +1,4 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Reflection" #>
 <#@ import namespace="System" #>
@@ -13,14 +13,14 @@
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
   <Library>
     <!-- TODO optimize this for types that actually need reflection -->
-    <Assembly Name="EntityFramework.Core" Dynamic="Required All" />
+    <Assembly Name="Microsoft.EntityFrameworkCore" Dynamic="Required All" />
 
     <TypeInstantiation Name="System.Collections.Generic.IEnumerable"
-                       Arguments="Microsoft.Data.Entity.Storage.ValueBuffer"
+                       Arguments="Microsoft.EntityFrameworkCore.Storage.ValueBuffer"
                        Dynamic="Required All" />
 
-    <TypeInstantiation Name="Microsoft.Data.Entity.Query.EntityQueryModelVisitor.TransparentIdentifier"
-                       Arguments="Microsoft.Data.Entity.Storage.ValueBuffer,Microsoft.Data.Entity.Storage.ValueBuffer"
+    <TypeInstantiation Name="Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitor.TransparentIdentifier"
+                       Arguments="Microsoft.EntityFrameworkCore.Storage.ValueBuffer,Microsoft.EntityFrameworkCore.Storage.ValueBuffer"
                        Dynamic="Required All" />
     
     <Assembly Name="System.Collections.NonGeneric">
@@ -28,12 +28,12 @@
     </Assembly>
 
     <Type Name="System.Linq.AsyncEnumerable">
-      <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
+      <MethodInstantiation Name="Any" Arguments="Microsoft.EntityFrameworkCore.Storage.ValueBuffer" Dynamic="Required" />
     </Type>
 	
     <Assembly Name="System.Linq">
       <Type Name="System.Linq.Enumerable">
-        <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
+        <MethodInstantiation Name="Any" Arguments="Microsoft.EntityFrameworkCore.Storage.ValueBuffer" Dynamic="Required" />
 
 <# foreach(var method in typeof(Enumerable).GetTypeInfo()
 		.DeclaredMethods
@@ -45,7 +45,7 @@
 <# foreach(var arg in method.GetGenericArguments()) { #>
             <GenericParameter Name="<#= arg.Name #>" />
 <# } #>
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator<#= SerializeTypeArgs(method.GetGenericArguments()) #>" Dynamic="Required All" />
+            <ImpliesType Name="Microsoft.EntityFrameworkCore.Utilities.ImplyLinqOperator<#= SerializeTypeArgs(method.GetGenericArguments()) #>" Dynamic="Required All" />
         </Method>
 <# } #>
       </Type>
@@ -63,7 +63,7 @@
 <# foreach(var arg in method.GetGenericArguments()) { #>
             <GenericParameter Name="<#= arg.Name #>" />
 <# } #>
-            <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImplyLinqOperator<#= SerializeTypeArgs(method.GetGenericArguments()) #>" Dynamic="Required All" />
+            <ImpliesType Name="Microsoft.EntityFrameworkCore.Utilities.ImplyLinqOperator<#= SerializeTypeArgs(method.GetGenericArguments()) #>" Dynamic="Required All" />
         </Method>
 <# } #>
     </Type>

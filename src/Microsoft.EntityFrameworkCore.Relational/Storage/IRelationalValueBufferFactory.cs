@@ -4,7 +4,7 @@
 using System.Data.Common;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public interface IRelationalValueBufferFactory
     {

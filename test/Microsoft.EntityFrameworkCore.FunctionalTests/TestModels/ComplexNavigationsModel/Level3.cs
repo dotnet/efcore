@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNavigationsModel
 {
     public class Level3
     {

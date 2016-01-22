@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.Data.Entity.Update.Internal
+namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     public class BatchExecutor : IBatchExecutor
     {

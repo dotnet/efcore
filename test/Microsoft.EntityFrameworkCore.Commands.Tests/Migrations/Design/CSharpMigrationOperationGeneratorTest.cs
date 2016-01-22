@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Migrations.Operations;
+using System;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Migrations.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpMigrationOperationGeneratorTest
     {

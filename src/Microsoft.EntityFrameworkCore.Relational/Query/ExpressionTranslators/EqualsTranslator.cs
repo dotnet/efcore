@@ -4,11 +4,11 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTranslators
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
     public class EqualsTranslator : IMethodCallTranslator
     {

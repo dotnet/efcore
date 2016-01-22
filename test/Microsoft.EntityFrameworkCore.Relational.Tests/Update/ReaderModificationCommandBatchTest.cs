@@ -7,19 +7,19 @@ using System.Data.Common;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.TestUtilities.FakeProvider;
-using Microsoft.Data.Entity.Update;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update;
 using Moq;
 using Xunit;
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 
-namespace Microsoft.Data.Entity.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Tests.Update
 {
     public class ReaderModificationCommandBatchTest
     {

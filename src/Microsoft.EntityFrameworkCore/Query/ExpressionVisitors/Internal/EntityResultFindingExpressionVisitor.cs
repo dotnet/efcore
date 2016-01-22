@@ -4,11 +4,11 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq.Clauses.Expressions;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class EntityResultFindingExpressionVisitor : ExpressionVisitorBase
     {

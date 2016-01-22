@@ -3,10 +3,10 @@
 
 using System;
 using System.Data.SqlClient;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition

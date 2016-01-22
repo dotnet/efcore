@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class DbCommandLogData
     {

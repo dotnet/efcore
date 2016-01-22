@@ -3,13 +3,13 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 {
     public class SqlServerMetadataExtensionsTest
     {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
     [Flags]
     public enum RuntimeFrameworks

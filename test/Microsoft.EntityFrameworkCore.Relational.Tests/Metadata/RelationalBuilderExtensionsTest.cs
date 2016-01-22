@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Tests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Metadata.Tests
+namespace Microsoft.EntityFrameworkCore.Metadata.Tests
 {
     public class RelationalBuilderExtensionsTest
     {

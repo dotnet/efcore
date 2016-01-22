@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.ResultOperators
+namespace Microsoft.EntityFrameworkCore.Query.ResultOperators
 {
     public interface IQueryAnnotation
     {

@@ -3,11 +3,11 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.Data.Entity.Query.Sql
+namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     public class SqliteQuerySqlGenerator : DefaultQuerySqlGenerator
     {

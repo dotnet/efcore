@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Configuration;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public static class TestEnvironment
     {

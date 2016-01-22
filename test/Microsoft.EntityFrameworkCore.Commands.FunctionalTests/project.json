@@ -4,11 +4,11 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Commands": "7.0.0-*",
-    "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
-    "EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Commands": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "7.0.0-*"
   },
-  "compile": "..\\..\\src\\EntityFramework.Commands\\Design\\OperationHandlers.cs",
+  "compile": "..\\..\\src\\Microsoft.EntityFrameworkCore.Commands\\Design\\OperationHandlers.cs",
   "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"

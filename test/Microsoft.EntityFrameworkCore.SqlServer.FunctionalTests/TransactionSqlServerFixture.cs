@@ -3,10 +3,10 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class TransactionSqlServerFixture : TransactionFixtureBase<SqlServerTestStore>
     {

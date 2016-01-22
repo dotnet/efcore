@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>

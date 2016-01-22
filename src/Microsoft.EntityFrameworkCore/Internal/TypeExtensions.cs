@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     public static class TypeExtensions
     {

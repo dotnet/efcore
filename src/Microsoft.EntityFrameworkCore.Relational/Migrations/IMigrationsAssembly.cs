@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public interface IMigrationsAssembly
     {

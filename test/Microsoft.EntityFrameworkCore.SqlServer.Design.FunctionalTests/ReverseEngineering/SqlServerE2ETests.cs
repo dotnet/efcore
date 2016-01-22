@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -7,21 +7,21 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
-using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Internal;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
     public class SqlServerE2ETests : E2ETestBase, IClassFixture<SqlServerE2EFixture>
     {
-        protected override string ProviderName => "EntityFramework.MicrosoftSqlServer.Design";
+        protected override string ProviderName => "Microsoft.EntityFrameworkCore.SqlServer.Design";
 
         protected override void ConfigureDesignTimeServices(IServiceCollection services)
             => new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
@@ -59,10 +59,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         {
             NamedReferences =
             {
-                "EntityFramework.Core",
-                "EntityFramework.Relational",
+                "Microsoft.EntityFrameworkCore",
+                "Microsoft.EntityFrameworkCore.Relational",
                 // ReSharper disable once RedundantCommaInInitializer
-                "EntityFramework.MicrosoftSqlServer",
+                "Microsoft.EntityFrameworkCore.SqlServer",
 #if DNXCORE50
                         "System.Data.Common",
                         "System.Linq.Expressions",

@@ -3,9 +3,9 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*",
-    "EntityFramework.MicrosoftSqlServer.Design": "7.0.0-*",
-    "EntityFramework.MicrosoftSqlServer.FunctionalTests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
   },
   "exclude": ".testPublish/**",
   "content": "**/*.expected",
