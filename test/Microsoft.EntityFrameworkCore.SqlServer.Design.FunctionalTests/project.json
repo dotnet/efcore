@@ -3,8 +3,8 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "7.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer.Design": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
   },
   "exclude": ".testPublish/**",
@@ -14,7 +14,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "dnx451": { },
-    "dnxcore50": { }
+    "dnx451": {},
+    "dnxcore50": {}
   }
 }

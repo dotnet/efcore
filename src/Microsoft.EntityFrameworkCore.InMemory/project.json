@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "1.0.0-*",
   "description": "In memory data store for Entity Framework (to be used for testing purposes).",
   "repository": {
     "type": "git",
@@ -10,14 +10,14 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
     "Microsoft.EntityFrameworkCore.InMemory.InMemoryStrings": "Properties/InMemoryStrings.resx"
   },
   "frameworks": {
-    "net451": { },
-    "dotnet5.4": { }
+    "net451": {},
+    "dotnet5.4": {}
   }
 }

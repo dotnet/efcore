@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "1.0.0-*",
   "description": "Entity Framework is Microsoft's recommended data access technology for new applications.",
   "repository": {
     "type": "git",
@@ -20,7 +20,9 @@
   "namedResource": {
     "Microsoft.EntityFrameworkCore.CoreStrings": "Properties/CoreStrings.resx"
   },
-  "resource": [ "Properties/Microsoft.EntityFrameworkCore.rd.xml" ],
+  "resource": [
+    "Properties/Microsoft.EntityFrameworkCore.rd.xml"
+  ],
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
@@ -98,10 +100,10 @@
         "System.Runtime.Extensions": "4.0.10",
         "System.Threading": "4.0.10",
         "System.Threading.Tasks": "4.0.10"
-      } 
+      }
     }
   },
   "packInclude": {
-    "build/": "build/**",
+    "build/": "build/**"
   }
 }

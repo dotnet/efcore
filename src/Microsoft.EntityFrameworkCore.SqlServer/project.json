@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "1.0.0-*",
   "description": "Microsoft SQL Server data store for Entity Framework.",
   "repository": {
     "type": "git",
@@ -10,15 +10,17 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
     "Microsoft.EntityFrameworkCore.SqlServer.SqlServerStrings": "Properties/SqlServerStrings.resx"
   },
-  "resource": [ "Properties/Microsoft.EntityFrameworkCore.SqlServer.rd.xml" ],
+  "resource": [
+    "Properties/Microsoft.EntityFrameworkCore.SqlServer.rd.xml"
+  ],
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "dotnet5.4": {
       "dependencies": {
         "System.Data.SqlClient": "4.0.0-*",

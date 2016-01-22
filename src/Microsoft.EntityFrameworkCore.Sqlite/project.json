@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "1.0.0-*",
   "description": "SQLite data store for Entity Framework.",
   "repository": {
     "type": "git",
@@ -10,16 +10,18 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*",
     "Microsoft.Data.Sqlite": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
     "Microsoft.EntityFrameworkCore.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
   },
-  "resource": [ "Properties/Microsoft.EntityFrameworkCore.Sqlite.rd.xml" ],
+  "resource": [
+    "Properties/Microsoft.EntityFrameworkCore.Sqlite.rd.xml"
+  ],
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "dotnet5.4": {
       "dependencies": {
         "System.IO.FileSystem": "4.0.1-*"

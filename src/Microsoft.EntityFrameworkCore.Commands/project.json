@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "1.0.0-*",
   "description": "Command line utilities for Entity Framework.",
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
     "Microsoft.EntityFrameworkCore.Commands.CommandsStrings": "Properties/CommandsStrings.resx"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*"
   },
   "frameworks": {
     "net451": {
@@ -33,6 +33,9 @@
   },
   "packInclude": {
     "build/": "build/**",
-    "tools/": [ "tools/**", "Design\\OperationHandlers.cs" ]
+    "tools/": [
+      "tools/**",
+      "Design\\OperationHandlers.cs"
+    ]
   }
 }

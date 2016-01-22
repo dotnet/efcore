@@ -1,13 +1,13 @@
 {
-  "version": "7.0.0-*",
+  "version": "1.0.0-*",
   "description": "Reusable Microsoft.EntityFrameworkCore.Relational.Design functional tests for provider writers.",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Commands": "7.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design": "7.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "1.0.0-*",
     "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*"
   },
   "frameworks": {

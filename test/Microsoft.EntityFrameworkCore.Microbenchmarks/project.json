@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.SqlServer": "7.0.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
   "testRunner": "xunit",

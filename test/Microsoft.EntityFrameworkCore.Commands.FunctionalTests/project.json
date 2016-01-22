@@ -1,12 +1,15 @@
 {
   "compilationOptions": {
-    "define": [ "OMIT_HANDLER_INTERFACES", "ENABLE_HANDLERS" ],
+    "define": [
+      "OMIT_HANDLER_INTERFACES",
+      "ENABLE_HANDLERS"
+    ],
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Commands": "7.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "7.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*"
   },
   "compile": "..\\..\\src\\Microsoft.EntityFrameworkCore.Commands\\Design\\OperationHandlers.cs",
   "testRunner": "xunit",
@@ -14,7 +17,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "dnx451": { },
-    "dnxcore50": { }
+    "dnx451": {},
+    "dnxcore50": {}
   }
 }

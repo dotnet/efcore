@@ -3,14 +3,14 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.FunctionalTests": "7.0.0-*"
+    "Microsoft.EntityFrameworkCore.FunctionalTests": "1.0.0-*"
   },
   "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "dnx451": { },
-    "dnxcore50": { }
+    "dnx451": {},
+    "dnxcore50": {}
   }
 }
