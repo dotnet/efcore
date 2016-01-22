@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// No backing field could be discovered for property '{entityType}.{property}' and the property does not have a setter. Either use a backing field name that can be matched by convention, annotate the property with a backing field, or define a property setter.
+        /// The property '{entityType}.{property}' does not have a setter and no backing field was found by convention. Either remove the property from the model, add a property setter, or configure a backing field (see http://go.microsoft.com/fwlink/?LinkId=723277).
         /// </summary>
         public static string NoFieldOrSetter([CanBeNull] object entityType, [CanBeNull] object property)
         {
