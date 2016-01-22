@@ -645,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The derived type '{derivedType}' cannot have keys other than those declared on the root type '{rootType}'.
+        /// A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.
         /// </summary>
         public static string DerivedEntityTypeKey([CanBeNull] object derivedType, [CanBeNull] object rootType)
         {

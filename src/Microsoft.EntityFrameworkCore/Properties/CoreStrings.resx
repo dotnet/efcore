@@ -355,7 +355,7 @@
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
-    <value>The derived type '{derivedType}' cannot have keys other than those declared on the root type '{rootType}'.</value>
+    <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.</value>
   </data>
   <data name="CircularInheritance" xml:space="preserve">
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.</value>
