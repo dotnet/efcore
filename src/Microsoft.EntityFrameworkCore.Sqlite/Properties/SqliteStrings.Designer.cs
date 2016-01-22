@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.SqliteStrings", typeof(SqliteStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// SQLite cannot support this migration operation.
+        /// SQLite does not support this migration operation. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
         public static string InvalidMigrationOperation
         {
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Generating idempotent scripts for migration is not currently supported by SQLite.
+        /// Generating idempotent scripts for migration is not currently supported by SQLite. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
         public static string MigrationScriptGenerationNotSupported
         {
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// SQLite does not support schemas.
+        /// SQLite does not support schemas. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
         public static string SchemasNotSupported
         {
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// SQLite does not support sequences.
+        /// SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
         public static string SequencesNotSupported
         {

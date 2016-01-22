@@ -118,15 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="InvalidMigrationOperation" xml:space="preserve">
-    <value>SQLite cannot support this migration operation.</value>
+    <value>SQLite does not support this migration operation. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
   <data name="MigrationScriptGenerationNotSupported" xml:space="preserve">
-    <value>Generating idempotent scripts for migration is not currently supported by SQLite.</value>
+    <value>Generating idempotent scripts for migration is not currently supported by SQLite. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
   <data name="SchemasNotSupported" xml:space="preserve">
-    <value>SQLite does not support schemas.</value>
+    <value>SQLite does not support schemas. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
   <data name="SequencesNotSupported" xml:space="preserve">
-    <value>SQLite does not support sequences.</value>
+    <value>SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
 </root>
