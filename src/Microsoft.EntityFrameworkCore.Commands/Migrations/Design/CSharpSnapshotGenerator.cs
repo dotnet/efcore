@@ -447,15 +447,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => _code.Literal(p.Name))))
                             .Append(")");
                     }
+                }
 
-                    if (foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .Append(".OnDelete(")
-                            .Append(_code.Literal(foreignKey.DeleteBehavior))
-                            .Append(")");
-                    }
+                if (foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".OnDelete(")
+                        .Append(_code.Literal(foreignKey.DeleteBehavior))
+                        .Append(")");
                 }
             }
 

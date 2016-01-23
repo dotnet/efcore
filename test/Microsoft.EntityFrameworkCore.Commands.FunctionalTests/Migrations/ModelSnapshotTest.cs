@@ -391,7 +391,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
     {
         b.HasOne(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"")
             .WithOne()
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"");
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .OnDelete(DeleteBehavior.Cascade);
     });
 ",
                 o =>
@@ -440,7 +441,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
         b.HasOne(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"")
             .WithOne()
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
-            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"");
+            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .OnDelete(DeleteBehavior.Cascade);
     });
 ",
                 o =>
@@ -791,7 +793,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
         b.HasOne(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"")
             .WithOne()
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
-            .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+            .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
+            .OnDelete(DeleteBehavior.Cascade);
     });
 ",
                 o => { Assert.Equal("AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]); });
@@ -838,7 +841,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
     {
         b.HasOne(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithStringKey"")
             .WithOne()
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""Name"");
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""Name"")
+            .OnDelete(DeleteBehavior.Cascade);
     });
 ",
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable); });
@@ -929,6 +933,52 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
         b.HasOne(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"")
             .WithMany()
             .HasForeignKey(""Id"")
+            .OnDelete(DeleteBehavior.Cascade);
+    });
+",
+                o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
+        }
+
+        [Fact]
+        public void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>()
+                        .HasOne<EntityWithTwoProperties>()
+                        .WithOne()
+                        .HasForeignKey<EntityWithOneProperty>(e => e.Id);
+                },
+                @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.ToTable(""EntityWithOneProperty"");
+
+        b.Property<int>(""Id"");
+
+        b.HasKey(""Id"");
+
+        b.HasIndex(""Id"");
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+    {
+        b.ToTable(""EntityWithTwoProperties"");
+
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<int>(""AlternateId"");
+
+        b.HasKey(""Id"");
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.HasOne(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"")
+            .WithOne()
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
