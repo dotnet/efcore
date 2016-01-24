@@ -650,13 +650,13 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // TODO: [ConditionalFact] See #153
+        [ConditionalFact]
         public virtual void Where_subquery_on_navigation()
         {
             using (var context = CreateContext())
             {
                 var query = from p in context.Products
-                            where p.OrderDetails.Contains(context.OrderDetails.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
+                            where p.OrderDetails.Contains(context.OrderDetails.FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
                             select p;
 
                 var result = query.ToList();

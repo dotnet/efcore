@@ -605,6 +605,33 @@ WHERE [o.Customer].[Country] IN ('USA', 'Redania')",
                 Sql);
         }
 
+        public override void Where_subquery_on_navigation()
+        {
+            base.Where_subquery_on_navigation();
+
+            Assert.Equal(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM (
+                SELECT [o].[OrderID], [o].[ProductID]
+                FROM [Order Details] AS [o]
+                WHERE [p].[ProductID] = [o].[ProductID]
+            ) AS [t]
+            INNER JOIN (
+                SELECT TOP(1) [orderDetail].[OrderID], [orderDetail].[ProductID]
+                FROM [Order Details] AS [orderDetail]
+                WHERE [orderDetail].[Quantity] = 1
+            ) AS [t0] ON ([t].[OrderID] = [t0].[OrderID]) AND ([t].[ProductID] = [t0].[ProductID]))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
         public override void Navigation_in_subquery_referencing_outer_query()
         {
             base.Navigation_in_subquery_referencing_outer_query();

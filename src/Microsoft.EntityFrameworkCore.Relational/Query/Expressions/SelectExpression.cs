@@ -692,6 +692,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return outerJoinExpression;
         }
 
+        public string CreateUniqueTableAlias()
+            => CreateUniqueTableAlias(SystemAliasPrefix);
+
         private string CreateUniqueTableAlias(string currentAlias)
         {
             Debug.Assert(currentAlias != null);

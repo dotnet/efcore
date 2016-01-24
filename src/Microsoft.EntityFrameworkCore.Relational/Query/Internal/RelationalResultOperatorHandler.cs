@@ -221,20 +221,80 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         handlerContext.QueryModelVisitor,
                         handlerContext.SelectExpression);
 
-            var item
-                = filteringVisitor.Visit(
-                    ((ContainsResultOperator)handlerContext.ResultOperator).Item);
+            var itemResultOperator = (ContainsResultOperator)handlerContext.ResultOperator;
+
+            var item = filteringVisitor.Visit(itemResultOperator.Item);
 
             if (item != null)
             {
-                // Add empty alias to ensure select expression is generated as a subquery
-                var innerSelectExpression = handlerContext.SelectExpression.Clone("");
+                var itemSelectExpression = item as SelectExpression;
+
+                if (itemSelectExpression != null)
+                {
+                    var entityType = handlerContext.Model.FindEntityType(handlerContext.QueryModel.MainFromClause.ItemType);
+
+                    if (entityType != null)
+                    {
+                        var outterSelectExpression = handlerContext.SelectExpressionFactory.Create();
+                        outterSelectExpression.SetProjectionExpression(Expression.Constant(1));
+
+                        var collectionSelectExpression
+                            = handlerContext.SelectExpression.Clone(outterSelectExpression.CreateUniqueTableAlias());
+                        outterSelectExpression.AddTable(collectionSelectExpression);
+
+                        itemSelectExpression.Alias = outterSelectExpression.CreateUniqueTableAlias();
+                        var joinExpression = outterSelectExpression.AddInnerJoin(itemSelectExpression);
+
+                        foreach (var property in entityType.FindPrimaryKey().Properties)
+                        {
+                            itemSelectExpression.AddToProjection(
+                                new ColumnExpression(
+                                    property.Name,
+                                    property,
+                                    itemSelectExpression.Tables.First()));
+
+                            collectionSelectExpression.AddToProjection(
+                                new ColumnExpression(
+                                    property.Name,
+                                    property,
+                                    collectionSelectExpression.Tables.First()));
+
+                            var predicate = Expression.Equal(
+                                new ColumnExpression(
+                                    property.Name,
+                                    property,
+                                    collectionSelectExpression),
+                                new ColumnExpression(
+                                    property.Name,
+                                    property,
+                                    itemSelectExpression));
+
+                            joinExpression.Predicate
+                                = joinExpression.Predicate == null
+                                ? predicate
+                                : Expression.AndAlso(
+                                    joinExpression.Predicate,
+                                    predicate);
+                        }
+
+                        SetProjectionConditionalExpression(
+                            handlerContext,
+                                Expression.Condition(
+                                    new ExistsExpression(outterSelectExpression),
+                                    Expression.Constant(true),
+                                    Expression.Constant(false),
+                                    typeof(bool)));
+
+                        return TransformClientExpression<bool>(handlerContext);
+                    }
+                }
 
                 SetProjectionConditionalExpression(
                     handlerContext,
                     Expression.Condition(
                         new InExpression(
-                            new AliasExpression(item), innerSelectExpression),
+                            new AliasExpression(item),
+                            handlerContext.SelectExpression.Clone("")),
                         Expression.Constant(true),
                         Expression.Constant(false),
                         typeof(bool)));
