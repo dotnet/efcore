@@ -956,6 +956,26 @@ WHERE [e].[Discriminator] IN ('NestedCollectionDerived', 'NestedCollectionBase')
                 Sql);
         }
 
+        public override void Nested_include_collection_reference_on_non_entity_base()
+        {
+            base.Nested_include_collection_reference_on_non_entity_base();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [ReferencedEntity] AS [e]
+ORDER BY [e].[Id]
+
+SELECT [p].[Id], [p].[ReferenceId], [p].[ReferencedEntityId], [r].[Id]
+FROM [PrincipalEntity] AS [p]
+INNER JOIN (
+    SELECT DISTINCT [e].[Id]
+    FROM [ReferencedEntity] AS [e]
+) AS [e] ON [p].[ReferencedEntityId] = [e].[Id]
+LEFT JOIN [ReferencedEntity] AS [r] ON [p].[ReferenceId] = [r].[Id]
+ORDER BY [e].[Id]",
+                Sql);
+        }
+
         protected override void ClearLog()
         {
         }

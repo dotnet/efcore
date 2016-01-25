@@ -750,6 +750,18 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Nested_include_collection_reference_on_non_entity_base()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.ReferencedEntities.Include(e => e.Principals).ThenInclude(e => e.Reference);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
         protected InheritanceRelationshipsContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected InheritanceRelationshipsQueryTestBase(TFixture fixture)

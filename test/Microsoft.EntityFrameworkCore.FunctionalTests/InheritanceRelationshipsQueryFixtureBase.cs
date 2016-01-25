@@ -126,6 +126,16 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 .WithOne(e => e.ParentCollection)
                 .HasForeignKey(e => e.ParentCollectionId)
                 .IsRequired(false);
+
+            modelBuilder.Entity<PrincipalEntity>()
+                .HasOne(e => e.Reference)
+                .WithMany()
+                .IsRequired(false);
+
+            modelBuilder.Entity<ReferencedEntity>()
+                .HasMany(e => e.Principals)
+                .WithOne()
+                .IsRequired(false);
         }
     }
 }

@@ -29,5 +29,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
         public DbSet<CollectionOnBase> CollectionsOnBase { get; set; }
         public DbSet<CollectionOnDerived> CollectionsOnDerived { get; set; }
         public DbSet<NestedCollectionBase> NestedCollections { get; set; }
+
+        public DbSet<PrincipalEntity> PrincipalEntities { get; set; }
+        public DbSet<ReferencedEntity> ReferencedEntities { get; set; }
     }
 }

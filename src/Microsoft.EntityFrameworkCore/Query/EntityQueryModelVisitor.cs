@@ -394,27 +394,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IEnumerable<INavigation> BindChainedNavigations(
             IEnumerable<INavigation> boundNavigations, IReadOnlyList<PropertyInfo> chainedNavigationProperties)
         {
-            var boundChainedNavigations = new List<INavigation>();
+            var boundNavigationsList = boundNavigations.ToList();
 
             if (chainedNavigationProperties != null)
             {
-                foreach (
-                    var navigation in
-                        from propertyInfo in chainedNavigationProperties
-                            // ReSharper disable once AssignNullToNotNullAttribute
-                        let entityType = QueryCompilationContext.Model.FindEntityType(propertyInfo.DeclaringType)
-                        select entityType?.FindNavigation(propertyInfo.Name))
+                foreach (var propertyInfo in chainedNavigationProperties)
                 {
+                    var lastNavigation = boundNavigationsList.Last();
+                    var navigation = lastNavigation.GetTargetType().FindNavigation(propertyInfo.Name);
+
                     if (navigation == null)
                     {
                         return null;
                     }
 
-                    boundChainedNavigations.Add(navigation);
+                    boundNavigationsList.Add(navigation);
                 }
+
             }
 
-            return boundNavigations.Concat(boundChainedNavigations);
+            return boundNavigationsList;
         }
 
         protected virtual void IncludeNavigations(
