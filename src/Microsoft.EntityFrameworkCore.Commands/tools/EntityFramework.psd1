@@ -1,6 +1,6 @@
 @{
     # Script module or binary module file associated with this manifest
-    ModuleToProcess = 'Microsoft.EntityFrameworkCore.psm1'
+    ModuleToProcess = 'EntityFramework.psm1'
 
     # Version number of this module.
     ModuleVersion = '7.0'
