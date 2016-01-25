@@ -256,4 +256,7 @@
   <data name="ConflictingRowUpdates" xml:space="preserve">
     <value>Two entities cannot make conflicting updates to the same row.</value>
   </data>
+  <data name="IncorrectDefaultValueType" xml:space="preserve">
+    <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
+  </data>
 </root>

@@ -501,14 +501,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Annotations of type '{type}' are not supported. Only common simple .NET types are currently supported.
-        /// </summary>
-        public static string UnsupportedAnnotationType([CanBeNull] object type)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedAnnotationType", "type"), type);
-        }
-
-        /// <summary>
         /// The annotation '{annotation}' cannot be added because an annotation with the same name already exists.
         /// </summary>
         public static string DuplicateAnnotation([CanBeNull] object annotation)

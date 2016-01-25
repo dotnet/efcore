@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Internal;
+
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -55,18 +57,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get
             {
-                return new TypedAnnotation(
-                    (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValueType),
-                    (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValue)).Value;
+                return Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValue);
             }
             [param: CanBeNull] set { SetDefaultValue(value); }
         }
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)
         {
-            var typedAnnotation = new TypedAnnotation(value);
-            return Annotations.SetAnnotation(RelationalAnnotationNames.DefaultValueType, typedAnnotation.TypeString) &&
-                   Annotations.SetAnnotation(RelationalAnnotationNames.DefaultValue, typedAnnotation.ValueString);
+            if ((value != null)
+                && (Property.ClrType.UnwrapNullableType() != value.GetType()))
+            {
+                throw new InvalidOperationException(RelationalStrings.IncorrectDefaultValueType(value, value.GetType(), Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
+            }
+
+            return Annotations.SetAnnotation(RelationalAnnotationNames.DefaultValue, value);
         }
     }
 }

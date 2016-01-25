@@ -112,15 +112,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Property(e => e.Name)
+                .Property(e => e.Offset)
                 .HasDefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)));
 
             modelBuilder
                 .Entity<Customer>()
-                .Property(e => e.Name)
+                .Property(e => e.Offset)
                 .ForSqlServerHasDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
 
-            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Offset");
 
             Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
             Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
@@ -1194,6 +1194,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public DateTimeOffset Offset { get; set; }
 
             public IEnumerable<Order> Orders { get; set; }
         }

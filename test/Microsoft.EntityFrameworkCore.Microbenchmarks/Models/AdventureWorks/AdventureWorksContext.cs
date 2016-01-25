@@ -380,9 +380,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
 
                     entity.Property(e => e.SalariedFlag).HasDefaultValue(true);
 
-                    entity.Property(e => e.SickLeaveHours).HasDefaultValue(0);
+                    entity.Property(e => e.SickLeaveHours).HasDefaultValue((short)0);
 
-                    entity.Property(e => e.VacationHours).HasDefaultValue(0);
+                    entity.Property(e => e.VacationHours).HasDefaultValue((short)0);
 
                     entity.HasOne(d => d.BusinessEntity)
                         .WithOne(p => p.Employee)
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
 
                     entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                    entity.Property(e => e.Quantity).HasDefaultValue(0);
+                    entity.Property(e => e.Quantity).HasDefaultValue((short)0);
 
                     entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
@@ -829,9 +829,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
 
                     entity.Property(e => e.OrderDate).HasDefaultValueSql("getdate()");
 
-                    entity.Property(e => e.RevisionNumber).HasDefaultValue(0);
+                    entity.Property(e => e.RevisionNumber).HasDefaultValue((byte)0);
 
-                    entity.Property(e => e.Status).HasDefaultValue(1);
+                    entity.Property(e => e.Status).HasDefaultValue((byte)1);
 
                     entity.Property(e => e.SubTotal).HasDefaultValue(0.00m);
 
@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
 
                     entity.Property(e => e.OrderDate).HasDefaultValueSql("getdate()");
 
-                    entity.Property(e => e.RevisionNumber).HasDefaultValue(0);
+                    entity.Property(e => e.RevisionNumber).HasDefaultValue((byte)0);
 
                     entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
@@ -899,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate();
 
-                    entity.Property(e => e.Status).HasDefaultValue(1);
+                    entity.Property(e => e.Status).HasDefaultValue((byte)1);
 
                     entity.Property(e => e.SubTotal).HasDefaultValue(0.00m);
 

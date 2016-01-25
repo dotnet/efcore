@@ -10,7 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public const string ColumnType = "ColumnType";
         public const string GeneratedValueSql = "GeneratedValueSql";
         public const string DefaultValue = "DefaultValue";
-        public const string DefaultValueType = "DefaultValueType";
         public const string DatabaseName = "DatabaseName";
         public const string TableName = "TableName";
         public const string Schema = "Schema";

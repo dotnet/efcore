@@ -80,16 +80,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
         public void Can_set_column_default_value()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+            var stringValue = "DefaultValueString";
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Name)
-                .HasDefaultValue(guid);
+                .HasDefaultValue(stringValue);
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
-            Assert.Equal(guid, property.Relational().DefaultValue);
+            Assert.Equal(stringValue, property.Relational().DefaultValue);
         }
 
         [Fact]

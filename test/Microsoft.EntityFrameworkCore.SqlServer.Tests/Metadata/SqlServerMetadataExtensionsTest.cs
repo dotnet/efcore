@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             var property = modelBuilder
                 .Entity<Customer>()
-                .Property(e => e.Name)
+                .Property(e => e.ByteArray)
                 .Metadata;
 
             Assert.Null(property.Relational().DefaultValue);
@@ -938,6 +938,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             public string Name { get; set; }
             public byte Byte { get; set; }
             public byte? NullableByte { get; set; }
+            public byte[] ByteArray { get; set; }
         }
 
         private class Order

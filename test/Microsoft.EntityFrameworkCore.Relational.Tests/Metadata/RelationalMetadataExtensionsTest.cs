@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
 
             var property = modelBuilder
                 .Entity<Customer>()
-                .Property(e => e.Name)
+                .Property(e => e.AlternateId)
                 .Metadata;
 
             Assert.Null(property.Relational().DefaultValue);
@@ -159,6 +159,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
             property.Relational().DefaultValue = null;
 
             Assert.Null(property.Relational().DefaultValue);
+        }
+
+        [Fact]
+        public void Throws_when_setting_column_default_value_of_wrong_type()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .Metadata;
+
+            Assert.Null(property.Relational().DefaultValue);
+
+            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+
+            Assert.Equal(RelationalStrings.IncorrectDefaultValueType(guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => property.Relational().DefaultValue = guid).Message);
         }
 
         [Fact]
@@ -576,6 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public Guid AlternateId { get; set; }
         }
 
         private class SpecialCustomer : Customer

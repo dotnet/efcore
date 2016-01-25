@@ -98,11 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).ColumnName("Splow"));
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).ColumnType("varchar"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).DefaultValue(""));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).DefaultValue(0));
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).GeneratedValueSql("NULL"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
-            Assert.Equal("", propertyBuilder.Metadata.Relational().DefaultValue);
+            Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
             Assert.Equal("NULL", propertyBuilder.Metadata.Relational().GeneratedValueSql);
 
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).ColumnName("Splod"));
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).GeneratedValueSql("2"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
-            Assert.Equal("", propertyBuilder.Metadata.Relational().DefaultValue);
+            Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
             Assert.Equal("NULL", propertyBuilder.Metadata.Relational().GeneratedValueSql);
         }
 
