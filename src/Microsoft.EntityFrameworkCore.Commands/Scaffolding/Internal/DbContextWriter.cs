@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class DbContextWriter
     {
+        public const string SensitiveInformationFwLink = "http://go.microsoft.com/fwlink/?LinkId=723263";
         private const string EntityLambdaIdentifier = "entity";
 
         private ScaffoldingUtilities ScaffoldingUtilities { get; }
@@ -74,8 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
             _sb.AppendLine("{");
+
             using (_sb.Indent())
             {
+                _sb.AppendLine("#warning " + CommandsStrings.SensitiveInformationWarning(SensitiveInformationFwLink));
+
                 foreach (var optionsBuilderConfig in _model.OnConfiguringConfigurations)
                 {
                     if (optionsBuilderConfig.FluentApiLines.Count == 0)
