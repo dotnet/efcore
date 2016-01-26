@@ -301,6 +301,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// To protect potentially sensitive information in your connection string, you should move it out of source code. See {fwLink} for guidance on storing connection strings.
+        /// </summary>
+        public static string SensitiveInformationWarning([CanBeNull] object fwLink)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SensitiveInformationWarning", "fwLink"), fwLink);
+        }
+
+        /// <summary>
         /// Writing generated runtime directives to '{file}'.
         /// </summary>
         public static string WritingDirectives([CanBeNull] object file)
