@@ -23,21 +23,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 },
                 PaintAction);
 
-        private static bool PaintAction(EntityEntryGraphNode n)
+        private static bool PaintAction(EntityEntryGraphNode node)
         {
-            var internalEntityEntry = n.GetInfrastructure();
+            var internalEntityEntry = node.GetInfrastructure();
             if ((internalEntityEntry.EntityState != EntityState.Detached)
-                || ((n.InboundNavigation != null) && n.InboundNavigation.IsDependentToPrincipal()))
+                || ((node.InboundNavigation != null) && node.InboundNavigation.IsDependentToPrincipal()))
             {
                 return false;
             }
 
-            if (!internalEntityEntry.IsKeySet)
+            if (node.InboundNavigation != null
+                && !internalEntityEntry.IsKeySet)
             {
-                n.NodeState = EntityState.Added;
+                node.NodeState = EntityState.Added;
             }
 
-            internalEntityEntry.SetEntityState((EntityState)n.NodeState, acceptChanges: true);
+            internalEntityEntry.SetEntityState((EntityState)node.NodeState, acceptChanges: true);
 
             return true;
         }
