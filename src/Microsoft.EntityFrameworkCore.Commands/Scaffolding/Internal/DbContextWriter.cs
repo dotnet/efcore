@@ -74,8 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
             _sb.AppendLine("{");
+
             using (_sb.Indent())
             {
+                _sb.AppendLine("#warning " + CommandsStrings.SensitiveInformationWarning);
+
                 foreach (var optionsBuilderConfig in _model.OnConfiguringConfigurations)
                 {
                     if (optionsBuilderConfig.FluentApiLines.Count == 0)

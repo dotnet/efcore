@@ -243,4 +243,8 @@
   <data name="InvalidCallsMakeGenericMethodAttribute" xml:space="preserve">
     <value>Could not find target method of CallsMakeGenericMethodAttribute on '{methodName}'. Check the alignment of type arguments between the attribute and generic method.</value>
   </data>
+  <data name="SensitiveInformationWarning" xml:space="preserve">
+    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
+    <comment>Localize the URL if we have localized docs.</comment>
+  </data>
 </root>
