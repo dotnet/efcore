@@ -54,15 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<EntityBase>().Ignore(e => ((IEntityBase)e).Target);
 
-                Assert.DoesNotContain(
-                    typeof(EntityBase).GetRuntimeProperties().First(p => p != EntityBase.TargetProperty).Name,
-                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
 
                 modelBuilder.Entity<EntityBase>().Property(e => ((IEntityBase)e).Target);
 
-                Assert.Contains(
-                    typeof(EntityBase).GetRuntimeProperties().First(p => p != EntityBase.TargetProperty).Name,
-                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
+                Assert.Equal(1, modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Count());
             }
 
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
@@ -77,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<EntityAnnotationBase>();
 
-                Assert.Equal(EntityAnnotationBase.TargetProperty.Name, modelBuilder.Model.FindEntityType(typeof(EntityAnnotationBase)).GetProperties().Single().Name);
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityAnnotationBase)).GetProperties());
             }
 
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)

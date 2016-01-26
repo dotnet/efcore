@@ -143,11 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public int Up { get; set; }
             public string Down { get; set; }
-            private int Charm { get; set; }
-            private string Strange { get; set; }
-            private int Top { get; set; }
-            private string Bottom { get; set; }
-
 #pragma warning disable 67
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
@@ -408,26 +403,30 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected interface IEntityBase
         {
-            int Target { get; }
+            int Target { get; set; }
         }
 
         protected class EntityBase : IEntityBase
         {
-            public static readonly PropertyInfo TargetProperty = typeof(EntityBase).GetProperty("Target");
+            private int _target;
 
-            public int Target { get; set; }
-
-            int IEntityBase.Target => Target;
+            int IEntityBase.Target
+            {
+                get { return _target; }
+                set { _target = value; }
+            }
         }
 
         protected class EntityAnnotationBase : IEntityBase
         {
-            public static readonly PropertyInfo TargetProperty = typeof(EntityAnnotationBase).GetProperty("Target");
-
-            public int Target { get; set; }
+            private int _target;
 
             [NotMapped]
-            int IEntityBase.Target => Target;
+            int IEntityBase.Target
+            {
+                get { return _target; }
+                set { _target = value; }
+            }
         }
     }
 }

@@ -846,6 +846,20 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         }
 
         [Fact]
+        public void Collection_navigation_without_setter_is_discovered()
+        {
+            var entityBuilder = CreateInternalEntityBuilder<ReadOnlyCollectionNavigationEntity>();
+
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+
+            IModel model = entityBuilder.Metadata.Model;
+            Assert.NotNull(model.FindEntityType(typeof(EntityWithNoValidNavigations)));
+            var entityType = entityBuilder.Metadata;
+
+            Assert.Equal(ReadOnlyCollectionNavigationEntity.NavigationProperty.Name, entityType.GetNavigations().First().Name);
+        }
+
+        [Fact]
         public void Does_not_discover_nonNavigation_properties()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoValidNavigations>();
@@ -894,6 +908,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         {
             public int Id { get; set; }
             public AbstractClass Abstract { get; set; }
+        }
+
+        private class ReadOnlyCollectionNavigationEntity
+        {
+            public static readonly PropertyInfo NavigationProperty =
+                typeof(ReadOnlyCollectionNavigationEntity).GetProperty("CollectionNavigation", BindingFlags.Public | BindingFlags.Instance);
+
+            public int Id { get; set; }
+
+            public ICollection<EntityWithNoValidNavigations> CollectionNavigation { get; } = new List<EntityWithNoValidNavigations>();
         }
 
         private static void VerifyRelationship(
@@ -1042,11 +1066,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         private class OneToManyDependent
         {
             public static readonly PropertyInfo NavigationProperty =
-                typeof(OneToManyDependent).GetProperty("OneToManyPrincipal", BindingFlags.NonPublic | BindingFlags.Instance);
+                typeof(OneToManyDependent).GetProperty("OneToManyPrincipal", BindingFlags.Public | BindingFlags.Instance);
 
             public int Id { get; set; }
 
-            private OneToManyPrincipal OneToManyPrincipal { get; set; }
+            public OneToManyPrincipal OneToManyPrincipal { get; set; }
 
             public static void IgnoreNavigation(InternalEntityTypeBuilder entityTypeBuilder)
             {

@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -308,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var entityType = (IEntityType)modelBuilder.Entity<Quarks>().Metadata;
 
-                Assert.Equal(7, entityType.GetProperties().Count());
+                Assert.Equal(3, entityType.GetProperties().Count());
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
@@ -481,23 +480,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Property<int>("Charm");
-                        b.Property<int>("Top");
-                        b.Property<string>("Gluon");
+                        b.Property<int>("Up");
+                        b.Property<int>("Gluon");
+                        b.Property<string>("Down");
                         b.Property<string>("Photon");
                     });
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.False(entityType.FindProperty("Up").IsShadowProperty);
-                Assert.False(entityType.FindProperty("Charm").IsShadowProperty);
-                Assert.False(entityType.FindProperty("Top").IsShadowProperty);
+                Assert.False(entityType.FindProperty("Down").IsShadowProperty);
                 Assert.True(entityType.FindProperty("Gluon").IsShadowProperty);
                 Assert.True(entityType.FindProperty("Photon").IsShadowProperty);
 
                 Assert.Equal(-1, entityType.FindProperty("Up").GetShadowIndex());
-                Assert.Equal(-1, entityType.FindProperty("Charm").GetShadowIndex());
-                Assert.Equal(-1, entityType.FindProperty("Top").GetShadowIndex());
+                Assert.Equal(-1, entityType.FindProperty("Down").GetShadowIndex());
                 Assert.Equal(0, entityType.FindProperty("Gluon").GetShadowIndex());
                 Assert.Equal(1, entityType.FindProperty("Photon").GetShadowIndex());
             }
@@ -708,14 +705,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Can_ignore_property_preserving_explicit_interface_implementation()
+            public virtual void Can_ignore_explicit_interface_implementation()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<EntityBase>().Ignore(e => e.Target);
+                modelBuilder.Entity<EntityBase>().Ignore(e => ((IEntityBase)e).Target);
 
-                Assert.Equal(
-                    typeof(EntityBase).GetRuntimeProperties().First(p => p != EntityBase.TargetProperty).Name,
-                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Single().Name);
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
             }
 
             [Fact]

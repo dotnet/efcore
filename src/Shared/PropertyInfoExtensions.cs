@@ -13,20 +13,23 @@ namespace System.Reflection
         public static bool IsStatic(this PropertyInfo property)
             => (property.GetMethod ?? property.SetMethod).IsStatic;
 
-        public static bool IsCandidateProperty(this PropertyInfo propertyInfo)
+        public static bool IsCandidateProperty(this PropertyInfo propertyInfo, bool needsWrite = true)
             => !propertyInfo.IsStatic()
                && (propertyInfo.GetIndexParameters().Length == 0)
-               && propertyInfo.CanRead;
+               && propertyInfo.CanRead
+               && (!needsWrite || propertyInfo.CanWrite)
+               && (propertyInfo.GetMethod != null && propertyInfo.GetMethod.IsPublic);
 
         public static Type FindCandidateNavigationPropertyType(this PropertyInfo propertyInfo, Func<Type, bool> isPrimitiveProperty)
         {
-            if (!propertyInfo.IsCandidateProperty())
+            var targetType = propertyInfo.PropertyType;
+            var targetSequenceType = targetType.TryGetSequenceType();
+            if (!propertyInfo.IsCandidateProperty(targetSequenceType == null))
             {
                 return null;
             }
 
-            var targetType = propertyInfo.PropertyType;
-            targetType = targetType.TryGetSequenceType() ?? targetType;
+            targetType = targetSequenceType ?? targetType;
             targetType = targetType.UnwrapNullableType();
 
             if (isPrimitiveProperty(targetType)

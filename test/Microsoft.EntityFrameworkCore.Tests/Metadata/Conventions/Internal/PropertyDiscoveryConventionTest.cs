@@ -21,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
                 set { }
             }
 
+            public int ReadOnly { get; }
+
+            public int PrivateGetter { private get; set; }
+
             public int this[int index]
             {
                 get { return 0; }
@@ -53,7 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             public short Int16 { get; set; }
             public int Int32 { get; set; }
             public long Int64 { get; set; }
-            internal int Internal { get; set; }
             public bool? NullableBoolean { get; set; }
             public byte? NullableByte { get; set; }
             public char? NullableChar { get; set; }
@@ -72,10 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             public ushort? NullableUInt16 { get; set; }
             public uint? NullableUInt32 { get; set; }
             public ulong? NullableUInt64 { get; set; }
-            private int Private { get; set; }
-            public int PrivateGetter { private get; set; }
             public int PrivateSetter { get; private set; }
-            protected int Protected { get; set; }
             public sbyte SByte { get; set; }
             public float Single { get; set; }
             public string String { get; set; }
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive)
-                    .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetRuntimeProperties()
                     .Select(p => p.Name),
                 entityBuilder.Metadata.GetProperties().Select(p => p.Name));
         }
