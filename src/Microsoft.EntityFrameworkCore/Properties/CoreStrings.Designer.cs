@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// No database providers are configured. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.
+        /// A database has not been configured for this context. If you are not using dependency injection, override the OnConfiguring method in your context class to configure the database. If you are using dependency injection, use the AddDbContext method to register your context as a service and configure the database. In ASP.NET Core this is done in the ConfigureServices method of your Startup class. Also ensure that you are resolving the context from services and are not directly creating instances of it.
         /// </summary>
         public static string NoProviderConfigured
         {
