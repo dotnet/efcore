@@ -493,6 +493,23 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ExecuteReader_supports_SingleRow()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT 0;";
+                connection.Open();
+
+                using (var reader = command.ExecuteReader(CommandBehavior.SingleRow))
+                {
+                    var hasResult = reader.NextResult();
+                    Assert.False(hasResult);
+                }
+            }
+        }
+
+        [Fact]
         public void ExecuteReader_supports_CloseConnection()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -513,7 +530,6 @@ namespace Microsoft.Data.Sqlite
         [Theory]
         [InlineData(CommandBehavior.KeyInfo)]
         [InlineData(CommandBehavior.SchemaOnly)]
-        [InlineData(CommandBehavior.SingleRow)]
         public void ExecuteReader_throws_for_unsupported_(CommandBehavior behavior)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

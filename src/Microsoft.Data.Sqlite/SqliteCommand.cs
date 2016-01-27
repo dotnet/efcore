@@ -90,7 +90,7 @@ namespace Microsoft.Data.Sqlite
 
         public new virtual SqliteDataReader ExecuteReader(CommandBehavior behavior)
         {
-            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess | CommandBehavior.SingleResult | CommandBehavior.CloseConnection)) != 0)
+            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess | CommandBehavior.SingleResult | CommandBehavior.SingleRow | CommandBehavior.CloseConnection)) != 0)
             {
                 throw new ArgumentException(Strings.FormatInvalidCommandBehavior(behavior));
             }
