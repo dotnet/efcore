@@ -16,6 +16,7 @@
       }
     },
     "dnxcore50": {
+      "imports": "portable-net452+win81",
       "dependencies": {
         "moq.netcore": "4.4.0-*"
       }

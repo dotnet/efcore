@@ -13,6 +13,7 @@
   "frameworks": {
     "dnx451": { },
     "dnxcore50": {
+      "imports": "portable-net452+win81",
       "dependencies": {
         "System.Threading.Tasks.Parallel": "4.0.1-*"
       }

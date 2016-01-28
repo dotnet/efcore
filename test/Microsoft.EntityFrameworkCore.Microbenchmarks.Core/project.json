@@ -11,7 +11,9 @@
   },
   "frameworks": {
     "dnxcore50": {
+      "imports": "portable-net452+win81",
       "dependencies": {
+        "Microsoft.NETCore.Platforms": "1.0.1-*",
         "System.Data.SqlClient": "4.0.0-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }

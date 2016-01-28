@@ -52,8 +52,10 @@
       }
     },
     "dnxcore50": {
+      "imports": "portable-net452+win81",
       "dependencies": {
         "Microsoft.CSharp": "4.0.1-*",
+        "Microsoft.NETCore.Platforms": "1.0.1-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
     }
