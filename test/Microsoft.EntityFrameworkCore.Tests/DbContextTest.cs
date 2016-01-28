@@ -326,6 +326,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 throw new NotImplementedException();
             }
 
+            public virtual void RecordDanglingDependent(IForeignKey foreignKey, InternalEntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
+            public virtual IEnumerable<InternalEntityEntry> GetDanglingDependents(IForeignKey foreignKey, InternalEntityEntry entry)
+            {
+                throw new NotImplementedException();
+            }
+
             public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();

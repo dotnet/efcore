@@ -220,9 +220,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var dependent2 = new Product { Id = 22 };
             var dependent3 = new Product { Id = 23, Category = principal };
 
-            manager.StartTracking(manager.GetOrCreateEntry(dependent1));
-            manager.StartTracking(manager.GetOrCreateEntry(dependent2));
-            manager.StartTracking(manager.GetOrCreateEntry(dependent3));
+            manager.StartTracking(manager.GetOrCreateEntry(dependent1)).SetEntityState(EntityState.Added);
+            manager.StartTracking(manager.GetOrCreateEntry(dependent2)).SetEntityState(EntityState.Added);
+            manager.StartTracking(manager.GetOrCreateEntry(dependent3)).SetEntityState(EntityState.Added);
 
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
 
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entry3.SetEntityState(EntityState.Added);
 
             Assert.Equal(22, entity1.AlternateProductId);
-            Assert.Equal(23, entity2.AlternateProductId);
+            Assert.Null(entity2.AlternateProductId);
             Assert.Null(entity3.AlternateProductId);
 
             Assert.Same(entity2, entity1.AlternateProduct);
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Same(entity1, entity2.OriginalProduct);
 
             Assert.Null(entity3.AlternateProduct);
-            Assert.Same(entity2, entity3.OriginalProduct);
+            Assert.Null(entity3.OriginalProduct);
         }
 
         [Fact]
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entry3.SetEntityState(EntityState.Added);
 
             Assert.Equal(22, entity1.AlternateProductId);
-            Assert.Equal(23, entity2.AlternateProductId);
+            Assert.Null(entity2.AlternateProductId);
             Assert.Null(entity3.AlternateProductId);
 
             Assert.Same(entity2, entity1.AlternateProduct);

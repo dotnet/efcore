@@ -23,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly Dictionary<object, WeakReference<InternalEntityEntry>> _detachedEntityReferenceMap
             = new Dictionary<object, WeakReference<InternalEntityEntry>>(ReferenceEqualityComparer.Instance);
 
+        private readonly LazyRef<IDictionary<IForeignKey, IList<InternalEntityEntry>>> _danglingDependents
+            = new LazyRef<IDictionary<IForeignKey, IList<InternalEntityEntry>>>(
+                () => new Dictionary<IForeignKey, IList<InternalEntityEntry>>());
+
         private IIdentityMap _identityMap0;
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
@@ -31,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
         private readonly IDatabase _database;
-        private IConcurrencyDetector _concurrencyDetector;
+        private readonly IConcurrencyDetector _concurrencyDetector;
 
         public StateManager(
             [NotNull] IInternalEntityEntryFactory factory,
@@ -258,6 +262,60 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 FindIdentityMap(key)?.Remove(entry);
             }
+
+            if (_danglingDependents.HasValue)
+            {
+                foreach (var foreignKey in entry.EntityType.GetForeignKeys())
+                {
+                    IList<InternalEntityEntry> entries;
+                    if (_danglingDependents.Value.TryGetValue(foreignKey, out entries)
+                        && entries.Remove(entry)
+                        && entries.Count == 0)
+                    {
+                        _danglingDependents.Value.Remove(foreignKey);
+                    }
+                }
+            }
+        }
+
+        public virtual void RecordDanglingDependent(IForeignKey foreignKey, InternalEntityEntry entry)
+        {
+            IList<InternalEntityEntry> entries;
+            if (!_danglingDependents.Value.TryGetValue(foreignKey, out entries))
+            {
+                entries = new List<InternalEntityEntry>();
+                _danglingDependents.Value[foreignKey] = entries;
+            }
+            entries.Add(entry);
+        }
+
+        public virtual IEnumerable<InternalEntityEntry> GetDanglingDependents(IForeignKey foreignKey, InternalEntityEntry entry)
+        {
+            IList<InternalEntityEntry> entries;
+            if (_danglingDependents.HasValue
+                && _danglingDependents.Value.TryGetValue(foreignKey, out entries))
+            {
+                var matchingDependents = entries
+                    .Where(e => e[foreignKey.DependentToPrincipal] == entry.Entity)
+                    .ToList();
+
+                if (matchingDependents.Count > 0)
+                {
+                    foreach (var dependentEntry in matchingDependents)
+                    {
+                        entries.Remove(dependentEntry);
+                    }
+
+                    if (entries.Count == 0)
+                    {
+                        _danglingDependents.Value.Remove(foreignKey);
+                    }
+                }
+
+                return matchingDependents;
+            }
+
+            return Enumerable.Empty<InternalEntityEntry>();
         }
 
         public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey) 

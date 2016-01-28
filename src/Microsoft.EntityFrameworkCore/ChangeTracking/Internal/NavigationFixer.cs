@@ -216,6 +216,45 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityType = entry.EntityType;
 
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                var principalEntry = entry.StateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
+                if (principalEntry != null)
+                {
+                    DoFixup(foreignKey, principalEntry, new[] { entry });
+                }
+                else if (foreignKey.PrincipalToDependent == null
+                         && foreignKey.DependentToPrincipal != null
+                         && entry[foreignKey.DependentToPrincipal] != null)
+                {
+                    // This is the case where there is a dependent being tracked before a principal
+                    // and the dependent has a reference to the principal, but the principal does
+                    // not have a reference to the dependent. In this case when we later start tracking the
+                    // principal and it potentially gets its PK value, we need to go back and propogate that
+                    // value to the FK. But finding the dependent entity at that time requires an expensive
+                    // scan, so instead we keep a dictionary to look at later.
+                    entry.StateManager.RecordDanglingDependent(foreignKey, entry);
+                }
+            }
+
+            foreach (var foreignKey in entityType.GetReferencingForeignKeys())
+            {
+                var dependents = entry.StateManager.GetDependents(entry, foreignKey).ToArray();
+                if (dependents.Length > 0)
+                {
+                    DoFixup(foreignKey, entry, dependents);
+                }
+
+                foreach (var dependentEntry in entry.StateManager.GetDanglingDependents(foreignKey, entry))
+                {
+                    NavigationReferenceChangedAction(
+                        dependentEntry,
+                        foreignKey.DependentToPrincipal,
+                        null,
+                        entry.Entity);
+                }
+            }
+
             // If the new state is unchanged (such as from a query or Attach) then we are going
             // to assume that the FK value is the source of truth and not attempt to ascertain
             // relationships from navigation properties
@@ -243,74 +282,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 navigationValue);
                         }
                     }
-                }
-
-                var entries = entry.StateManager.Entries.ToList();
-
-                // TODO: Perf on this state manager query
-                foreach (var navigation in _model.GetEntityTypes()
-                    .SelectMany(e => e.GetNavigations())
-                    .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
-                {
-                    var collectionAccessor = navigation.IsCollection()
-                        ? navigation.GetCollectionAccessor()
-                        : null;
-
-                    var navigationEntityType = navigation.DeclaringEntityType;
-
-                    foreach (var relatedEntry in entries)
-                    {
-                        if (!navigationEntityType.IsAssignableFrom(relatedEntry.EntityType)
-                            || (relatedEntry == entry))
-                        {
-                            continue;
-                        }
-
-                        if (collectionAccessor != null)
-                        {
-                            if (collectionAccessor.Contains(relatedEntry.Entity, entry.Entity))
-                            {
-                                NavigationCollectionChangedAction(
-                                    relatedEntry,
-                                    navigation,
-                                    new[] { entry.Entity },
-                                    Enumerable.Empty<object>());
-                            }
-                        }
-                        else
-                        {
-                            var navigationValue = relatedEntry[navigation];
-                            if (navigationValue != null)
-                            {
-                                if (ReferenceEquals(navigationValue, entry.Entity))
-                                {
-                                    NavigationReferenceChangedAction(
-                                        relatedEntry,
-                                        navigation,
-                                        null,
-                                        navigationValue);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                var principalEntry = entry.StateManager.GetPrincipalUsingRelationshipSnapshot(entry, foreignKey);
-                if (principalEntry != null)
-                {
-                    DoFixup(foreignKey, principalEntry, new[] { entry });
-                }
-            }
-
-            foreach (var foreignKey in entityType.GetReferencingForeignKeys())
-            {
-                var dependents = entry.StateManager.GetDependents(entry, foreignKey).ToArray();
-                if (dependents.Length > 0)
-                {
-                    DoFixup(foreignKey, entry, dependents);
                 }
             }
         }
