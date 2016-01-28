@@ -16,7 +16,7 @@ This project is for Entity Framework Core, which is currently in pre-release. En
 Entity Framework Core (EF Core) provides a familiar developer experience to previous versions of EF, including LINQ, POCO, and Code First support. EF Core also enables access to data across relational and non-relational stores. EF Core is much more lightweight than previous versions and is built from the ground up to work great in the cloud (using ASP.NET Core) on devices (i.e. in universal Windows apps) as well as in traditional .NET scenarios.
 
 ## Getting Started
-See the ["Getting Started"](http://docs.efproject.net/en/latest/getting-started/) guides in the EF documentation for tutorials on using EF Core.
+See the ["Getting Started"](http://docs.efproject.net/en/latest/getting-started.html) guides in the EF documentation for tutorials on using EF Core.
 
 ## Roadmap
 EF Core is currently pre-release. For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFramework/wiki/Roadmap) article in the wiki.
