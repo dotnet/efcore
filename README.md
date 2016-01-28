@@ -1,23 +1,22 @@
-Entity Framework
-===
-Entity Framework is Microsoft's recommended data access technology for new applications in .NET.
+Entity Framework Core
+=====================
 
 Travis: [![Travis build Status](https://travis-ci.org/aspnet/EntityFramework.svg?branch=dev)](https://travis-ci.org/aspnet/EntityFramework) (CoreCLR only, no SQL Server)
 
 AppVeyor: [![AppVeyor](https://ci.appveyor.com/api/projects/status/v9xbkondjev2gkhn/branch/dev?svg=true)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
 
-Documentation on using EF7 is available at [https://ef.readthedocs.org](https://ef.readthedocs.org).
+Documentation on using EF Core is available at [https://docs.efproject.net](https://docs.efproject.net).
 
-## EF7 here, EF6 on CodePlex
+## EF Core here, EF6 on CodePlex
 
-This project is for Entity Framework 7, which is currently in pre-release. Entity Framework 6.x is the latest stable release of EF and still under active development on CodePlex at http://entityframework.codeplex.com/.
+This project is for Entity Framework Core, which is currently in pre-release. Entity Framework 6.x is the latest stable release of EF and still under active development on CodePlex at http://entityframework.codeplex.com/.
 
-## Entity Framework 7
+## Entity Framework Core
 
-Entity Framework 7 (EF7) provides a familiar developer experience to previous versions of EF, including LINQ, POCO, and Code First support. EF7 also enables access to data across relational and non-relational stores. EF7 is much more lightweight than previous versions and is built from the ground up to work great in the cloud (using ASP.NET 5) on devices (i.e. in universal Windows apps) as well as in traditional .NET scenarios.
+Entity Framework Core (EF Core) provides a familiar developer experience to previous versions of EF, including LINQ, POCO, and Code First support. EF Core also enables access to data across relational and non-relational stores. EF Core is much more lightweight than previous versions and is built from the ground up to work great in the cloud (using ASP.NET Core) on devices (i.e. in universal Windows apps) as well as in traditional .NET scenarios.
 
 ## Getting Started
-See the ["Getting Started"](https://ef.readthedocs.org/en/latest/getting-started/) guides in the EF documentation for tutorials on using EF7.
+See the ["Getting Started"](https://docs.efproject.net/en/latest/getting-started/) guides in the EF documentation for tutorials on using EF Core.
 
 ## Roadmap
-EF 7 is currently pre-release. For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFramework/wiki/Roadmap) article in the wiki.
+EF Core is currently pre-release. For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFramework/wiki/Roadmap) article in the wiki.
