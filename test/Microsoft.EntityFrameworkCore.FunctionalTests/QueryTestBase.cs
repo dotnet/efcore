@@ -2717,6 +2717,17 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void OrderBy_correlated_subquery_lol2()
+        {
+            AssertQuery<Order, Customer>(
+                (os, cs) => os.Where(
+                    o => cs.OrderBy(
+                        c => cs.Any(
+                            c2 => c2.CustomerID == "ALFKI"))
+                        .First().City != "Nowhere"));
+        }
+
+        [ConditionalFact]
         public virtual void OrderBy_Select()
         {
             AssertQuery<Customer>(

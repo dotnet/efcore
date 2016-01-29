@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IIncludeExpressionVisitorFactory _includeExpressionVisitorFactory;
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly ICompositePredicateExpressionVisitorFactory _compositePredicateExpressionVisitorFactory;
+        private readonly IConditionalRemovingExpressionVisitorFactory _conditionalRemovingExpressionVisitorFactory;
         private readonly IQueryFlattenerFactory _queryFlattenerFactory;
 
         private bool _bindParentQueries;
@@ -69,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
+            [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
             [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
@@ -94,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(includeExpressionVisitorFactory, nameof(includeExpressionVisitorFactory));
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
+            Check.NotNull(conditionalRemovingExpressionVisitorFactory, nameof(conditionalRemovingExpressionVisitorFactory));
             Check.NotNull(queryFlattenerFactory, nameof(queryFlattenerFactory));
             Check.NotNull(contextOptions, nameof(contextOptions));
 
@@ -101,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _includeExpressionVisitorFactory = includeExpressionVisitorFactory;
             _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             _compositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
+            _conditionalRemovingExpressionVisitorFactory = conditionalRemovingExpressionVisitorFactory;
             _queryFlattenerFactory = queryFlattenerFactory;
 
             ContextOptions = contextOptions;
@@ -706,6 +710,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (sqlPredicateExpression != null)
                 {
+                    sqlPredicateExpression =
+                        _conditionalRemovingExpressionVisitorFactory
+                            .Create()
+                            .Visit(sqlPredicateExpression);
+
                     selectExpression.Predicate
                         = selectExpression.Predicate == null
                             ? sqlPredicateExpression

@@ -244,15 +244,10 @@ CROSS JOIN (
             Assert.Equal(
                 @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Customers] AS [c2]
-            WHERE [c1].[CustomerID] = [c2].[CustomerID])
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE EXISTS (
+    SELECT 1
+    FROM [Customers] AS [c2]
+    WHERE [c1].[CustomerID] = [c2].[CustomerID])",
                 Sql);
         }
 
@@ -568,29 +563,19 @@ WHERE [c].[City] = @__city_0",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))
 
 @__customerID_0: ANATR
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))",
                 Sql);
         }
 
@@ -1243,32 +1228,24 @@ END",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [o].[CustomerID] LIKE 'A' + '%')
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 0",
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE 'A' + '%')",
                 Sql);
-        }        public override void Any_nested_negated2()
+        }
+
+        public override void Any_nested_negated2()
         {
             base.Any_nested_negated2();
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [o].[CustomerID] LIKE 'A' + '%')
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 0",
+WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND NOT EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE 'A' + '%')",
                 Sql);
         }
 
@@ -1279,15 +1256,10 @@ WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [o].[CustomerID] LIKE 'A' + '%')
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 0 AND (([c].[City] <> 'London') OR [c].[City] IS NULL)",
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE 'A' + '%') AND (([c].[City] <> 'London') OR [c].[City] IS NULL)",
                 Sql);
         }
 
@@ -1298,15 +1270,10 @@ WHERE (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [o].[CustomerID] LIKE 'A' + '%')
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE 'A' + '%')",
                 Sql);
         }
 
@@ -1317,15 +1284,10 @@ WHERE (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [o].[CustomerID] LIKE 'A' + '%')
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE 'A' + '%')",
                 Sql);
         }
 
@@ -1336,15 +1298,10 @@ WHERE (([c].[City] <> 'London') OR [c].[City] IS NULL) AND (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [o].[CustomerID] LIKE 'A' + '%')
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1 AND (([c].[City] <> 'London') OR [c].[City] IS NULL)",
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE 'A' + '%') AND (([c].[City] <> 'London') OR [c].[City] IS NULL)",
                 Sql);
         }
 
@@ -1354,10 +1311,10 @@ WHERE (
 
             Assert.Equal(
                 @"SELECT CASE
-    WHEN NOT (EXISTS (
+    WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE NOT ([c].[ContactName] LIKE 'A' + '%')))
+        WHERE NOT ([c].[ContactName] LIKE 'A' + '%'))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END",
                 Sql);
@@ -2994,6 +2951,29 @@ ORDER BY (
                 Sql);
         }
 
+        public override void OrderBy_correlated_subquery_lol2()
+        {
+            base.OrderBy_correlated_subquery_lol2();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE (
+    SELECT TOP(1) [c].[City]
+    FROM [Customers] AS [c]
+    ORDER BY (
+        SELECT CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM [Customers] AS [c2]
+                WHERE [c2].[CustomerID] = 'ALFKI')
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END
+    )
+) <> 'Nowhere'",
+                Sql);
+        }
+
         public override void Where_subquery_recursive_trivial()
         {
             base.Where_subquery_recursive_trivial();
@@ -3001,22 +2981,12 @@ ORDER BY (
             Assert.Equal(
                 @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Employees] AS [e2]
-            WHERE (
-                SELECT CASE
-                    WHEN EXISTS (
-                        SELECT 1
-                        FROM [Employees] AS [e3])
-                    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-                END
-            ) = 1)
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM [Employees] AS [e2]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [Employees] AS [e3]))
 ORDER BY [e1].[EmployeeID]",
                 Sql);
         }
@@ -4183,15 +4153,10 @@ FROM [Orders] AS [o]
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (
-    SELECT CASE
-        WHEN 'Chai' IN (
-            SELECT [p2].[ProductName]
-            FROM [Products] AS [p2]
-        )
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE 'Chai' IN (
+    SELECT [p2].[ProductName]
+    FROM [Products] AS [p2]
+)",
                 Sql);
         }
 
@@ -4202,16 +4167,11 @@ WHERE (
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (
-    SELECT CASE
-        WHEN 5 IN (
-            SELECT [o].[Quantity]
-            FROM [Order Details] AS [o]
-            WHERE [o].[ProductID] = [p].[ProductID]
-        )
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE 5 IN (
+    SELECT [o].[Quantity]
+    FROM [Order Details] AS [o]
+    WHERE [o].[ProductID] = [p].[ProductID]
+)",
                 Sql);
         }
 

@@ -1069,6 +1069,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         return VisitIsNotNull(isNullExpression);
                     }
 
+                    if (expression.Operand is ExistsExpression)
+                    {
+                        _relationalCommandBuilder.Append("NOT ");
+
+                        Visit(expression.Operand);
+
+                        return expression;
+                    }
+
                     if (!(expression.Operand is ColumnExpression
                           || expression.Operand is ParameterExpression
                           || expression.Operand.IsAliasWithColumnExpression()

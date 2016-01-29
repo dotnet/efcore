@@ -83,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => serviceCollection
                 .AddScoped<IMaterializerFactory, MaterializerFactory>()
                 .AddScoped<IShaperCommandContextFactory, ShaperCommandContextFactory>()
+                .AddScoped<IConditionalRemovingExpressionVisitorFactory, ConditionalRemovingExpressionVisitorFactory>()
                 .AddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
                 .AddScoped<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>()
                 .AddScoped<IQueryFlattenerFactory, QueryFlattenerFactory>()

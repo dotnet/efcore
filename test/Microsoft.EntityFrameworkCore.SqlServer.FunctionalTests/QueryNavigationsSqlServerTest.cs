@@ -294,15 +294,10 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [c].[CustomerID] = [o].[CustomerID])
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID])",
                 Sql);
         }
 
@@ -313,15 +308,10 @@ WHERE (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE ([o].[OrderID] > 0) AND ([c].[CustomerID] = [o].[CustomerID]))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE ([o].[OrderID] > 0) AND ([c].[CustomerID] = [o].[CustomerID]))",
                 Sql);
         }
 
@@ -332,10 +322,10 @@ WHERE (
             Assert.Equal(
                 @"SELECT (
     SELECT CASE
-        WHEN NOT (EXISTS (
+        WHEN NOT EXISTS (
             SELECT 1
             FROM [Orders] AS [o]
-            WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND NOT (([o].[CustomerID] = 'ALFKI') AND [o].[CustomerID] IS NOT NULL)))
+            WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND NOT (([o].[CustomerID] = 'ALFKI') AND [o].[CustomerID] IS NOT NULL))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -363,15 +353,10 @@ FROM [Orders] AS [o]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (
-    SELECT CASE
-        WHEN NOT (EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o]
-            WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND NOT (([o].[CustomerID] = 'ALFKI') AND [o].[CustomerID] IS NOT NULL)))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND NOT (([o].[CustomerID] = 'ALFKI') AND [o].[CustomerID] IS NOT NULL))",
                 Sql);
         }
 
@@ -483,10 +468,10 @@ FROM [Customers] AS [c]",
     THEN '50' ELSE '10'
 END, [o].[OrderID], (
     SELECT CASE
-        WHEN NOT (EXISTS (
+        WHEN NOT EXISTS (
             SELECT 1
             FROM [Order Details] AS [od]
-            WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> 42)))
+            WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> 42))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ), (
@@ -612,23 +597,18 @@ WHERE [o.Customer].[Country] IN ('USA', 'Redania')",
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM (
-                SELECT [o].[OrderID], [o].[ProductID]
-                FROM [Order Details] AS [o]
-                WHERE [p].[ProductID] = [o].[ProductID]
-            ) AS [t]
-            INNER JOIN (
-                SELECT TOP(1) [orderDetail].[OrderID], [orderDetail].[ProductID]
-                FROM [Order Details] AS [orderDetail]
-                WHERE [orderDetail].[Quantity] = 1
-            ) AS [t0] ON ([t].[OrderID] = [t0].[OrderID]) AND ([t].[ProductID] = [t0].[ProductID]))
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-) = 1",
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT [o].[OrderID], [o].[ProductID]
+        FROM [Order Details] AS [o]
+        WHERE [p].[ProductID] = [o].[ProductID]
+    ) AS [t]
+    INNER JOIN (
+        SELECT TOP(1) [orderDetail].[OrderID], [orderDetail].[ProductID]
+        FROM [Order Details] AS [orderDetail]
+        WHERE [orderDetail].[Quantity] = 1
+    ) AS [t0] ON ([t].[OrderID] = [t0].[OrderID]) AND ([t].[ProductID] = [t0].[ProductID]))",
                 Sql);
         }
 
