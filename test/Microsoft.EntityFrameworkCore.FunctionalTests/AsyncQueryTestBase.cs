@@ -23,6 +23,41 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
     public abstract class AsyncQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        [ConditionalFact]
+        public virtual async Task ToListAsync_can_be_canceled()
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                // without fix, this usually throws within 2 or three iterations
+
+                using (var context = Fixture.CreateContext())
+                {
+                    var tokenSource = new CancellationTokenSource();
+                    var query = context.Employees.AsNoTracking().ToListAsync(tokenSource.Token);
+                    tokenSource.Cancel();
+                    List<Employee> result = null;
+                    Exception exception = null;
+                    try
+                    {
+                        result = query.GetAwaiter().GetResult();
+                    }
+                    catch (Exception e)
+                    {
+                        exception = e;
+                    }
+
+                    if (exception != null)
+                    {
+                        Assert.Null(result);
+                    }
+                    else
+                    {
+                        Assert.Equal(9, result.Count);
+                    }
+                }
+            }
+        }
+
         public virtual async Task Single_Predicate_Cancellation(CancellationToken cancellationToken)
         {
             await AssertQuery<Customer>(

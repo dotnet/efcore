@@ -127,6 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     try
                     {
                         _exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection();
+                        // TODO remove this when/if bug is resolved in Ix-Async https://github.com/Reactive-Extensions/Rx.NET/issues/166
+                        cancellationToken.ThrowIfCancellationRequested();
                         return await _innerEnumerator.MoveNext(cancellationToken);
                     }
                     catch (Exception exception)
