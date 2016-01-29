@@ -1270,22 +1270,13 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
-        public virtual void Where_subquery_lambda()
-        {
-            AssertQuery<Order, Order>((o1, o2) => 
-                o1.Where(x => o2.Any(z => z.OrderID == x.OrderID))
-            );
-        }
-
-        [ConditionalFact]
         public virtual void Where_subquery_expression()
-        {
-            Func<Order, Expression<Func<Order, bool>>> getExpression = order => z => z.OrderID == order.OrderID;
+        { 
             AssertQuery<Order, Order>((o1, o2) =>
                 {
                     var firstOrder = o1.First();
-                    var expr = getExpression(firstOrder);
-                    return o1.Where(x => o2.Any(expr) && x.OrderID == firstOrder.OrderID);
+                    Expression<Func<Order, bool>> expr = z => z.OrderID == firstOrder.OrderID;
+                    return o1.Where(x => o2.Where(expr).Any());
                 });
         }
 
