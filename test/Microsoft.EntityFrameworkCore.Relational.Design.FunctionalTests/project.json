@@ -60,7 +60,8 @@
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
-        "Microsoft.Dnx.Runtime": "1.0.0-*"
+        "Microsoft.Dnx.Runtime": "1.0.0-*",
+        "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     }
   }
