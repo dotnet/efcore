@@ -94,6 +94,14 @@ if exists (select * from sysobjects where id = object_id('dbo.SelfReferencing') 
 	drop table "dbo"."SelfReferencing"
 GO
 
+if exists (select * from sysobjects where id = object_id('dbo.MultipleFKsDependent') and sysstat & 0xf = 3)
+	drop table "dbo"."MultipleFKsDependent"
+GO
+
+if exists (select * from sysobjects where id = object_id('dbo.MultipleFKsPrincipal') and sysstat & 0xf = 3)
+	drop table "dbo"."MultipleFKsPrincipal"
+GO
+
 if exists (select * from sysobjects where id = object_id('dbo.FilteredOut') and sysstat & 0xf = 3)
 	drop table "dbo"."FilteredOut"
 GO
@@ -400,6 +408,40 @@ CREATE TABLE "TableWithUnmappablePrimaryKeyColumn" (
 
 GO
 
+CREATE TABLE MultipleFKsPrincipal (
+	MultipleFKsPrincipalId int PRIMARY KEY,
+	SomePrincipalColumn nvarchar (20) NOT NULL
+)
+
+GO
+
+CREATE TABLE MultipleFKsDependent (
+	MultipleFKsDependentId int PRIMARY KEY,
+	AnotherColumn nvarchar (20) NOT NULL,
+	RelationAId int NOT NULL,
+	RelationBId int NULL,
+	RelationCId int NULL,
+	CONSTRAINT FK_RelationA FOREIGN KEY 
+	(
+		RelationAId
+	) REFERENCES dbo.MultipleFKsPrincipal (
+		MultipleFKsPrincipalId
+	),
+	CONSTRAINT FK_RelationB FOREIGN KEY 
+	(
+		RelationBId
+	) REFERENCES dbo.MultipleFKsPrincipal (
+		MultipleFKsPrincipalId
+	),
+	CONSTRAINT FK_RelationC FOREIGN KEY 
+	(
+		RelationCId
+	) REFERENCES dbo.MultipleFKsPrincipal (
+		MultipleFKsPrincipalId
+	)
+)
+
+GO
 CREATE TABLE "FilteredOut" (
 	"FilteredOutID" "int" PRIMARY KEY,
 	"Unused1" nvarchar(20) NOT NULL,

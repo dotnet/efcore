@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+
+namespace E2ETest.Namespace
+{
+    public partial class MultipleFKsDependent
+    {
+        public int MultipleFKsDependentId { get; set; }
+        public string AnotherColumn { get; set; }
+        public int RelationAId { get; set; }
+        public int? RelationBId { get; set; }
+        public int? RelationCId { get; set; }
+
+        public virtual MultipleFKsPrincipal RelationA { get; set; }
+        public virtual MultipleFKsPrincipal RelationB { get; set; }
+        public virtual MultipleFKsPrincipal RelationC { get; set; }
+    }
+}

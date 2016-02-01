@@ -572,7 +572,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                                 CultureInfo.CurrentCulture,
                                 SelfReferencingPrincipalEndNavigationNamePattern,
                                 dependentEndNavigationPropertyName)
-                            : modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
+                            : modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(
+                                foreignKey, dependentEndNavigationPropertyName);
                     var principalEndNavigationPropertyName =
                         CSharpUtilities.Instance.GenerateCSharpIdentifier(
                             principalEndNavigationPropertyCandidateName,

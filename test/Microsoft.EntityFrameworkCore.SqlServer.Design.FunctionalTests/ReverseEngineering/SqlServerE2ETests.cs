@@ -37,6 +37,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 "AllDataTypes",
                 "PropertyConfiguration",
                 "Test Spaces Keywords Table",
+                "MultipleFKsDependent",
+                "MultipleFKsPrincipal",
                 "OneToManyDependent",
                 "OneToManyPrincipal",
                 "OneToOneDependent",
@@ -94,6 +96,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         private static readonly List<string> _expectedEntityTypeFiles = new List<string>
         {
             "AllDataTypes.expected",
+            "MultipleFKsDependent.expected",
+            "MultipleFKsPrincipal.expected",
             "OneToManyDependent.expected",
             "OneToManyPrincipal.expected",
             "OneToOneDependent.expected",
