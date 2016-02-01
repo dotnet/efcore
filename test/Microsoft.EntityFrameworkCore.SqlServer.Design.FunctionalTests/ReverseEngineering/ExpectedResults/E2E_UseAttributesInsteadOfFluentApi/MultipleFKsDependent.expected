@@ -1,0 +1,28 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace E2ETest.Namespace
+{
+    public partial class MultipleFKsDependent
+    {
+        public int MultipleFKsDependentId { get; set; }
+        [Required]
+        [MaxLength(20)]
+        public string AnotherColumn { get; set; }
+        public int RelationAId { get; set; }
+        public int? RelationBId { get; set; }
+        public int? RelationCId { get; set; }
+
+        [ForeignKey("RelationAId")]
+        [InverseProperty("MultipleFKsDependentRelationA")]
+        public virtual MultipleFKsPrincipal RelationA { get; set; }
+        [ForeignKey("RelationBId")]
+        [InverseProperty("MultipleFKsDependentRelationB")]
+        public virtual MultipleFKsPrincipal RelationB { get; set; }
+        [ForeignKey("RelationCId")]
+        [InverseProperty("MultipleFKsDependentRelationC")]
+        public virtual MultipleFKsPrincipal RelationC { get; set; }
+    }
+}

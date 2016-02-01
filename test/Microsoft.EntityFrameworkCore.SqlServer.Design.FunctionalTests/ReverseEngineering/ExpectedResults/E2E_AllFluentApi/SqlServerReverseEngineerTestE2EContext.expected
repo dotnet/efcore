@@ -106,6 +106,40 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.varcharMaxColumn).HasColumnType("varchar(max)");
             });
 
+            modelBuilder.Entity<MultipleFKsDependent>(entity =>
+            {
+                entity.Property(e => e.MultipleFKsDependentId).ValueGeneratedNever();
+
+                entity.Property(e => e.AnotherColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.HasOne(d => d.RelationA)
+                    .WithMany(p => p.MultipleFKsDependentRelationA)
+                    .HasForeignKey(d => d.RelationAId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("FK_RelationA");
+
+                entity.HasOne(d => d.RelationB)
+                    .WithMany(p => p.MultipleFKsDependentRelationB)
+                    .HasForeignKey(d => d.RelationBId)
+                    .HasConstraintName("FK_RelationB");
+
+                entity.HasOne(d => d.RelationC)
+                    .WithMany(p => p.MultipleFKsDependentRelationC)
+                    .HasForeignKey(d => d.RelationCId)
+                    .HasConstraintName("FK_RelationC");
+            });
+
+            modelBuilder.Entity<MultipleFKsPrincipal>(entity =>
+            {
+                entity.Property(e => e.MultipleFKsPrincipalId).ValueGeneratedNever();
+
+                entity.Property(e => e.SomePrincipalColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
+            });
+
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
                 entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 })
@@ -321,6 +355,8 @@ namespace E2ETest.Namespace
         }
 
         public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
+        public virtual DbSet<MultipleFKsDependent> MultipleFKsDependent { get; set; }
+        public virtual DbSet<MultipleFKsPrincipal> MultipleFKsPrincipal { get; set; }
         public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
         public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
         public virtual DbSet<OneToOneDependent> OneToOneDependent { get; set; }

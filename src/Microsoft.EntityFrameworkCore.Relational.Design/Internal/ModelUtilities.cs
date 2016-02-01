@@ -28,9 +28,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return foreignKey.PrincipalEntityType.DisplayName();
         }
 
-        public virtual string GetPrincipalEndCandidateNavigationPropertyName([NotNull] IForeignKey foreignKey)
+        public virtual string GetPrincipalEndCandidateNavigationPropertyName(
+            [NotNull] IForeignKey foreignKey,
+            [NotNull] string dependentEndNavigationPropertyName)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotEmpty(dependentEndNavigationPropertyName, nameof(dependentEndNavigationPropertyName));
+
+            var allForeignKeysBetweenDependentAndPrincipal =
+                foreignKey.PrincipalEntityType?
+                    .GetReferencingForeignKeys()
+                    .Where(fk => foreignKey.DeclaringEntityType == fk.DeclaringEntityType);
+
+            if (allForeignKeysBetweenDependentAndPrincipal != null
+                && allForeignKeysBetweenDependentAndPrincipal.Count() > 1)
+            {
+                return foreignKey.DeclaringEntityType.DisplayName()
+                    + dependentEndNavigationPropertyName;
+            }
 
             return foreignKey.DeclaringEntityType.DisplayName();
         }
