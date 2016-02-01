@@ -126,7 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Data.Sqlite">
-      <HintPath>..\..\artifacts\bin\Microsoft.Data.Sqlite\$(Configuration)\netcore50\Microsoft.Data.Sqlite.dll</HintPath>
+      <HintPath>..\..\artifacts\bin\Microsoft.Data.Sqlite\$(Configuration)\dotnet54\Microsoft.Data.Sqlite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

@@ -15,10 +15,12 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/runtimes/win7-x86/native/sqlite3.dl
     @{
         DownloadAndExtract(
             "https://www.sqlite.org/2015/sqlite-dll-win32-x86-3090200.zip",
-            Tuple.Create("sqlite3.dll", sqliteDllPath));
+            Tuple.Create("sqlite3.dll", sqliteDllPath),
+            Tuple.Create("sqlite3.dll", "test/Microsoft.Data.Sqlite.Tests/.testPublish/dnx451/x86/sqlite3.dll"));
         DownloadAndExtract(
             "https://www.sqlite.org/2015/sqlite-dll-win64-x64-3090200.zip",
-            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win7-x64/native/sqlite3.dll"));
+            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win7-x64/native/sqlite3.dll"),
+            Tuple.Create("sqlite3.dll", "test/Microsoft.Data.Sqlite.Tests/.testPublish/dnx451/x64/sqlite3.dll"));
         DownloadAndExtract(
             "https://www.sqlite.org/2015/sqlite-uap-3090200.vsix",
             Tuple.Create(

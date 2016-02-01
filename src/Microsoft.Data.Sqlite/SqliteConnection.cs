@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Data.Sqlite.Interop;
 
-#if NETCORE50
+#if DOTNET5_4
 using System.Reflection;
 using Microsoft.Data.Sqlite.Utilities;
 #endif
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Sqlite
 
         partial void OnOpened();
 
-#if NETCORE50
+#if DOTNET5_4
         partial void OnOpened()
         {
             var appDataType = CurrentApplicationData?.GetType();
@@ -189,8 +189,21 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static object CurrentApplicationData
-            => Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
-                ?.GetRuntimeProperty("Current").GetValue(null);
+        {
+            get
+            {
+                try
+                {
+                    return Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                        ?.GetRuntimeProperty("Current").GetValue(null);
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException?.HResult == -2147009196)
+                {
+                    // Ignore "The process has no package identity."
+                    return null;
+                }
+            }
+        }
 
         private static string BaseDirectory
         {

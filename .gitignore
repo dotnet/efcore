@@ -16,3 +16,5 @@ project.lock.json
 *.sublime-*
 *.pfx
 launchSettings.json
+/.build/
+.testPublish/
