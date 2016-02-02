@@ -16,36 +16,27 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Globalization": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Text.RegularExpressions": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Threading.Tasks": {
-          "version": "4.0.0.0",
-          "type": "build"
-        }
+        "System.Globalization": "",
+        "System.Text.RegularExpressions": "",
+        "System.Threading.Tasks": ""
       }
     },
     "dnx451": {
       "frameworkAssemblies": {
-        "System.Collections": "4.0.0.0",
-        "System.Diagnostics.Debug": "4.0.0.0",
-        "System.Globalization": "4.0.0.0",
-        "System.Linq": "4.0.0.0",
-        "System.Linq.Expressions": "4.0.0.0",
-        "System.Linq.Queryable": "4.0.0.0",
-        "System.ObjectModel": "4.0.0.0",
-        "System.Reflection": "4.0.0.0",
-        "System.Reflection.Extensions": "4.0.0.0",
-        "System.Runtime": "4.0.10.0",
-        "System.Runtime.Extensions": "4.0.0.0",
-        "System.Text.RegularExpressions": "4.0.0.0",
-        "System.Threading": "4.0.0.0",
-        "System.Threading.Tasks": "4.0.0.0"
+        "System.Collections": "",
+        "System.Diagnostics.Debug": "",
+        "System.Globalization": "",
+        "System.Linq": "",
+        "System.Linq.Expressions": "",
+        "System.Linq.Queryable": "",
+        "System.ObjectModel": "",
+        "System.Reflection": "",
+        "System.Reflection.Extensions": "",
+        "System.Runtime": "",
+        "System.Runtime.Extensions": "",
+        "System.Text.RegularExpressions": "",
+        "System.Threading": "",
+        "System.Threading.Tasks": ""
       },
       "dependencies": {
         "xunit.runner.aspnet": "2.0.0-aspnet-*"

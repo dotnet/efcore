@@ -23,8 +23,8 @@
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
       },
       "frameworkAssemblies": {
-        "System.Data": "4.0.0.0",
-        "System.Reflection": "4.0.0.0"
+        "System.Data": "",
+        "System.Reflection": ""
       }
     }
   }

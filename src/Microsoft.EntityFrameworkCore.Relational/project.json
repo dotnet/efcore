@@ -23,8 +23,8 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Data": "4.0.0.0",
-        "System.Transactions": "4.0.0.0"
+        "System.Data": "",
+        "System.Transactions": ""
       }
     },
     "dotnet5.4": {

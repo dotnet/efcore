@@ -26,51 +26,18 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Collections": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.ComponentModel.DataAnnotations": "4.0.0.0",
-        "System.Diagnostics.Debug": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Linq": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Linq.Expressions": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Linq.Queryable": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.ObjectModel": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Reflection": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Reflection.Extensions": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Runtime": {
-          "version": "4.0.10.0",
-          "type": "build"
-        },
-        "System.Runtime.Extensions": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Threading": {
-          "version": "4.0.0.0",
-          "type": "build"
-        }
+        "System.Collections": "",
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Diagnostics.Debug": "",
+        "System.Linq": "",
+        "System.Linq.Expressions": "",
+        "System.Linq.Queryable": "",
+        "System.ObjectModel": "",
+        "System.Reflection": "",
+        "System.Reflection.Extensions": "",
+        "System.Runtime": "",
+        "System.Runtime.Extensions": "",
+        "System.Threading": ""
       }
     },
     "dotnet5.4": {

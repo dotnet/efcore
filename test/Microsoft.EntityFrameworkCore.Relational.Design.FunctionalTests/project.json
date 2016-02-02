@@ -13,45 +13,24 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Diagnostics.Tracing": {
-          "version": "4.0.10.0",
-          "type": "build"
-        },
-        "System.IO": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Reflection.Primitives": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Resources.ResourceManager": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Runtime.InteropServices": {
-          "version": "4.0.10.0",
-          "type": "build"
-        },
-        "System.Text.Encoding": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Text.Encoding.Extensions": {
-          "version": "4.0.0.0",
-          "type": "build"
-        }
+        "System.Diagnostics.Tracing": "",
+        "System.IO": "",
+        "System.Reflection.Primitives": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime.InteropServices": "",
+        "System.Text.Encoding": "",
+        "System.Text.Encoding.Extensions": ""
       }
     },
     "dnx451": {
       "frameworkAssemblies": {
-        "System.Diagnostics.Tracing": "4.0.10.0",
-        "System.IO": "4.0.0.0",
-        "System.Reflection.Primitives": "4.0.0.0",
-        "System.Resources.ResourceManager": "4.0.0.0",
-        "System.Runtime.InteropServices": "4.0.10.0",
-        "System.Text.Encoding": "4.0.0.0",
-        "System.Text.Encoding.Extensions": "4.0.0.0"
+        "System.Diagnostics.Tracing": "",
+        "System.IO": "",
+        "System.Reflection.Primitives": "",
+        "System.Resources.ResourceManager": "",
+        "System.Runtime.InteropServices": "",
+        "System.Text.Encoding": "",
+        "System.Text.Encoding.Extensions": ""
       },
       "dependencies": {
         "Microsoft.Dnx.Runtime": "1.0.0-*"
