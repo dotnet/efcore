@@ -1077,6 +1077,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                              ? Metadata.PrincipalEntityType.Builder
                                              : Metadata.DeclaringEntityType.Builder);
 
+            var settingNewNavigation = (navigationToPrincipalName ?? navigationToDependentName) != null;
+
             if (navigationToPrincipalName == null)
             {
                 if (oldRelationshipInverted)
@@ -1116,6 +1118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             dependentProperties = dependentProperties ??
                                   ((Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
                                    && !oldRelationshipInverted
+                                   // To find matching property when adding navigation. Both sides can have matching propery, one of them being matching with navigation name
+                                   && (!settingNewNavigation || !ConfigurationSource.Convention.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()))
                                       ? Metadata.Properties
                                       : null);
             dependentProperties = dependentProperties?.Count == 0
@@ -1589,7 +1593,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var inverted = newRelationshipBuilder.Metadata.DeclaringEntityType != dependentEntityType;
                 if ((dependentToPrincipalIsNew && !inverted)
-                    || (principalToDependentIsNew && inverted))
+                    || (principalToDependentIsNew && inverted)
+                    // RequiredNavigationAttributeConvention only work on DependentToPrincipal. So when inverting relationship, run the convention regardless of it being new/old
+                    || ((newRelationshipBuilder.Metadata.DependentToPrincipal != null) && inverted))
                 {
                     newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnNavigationAdded(
                         newRelationshipBuilder, newRelationshipBuilder.Metadata.DependentToPrincipal);

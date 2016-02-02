@@ -103,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private class CustomerDetails
         {
             public int Id { get; set; }
+            public int CustomerId { get; set; }
 
             public Customer Customer { get; set; }
         }
@@ -183,6 +184,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class Book
         {
+            public static readonly PropertyInfo BookdDetailsNavigation = typeof(Book).GetProperty("Details");
+
             public int Id { get; set; }
 
             public BookLabel Label { get; set; }
@@ -195,6 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private abstract class BookDetailsBase
         {
             public int Id { get; set; }
+
+            public int AnotherBookId { get; set; }
+
             public Book AnotherBook { get; set; }
         }
 
@@ -427,6 +433,60 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 get { return _target; }
                 set { _target = value; }
             }
+        }
+
+        protected class OneToOnePrincipalEntity
+        {
+            public static readonly PropertyInfo NavigationProperty = typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntity");
+
+            public int Id { get; set; }
+
+
+            public int NavOneToOneDependentEntityId { get; set; }
+            public int OneToOneDependentEntityId { get; set; }
+
+            [NotMapped]
+            public OneToOneDependentEntity NavOneToOneDependentEntity { get; set; }
+        }
+
+        protected class OneToOneDependentEntity
+        {
+            public static readonly PropertyInfo NavigationProperty = typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntity");
+
+            public int Id { get; set; }
+
+
+            public int NavOneToOnePrincipalEntityId { get; set; }
+            public int OneToOnePrincipalEntityId { get; set; }
+
+            [NotMapped]
+            public OneToOnePrincipalEntity NavOneToOnePrincipalEntity { get; set; }
+        }
+
+        protected class OneToOnePrincipalEntityWithAnnotation
+        {
+            public int Id { get; set; }
+
+
+            public int NavOneToOneDependentEntityWithAnnotationId { get; set; }
+            public int OneToOneDependentEntityWithAnnotationId { get; set; }
+            public int FkProperty { get; set; }
+
+            [NotMapped]
+            [ForeignKey("FkProperty")]
+            public OneToOneDependentEntityWithAnnotation NavOneToOneDependentEntityWithAnnotation { get; set; }
+        }
+
+        protected class OneToOneDependentEntityWithAnnotation
+        {
+            public int Id { get; set; }
+
+
+            public int NavOneToOnePrincipalEntityWithAnnotationId { get; set; }
+            public int OneToOnePrincipalEntityWithAnnotationId { get; set; }
+
+            [NotMapped]
+            public OneToOnePrincipalEntityWithAnnotation NavOneToOnePrincipalEntityWithAnnotation { get; set; }
         }
     }
 }
