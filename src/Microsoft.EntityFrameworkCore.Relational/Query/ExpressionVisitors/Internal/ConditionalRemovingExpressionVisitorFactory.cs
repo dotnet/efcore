@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class ConditionalRemovingExpressionVisitorFactory : IConditionalRemovingExpressionVisitorFactory
     {
-        public ExpressionVisitor Create()
+        public virtual ExpressionVisitor Create()
             => new ConditionalRemovingExpressionVisitor();
     }
 }
