@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private Dictionary<string, TableModel> _tables;
         private Dictionary<string, ColumnModel> _tableColumns;
 
-        private static string ColumnKey(TableModel table, string columnName) => "[" + table.Name + "].[" + columnName + "]";
+        private static string ColumnKey(TableModel table, string columnName)
+            => "[" + table.Name + "].[" + columnName + "]";
 
         private void ResetState()
         {
@@ -32,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             _tableColumns = new Dictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public virtual DatabaseModel Create(
-            [NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
@@ -55,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     // graceful fallback
                 }
 
-                _databaseModel.DatabaseName = !string.IsNullOrEmpty(databaseName) ? databaseName : _connection.DataSource;
+                _databaseModel.DatabaseName = !string.IsNullOrEmpty(databaseName)
+                    ? databaseName
+                    : _connection.DataSource;
 
                 GetSqliteMaster();
                 GetColumns();
@@ -74,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             {
                 while (reader.Read())
                 {
-                    var type = reader.GetString(0);
-                    var name = reader.GetString(1);
-                    var tableName = reader.GetString(2);
+                    var type = reader.GetValueOrDefault<string>("type");
+                    var name = reader.GetValueOrDefault<string>("name");
+                    var tableName = reader.GetValueOrDefault<string>("tbl_name");
 
                     if (type == "table"
                         && name != "sqlite_sequence"
@@ -87,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                             Database = _databaseModel,
                             Name = name
                         };
+
                         _databaseModel.Tables.Add(table);
                         _tables.Add(name, table);
                     }
@@ -105,16 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
         }
 
-        private enum TableInfoColumns
-        {
-            Cid,
-            Name,
-            Type,
-            NotNull,
-            DefaultValue,
-            Pk
-        }
-
         private void GetColumns()
         {
             foreach (var table in _databaseModel.Tables)
@@ -127,18 +120,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     var ordinal = 0;
                     while (reader.Read())
                     {
-                        var isPk = reader.GetBoolean((int)TableInfoColumns.Pk);
-                        var typeName = reader.GetString((int)TableInfoColumns.Type);
-                        var notNull = isPk || reader.GetBoolean((int)TableInfoColumns.NotNull);
+                        var isPk = reader.GetValueOrDefault<bool>("pk");
+                        var typeName = reader.GetValueOrDefault<string>("type");
+                        var notNull = isPk || reader.GetValueOrDefault<bool>("notnull");
 
                         var column = new ColumnModel
                         {
                             Table = table,
-                            Name = reader.GetString((int)TableInfoColumns.Name),
+                            Name = reader.GetValueOrDefault<string>("name"),
                             DataType = typeName,
-                            PrimaryKeyOrdinal = isPk ? reader.GetInt32((int)TableInfoColumns.Pk) : default(int?),
+                            PrimaryKeyOrdinal = isPk ? reader.GetValueOrDefault<int>("pk") : default(int?),
                             IsNullable = !notNull,
-                            DefaultValue = reader.GetValue((int)TableInfoColumns.DefaultValue) as string,
+                            DefaultValue = reader.GetValueOrDefault<string>("dflt_value"),
                             Ordinal = ordinal++
                         };
 
@@ -147,22 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     }
                 }
             }
-        }
-
-        private enum IndexListColumns
-        {
-            Seqno,
-            Name,
-            Unique,
-            Origin,
-            Partial
-        }
-
-        private enum IndexInfoColumns
-        {
-            Seqno,
-            Cid,
-            Name
         }
 
         private void GetIndexes()
@@ -176,9 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     while (reader.Read())
                     {
-                        var indexName = reader.GetValue((int)IndexListColumns.Name) as string;
-                        var isUnique = reader.GetBoolean((int)IndexListColumns.Unique);
+                        var indexName = reader.GetValueOrDefault<string>("name");
+                        var isUnique = reader.GetValueOrDefault<bool>("unique");
                         var index = table.Indexes.FirstOrDefault(i => i.Name.Equals(indexName, StringComparison.OrdinalIgnoreCase));
+
                         if (index != null)
                         {
                             index.IsUnique = isUnique;
@@ -196,13 +174,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     {
                         while (reader.Read())
                         {
-                            var columnName = reader.GetValue((int)IndexInfoColumns.Name) as string;
+                            var columnName = reader.GetValueOrDefault<string>("name");
                             if (string.IsNullOrEmpty(columnName))
                             {
                                 continue;
                             }
 
-                            var indexOrdinal = reader.GetInt32((int)IndexInfoColumns.Seqno);
+                            var indexOrdinal = reader.GetValueOrDefault<int>("seqno");
                             var column = _tableColumns[ColumnKey(index.Table, columnName)];
 
                             var indexColumn = new IndexColumnModel
@@ -218,18 +196,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
         }
 
-        private enum ForeignKeyList
-        {
-            Id,
-            Seq,
-            Table,
-            From,
-            To,
-            OnUpdate,
-            OnDelete,
-            Match
-        }
-
         private void GetForeignKeys()
         {
             foreach (var dependentTable in _databaseModel.Tables)
@@ -243,9 +209,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     while (reader.Read())
                     {
-                        var id = reader.GetInt32((int)ForeignKeyList.Id);
-                        var fkOrdinal = reader.GetInt32((int)ForeignKeyList.Seq);
-                        var principalTableName = reader.GetString((int)ForeignKeyList.Table);
+                        var id = reader.GetValueOrDefault<int>("id");
+                        var fkOrdinal = reader.GetValueOrDefault<int>("seq");
+                        var principalTableName = reader.GetValueOrDefault<string>("table");
 
                         ForeignKeyModel foreignKey;
                         if (!tableForeignKeys.TryGetValue(id, out foreignKey))
@@ -256,12 +222,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                             {
                                 Table = dependentTable,
                                 PrincipalTable = principalTable,
-                                OnDelete = ConvertToReferentialAction(reader.GetString((int)ForeignKeyList.OnDelete))
+                                OnDelete = ConvertToReferentialAction(reader.GetValueOrDefault<string>("on_delete"))
                             };
                             tableForeignKeys.Add(id, foreignKey);
                         }
 
-                        var fromColumnName = reader.GetString((int)ForeignKeyList.From);
+                        var fromColumnName = reader.GetValueOrDefault<string>("from");
                         var fkColumn = new ForeignKeyColumnModel
                         {
                             Ordinal = fkOrdinal
@@ -271,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
                         if (foreignKey.PrincipalTable != null)
                         {
-                            var toColumnName = reader.GetString((int)ForeignKeyList.To);
+                            var toColumnName = reader.GetValueOrDefault<string>("to");
                             ColumnModel toColumn;
                             if (!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
                             {

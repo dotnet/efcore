@@ -1,9 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -36,6 +37,21 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                         Assert.Equal("dbo", e.SchemaName);
                         Assert.Equal("Everest", e.Name);
                     });
+        }
+
+        [Fact]
+        public void It_filters_views()
+        {
+            _fixture.ExecuteNonQuery(@"CREATE TABLE [dbo].[Hills] (Id int PRIMARY KEY, Name nvarchar(100), Height int);");
+            _fixture.ExecuteNonQuery(@"CREATE VIEW [dbo].[ShortHills] WITH SCHEMABINDING AS SELECT Name FROM [dbo].[Hills] WHERE Height < 100;");
+            var sql = "CREATE UNIQUE CLUSTERED INDEX IX_ShortHills_Names ON ShortHills (Name);";
+
+            var selectionSet = new TableSelectionSet(new List<string> { "Hills", "ShortHills" });
+            var logger = new SqlServerDatabaseModelFixture.TestLogger();
+
+            var dbModel = CreateModel(sql, selectionSet, logger);
+            Assert.Single(dbModel.Tables);
+            Assert.DoesNotContain(logger.Items, i => i.logLevel == LogLevel.Warning);
         }
 
         [Fact]
@@ -291,6 +307,15 @@ CREATE SEQUENCE CustomSequence_read
                     });
         }
 
+        [Fact]
+        public async Task It_reads_default_schema()
+        {
+            var defaultSchema = await _fixture.TestStore.ExecuteScalarAsync<string>("SELECT SCHEMA_NAME()", default(CancellationToken));
+
+            var model = _fixture.CreateModel("SELECT 1");
+            Assert.Equal(defaultSchema, model.DefaultSchemaName);
+        }
+
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void SequenceModel_values_null_for_default_min_max_start()
@@ -316,35 +341,12 @@ CREATE SEQUENCE [NumericSequence_defaults]
 
         private readonly SqlServerDatabaseModelFixture _fixture;
 
-        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
-            => _fixture.CreateModel(createSql, selection);
+        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null, ILogger logger = null)
+            => _fixture.CreateModel(createSql, selection, logger);
 
         public SqlServerDatabaseModelFactoryTest(SqlServerDatabaseModelFixture fixture)
         {
             _fixture = fixture;
         }
-    }
-
-    public class SqlServerDatabaseModelFixture : IDisposable
-    {
-        private readonly SqlServerTestStore _testStore;
-
-        public SqlServerDatabaseModelFixture()
-        {
-            _testStore = SqlServerTestStore.CreateScratch();
-        }
-
-        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
-        {
-            _testStore.ExecuteNonQuery(createSql);
-
-            var reader = new SqlServerDatabaseModelFactory(new LoggerFactory());
-
-            return reader.Create(_testStore.ConnectionString, selection ?? TableSelectionSet.All);
-        }
-
-        public void ExecuteNonQuery(string sql) => _testStore.ExecuteNonQuery(sql);
-
-        public void Dispose() => _testStore.Dispose();
     }
 }
