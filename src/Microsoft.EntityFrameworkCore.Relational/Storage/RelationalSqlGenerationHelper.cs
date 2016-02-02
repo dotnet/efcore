@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class RelationalSqlGenerationHelper : ISqlGenerationHelper
     {
         protected virtual string FloatingPointFormat => "{0}E0";
+        protected virtual string DecimalFormat => "0.0###########################";
         protected virtual string DateTimeFormat => @"yyyy-MM-dd HH\:mm\:ss.fffffff";
         protected virtual string DateTimeOffsetFormat => @"yyyy-MM-dd HH\:mm\:ss.fffffffzzz";
 
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => value.ToString();
 
         protected virtual string GenerateLiteralValue(decimal value)
-            => string.Format(value.ToString(CultureInfo.InvariantCulture));
+            => string.Format(value.ToString(DecimalFormat, CultureInfo.InvariantCulture));
 
         protected virtual string GenerateLiteralValue(double value)
             => string.Format(CultureInfo.InvariantCulture, FloatingPointFormat, value);

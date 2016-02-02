@@ -3250,6 +3250,24 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Sum_with_division_on_decimal()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Sum(od => od.Quantity / 2.09m),
+                asserter: (l2o, ef)
+                    => Assert.InRange((decimal)l2o - (decimal)ef, -0.1m, 0.1m));
+        }
+
+        [ConditionalFact]
+        public virtual void Sum_with_division_on_decimal_no_significant_digits()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Sum(od => od.Quantity / 2m),
+                asserter: (l2o, ef)
+                    => Assert.InRange((decimal)l2o - (decimal)ef, -0.1m, 0.1m));
+        }
+
+        [ConditionalFact]
         public virtual void Min_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Min());

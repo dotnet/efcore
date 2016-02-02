@@ -777,6 +777,22 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
+        public override void Sum_with_division_on_decimal()
+        {
+            base.Sum_with_division_on_decimal();
+
+            Assert.Equal(@"SELECT SUM([od].[Quantity] / 2.09)
+FROM [Order Details] AS [od]", Sql);
+        }
+
+        public override void Sum_with_division_on_decimal_no_significant_digits()
+        {
+            base.Sum_with_division_on_decimal_no_significant_digits();
+
+            Assert.Equal(@"SELECT SUM([od].[Quantity] / 2.0)
+FROM [Order Details] AS [od]", Sql);
+        }
+
         public override void Min_with_no_arg()
         {
             base.Min_with_no_arg();
@@ -3703,7 +3719,7 @@ WHERE ABS([od].[Quantity]) > 10",
             Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE ABS([od].[UnitPrice]) > 10",
+WHERE ABS([od].[UnitPrice]) > 10.0",
                 Sql);
         }
 
@@ -3736,7 +3752,7 @@ WHERE CEILING([od].[Discount]) > 0E0",
             Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE CEILING([od].[UnitPrice]) > 10",
+WHERE CEILING([od].[UnitPrice]) > 10.0",
                 Sql);
         }
 
@@ -3747,7 +3763,7 @@ WHERE CEILING([od].[UnitPrice]) > 10",
             Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE FLOOR([od].[UnitPrice]) > 10",
+WHERE FLOOR([od].[UnitPrice]) > 10.0",
                 Sql);
         }
 
@@ -3786,7 +3802,7 @@ WHERE POWER([od].[Discount], 2E0) > 0.0500000007450581E0",
             Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE ROUND([od].[UnitPrice], 0) > 10",
+WHERE ROUND([od].[UnitPrice], 0) > 10.0",
                 Sql);
         }
 
@@ -3797,7 +3813,7 @@ WHERE ROUND([od].[UnitPrice], 0) > 10",
             Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE ROUND([od].[UnitPrice], 0, 1) > 10",
+WHERE ROUND([od].[UnitPrice], 0, 1) > 10.0",
                 Sql);
         }
 
@@ -3891,35 +3907,35 @@ WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(tinyint, CONVERT(nvarchar, [o].[
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0)
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0.0)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(decimal, [o].[OrderID] % 1)) >= 0)
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(decimal, [o].[OrderID] % 1)) >= 0.0)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(float, [o].[OrderID] % 1)) >= 0)
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(float, [o].[OrderID] % 1)) >= 0.0)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(float, [o].[OrderID] % 1)) >= 0)
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(float, [o].[OrderID] % 1)) >= 0.0)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(smallint, [o].[OrderID] % 1)) >= 0)
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(smallint, [o].[OrderID] % 1)) >= 0.0)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(int, [o].[OrderID] % 1)) >= 0)
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(int, [o].[OrderID] % 1)) >= 0.0)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(bigint, [o].[OrderID] % 1)) >= 0)
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(bigint, [o].[OrderID] % 1)) >= 0.0)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0)",
+WHERE ([o].[CustomerID] = 'ALFKI') AND (CONVERT(decimal, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0.0)",
                 Sql);
         }
 
