@@ -6,6 +6,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
     public class NonEntityBase
     {
         public int Id { get; set; }
+        public string Name { get; set; }
+
         public ReferencedEntity Reference { get; set; }
     }
 }

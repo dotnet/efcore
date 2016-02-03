@@ -8,6 +8,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
     public class ReferencedEntity
     {
         public int Id { get; set; }
+        public string Name { get; set; }
 
         public ICollection<PrincipalEntity> Principals { get; set; }
     }

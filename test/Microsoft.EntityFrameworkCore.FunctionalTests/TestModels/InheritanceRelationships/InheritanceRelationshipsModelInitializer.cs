@@ -214,17 +214,19 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
             baseEntity2.DerivedSefReferenceOnBase = derivedEntity2;
             baseEntity3.DerivedSefReferenceOnBase = derivedEntity3;
 
-            var principalEntity1 = new PrincipalEntity();
-            var principalEntity2 = new PrincipalEntity();
+            var principalEntity1 = new PrincipalEntity { Name = "PE1"};
+            var principalEntity2 = new PrincipalEntity { Name = "PE2" };
 
             context.PrincipalEntities.AddRange(principalEntity1, principalEntity2);
 
             var referencedEntity1 = new ReferencedEntity
             {
+                Name = "RE1",
                 Principals = new List<PrincipalEntity> { principalEntity1 }
             };
             var referencedEntity2 = new ReferencedEntity
             {
+                Name = "RE2",
                 Principals = new List<PrincipalEntity> { principalEntity2 }
             };
 

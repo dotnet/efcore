@@ -961,11 +961,11 @@ WHERE [e].[Discriminator] IN ('NestedCollectionDerived', 'NestedCollectionBase')
             base.Nested_include_collection_reference_on_non_entity_base();
 
             Assert.Equal(
-                @"SELECT [e].[Id]
+                @"SELECT [e].[Id], [e].[Name]
 FROM [ReferencedEntity] AS [e]
 ORDER BY [e].[Id]
 
-SELECT [p].[Id], [p].[ReferenceId], [p].[ReferencedEntityId], [r].[Id]
+SELECT [p].[Id], [p].[Name], [p].[ReferenceId], [p].[ReferencedEntityId], [r].[Id], [r].[Name]
 FROM [PrincipalEntity] AS [p]
 INNER JOIN (
     SELECT DISTINCT [e].[Id]
