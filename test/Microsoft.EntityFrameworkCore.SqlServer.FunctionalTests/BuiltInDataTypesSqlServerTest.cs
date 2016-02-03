@@ -348,271 +348,281 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedDataTypes>().Add(
-                    new MappedDataTypes
-                        {
-                            Int = 77,
-                            Bigint = 78L,
-                            Smallint = 79,
-                            Tinyint = 80,
-                            Bit = true,
-                            Money = 81.1m,
-                            Smallmoney = 82.2m,
-                            Float = 83.3,
-                            Real = 84.4f,
-                            Double_precision = 85.5,
-                            Date = new DateTime(2015, 1, 2, 10, 11, 12),
-                            Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                            Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
-                            Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
-                            Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
-                            Time = new TimeSpan(11, 15, 12),
-                            Char = "A",
-                            Character = "B",
-                            Varchar = "I",
-                            Char_varying = "J",
-                            Character_varying = "K",
-                            VarcharMax = "C",
-                            Char_varyingMax = "Your",
-                            Character_varyingMax = "strong",
-                            Nchar = "D",
-                            National_character = "E",
-                            Nvarchar = "F",
-                            National_char_varying = "G",
-                            National_character_varying = "H",
-                            NvarcharMax = "don't",
-                            National_char_varyingMax = "help",
-                            National_character_varyingMax = "anyone!",
-                            Text = "Gumball Rules!",
-                            Ntext = "Gumball Rules OK!",
-                            Binary = new byte[] { 86 },
-                            Varbinary = new byte[] { 87 },
-                            Binary_varying = new byte[] { 88 },
-                            VarbinaryMax = new byte[] { 89, 90, 91, 92 },
-                            Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
-                            Image = new byte[] { 97, 98, 99, 100 },
-                            Decimal = 101.1m,
-                            Dec = 102.2m,
-                            Numeric = 103.3m
-                        });
+                context.Set<MappedDataTypes>().Add(CreateMappedDataTypes(77));
 
                 Assert.Equal(1, context.SaveChanges());
             }
 
             using (var context = CreateContext())
             {
-                var entity = context.Set<MappedDataTypes>().Single(e => e.Int == 77);
-
-                Assert.Equal(77, entity.Int);
-                Assert.Equal(78, entity.Bigint);
-                Assert.Equal(79, entity.Smallint);
-                Assert.Equal(80, entity.Tinyint);
-                Assert.Equal(true, entity.Bit);
-                Assert.Equal(81.1m, entity.Money);
-                Assert.Equal(82.2m, entity.Smallmoney);
-                Assert.Equal(83.3, entity.Float);
-                Assert.Equal(84.4f, entity.Real);
-                Assert.Equal(85.5, entity.Double_precision);
-                Assert.Equal(new DateTime(2015, 1, 2), entity.Date);
-                Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
-                Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
-                Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.Smalldatetime);
-                Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.Datetime);
-                Assert.Equal(new TimeSpan(11, 15, 12), entity.Time);
-                Assert.Equal("A", entity.Char);
-                Assert.Equal("B", entity.Character);
-                Assert.Equal("I", entity.Varchar);
-                Assert.Equal("J", entity.Char_varying);
-                Assert.Equal("K", entity.Character_varying);
-                Assert.Equal("C", entity.VarcharMax);
-                Assert.Equal("Your", entity.Char_varyingMax);
-                Assert.Equal("strong", entity.Character_varyingMax);
-                Assert.Equal("D", entity.Nchar);
-                Assert.Equal("E", entity.National_character);
-                Assert.Equal("F", entity.Nvarchar);
-                Assert.Equal("G", entity.National_char_varying);
-                Assert.Equal("H", entity.National_character_varying);
-                Assert.Equal("don't", entity.NvarcharMax);
-                Assert.Equal("help", entity.National_char_varyingMax);
-                Assert.Equal("anyone!", entity.National_character_varyingMax);
-                Assert.Equal("Gumball Rules!", entity.Text);
-                Assert.Equal("Gumball Rules OK!", entity.Ntext);
-                Assert.Equal(new byte[] { 86 }, entity.Binary);
-                Assert.Equal(new byte[] { 87 }, entity.Varbinary);
-                Assert.Equal(new byte[] { 88 }, entity.Binary_varying);
-                Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
-                Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
-                Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
-                Assert.Equal(101m, entity.Decimal);
-                Assert.Equal(102m, entity.Dec);
-                Assert.Equal(103m, entity.Numeric);
+                AssertMappedDataTypes(context.Set<MappedDataTypes>().Single(e => e.Int == 77), 77);
             }
         }
+
+        private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Equal(78, entity.Bigint);
+            Assert.Equal(79, entity.Smallint);
+            Assert.Equal(80, entity.Tinyint);
+            Assert.Equal(true, entity.Bit);
+            Assert.Equal(81.1m, entity.Money);
+            Assert.Equal(82.2m, entity.Smallmoney);
+            Assert.Equal(83.3, entity.Float);
+            Assert.Equal(84.4f, entity.Real);
+            Assert.Equal(85.5, entity.Double_precision);
+            Assert.Equal(new DateTime(2015, 1, 2), entity.Date);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
+            Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.Smalldatetime);
+            Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.Datetime);
+            Assert.Equal(new TimeSpan(11, 15, 12), entity.Time);
+            Assert.Equal("A", entity.Char);
+            Assert.Equal("B", entity.Character);
+            Assert.Equal("I", entity.Varchar);
+            Assert.Equal("J", entity.Char_varying);
+            Assert.Equal("K", entity.Character_varying);
+            Assert.Equal("C", entity.VarcharMax);
+            Assert.Equal("Your", entity.Char_varyingMax);
+            Assert.Equal("strong", entity.Character_varyingMax);
+            Assert.Equal("D", entity.Nchar);
+            Assert.Equal("E", entity.National_character);
+            Assert.Equal("F", entity.Nvarchar);
+            Assert.Equal("G", entity.National_char_varying);
+            Assert.Equal("H", entity.National_character_varying);
+            Assert.Equal("don't", entity.NvarcharMax);
+            Assert.Equal("help", entity.National_char_varyingMax);
+            Assert.Equal("anyone!", entity.National_character_varyingMax);
+            Assert.Equal("Gumball Rules!", entity.Text);
+            Assert.Equal("Gumball Rules OK!", entity.Ntext);
+            Assert.Equal(new byte[] { 86 }, entity.Binary);
+            Assert.Equal(new byte[] { 87 }, entity.Varbinary);
+            Assert.Equal(new byte[] { 88 }, entity.Binary_varying);
+            Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
+            Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
+            Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
+            Assert.Equal(101m, entity.Decimal);
+            Assert.Equal(102m, entity.Dec);
+            Assert.Equal(103m, entity.Numeric);
+        }
+
+        private static MappedDataTypes CreateMappedDataTypes(int id)
+            => new MappedDataTypes
+            {
+                Int = id,
+                Bigint = 78L,
+                Smallint = 79,
+                Tinyint = 80,
+                Bit = true,
+                Money = 81.1m,
+                Smallmoney = 82.2m,
+                Float = 83.3,
+                Real = 84.4f,
+                Double_precision = 85.5,
+                Date = new DateTime(2015, 1, 2, 10, 11, 12),
+                Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
+                Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
+                Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
+                Time = new TimeSpan(11, 15, 12),
+                Char = "A",
+                Character = "B",
+                Varchar = "I",
+                Char_varying = "J",
+                Character_varying = "K",
+                VarcharMax = "C",
+                Char_varyingMax = "Your",
+                Character_varyingMax = "strong",
+                Nchar = "D",
+                National_character = "E",
+                Nvarchar = "F",
+                National_char_varying = "G",
+                National_character_varying = "H",
+                NvarcharMax = "don't",
+                National_char_varyingMax = "help",
+                National_character_varyingMax = "anyone!",
+                Text = "Gumball Rules!",
+                Ntext = "Gumball Rules OK!",
+                Binary = new byte[] { 86 },
+                Varbinary = new byte[] { 87 },
+                Binary_varying = new byte[] { 88 },
+                VarbinaryMax = new byte[] { 89, 90, 91, 92 },
+                Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
+                Image = new byte[] { 97, 98, 99, 100 },
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
 
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types()
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                        {
-                            Int = 77,
-                            Bigint = 78L,
-                            Smallint = 79,
-                            Tinyint = 80,
-                            Bit = true,
-                            Money = 81.1m,
-                            Smallmoney = 82.2m,
-                            Float = 83.3,
-                            Real = 84.4f,
-                            Double_precision = 85.5,
-                            Date = new DateTime(2015, 1, 2, 10, 11, 12),
-                            Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                            Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
-                            Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
-                            Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
-                            Time = new TimeSpan(11, 15, 12),
-                            Char = "A",
-                            Character = "B",
-                            Varchar = "I",
-                            Char_varying = "J",
-                            Character_varying = "K",
-                            VarcharMax = "C",
-                            Char_varyingMax = "Your",
-                            Character_varyingMax = "strong",
-                            Nchar = "D",
-                            National_character = "E",
-                            Nvarchar = "F",
-                            National_char_varying = "G",
-                            National_character_varying = "H",
-                            NvarcharMax = "don't",
-                            National_char_varyingMax = "help",
-                            National_character_varyingMax = "anyone!",
-                            Text = "Gumball Rules!",
-                            Ntext = "Gumball Rules OK!",
-                            Binary = new byte[] { 86 },
-                            Varbinary = new byte[] { 87 },
-                            Binary_varying = new byte[] { 88 },
-                            VarbinaryMax = new byte[] { 89, 90, 91, 92 },
-                            Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
-                            Image = new byte[] { 97, 98, 99, 100 },
-                            Decimal = 101.1m,
-                            Dec = 102.2m,
-                            Numeric = 103.3m
-                        });
+                context.Set<MappedNullableDataTypes>().Add(CreateMappedNullableDataTypes(77));
 
                 Assert.Equal(1, context.SaveChanges());
             }
 
             using (var context = CreateContext())
             {
-                var entity = context.Set<MappedNullableDataTypes>().Single(e => e.Int == 77);
-
-                Assert.Equal(77, entity.Int);
-                Assert.Equal(78, entity.Bigint);
-                Assert.Equal(79, entity.Smallint.Value);
-                Assert.Equal(80, entity.Tinyint.Value);
-                Assert.Equal(true, entity.Bit);
-                Assert.Equal(81.1m, entity.Money);
-                Assert.Equal(82.2m, entity.Smallmoney);
-                Assert.Equal(83.3, entity.Float);
-                Assert.Equal(84.4f, entity.Real);
-                Assert.Equal(85.5, entity.Double_precision);
-                Assert.Equal(new DateTime(2015, 1, 2), entity.Date);
-                Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
-                Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
-                Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.Smalldatetime);
-                Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.Datetime);
-                Assert.Equal(new TimeSpan(11, 15, 12), entity.Time);
-                Assert.Equal("A", entity.Char);
-                Assert.Equal("B", entity.Character);
-                Assert.Equal("I", entity.Varchar);
-                Assert.Equal("J", entity.Char_varying);
-                Assert.Equal("K", entity.Character_varying);
-                Assert.Equal("C", entity.VarcharMax);
-                Assert.Equal("Your", entity.Char_varyingMax);
-                Assert.Equal("strong", entity.Character_varyingMax);
-                Assert.Equal("D", entity.Nchar);
-                Assert.Equal("E", entity.National_character);
-                Assert.Equal("F", entity.Nvarchar);
-                Assert.Equal("G", entity.National_char_varying);
-                Assert.Equal("H", entity.National_character_varying);
-                Assert.Equal("don't", entity.NvarcharMax);
-                Assert.Equal("help", entity.National_char_varyingMax);
-                Assert.Equal("anyone!", entity.National_character_varyingMax);
-                Assert.Equal("Gumball Rules!", entity.Text);
-                Assert.Equal("Gumball Rules OK!", entity.Ntext);
-                Assert.Equal(new byte[] { 86 }, entity.Binary);
-                Assert.Equal(new byte[] { 87 }, entity.Varbinary);
-                Assert.Equal(new byte[] { 88 }, entity.Binary_varying);
-                Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
-                Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
-                Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
-                Assert.Equal(101m, entity.Decimal);
-                Assert.Equal(102m, entity.Dec);
-                Assert.Equal(103m, entity.Numeric);
+                AssertMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 77), 77);
             }
         }
+
+        private static void AssertMappedNullableDataTypes(MappedNullableDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Equal(78, entity.Bigint);
+            Assert.Equal(79, entity.Smallint.Value);
+            Assert.Equal(80, entity.Tinyint.Value);
+            Assert.Equal(true, entity.Bit);
+            Assert.Equal(81.1m, entity.Money);
+            Assert.Equal(82.2m, entity.Smallmoney);
+            Assert.Equal(83.3, entity.Float);
+            Assert.Equal(84.4f, entity.Real);
+            Assert.Equal(85.5, entity.Double_precision);
+            Assert.Equal(new DateTime(2015, 1, 2), entity.Date);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
+            Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.Smalldatetime);
+            Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.Datetime);
+            Assert.Equal(new TimeSpan(11, 15, 12), entity.Time);
+            Assert.Equal("A", entity.Char);
+            Assert.Equal("B", entity.Character);
+            Assert.Equal("I", entity.Varchar);
+            Assert.Equal("J", entity.Char_varying);
+            Assert.Equal("K", entity.Character_varying);
+            Assert.Equal("C", entity.VarcharMax);
+            Assert.Equal("Your", entity.Char_varyingMax);
+            Assert.Equal("strong", entity.Character_varyingMax);
+            Assert.Equal("D", entity.Nchar);
+            Assert.Equal("E", entity.National_character);
+            Assert.Equal("F", entity.Nvarchar);
+            Assert.Equal("G", entity.National_char_varying);
+            Assert.Equal("H", entity.National_character_varying);
+            Assert.Equal("don't", entity.NvarcharMax);
+            Assert.Equal("help", entity.National_char_varyingMax);
+            Assert.Equal("anyone!", entity.National_character_varyingMax);
+            Assert.Equal("Gumball Rules!", entity.Text);
+            Assert.Equal("Gumball Rules OK!", entity.Ntext);
+            Assert.Equal(new byte[] { 86 }, entity.Binary);
+            Assert.Equal(new byte[] { 87 }, entity.Varbinary);
+            Assert.Equal(new byte[] { 88 }, entity.Binary_varying);
+            Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
+            Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
+            Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
+            Assert.Equal(101m, entity.Decimal);
+            Assert.Equal(102m, entity.Dec);
+            Assert.Equal(103m, entity.Numeric);
+        }
+
+        private static MappedNullableDataTypes CreateMappedNullableDataTypes(int id)
+            => new MappedNullableDataTypes
+            {
+                Int = id,
+                Bigint = 78L,
+                Smallint = 79,
+                Tinyint = 80,
+                Bit = true,
+                Money = 81.1m,
+                Smallmoney = 82.2m,
+                Float = 83.3,
+                Real = 84.4f,
+                Double_precision = 85.5,
+                Date = new DateTime(2015, 1, 2, 10, 11, 12),
+                Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
+                Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
+                Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
+                Time = new TimeSpan(11, 15, 12),
+                Char = "A",
+                Character = "B",
+                Varchar = "I",
+                Char_varying = "J",
+                Character_varying = "K",
+                VarcharMax = "C",
+                Char_varyingMax = "Your",
+                Character_varyingMax = "strong",
+                Nchar = "D",
+                National_character = "E",
+                Nvarchar = "F",
+                National_char_varying = "G",
+                National_character_varying = "H",
+                NvarcharMax = "don't",
+                National_char_varyingMax = "help",
+                National_character_varyingMax = "anyone!",
+                Text = "Gumball Rules!",
+                Ntext = "Gumball Rules OK!",
+                Binary = new byte[] { 86 },
+                Varbinary = new byte[] { 87 },
+                Binary_varying = new byte[] { 88 },
+                VarbinaryMax = new byte[] { 89, 90, 91, 92 },
+                Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
+                Image = new byte[] { 97, 98, 99, 100 },
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
 
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null()
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                        {
-                            Int = 78
-                        });
+                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Int = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
 
             using (var context = CreateContext())
             {
-                var entity = context.Set<MappedNullableDataTypes>().Single(e => e.Int == 78);
-
-                Assert.Null(entity.Bigint);
-                Assert.Null(entity.Smallint);
-                Assert.Null(entity.Tinyint);
-                Assert.Null(entity.Bit);
-                Assert.Null(entity.Money);
-                Assert.Null(entity.Smallmoney);
-                Assert.Null(entity.Float);
-                Assert.Null(entity.Real);
-                Assert.Null(entity.Double_precision);
-                Assert.Null(entity.Date);
-                Assert.Null(entity.Datetimeoffset);
-                Assert.Null(entity.Datetime2);
-                Assert.Null(entity.Smalldatetime);
-                Assert.Null(entity.Datetime);
-                Assert.Null(entity.Time);
-                Assert.Null(entity.Char);
-                Assert.Null(entity.Character);
-                Assert.Null(entity.VarcharMax);
-                Assert.Null(entity.Char_varyingMax);
-                Assert.Null(entity.Character_varyingMax);
-                Assert.Null(entity.Nchar);
-                Assert.Null(entity.National_character);
-                Assert.Null(entity.Nvarchar);
-                Assert.Null(entity.National_char_varying);
-                Assert.Null(entity.National_character_varying);
-                Assert.Null(entity.NvarcharMax);
-                Assert.Null(entity.National_char_varyingMax);
-                Assert.Null(entity.National_character_varyingMax);
-                Assert.Null(entity.Text);
-                Assert.Null(entity.Ntext);
-                Assert.Null(entity.Binary);
-                Assert.Null(entity.Varbinary);
-                Assert.Null(entity.Binary_varying);
-                Assert.Null(entity.VarbinaryMax);
-                Assert.Null(entity.Binary_varyingMax);
-                Assert.Null(entity.Image);
-                Assert.Null(entity.Decimal);
-                Assert.Null(entity.Dec);
-                Assert.Null(entity.Numeric);
+                AssertNullMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 78), 78);
             }
+        }
+
+        private static void AssertNullMappedNullableDataTypes(MappedNullableDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Null(entity.Bigint);
+            Assert.Null(entity.Smallint);
+            Assert.Null(entity.Tinyint);
+            Assert.Null(entity.Bit);
+            Assert.Null(entity.Money);
+            Assert.Null(entity.Smallmoney);
+            Assert.Null(entity.Float);
+            Assert.Null(entity.Real);
+            Assert.Null(entity.Double_precision);
+            Assert.Null(entity.Date);
+            Assert.Null(entity.Datetimeoffset);
+            Assert.Null(entity.Datetime2);
+            Assert.Null(entity.Smalldatetime);
+            Assert.Null(entity.Datetime);
+            Assert.Null(entity.Time);
+            Assert.Null(entity.Char);
+            Assert.Null(entity.Character);
+            Assert.Null(entity.VarcharMax);
+            Assert.Null(entity.Char_varyingMax);
+            Assert.Null(entity.Character_varyingMax);
+            Assert.Null(entity.Nchar);
+            Assert.Null(entity.National_character);
+            Assert.Null(entity.Nvarchar);
+            Assert.Null(entity.National_char_varying);
+            Assert.Null(entity.National_character_varying);
+            Assert.Null(entity.NvarcharMax);
+            Assert.Null(entity.National_char_varyingMax);
+            Assert.Null(entity.National_character_varyingMax);
+            Assert.Null(entity.Text);
+            Assert.Null(entity.Ntext);
+            Assert.Null(entity.Binary);
+            Assert.Null(entity.Varbinary);
+            Assert.Null(entity.Binary_varying);
+            Assert.Null(entity.VarbinaryMax);
+            Assert.Null(entity.Binary_varyingMax);
+            Assert.Null(entity.Image);
+            Assert.Null(entity.Decimal);
+            Assert.Null(entity.Dec);
+            Assert.Null(entity.Numeric);
         }
 
         [Fact]
@@ -620,80 +630,86 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                        {
-                            Id = 77,
-                            Char = "Wor",
-                            Character = "Lon",
-                            Varchar = "Tha",
-                            Char_varying = "Thr",
-                            Character_varying = "Let",
-                            Nchar = "Won",
-                            National_character = "Squ",
-                            Nvarchar = "Int",
-                            National_char_varying = "The",
-                            National_character_varying = "Col",
-                            Binary = new byte[] { 10, 11, 12 },
-                            Varbinary = new byte[] { 11, 12, 13 },
-                            Binary_varying = new byte[] { 12, 13, 14 }
-                        });
+                context.Set<MappedSizedDataTypes>().Add(CreateMappedSizedDataTypes(77));
 
                 Assert.Equal(1, context.SaveChanges());
             }
 
             using (var context = CreateContext())
             {
-                var entity = context.Set<MappedSizedDataTypes>().Single(e => e.Id == 77);
-
-                Assert.Equal("Wor", entity.Char);
-                Assert.Equal("Lon", entity.Character);
-                Assert.Equal("Tha", entity.Varchar);
-                Assert.Equal("Thr", entity.Char_varying);
-                Assert.Equal("Let", entity.Character_varying);
-                Assert.Equal("Won", entity.Nchar);
-                Assert.Equal("Squ", entity.National_character);
-                Assert.Equal("Int", entity.Nvarchar);
-                Assert.Equal("The", entity.National_char_varying);
-                Assert.Equal("Col", entity.National_character_varying);
-                Assert.Equal(new byte[] { 10, 11, 12 }, entity.Binary);
-                Assert.Equal(new byte[] { 11, 12, 13 }, entity.Varbinary);
-                Assert.Equal(new byte[] { 12, 13, 14 }, entity.Binary_varying);
+                AssertMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 77), 77);
             }
         }
+
+        private static void AssertMappedSizedDataTypes(MappedSizedDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Equal("Wor", entity.Char);
+            Assert.Equal("Lon", entity.Character);
+            Assert.Equal("Tha", entity.Varchar);
+            Assert.Equal("Thr", entity.Char_varying);
+            Assert.Equal("Let", entity.Character_varying);
+            Assert.Equal("Won", entity.Nchar);
+            Assert.Equal("Squ", entity.National_character);
+            Assert.Equal("Int", entity.Nvarchar);
+            Assert.Equal("The", entity.National_char_varying);
+            Assert.Equal("Col", entity.National_character_varying);
+            Assert.Equal(new byte[] { 10, 11, 12 }, entity.Binary);
+            Assert.Equal(new byte[] { 11, 12, 13 }, entity.Varbinary);
+            Assert.Equal(new byte[] { 12, 13, 14 }, entity.Binary_varying);
+        }
+
+        private static MappedSizedDataTypes CreateMappedSizedDataTypes(int id)
+            => new MappedSizedDataTypes
+            {
+                Id = id,
+                Char = "Wor",
+                Character = "Lon",
+                Varchar = "Tha",
+                Char_varying = "Thr",
+                Character_varying = "Let",
+                Nchar = "Won",
+                National_character = "Squ",
+                Nvarchar = "Int",
+                National_char_varying = "The",
+                National_character_varying = "Col",
+                Binary = new byte[] { 10, 11, 12 },
+                Varbinary = new byte[] { 11, 12, 13 },
+                Binary_varying = new byte[] { 12, 13, 14 }
+            };
 
         [Fact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types()
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                        {
-                            Id = 78
-                        });
+                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
 
             using (var context = CreateContext())
             {
-                var entity = context.Set<MappedSizedDataTypes>().Single(e => e.Id == 78);
-
-                Assert.Null(entity.Char);
-                Assert.Null(entity.Character);
-                Assert.Null(entity.Varchar);
-                Assert.Null(entity.Char_varying);
-                Assert.Null(entity.Character_varying);
-                Assert.Null(entity.Nchar);
-                Assert.Null(entity.National_character);
-                Assert.Null(entity.Nvarchar);
-                Assert.Null(entity.National_char_varying);
-                Assert.Null(entity.National_character_varying);
-                Assert.Null(entity.Binary);
-                Assert.Null(entity.Varbinary);
-                Assert.Null(entity.Binary_varying);
+                AssertNullMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 78), 78);
             }
+        }
+
+        private static void AssertNullMappedSizedDataTypes(MappedSizedDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Null(entity.Char);
+            Assert.Null(entity.Character);
+            Assert.Null(entity.Varchar);
+            Assert.Null(entity.Char_varying);
+            Assert.Null(entity.Character_varying);
+            Assert.Null(entity.Nchar);
+            Assert.Null(entity.National_character);
+            Assert.Null(entity.Nvarchar);
+            Assert.Null(entity.National_char_varying);
+            Assert.Null(entity.National_character_varying);
+            Assert.Null(entity.Binary);
+            Assert.Null(entity.Varbinary);
+            Assert.Null(entity.Binary_varying);
         }
 
         [Fact]
@@ -701,60 +717,812 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedScaledDataTypes>().Add(
-                    new MappedScaledDataTypes
-                        {
-                            Id = 77,
-                            Float = 83.3f,
-                            Double_precision = 85.5f,
-                            Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                            Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
-                            Decimal = 101.1m,
-                            Dec = 102.2m,
-                            Numeric = 103.3m
-                        });
+                context.Set<MappedScaledDataTypes>().Add(CreateMappedScaledDataTypes(77));
 
                 Assert.Equal(1, context.SaveChanges());
             }
 
             using (var context = CreateContext())
             {
-                var entity = context.Set<MappedScaledDataTypes>().Single(e => e.Id == 77);
-
-                Assert.Equal(83.3f, entity.Float);
-                Assert.Equal(85.5f, entity.Double_precision);
-                Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
-                Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
-                Assert.Equal(101m, entity.Decimal);
-                Assert.Equal(102m, entity.Dec);
-                Assert.Equal(103m, entity.Numeric);
+                AssertMappedScaledDataTypes(context.Set<MappedScaledDataTypes>().Single(e => e.Id == 77), 77);
             }
         }
+
+        private static void AssertMappedScaledDataTypes(MappedScaledDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Equal(83.3f, entity.Float);
+            Assert.Equal(85.5f, entity.Double_precision);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
+            Assert.Equal(101m, entity.Decimal);
+            Assert.Equal(102m, entity.Dec);
+            Assert.Equal(103m, entity.Numeric);
+        }
+
+        private static MappedScaledDataTypes CreateMappedScaledDataTypes(int id)
+            => new MappedScaledDataTypes
+            {
+                Id = id,
+                Float = 83.3f,
+                Double_precision = 85.5f,
+                Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
+                Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
 
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale()
         {
             using (var context = CreateContext())
             {
-                context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                        {
-                            Id = 77,
-                            Decimal = 101.1m,
-                            Dec = 102.2m,
-                            Numeric = 103.3m
-                        });
+                context.Set<MappedPrecisionAndScaledDataTypes>().Add(CreateMappedPrecisionAndScaledDataTypes(77));
 
                 Assert.Equal(1, context.SaveChanges());
             }
 
             using (var context = CreateContext())
             {
-                var entity = context.Set<MappedPrecisionAndScaledDataTypes>().Single(e => e.Id == 77);
+                AssertMappedPrecisionAndScaledDataTypes(context.Set<MappedPrecisionAndScaledDataTypes>().Single(e => e.Id == 77), 77);
+            }
+        }
 
-                Assert.Equal(101.1m, entity.Decimal);
-                Assert.Equal(102.2m, entity.Dec);
-                Assert.Equal(103.3m, entity.Numeric);
+        private static void AssertMappedPrecisionAndScaledDataTypes(MappedPrecisionAndScaledDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Equal(101.1m, entity.Decimal);
+            Assert.Equal(102.2m, entity.Dec);
+            Assert.Equal(103.3m, entity.Numeric);
+        }
+
+        private static MappedPrecisionAndScaledDataTypes CreateMappedPrecisionAndScaledDataTypes(int id)
+            => new MappedPrecisionAndScaledDataTypes
+            {
+                Id = id,
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedDataTypesWithIdentity>().Add(CreateMappedDataTypesWithIdentity(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedDataTypesWithIdentity(context.Set<MappedDataTypesWithIdentity>().Single(e => e.Int == 77), 77);
+            }
+        }
+
+        private static void AssertMappedDataTypesWithIdentity(MappedDataTypesWithIdentity entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Equal(78, entity.Bigint);
+            Assert.Equal(79, entity.Smallint);
+            Assert.Equal(80, entity.Tinyint);
+            Assert.Equal(true, entity.Bit);
+            Assert.Equal(81.1m, entity.Money);
+            Assert.Equal(82.2m, entity.Smallmoney);
+            Assert.Equal(83.3, entity.Float);
+            Assert.Equal(84.4f, entity.Real);
+            Assert.Equal(85.5, entity.Double_precision);
+            Assert.Equal(new DateTime(2015, 1, 2), entity.Date);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
+            Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.Smalldatetime);
+            Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.Datetime);
+            Assert.Equal(new TimeSpan(11, 15, 12), entity.Time);
+            Assert.Equal("A", entity.Char);
+            Assert.Equal("B", entity.Character);
+            Assert.Equal("I", entity.Varchar);
+            Assert.Equal("J", entity.Char_varying);
+            Assert.Equal("K", entity.Character_varying);
+            Assert.Equal("C", entity.VarcharMax);
+            Assert.Equal("Your", entity.Char_varyingMax);
+            Assert.Equal("strong", entity.Character_varyingMax);
+            Assert.Equal("D", entity.Nchar);
+            Assert.Equal("E", entity.National_character);
+            Assert.Equal("F", entity.Nvarchar);
+            Assert.Equal("G", entity.National_char_varying);
+            Assert.Equal("H", entity.National_character_varying);
+            Assert.Equal("don't", entity.NvarcharMax);
+            Assert.Equal("help", entity.National_char_varyingMax);
+            Assert.Equal("anyone!", entity.National_character_varyingMax);
+            // See Issue #4478
+            //Assert.Equal("Gumball Rules!", entity.Text);
+            //Assert.Equal("Gumball Rules OK!", entity.Ntext);
+            Assert.Equal(new byte[] { 86 }, entity.Binary);
+            Assert.Equal(new byte[] { 87 }, entity.Varbinary);
+            Assert.Equal(new byte[] { 88 }, entity.Binary_varying);
+            Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
+            Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
+            // See Issue #4478
+            //Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
+            Assert.Equal(101m, entity.Decimal);
+            Assert.Equal(102m, entity.Dec);
+            Assert.Equal(103m, entity.Numeric);
+        }
+
+        private static MappedDataTypesWithIdentity CreateMappedDataTypesWithIdentity(int id)
+            => new MappedDataTypesWithIdentity
+            {
+                Int = id,
+                Bigint = 78L,
+                Smallint = 79,
+                Tinyint = 80,
+                Bit = true,
+                Money = 81.1m,
+                Smallmoney = 82.2m,
+                Float = 83.3,
+                Real = 84.4f,
+                Double_precision = 85.5,
+                Date = new DateTime(2015, 1, 2, 10, 11, 12),
+                Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
+                Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
+                Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
+                Time = new TimeSpan(11, 15, 12),
+                Char = "A",
+                Character = "B",
+                Varchar = "I",
+                Char_varying = "J",
+                Character_varying = "K",
+                VarcharMax = "C",
+                Char_varyingMax = "Your",
+                Character_varyingMax = "strong",
+                Nchar = "D",
+                National_character = "E",
+                Nvarchar = "F",
+                National_char_varying = "G",
+                National_character_varying = "H",
+                NvarcharMax = "don't",
+                National_char_varyingMax = "help",
+                National_character_varyingMax = "anyone!",
+                // See Issue #4478
+                //Text = "Gumball Rules!",
+                //Ntext = "Gumball Rules OK!",
+                Binary = new byte[] { 86 },
+                Varbinary = new byte[] { 87 },
+                Binary_varying = new byte[] { 88 },
+                VarbinaryMax = new byte[] { 89, 90, 91, 92 },
+                Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
+                // See Issue #4478
+                //Image = new byte[] { 97, 98, 99, 100 },
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_identity()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(CreateMappedNullableDataTypesWithIdentity(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 77), 77);
+            }
+        }
+
+        private static void AssertMappedNullableDataTypesWithIdentity(MappedNullableDataTypesWithIdentity entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Equal(78, entity.Bigint);
+            Assert.Equal(79, entity.Smallint.Value);
+            Assert.Equal(80, entity.Tinyint.Value);
+            Assert.Equal(true, entity.Bit);
+            Assert.Equal(81.1m, entity.Money);
+            Assert.Equal(82.2m, entity.Smallmoney);
+            Assert.Equal(83.3, entity.Float);
+            Assert.Equal(84.4f, entity.Real);
+            Assert.Equal(85.5, entity.Double_precision);
+            Assert.Equal(new DateTime(2015, 1, 2), entity.Date);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
+            Assert.Equal(new DateTime(2018, 1, 2, 13, 11, 00), entity.Smalldatetime);
+            Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.Datetime);
+            Assert.Equal(new TimeSpan(11, 15, 12), entity.Time);
+            Assert.Equal("A", entity.Char);
+            Assert.Equal("B", entity.Character);
+            Assert.Equal("I", entity.Varchar);
+            Assert.Equal("J", entity.Char_varying);
+            Assert.Equal("K", entity.Character_varying);
+            Assert.Equal("C", entity.VarcharMax);
+            Assert.Equal("Your", entity.Char_varyingMax);
+            Assert.Equal("strong", entity.Character_varyingMax);
+            Assert.Equal("D", entity.Nchar);
+            Assert.Equal("E", entity.National_character);
+            Assert.Equal("F", entity.Nvarchar);
+            Assert.Equal("G", entity.National_char_varying);
+            Assert.Equal("H", entity.National_character_varying);
+            Assert.Equal("don't", entity.NvarcharMax);
+            Assert.Equal("help", entity.National_char_varyingMax);
+            Assert.Equal("anyone!", entity.National_character_varyingMax);
+            // See Issue #4478
+            //Assert.Equal("Gumball Rules!", entity.Text);
+            //Assert.Equal("Gumball Rules OK!", entity.Ntext);
+            Assert.Equal(new byte[] { 86 }, entity.Binary);
+            Assert.Equal(new byte[] { 87 }, entity.Varbinary);
+            Assert.Equal(new byte[] { 88 }, entity.Binary_varying);
+            Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
+            Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
+            // See Issue #4478
+            //Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
+            Assert.Equal(101m, entity.Decimal);
+            Assert.Equal(102m, entity.Dec);
+            Assert.Equal(103m, entity.Numeric);
+        }
+
+        private static MappedNullableDataTypesWithIdentity CreateMappedNullableDataTypesWithIdentity(int id)
+            => new MappedNullableDataTypesWithIdentity
+            {
+                Int = id,
+                Bigint = 78L,
+                Smallint = 79,
+                Tinyint = 80,
+                Bit = true,
+                Money = 81.1m,
+                Smallmoney = 82.2m,
+                Float = 83.3,
+                Real = 84.4f,
+                Double_precision = 85.5,
+                Date = new DateTime(2015, 1, 2, 10, 11, 12),
+                Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
+                Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                Smalldatetime = new DateTime(2018, 1, 2, 13, 11, 12),
+                Datetime = new DateTime(2019, 1, 2, 14, 11, 12),
+                Time = new TimeSpan(11, 15, 12),
+                Char = "A",
+                Character = "B",
+                Varchar = "I",
+                Char_varying = "J",
+                Character_varying = "K",
+                VarcharMax = "C",
+                Char_varyingMax = "Your",
+                Character_varyingMax = "strong",
+                Nchar = "D",
+                National_character = "E",
+                Nvarchar = "F",
+                National_char_varying = "G",
+                National_character_varying = "H",
+                NvarcharMax = "don't",
+                National_char_varyingMax = "help",
+                National_character_varyingMax = "anyone!",
+                // See Issue #4478
+                //Text = "Gumball Rules!",
+                //Ntext = "Gumball Rules OK!",
+                Binary = new byte[] { 86 },
+                Varbinary = new byte[] { 87 },
+                Binary_varying = new byte[] { 88 },
+                VarbinaryMax = new byte[] { 89, 90, 91, 92 },
+                Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
+                // See Issue #4478
+                //Image = new byte[] { 97, 98, 99, 100 },
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_identity()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { Int = 78 });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 78), 78);
+            }
+        }
+
+        private static void AssertNullMappedNullableDataTypesWithIdentity(MappedNullableDataTypesWithIdentity entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Null(entity.Bigint);
+            Assert.Null(entity.Smallint);
+            Assert.Null(entity.Tinyint);
+            Assert.Null(entity.Bit);
+            Assert.Null(entity.Money);
+            Assert.Null(entity.Smallmoney);
+            Assert.Null(entity.Float);
+            Assert.Null(entity.Real);
+            Assert.Null(entity.Double_precision);
+            Assert.Null(entity.Date);
+            Assert.Null(entity.Datetimeoffset);
+            Assert.Null(entity.Datetime2);
+            Assert.Null(entity.Smalldatetime);
+            Assert.Null(entity.Datetime);
+            Assert.Null(entity.Time);
+            Assert.Null(entity.Char);
+            Assert.Null(entity.Character);
+            Assert.Null(entity.VarcharMax);
+            Assert.Null(entity.Char_varyingMax);
+            Assert.Null(entity.Character_varyingMax);
+            Assert.Null(entity.Nchar);
+            Assert.Null(entity.National_character);
+            Assert.Null(entity.Nvarchar);
+            Assert.Null(entity.National_char_varying);
+            Assert.Null(entity.National_character_varying);
+            Assert.Null(entity.NvarcharMax);
+            Assert.Null(entity.National_char_varyingMax);
+            Assert.Null(entity.National_character_varyingMax);
+            // See Issue #4478
+            //Assert.Null(entity.Text);
+            //Assert.Null(entity.Ntext);
+            Assert.Null(entity.Binary);
+            Assert.Null(entity.Varbinary);
+            Assert.Null(entity.Binary_varying);
+            Assert.Null(entity.VarbinaryMax);
+            Assert.Null(entity.Binary_varyingMax);
+            // See Issue #4478
+            //Assert.Null(entity.Image);
+            Assert.Null(entity.Decimal);
+            Assert.Null(entity.Dec);
+            Assert.Null(entity.Numeric);
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_identity()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(CreateMappedSizedDataTypesWithIdentity(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 77), 77);
+            }
+        }
+
+        private static void AssertMappedSizedDataTypesWithIdentity(MappedSizedDataTypesWithIdentity entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Equal("Wor", entity.Char);
+            Assert.Equal("Lon", entity.Character);
+            Assert.Equal("Tha", entity.Varchar);
+            Assert.Equal("Thr", entity.Char_varying);
+            Assert.Equal("Let", entity.Character_varying);
+            Assert.Equal("Won", entity.Nchar);
+            Assert.Equal("Squ", entity.National_character);
+            Assert.Equal("Int", entity.Nvarchar);
+            Assert.Equal("The", entity.National_char_varying);
+            Assert.Equal("Col", entity.National_character_varying);
+            Assert.Equal(new byte[] { 10, 11, 12 }, entity.Binary);
+            Assert.Equal(new byte[] { 11, 12, 13 }, entity.Varbinary);
+            Assert.Equal(new byte[] { 12, 13, 14 }, entity.Binary_varying);
+        }
+
+        private static MappedSizedDataTypesWithIdentity CreateMappedSizedDataTypesWithIdentity(int id)
+            => new MappedSizedDataTypesWithIdentity
+            {
+                Int = id,
+                Char = "Wor",
+                Character = "Lon",
+                Varchar = "Tha",
+                Char_varying = "Thr",
+                Character_varying = "Let",
+                Nchar = "Won",
+                National_character = "Squ",
+                Nvarchar = "Int",
+                National_char_varying = "The",
+                National_character_varying = "Col",
+                Binary = new byte[] { 10, 11, 12 },
+                Varbinary = new byte[] { 11, 12, 13 },
+                Binary_varying = new byte[] { 12, 13, 14 }
+            };
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_identity()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { Int = 78 });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertNullMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 78), 78);
+            }
+        }
+
+        private static void AssertNullMappedSizedDataTypesWithIdentity(MappedSizedDataTypesWithIdentity entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Null(entity.Char);
+            Assert.Null(entity.Character);
+            Assert.Null(entity.Varchar);
+            Assert.Null(entity.Char_varying);
+            Assert.Null(entity.Character_varying);
+            Assert.Null(entity.Nchar);
+            Assert.Null(entity.National_character);
+            Assert.Null(entity.Nvarchar);
+            Assert.Null(entity.National_char_varying);
+            Assert.Null(entity.National_character_varying);
+            Assert.Null(entity.Binary);
+            Assert.Null(entity.Varbinary);
+            Assert.Null(entity.Binary_varying);
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_identity()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedScaledDataTypesWithIdentity>().Add(CreateMappedScaledDataTypesWithIdentity(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedScaledDataTypesWithIdentity(context.Set<MappedScaledDataTypesWithIdentity>().Single(e => e.Int == 77), 77);
+            }
+        }
+
+        private static void AssertMappedScaledDataTypesWithIdentity(MappedScaledDataTypesWithIdentity entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Equal(83.3f, entity.Float);
+            Assert.Equal(85.5f, entity.Double_precision);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.Datetimeoffset);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.Datetime2);
+            Assert.Equal(101m, entity.Decimal);
+            Assert.Equal(102m, entity.Dec);
+            Assert.Equal(103m, entity.Numeric);
+        }
+
+        private static MappedScaledDataTypesWithIdentity CreateMappedScaledDataTypesWithIdentity(int id)
+            => new MappedScaledDataTypesWithIdentity
+            {
+                Int = id,
+                Float = 83.3f,
+                Double_precision = 85.5f,
+                Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
+                Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_identity()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
+                    CreateMappedPrecisionAndScaledDataTypesWithIdentity(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedPrecisionAndScaledDataTypesWithIdentity(
+                    context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Single(e => e.Int == 77), 77);
+            }
+        }
+
+        private static void AssertMappedPrecisionAndScaledDataTypesWithIdentity(MappedPrecisionAndScaledDataTypesWithIdentity entity, int id)
+        {
+            Assert.Equal(id, entity.Int);
+            Assert.Equal(101.1m, entity.Decimal);
+            Assert.Equal(102.2m, entity.Dec);
+            Assert.Equal(103.3m, entity.Numeric);
+        }
+
+        private static MappedPrecisionAndScaledDataTypesWithIdentity CreateMappedPrecisionAndScaledDataTypesWithIdentity(int id)
+            => new MappedPrecisionAndScaledDataTypesWithIdentity
+            {
+                Int = id,
+                Decimal = 101.1m,
+                Dec = 102.2m,
+                Numeric = 103.3m
+            };
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedDataTypes>().Add(CreateMappedDataTypes(177));
+                context.Set<MappedDataTypes>().Add(CreateMappedDataTypes(178));
+                context.Set<MappedDataTypes>().Add(CreateMappedDataTypes(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedDataTypes(context.Set<MappedDataTypes>().Single(e => e.Int == 177), 177);
+                AssertMappedDataTypes(context.Set<MappedDataTypes>().Single(e => e.Int == 178), 178);
+                AssertMappedDataTypes(context.Set<MappedDataTypes>().Single(e => e.Int == 179), 179);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypes>().Add(CreateMappedNullableDataTypes(177));
+                context.Set<MappedNullableDataTypes>().Add(CreateMappedNullableDataTypes(178));
+                context.Set<MappedNullableDataTypes>().Add(CreateMappedNullableDataTypes(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 177), 177);
+                AssertMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 178), 178);
+                AssertMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 179), 179);
+            }
+        }
+
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Int = 278 });
+                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Int = 279 });
+                context.Set<MappedNullableDataTypes>().Add(new MappedNullableDataTypes { Int = 280 });
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertNullMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 278), 278);
+                AssertNullMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 279), 279);
+                AssertNullMappedNullableDataTypes(context.Set<MappedNullableDataTypes>().Single(e => e.Int == 280), 280);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedSizedDataTypes>().Add(CreateMappedSizedDataTypes(177));
+                context.Set<MappedSizedDataTypes>().Add(CreateMappedSizedDataTypes(178));
+                context.Set<MappedSizedDataTypes>().Add(CreateMappedSizedDataTypes(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 177), 177);
+                AssertMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 178), 178);
+                AssertMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 179), 179);
+            }
+        }
+
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 278 });
+                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 279 });
+                context.Set<MappedSizedDataTypes>().Add(new MappedSizedDataTypes { Id = 280 });
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertNullMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 278), 278);
+                AssertNullMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 279), 279);
+                AssertNullMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 280), 280);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedScaledDataTypes>().Add(CreateMappedScaledDataTypes(177));
+                context.Set<MappedScaledDataTypes>().Add(CreateMappedScaledDataTypes(178));
+                context.Set<MappedScaledDataTypes>().Add(CreateMappedScaledDataTypes(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedScaledDataTypes(context.Set<MappedScaledDataTypes>().Single(e => e.Id == 177), 177);
+                AssertMappedScaledDataTypes(context.Set<MappedScaledDataTypes>().Single(e => e.Id == 178), 178);
+                AssertMappedScaledDataTypes(context.Set<MappedScaledDataTypes>().Single(e => e.Id == 179), 179);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedPrecisionAndScaledDataTypes>().Add(CreateMappedPrecisionAndScaledDataTypes(177));
+                context.Set<MappedPrecisionAndScaledDataTypes>().Add(CreateMappedPrecisionAndScaledDataTypes(178));
+                context.Set<MappedPrecisionAndScaledDataTypes>().Add(CreateMappedPrecisionAndScaledDataTypes(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedPrecisionAndScaledDataTypes(context.Set<MappedPrecisionAndScaledDataTypes>().Single(e => e.Id == 177), 177);
+                AssertMappedPrecisionAndScaledDataTypes(context.Set<MappedPrecisionAndScaledDataTypes>().Single(e => e.Id == 178), 178);
+                AssertMappedPrecisionAndScaledDataTypes(context.Set<MappedPrecisionAndScaledDataTypes>().Single(e => e.Id == 179), 179);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedDataTypesWithIdentity>().Add(CreateMappedDataTypesWithIdentity(177));
+                context.Set<MappedDataTypesWithIdentity>().Add(CreateMappedDataTypesWithIdentity(178));
+                context.Set<MappedDataTypesWithIdentity>().Add(CreateMappedDataTypesWithIdentity(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedDataTypesWithIdentity(context.Set<MappedDataTypesWithIdentity>().Single(e => e.Int == 177), 177);
+                AssertMappedDataTypesWithIdentity(context.Set<MappedDataTypesWithIdentity>().Single(e => e.Int == 178), 178);
+                AssertMappedDataTypesWithIdentity(context.Set<MappedDataTypesWithIdentity>().Single(e => e.Int == 179), 179);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_identity_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(CreateMappedNullableDataTypesWithIdentity(177));
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(CreateMappedNullableDataTypesWithIdentity(178));
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(CreateMappedNullableDataTypesWithIdentity(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 177), 177);
+                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 178), 178);
+                AssertMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 179), 179);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_identity_in_batch_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { Int = 278 });
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { Int = 279 });
+                context.Set<MappedNullableDataTypesWithIdentity>().Add(new MappedNullableDataTypesWithIdentity { Int = 280 });
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 278), 278);
+                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 279), 279);
+                AssertNullMappedNullableDataTypesWithIdentity(context.Set<MappedNullableDataTypesWithIdentity>().Single(e => e.Int == 280), 280);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_identity_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(CreateMappedSizedDataTypesWithIdentity(177));
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(CreateMappedSizedDataTypesWithIdentity(178));
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(CreateMappedSizedDataTypesWithIdentity(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 177), 177);
+                AssertMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 178), 178);
+                AssertMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 179), 179);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_identity_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { Int = 278 });
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { Int = 279 });
+                context.Set<MappedSizedDataTypesWithIdentity>().Add(new MappedSizedDataTypesWithIdentity { Int = 280 });
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertNullMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 278), 278);
+                AssertNullMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 279), 279);
+                AssertNullMappedSizedDataTypesWithIdentity(context.Set<MappedSizedDataTypesWithIdentity>().Single(e => e.Int == 280), 280);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_identity_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedScaledDataTypesWithIdentity>().Add(CreateMappedScaledDataTypesWithIdentity(177));
+                context.Set<MappedScaledDataTypesWithIdentity>().Add(CreateMappedScaledDataTypesWithIdentity(178));
+                context.Set<MappedScaledDataTypesWithIdentity>().Add(CreateMappedScaledDataTypesWithIdentity(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedScaledDataTypesWithIdentity(context.Set<MappedScaledDataTypesWithIdentity>().Single(e => e.Int == 177), 177);
+                AssertMappedScaledDataTypesWithIdentity(context.Set<MappedScaledDataTypesWithIdentity>().Single(e => e.Int == 178), 178);
+                AssertMappedScaledDataTypesWithIdentity(context.Set<MappedScaledDataTypesWithIdentity>().Single(e => e.Int == 179), 179);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_identity_in_batch()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(CreateMappedPrecisionAndScaledDataTypesWithIdentity(177));
+                context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(CreateMappedPrecisionAndScaledDataTypesWithIdentity(178));
+                context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(CreateMappedPrecisionAndScaledDataTypesWithIdentity(179));
+
+                Assert.Equal(3, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                AssertMappedPrecisionAndScaledDataTypesWithIdentity(
+                    context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Single(e => e.Int == 177), 177);
+                AssertMappedPrecisionAndScaledDataTypesWithIdentity(
+                    context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Single(e => e.Int == 178), 178);
+                AssertMappedPrecisionAndScaledDataTypesWithIdentity(
+                    context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Single(e => e.Int == 179), 179);
             }
         }
 
@@ -939,6 +1707,47 @@ MappedDataTypes.Varbinary ---> [varbinary] [MaxLength = 1]
 MappedDataTypes.VarbinaryMax ---> [varbinary] [MaxLength = -1]
 MappedDataTypes.Varchar ---> [varchar] [MaxLength = 1]
 MappedDataTypes.VarcharMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.Bigint ---> [bigint] [Precision = 19 Scale = 0]
+MappedDataTypesWithIdentity.Binary ---> [nullable binary] [MaxLength = 1]
+MappedDataTypesWithIdentity.Binary_varying ---> [nullable varbinary] [MaxLength = 1]
+MappedDataTypesWithIdentity.Binary_varyingMax ---> [nullable varbinary] [MaxLength = -1]
+MappedDataTypesWithIdentity.Bit ---> [bit]
+MappedDataTypesWithIdentity.Char ---> [nullable char] [MaxLength = 1]
+MappedDataTypesWithIdentity.Char_varying ---> [nullable varchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.Char_varyingMax ---> [nullable varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.Character ---> [nullable char] [MaxLength = 1]
+MappedDataTypesWithIdentity.Character_varying ---> [nullable varchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.Character_varyingMax ---> [nullable varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.Date ---> [date] [Precision = 0]
+MappedDataTypesWithIdentity.Datetime ---> [datetime] [Precision = 3]
+MappedDataTypesWithIdentity.Datetime2 ---> [datetime2] [Precision = 7]
+MappedDataTypesWithIdentity.Datetimeoffset ---> [datetimeoffset] [Precision = 7]
+MappedDataTypesWithIdentity.Dec ---> [decimal] [Precision = 18 Scale = 0]
+MappedDataTypesWithIdentity.Decimal ---> [decimal] [Precision = 18 Scale = 0]
+MappedDataTypesWithIdentity.Double_precision ---> [float] [Precision = 53]
+MappedDataTypesWithIdentity.Float ---> [float] [Precision = 53]
+MappedDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
+MappedDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
+MappedDataTypesWithIdentity.Money ---> [money] [Precision = 19 Scale = 4]
+MappedDataTypesWithIdentity.National_char_varying ---> [nullable nvarchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.National_char_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.National_character ---> [nullable nchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.National_character_varying ---> [nullable nvarchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.National_character_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.Nchar ---> [nullable nchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.Numeric ---> [numeric] [Precision = 18 Scale = 0]
+MappedDataTypesWithIdentity.Nvarchar ---> [nullable nvarchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.NvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.Real ---> [real] [Precision = 24]
+MappedDataTypesWithIdentity.Smalldatetime ---> [smalldatetime] [Precision = 0]
+MappedDataTypesWithIdentity.Smallint ---> [smallint] [Precision = 5 Scale = 0]
+MappedDataTypesWithIdentity.Smallmoney ---> [smallmoney] [Precision = 10 Scale = 4]
+MappedDataTypesWithIdentity.Time ---> [time] [Precision = 7]
+MappedDataTypesWithIdentity.Tinyint ---> [tinyint] [Precision = 3 Scale = 0]
+MappedDataTypesWithIdentity.Varbinary ---> [nullable varbinary] [MaxLength = 1]
+MappedDataTypesWithIdentity.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
+MappedDataTypesWithIdentity.Varchar ---> [nullable varchar] [MaxLength = 1]
+MappedDataTypesWithIdentity.VarcharMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.Bigint ---> [nullable bigint] [Precision = 19 Scale = 0]
 MappedNullableDataTypes.Binary ---> [nullable binary] [MaxLength = 1]
 MappedNullableDataTypes.Binary_varying ---> [nullable varbinary] [MaxLength = 1]
@@ -982,10 +1791,56 @@ MappedNullableDataTypes.Varbinary ---> [nullable varbinary] [MaxLength = 1]
 MappedNullableDataTypes.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
 MappedNullableDataTypes.Varchar ---> [nullable varchar] [MaxLength = 1]
 MappedNullableDataTypes.VarcharMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Bigint ---> [nullable bigint] [Precision = 19 Scale = 0]
+MappedNullableDataTypesWithIdentity.Binary ---> [nullable binary] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.Binary_varying ---> [nullable varbinary] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.Binary_varyingMax ---> [nullable varbinary] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Bit ---> [nullable bit]
+MappedNullableDataTypesWithIdentity.Char ---> [nullable char] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.Char_varying ---> [nullable varchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.Char_varyingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Character ---> [nullable char] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.Character_varying ---> [nullable varchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.Character_varyingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Date ---> [nullable date] [Precision = 0]
+MappedNullableDataTypesWithIdentity.Datetime ---> [nullable datetime] [Precision = 3]
+MappedNullableDataTypesWithIdentity.Datetime2 ---> [nullable datetime2] [Precision = 7]
+MappedNullableDataTypesWithIdentity.Datetimeoffset ---> [nullable datetimeoffset] [Precision = 7]
+MappedNullableDataTypesWithIdentity.Dec ---> [nullable decimal] [Precision = 18 Scale = 0]
+MappedNullableDataTypesWithIdentity.Decimal ---> [nullable decimal] [Precision = 18 Scale = 0]
+MappedNullableDataTypesWithIdentity.Double_precision ---> [nullable float] [Precision = 53]
+MappedNullableDataTypesWithIdentity.Float ---> [nullable float] [Precision = 53]
+MappedNullableDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
+MappedNullableDataTypesWithIdentity.Int ---> [nullable int] [Precision = 10 Scale = 0]
+MappedNullableDataTypesWithIdentity.Money ---> [nullable money] [Precision = 19 Scale = 4]
+MappedNullableDataTypesWithIdentity.National_char_varying ---> [nullable nvarchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.National_char_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.National_character ---> [nullable nchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.National_character_varying ---> [nullable nvarchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.National_character_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Nchar ---> [nullable nchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.Numeric ---> [nullable numeric] [Precision = 18 Scale = 0]
+MappedNullableDataTypesWithIdentity.Nvarchar ---> [nullable nvarchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.NvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Real ---> [nullable real] [Precision = 24]
+MappedNullableDataTypesWithIdentity.Smalldatetime ---> [nullable smalldatetime] [Precision = 0]
+MappedNullableDataTypesWithIdentity.Smallint ---> [nullable smallint] [Precision = 5 Scale = 0]
+MappedNullableDataTypesWithIdentity.Smallmoney ---> [nullable smallmoney] [Precision = 10 Scale = 4]
+MappedNullableDataTypesWithIdentity.Time ---> [nullable time] [Precision = 7]
+MappedNullableDataTypesWithIdentity.Tinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
+MappedNullableDataTypesWithIdentity.Varbinary ---> [nullable varbinary] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Varchar ---> [nullable varchar] [MaxLength = 1]
+MappedNullableDataTypesWithIdentity.VarcharMax ---> [nullable varchar] [MaxLength = -1]
 MappedPrecisionAndScaledDataTypes.Dec ---> [decimal] [Precision = 5 Scale = 2]
 MappedPrecisionAndScaledDataTypes.Decimal ---> [decimal] [Precision = 5 Scale = 2]
 MappedPrecisionAndScaledDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MappedPrecisionAndScaledDataTypes.Numeric ---> [numeric] [Precision = 5 Scale = 2]
+MappedPrecisionAndScaledDataTypesWithIdentity.Dec ---> [decimal] [Precision = 5 Scale = 2]
+MappedPrecisionAndScaledDataTypesWithIdentity.Decimal ---> [decimal] [Precision = 5 Scale = 2]
+MappedPrecisionAndScaledDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
+MappedPrecisionAndScaledDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
+MappedPrecisionAndScaledDataTypesWithIdentity.Numeric ---> [numeric] [Precision = 5 Scale = 2]
 MappedScaledDataTypes.Datetime2 ---> [datetime2] [Precision = 3]
 MappedScaledDataTypes.Datetimeoffset ---> [datetimeoffset] [Precision = 3]
 MappedScaledDataTypes.Dec ---> [decimal] [Precision = 3 Scale = 0]
@@ -994,6 +1849,15 @@ MappedScaledDataTypes.Double_precision ---> [real] [Precision = 24]
 MappedScaledDataTypes.Float ---> [real] [Precision = 24]
 MappedScaledDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MappedScaledDataTypes.Numeric ---> [numeric] [Precision = 3 Scale = 0]
+MappedScaledDataTypesWithIdentity.Datetime2 ---> [datetime2] [Precision = 3]
+MappedScaledDataTypesWithIdentity.Datetimeoffset ---> [datetimeoffset] [Precision = 3]
+MappedScaledDataTypesWithIdentity.Dec ---> [decimal] [Precision = 3 Scale = 0]
+MappedScaledDataTypesWithIdentity.Decimal ---> [decimal] [Precision = 3 Scale = 0]
+MappedScaledDataTypesWithIdentity.Double_precision ---> [real] [Precision = 24]
+MappedScaledDataTypesWithIdentity.Float ---> [real] [Precision = 24]
+MappedScaledDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
+MappedScaledDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
+MappedScaledDataTypesWithIdentity.Numeric ---> [numeric] [Precision = 3 Scale = 0]
 MappedSizedDataTypes.Binary ---> [nullable binary] [MaxLength = 3]
 MappedSizedDataTypes.Binary_varying ---> [nullable varbinary] [MaxLength = 3]
 MappedSizedDataTypes.Char ---> [nullable char] [MaxLength = 3]
@@ -1008,6 +1872,21 @@ MappedSizedDataTypes.Nchar ---> [nullable nchar] [MaxLength = 3]
 MappedSizedDataTypes.Nvarchar ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypes.Varbinary ---> [nullable varbinary] [MaxLength = 3]
 MappedSizedDataTypes.Varchar ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Binary ---> [nullable binary] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Binary_varying ---> [nullable varbinary] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Char ---> [nullable char] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Char_varying ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Character ---> [nullable char] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Character_varying ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
+MappedSizedDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
+MappedSizedDataTypesWithIdentity.National_char_varying ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.National_character ---> [nullable nchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.National_character_varying ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Nchar ---> [nullable nchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Nvarchar ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Varbinary ---> [nullable varbinary] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.Varchar ---> [nullable varchar] [MaxLength = 3]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 5]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]

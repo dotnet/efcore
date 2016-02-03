@@ -277,16 +277,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private string GetTypeNameForCopy(IProperty property)
         {
-            var mapping = _typeMapper.GetMapping(property);
-            var typeName = mapping.DefaultTypeName;
-            if (property.IsConcurrencyToken
-                && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)))
-            {
-                return property.IsNullable ? "varbinary(8)" : "binary(8)";
-            }
+            var typeName = property.SqlServer().ColumnType
+                           ?? _typeMapper.GetMapping(property).DefaultTypeName;
 
-            return typeName;
+            return typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
+                   || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
+                ? (property.IsNullable ? "varbinary(8)" : "binary(8)")
+                : typeName;
         }
 
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local

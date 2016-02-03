@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         // Not using IRelationalAnnotationProvider here because type mappers are Singletons
         protected abstract string GetColumnType([NotNull] IProperty property);
 
-        public virtual RelationalTypeMapping FindMapping([NotNull] IProperty property)
+        public virtual RelationalTypeMapping FindMapping(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                    ?? FindMapping(property.ClrType);
         }
 
-        public virtual RelationalTypeMapping FindMapping([NotNull] Type clrType)
+        public virtual RelationalTypeMapping FindMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));
 
