@@ -91,42 +91,27 @@
   </PropertyGroup>
   <ItemGroup>
     <!--A reference to the entire .Net Framework and Windows SDK are automatically included-->
-    <None Include="project.json" />
     <SDKReference Include="TestPlatform.Universal, Version=$(UnitTestPlatformVersion)" />
-  </ItemGroup>
-  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <None Include="Microsoft.Data.Sqlite.FunctionalTests.UWP.project.json" />
     <Compile Include="SqliteConnectionTest.cs" />
     <Compile Include="UnitTestApp.xaml.cs">
       <DependentUpon>UnitTestApp.xaml</DependentUpon>
     </Compile>
     <Compile Include="SqliteTransactionTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ApplicationDefinition Include="UnitTestApp.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-  </ItemGroup>
-  <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="$(SqliteDll)">
       <Visible>False</Visible>
     </Content>
     <Content Include="Assets\logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="Microsoft.Data.Sqlite">
-      <HintPath>..\..\artifacts\bin\Microsoft.Data.Sqlite\$(Configuration)\dotnet54\Microsoft.Data.Sqlite.dll</HintPath>
+      <HintPath>..\..\artifacts\bin\Microsoft.Data.Sqlite\$(Configuration)\dotnet5.4\Microsoft.Data.Sqlite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

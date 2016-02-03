@@ -18,3 +18,6 @@ project.lock.json
 launchSettings.json
 /.build/
 .testPublish/
+*.project.lock.json
+*.nuget.props
+*.nuget.targets
