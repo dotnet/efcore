@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
@@ -77,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Builders
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
         [Fact]
@@ -91,6 +93,105 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Builders
                 .Metadata;
 
             Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_expression_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ValueGeneratedNever()
+                .ForSqliteHasDefaultValueSql("VanillaCoke")
+                .Metadata;
+
+            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_expression_does_not_modify_explicitly_set_value_generated_non_generic()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property<string>("Name")
+                .ValueGeneratedNever()
+                .ForSqliteHasDefaultValueSql("VanillaCoke")
+                .Metadata;
+
+            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var valueString = "DefaultValue";
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForSqliteHasDefaultValue(valueString)
+                .Metadata;
+
+            Assert.Equal(valueString, property.Sqlite().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_non_generic()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var valueString = "DefaultValue";
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property<string>("Name")
+                .ForSqliteHasDefaultValue(valueString)
+                .Metadata;
+
+            Assert.Equal(valueString, property.Sqlite().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var valueString = "DefaultValue";
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ValueGeneratedNever()
+                .ForSqliteHasDefaultValue(valueString)
+                .Metadata;
+
+            Assert.Equal(valueString, property.Sqlite().DefaultValue);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated_non_generic()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var valueString = "DefaultValue";
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property<string>("Name")
+                .ValueGeneratedNever()
+                .ForSqliteHasDefaultValue(valueString)
+                .Metadata;
+
+            Assert.Equal(valueString, property.Sqlite().DefaultValue);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
         [Fact]

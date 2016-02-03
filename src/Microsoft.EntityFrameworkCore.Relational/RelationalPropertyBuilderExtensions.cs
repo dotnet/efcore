@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -52,7 +54,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.ValueGeneratedOnAdd();
+            var property = (Property)propertyBuilder.Metadata;
+            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            {
+                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+            }
+
             propertyBuilder.Metadata.Relational().GeneratedValueSql = sql;
 
             return propertyBuilder;
@@ -70,7 +77,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.ValueGeneratedOnAddOrUpdate();
+            var property = (Property)propertyBuilder.Metadata;
+            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            {
+                property.SetValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
+            }
+
             propertyBuilder.Metadata.Relational().GeneratedValueSql = sql;
 
             return propertyBuilder;
@@ -86,6 +98,12 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] object value)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            var property = (Property)propertyBuilder.Metadata;
+            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            {
+                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+            }
 
             propertyBuilder.Metadata.Relational().DefaultValue = value;
 

@@ -82,6 +82,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Setting_column_default_expression_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ValueGeneratedNever()
+                .ForSqlServerHasDefaultValueSql("VanillaCoke");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
+
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .HasDefaultValueSql("CherryCoke");
+
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+        }
+
+        [Fact]
         public void Can_set_column_computed_expression()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -106,6 +131,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Setting_column_column_computed_expression_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ValueGeneratedNever()
+                .ForSqlServerHasComputedColumnSql("VanillaCoke");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
+
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .HasComputedColumnSql("CherryCoke");
+
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+        }
+
+        [Fact]
         public void Can_set_column_default_value()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -124,6 +174,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
             Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Offset)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)));
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Offset)
+                .ForSqlServerHasDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Offset");
+
+            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
+            Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
         [Fact]

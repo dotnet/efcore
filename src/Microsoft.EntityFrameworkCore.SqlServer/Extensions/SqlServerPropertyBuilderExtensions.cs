@@ -54,7 +54,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.ValueGeneratedOnAdd();
+            var property = (Property)propertyBuilder.Metadata;
+            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            {
+                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+            }
+
             propertyBuilder.Metadata.SqlServer().GeneratedValueSql = sql;
 
             return propertyBuilder;
@@ -70,6 +75,12 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] object value)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            var property = (Property)propertyBuilder.Metadata;
+            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            {
+                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+            }
 
             propertyBuilder.Metadata.SqlServer().DefaultValue = value;
 
@@ -88,7 +99,12 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            propertyBuilder.ValueGeneratedOnAddOrUpdate();
+            var property = (Property)propertyBuilder.Metadata;
+            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
+            {
+                property.SetValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
+            }
+
             propertyBuilder.Metadata.SqlServer().GeneratedValueSql = sql;
 
             return propertyBuilder;

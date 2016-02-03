@@ -61,6 +61,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
         }
 
         [Fact]
+        public void Setting_column_default_expression_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("CherryCoke");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
+
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+        }
+
+        [Fact]
         public void Can_set_column_computed_expression()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -77,6 +94,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
         }
 
         [Fact]
+        public void Setting_column_computed_expression_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ValueGeneratedNever()
+                .HasComputedColumnSql("CherryCoke");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
+
+            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+        }
+
+        [Fact]
         public void Can_set_column_default_value()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -90,6 +124,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal(stringValue, property.Relational().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            var stringValue = "DefaultValueString";
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValue(stringValue);
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
+
+            Assert.Equal(stringValue, property.Relational().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
         [Fact]
