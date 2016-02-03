@@ -7,12 +7,14 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Mono's assembly loading mechanisms are buggy")]
     public class OperationExecutorTest
     {
         private readonly ITestOutputHelper _output = null;
@@ -23,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _output = output;
         }
 
+        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Mono's assembly loading mechanisms are buggy")]
         public class SimpleProjectTest : IClassFixture<SimpleProjectTest.SimpleProject>
         {
             private readonly SimpleProject _project;
@@ -32,14 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _project = project;
             }
 
-            [Fact]
+            [ConditionalFact]
             public void GetContextType_works_cross_domain()
             {
                 var contextTypeName = _project.Executor.GetContextType("SimpleContext");
                 Assert.StartsWith("SimpleProject.SimpleContext, ", contextTypeName);
             }
 
-            [Fact]
+            [ConditionalFact]
             public void AddMigration_works_cross_domain()
             {
                 var artifacts = _project.Executor.AddMigration("EmptyMigration", "Migrationz", "SimpleContext");
@@ -47,21 +50,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, @"Migrationz")));
             }
 
-            [Fact]
+            [ConditionalFact]
             public void ScriptMigration_works_cross_domain()
             {
                 var sql = _project.Executor.ScriptMigration(null, "InitialCreate", false, "SimpleContext");
                 Assert.NotEmpty(sql);
             }
 
-            [Fact]
+            [ConditionalFact]
             public void GetContextTypes_works_cross_domain()
             {
                 var contextTypes = _project.Executor.GetContextTypes();
                 Assert.Equal(1, contextTypes.Count());
             }
 
-            [Fact]
+            [ConditionalFact]
             public void GetMigrations_works_cross_domain()
             {
                 var migrations = _project.Executor.GetMigrations("SimpleContext");
@@ -143,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetMigrations_filters_by_context_name()
         {
             using (var directory = new TempDirectory())
@@ -228,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetContextType_works_with_multiple_assemblies()
         {
             using (var directory = new TempDirectory())
@@ -321,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void AddMigration_begins_new_namespace_when_foreign_migrations()
         {
             using (var directory = new TempDirectory())
@@ -395,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void ScaffoldRuntimeDirectives()
         {
             using (var directory = new TempDirectory())
@@ -484,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void GetMigrations_throws_when_target_and_migrations_assemblies_mismatch()
         {
             using (var directory = new TempDirectory())
