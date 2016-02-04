@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 var columns = (await testStore.QueryAsync<string>(
                     "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blog' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
-                Assert.Equal(19, columns.Length);
+                Assert.Equal(15, columns.Length);
 
                 Assert.Equal(
                     new[]
@@ -250,12 +250,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                         "Blog.Key1 (nvarchar)",
                         "Blog.Key2 (varbinary)",
                         "Blog.NotFigTime (datetime2)",
-                        "Blog.NotToEat (smallint)",
                         "Blog.On (real)",
                         "Blog.OrNothing (float)",
-                        "Blog.OrULong (int)",
-                        "Blog.OrUShort (numeric)",
-                        "Blog.OrUSkint (bigint)",
                         "Blog.TheGu (uniqueidentifier)",
                         "Blog.ToEat (tinyint)",
                         "Blog.WayRound (bigint)"
@@ -349,11 +345,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public double OrNothing { get; set; }
             public short Fuse { get; set; }
             public long WayRound { get; set; }
-            public sbyte NotToEat { get; set; }
             public float On { get; set; }
-            public ushort OrULong { get; set; }
-            public uint OrUSkint { get; set; }
-            public ulong OrUShort { get; set; }
             public byte[] AndChew { get; set; }
             public byte[] AndRow { get; set; }
         }

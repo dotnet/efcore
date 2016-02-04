@@ -33,14 +33,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.IsType<TemporaryNumberValueGenerator<short>>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<byte>>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
             Assert.IsType<TemporaryNumberValueGenerator<char>>(selector.Select(entityType.FindProperty("NullableChar"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<uint>>(selector.Select(entityType.FindProperty("UInt"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ulong>>(selector.Select(entityType.FindProperty("ULong"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.FindProperty("UShort"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("SByte"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<uint>>(selector.Select(entityType.FindProperty("NullableUInt"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ulong>>(selector.Select(entityType.FindProperty("NullableULong"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.FindProperty("NullableUShort"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("NullableSByte"), entityType));
             Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
             Assert.IsType<TemporaryGuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
             Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
@@ -86,14 +78,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<short>>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<byte>>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<char>>(selector.Select(entityType.FindProperty("NullableChar"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<uint>>(selector.Select(entityType.FindProperty("UInt"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<ulong>>(selector.Select(entityType.FindProperty("ULong"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<ushort>>(selector.Select(entityType.FindProperty("UShort"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("SByte"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<uint>>(selector.Select(entityType.FindProperty("NullableUInt"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<ulong>>(selector.Select(entityType.FindProperty("NullableULong"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<ushort>>(selector.Select(entityType.FindProperty("NullableUShort"), entityType));
-            Assert.IsType<SqlServerSequenceHiLoValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("NullableSByte"), entityType));
             Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
             Assert.IsType<SequentialGuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
             Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
@@ -164,14 +148,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public short? NullableShort { get; set; }
             public byte? NullableByte { get; set; }
             public char? NullableChar { get; set; }
-            public uint UInt { get; set; }
-            public ulong ULong { get; set; }
-            public ushort UShort { get; set; }
-            public sbyte SByte { get; set; }
-            public uint? NullableUInt { get; set; }
-            public ulong? NullableULong { get; set; }
-            public ushort? NullableUShort { get; set; }
-            public sbyte? NullableSByte { get; set; }
             public string String { get; set; }
             public Guid Guid { get; set; }
             public byte[] Binary { get; set; }
