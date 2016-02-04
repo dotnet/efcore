@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -24,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly RelationalTypeMapping _tinyint = new RelationalTypeMapping("tinyint", typeof(byte), DbType.Byte);
         private readonly SqlServerMaxLengthMapping _nchar = new SqlServerMaxLengthMapping("nchar", typeof(string), DbType.StringFixedLength);
         private readonly SqlServerMaxLengthMapping _nvarchar = new SqlServerMaxLengthMapping("nvarchar", typeof(string));
-        private readonly RelationalTypeMapping _varcharmax = new SqlServerMaxLengthMapping("varchar(max)", typeof(string), DbType.AnsiString);
         private readonly SqlServerMaxLengthMapping _char = new SqlServerMaxLengthMapping("char", typeof(string), DbType.AnsiStringFixedLength);
         private readonly SqlServerMaxLengthMapping _varchar = new SqlServerMaxLengthMapping("varchar", typeof(string), DbType.AnsiString);
         private readonly SqlServerMaxLengthMapping _varbinary = new SqlServerMaxLengthMapping("varbinary", typeof(byte[]), DbType.Binary);
@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
+        private readonly HashSet<string> _disallowedMappings;
 
         public SqlServerTypeMapper()
         {
@@ -50,10 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "binary", _binary },
                     { "bit", _bit },
                     { "char varying", _varchar },
-                    { "char varying(max)", _varcharmax },
                     { "char", _char },
                     { "character varying", _varchar },
-                    { "character varying(max)", _varcharmax },
                     { "character", _char },
                     { "date", _datetime2 },
                     { "datetime", _datetime2 },
@@ -83,8 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "tinyint", _tinyint },
                     { "uniqueidentifier", _uniqueidentifier },
                     { "varbinary", _varbinary },
-                    { "varchar", _varchar },
-                    { "varchar(max)", _varcharmax }
+                    { "varchar", _varchar }
                 };
 
             _simpleMappings
@@ -104,6 +102,36 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }
                 };
+
+            // These are disallowed only if specified without any kind of length specified in parenthesis.
+            // This is because we don't try to make a new type from this string and any max length value
+            // specified in the model, which means use of these strings is almost certainly an error, and
+            // if it is not an error, then using, for example, varbinary(1) will work instead.
+            _disallowedMappings
+                = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                     "binary varying",
+                     "binary",
+                     "char varying",
+                     "char",
+                     "character varying",
+                     "character",
+                     "national char varying",
+                     "national character varying",
+                     "national character",
+                     "nchar",
+                     "nvarchar",
+                     "varbinary",
+                     "varchar"
+                };
+        }
+
+        public override void ValidateTypeName(string typeName)
+        {
+            if (_disallowedMappings.Contains(typeName))
+            {
+                throw new NotSupportedException(SqlServerStrings.UnqualifiedDataType(typeName));
+            }
         }
 
         protected override string GetColumnType(IProperty property) => property.SqlServer().ColumnType;

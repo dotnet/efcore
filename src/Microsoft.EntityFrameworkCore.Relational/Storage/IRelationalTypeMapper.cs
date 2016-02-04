@@ -12,6 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         RelationalTypeMapping FindMapping([NotNull] IProperty property);
         RelationalTypeMapping FindMapping([NotNull] Type clrType);
         RelationalTypeMapping FindMapping([NotNull] string typeName);
-        bool IsTypeMapped([NotNull] Type clrType);
+        void ValidateTypeName([NotNull] string typeName);
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -31,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         }
 
         protected override ModelValidator CreateModelValidator()
-            => new SqliteModelValidator(
-                new Logger<SqliteModelValidator>(
-                    new ListLoggerFactory(Log, l => l == typeof(SqliteModelValidator).FullName)),
-                new TestSqliteAnnotationProvider());
+            => new RelationalModelValidator(
+                new Logger<RelationalModelValidator>(
+                    new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
+                new TestSqliteAnnotationProvider(),
+                new SqliteTypeMapper());
     }
 
     public class TestSqliteAnnotationProvider : TestAnnotationProvider

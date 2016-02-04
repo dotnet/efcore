@@ -195,27 +195,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DateTime Smalldatetime { get; set; }
         public DateTime Datetime { get; set; }
         public TimeSpan Time { get; set; }
-        public string Char { get; set; }
-        public string Character { get; set; }
-        public string Varchar { get; set; }
-        public string Char_varying { get; set; }
-        public string Character_varying { get; set; }
         public string VarcharMax { get; set; }
         public string Char_varyingMax { get; set; }
         public string Character_varyingMax { get; set; }
-        public string Nchar { get; set; }
-        public string National_character { get; set; }
-        public string Nvarchar { get; set; }
-        public string National_char_varying { get; set; }
-        public string National_character_varying { get; set; }
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
         public string Text { get; set; }
         public string Ntext { get; set; }
-        public byte[] Binary { get; set; }
-        public byte[] Varbinary { get; set; }
-        public byte[] Binary_varying { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
         public byte[] Image { get; set; }
@@ -280,27 +267,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DateTime? Smalldatetime { get; set; }
         public DateTime? Datetime { get; set; }
         public TimeSpan? Time { get; set; }
-        public string Char { get; set; }
-        public string Character { get; set; }
-        public string Varchar { get; set; }
-        public string Char_varying { get; set; }
-        public string Character_varying { get; set; }
         public string VarcharMax { get; set; }
         public string Char_varyingMax { get; set; }
         public string Character_varyingMax { get; set; }
-        public string Nchar { get; set; }
-        public string National_character { get; set; }
-        public string Nvarchar { get; set; }
-        public string National_char_varying { get; set; }
-        public string National_character_varying { get; set; }
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
         public string Text { get; set; }
         public string Ntext { get; set; }
-        public byte[] Binary { get; set; }
-        public byte[] Varbinary { get; set; }
-        public byte[] Binary_varying { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
         public byte[] Image { get; set; }
@@ -329,28 +303,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DateTime Smalldatetime { get; set; }
         public DateTime Datetime { get; set; }
         public TimeSpan Time { get; set; }
-        public string Char { get; set; }
-        public string Character { get; set; }
-        public string Varchar { get; set; }
-        public string Char_varying { get; set; }
-        public string Character_varying { get; set; }
         public string VarcharMax { get; set; }
         public string Char_varyingMax { get; set; }
         public string Character_varyingMax { get; set; }
-        public string Nchar { get; set; }
-        public string National_character { get; set; }
-        public string Nvarchar { get; set; }
-        public string National_char_varying { get; set; }
-        public string National_character_varying { get; set; }
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
         // See Issue #4478
         //public string Text { get; set; }
         //public string Ntext { get; set; }
-        public byte[] Binary { get; set; }
-        public byte[] Varbinary { get; set; }
-        public byte[] Binary_varying { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
         // See Issue #4478
@@ -424,28 +385,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public DateTime? Smalldatetime { get; set; }
         public DateTime? Datetime { get; set; }
         public TimeSpan? Time { get; set; }
-        public string Char { get; set; }
-        public string Character { get; set; }
-        public string Varchar { get; set; }
-        public string Char_varying { get; set; }
-        public string Character_varying { get; set; }
         public string VarcharMax { get; set; }
         public string Char_varyingMax { get; set; }
         public string Character_varyingMax { get; set; }
-        public string Nchar { get; set; }
-        public string National_character { get; set; }
-        public string Nvarchar { get; set; }
-        public string National_char_varying { get; set; }
-        public string National_character_varying { get; set; }
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
         // See Issue #4478
         //public string Text { get; set; }
         //public string Ntext { get; set; }
-        public byte[] Binary { get; set; }
-        public byte[] Varbinary { get; set; }
-        public byte[] Binary_varying { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
         // See Issue #4478

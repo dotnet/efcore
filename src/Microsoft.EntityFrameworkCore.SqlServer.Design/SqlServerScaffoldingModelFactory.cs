@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             return model;
         }
 
-        protected override PropertyBuilder VisitColumn([NotNull] EntityTypeBuilder builder, [NotNull] ColumnModel column)
+        protected override PropertyBuilder VisitColumn(EntityTypeBuilder builder, ColumnModel column)
         {
             var propertyBuilder = base.VisitColumn(builder, column);
 
@@ -55,17 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             return propertyBuilder;
         }
 
-        protected override RelationalTypeMapping GetTypeMapping([NotNull] ColumnModel column)
+        protected override RelationalTypeMapping GetTypeMapping(ColumnModel column)
         {
             RelationalTypeMapping mapping = null;
             if (column.DataType != null)
             {
                 string underlyingDataType = null;
-                var typeAliases = column.Table.Database.SqlServer().TypeAliases;
-                if (typeAliases != null)
-                {
-                    typeAliases.TryGetValue(column.DataType, out underlyingDataType);
-                }
+                column.Table.Database.SqlServer().TypeAliases
+                    ?.TryGetValue(column.DataType, out underlyingDataType);
 
                 mapping = TypeMapper.FindMapping(underlyingDataType ?? column.DataType);
             }
@@ -73,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             return mapping;
         }
 
-        protected override KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
+        protected override KeyBuilder VisitPrimaryKey(EntityTypeBuilder builder, TableModel table)
         {
             var keyBuilder = base.VisitPrimaryKey(builder, table);
 
@@ -120,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             return indexBuilder;
         }
 
-        private PropertyBuilder VisitTypeMapping(PropertyBuilder propertyBuilder, ColumnModel column)
+        private void VisitTypeMapping(PropertyBuilder propertyBuilder, ColumnModel column)
         {
             if (column.SqlServer().IsIdentity)
             {
@@ -155,10 +152,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
             }
 
-            return propertyBuilder;
+            var columnType = propertyBuilder.Metadata.SqlServer().ColumnType;
+            if (columnType != null)
+            {
+                TypeMapper.ValidateTypeName(columnType);
+            }
         }
 
-        private bool HasTypeAlias(ColumnModel column)
+        private static bool HasTypeAlias(ColumnModel column)
             => column.Table.Database.SqlServer().TypeAliases?.ContainsKey(column.DataType) == true;
 
         // Turns an unqualified SQL Server type name (e.g. varchar) and its
@@ -191,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         return new Tuple<string, int?>(
                             unqualifiedTypeName
                                 + "("
-                                + (maxLength == null ? "max" : maxLength.ToString())
+                                + (maxLength?.ToString() ?? "max")
                                 + ")",
                             null);
                     }
@@ -208,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             return null;
         }
 
-        private PropertyBuilder VisitDefaultValue(PropertyBuilder propertyBuilder, ColumnModel column)
+        private void VisitDefaultValue(PropertyBuilder propertyBuilder, ColumnModel column)
         {
             if (column.DefaultValue != null)
             {
@@ -234,10 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                             propertyBuilder.Metadata.DeclaringEntityType.Name));
                 }
             }
-            return propertyBuilder;
         }
 
-        private string ConvertSqlServerDefaultValue(string sqlServerDefaultValue)
+        private static string ConvertSqlServerDefaultValue(string sqlServerDefaultValue)
         {
             if (sqlServerDefaultValue.Length < 2)
             {

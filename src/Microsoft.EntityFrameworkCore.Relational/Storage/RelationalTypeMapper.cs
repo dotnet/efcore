@@ -23,10 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         protected abstract IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings();
 
+        // Note that these names should just be prefixes and not have any qualifiers in parenthesis
         protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings();
 
         // Not using IRelationalAnnotationProvider here because type mappers are Singletons
         protected abstract string GetColumnType([NotNull] IProperty property);
+
+        public virtual void ValidateTypeName(string typeName)
+        {
+        }
 
         public virtual RelationalTypeMapping FindMapping(IProperty property)
         {
@@ -51,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(clrType, nameof(clrType));
 
             RelationalTypeMapping mapping;
-
             return GetSimpleMappings().TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping)
                 ? mapping
                 : null;
@@ -62,13 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(typeName, nameof(typeName));
 
             RelationalTypeMapping mapping;
-
-            GetSimpleNameMappings().TryGetValue(typeName, out mapping);
-
-            return mapping;
+            return GetSimpleNameMappings().TryGetValue(typeName, out mapping)
+                ? mapping
+                : null;
         }
-
-        public virtual bool IsTypeMapped(Type clrType) => FindMapping(clrType) != null;
 
         protected virtual RelationalTypeMapping FindCustomMapping([NotNull] IProperty property) => null;
 

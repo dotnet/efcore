@@ -70,7 +70,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<SqlServerModelSource>()
                 .AddSingleton<SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerMigrationsAnnotationProvider>()
-                .AddScoped<SqlServerModelValidator>()
                 .AddScoped<SqlServerConventionSetBuilder>()
                 .AddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                 .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()

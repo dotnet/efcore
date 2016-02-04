@@ -49,6 +49,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqliteCompositeMemberTranslator>();
         public override IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<SqliteMigrationsAnnotationProvider>();
         public override IQuerySqlGeneratorFactory QuerySqlGeneratorFactory => GetService<SqliteQuerySqlGeneratorFactory>();
-        public override IModelValidator ModelValidator => GetService<SqliteModelValidator>();
     }
 }

@@ -1,13 +1,18 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Internal.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
@@ -28,11 +33,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             public string Name { get; set; }
         }
 
+        public virtual void Throws_for_unsupported_data_types()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            modelBuilder.Entity<Cheese>();
+
+            Assert.Equal(
+                SqlServerStrings.UnqualifiedDataType("nvarchar"), 
+                Assert.Throws<NotSupportedException>(() => Validate(modelBuilder.Model)).Message);
+        }
+
+        private class Cheese
+        {
+            public int Id { get; set; }
+
+            [Column(TypeName = "nvarchar")]
+            public string Name { get; set; }
+        }
+
         protected override ModelValidator CreateModelValidator()
-            => new SqlServerModelValidator(
-                new Logger<SqlServerModelValidator>(
-                    new ListLoggerFactory(Log, l => l == typeof(SqlServerModelValidator).FullName)),
-                new TestSqlServerAnnotationProvider());
+            => new RelationalModelValidator(
+                new Logger<RelationalModelValidator>(
+                    new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
+                new TestSqlServerAnnotationProvider(),
+                new SqlServerTypeMapper());
     }
 
     public class TestSqlServerAnnotationProvider : TestAnnotationProvider

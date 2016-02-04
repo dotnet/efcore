@@ -1,8 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Tests.Infrastructure;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
@@ -205,6 +208,29 @@ namespace Microsoft.EntityFrameworkCore.Internal.Tests
             => new RelationalModelValidator(
                 new Logger<RelationalModelValidator>(
                     new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
-                new TestAnnotationProvider());
+                new TestAnnotationProvider(),
+                new TestRelationalTypeMapper());
+
+        private class TestRelationalTypeMapper : IRelationalTypeMapper
+        {
+            public RelationalTypeMapping FindMapping(IProperty property)
+            {
+                throw new NotImplementedException();
+            }
+
+            public RelationalTypeMapping FindMapping(Type clrType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public RelationalTypeMapping FindMapping(string typeName)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void ValidateTypeName(string typeName)
+            {
+            }
+        }
     }
 }

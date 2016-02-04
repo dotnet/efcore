@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -14,13 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class RelationalModelValidator : LoggingModelValidator
     {
         private readonly IRelationalAnnotationProvider _relationalExtensions;
+        private readonly IRelationalTypeMapper _typeMapper;
 
         public RelationalModelValidator(
             [NotNull] ILogger<RelationalModelValidator> loggerFactory,
-            [NotNull] IRelationalAnnotationProvider relationalExtensions)
+            [NotNull] IRelationalAnnotationProvider relationalExtensions,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(loggerFactory)
         {
             _relationalExtensions = relationalExtensions;
+            _typeMapper = typeMapper;
         }
 
         public override void Validate(IModel model)
@@ -30,6 +34,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             EnsureDistinctTableNames(model);
             EnsureDistinctColumnNames(model);
             ValidateInheritanceMapping(model);
+            EnsureDataTypes(model);
+        }
+
+        protected virtual void EnsureDataTypes([NotNull] IModel model)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    var dataType = _relationalExtensions.For(property).ColumnType;
+                    if (dataType != null)
+                    {
+                        _typeMapper.ValidateTypeName(dataType);
+                    }
+                }
+            }
         }
 
         protected virtual void EnsureDistinctTableNames([NotNull] IModel model)

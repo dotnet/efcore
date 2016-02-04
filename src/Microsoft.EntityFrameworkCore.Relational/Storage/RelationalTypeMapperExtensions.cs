@@ -67,5 +67,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             throw new NotSupportedException(RelationalStrings.UnsupportedType(typeName));
         }
+
+        public static bool IsTypeMapped(
+            [NotNull] this IRelationalTypeMapper typeMapper, 
+            [NotNull] Type clrType)
+        {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(clrType, nameof(clrType));
+
+            return typeMapper.FindMapping(clrType) != null;
+        }
     }
 }

@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore
             VerifyScoped<SqliteHistoryRepository>();
             VerifyScoped<SqliteCompositeMethodCallTranslator>();
             VerifyScoped<SqliteCompositeMemberTranslator>();
-            VerifyScoped<SqliteModelValidator>();
         }
 
         public SqliteEntityFrameworkServicesBuilderExtensionsTest()
