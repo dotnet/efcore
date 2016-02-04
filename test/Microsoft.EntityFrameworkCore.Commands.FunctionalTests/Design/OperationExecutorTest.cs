@@ -409,7 +409,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     TargetDir = targetDir,
                     References =
                                 {
-                                    BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
                                     BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
