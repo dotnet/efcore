@@ -244,6 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeSpecification.QuerySource,
                         includeSpecification.NavigationPath,
                         QueryCompilationContext,
+                        accessorLambda,
                         _navigationIndexMap[includeSpecification],
                         querySourceRequiresTracking)
                     .Visit(Expression);
@@ -465,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var joinExpression
                             = !outerJoin
                                 ? previousSelectExpression.AddInnerJoin(tableExpression, projection)
-                                : previousSelectExpression.AddOuterJoin(tableExpression, projection);
+                                : previousSelectExpression.AddLeftOuterJoin(tableExpression, projection);
 
                         joinExpression.Predicate = predicate;
 

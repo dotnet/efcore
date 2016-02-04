@@ -621,13 +621,16 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var result = query.ToList();
 
                 Assert.Equal(levelOnes.Count, result.Count);
+
                 foreach (var resultItem in result)
                 {
                     var expectedLevel1 = levelOnes.Where(e => e.Id == resultItem.Id).Single();
+
                     Assert.Equal(expectedLevel1.OneToOne_Optional_FK?.Id, resultItem.OneToOne_Optional_FK?.Id);
                     Assert.Equal(expectedLevel1.OneToMany_Optional?.Count, resultItem.OneToMany_Optional?.Count);
 
                     var oneToOne_Optional_FK = resultItem.OneToOne_Optional_FK;
+
                     if (oneToOne_Optional_FK != null)
                     {
                         var expectedReferenceLevel2 = levelTwos.Where(e => e.Id == oneToOne_Optional_FK.Id).Single();

@@ -230,6 +230,24 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_collection_on_additional_from_clause_no_tracking()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                       from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
+                       select c2)
+                        .ToList();
+
+                Assert.Equal(455, customers.Count);
+                Assert.Equal(4150, customers.SelectMany(c => c.Orders).Count());
+                Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_on_additional_from_clause_with_filter()
         {
             using (var context = CreateContext())
@@ -483,6 +501,26 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal(34, context.ChangeTracker.Entries().Count());
             }
         }
+        
+        [Fact]
+        public virtual void Include_collection_with_client_filter()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .Where(c => c.IsLondon)
+                        .ToList();
+
+                Assert.Equal(6, customers.Count);
+                Assert.Equal(46, customers.SelectMany(c => c.Orders).Count());
+                Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(13, customers.First().Orders.Count); // AROUT
+                Assert.Equal(9, customers.Last().Orders.Count); // SEVES
+                Assert.Equal(6 + 46, context.ChangeTracker.Entries().Count());
+            }
+        }
 
         [Fact]
         public virtual void Include_duplicate_collection_result_operator()
@@ -612,21 +650,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.True(orders.All(o => o.o2.Customer != null));
                 Assert.Equal(2, orders.Select(o => o.o2.Customer).Distinct().Count());
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
-            }
-        }
-
-        [Fact]
-        public virtual void Include_multi_level_reference_and_collection_predicate()
-        {
-            using (var context = CreateContext())
-            {
-                var order
-                    = context.Set<Order>()
-                        .Include(o => o.Customer.Orders)
-                        .Single(o => o.OrderID == 10248);
-
-                Assert.NotNull(order.Customer);
-                Assert.True(order.Customer.Orders.All(o => o != null));
             }
         }
 
@@ -1007,6 +1030,21 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
+            }
+        }
+        
+        [Fact]
+        public virtual void Include_multi_level_reference_and_collection_predicate()
+        {
+            using (var context = CreateContext())
+            {
+                var order
+                    = context.Set<Order>()
+                        .Include(o => o.Customer.Orders)
+                        .Single(o => o.OrderID == 10248);
+
+                Assert.NotNull(order.Customer);
+                Assert.True(order.Customer.Orders.All(o => o != null));
             }
         }
 

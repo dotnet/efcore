@@ -80,6 +80,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return selectExpression;
         }
 
+        public virtual SelectExpression Clone()
+        {
+            var selectExpression
+                = new SelectExpression(_querySqlGeneratorFactory)
+                {
+                    _limit = _limit,
+                    _offset = _offset,
+                    _isDistinct = _isDistinct,
+                    _subqueryDepth = _subqueryDepth,
+                    IsProjectStar = IsProjectStar,
+                    Predicate = Predicate
+                };
+
+            selectExpression.AddTables(_tables);
+            selectExpression.AddToOrderBy(_orderBy);
+
+            return selectExpression;
+        }
+
         public virtual IReadOnlyList<TableExpressionBase> Tables => _tables;
 
         public virtual bool IsProjectStar { get; set; }
@@ -483,10 +502,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         public virtual void ClearColumnProjections()
         {
-            for (int i = _projection.Count - 1; i >= 0; i--)
+            for (var i = _projection.Count - 1; i >= 0; i--)
             {
                 var aliasExpression = _projection[i] as AliasExpression;
-                if (aliasExpression != null && aliasExpression.Expression is ColumnExpression)
+
+                if (aliasExpression?.Expression is ColumnExpression)
                 {
                     _projection.RemoveAt(i);
                 }
@@ -511,6 +531,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(orderBy, nameof(orderBy));
 
             _projection.RemoveAll(ce => orderBy.Any(o => ReferenceEquals(o.Expression, ce)));
+        }
+
+        public virtual void ReplaceInProjection(
+            [NotNull] IProperty property,
+            [NotNull] Expression replacement)
+        {
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(replacement, nameof(replacement));
+
+            var index = _projection.FindIndex(e => e.TryGetColumnExpression()?.Property == property);
+
+            _projection[index] = replacement;
         }
 
         public virtual int GetProjectionIndex([NotNull] IProperty property, [NotNull] IQuerySource querySource)
@@ -668,14 +700,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return innerJoinExpression;
         }
 
-        public virtual JoinExpressionBase AddOuterJoin([NotNull] TableExpressionBase tableExpression)
+        public virtual JoinExpressionBase AddLeftOuterJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            return AddOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
+            return AddLeftOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
         }
 
-        public virtual JoinExpressionBase AddOuterJoin(
+        public virtual JoinExpressionBase AddLeftOuterJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {

@@ -14,8 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class WeakReferenceIdentityMap<TKey> : IWeakReferenceIdentityMap
     {
         private const int IdentityMapGarbageCollectionThreshold = 500;
-        private int _identityMapGarbageCollectionIterations;
+
         private readonly Dictionary<TKey, WeakReference<object>> _identityMap;
+
+        private int _identityMapGarbageCollectionIterations;
 
         public WeakReferenceIdentityMap(
             [NotNull] IKey key,

@@ -54,12 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             bool hasNullKey;
             var weakReference = identityMap.TryGetEntity(entityLoadInfo.ValueBuffer, out hasNullKey);
+
             if (hasNullKey)
             {
                 if (throwOnNullKey)
                 {
                     throw new InvalidOperationException(CoreStrings.InvalidKeyValue(key.DeclaringEntityType.DisplayName()));
                 }
+
                 return null;
             }
 
@@ -76,7 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     identityMap.CollectGarbage();
-
                     identityMap.Add(entityLoadInfo.ValueBuffer, entity);
                 }
 
@@ -124,13 +125,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 includedEntity.StartTracking(_stateManager, (ValueBuffer)boxedValueBuffer);
             }
         }
+        
+        private readonly Dictionary<object, object> _lastIncludeEntity = new Dictionary<object, object>();
 
         public virtual void Include(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
             IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             bool queryStateManager)
-            => Include(entity, navigationPath, relatedEntitiesLoaders, 0, queryStateManager);
+        {
+            object e;
+            if (entity != null
+                && _lastIncludeEntity.TryGetValue(navigationPath, out e)
+                && ReferenceEquals(entity, e))
+            {
+                return;
+            }
+
+            Include(entity, navigationPath, relatedEntitiesLoaders, 0, queryStateManager);
+
+            if (entity != null)
+            {
+                _lastIncludeEntity[navigationPath] = entity;
+            }
+        }
 
         private void Include(
             object entity,
@@ -171,13 +189,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .ToList());
         }
 
-        public virtual Task IncludeAsync(
+        public virtual async Task IncludeAsync(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
             IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
             CancellationToken cancellationToken,
             bool queryStateManager)
-            => IncludeAsync(entity, navigationPath, relatedEntitiesLoaders, cancellationToken, 0, queryStateManager);
+        {
+            object e;
+            if (entity != null
+                && _lastIncludeEntity.TryGetValue(navigationPath, out e)
+                && ReferenceEquals(entity, e))
+            {
+                return;
+            }
+
+            await IncludeAsync(entity, navigationPath, relatedEntitiesLoaders, cancellationToken, 0, queryStateManager);
+
+            if (entity != null)
+            {
+                _lastIncludeEntity[navigationPath] = entity;
+            }
+        }
 
         private async Task IncludeAsync(
             object entity,
@@ -201,20 +234,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](keyComparer), async (eli, ct) =>
-                    {
-                        var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
+                await relatedEntitiesLoaders[currentNavigationIndex](keyComparer)
+                    .Select(async (eli, ct) =>
+                        {
+                            var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
 
-                        await IncludeAsync(
-                            targetEntity,
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            ct,
-                            currentNavigationIndex + 1,
-                            queryStateManager);
+                            await IncludeAsync(
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                ct,
+                                currentNavigationIndex + 1,
+                                queryStateManager);
 
-                        return targetEntity;
-                    })
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken));
         }
