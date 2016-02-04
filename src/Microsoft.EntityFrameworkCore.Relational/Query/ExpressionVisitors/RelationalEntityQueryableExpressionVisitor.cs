@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
+        private readonly IExpressionPrinter _expressionPrinter;
         private readonly IQuerySource _querySource;
 
         public RelationalEntityQueryableExpressionVisitor(
@@ -36,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
+            [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
@@ -51,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _materializerFactory = materializerFactory;
             _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
+            _expressionPrinter = expressionPrinter;
             _querySource = querySource;
         }
 
@@ -206,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 .QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
             {
-                var materializer
+                var materializerLambda
                     = _materializerFactory
                         .CreateMaterializer(
                             entityType,
@@ -216,7 +219,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                                     _relationalAnnotationProvider.For(p).ColumnName,
                                     p,
                                     _querySource),
-                            _querySource).Compile();
+                            _querySource);
+
+                var materializer = materializerLambda.Compile();
+                var materializerString = _expressionPrinter.Print(materializerLambda);
 
                 shaper
                     = (Shaper)_createEntityShaperMethodInfo.MakeGenericMethod(elementType)
@@ -227,6 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             QueryModelVisitor.QueryCompilationContext.IsTrackingQuery,
                             entityType.FindPrimaryKey(),
                             materializer,
+                            materializerString,
                             QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
                         });
             }
@@ -249,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             bool trackingQuery,
             IKey key,
             Func<ValueBuffer, object> materializer,
+            string materializerString,
             bool useQueryBuffer)
             where TEntity : class
             => !useQueryBuffer
@@ -257,12 +265,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     entityType,
                     trackingQuery,
                     key,
-                    materializer)
+                    materializer,
+                    materializerString)
                 : new BufferedEntityShaper<TEntity>(
                     querySource,
                     entityType,
                     trackingQuery,
                     key,
-                    materializer);
+                    materializer,
+                    materializerString);
     }
 }

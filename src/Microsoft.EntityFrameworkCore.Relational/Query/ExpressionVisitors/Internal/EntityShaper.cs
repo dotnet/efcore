@@ -16,19 +16,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] string entityType,
             bool trackingQuery,
             [NotNull] IKey key,
-            [NotNull] Func<ValueBuffer, object> materializer)
+            [NotNull] Func<ValueBuffer, object> materializer,
+            [NotNull] string materializerString)
             : base(querySource)
         {
             IsTrackingQuery = trackingQuery;
             EntityType = entityType;
             Key = key;
             Materializer = materializer;
+            MaterializerString = materializerString;
         }
 
         protected virtual string EntityType { get; }
         protected virtual bool IsTrackingQuery { get; }
         protected virtual IKey Key { get; }
         protected virtual Func<ValueBuffer, object> Materializer { get; }
+        protected virtual string MaterializerString { get; }
         protected virtual bool AllowNullResult { get; private set; }
         protected virtual int ValueBufferOffset { get; private set; }
 

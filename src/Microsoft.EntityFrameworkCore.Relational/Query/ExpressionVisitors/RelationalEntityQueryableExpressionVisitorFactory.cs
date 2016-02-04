@@ -19,25 +19,29 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
+        private readonly IExpressionPrinter _expressionPrinter;
 
         public RelationalEntityQueryableExpressionVisitorFactory(
             [NotNull] IModel model,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
-            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
+            [NotNull] IExpressionPrinter expressionPrinter)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
             _model = model;
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
             _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
+            _expressionPrinter = expressionPrinter;
         }
 
         public virtual ExpressionVisitor Create(
@@ -48,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 _materializerFactory,
                 _shaperCommandContextFactory,
                 _relationalAnnotationProvider,
+                _expressionPrinter,
                 (RelationalQueryModelVisitor)Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
                 querySource);
     }

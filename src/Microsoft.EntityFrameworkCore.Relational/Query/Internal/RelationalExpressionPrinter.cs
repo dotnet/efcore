@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -16,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var relationalPrinters = new List<IConstantPrinter>
             {
                 new CommandBuilderPrinter(),
+                new ShaperPrinter(),
                 new EntityTrackingInfoListPrinter(),
                 new MetadataPropertyCollectionPrinter()
             };
@@ -48,6 +51,95 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 return false;
+            }
+        }
+
+        private class ShaperPrinter : IConstantPrinter
+        {
+            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            {
+                if (value == null)
+                {
+                    return false;
+                }
+
+                var typeName = value.GetType().Name;
+                if (typeName.StartsWith("CompositeShaper"))
+                {
+                    PrintCompositeShaper(value, stringBuilder);
+
+                    return true;
+                }
+                else if (typeName.StartsWith("BufferedEntityShaper")
+                    || typeName.StartsWith("BufferedOffsetEntityShaper")
+                    || typeName == "EntityShaper")
+                {
+                    PrintEntityShaper(value, stringBuilder);
+
+                    return true;
+                }
+                else if (typeName == "ValueBufferShaper")
+                {
+                    stringBuilder.AppendLine(typeName);
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            private void PrintCompositeShaper(object value, IndentedStringBuilder stringBuilder)
+            {
+                var shaperTypeInfo = value.GetType().GetTypeInfo();
+                stringBuilder.AppendLine(value.GetType().DisplayName(fullName: false) + ": ");
+                stringBuilder.IncrementIndent();
+
+                var materializerStringFieldInfo = shaperTypeInfo.GetDeclaredField("_materializerString");
+                var materializerString = (string)materializerStringFieldInfo.GetValue(value);
+
+                var outerShaperFieldInfo = shaperTypeInfo.GetDeclaredField("_outerShaper");
+                var outerShaper = outerShaperFieldInfo.GetValue(value);
+                var innerShaperFieldInfo = shaperTypeInfo.GetDeclaredField("_innerShaper");
+                var innerShaper = innerShaperFieldInfo.GetValue(value);
+
+                stringBuilder.Append("outerShaper: ");
+                TryPrintConstant(outerShaper, stringBuilder);
+
+                stringBuilder.Append("innerShaper: ");
+                TryPrintConstant(innerShaper, stringBuilder);
+
+                stringBuilder.AppendLine("materializer: " + materializerString);
+
+                stringBuilder.DecrementIndent();
+            }
+
+            private void PrintEntityShaper(object value, IndentedStringBuilder stringBuilder)
+            {
+                stringBuilder.AppendLine(value.GetType().DisplayName(fullName: false) + ": ");
+                stringBuilder.IncrementIndent();
+
+                var materializerStringPropertyInfo = typeof(EntityShaper).GetTypeInfo().GetDeclaredProperty("MaterializerString");
+                var materializerString = (string)materializerStringPropertyInfo.GetValue(value);
+
+                var valueBufferOffsetPropertyInfo = typeof(EntityShaper).GetTypeInfo().GetDeclaredProperty("ValueBufferOffset");
+                var valueBufferOffset = (int)valueBufferOffsetPropertyInfo.GetValue(value);
+
+                stringBuilder.AppendLine("materializer: ");
+                stringBuilder.IncrementIndent();
+                var lines = materializerString.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                foreach (var line in lines)
+                {
+                    stringBuilder.AppendLine(line);
+                }
+
+                stringBuilder.DecrementIndent();
+
+                if (valueBufferOffset > 0)
+                {
+                    stringBuilder.AppendLine("valueBufferOffset: " + valueBufferOffset);
+                }
+
+                stringBuilder.DecrementIndent();
             }
         }
 
