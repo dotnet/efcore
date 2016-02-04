@@ -14,6 +14,12 @@ addons:
     - libssl-dev
     - libunwind8
     - zlib1g
+branches:
+  only:
+    - master
+    - release
+    - dev
+    - /^ci-.*$/
 
 # before_install:
 #   - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi

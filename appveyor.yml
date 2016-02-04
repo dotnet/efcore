@@ -8,5 +8,11 @@ deploy: off
 # See http://www.appveyor.com/docs/services-databases#sql-server-2014
 services:
   - mssql2014
+branches:
+  only:
+    - master
+    - release
+    - dev
+    - /^ci-.*$/
 environment:
   Test__SqlServer__DefaultConnection: Server=(local)\SQL2014;Database=master;User ID=sa;Password=Password12!
