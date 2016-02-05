@@ -750,11 +750,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
-                modelBuilder
+                var fk = modelBuilder
                     .Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne()
-                    .HasForeignKey<CustomerDetails>(e => e.Id);
+                    .HasForeignKey<CustomerDetails>(e => e.Id).Metadata;
 
-                var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(fkProperty, fk.Properties.Single());
 
                 Assert.Same(fk.DependentToPrincipal, dependentType.GetNavigations().Single());
@@ -3164,6 +3163,32 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var fk = modelBuilder.Entity<Book>().HasOne(e => e.Details).WithOne(e => e.AnotherBook).Metadata;
 
                 Assert.NotEqual("Id", fk.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Creates_one_to_one_relationship_with_single_ref_as_principal_to_dependent_if_matching_properties_are_on_the_other_side()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOneDependentEntityId);
+                });
+                modelBuilder.Entity<OneToOneDependentEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                    b.Ignore(e => e.OneToOnePrincipalEntityId);
+                });
+
+                modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity)).FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
+
+                Assert.Equal(typeof(OneToOneDependentEntity), fk.PrincipalEntityType.ClrType);
+                Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
+                Assert.True(fk.IsUnique);
+                Assert.Null(fk.DependentToPrincipal);
+                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
             }
         }
     }

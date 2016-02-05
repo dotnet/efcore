@@ -1798,6 +1798,117 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Null(model.FindEntityType(typeof(Alpha)).FindNavigation("Thetas").ForeignKey.DependentToPrincipal);
                 Assert.Equal("Id", model.FindEntityType(typeof(Alpha)).FindNavigation("Thetas").ForeignKey.Properties.First().Name);
             }
+
+            [Fact]
+            public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_no_matching_properties_either_side()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOneDependentEntityId);
+                    b.Ignore(e => e.OneToOneDependentEntityId);
+                });
+                modelBuilder.Entity<OneToOneDependentEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                    b.Ignore(e => e.OneToOnePrincipalEntityId);
+                });
+
+                modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
+
+                modelBuilder.Validate();
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity)).FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
+
+                Assert.Equal(typeof(OneToOnePrincipalEntity), fk.PrincipalEntityType.ClrType);
+                Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
+                Assert.False(fk.IsUnique);
+                Assert.Null(fk.PrincipalToDependent);
+                Assert.True(fk.Properties.Single().IsShadowProperty);
+            }
+
+            [Fact]
+            public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_navigation_name_properties_are_on_navigation_side()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOneDependentEntityId);
+                    b.Ignore(e => e.OneToOneDependentEntityId);
+                });
+                modelBuilder.Entity<OneToOneDependentEntity>(b =>
+                {
+                    b.Ignore(e => e.OneToOnePrincipalEntityId);
+                });
+
+                modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
+
+                modelBuilder.Validate();
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity)).FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
+
+                Assert.Equal(typeof(OneToOnePrincipalEntity), fk.PrincipalEntityType.ClrType);
+                Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
+                Assert.False(fk.IsUnique);
+                Assert.Null(fk.PrincipalToDependent);
+                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.Equal(OneToOneDependentEntity.NavigationMatchingProperty.Name, fk.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_entity_name_properties_are_on_navigation_side()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOneDependentEntityId);
+                    b.Ignore(e => e.OneToOneDependentEntityId);
+                });
+                modelBuilder.Entity<OneToOneDependentEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                });
+
+                modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
+
+                modelBuilder.Validate();
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity)).FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
+
+                Assert.Equal(typeof(OneToOnePrincipalEntity), fk.PrincipalEntityType.ClrType);
+                Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
+                Assert.False(fk.IsUnique);
+                Assert.Null(fk.PrincipalToDependent);
+                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.Equal(OneToOneDependentEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_properties_are_on_both_side()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOneDependentEntityId);
+                });
+                modelBuilder.Entity<OneToOneDependentEntity>(b =>
+                {
+                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                });
+
+                modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
+
+                modelBuilder.Validate();
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity)).FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
+
+                Assert.Equal(typeof(OneToOnePrincipalEntity), fk.PrincipalEntityType.ClrType);
+                Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
+                Assert.False(fk.IsUnique);
+                Assert.Null(fk.PrincipalToDependent);
+                Assert.False(fk.Properties.Single().IsShadowProperty);
+                Assert.Equal(OneToOneDependentEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
+            }
         }
     }
 }

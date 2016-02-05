@@ -438,6 +438,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         protected class OneToOnePrincipalEntity
         {
             public static readonly PropertyInfo NavigationProperty = typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntity");
+            public static readonly PropertyInfo EntityMatchingProperty = typeof(OneToOnePrincipalEntity).GetProperty("OneToOneDependentEntityId");
+            public static readonly PropertyInfo NavigationMatchingProperty = typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntityId");
 
             public int Id { get; set; }
 
@@ -452,6 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         protected class OneToOneDependentEntity
         {
             public static readonly PropertyInfo NavigationProperty = typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntity");
+            public static readonly PropertyInfo EntityMatchingProperty = typeof(OneToOneDependentEntity).GetProperty("OneToOnePrincipalEntityId");
+            public static readonly PropertyInfo NavigationMatchingProperty = typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntityId");
 
             public int Id { get; set; }
 

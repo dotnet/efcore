@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var foreignKeyProperties = FindCandidateForeignKeyProperties(
                 foreignKey, onDependent: true);
+
             if (foreignKey.IsUnique
                 && !foreignKey.IsSelfPrimaryKeyReferencing())
             {
@@ -54,6 +55,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         foreignKey.DeclaringEntityType,
                         foreignKey.PrincipalEntityType,
                         foreignKey.PrincipalKey.Properties);
+                }
+            }
+            else if ((foreignKey.DependentToPrincipal != null)
+                     && !foreignKey.DependentToPrincipal.IsCollection()
+                     && (foreignKey.PrincipalToDependent == null))
+            {
+                // Single reference navigation which can be converted to one to one
+                var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(
+                    foreignKey, onDependent: false);
+
+                if (candidatePropertiesOnPrincipal != null)
+                {
+                    if ((foreignKeyProperties == null)
+                        && relationshipBuilder.CanInvert(candidatePropertiesOnPrincipal, ConfigurationSource.Convention))
+                    {
+                        // Invert and set one to one if principal side has matching property & dependent side does not have
+                        relationshipBuilder = relationshipBuilder
+                            .DependentEntityType(foreignKey.PrincipalEntityType, ConfigurationSource.Convention)
+                            .IsUnique(true, ConfigurationSource.Convention)
+                            .HasForeignKey(candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
+
+                        Debug.Assert(relationshipBuilder != null);
+                        return relationshipBuilder;
+                    }
                 }
             }
 
@@ -185,6 +210,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     return null;
                 }
+            }
+
+            // Don't match with only Id since it is ambigious. PK in dependent entity used as FK is matched elsewhere
+            if ((foreignKeyProperties.Count == 1)
+                && (foreignKeyProperties.Single().Name == "Id"))
+            {
+                return null;
             }
 
             return foreignKeyProperties;
