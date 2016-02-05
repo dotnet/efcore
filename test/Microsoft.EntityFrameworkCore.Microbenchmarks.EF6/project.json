@@ -3,6 +3,7 @@
     "EntityFramework": "6.1.2",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0"
   },
+  "content": "config.json",
   "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"

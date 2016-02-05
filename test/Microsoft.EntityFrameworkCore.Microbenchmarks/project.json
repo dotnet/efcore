@@ -3,6 +3,7 @@
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
+  "content": "config.json",
   "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"
