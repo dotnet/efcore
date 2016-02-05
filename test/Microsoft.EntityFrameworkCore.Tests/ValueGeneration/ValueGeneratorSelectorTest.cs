@@ -22,34 +22,34 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
 
-            Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.FindProperty("Id"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.FindProperty("Long"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<short>>(selector.Select(entityType.FindProperty("Short"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<byte>>(selector.Select(entityType.FindProperty("Byte"), entityType));
+            Assert.IsType<TemporaryIntValueGenerator>(selector.Select(entityType.FindProperty("Id"), entityType));
+            Assert.IsType<TemporaryLongValueGenerator>(selector.Select(entityType.FindProperty("Long"), entityType));
+            Assert.IsType<TemporaryShortValueGenerator>(selector.Select(entityType.FindProperty("Short"), entityType));
+            Assert.IsType<TemporaryByteValueGenerator>(selector.Select(entityType.FindProperty("Byte"), entityType));
 
-            Assert.IsType<TemporaryNumberValueGenerator<int>>(selector.Select(entityType.FindProperty("NullableInt"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<long>>(selector.Select(entityType.FindProperty("NullableLong"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<short>>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<byte>>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
+            Assert.IsType<TemporaryIntValueGenerator>(selector.Select(entityType.FindProperty("NullableInt"), entityType));
+            Assert.IsType<TemporaryLongValueGenerator>(selector.Select(entityType.FindProperty("NullableLong"), entityType));
+            Assert.IsType<TemporaryShortValueGenerator>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
+            Assert.IsType<TemporaryByteValueGenerator>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
 
-            Assert.IsType<TemporaryNumberValueGenerator<uint>>(selector.Select(entityType.FindProperty("UInt"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ulong>>(selector.Select(entityType.FindProperty("ULong"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.FindProperty("UShort"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("SByte"), entityType));
+            Assert.IsType<TemporaryUIntValueGenerator>(selector.Select(entityType.FindProperty("UInt"), entityType));
+            Assert.IsType<TemporaryULongValueGenerator>(selector.Select(entityType.FindProperty("ULong"), entityType));
+            Assert.IsType<TemporaryUShortValueGenerator>(selector.Select(entityType.FindProperty("UShort"), entityType));
+            Assert.IsType<TemporarySByteValueGenerator>(selector.Select(entityType.FindProperty("SByte"), entityType));
 
-            Assert.IsType<TemporaryNumberValueGenerator<uint>>(selector.Select(entityType.FindProperty("NullableUInt"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ulong>>(selector.Select(entityType.FindProperty("NullableULong"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<ushort>>(selector.Select(entityType.FindProperty("NullableUShort"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("NullableSByte"), entityType));
+            Assert.IsType<TemporaryUIntValueGenerator>(selector.Select(entityType.FindProperty("NullableUInt"), entityType));
+            Assert.IsType<TemporaryULongValueGenerator>(selector.Select(entityType.FindProperty("NullableULong"), entityType));
+            Assert.IsType<TemporaryUShortValueGenerator>(selector.Select(entityType.FindProperty("NullableUShort"), entityType));
+            Assert.IsType<TemporarySByteValueGenerator>(selector.Select(entityType.FindProperty("NullableSByte"), entityType));
 
-            Assert.IsType<TemporaryNumberValueGenerator<decimal>>(selector.Select(entityType.FindProperty("Decimal"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<decimal>>(selector.Select(entityType.FindProperty("NullableDecimal"), entityType));
+            Assert.IsType<TemporaryDecimalValueGenerator>(selector.Select(entityType.FindProperty("Decimal"), entityType));
+            Assert.IsType<TemporaryDecimalValueGenerator>(selector.Select(entityType.FindProperty("NullableDecimal"), entityType));
 
-            Assert.IsType<TemporaryNumberValueGenerator<float>>(selector.Select(entityType.FindProperty("Float"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<float>>(selector.Select(entityType.FindProperty("NullableFloat"), entityType));
+            Assert.IsType<TemporaryFloatValueGenerator>(selector.Select(entityType.FindProperty("Float"), entityType));
+            Assert.IsType<TemporaryFloatValueGenerator>(selector.Select(entityType.FindProperty("NullableFloat"), entityType));
 
-            Assert.IsType<TemporaryNumberValueGenerator<double>>(selector.Select(entityType.FindProperty("Double"), entityType));
-            Assert.IsType<TemporaryNumberValueGenerator<double>>(selector.Select(entityType.FindProperty("NullableDouble"), entityType));
+            Assert.IsType<TemporaryDoubleValueGenerator>(selector.Select(entityType.FindProperty("Double"), entityType));
+            Assert.IsType<TemporaryDoubleValueGenerator>(selector.Select(entityType.FindProperty("NullableDouble"), entityType));
 
             Assert.IsType<TemporaryDateTimeValueGenerator>(selector.Select(entityType.FindProperty("DateTime"), entityType));
             Assert.IsType<TemporaryDateTimeValueGenerator>(selector.Select(entityType.FindProperty("NullableDateTime"), entityType));

@@ -9,62 +9,137 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
     public class TemporaryNumberValueGeneratorTest
     {
         [Fact]
-        public void Creates_negative_values()
+        public void Can_create_values_for_int_types()
         {
-            var generator = new TemporaryNumberValueGenerator<int>();
+            var generator = new TemporaryIntValueGenerator();
 
-            Assert.Equal(-1, generator.Next());
-            Assert.Equal(-2, generator.Next());
-            Assert.Equal(-3, generator.Next());
-            Assert.Equal(-4, generator.Next());
-            Assert.Equal(-5, generator.Next());
-            Assert.Equal(-6, generator.Next());
+            Assert.Equal(int.MinValue + 1001, generator.Next());
+            Assert.Equal(int.MinValue + 1002, generator.Next());
+            Assert.Equal(int.MinValue + 1003, generator.Next());
         }
 
         [Fact]
-        public void Can_create_values_for_all_integer_types()
+        public void Can_create_values_for_long_types()
         {
-            Assert.Equal(-1, new TemporaryNumberValueGenerator<int>().Next());
-            Assert.Equal(-1L, new TemporaryNumberValueGenerator<long>().Next());
-            Assert.Equal((short)-1, new TemporaryNumberValueGenerator<short>().Next());
-            Assert.Equal(unchecked((byte)-1), new TemporaryNumberValueGenerator<byte>().Next());
-            Assert.Equal(unchecked((uint)-1), new TemporaryNumberValueGenerator<uint>().Next());
-            Assert.Equal(unchecked((ulong)-1), new TemporaryNumberValueGenerator<ulong>().Next());
-            Assert.Equal(unchecked((ushort)-1), new TemporaryNumberValueGenerator<ushort>().Next());
-            Assert.Equal((sbyte)-1, new TemporaryNumberValueGenerator<sbyte>().Next());
+            var generator = new TemporaryLongValueGenerator();
+
+            Assert.Equal(long.MinValue + 1001, generator.Next());
+            Assert.Equal(long.MinValue + 1002, generator.Next());
+            Assert.Equal(long.MinValue + 1003, generator.Next());
+        }
+
+        [Fact]
+        public void Can_create_values_for_short_types()
+        {
+            var generator = new TemporaryShortValueGenerator();
+
+            Assert.Equal(short.MinValue + 101, generator.Next());
+            Assert.Equal(short.MinValue + 102, generator.Next());
+            Assert.Equal(short.MinValue + 103, generator.Next());
+        }
+
+        [Fact]
+        public void Can_create_values_for_byte_types()
+        {
+            var generator = new TemporaryByteValueGenerator();
+
+            Assert.Equal(255, generator.Next());
+            Assert.Equal(254, generator.Next());
+            Assert.Equal(253, generator.Next());
+        }
+
+        [Fact]
+        public void Can_create_values_for_uint_types()
+        {
+            var generator = new TemporaryUIntValueGenerator();
+
+            Assert.Equal(unchecked((uint)int.MinValue + 1001), generator.Next());
+            Assert.Equal(unchecked((uint)int.MinValue + 1002), generator.Next());
+            Assert.Equal(unchecked((uint)int.MinValue + 1003), generator.Next());
+        }
+
+        [Fact]
+        public void Can_create_values_for_ulong_types()
+        {
+            var generator = new TemporaryULongValueGenerator();
+
+            Assert.Equal(unchecked((ulong)long.MinValue + 1001), generator.Next());
+            Assert.Equal(unchecked((ulong)long.MinValue + 1002), generator.Next());
+            Assert.Equal(unchecked((ulong)long.MinValue + 1003), generator.Next());
+        }
+
+        [Fact]
+        public void Can_create_values_for_ushort_types()
+        {
+            var generator = new TemporaryUShortValueGenerator();
+
+            Assert.Equal(unchecked((ushort)short.MinValue + 101), generator.Next());
+            Assert.Equal(unchecked((ushort)short.MinValue + 102), generator.Next());
+            Assert.Equal(unchecked((ushort)short.MinValue + 103), generator.Next());
+        }
+
+        [Fact]
+        public void Can_create_values_for_sbyte_types()
+        {
+            var generator = new TemporarySByteValueGenerator();
+
+            Assert.Equal(-127, generator.Next());
+            Assert.Equal(-126, generator.Next());
+            Assert.Equal(-125, generator.Next());
+        }
+
+        [Fact]
+        public void Can_create_values_for_char_types()
+        {
+            var generator = new TemporaryCharValueGenerator();
+
+            Assert.Equal(char.MaxValue - 101, generator.Next());
+            Assert.Equal(char.MaxValue - 102, generator.Next());
+            Assert.Equal(char.MaxValue - 103, generator.Next());
         }
 
         [Fact]
         public void Can_create_values_for_decimal_types()
         {
-            var generator = new TemporaryNumberValueGenerator<decimal>();
+            var generator = new TemporaryDecimalValueGenerator();
 
-            Assert.Equal(-1m, generator.Next());
-            Assert.Equal(-2m, generator.Next());
+            Assert.Equal(-2147482647m, generator.Next());
+            Assert.Equal(-2147482646m, generator.Next());
         }
 
         [Fact]
         public void Can_create_values_for_float_types()
         {
-            var generator = new TemporaryNumberValueGenerator<float>();
+            var generator = new TemporaryFloatValueGenerator();
 
-            Assert.Equal(-1.0f, generator.Next());
-            Assert.Equal(-2.0f, generator.Next());
+            Assert.Equal(-2147482647.0f, generator.Next());
+            Assert.Equal(-2147482646.0f, generator.Next());
         }
 
         [Fact]
         public void Can_create_values_for_double_types()
         {
-            var generator = new TemporaryNumberValueGenerator<double>();
+            var generator = new TemporaryDoubleValueGenerator();
 
-            Assert.Equal(-1.0, generator.Next());
-            Assert.Equal(-2.0, generator.Next());
+            Assert.Equal(-2147482647.0, generator.Next());
+            Assert.Equal(-2147482646.0, generator.Next());
         }
 
         [Fact]
         public void Generates_temporary_values()
         {
-            Assert.True(new TemporaryNumberValueGenerator<int>().GeneratesTemporaryValues);
+            Assert.True(new TemporaryIntValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryLongValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryShortValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryByteValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryUIntValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryULongValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryUShortValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporarySByteValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryDecimalValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryDoubleValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryFloatValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new TemporaryCharValueGenerator().GeneratesTemporaryValues);
         }
     }
 }

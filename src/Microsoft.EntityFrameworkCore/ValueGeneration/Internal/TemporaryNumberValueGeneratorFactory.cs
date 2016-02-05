@@ -14,64 +14,64 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
         {
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
-            if (type == typeof(long))
-            {
-                return new TemporaryNumberValueGenerator<long>();
-            }
-
             if (type == typeof(int))
             {
-                return new TemporaryNumberValueGenerator<int>();
+                return new TemporaryIntValueGenerator();
+            }
+
+            if (type == typeof(long))
+            {
+                return new TemporaryLongValueGenerator();
             }
 
             if (type == typeof(short))
             {
-                return new TemporaryNumberValueGenerator<short>();
+                return new TemporaryShortValueGenerator();
             }
 
             if (type == typeof(byte))
             {
-                return new TemporaryNumberValueGenerator<byte>();
+                return new TemporaryByteValueGenerator();
             }
 
             if (type == typeof(char))
             {
-                return new TemporaryNumberValueGenerator<char>();
+                return new TemporaryCharValueGenerator();
             }
 
             if (type == typeof(ulong))
             {
-                return new TemporaryNumberValueGenerator<ulong>();
+                return new TemporaryULongValueGenerator();
             }
 
             if (type == typeof(uint))
             {
-                return new TemporaryNumberValueGenerator<uint>();
+                return new TemporaryUIntValueGenerator();
             }
 
             if (type == typeof(ushort))
             {
-                return new TemporaryNumberValueGenerator<ushort>();
+                return new TemporaryUShortValueGenerator();
             }
 
             if (type == typeof(sbyte))
             {
-                return new TemporaryNumberValueGenerator<sbyte>();
+                return new TemporarySByteValueGenerator();
             }
 
             if (type == typeof(decimal))
             {
-                return new TemporaryNumberValueGenerator<decimal>();
+                return new TemporaryDecimalValueGenerator();
             }
 
             if (type == typeof(float))
             {
-                return new TemporaryNumberValueGenerator<float>();
+                return new TemporaryFloatValueGenerator();
             }
 
             if (type == typeof(double))
             {
-                return new TemporaryNumberValueGenerator<double>();
+                return new TemporaryDoubleValueGenerator();
             }
 
             throw new ArgumentException(CoreStrings.InvalidValueGeneratorFactoryProperty(

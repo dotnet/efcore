@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var property2 = GetProperty2(model);
             var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorCache>();
 
-            var generator1 = cache.GetOrAdd(property1, entityType, (p, et) => new TemporaryNumberValueGenerator<int>());
+            var generator1 = cache.GetOrAdd(property1, entityType, (p, et) => new TemporaryIntValueGenerator());
             Assert.NotNull(generator1);
-            Assert.Same(generator1, cache.GetOrAdd(property1, entityType, (p, et) => new TemporaryNumberValueGenerator<int>()));
+            Assert.Same(generator1, cache.GetOrAdd(property1, entityType, (p, et) => new TemporaryIntValueGenerator()));
 
-            var generator2 = cache.GetOrAdd(property2, entityType, (p, et) => new TemporaryNumberValueGenerator<int>());
+            var generator2 = cache.GetOrAdd(property2, entityType, (p, et) => new TemporaryIntValueGenerator());
             Assert.NotNull(generator2);
-            Assert.Same(generator2, cache.GetOrAdd(property2, entityType, (p, et) => new TemporaryNumberValueGenerator<int>()));
+            Assert.Same(generator2, cache.GetOrAdd(property2, entityType, (p, et) => new TemporaryIntValueGenerator()));
             Assert.NotSame(generator1, generator2);
         }
 
