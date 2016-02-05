@@ -10,29 +10,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class RelationalParameter : IRelationalParameter
     {
         private readonly string _name;
-        private readonly object _value;
         private readonly RelationalTypeMapping _relationalTypeMapping;
         private readonly bool? _nullable;
 
         public RelationalParameter(
+            [NotNull] string invariantName,
             [NotNull] string name,
-            [CanBeNull] object value,
             [NotNull] RelationalTypeMapping relationalTypeMapping,
-            [CanBeNull] bool? nullable,
-            [CanBeNull] string invariantName)
+            [CanBeNull] bool? nullable)
         {
+            Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(relationalTypeMapping, nameof(relationalTypeMapping));
 
+            InvariantName = invariantName;
             _name = name;
-            _value = value;
             _relationalTypeMapping = relationalTypeMapping;
             _nullable = nullable;
-
-            InvariantName = invariantName;
         }
 
         public virtual string InvariantName { get; }
+
+        public virtual RelationalTypeMapping RelationalTypeMapping => _relationalTypeMapping;
+
+        public virtual bool? Nullable => _nullable;
 
         public virtual void AddDbParameter(DbCommand command, object value)
         {
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             command.Parameters
                 .Add(_relationalTypeMapping
-                    .CreateParameter(command, _name, value ?? _value, _nullable));
+                    .CreateParameter(command, _name, value, _nullable));
         }
     }
 }

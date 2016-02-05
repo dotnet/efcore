@@ -123,14 +123,21 @@ namespace Microsoft.EntityFrameworkCore.Update
                 .Create()
                 .Append(GetCommandText());
 
+            var parameterValues = new Dictionary<string, object>();
+
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
                 if (columnModification.ParameterName != null)
                 {
+
+
                     commandBuilder.AddParameter(
                         SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
                         columnModification.Value,
-                        columnModification.Property);
+                        columnModification.Property,
+                        columnModification.ParameterName);
+
+                    parameterValues[columnModification.ParameterName] = columnModification.Value;
                 }
 
                 if (columnModification.OriginalParameterName != null)
@@ -138,11 +145,18 @@ namespace Microsoft.EntityFrameworkCore.Update
                     commandBuilder.AddParameter(
                         SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                         columnModification.OriginalValue,
-                        columnModification.Property);
+                        columnModification.Property,
+                        columnModification.OriginalParameterName);
+
+                    parameterValues[columnModification.OriginalParameterName] = columnModification.OriginalValue;
                 }
             }
 
-            return commandBuilder.Build();
+            var command = commandBuilder.Build();
+
+            command.CachedParameterValues = parameterValues;
+
+            return command;
         }
 
         public override void Execute(IRelationalConnection connection)

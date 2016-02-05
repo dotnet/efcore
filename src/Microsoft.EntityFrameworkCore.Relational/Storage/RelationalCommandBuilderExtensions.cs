@@ -108,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
+            Check.NotEmpty(invariantName, nameof(invariantName));
 
             bool? isNullable = null;
 
@@ -133,18 +134,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] this IRelationalCommandBuilder commandBuilder,
             [NotNull] string name,
             [CanBeNull] object value,
-            [NotNull] IProperty property)
+            [NotNull] IProperty property,
+            [NotNull] string invariantName)
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(property, nameof(property));
+            Check.NotEmpty(invariantName, nameof(invariantName));
 
             commandBuilder.AddParameter(
                 name,
                 value,
                 t => t.GetMapping(property),
                 property.IsNullable,
-                invariantName: null);
+                invariantName);
 
             return commandBuilder;
         }
@@ -155,14 +158,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] object value,
             [NotNull] Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
             bool? nullable,
-            [CanBeNull] string invariantName)
+            [NotNull] string invariantName)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(mapType, nameof(mapType));
+            Check.NotEmpty(invariantName, nameof(invariantName));
 
             commandBuilder.AddParameter(
                 commandBuilder.CreateParameter(
-                    name, value, mapType, nullable, invariantName));
+                    invariantName, name, mapType, nullable));
         }
     }
 }

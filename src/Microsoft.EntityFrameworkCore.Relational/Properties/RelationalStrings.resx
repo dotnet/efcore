@@ -244,6 +244,12 @@
   <data name="ClientEvalWarning" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
   </data>
+  <data name="NullParameterValue" xml:space="preserve">
+    <value>The argument '{argumentName}' can not be null when parameters have been configured.</value>
+  </data>
+  <data name="MissingParameterValue" xml:space="preserve">
+    <value>No value provided for requred parameter '{parameter}'.</value>
+  </data>
   <data name="RelationalLoggerExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
   </data>
