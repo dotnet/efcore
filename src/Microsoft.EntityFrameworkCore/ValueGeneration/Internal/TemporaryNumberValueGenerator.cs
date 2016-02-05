@@ -8,11 +8,11 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
     public class TemporaryNumberValueGenerator<TValue> : ValueGenerator<TValue>
     {
-        private long _current;
+        private long _current = int.MinValue;
 
         public override TValue Next()
         {
-            var generatedValue = Interlocked.Decrement(ref _current);
+            var generatedValue = Interlocked.Increment(ref _current);
 
             if (typeof(TValue) == typeof(uint))
             {
