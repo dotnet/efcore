@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -29,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string ColumnName
         {
             get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnName) ?? Property.Name; }
-            [param: CanBeNull] set { SetColumnName(value); }
+            [param: CanBeNull]
+            set { SetColumnName(value); }
         }
 
         protected virtual bool SetColumnName([CanBeNull] string value)
@@ -38,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string ColumnType
         {
             get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnType); }
-            [param: CanBeNull] set { SetColumnType(value); }
+            [param: CanBeNull]
+            set { SetColumnType(value); }
         }
 
         protected virtual bool SetColumnType([CanBeNull] string value)
@@ -47,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string GeneratedValueSql
         {
             get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.GeneratedValueSql); }
-            [param: CanBeNull] set { SetGeneratedValueSql(value); }
+            [param: CanBeNull]
+            set { SetGeneratedValueSql(value); }
         }
 
         protected virtual bool SetGeneratedValueSql([CanBeNull] string value)
@@ -59,15 +63,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 return Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValue);
             }
-            [param: CanBeNull] set { SetDefaultValue(value); }
+            [param: CanBeNull]
+            set { SetDefaultValue(value); }
         }
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)
         {
-            if ((value != null)
-                && (Property.ClrType.UnwrapNullableType() != value.GetType()))
+            if (value != null)
             {
-                throw new InvalidOperationException(RelationalStrings.IncorrectDefaultValueType(value, value.GetType(), Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
+                var valueType = value.GetType();
+                if (Property.ClrType.UnwrapNullableType() != valueType)
+                {
+                    throw new InvalidOperationException(RelationalStrings.IncorrectDefaultValueType(value, valueType, Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
+                }
+
+                if (valueType.GetTypeInfo().IsEnum)
+                {
+                    value = Convert.ChangeType(value, valueType.UnwrapEnumType());
+                }
             }
 
             return Annotations.SetAnnotation(RelationalAnnotationNames.DefaultValue, value);

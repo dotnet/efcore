@@ -146,6 +146,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
         }
 
         [Fact]
+        public void Can_set_column_default_value_of_enum_type()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.EnumValue)
+                .HasDefaultValue(MyEnum.Tue);
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("EnumValue");
+
+            Assert.Equal(typeof(ulong), property.Relational().DefaultValue.GetType());
+            Assert.Equal((ulong)2, property.Relational().DefaultValue);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
         public void Can_set_key_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1000,10 +1017,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
             Assert.Same(typeof(int), sequence.ClrType);
         }
 
+        private enum MyEnum : ulong
+        {
+            Sun,
+            Mon,
+            Tue
+        }
+
         private class Customer
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public MyEnum EnumValue { get; set; }
 
             public IEnumerable<Order> Orders { get; set; }
         }

@@ -162,6 +162,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
         }
 
         [Fact]
+        public void Can_get_and_set_column_default_value_of_enum_type()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.EnumValue)
+                .Metadata;
+
+            Assert.Null(property.Relational().DefaultValue);
+
+            property.Relational().DefaultValue = MyEnum.Mon;
+
+            Assert.Equal(typeof(byte), property.Relational().DefaultValue.GetType());
+            Assert.Equal((byte)1, property.Relational().DefaultValue);
+
+            property.Relational().DefaultValue = null;
+
+            Assert.Null(property.Relational().DefaultValue);
+        }
+
+        [Fact]
         public void Throws_when_setting_column_default_value_of_wrong_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -590,11 +612,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
             Assert.Contains(sequences, s => s.Name == "Golomb");
         }
 
+        private enum MyEnum : byte
+        {
+            Son,
+            Mon,
+            Tue
+        }
+
         private class Customer
         {
             public int Id { get; set; }
             public string Name { get; set; }
             public Guid AlternateId { get; set; }
+            public MyEnum? EnumValue { get; set; }
         }
 
         private class SpecialCustomer : Customer

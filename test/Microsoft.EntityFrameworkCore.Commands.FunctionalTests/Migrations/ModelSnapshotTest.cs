@@ -75,6 +75,23 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
         {
         }
 
+        private enum Days : long
+        {
+            Sun,
+            Mon,
+            Tue,
+            Wed,
+            Thu,
+            Fri,
+            Sat
+        }
+
+        private class EntityWithEnumType
+        {
+            public int Id { get; set; }
+            public Days Day { get; set; }
+        }
+
         #region Model
 
         [Fact]
@@ -693,6 +710,29 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
     });
 ",
                 o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
+        }
+
+        [Fact]
+        public void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
+        {
+            Test(
+                builder => { builder.Entity<EntityWithEnumType>().Property(e => e.Day).HasDefaultValue(Days.Wed); },
+                @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+EntityWithEnumType"", b =>
+    {
+        b.ToTable(""EntityWithEnumType"");
+
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<long>(""Day"")
+            .ValueGeneratedOnAdd()
+            .HasAnnotation(""Relational:DefaultValue"", 3L);
+
+        b.HasKey(""Id"");
+    });
+",
+                o => { Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]); });
         }
 
         #endregion
