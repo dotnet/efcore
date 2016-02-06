@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-#if DNX451 || DNXCORE50
+#if NET451 || DNXCORE50
 using System;
 using System.IO;
 using Microsoft.Extensions.CompilationAbstractions;
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compil
                 InitializeReferences();
             }
 
-#if DNX451 || DNXCORE50
+#if NET451 || DNXCORE50
             if (CompilationServices.Default != null)
             {
                 var libraryExport = CompilationServices.Default.LibraryExporter.GetExport(name);
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compil
                 }
             }
 #endif
-#if NET451 || DNX451
+#if NET451
             _references.Add(MetadataReference.CreateFromFile(Assembly.Load(name).Location));
 #else
             throw new InvalidOperationException("Unable to create metadata reference from name: " + name);

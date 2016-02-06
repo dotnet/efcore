@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override IEnumerator GetEnumerator()
             => _parameters.GetEnumerator();
-#if DNX451
+#if NET451
 
         public override bool IsSynchronized
         {

@@ -9,8 +9,7 @@
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {},
-    "dnx451": {},
+    "net451": { },
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {

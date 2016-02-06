@@ -18,23 +18,11 @@
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
     },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      },
+    "net451": {
       "frameworkAssemblies": {
-        "System.Collections": "",
-        "System.Data": "",
-        "System.Diagnostics.Debug": "",
-        "System.Globalization": "",
-        "System.Linq": "",
-        "System.ObjectModel": "",
-        "System.Reflection": "",
-        "System.Reflection.Extensions": "",
-        "System.Runtime": "",
-        "System.Runtime.Extensions": "",
-        "System.Text.RegularExpressions": "",
-        "System.Threading.Tasks": ""
+        "System.Runtime": { "type": "build" },
+        "System.Data": { "type": "build" },
+        "System.Reflection": { "type": "build" }
       }
     }
   }

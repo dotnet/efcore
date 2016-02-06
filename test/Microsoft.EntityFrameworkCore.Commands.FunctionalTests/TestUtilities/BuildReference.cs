@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                     }
                 }
             }
-#if DNX451
+#if NET451
             var assembly = Assembly.Load(name);
             if (!string.IsNullOrEmpty(assembly.Location))
             {
