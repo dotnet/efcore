@@ -43,10 +43,10 @@
     "dotnet5.4": {
       "imports": "portable-net452+win81",
       "dependencies": {
-        "System.Collections.Concurrent": "4.0.11-*",
+        "System.Collections.Concurrent": "4.0.12-*",
         "System.ComponentModel.Annotations": "4.1.0-*",
         "System.Linq.Queryable": "4.0.1-*",
-        "System.ObjectModel": "4.0.11-*",
+        "System.ObjectModel": "4.0.12-*",
         "System.Reflection.TypeExtensions": "4.1.0-*"
       }
     }
