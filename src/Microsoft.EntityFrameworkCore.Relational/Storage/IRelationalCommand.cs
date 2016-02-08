@@ -14,33 +14,39 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         IReadOnlyList<IRelationalParameter> Parameters { get; }
 
+        IReadOnlyDictionary<string, object> CachedParameterValues { get; [param: CanBeNull] set; }
+
         int ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true);
 
         Task<int> ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true,
             CancellationToken cancellationToken = default(CancellationToken));
 
         object ExecuteScalar(
             [NotNull] IRelationalConnection connection,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true);
 
         Task<object> ExecuteScalarAsync(
             [NotNull] IRelationalConnection connection,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true,
             CancellationToken cancellationToken = default(CancellationToken));
 
         RelationalDataReader ExecuteReader(
             [NotNull] IRelationalConnection connection,
-            bool manageConnection = true,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null);
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
+            bool manageConnection = true);
 
         Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,
-            bool manageConnection = true,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
+            bool manageConnection = true,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -349,6 +349,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The argument '{argumentName}' can not be null when parameters have been configured.
+        /// </summary>
+        public static string NullParameterValue([CanBeNull] object argumentName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NullParameterValue", "argumentName"), argumentName);
+        }
+
+        /// <summary>
+        /// No value provided for requred parameter '{parameter}'.
+        /// </summary>
+        public static string MissingParameterValue([CanBeNull] object parameter)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingParameterValue", "parameter"), parameter);
+        }
+
+        /// <summary>
         /// Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
         public static string RelationalLoggerExecutedCommand([CanBeNull] object elapsed, [CanBeNull] object parameters, [CanBeNull] object commandType, [CanBeNull] object commandTimeout, [CanBeNull] object newLine, [CanBeNull] object commandText)

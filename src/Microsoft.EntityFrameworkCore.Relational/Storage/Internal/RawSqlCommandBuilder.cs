@@ -33,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             var relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
+            var parameterValues = new Dictionary<string, object>();
+
             if (parameters != null)
             {
                 var substitutions = new string[parameters.Count];
@@ -49,13 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         substitutions[i],
                         parameters[i],
                         parameterName);
+
+                    parameterValues[parameterName] = parameters[i];
                 }
 
                 // ReSharper disable once CoVariantArrayConversion
                 sql = string.Format(sql, substitutions);
             }
 
-            return relationalCommandBuilder.Append(sql).Build();
+            var command = relationalCommandBuilder.Append(sql).Build();
+
+            command.CachedParameterValues = parameterValues;
+
+            return command;
         }
     }
 }

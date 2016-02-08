@@ -39,17 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => _commandTextBuilder;
 
         public virtual IRelationalParameter CreateParameter(
+            string invariantName,
             string name,
-            object value,
             Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
-            bool? nullable,
-            string invariantName)
+            bool? nullable)
             => new RelationalParameter(
+                invariantName,
                 name,
-                value,
                 mapType(_typeMapper),
-                nullable,
-                invariantName);
+                nullable);
 
         public virtual void AddParameter(IRelationalParameter relationalParameter)
         {

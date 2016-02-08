@@ -13,11 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void AddParameter([NotNull] IRelationalParameter relationalParameter);
 
         IRelationalParameter CreateParameter(
+            [CanBeNull] string invariantName,
             [NotNull] string name,
-            [CanBeNull] object value,
             [NotNull] Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
-            bool? nullable,
-            [CanBeNull] string invariantName);
+            bool? nullable);
 
         IRelationalCommand Build();
     }

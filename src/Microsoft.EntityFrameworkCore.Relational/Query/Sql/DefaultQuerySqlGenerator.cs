@@ -351,11 +351,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             relationalParameters[i]
                                 = _relationalCommandBuilder
                                     .CreateParameter(
+                                        parameterName,
                                         substitutions[i],
-                                        value,
                                         t => t.GetMappingForValue(value),
-                                        value?.GetType().IsNullableType(),
-                                        parameterName);
+                                        value?.GetType().IsNullableType());
                         }
 
                         _relationalCommandBuilder.AddParameter(

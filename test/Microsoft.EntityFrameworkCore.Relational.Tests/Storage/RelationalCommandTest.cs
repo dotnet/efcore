@@ -19,6 +19,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    using CommandAction = System.Action<RelationalCommand, IReadOnlyDictionary<string, object>, bool, IRelationalConnection>;
+    using CommandFunc = System.Func<RelationalCommand, IReadOnlyDictionary<string, object>, bool, IRelationalConnection, Task>;
+
     public class RelationalCommandTest
     {
         [Fact]
@@ -92,52 +95,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var command = fakeConnection.DbConnections[0].DbCommands[0];
 
             Assert.Equal(42, command.CommandTimeout);
-        }
-
-        [Fact]
-        public void Configures_DbCommand_with_parameters()
-        {
-            var fakeConnection = CreateConnection();
-
-            var relationalCommand = new RelationalCommand(
-                new FakeSensitiveDataLogger<RelationalCommand>(),
-                new DiagnosticListener("Fake"),
-                "CommandText",
-                new[]
-                {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null),
-                    new RelationalParameter("SecondParameter", 18L,  new RelationalTypeMapping("long", typeof(long), DbType.Int64), true, null),
-                    new RelationalParameter("ThirdParameter", null,  RelationalTypeMapping.NullMapping, null, null)
-                });
-
-            relationalCommand.ExecuteNonQuery(fakeConnection);
-
-            Assert.Equal(1, fakeConnection.DbConnections.Count);
-            Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
-            Assert.Equal(3, fakeConnection.DbConnections[0].DbCommands[0].Parameters.Count);
-
-            var parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[0];
-
-            Assert.Equal("FirstParameter", parameter.ParameterName);
-            Assert.Equal(17, parameter.Value);
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(false, parameter.IsNullable);
-            Assert.Equal(DbType.Int32, parameter.DbType);
-
-            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
-
-            Assert.Equal("SecondParameter", parameter.ParameterName);
-            Assert.Equal(18L, parameter.Value);
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(true, parameter.IsNullable);
-            Assert.Equal(DbType.Int64, parameter.DbType);
-
-            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[2];
-
-            Assert.Equal("ThirdParameter", parameter.ParameterName);
-            Assert.Equal(DBNull.Value, parameter.Value);
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
         }
 
         [Theory]
@@ -439,36 +396,369 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new TheoryData<Delegate, string, bool>
                 {
                     {
-                        new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteNonQuery(connection, manageConnection: manage)),
+                        new CommandAction((command, parameters, manage, connection)
+                            => command.ExecuteNonQuery(connection, parameters,manageConnection: manage)),
                         "ExecuteNonQuery",
                         false
                     },
                     {
-                        new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteScalar(connection, manageConnection: manage)),
+                        new CommandAction((command, parameters, manage, connection)
+                            => command.ExecuteScalar(connection, parameters, manageConnection: manage)),
                         "ExecuteScalar",
                         false
                     },
                     {
-                        new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteReader(connection, manageConnection: manage)),
+                        new CommandAction((command, parameters, manage, connection)
+                            => command.ExecuteReader(connection, parameters, manageConnection: manage)),
                         "ExecuteReader",
                         false
                     },
                     {
-                        new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteNonQueryAsync(connection, manageConnection: manage)),
+                        new CommandFunc((command, parameters, manage, connection)
+                            => command.ExecuteNonQueryAsync(connection, parameters, manageConnection: manage)),
                         "ExecuteNonQuery",
                         true
                     },
                     {
-                        new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteScalarAsync(connection, manageConnection: manage)),
+                        new CommandFunc((command, parameters, manage, connection)
+                            => command.ExecuteScalarAsync(connection, parameters, manageConnection: manage)),
                         "ExecuteScalar",
                         true
                     },
                     {
-                        new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteReaderAsync(connection, manageConnection: manage)),
+                        new CommandFunc((command, parameters, manage, connection)
+                            => command.ExecuteReaderAsync(connection, parameters, manageConnection: manage)),
                         "ExecuteReader",
                         true
                     }
                 };
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Throws_when_parameters_are_configured_and_no_values_are_provided(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var fakeConnection = CreateConnection();
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "CommandText",
+                new[]
+                {
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
+                    new RelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new RelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
+                });
+
+            if (async)
+            {
+                Assert.Equal(
+                    RelationalStrings.NullParameterValue("parameterValues"),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                        => await ((CommandFunc)commandDelegate)(relationalCommand, null, true, fakeConnection))).Message);
+            }
+            else
+            {
+                Assert.Equal(
+                    RelationalStrings.NullParameterValue("parameterValues"),
+                    Assert.Throws<InvalidOperationException>(()
+                        => ((CommandAction)commandDelegate)(relationalCommand, null, true, fakeConnection)).Message);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Throws_when_parameters_are_configured_and_value_is_missing(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var fakeConnection = CreateConnection();
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "CommandText",
+                new[]
+                {
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
+                    new RelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new RelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
+                });
+
+            var parameters = new Dictionary<string, object> {
+                { "FirstInvariant", 17 },
+                { "SecondInvariant", 18L }
+            };
+
+            if (async)
+            {
+                Assert.Equal(
+                    RelationalStrings.MissingParameterValue("ThirdInvariant"),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                        => await ((CommandFunc)commandDelegate)(relationalCommand, parameters, true, fakeConnection))).Message);
+            }
+            else
+            {
+                Assert.Equal(
+                    RelationalStrings.MissingParameterValue("ThirdInvariant"),
+                    Assert.Throws<InvalidOperationException>(()
+                        => ((CommandAction)commandDelegate)(relationalCommand, parameters, true, fakeConnection)).Message);
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Configures_DbCommand_with_type_mapped_parameters(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var fakeConnection = CreateConnection();
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "CommandText",
+                new[]
+                {
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
+                    new RelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new RelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
+                });
+
+            var parameters = new Dictionary<string, object> {
+                { "FirstInvariant", 17 },
+                { "SecondInvariant", 18L },
+                { "ThirdInvariant", null }
+            };
+
+            if (async)
+            {
+                await ((CommandFunc)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
+            }
+            else
+            {
+                ((CommandAction)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Equal(3, fakeConnection.DbConnections[0].DbCommands[0].Parameters.Count);
+
+            var parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[0];
+
+            Assert.Equal("FirstParameter", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(false, parameter.IsNullable);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+
+            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
+
+            Assert.Equal("SecondParameter", parameter.ParameterName);
+            Assert.Equal(18L, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(true, parameter.IsNullable);
+            Assert.Equal(DbType.Int64, parameter.DbType);
+
+            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[2];
+
+            Assert.Equal("ThirdParameter", parameter.ParameterName);
+            Assert.Equal(DBNull.Value, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
+        }
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Configures_DbCommand_with_cached_parameter_values(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var fakeConnection = CreateConnection();
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "CommandText",
+                new[]
+                {
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
+                    new RelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new RelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
+                });
+
+            relationalCommand.CachedParameterValues = new Dictionary<string, object> {
+                { "FirstInvariant", 17 },
+                { "SecondInvariant", 18L },
+                { "ThirdInvariant", null }
+            };
+
+            if (async)
+            {
+                await ((CommandFunc)commandDelegate)(relationalCommand, null, true, fakeConnection);
+            }
+            else
+            {
+                ((CommandAction)commandDelegate)(relationalCommand, null, true, fakeConnection);
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Equal(3, fakeConnection.DbConnections[0].DbCommands[0].Parameters.Count);
+
+            var parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[0];
+
+            Assert.Equal("FirstParameter", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(false, parameter.IsNullable);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+
+            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
+
+            Assert.Equal("SecondParameter", parameter.ParameterName);
+            Assert.Equal(18L, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(true, parameter.IsNullable);
+            Assert.Equal(DbType.Int64, parameter.DbType);
+
+            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[2];
+
+            Assert.Equal("ThirdParameter", parameter.ParameterName);
+            Assert.Equal(DBNull.Value, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
+        }
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Configures_DbCommand_with_overriding_parameter_values(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var fakeConnection = CreateConnection();
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "CommandText",
+                new[]
+                {
+                    new RelationalParameter("IntInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
+                    new RelationalParameter("StringInvariant", "SecondParameter", new RelationalTypeMapping("string", typeof(string), DbType.String), true)
+                });
+
+            relationalCommand.CachedParameterValues = new Dictionary<string, object> {
+                { "IntInvariant", 5 },
+                { "StringInvariant", "Cached String" }
+            };
+
+            var parameters = relationalCommand.CachedParameterValues = new Dictionary<string, object> {
+                { "IntInvariant", 17 },
+                { "StringInvariant", null }
+            };
+
+            if (async)
+            {
+                await ((CommandFunc)commandDelegate)(relationalCommand, null, true, fakeConnection);
+            }
+            else
+            {
+                ((CommandAction)commandDelegate)(relationalCommand, null, true, fakeConnection);
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Equal(2, fakeConnection.DbConnections[0].DbCommands[0].Parameters.Count);
+
+            var parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[0];
+
+            Assert.Equal("FirstParameter", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(false, parameter.IsNullable);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+
+            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
+
+            Assert.Equal("SecondParameter", parameter.ParameterName);
+            Assert.Equal(DBNull.Value, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(true, parameter.IsNullable);
+            Assert.Equal(DbType.String, parameter.DbType);
+        }
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Configures_DbCommand_with_composite_parameters(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var fakeConnection = CreateConnection();
+
+            var compositeParameter = new CompositeRelationalParameter(
+                "CompositeInvariant",
+                new[]
+                {
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
+                    new RelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new RelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
+                });
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "CommandText",
+                new[] { compositeParameter });
+
+            var parameters = new Dictionary<string, object> {
+                { "CompositeInvariant", new object[] { 17, 18L, null } }
+            };
+
+            if (async)
+            {
+                await ((CommandFunc)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
+            }
+            else
+            {
+                ((CommandAction)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Equal(3, fakeConnection.DbConnections[0].DbCommands[0].Parameters.Count);
+
+            var parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[0];
+
+            Assert.Equal("FirstParameter", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(false, parameter.IsNullable);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+
+            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
+
+            Assert.Equal("SecondParameter", parameter.ParameterName);
+            Assert.Equal(18L, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(true, parameter.IsNullable);
+            Assert.Equal(DbType.Int64, parameter.DbType);
+
+            parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[2];
+
+            Assert.Equal("ThirdParameter", parameter.ParameterName);
+            Assert.Equal(DBNull.Value, parameter.Value);
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
+        }
 
         [Theory]
         [MemberData(nameof(CommandActions))]
@@ -503,14 +793,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (async)
             {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    async ()
-                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection));
+                await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                    => await ((CommandFunc)commandDelegate)(relationalCommand, null, true, fakeConnection));
             }
             else
             {
                 Assert.Throws<InvalidOperationException>(()
-                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection));
+                    => ((CommandAction)commandDelegate)(relationalCommand, null, true, fakeConnection));
             }
 
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
@@ -549,16 +838,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (async)
             {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    async ()
-                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection));
+                await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                    => await ((CommandFunc)commandDelegate)(relationalCommand, null, true, fakeConnection));
 
                 Assert.Equal(1, fakeDbConnection.OpenAsyncCount);
             }
             else
             {
                 Assert.Throws<InvalidOperationException>(()
-                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection));
+                    => ((CommandAction)commandDelegate)(relationalCommand, null, true, fakeConnection));
 
                 Assert.Equal(1, fakeDbConnection.OpenCount);
             }
@@ -601,14 +889,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     async ()
-                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, false, fakeConnection));
+                        => await ((CommandFunc)commandDelegate)(relationalCommand, null, false, fakeConnection));
 
                 Assert.Equal(0, fakeDbConnection.OpenAsyncCount);
             }
             else
             {
                 Assert.Throws<InvalidOperationException>(()
-                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, false, fakeConnection));
+                    => ((CommandAction)commandDelegate)(relationalCommand, null, false, fakeConnection));
 
                 Assert.Equal(0, fakeDbConnection.OpenCount);
             }
@@ -638,16 +926,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
                 });
+
+            var parameters = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {
-                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
+                await ((CommandFunc)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
             }
             else
             {
-                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
+                ((CommandAction)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
             }
 
             Assert.Equal(1, log.Count);
@@ -684,16 +974,18 @@ Command Text",
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
                 });
+
+            var parameters = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {
-                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
+                await ((CommandFunc)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
             }
             else
             {
-                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
+                ((CommandAction)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
             }
 
             Assert.Equal(2, log.Count);
@@ -728,16 +1020,18 @@ Command Text",
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
                 });
+
+            var parameters = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {
-                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
+                await ((CommandFunc)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
             }
             else
             {
-                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
+                ((CommandAction)commandDelegate)(relationalCommand, parameters, true, fakeConnection);
             }
 
             Assert.Equal(2, diagnostic.Count);
@@ -792,19 +1086,21 @@ Command Text",
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
+                    new RelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
                 });
+
+            var parameters = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
             if (async)
             {
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     async ()
-                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection));
+                        => await ((CommandFunc)commandDelegate)(relationalCommand, parameters, true, fakeConnection));
             }
             else
             {
                 Assert.Throws<InvalidOperationException>(()
-                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection));
+                    => ((CommandAction)commandDelegate)(relationalCommand, parameters, true, fakeConnection));
             }
 
             Assert.Equal(2, diagnostic.Count);
