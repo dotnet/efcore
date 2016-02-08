@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var dependent = new Product { Id = 21 };
             principal.Products.Add(dependent);
 
-            manager.StartTracking(manager.GetOrCreateEntry(principal));
+            manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
 
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var dependent = new ProductDetail();
             var principal = new Product { Id = 21, Detail = dependent };
 
-            manager.StartTracking(manager.GetOrCreateEntry(principal));
+            manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
 
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var dependent = new OrderLineDetail();
             var principal = new OrderLine { OrderId = 11, ProductId = 21, Detail = dependent };
 
-            manager.StartTracking(manager.GetOrCreateEntry(principal));
+            manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
             var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");

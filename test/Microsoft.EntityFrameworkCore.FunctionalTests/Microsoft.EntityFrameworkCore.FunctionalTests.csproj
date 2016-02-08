@@ -47,7 +47,6 @@
     <Compile Include="DataAnnotationTestBase.cs" />
     <Compile Include="DatabaseErrorLogStateTest.cs" />
     <Compile Include="F1FixtureBase.cs" />
-    <Compile Include="FixupTest.cs" />
     <Compile Include="GearsOfWarQueryFixtureBase.cs" />
     <Compile Include="GearsOfWarQueryTestBase.cs" />
     <Compile Include="GraphUpdatesTestBase.cs" />

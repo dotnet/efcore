@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -8,12 +9,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 {
     public class FixupTest
     {
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_FK_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_FK_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -21,52 +25,73 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Product { Id = 78, Category = principal, CategoryId = principal.Id };
                 principal.Products.Add(dependent);
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_FK_not_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_FK_not_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category();
-                var dependent = new Product { Category = principal };
+                var principal = new Category { Id = 77 };
+                var dependent = new Product { Id = 78, Category = principal };
                 principal.Products.Add(dependent);
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Category { Id = 77 };
                 var dependent = new Product { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_FK_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_FK_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -74,69 +99,101 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Product { Id = 78, CategoryId = principal.Id };
                 principal.Products.Add(dependent);
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Category { Id = 77 };
                 var dependent = new Product { Id = 78, CategoryId = principal.Id, Category = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_FK_not_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_FK_not_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category();
-                var dependent = new Product();
+                var principal = new Category { Id = 77 };
+                var dependent = new Product { Id = 78 };
                 principal.Products.Add(dependent);
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category();
-                var dependent = new Product { Category = principal };
+                var principal = new Category { Id = 77 };
+                var dependent = new Product { Id = 78, Category = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_FK_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_FK_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -144,52 +201,67 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Product { Id = 78, Category = principal, CategoryId = principal.Id };
                 principal.Products.Add(dependent);
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_FK_not_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_FK_not_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category();
-                var dependent = new Product { Category = principal };
+                var principal = new Category { Id = 77 };
+                var dependent = new Product { Id = 78, Category = principal };
                 principal.Products.Add(dependent);
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Category { Id = 77 };
                 var dependent = new Product { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_FK_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_FK_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -197,134 +269,131 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Product { Id = 78, CategoryId = principal.Id };
                 principal.Products.Add(dependent);
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Category { Id = 77 };
                 var dependent = new Product { Id = 78, CategoryId = principal.Id, Category = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_FK_not_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_FK_not_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category();
-                var dependent = new Product();
+                var principal = new Category { Id = 77 };
+                var dependent = new Product { Id = 78 };
                 principal.Products.Add(dependent);
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Category();
-                var dependent = new Product { Category = principal };
+                var principal = new Category { Id = 77 };
+                var dependent = new Product { Id = 78, Category = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryPN { Id = 77 };
                 var dependent = new ProductPN { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryPN { Id = 77 };
                 var dependent = new ProductPN { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-            }
-        }
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_principal_nav_set()
-        {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN { Id = 77 };
-                var dependent = new ProductPN { Id = 78, CategoryId = principal.Id };
-                principal.Products.Add(dependent);
-
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
-
-                Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_prin_uni_FK_not_set_principal_nav_set()
-        {
-            using (var context = new FixupContext())
-            {
-                var principal = new CategoryPN();
-                var dependent = new ProductPN();
-                principal.Products.Add(dependent);
-
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
-
-                Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Equal(new[] { dependent }.ToList(), principal.Products);
-            }
-        }
-
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -332,159 +401,265 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new ProductPN { Id = 78, CategoryId = principal.Id };
                 principal.Products.Add(dependent);
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_prin_uni_FK_not_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryPN();
-                var dependent = new ProductPN();
+                var principal = new CategoryPN { Id = 77 };
+                var dependent = new ProductPN { Id = 78 };
                 principal.Products.Add(dependent);
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_principal_nav_set(EntityState entityState)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new CategoryPN { Id = 77 };
+                var dependent = new ProductPN { Id = 78, CategoryId = principal.Id };
+                principal.Products.Add(dependent);
+
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
+
+                Assert.Equal(principal.Id, dependent.CategoryId);
+                Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new CategoryPN { Id = 77 };
+                var dependent = new ProductPN { Id = 78 };
+                principal.Products.Add(dependent);
+
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
+
+                Assert.Equal(principal.Id, dependent.CategoryId);
+                Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryDN { Id = 77 };
                 var dependent = new ProductDN { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryDN { Id = 77 };
                 var dependent = new ProductDN { Id = 78, CategoryId = principal.Id, Category = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN();
-                var dependent = new ProductDN { Category = principal };
+                var principal = new CategoryDN { Id = 77 };
+                var dependent = new ProductDN { Id = 78, Category = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryDN { Id = 77 };
                 var dependent = new ProductDN { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryDN { Id = 77 };
                 var dependent = new ProductDN { Id = 78, CategoryId = principal.Id, Category = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN();
-                var dependent = new ProductDN { Category = principal };
+                var principal = new CategoryDN { Id = 77 };
+                var dependent = new ProductDN { Id = 78, Category = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
                 Assert.Same(principal, dependent.Category);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_many_no_navs_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_many_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryNN { Id = 77 };
                 var dependent = new ProductNN { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_many_no_navs_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_many_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new CategoryNN { Id = 77 };
                 var dependent = new ProductNN { Id = 78, CategoryId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.CategoryId);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_FK_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_FK_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -492,53 +667,74 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Child { Id = 78, Parent = principal, ParentId = principal.Id };
                 principal.Child = dependent;
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_FK_not_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_FK_not_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent();
-                var dependent = new Child { Parent = principal };
+                var principal = new Parent { Id = 77 };
+                var dependent = new Child { Id = 78, Parent = principal };
                 principal.Child = dependent;
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Parent { Id = 77 };
                 var dependent = new Child { Id = 78, ParentId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_FK_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_FK_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -546,69 +742,101 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Child { Id = 78, ParentId = principal.Id };
                 principal.Child = dependent;
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Parent { Id = 77 };
                 var dependent = new Child { Id = 78, ParentId = principal.Id, Parent = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_FK_not_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_FK_not_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent();
-                var dependent = new Child();
+                var principal = new Parent { Id = 77 };
+                var dependent = new Child { Id = 78 };
                 principal.Child = dependent;
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent();
-                var dependent = new Child { Parent = principal };
+                var principal = new Parent { Id = 77 };
+                var dependent = new Child { Id = 78, Parent = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_FK_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_FK_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -616,52 +844,67 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Child { Id = 78, Parent = principal, ParentId = principal.Id };
                 principal.Child = dependent;
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_FK_not_set_both_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_FK_not_set_both_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent();
-                var dependent = new Child { Parent = principal };
+                var principal = new Parent { Id = 77 };
+                var dependent = new Child { Id = 78, Parent = principal };
                 principal.Child = dependent;
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Parent { Id = 77 };
                 var dependent = new Child { Id = 78, ParentId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_FK_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_FK_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -669,134 +912,131 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new Child { Id = 78, ParentId = principal.Id };
                 principal.Child = dependent;
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new Parent { Id = 77 };
                 var dependent = new Child { Id = 78, ParentId = principal.Id, Parent = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_FK_not_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_FK_not_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent();
-                var dependent = new Child();
+                var principal = new Parent { Id = 77 };
+                var dependent = new Child { Id = 78 };
                 principal.Child = dependent;
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent();
-                var dependent = new Child { Parent = principal };
+                var principal = new Parent { Id = 77 };
+                var dependent = new Child { Id = 78, Parent = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentPN { Id = 77 };
                 var dependent = new ChildPN { Id = 78, ParentId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentPN { Id = 77 };
                 var dependent = new ChildPN { Id = 78, ParentId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(dependent, principal.Child);
-            }
-        }
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_principal_nav_set()
-        {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN { Id = 77 };
-                var dependent = new ChildPN { Id = 78, ParentId = principal.Id };
-                principal.Child = dependent;
-
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
-
-                Assert.Equal(principal.Id, dependent.ParentId);
-                Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_prin_uni_FK_not_set_principal_nav_set()
-        {
-            using (var context = new FixupContext())
-            {
-                var principal = new ParentPN();
-                var dependent = new ChildPN();
-                principal.Child = dependent;
-
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
-
-                Assert.Equal(principal.Id, dependent.ParentId);
-                Assert.Same(dependent, principal.Child);
-            }
-        }
-
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
@@ -804,154 +1044,257 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var dependent = new ChildPN { Id = 78, ParentId = principal.Id };
                 principal.Child = dependent;
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN();
-                var dependent = new ChildPN();
+                var principal = new ParentPN { Id = 77 };
+                var dependent = new ChildPN { Id = 78 };
                 principal.Child = dependent;
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_principal_nav_set(EntityState entityState)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new ParentPN { Id = 77 };
+                var dependent = new ChildPN { Id = 78, ParentId = principal.Id };
+                principal.Child = dependent;
+
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
+
+                Assert.Equal(principal.Id, dependent.ParentId);
+                Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set(EntityState entityState)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new ParentPN { Id = 77 };
+                var dependent = new ChildPN { Id = 78 };
+                principal.Child = dependent;
+
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
+
+                Assert.Equal(principal.Id, dependent.ParentId);
+                Assert.Same(dependent, principal.Child);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
+            }
+        }
+
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentDN { Id = 77 };
                 var dependent = new ChildDN { Id = 78, ParentId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentDN { Id = 77 };
                 var dependent = new ChildDN { Id = 78, ParentId = principal.Id, Parent = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN();
-                var dependent = new ChildDN { Parent = principal };
+                var principal = new ParentDN { Id = 77 };
+                var dependent = new ChildDN { Id = 78, Parent = principal };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
+                Assert.Equal(entityState, context.Entry(principal).State);
+
+                if (entityState == EntityState.Unchanged)
+                {
+                    // Dependent FK gets modified when principal is attached 
+                    entityState = EntityState.Modified;
+                }
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentDN { Id = 77 };
                 var dependent = new ChildDN { Id = 78, ParentId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentDN { Id = 77 };
                 var dependent = new ChildDN { Id = 78, ParentId = principal.Id, Parent = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN();
-                var dependent = new ChildDN { Parent = principal };
+                var principal = new ParentDN { Id = 77 };
+                var dependent = new ChildDN { Id = 78, Parent = principal };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
                 Assert.Same(principal, dependent.Parent);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_dependent_then_principal_one_to_one_no_navs_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_dependent_then_principal_one_to_one_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentNN { Id = 77 };
                 var dependent = new ChildNN { Id = 78, ParentId = principal.Id };
 
-                context.Entry(dependent).State = EntityState.Added;
-                context.Entry(principal).State = EntityState.Added;
+                context.Entry(dependent).State = entityState;
+                context.Entry(principal).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
-        [Fact]
-        public void Add_principal_then_dependent_one_to_one_no_navs_FK_set_no_navs_set()
+        [Theory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_one_to_one_no_navs_FK_set_no_navs_set(EntityState entityState)
         {
             using (var context = new FixupContext())
             {
                 var principal = new ParentNN { Id = 77 };
                 var dependent = new ChildNN { Id = 78, ParentId = principal.Id };
 
-                context.Entry(principal).State = EntityState.Added;
-                context.Entry(dependent).State = EntityState.Added;
+                context.Entry(principal).State = entityState;
+                context.Entry(dependent).State = entityState;
 
                 Assert.Equal(principal.Id, dependent.ParentId);
+                Assert.Equal(entityState, context.Entry(principal).State);
+                Assert.Equal(entityState, context.Entry(dependent).State);
             }
         }
 
@@ -1172,6 +1515,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         private class ChildPN
         {
             public int Id { get; set; }
+
             public int ParentId { get; set; }
         }
 
@@ -1282,7 +1626,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 ChangeTracker.AutoDetectChangesEnabled = false;
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Product>()
                     .HasMany(e => e.SpecialOffers)
@@ -1328,7 +1672,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     .HasForeignKey<ChildNN>(e => e.ParentId);
             }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();
         }
     }

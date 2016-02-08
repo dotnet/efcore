@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore
             var initialState = entry.State;
             if (initialState == EntityState.Detached)
             {
-                Attach(entity);
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
             }
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
@@ -665,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore
             var initialState = entry.State;
             if (initialState == EntityState.Detached)
             {
-                Attach(entity);
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
             }
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
@@ -817,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore
                 var initialState = entry.EntityState;
                 if (initialState == EntityState.Detached)
                 {
-                    Attach(entity);
+                    SetEntityState(entry, EntityState.Unchanged);
                 }
 
                 entry.SetEntityState(initialState == EntityState.Added

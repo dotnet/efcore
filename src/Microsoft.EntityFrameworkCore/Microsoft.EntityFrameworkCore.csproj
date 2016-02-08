@@ -85,7 +85,6 @@
     <Compile Include="ChangeTracking\Internal\IEntityEntryGraphIterator.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityStateListener.cs" />
-    <Compile Include="ChangeTracking\Internal\IForeignKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\IIdentityMap.cs" />
     <Compile Include="ChangeTracking\Internal\IInternalEntityEntryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IInternalEntityEntryNotifier.cs" />

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,12 +21,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly Dictionary<object, InternalEntityEntry> _entityReferenceMap
             = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
 
-        private readonly Dictionary<object, WeakReference<InternalEntityEntry>> _detachedEntityReferenceMap
-            = new Dictionary<object, WeakReference<InternalEntityEntry>>(ReferenceEqualityComparer.Instance);
-
-        private readonly LazyRef<IDictionary<IForeignKey, IList<InternalEntityEntry>>> _danglingDependents
-            = new LazyRef<IDictionary<IForeignKey, IList<InternalEntityEntry>>>(
-                () => new Dictionary<IForeignKey, IList<InternalEntityEntry>>());
+        private readonly LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>> _referencedUntrackedEntities
+            = new LazyRef<IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>>(
+                () => new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>());
 
         private IIdentityMap _identityMap0;
         private IIdentityMap _identityMap1;
@@ -65,25 +63,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual InternalEntityEntry GetOrCreateEntry(object entity)
         {
-            // TODO: Consider how to handle derived types that are not explicitly in the model
-            // Issue #743
             var entry = TryGetEntry(entity);
             if (entry == null)
             {
-                if (_detachedEntityReferenceMap.Count % 100 == 99)
-                {
-                    InternalEntityEntry _;
-                    var deadKeys = _detachedEntityReferenceMap
-                        .Where(e => !e.Value.TryGetTarget(out _))
-                        .Select(e => e.Key)
-                        .ToList();
-
-                    foreach (var deadKey in deadKeys)
-                    {
-                        _detachedEntityReferenceMap.Remove(deadKey);
-                    }
-                }
-
                 SingleQueryMode = false;
 
                 var entityType = _model.FindEntityType(entity.GetType());
@@ -93,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().DisplayName(false)));
                 }
 
-                entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
+                entry = _factory.Create(this, entityType, entity);
 
-                _detachedEntityReferenceMap[entity] = new WeakReference<InternalEntityEntry>(entry);
+                _entityReferenceMap[entity] = entry;
             }
             return entry;
         }
@@ -123,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             _entityReferenceMap[entity] = newEntry;
-            _detachedEntityReferenceMap.Remove(entity);
 
             newEntry.MarkUnchangedFromQuery();
 
@@ -136,18 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual InternalEntityEntry TryGetEntry(object entity)
         {
             InternalEntityEntry entry;
-            if (!_entityReferenceMap.TryGetValue(entity, out entry))
-            {
-                WeakReference<InternalEntityEntry> detachedEntry;
-
-                if (!_detachedEntityReferenceMap.TryGetValue(entity, out detachedEntry)
-                    || !detachedEntry.TryGetTarget(out entry))
-                {
-                    return null;
-                }
-            }
-
-            return entry;
+            return !_entityReferenceMap.TryGetValue(entity, out entry) ? null : entry;
         }
 
         private IIdentityMap GetOrCreateIdentityMap(IKey key)
@@ -237,7 +207,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 || existingEntry == entry)
             {
                 _entityReferenceMap[mapKey] = entry;
-                _detachedEntityReferenceMap.Remove(mapKey);
             }
             else
             {
@@ -249,6 +218,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 GetOrCreateIdentityMap(key).Add(entry);
             }
 
+            _subscriber.SnapshotAndSubscribe(entry);
+
             return entry;
         }
 
@@ -256,66 +227,58 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var mapKey = entry.Entity ?? entry;
             _entityReferenceMap.Remove(mapKey);
-            _detachedEntityReferenceMap[mapKey] = new WeakReference<InternalEntityEntry>(entry);
 
             foreach (var key in entry.EntityType.GetKeys())
             {
                 FindIdentityMap(key)?.Remove(entry);
             }
 
-            if (_danglingDependents.HasValue)
+            if (_referencedUntrackedEntities.HasValue)
             {
-                foreach (var foreignKey in entry.EntityType.GetForeignKeys())
+                var navigations = entry.EntityType.GetNavigations().ToList();
+
+                foreach (var keyValuePair in _referencedUntrackedEntities.Value.ToList())
                 {
-                    IList<InternalEntityEntry> entries;
-                    if (_danglingDependents.Value.TryGetValue(foreignKey, out entries)
-                        && entries.Remove(entry)
-                        && entries.Count == 0)
+                    var entityType = _model.FindEntityType(keyValuePair.Key.GetType());
+                    if (navigations.Any(n => n.GetTargetType().IsAssignableFrom(entityType))
+                        || entityType.GetNavigations().Any(n => n.GetTargetType().IsAssignableFrom(entry.EntityType)))
                     {
-                        _danglingDependents.Value.Remove(foreignKey);
+                        _referencedUntrackedEntities.Value.Remove(keyValuePair.Key);
+
+                        var newList = keyValuePair.Value.Where(tuple => tuple.Item2 != entry).ToList();
+
+                        if (newList.Any())
+                        {
+                            _referencedUntrackedEntities.Value.Add(keyValuePair.Key, newList);
+                        }
                     }
                 }
             }
         }
 
-        public virtual void RecordDanglingDependent(IForeignKey foreignKey, InternalEntityEntry entry)
+        public virtual void RecordReferencedUntrackedEntity(
+            object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry)
         {
-            IList<InternalEntityEntry> entries;
-            if (!_danglingDependents.Value.TryGetValue(foreignKey, out entries))
+            IList<Tuple<INavigation, InternalEntityEntry>> danglers;
+            if (!_referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out danglers))
             {
-                entries = new List<InternalEntityEntry>();
-                _danglingDependents.Value[foreignKey] = entries;
+                danglers = new List<Tuple<INavigation, InternalEntityEntry>>();
+                _referencedUntrackedEntities.Value.Add(referencedEntity, danglers);
             }
-            entries.Add(entry);
+            danglers.Add(Tuple.Create(navigation, referencedFromEntry));
         }
 
-        public virtual IEnumerable<InternalEntityEntry> GetDanglingDependents(IForeignKey foreignKey, InternalEntityEntry entry)
+        public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers(object referencedEntity)
         {
-            IList<InternalEntityEntry> entries;
-            if (_danglingDependents.HasValue
-                && _danglingDependents.Value.TryGetValue(foreignKey, out entries))
+            IList<Tuple<INavigation, InternalEntityEntry>> danglers;
+            if (_referencedUntrackedEntities.HasValue
+                && _referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out danglers))
             {
-                var matchingDependents = entries
-                    .Where(e => e[foreignKey.DependentToPrincipal] == entry.Entity)
-                    .ToList();
-
-                if (matchingDependents.Count > 0)
-                {
-                    foreach (var dependentEntry in matchingDependents)
-                    {
-                        entries.Remove(dependentEntry);
-                    }
-
-                    if (entries.Count == 0)
-                    {
-                        _danglingDependents.Value.Remove(foreignKey);
-                    }
-                }
-
-                return matchingDependents;
+                _referencedUntrackedEntities.Value.Remove(referencedEntity);
+                return danglers;
             }
 
-            return Enumerable.Empty<InternalEntityEntry>();
+            return Enumerable.Empty<Tuple<INavigation, InternalEntityEntry>>();
         }
 
         public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey) 
@@ -428,7 +391,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private List<InternalEntityEntry> GetEntriesToSave()
         {
-            foreach (var entry in Entries.Where(e => e.HasConceptualNull).ToList())
+            foreach (var entry in Entries.Where(
+                e => e.EntityState != EntityState.Detached
+                && e.HasConceptualNull).ToList())
             {
                 entry.HandleConceptualNulls();
             }
@@ -440,8 +405,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             return Entries
                 .Where(e => (e.EntityState == EntityState.Added)
-                            || (e.EntityState == EntityState.Modified)
-                            || (e.EntityState == EntityState.Deleted))
+                            || e.EntityState == EntityState.Modified
+                            || e.EntityState == EntityState.Deleted)
                 .Select(e => e.PrepareToSave())
                 .ToList();
         }

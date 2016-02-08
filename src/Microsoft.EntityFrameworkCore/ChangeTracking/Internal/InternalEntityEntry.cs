@@ -152,14 +152,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.StopTracking(this);
             }
 
-            StateManager.Notify.StateChanged(this, oldState, StateManager.SingleQueryMode == true);
+            StateManager.Notify.StateChanged(this, oldState, StateManager.SingleQueryMode == true, fromQuery: false);
         }
 
         public virtual void MarkUnchangedFromQuery()
         {
             StateManager.Notify.StateChanging(this, EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
-            StateManager.Notify.StateChanged(this, EntityState.Detached, StateManager.SingleQueryMode == true);
+            StateManager.Notify.StateChanged(this, EntityState.Detached, StateManager.SingleQueryMode == true, fromQuery: true);
         }
 
         public virtual EntityState EntityState => _stateData.EntityState;
@@ -168,63 +168,83 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => (_stateData.EntityState == EntityState.Modified)
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
-        public virtual void SetPropertyModified([NotNull] IProperty property, bool isModified = true)
+        public virtual void SetPropertyModified(
+            [NotNull] IProperty property, 
+            bool changeState = true,
+            bool isModified = true)
         {
             // TODO: Restore original value to reject changes when isModified is false
             // Issue #742
 
             var currentState = _stateData.EntityState;
 
-            if ((currentState == EntityState.Added)
-                || (currentState == EntityState.Detached))
+            if (currentState == EntityState.Added
+                || currentState == EntityState.Detached
+                || !changeState)
             {
                 MarkAsTemporary(property, isTemporary: false);
 
                 SetOriginalValue(property, this[property]);
             }
 
-            if ((currentState != EntityState.Modified)
-                && (currentState != EntityState.Unchanged))
+            if (currentState != EntityState.Modified
+                && currentState != EntityState.Unchanged)
             {
                 return;
             }
 
-            if (isModified && property.IsKey())
+            if (changeState && isModified && property.IsKey())
             {
                 throw new NotSupportedException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
             }
 
-            _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isModified);
+            if (changeState)
+            {
+                _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isModified);
+            }
 
             // Don't change entity state if it is Added or Deleted
-            if (isModified && (currentState == EntityState.Unchanged))
+            if (isModified && currentState == EntityState.Unchanged)
             {
-                StateManager.Notify.StateChanging(this, EntityState.Modified);
-                _stateData.EntityState = EntityState.Modified;
+                if (changeState)
+                {
+                    StateManager.Notify.StateChanging(this, EntityState.Modified);
+                    _stateData.EntityState = EntityState.Modified;
+                }
+
                 StateManager.SingleQueryMode = false;
-                StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false);
+
+                if (changeState)
+                {
+                    StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false, fromQuery: false);
+                }
             }
-            else if (!isModified
+            else if (changeState 
+                     && !isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
             {
                 StateManager.Notify.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
-                StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false);
+                StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false, fromQuery: false);
             }
         }
 
         public virtual bool HasConceptualNull
-            => (_stateData.EntityState != EntityState.Deleted)
+            => _stateData.EntityState != EntityState.Deleted
                && _stateData.AnyPropertiesFlagged(PropertyFlag.Null);
 
+        public virtual bool IsConceptualNull([NotNull] IProperty property)
+            => _stateData.EntityState != EntityState.Deleted
+               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
+
         public virtual bool HasTemporaryValue([NotNull] IProperty property)
-            => ((_stateData.EntityState == EntityState.Added) || (_stateData.EntityState == EntityState.Detached))
+            => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
         public virtual void MarkAsTemporary([NotNull] IProperty property, bool isTemporary = true)
         {
-            if ((_stateData.EntityState != EntityState.Added)
-                && (_stateData.EntityState != EntityState.Detached))
+            if (_stateData.EntityState != EntityState.Added
+                && _stateData.EntityState != EntityState.Detached)
             {
                 return;
             }
@@ -287,7 +307,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         public virtual object GetCurrentValue(IPropertyBase propertyBase)
-            => this[propertyBase];
+        {
+            var property = propertyBase as IProperty;
+            return property == null || !IsConceptualNull(property)
+                ? this[propertyBase]
+                : null;
+        }
 
         public virtual object GetOriginalValue(IPropertyBase propertyBase)
             => _originalValues.GetValue(this, (IProperty)propertyBase);
@@ -349,44 +374,45 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? value
                     : ReadPropertyValue(propertyBase);
             }
-            [param: CanBeNull]
-            set
+            [param: CanBeNull] set { SetProperty(propertyBase, value); }
+        }
+
+        public virtual void SetProperty([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, bool setModified = true)
+        {
+            if (_storeGeneratedValues.CanStoreValue(propertyBase))
             {
-                if (_storeGeneratedValues.CanStoreValue(propertyBase))
-                {
-                    StateManager.Notify.PropertyChanging(this, propertyBase);
-                    _storeGeneratedValues.SetValue(propertyBase, value);
-                    StateManager.Notify.PropertyChanged(this, propertyBase);
-                }
-                else
-                {
-                    var currentValue = this[propertyBase];
+                StateManager.Notify.PropertyChanging(this, propertyBase);
+                _storeGeneratedValues.SetValue(propertyBase, value);
+                StateManager.Notify.PropertyChanged(this, propertyBase, setModified);
+            }
+            else
+            {
+                var currentValue = this[propertyBase];
 
-                    if (!Equals(currentValue, value))
+                if (!Equals(currentValue, value))
+                {
+                    var writeValue = true;
+                    var asProperty = propertyBase as IProperty;
+
+                    if (asProperty != null
+                        && !asProperty.IsNullable)
                     {
-                        var writeValue = true;
-                        var asProperty = propertyBase as IProperty;
-
-                        if ((asProperty != null)
-                            && !asProperty.IsNullable)
+                        if (value == null)
                         {
-                            if (value == null)
-                            {
-                                _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: true);
-                                writeValue = false;
-                            }
-                            else
-                            {
-                                _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: false);
-                            }
+                            _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: true);
+                            writeValue = false;
                         }
-
-                        if (writeValue)
+                        else
                         {
-                            StateManager.Notify.PropertyChanging(this, propertyBase);
-                            WritePropertyValue(propertyBase, value);
-                            StateManager.Notify.PropertyChanged(this, propertyBase);
+                            _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: false);
                         }
+                    }
+
+                    if (writeValue)
+                    {
+                        StateManager.Notify.PropertyChanging(this, propertyBase);
+                        WritePropertyValue(propertyBase, value);
+                        StateManager.Notify.PropertyChanged(this, propertyBase, setModified);
                     }
                 }
             }

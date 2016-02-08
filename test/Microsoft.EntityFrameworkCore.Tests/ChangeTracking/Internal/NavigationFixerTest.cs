@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
 
             var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(principalEntry, EntityState.Detached, skipInitialFixup: false);
+            fixer.StateChanged(principalEntry, EntityState.Detached, skipInitialFixup: false, fromQuery: false);
 
             Assert.Same(dependent1.Category, principal);
             Assert.Null(dependent2.Category);
@@ -195,8 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             principal2.Products.Add(dependent);
 
-            manager.StartTracking(manager.GetOrCreateEntry(principal1));
-            manager.StartTracking(manager.GetOrCreateEntry(principal2));
+            manager.StartTracking(manager.GetOrCreateEntry(principal1)).SetEntityState(EntityState.Added);
+            manager.StartTracking(manager.GetOrCreateEntry(principal2)).SetEntityState(EntityState.Added);
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
@@ -256,9 +256,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             principal.Products.Add(dependent1);
             principal.Products.Add(dependent3);
 
-            manager.StartTracking(manager.GetOrCreateEntry(dependent1));
-            manager.StartTracking(manager.GetOrCreateEntry(dependent2));
-            manager.StartTracking(manager.GetOrCreateEntry(dependent3));
+            manager.StartTracking(manager.GetOrCreateEntry(dependent1)).SetEntityState(EntityState.Added);
+            manager.StartTracking(manager.GetOrCreateEntry(dependent2)).SetEntityState(EntityState.Added);
+            manager.StartTracking(manager.GetOrCreateEntry(dependent3)).SetEntityState(EntityState.Added);
 
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
 
@@ -370,11 +370,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             entry1.SetEntityState(EntityState.Added);
 
-            Assert.Equal(22, entity1.AlternateProductId);
+            Assert.Null(entity1.AlternateProductId);
             Assert.Null(entity2.AlternateProductId);
             Assert.Null(entity3.AlternateProductId);
 
-            Assert.Same(entity2, entity1.AlternateProduct);
+            Assert.Null(entity2.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
 
             Assert.Null(entity2.AlternateProduct);
@@ -385,8 +385,23 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             entry3.SetEntityState(EntityState.Added);
 
-            Assert.Equal(22, entity1.AlternateProductId);
+            Assert.Null(entity1.AlternateProductId);
             Assert.Null(entity2.AlternateProductId);
+            Assert.Null(entity3.AlternateProductId);
+
+            Assert.Null(entity2.AlternateProduct);
+            Assert.Null(entity1.OriginalProduct);
+
+            Assert.Null(entity2.AlternateProduct);
+            Assert.Same(entity1, entity2.OriginalProduct);
+
+            Assert.Null(entity3.AlternateProduct);
+            Assert.Same(entity2, entity3.OriginalProduct);
+
+            entry2.SetEntityState(EntityState.Added);
+
+            Assert.Equal(22, entity1.AlternateProductId);
+            Assert.Equal(23, entity2.AlternateProductId);
             Assert.Null(entity3.AlternateProductId);
 
             Assert.Same(entity2, entity1.AlternateProduct);
@@ -424,7 +439,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             dependent.CategoryId = 11;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(Product)).FindProperty("CategoryId"), 12, 11);
+            var productType = model.FindEntityType(typeof(Product));
+            var categoryIdProperty = productType.FindProperty("CategoryId");
+
+            fixer.KeyPropertyChanged(
+                dependentEntry,
+                categoryIdProperty,
+                new IKey[0],
+                productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
+                12, 
+                11);
 
             Assert.Same(dependent.Category, principal1);
             Assert.Contains(dependent, principal1.Products);
@@ -456,7 +480,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             dependent.CategoryId = 0;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(Product)).FindProperty("CategoryId"), 12, 11);
+            var productType = model.FindEntityType(typeof(Product));
+            var categoryIdProperty = productType.FindProperty("CategoryId");
+
+            fixer.KeyPropertyChanged(
+                dependentEntry,
+                categoryIdProperty,
+                new IKey[0],
+                productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
+                12,
+                11);
 
             Assert.Null(dependent.Category);
             Assert.DoesNotContain(dependent, principal2.Products);
@@ -488,7 +521,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             dependent.CategoryId = 11;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(Product)).FindProperty("CategoryId"), 12, 11);
+            var productType = model.FindEntityType(typeof(Product));
+            var categoryIdProperty = productType.FindProperty("CategoryId");
+
+            fixer.KeyPropertyChanged(
+                dependentEntry,
+                categoryIdProperty,
+                new IKey[0],
+                productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
+                12,
+                11);
 
             Assert.Same(dependent.Category, principal1);
             Assert.Contains(dependent, principal1.Products);
@@ -513,6 +555,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var fixer = CreateNavigationFixer(contextServices);
 
             principalEntry1.SetEntityState(EntityState.Added);
+            principalEntry2.SetEntityState(EntityState.Added);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Same(principal1, dependent.Product);
             Assert.Same(dependent, principal1.Detail);
@@ -520,7 +564,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             dependent.Id = 22;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 21, 22);
+            var productDetailType = model.FindEntityType(typeof(ProductDetail));
+            var idProperty = productDetailType.FindProperty("Id");
+
+            fixer.KeyPropertyChanged(
+                dependentEntry,
+                idProperty,
+                productDetailType.GetKeys().Where(k => k.Properties.Contains(idProperty)).ToList(),
+                productDetailType.GetForeignKeys().Where(k => k.Properties.Contains(idProperty)).ToList(),
+                21,
+                22);
 
             Assert.Same(principal2, dependent.Product);
             Assert.Same(dependent, principal2.Detail);
@@ -543,13 +596,23 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var fixer = CreateNavigationFixer(contextServices);
 
             principalEntry.SetEntityState(EntityState.Added);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Same(principal, dependent.Product);
             Assert.Same(dependent, principal.Detail);
 
             dependent.Id = 0;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 21, 0);
+            var productDetailType = model.FindEntityType(typeof(ProductDetail));
+            var idProperty = productDetailType.FindProperty("Id");
+
+            fixer.KeyPropertyChanged(
+                dependentEntry,
+                idProperty,
+                productDetailType.GetKeys().Where(k => k.Properties.Contains(idProperty)).ToList(),
+                productDetailType.GetForeignKeys().Where(k => k.Properties.Contains(idProperty)).ToList(),
+                21,
+                0);
 
             Assert.Null(dependent.Product);
             Assert.Null(principal.Detail);
@@ -571,53 +634,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var fixer = CreateNavigationFixer(contextServices);
 
             principalEntry.SetEntityState(EntityState.Added);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Null(dependent.Product);
             Assert.Null(principal.Detail);
 
             dependent.Id = 21;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 7, 21);
+            var productDetailType = model.FindEntityType(typeof(ProductDetail));
+            var idProperty = productDetailType.FindProperty("Id");
+
+            fixer.KeyPropertyChanged(
+                dependentEntry,
+                idProperty,
+                productDetailType.GetKeys().Where(k => k.Properties.Contains(idProperty)).ToList(),
+                productDetailType.GetForeignKeys().Where(k => k.Properties.Contains(idProperty)).ToList(),
+                7,
+                21);
 
             Assert.Same(principal, dependent.Product);
             Assert.Same(dependent, principal.Detail);
-        }
-
-        [Fact]
-        public void Can_steal_reference_of_one_to_one_relationship_when_FK_changes()
-        {
-            var model = BuildModel();
-            var contextServices = CreateContextServices(model);
-            var manager = contextServices.GetRequiredService<IStateManager>();
-
-            var principal1 = new Product { Id = 21 };
-            var principal2 = new Product { Id = 22 };
-            var dependent1 = new ProductDetail { Id = 21 };
-            var dependent2 = new ProductDetail { Id = 22 };
-
-            var principalEntry1 = manager.StartTracking(manager.GetOrCreateEntry(principal1));
-            var principalEntry2 = manager.StartTracking(manager.GetOrCreateEntry(principal2));
-            var dependentEntry1 = manager.StartTracking(manager.GetOrCreateEntry(dependent1));
-            var dependentEntry2 = manager.StartTracking(manager.GetOrCreateEntry(dependent2));
-
-            var fixer = CreateNavigationFixer(contextServices);
-
-            principalEntry1.SetEntityState(EntityState.Added);
-            principalEntry2.SetEntityState(EntityState.Added);
-
-            Assert.Same(principal1, dependent1.Product);
-            Assert.Same(dependent1, principal1.Detail);
-            Assert.Same(principal2, dependent2.Product);
-            Assert.Same(dependent2, principal2.Detail);
-
-            dependent1.Id = 22;
-
-            fixer.ForeignKeyPropertyChanged(dependentEntry1, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 21, 22);
-
-            Assert.Same(principal2, dependent1.Product);
-            Assert.Same(dependent1, principal2.Detail);
-            Assert.Null(dependent2.Product);
-            Assert.Null(principal1.Detail);
         }
 
         [Fact]
@@ -638,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var fixer = CreateNavigationFixer(contextServices);
 
             entry1.SetEntityState(EntityState.Added);
-            entry1.SetEntityState(EntityState.Added);
+            entry2.SetEntityState(EntityState.Added);
             entry3.SetEntityState(EntityState.Added);
 
             Assert.Same(entity2, entity1.AlternateProduct);
@@ -652,7 +688,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             entity1.AlternateProductId = 23;
 
-            fixer.ForeignKeyPropertyChanged(entry1, model.FindEntityType(typeof(Product)).FindProperty("AlternateProductId"), 22, 23);
+            var productType = model.FindEntityType(typeof(Product));
+            var alternateProductId = productType.FindProperty("AlternateProductId");
+
+            fixer.KeyPropertyChanged(
+                entry1,
+                alternateProductId,
+                new IKey[0],
+                productType.GetForeignKeys().Where(k => k.Properties.Contains(alternateProductId)).ToList(),
+                22,
+                23);
 
             Assert.Same(entity3, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -696,7 +741,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             entity1.AlternateProductId = 23;
 
-            fixer.ForeignKeyPropertyChanged(entry1, model.FindEntityType(typeof(Product)).FindProperty("AlternateProductId"), 22, 23);
+            var productType = model.FindEntityType(typeof(Product));
+            var alternateProductId = productType.FindProperty("AlternateProductId");
+
+            fixer.KeyPropertyChanged(
+                entry1,
+                alternateProductId,
+                new IKey[0],
+                productType.GetForeignKeys().Where(k => k.Properties.Contains(alternateProductId)).ToList(),
+                22,
+                23);
 
             Assert.Same(entity3, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -806,7 +860,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             // Changes both FK relationships
             tag1.ProductId = 2;
 
-            fixer.ForeignKeyPropertyChanged(tagEntry1, model.FindEntityType(typeof(ProductTag)).FindProperty("ProductId"), 1, 2);
+            var productTagType = model.FindEntityType(typeof(ProductTag));
+            var productId = productTagType.FindProperty("ProductId");
+
+            fixer.KeyPropertyChanged(
+                tagEntry1,
+                productId,
+                new IKey[0],
+                productTagType.GetForeignKeys().Where(k => k.Properties.Contains(productId)).ToList(),
+                1,
+                2);
 
             Assert.Equal(new[] { tag2 }, photo1.ProductTags.OrderBy(t => t.Id).ToArray());
             Assert.Equal(new[] { tag3, tag4 }, photo2.ProductTags.OrderBy(t => t.Id).ToArray());

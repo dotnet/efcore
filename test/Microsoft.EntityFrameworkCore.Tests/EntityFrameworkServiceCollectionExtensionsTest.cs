@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             // Listeners
             VerifyScoped<IEntityStateListener>(isExistingReplaced: true);
-            VerifyScoped<IForeignKeyListener>(isExistingReplaced: true);
             VerifyScoped<INavigationListener>(isExistingReplaced: true);
             VerifyScoped<IKeyListener>(isExistingReplaced: true);
             VerifyScoped<IPropertyListener>(isExistingReplaced: true);

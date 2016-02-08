@@ -75,7 +75,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             serviceCollection.TryAddEnumerable(new ServiceCollection()
                 .AddScoped<IEntityStateListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
-                .AddScoped<IForeignKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<INavigationListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IKeyListener, INavigationFixer>(p => p.GetService<INavigationFixer>())
                 .AddScoped<IPropertyListener, IChangeDetector>(p => p.GetService<IChangeDetector>()));

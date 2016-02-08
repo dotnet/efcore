@@ -57,6 +57,7 @@
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
     <Compile Include="ChangeTracking\EntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
+    <Compile Include="ChangeTracking\Internal\FixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryFactoryTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryTestBase.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
+    <Compile Include="ChangeTracking\Internal\ShadowFkFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
     <Compile Include="ChangeTracking\PropertyEntryTest.cs" />

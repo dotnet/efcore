@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public interface IPropertyListener
     {
-        void PropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase propertyBase);
+        void PropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase propertyBase, bool setModified);
         void PropertyChanging([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase propertyBase);
     }
 }

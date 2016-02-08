@@ -468,6 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
+            entry.SetEntityState(EntityState.Added);
             entry[fkProperty] = 77;
             entry.SetRelationshipSnapshotValue(fkProperty, 78);
 
