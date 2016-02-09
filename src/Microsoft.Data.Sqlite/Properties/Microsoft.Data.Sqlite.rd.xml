@@ -1,5 +1,5 @@
 <!--
-    This file contains Runtime Directives used by .NET Native. 
+    This file contains Runtime Directives used by .NET Native.
 -->
 
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">

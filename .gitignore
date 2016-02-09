@@ -7,8 +7,6 @@
 /.vs/
 /artifacts/
 /packages/
-/src/Microsoft.Data.Sqlite/build/netcore50/win10-*/
-/src/Microsoft.Data.Sqlite/runtimes/
 bin/
 obj/
 project.lock.json
@@ -21,3 +19,4 @@ launchSettings.json
 *.project.lock.json
 *.nuget.props
 *.nuget.targets
+sqlite3.dll

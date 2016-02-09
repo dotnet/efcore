@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Data.Sqlite.Interop;
 
-#if DOTNET5_4
+#if !NET451
 using System.Reflection;
 using Microsoft.Data.Sqlite.Utilities;
 #endif
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Sqlite
 
         partial void OnOpened();
 
-#if DOTNET5_4
+#if !NET451
         partial void OnOpened()
         {
             var appDataType = CurrentApplicationData?.GetType();
@@ -215,13 +215,9 @@ namespace Microsoft.Data.Sqlite
                     ?? AppContext.BaseDirectory;
             }
         }
-#elif NET451
-        private static string BaseDirectory
-            => AppDomain.CurrentDomain.GetData("APP_CONTEXT_BASE_DIRECTORY") as string
-                ?? AppDomain.CurrentDomain.BaseDirectory;
 #else
         private static string BaseDirectory
-            => AppContext.BaseDirectory;
+            => AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
         public override void Close()

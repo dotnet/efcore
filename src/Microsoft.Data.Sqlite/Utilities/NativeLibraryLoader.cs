@@ -7,7 +7,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 
 namespace Microsoft.Data.Sqlite.Utilities
 {
@@ -69,7 +68,7 @@ namespace Microsoft.Data.Sqlite.Utilities
             {
                 throw new ArgumentNullException(nameof(dllName));
             }
-            if (IsDNX() || IsMono())
+            if (IsMono())
             {
                 return true;
             }
@@ -78,29 +77,6 @@ namespace Microsoft.Data.Sqlite.Utilities
             Marshal.ThrowExceptionForHR(Marshal.GetLastWin32Error());
 
             return handle != IntPtr.Zero;
-        }
-
-        private static bool IsDNX()
-        {
-            try
-            {
-                var platformServices = Type.GetType(
-                    "Microsoft.Extensions.PlatformAbstractions.PlatformServices, Microsoft.Extensions.PlatformAbstractions");
-                if (platformServices == null)
-                {
-                    return false;
-                }
-
-                var defaultPlatformServices = platformServices.GetProperty("Default").GetValue(null);
-                var application = defaultPlatformServices.GetType().GetProperty("Application").GetValue(defaultPlatformServices);
-                var runtimeFramework = (FrameworkName)application.GetType().GetProperty("RuntimeFramework").GetValue(application);
-
-                return runtimeFramework.Identifier == "DNX";
-            }
-            catch (Exception)
-            {
-                return false;
-            }
         }
 
         private static bool IsMono() => Type.GetType("Mono.Runtime") != null;

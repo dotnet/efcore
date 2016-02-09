@@ -83,7 +83,7 @@ namespace Microsoft.Data.Sqlite
 #if NET451
             return new DbEnumerator(this);
 #else
-    // TODO: Remove when the System.Data.Common includes DbEnumerator
+            // TODO: Remove when the System.Data.Common includes DbEnumerator
             throw new NotImplementedException();
 #endif
         }
