@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         }
 
         [Fact]
-        public void Matches_dependent_PK_for_unique_FK()
+        public void Matches_dependent_PK_for_unique_FK_set_by_higher_source_than_convention()
         {
             var fkProperty = DependentType.Metadata.FindPrimaryKey().Properties.Single();
             var relationshipBuilder = DependentType.Relationship(
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
                 "SomeNav",
                 "InverseReferenceNav",
                 ConfigurationSource.Convention)
-                .IsUnique(true, ConfigurationSource.Convention)
+                .IsUnique(true, ConfigurationSource.DataAnnotation)
                 .DependentEntityType(DependentType, ConfigurationSource.DataAnnotation);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);

@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             {
                 Assert.Null(entityBuilder.Metadata.AddProperty("OrderId", typeof(int)));
             }
-            
+
             Assert.NotNull(propertyBuilder);
         }
 
@@ -366,10 +366,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
                 property.IsNullable = false;
                 Assert.Null(entityBuilder.Metadata.AddKey(property));
             }
-            
+
             Assert.NotNull(keyBuilder);
         }
-        
+
         [Fact]
         public void OnKeyRemoved_calls_apply_on_conventions_in_order()
         {
@@ -461,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
 
             Assert.NotNull(internalKeyBuilder);
         }
-        
+
         [Fact]
         public void OnForeignKeyRemoved_calls_apply_on_conventions_in_order()
         {
@@ -594,9 +594,67 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             {
                 Assert.NotNull(relationshipBuilder.Metadata.HasDependentToPrincipal(null, ConfigurationSource.Convention));
             }
-            
+
             Assert.Same(dependentEntityTypeBuilderFromConvention, dependentEntityBuilder);
             Assert.Same(principalEntityBuilderFromConvention, principalEntityBuilder);
+        }
+
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnPrincipalKeySet_calls_apply_on_conventions_in_order(bool useBuilder)
+        {
+            var conventions = new ConventionSet();
+
+            InternalRelationshipBuilder relationshipBuilder = null;
+            var convention = new Mock<IPrincipalEndConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
+            {
+                Assert.NotNull(b);
+                relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder);
+                return relationshipBuilder;
+            });
+            conventions.PrincipalEndSetConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IPrincipalEndConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
+            {
+                Assert.Same(relationshipBuilder, b);
+                return null;
+            });
+            conventions.PrincipalEndSetConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IPrincipalEndConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
+            {
+                Assert.False(true);
+                return null;
+            });
+            conventions.PrincipalEndSetConventions.Add(extraConvention.Object);
+
+            var modelBuilder = new InternalModelBuilder(new Model(conventions));
+
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+            entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
+
+            if (useBuilder)
+            {
+                Assert.Null(
+                    dependentEntityBuilder
+                        .Relationship(entityBuilder, ConfigurationSource.Convention)
+                        .HasPrincipalKey(entityBuilder.Metadata.FindPrimaryKey().Properties, ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.Null(dependentEntityBuilder.Metadata.AddForeignKey(
+                    dependentEntityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata,
+                    entityBuilder.Metadata.FindPrimaryKey(),
+                    entityBuilder.Metadata,
+                    ConfigurationSource.Convention));
+            }
+
+            Assert.NotNull(relationshipBuilder);
         }
 
         [InlineData(false)]
@@ -642,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             {
                 Assert.NotNull(new Model(conventions));
             }
-            
+
             Assert.True(nullConventionCalled);
             Assert.NotNull(modelBuilder);
         }
@@ -681,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
                     return null;
                 });
             conventions.ModelBuiltConventions.Add(extraConvention.Object);
-            
+
             if (useBuilder)
             {
                 Assert.Null(new InternalModelBuilder(new Model(conventions)).Validate());
@@ -690,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             {
                 Assert.Null(new Model(conventions).Validate());
             }
-            
+
             Assert.True(nullConventionCalled);
             Assert.NotNull(modelBuilder);
         }

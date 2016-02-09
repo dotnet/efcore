@@ -602,7 +602,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (runConventions)
             {
-                foreignKey = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder)?.Metadata;
+                var builder = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder);
+                if (builder != null)
+                {
+                    builder = Model.ConventionDispatcher.OnPrincipalEndSet(builder);
+                }
+                foreignKey = builder?.Metadata;
             }
 
             return foreignKey;

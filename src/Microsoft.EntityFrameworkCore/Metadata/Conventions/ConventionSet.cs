@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual IList<IKeyConvention> KeyAddedConventions { get; } = new List<IKeyConvention>();
         public virtual IList<IKeyRemovedConvention> KeyRemovedConventions { get; } = new List<IKeyRemovedConvention>();
         public virtual IList<IPrimaryKeyConvention> PrimaryKeySetConventions { get; } = new List<IPrimaryKeyConvention>();
+        public virtual IList<IPrincipalEndConvention> PrincipalEndSetConventions { get; } = new List<IPrincipalEndConvention>();
         public virtual IList<IModelConvention> ModelBuiltConventions { get; } = new List<IModelConvention>();
         public virtual IList<IModelConvention> ModelInitializedConventions { get; } = new List<IModelConvention>();
         public virtual IList<INavigationConvention> NavigationAddedConventions { get; } = new List<INavigationConvention>();

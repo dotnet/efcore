@@ -205,6 +205,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
+        public virtual InternalRelationshipBuilder OnPrincipalEndSet([NotNull] InternalRelationshipBuilder relationshipBuilder)
+        {
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+
+            foreach (var relationshipConvention in _conventionSet.PrincipalEndSetConventions)
+            {
+                relationshipBuilder = relationshipConvention.Apply(relationshipBuilder);
+                if (relationshipBuilder == null)
+                {
+                    break;
+                }
+            }
+
+            return relationshipBuilder;
+        }
+
         public virtual InternalPropertyBuilder OnPropertyAdded([NotNull] InternalPropertyBuilder propertyBuilder)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));

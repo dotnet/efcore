@@ -66,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.PropertyNullableChangedConventions.Add(cascadeDeleteConvention);
 
+            conventionSet.PrincipalEndSetConventions.Add(foreignKeyPropertyDiscoveryConvention);
+
             return conventionSet;
         }
     }

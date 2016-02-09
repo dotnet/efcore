@@ -3151,8 +3151,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal("Id", modelBuilder.Model.FindEntityType(typeof(Book)).FindNavigation(Book.BookdDetailsNavigation.Name).ForeignKey.Properties.Single().Name);
             }
 
-            // TODO: See issue #4451
-            //[Fact]
+            [Fact]
             public virtual void Does_not_use_pk_as_fk_if_principal_end_is_not_specified()
             {
                 var modelBuilder = CreateModelBuilder();
