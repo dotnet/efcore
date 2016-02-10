@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
     public class BenchmarkTestCaseRunner : XunitTestCaseRunner
     {
         private static readonly string _machineName = GetMachineName();
-        private static readonly string _framework = GetFramework();
         private readonly IMessageSink _diagnosticMessageSink;
 
         public BenchmarkTestCaseRunner(
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 ProductReportingVersion = BenchmarkConfig.Instance.ProductReportingVersion,
                 RunStarted = DateTime.UtcNow,
                 MachineName = _machineName,
-                Framework = _framework,
+                Framework = PlatformServices.Default.Runtime.RuntimeType,
                 Architecture = IntPtr.Size > 4 ? "x64" : "x86",
                 WarmupIterations = TestCase.WarmupIterations,
                 Iterations = TestCase.Iterations,
@@ -119,12 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 BeforeAfterAttributes,
                 Aggregator,
                 CancellationTokenSource);
-        }
-
-        private static string GetFramework()
-        {
-            var env = PlatformServices.Default.Runtime;
-            return "DNX." + env.RuntimeType;
         }
 
         private static string GetMachineName()
