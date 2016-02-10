@@ -1,4 +1,7 @@
 ﻿{
+  "compilationOptions": {
+    "keyFile": "../../tools/Key.snk"
+  },
   "dependencies": {
     "dotnet-ef": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Commands.Tests": "1.0.0"

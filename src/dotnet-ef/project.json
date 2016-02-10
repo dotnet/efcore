@@ -3,6 +3,7 @@
   "description": "Entity Framework Core Commands for .NET Core CLI.",
   "compilationOptions": {
     "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
     "emitEntryPoint": true
   },
   "compile": "..\\Shared\\*.cs",
