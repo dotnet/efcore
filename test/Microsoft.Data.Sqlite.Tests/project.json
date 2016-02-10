@@ -10,7 +10,12 @@
   },
   "testRunner": "xunit",
   "frameworks": {
-    "dnx451": { },
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Runtime": "",
+        "System.Threading.Tasks": ""
+      }
+    },
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
