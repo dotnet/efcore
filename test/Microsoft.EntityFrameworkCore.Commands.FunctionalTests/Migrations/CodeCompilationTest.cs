@@ -112,7 +112,7 @@ namespace MyNamespace
 
             var assembly = build.BuildInMemory();
 
-            var migrationType = assembly.GetType("MyNamespace.MyMigration", throwOnError: true, ignoreCase: false);
+            var migrationType = assembly.GetType("MyNamespace.MyMigration");
 
             var contextTypeAttribute = migrationType.GetTypeInfo().GetCustomAttribute<DbContextAttribute>();
             Assert.NotNull(contextTypeAttribute);
