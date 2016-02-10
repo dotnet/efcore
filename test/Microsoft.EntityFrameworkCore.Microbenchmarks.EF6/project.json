@@ -5,9 +5,6 @@
   },
   "content": "config.json",
   "testRunner": "xunit",
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
     "dnx451": {
       "dependencies": {
