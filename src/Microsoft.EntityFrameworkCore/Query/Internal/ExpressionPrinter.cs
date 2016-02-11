@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryPlan = PostProcess(_stringBuilder.ToString());
 
-            var result = "TRACKED: " + TrackedQuery + Environment.NewLine;
+            var result = TrackedQuery ? "TRACKED: " + TrackedQuery + Environment.NewLine : string.Empty;
+
             result += queryPlan;
 
             return result;

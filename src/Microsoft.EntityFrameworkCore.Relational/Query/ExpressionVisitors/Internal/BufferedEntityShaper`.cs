@@ -18,8 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] string entityType,
             bool trackingQuery,
             [NotNull] IKey key,
-            [NotNull] Func<ValueBuffer, object> materializer)
-            : base(querySource, entityType, trackingQuery, key, materializer)
+            [NotNull] Func<ValueBuffer, object> materializer,
+            [NotNull] string materializerString)
+            : base(querySource, entityType, trackingQuery, key, materializer, materializerString)
         {
         }
 
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 EntityType,
                 IsTrackingQuery,
                 Key,
-                Materializer);
+                Materializer,
+                MaterializerString);
 
         public override EntityShaper WithOffset(int offset)
             => new BufferedOffsetEntityShaper<TEntity>(
@@ -53,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 EntityType,
                 IsTrackingQuery,
                 Key,
-                Materializer)
+                Materializer,
+                MaterializerString)
                 .SetOffset(offset);
     }
 }

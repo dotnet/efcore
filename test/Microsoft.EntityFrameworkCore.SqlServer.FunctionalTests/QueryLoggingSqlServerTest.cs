@@ -83,7 +83,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         , 
-        shaper: BufferedEntityShaper`1
+        shaper: BufferedEntityShaper<Customer>: 
+            materializer: 
+                (ValueBuffer valueBuffer) => 
+                {
+                    var var1
+                    var1 = new Customer()
+                    var1.CustomerID = (string) object valueBuffer.get_Item(0)
+                    var1.Address = (string) object valueBuffer.get_Item(1)
+                    var1.City = (string) object valueBuffer.get_Item(2)
+                    var1.CompanyName = (string) object valueBuffer.get_Item(3)
+                    var1.ContactName = (string) object valueBuffer.get_Item(4)
+                    var1.ContactTitle = (string) object valueBuffer.get_Item(5)
+                    var1.Country = (string) object valueBuffer.get_Item(6)
+                    var1.Fax = (string) object valueBuffer.get_Item(7)
+                    var1.Phone = (string) object valueBuffer.get_Item(8)
+                    var1.PostalCode = (string) object valueBuffer.get_Item(9)
+                    var1.Region = (string) object valueBuffer.get_Item(10)
+                    var1
+                }
+
     )
     , 
     entityAccessor: default(System.Func`2[FunctionalTests.TestModels.Northwind.Customer,System.Object]), 

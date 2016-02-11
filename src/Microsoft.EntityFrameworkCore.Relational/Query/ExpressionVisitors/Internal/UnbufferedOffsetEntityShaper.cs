@@ -17,8 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] string entityType,
             bool trackingQuery,
             [NotNull] IKey key,
-            [NotNull] Func<ValueBuffer, object> materializer)
-            : base(querySource, entityType, trackingQuery, key, materializer)
+            [NotNull] Func<ValueBuffer, object> materializer,
+            [NotNull] string materializerString)
+            : base(querySource, entityType, trackingQuery, key, materializer, materializerString)
         {
         }
 
