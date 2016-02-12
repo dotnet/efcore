@@ -1147,5 +1147,33 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var result = query.ToList();
             }
         }
+
+        ////[ConditionalFact]
+        public virtual void Query_source_materialization_bug_4547()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e3 in context.LevelThree
+                            join e1 in context.LevelOne
+                            on
+                                (int?)e3.Id
+                            equals
+                                (
+                                    from subQuery2 in context.LevelTwo
+                                    join subQuery3 in context.LevelThree
+                                    on
+                                        subQuery2 != null ? (int?)subQuery2.Id : null
+                                    equals
+                                        subQuery3.Level2_Optional_Id
+                                    into
+                                        grouping
+                                    from subQuery3 in grouping.DefaultIfEmpty()
+                                    select subQuery3 != null ? (int?)subQuery3.Id : null
+                                ).FirstOrDefault()
+                            select e1.Id;
+
+                var result = query.ToList();
+            }
+        }
     }
 }
