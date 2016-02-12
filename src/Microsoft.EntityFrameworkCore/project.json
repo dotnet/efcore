@@ -14,7 +14,7 @@
     "Microsoft.Extensions.Caching.Memory": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
     "Microsoft.Extensions.Logging": "1.0.0-*",
-    "Remotion.Linq": "2.0.1"
+    "Remotion.Linq": "2.0.2"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
@@ -26,18 +26,7 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Collections": "",
-        "System.ComponentModel.DataAnnotations": "",
-        "System.Diagnostics.Debug": "",
-        "System.Linq": "",
-        "System.Linq.Expressions": "",
-        "System.Linq.Queryable": "",
-        "System.ObjectModel": "",
-        "System.Reflection": "",
-        "System.Reflection.Extensions": "",
-        "System.Runtime": "",
-        "System.Runtime.Extensions": "",
-        "System.Threading": ""
+        "System.ComponentModel.DataAnnotations": ""
       }
     },
     "dotnet5.4": {

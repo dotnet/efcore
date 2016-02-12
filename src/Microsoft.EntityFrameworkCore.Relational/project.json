@@ -24,6 +24,9 @@
     "net451": {
       "frameworkAssemblies": {
         "System.Data": "",
+        "System.Diagnostics.Tracing": { "type": "build" },
+        "System.Runtime": { "type": "build" },
+        "System.Threading": { "type": "build" },
         "System.Transactions": ""
       }
     },

@@ -13,24 +13,40 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Diagnostics.Tracing": "",
-        "System.IO": "",
-        "System.Reflection.Primitives": "",
-        "System.Resources.ResourceManager": "",
-        "System.Runtime.InteropServices": "",
-        "System.Text.Encoding": "",
-        "System.Text.Encoding.Extensions": ""
+        "System.Collections.Concurrent": { "type": "build" },
+        "System.Diagnostics.Tools": { "type": "build" },
+        "System.Dynamic.Runtime": { "type": "build" },
+        "System.IO": { "type": "build" },
+        "System.Reflection.Primitives": { "type": "build" },
+        "System.Resources.ResourceManager": { "type": "build" },
+        "System.Runtime.InteropServices": { "type": "build" },
+        "System.Runtime.Numerics": { "type": "build" },
+        "System.Runtime.Serialization.Json": { "type": "build" },
+        "System.Text.Encoding": { "type": "build" },
+        "System.Text.Encoding.Extensions": { "type": "build" },
+        "System.Threading": { "type": "build" },
+        "System.Threading.Tasks.Parallel": { "type": "build" },
+        "System.Xml.ReaderWriter": { "type": "build" },
+        "System.Xml.XDocument": { "type": "build" }
       }
     },
     "dnx451": {
       "frameworkAssemblies": {
-        "System.Diagnostics.Tracing": "",
+        "System.Collections.Concurrent": "",
+        "System.Diagnostics.Tools": "",
+        "System.Dynamic.Runtime": "",
         "System.IO": "",
         "System.Reflection.Primitives": "",
         "System.Resources.ResourceManager": "",
         "System.Runtime.InteropServices": "",
+        "System.Runtime.Numerics": "",
+        "System.Runtime.Serialization.Json": "",
         "System.Text.Encoding": "",
-        "System.Text.Encoding.Extensions": ""
+        "System.Text.Encoding.Extensions": "",
+        "System.Threading": "",
+        "System.Threading.Tasks.Parallel": "",
+        "System.Xml.ReaderWriter": "",
+        "System.Xml.XDocument": ""
       },
       "dependencies": {
         "Microsoft.Dnx.Runtime": "1.0.0-*"

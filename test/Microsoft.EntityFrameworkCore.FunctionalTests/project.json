@@ -16,9 +16,17 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Globalization": "",
-        "System.Text.RegularExpressions": "",
-        "System.Threading.Tasks": ""
+        "System.Collections": { "type": "build" },
+        "System.Diagnostics.Debug": { "type": "build" },
+        "System.Globalization": { "type": "build" },
+        "System.Linq": { "type": "build" },
+        "System.ObjectModel": { "type": "build" },
+        "System.Reflection": { "type": "build" },
+        "System.Reflection.Extensions": { "type": "build" },
+        "System.Runtime": { "type": "build" },
+        "System.Runtime.Extensions": { "type": "build" },
+        "System.Text.RegularExpressions": { "type": "build" },
+        "System.Threading.Tasks": { "type": "build" }
       }
     },
     "dnx451": {
@@ -27,15 +35,12 @@
         "System.Diagnostics.Debug": "",
         "System.Globalization": "",
         "System.Linq": "",
-        "System.Linq.Expressions": "",
-        "System.Linq.Queryable": "",
         "System.ObjectModel": "",
         "System.Reflection": "",
         "System.Reflection.Extensions": "",
         "System.Runtime": "",
         "System.Runtime.Extensions": "",
         "System.Text.RegularExpressions": "",
-        "System.Threading": "",
         "System.Threading.Tasks": ""
       },
       "dependencies": {
