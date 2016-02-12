@@ -1131,5 +1131,21 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal(expected, result);
             }
         }
+
+        ////[ConditionalFact]
+        public virtual void Join_flattening_bug_4539()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                            join l1_Optional in context.LevelTwo on (int?)l1.Id equals EF.Property<int?>(l1_Optional, "Level1_Optional_Id") into grouping
+                            from l1_Optional in grouping.DefaultIfEmpty()
+                            from l2 in context.LevelTwo
+                            join l2_Required_Reverse in context.LevelOne on l2.Level1_Required_Id equals l2_Required_Reverse.Id
+                            select new { l1_Optional, l2_Required_Reverse };
+
+                var result = query.ToList();
+            }
+        }
     }
 }
