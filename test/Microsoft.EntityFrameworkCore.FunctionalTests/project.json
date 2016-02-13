@@ -47,9 +47,6 @@
         "System.Runtime.Extensions": "",
         "System.Text.RegularExpressions": "",
         "System.Threading.Tasks": ""
-      },
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
     }
   }

@@ -9,7 +9,7 @@
   "testRunner": "xunit",
   "frameworks": {
     "dnxcore50": {
-      "imports": "portable-net451+win8",
+      "imports": "portable-net452+win81",
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*",
         "dotnet-test-xunit": "1.0.0-dev-*"

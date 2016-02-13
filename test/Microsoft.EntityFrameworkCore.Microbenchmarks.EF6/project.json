@@ -6,10 +6,6 @@
   "content": "config.json",
   "testRunner": "xunit",
   "frameworks": {
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
-    }
+    "dnx451": { }
   }
 }
