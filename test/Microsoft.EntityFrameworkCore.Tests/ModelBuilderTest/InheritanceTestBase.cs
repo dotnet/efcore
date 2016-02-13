@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(typeof(SpecialBookLabel), relationshipBuilder.Metadata.PrincipalEntityType.ClrType);
                 Assert.Equal(nameof(BookLabel.SpecialBookLabel), relationshipBuilder.Metadata.DependentToPrincipal.Name);
                 Assert.Equal(nameof(SpecialBookLabel.BookLabel), relationshipBuilder.Metadata.PrincipalToDependent.Name);
-                Assert.Equal("SpecialBookLabelId", relationshipBuilder.Metadata.Properties.Single().Name);
+                Assert.Equal(nameof(SpecialBookLabel.Id), relationshipBuilder.Metadata.PrincipalKey.Properties.Single().Name);
             }
 
             [Fact]

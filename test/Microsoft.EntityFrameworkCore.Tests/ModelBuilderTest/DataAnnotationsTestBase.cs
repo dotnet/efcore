@@ -137,11 +137,18 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Author>();
 
-                Assert.Null(model.FindEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AuthorId", model.FindEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+                var authorDetails = model.FindEntityType(typeof(AuthorDetails));
+                var firstFk = authorDetails.FindNavigation(nameof(AuthorDetails.Author)).ForeignKey;
+                Assert.Equal(typeof(AuthorDetails), firstFk.DeclaringEntityType.ClrType);
+                Assert.Equal("AuthorId", firstFk.Properties.First().Name);
 
-                Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AuthorDetailsId", model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.Properties.First().Name);
+                var author = model.FindEntityType(typeof(Author));
+                var secondFk = author.FindNavigation(nameof(Author.AuthorDetails)).ForeignKey;
+                Assert.Equal(typeof(Author), secondFk.DeclaringEntityType.ClrType);
+                Assert.Equal("AuthorDetailsIdByAttribute", secondFk.Properties.First().Name);
+
+                AssertEqual(new[] { "AuthorId", "Id" }, authorDetails.GetProperties().Select(p => p.Name));
+                AssertEqual(new[] { "AuthorDetailsIdByAttribute", "Id", "PostId" }, author.GetProperties().Select(p => p.Name));
             }
 
             [Fact]

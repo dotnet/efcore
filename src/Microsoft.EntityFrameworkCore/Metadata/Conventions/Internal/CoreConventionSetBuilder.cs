@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
 
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 

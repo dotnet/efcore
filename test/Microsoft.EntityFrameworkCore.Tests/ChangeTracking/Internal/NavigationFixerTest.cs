@@ -969,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Nulls_one_to_one_navigation_to_principal_after_after_deletion()
+        public void Nulls_one_to_one_navigation_to_principal_after_deletion()
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);

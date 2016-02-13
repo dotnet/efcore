@@ -603,7 +603,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (runConventions)
             {
                 var builder = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder);
-                if (builder != null)
+                if (builder != null
+                    && configurationSource.HasValue)
                 {
                     builder = Model.ConventionDispatcher.OnPrincipalEndSet(builder);
                 }

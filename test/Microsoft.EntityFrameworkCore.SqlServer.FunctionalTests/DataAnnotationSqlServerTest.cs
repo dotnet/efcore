@@ -96,23 +96,12 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Equal(@"@p0: Book1
+            Assert.Contains(@"@p1: Book1
+",
+                Sql);
 
-SET NOCOUNT ON;
-INSERT INTO [BookDetail] ([BookId])
-VALUES (@p0);
-SELECT [Id]
-FROM [BookDetail]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
-
-@p0: 
-
-SET NOCOUNT ON;
-INSERT INTO [BookDetail] ([BookId])
-VALUES (@p0);
-SELECT [Id]
-FROM [BookDetail]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
+            Assert.Contains(@"@p1: 
+",
                 Sql);
         }
 

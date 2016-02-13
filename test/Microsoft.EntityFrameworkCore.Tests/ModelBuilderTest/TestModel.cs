@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             [ForeignKey("PostId")]
             public Post Post { get; set; }
 
-            [ForeignKey("AuthorDetailsId")]
+            [ForeignKey("AuthorDetailsIdByAttribute")]
             public AuthorDetails AuthorDetails { get; set; }
         }
 

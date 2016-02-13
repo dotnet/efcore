@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<One>();
-            modelBuilder.Entity<Two>();
-            modelBuilder.Entity<Book>();
         }
     }
 
@@ -38,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public DbSet<BookDetail> BookDetails { get; set; }
 
+        public DbSet<AdditionalBookDetail> AdditionalBookDetails { get; set; }
     }
 
     [Table("Sample")]
@@ -97,8 +95,18 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public string BookId { get; set; }
 
+        public int? AdditionalBookDetailId { get; set; }
+
         [Required]
         public virtual Book Book { get; set; }
+    }
+
+    public class AdditionalBookDetail
+    {
+        public int Id { get; set; }
+        
+        [Required]
+        public virtual BookDetail BookDetail { get; set; }
     }
 
     public class UselessBookDetails

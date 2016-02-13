@@ -98,8 +98,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
             var builder = TestHelpers.Instance.CreateConventionBuilder();
             var model = builder.Model;
 
-            builder.Entity<Product>();
-            builder.Entity<Category>();
+            builder.Entity<Product>(e =>
+                {
+                    e.Ignore(p => p.Category);
+                    e.Ignore(p => p.FeaturedProductCategory);
+                });
+            builder.Entity<Category>(e =>
+                {
+                    e.Ignore(c => c.Products);
+                    e.Ignore(c => c.FeaturedProduct);
+                });
 
             var categoryType = model.FindEntityType(typeof(Category));
             var productType = model.FindEntityType(typeof(Product));

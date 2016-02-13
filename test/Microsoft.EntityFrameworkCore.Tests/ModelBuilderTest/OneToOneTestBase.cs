@@ -2464,6 +2464,28 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
+            public virtual void Foreign_key_properties_are_not_discovered_for_one_to_one_relationship_with_ambiguous_principal_end()
+            {
+                var modelBuilder = HobNobBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
+                modelBuilder.Entity<Nob>().Ignore(e => e.Hobs);
+                modelBuilder.Entity<Hob>().Ignore(e => e.Nobs);
+
+                var dependentType = model.FindEntityType(typeof(Hob));
+                var principalType = model.FindEntityType(typeof(Nob));
+                var fk = dependentType.GetNavigations().First().ForeignKey;
+                Assert.Same(fk, principalType.GetNavigations().First().ForeignKey);
+                Assert.True(fk.Properties.All(p => p.IsShadowProperty));
+
+                Assert.Equal(CoreStrings.AmbiguousOneToOneRelationship(
+                    typeof(Nob).Name + "." + nameof(Nob.Hob),
+                    typeof(Hob).Name + "." + nameof(Hob.Nob)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+            }
+
+            [Fact]
             public virtual void Overrides_existing_many_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
@@ -2475,11 +2497,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
 
-                var fk = dependentType.GetNavigations().Single().ForeignKey;
-                Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
+                var fk = dependentType.GetNavigations().Single(n => n.Name == nameof(Nob.Hob)).ForeignKey;
+                Assert.Same(fk, principalType.GetNavigations().Single(n => n.Name == nameof(Hob.Nob)).ForeignKey);
                 Assert.True(fk.IsUnique);
-                Assert.Equal(nameof(Nob.Hob), dependentType.GetNavigations().Single().Name);
-                Assert.Equal(nameof(Hob.Nob), principalType.GetNavigations().Single().Name);
             }
 
             [Fact]
@@ -2491,20 +2511,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var dependentType = model.FindEntityType(typeof(Nob));
                 var principalType = model.FindEntityType(typeof(Hob));
-                var expectedPrincipalProperties = principalType.GetProperties().ToList();
-                var expectedDependentProperties = dependentType.GetProperties().ToList();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
                 modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
 
-                var fk = dependentType.GetForeignKeys().Single();
+                var fk = dependentType.GetNavigations().Single(n => n.Name == nameof(Nob.Hob)).ForeignKey;
+                Assert.Same(fk, principalType.GetNavigations().Single(n => n.Name == nameof(Hob.Nob)).ForeignKey);
                 Assert.True(fk.IsUnique);
-                Assert.Equal(1, dependentType.GetNavigations().Count());
-                Assert.Equal(1, principalType.GetNavigations().Count());
-                AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-                AssertEqual(expectedDependentProperties, dependentType.GetProperties());
-                Assert.Empty(principalType.GetForeignKeys());
+
+                var otherFk1 = dependentType.GetNavigations().Single(n => n.Name == nameof(Nob.Hobs)).ForeignKey;
+                Assert.False(otherFk1.IsUnique);
+                var otherFk2 = principalType.GetNavigations().Single(n => n.Name == nameof(Hob.Nobs)).ForeignKey;
+                Assert.False(otherFk2.IsUnique);
+                Assert.NotSame(otherFk1, otherFk2);
+
+                Assert.Equal(1, dependentType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
+                Assert.Equal(1, principalType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -2906,10 +2929,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                         b.Ignore(e => e.OneToOneDependentEntityId);
                         b.Ignore(e => e.NavOneToOneDependentEntityId);
                     });
-                modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.OneToOnePrincipalEntityId); });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2927,14 +2947,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOneDependentEntityId);
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                });
-                modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                });
+                    {
+                        b.Ignore(e => e.OneToOneDependentEntityId);
+                        b.Ignore(e => e.NavOneToOneDependentEntityId);
+                    });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.NavOneToOnePrincipalEntityId); });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2951,15 +2968,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Can_invert_one_to_one_relationship_if_principal_has_matching_property_with_navigation_name()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOneDependentEntityId);
-                });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.OneToOneDependentEntityId); });
                 modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                });
+                    {
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                    });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2976,15 +2990,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Can_invert_one_to_one_relationship_if_principal_has_matching_property_with_entity_type_name()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.NavOneToOneDependentEntityId); });
                 modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                });
+                    {
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                    });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -3002,21 +3013,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOneDependentEntityId);
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                });
+                    {
+                        b.Ignore(e => e.OneToOneDependentEntityId);
+                        b.Ignore(e => e.NavOneToOneDependentEntityId);
+                    });
                 modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                });
+                    {
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                    });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
                 Assert.Equal(CoreStrings.AmbiguousOneToOneRelationship(
-                        typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
-                        typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
+                    typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
+                    typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -3024,20 +3035,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_property_with_navigation_name()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOneDependentEntityId);
-                });
-                modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.OneToOneDependentEntityId); });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.OneToOnePrincipalEntityId); });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
                 Assert.Equal(CoreStrings.AmbiguousOneToOneRelationship(
-                        typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
-                        typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
+                    typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
+                    typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -3045,20 +3050,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_property_with_entity_type_name()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                });
-                modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.NavOneToOneDependentEntityId); });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.NavOneToOnePrincipalEntityId); });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
                 Assert.Equal(CoreStrings.AmbiguousOneToOneRelationship(
-                        typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
-                        typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
+                    typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
+                    typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -3066,20 +3065,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_property_mixed()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                });
-                modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.NavOneToOneDependentEntityId); });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.OneToOnePrincipalEntityId); });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
                 Assert.Equal(CoreStrings.AmbiguousOneToOneRelationship(
-                        typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
-                        typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
+                    typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
+                    typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -3102,7 +3095,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Can_create_one_to_one_relationship_if_user_specify_principal_key_property()
+            public virtual void Can_create_one_to_one_relationship_if_user_specifies_principal_key_property()
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -3112,12 +3105,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 modelBuilder.Validate();
 
-                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity").ForeignKey;
+                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))
+                    .FindNavigation(nameof(OneToOnePrincipalEntity.NavOneToOneDependentEntity)).ForeignKey;
 
                 Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
                 Assert.Equal(typeof(OneToOneDependentEntity), fk.PrincipalEntityType.ClrType);
-                Assert.Equal("NavOneToOnePrincipalEntityId", fk.PrincipalKey.Properties.First().Name);
-                Assert.Equal("NavOneToOneDependentEntityNavOneToOnePrincipalEntityId", fk.Properties.First().Name);
+                Assert.Equal(nameof(OneToOneDependentEntity.NavOneToOnePrincipalEntityId), fk.PrincipalKey.Properties.First().Name);
+                Assert.Equal(nameof(OneToOnePrincipalEntity.NavOneToOneDependentEntityId), fk.Properties.First().Name);
             }
 
             [Fact]
@@ -3168,15 +3162,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public virtual void Creates_one_to_one_relationship_with_single_ref_as_principal_to_dependent_if_matching_properties_are_on_the_other_side()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
-                {
-                    b.Ignore(e => e.NavOneToOneDependentEntityId);
-                });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.NavOneToOneDependentEntityId); });
                 modelBuilder.Entity<OneToOneDependentEntity>(b =>
-                {
-                    b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                    b.Ignore(e => e.OneToOnePrincipalEntityId);
-                });
+                    {
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                    });
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 

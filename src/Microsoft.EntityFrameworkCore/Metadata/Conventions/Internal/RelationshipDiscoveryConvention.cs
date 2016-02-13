@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
-    public class RelationshipDiscoveryConvention : IEntityTypeConvention, IBaseTypeConvention, INavigationRemovedConvention, IEntityTypeMemberIgnoredConvention
+    public class RelationshipDiscoveryConvention : IEntityTypeConvention, IBaseTypeConvention, INavigationRemovedConvention, IEntityTypeMemberIgnoredConvention, INavigationConvention
     {
         public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -373,6 +373,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public InternalEntityTypeBuilder TargetTypeBuilder { get; }
             public HashSet<PropertyInfo> NavigationProperties { get; }
             public HashSet<PropertyInfo> InverseProperties { get; }
+        }
+
+        public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
+        {
+            var entityTypeBuilder = Apply(navigation.DeclaringEntityType.Builder);
+            if (relationshipBuilder.Metadata.Builder == null)
+            {
+                relationshipBuilder = entityTypeBuilder.Metadata.FindNavigation(navigation.Name)?.ForeignKey?.Builder;
+            }
+
+            return relationshipBuilder;
         }
     }
 }

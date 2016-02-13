@@ -35,9 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
-        public virtual bool CanSetRequired(bool isRequired, ConfigurationSource configurationSource)
-            => (configurationSource.Overrides(Metadata.GetIsNullableConfigurationSource())
-                || (Metadata.IsNullable == !isRequired))
+        public virtual bool CanSetRequired(bool isRequired, ConfigurationSource? configurationSource)
+            => ((Metadata.IsNullable == !isRequired)
+                || (configurationSource.HasValue &&
+                    configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource())))
                && (isRequired
                    || Metadata.ClrType.IsNullableType()
                    || (configurationSource == ConfigurationSource.Explicit)); // let it throw for Explicit

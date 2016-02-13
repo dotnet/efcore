@@ -334,17 +334,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The newly created builder. </returns>
         protected virtual InternalRelationshipBuilder ReferenceBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
-        {
-            var relationship = Builder.ModelBuilder.Entity(Metadata.Name, ConfigurationSource.Explicit)
-                .Relationship(relatedEntityType, ConfigurationSource.Explicit);
-
-            if (relationship.Metadata.IsSelfReferencing())
-            {
-                relationship = relationship.PrincipalEntityType(relatedEntityType, ConfigurationSource.Explicit);
-            }
-
-            return relationship.DependentToPrincipal(navigationName, ConfigurationSource.Explicit);
-        }
+            => Builder.Navigation(
+                relatedEntityType.Builder,
+                navigationName,
+                ConfigurationSource.Explicit,
+                strictPrincipalEnd: relatedEntityType == Metadata);
 
         /// <summary>
         ///     Creates a relationship builder for a relationship that has a collection navigation property on this entity.
@@ -359,7 +353,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => Builder.ModelBuilder.Entity(relatedEntityType.Name, ConfigurationSource.Explicit)
                 .Relationship(Builder, ConfigurationSource.Explicit)
-                .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
 

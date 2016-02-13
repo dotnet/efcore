@@ -493,7 +493,7 @@
     <value>Unhandled node type: {nodeType}</value>
   </data>
   <data name="InvalidKeyValue" xml:space="preserve">
-    <value>Unable to create or track an entity of type '{entityType}' because it has an null primary or alternate key value.</value>
+    <value>Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.</value>
   </data>
   <data name="SensitiveDataLoggingEnabled" xml:space="preserve">
     <value>Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.</value>
