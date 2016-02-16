@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public override ParameterDirection Direction { get; set; }
 
-        public override bool IsNullable { get; set; }
+        public static bool DefaultIsNullable = false;
+        public override bool IsNullable { get; set; } = DefaultIsNullable;
 
         public static DbType DefaultDbType = DbType.AnsiString;
         public override DbType DbType { get; set; } = DefaultDbType;

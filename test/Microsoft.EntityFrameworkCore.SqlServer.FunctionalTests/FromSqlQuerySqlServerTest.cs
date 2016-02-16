@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.Common;
+using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Xunit;
 
@@ -304,10 +306,45 @@ WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND 
                 Sql);
         }
 
+        public override void From_sql_with_dbParameter()
+        {
+            base.From_sql_with_dbParameter();
+
+            Assert.Equal(
+                @"@city: London
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @city",
+                Sql);
+        }
+
+        public override void From_sql_with_dbParameter_mixed()
+        {
+            base.From_sql_with_dbParameter_mixed();
+
+            Assert.Equal(
+                @"@p0: London
+@title: Sales Representative
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title
+
+@city: London
+@p1: Sales Representative
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1",
+                Sql);
+        }
+
         public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
             : base(fixture)
         {
         }
+
+        protected override DbParameter CreateDbParameter(string name, object value)
+            => new SqlParameter
+            {
+                ParameterName = name,
+                Value = value
+            };
 
         private static string Sql => TestSqlLoggerFactory.Sql;
     }

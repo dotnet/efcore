@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -27,35 +28,46 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
-        public virtual IRelationalCommand Build(string sql, IReadOnlyList<object> parameters = null)
+        public virtual IRelationalCommand Build([NotNull] string sql)
+            => _relationalCommandBuilderFactory
+                .Create()
+                .Append(Check.NotEmpty(sql, nameof(sql)))
+                .Build();
+
+        public virtual RawSqlCommand Build(
+            [NotNull] string sql,
+            [NotNull] IReadOnlyList<object> parameters)
         {
             Check.NotEmpty(sql, nameof(sql));
+            Check.NotNull(parameters, nameof(parameters));
 
             var relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
-            if (parameters != null)
+            var substitutions = new string[parameters.Count];
+
+            var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
+
+            var parameterValues = new Dictionary<string, object>();
+
+            for (var i = 0; i < substitutions.Length; i++)
             {
-                var substitutions = new string[parameters.Count];
+                var parameterName = parameterNameGenerator.GenerateNext();
 
-                var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
+                substitutions[i] = _sqlGenerationHelper.GenerateParameterName(parameterName);
 
-                for (var i = 0; i < substitutions.Length; i++)
-                {
-                    var parameterName = parameterNameGenerator.GenerateNext();
+                relationalCommandBuilder.AddParameter(
+                    parameterName,
+                    substitutions[i]);
 
-                    substitutions[i] = _sqlGenerationHelper.GenerateParameterName(parameterName);
-
-                    relationalCommandBuilder.AddParameter(
-                        substitutions[i],
-                        parameters[i],
-                        parameterName);
-                }
-
-                // ReSharper disable once CoVariantArrayConversion
-                sql = string.Format(sql, substitutions);
+                parameterValues.Add(parameterName, parameters[i]);
             }
 
-            return relationalCommandBuilder.Append(sql).Build();
+            // ReSharper disable once CoVariantArrayConversion
+            sql = string.Format(sql, substitutions);
+
+            return new RawSqlCommand(
+                relationalCommandBuilder.Append(sql).Build(),
+                parameterValues);
         }
     }
 }

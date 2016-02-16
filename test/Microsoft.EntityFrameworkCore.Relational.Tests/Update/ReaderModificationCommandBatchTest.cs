@@ -4,15 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Update;
 using Moq;
@@ -197,12 +199,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var dbDataReader = CreateFakeDataReader();
 
-            var commandBuilderFactory = new FakeCommandBuilderFactory(dbDataReader);
+            var connection = CreateConnection(dbDataReader);
 
-            var batch = new ModificationCommandBatchFake(factory: commandBuilderFactory);
+            var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
-
-            var connection = CreateConnection();
 
             await batch.ExecuteAsync(connection);
 
@@ -219,13 +219,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
 
-            var commandBuilderFactory = new FakeCommandBuilderFactory(
+            var connection = CreateConnection(
                 CreateFakeDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
 
-            var batch = new ModificationCommandBatchFake(factory: commandBuilderFactory);
+            var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
-
-            var connection = CreateConnection();
 
             await batch.ExecuteAsync(connection);
 
@@ -243,13 +241,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
 
-            var commandBuilderFactory = new FakeCommandBuilderFactory(
+            var connection = CreateConnection(
                 CreateFakeDataReader(new[] { "Col1", "Col2" }, new List<object[]> { new object[] { 42, "FortyTwo" } }));
 
-            var batch = new ModificationCommandBatchFake(factory: commandBuilderFactory);
+            var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
-
-            var connection = CreateConnection();
 
             await batch.ExecuteAsync(connection);
 
@@ -266,13 +262,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
 
-            var commandBuilderFactory = new FakeCommandBuilderFactory(
+            var connection = CreateConnection(
                 CreateFakeDataReader(new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }));
 
-            var batch = new ModificationCommandBatchFake(factory: commandBuilderFactory);
+            var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
-
-            var connection = CreateConnection();
 
             await batch.ExecuteAsync(connection);
 
@@ -289,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
 
-            var commandBuilderFactory = new FakeCommandBuilderFactory(
+            var connection = CreateConnection(
                 CreateFakeDataReader(
                     new[] { "Col1" },
                     new List<object[]>
@@ -298,10 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         new object[] { 43 }
                     }));
 
-            var batch = new ModificationCommandBatchFake(factory: commandBuilderFactory);
+            var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
-
-            var connection = CreateConnection();
 
             await batch.ExecuteAsync(connection);
 
@@ -316,13 +308,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
 
-            var commandBuilderFactory = new FakeCommandBuilderFactory(
+            var connection = CreateConnection(
                 CreateFakeDataReader(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
 
-            var batch = new ModificationCommandBatchFake(factory: commandBuilderFactory);
+            var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
-
-            var connection = CreateConnection();
 
             Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -338,13 +328,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
 
-            var commandBuilderFactory = new FakeCommandBuilderFactory(
+            var connection = CreateConnection(
                 CreateFakeDataReader(new[] { "Col1" }, new List<object[]>()));
 
-            var batch = new ModificationCommandBatchFake(factory: commandBuilderFactory);
+            var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
-
-            var connection = CreateConnection();
 
             Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
@@ -359,6 +347,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             entry.MarkAsTemporary(property);
 
             var batch = new ModificationCommandBatchFake();
+            var parameterNameGenerator = new ParameterNameGenerator();
+
             batch.AddCommand(
                 new FakeModificationCommand(
                     "T",
@@ -371,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            new ParameterNameGenerator(),
+                            parameterNameGenerator,
                             false, true, false, false)
                     }));
 
@@ -387,13 +377,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            new ParameterNameGenerator(),
+                            parameterNameGenerator,
                             false, true, false, false)
                     }));
 
-            var command = batch.CreateStoreCommandBase();
+            var storeCommand = batch.CreateStoreCommandBase();
 
-            Assert.Equal(2, command.Parameters.Count);
+            Assert.Equal(2, storeCommand.RelationalCommand.Parameters.Count);
+            Assert.Equal("p0", storeCommand.RelationalCommand.Parameters[0].InvariantName);
+            Assert.Equal("p1", storeCommand.RelationalCommand.Parameters[1].InvariantName);
+
+            Assert.Equal(2, storeCommand.ParameterValues.Count);
+            Assert.Equal(1, storeCommand.ParameterValues["p0"]);
+            Assert.Equal(1, storeCommand.ParameterValues["p1"]);
         }
 
         [Fact]
@@ -420,9 +416,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             false, true, false, false)
                     }));
 
-            var command = batch.CreateStoreCommandBase();
+            var storeCommand = batch.CreateStoreCommandBase();
 
-            Assert.Equal(1, command.Parameters.Count);
+            Assert.Equal(1, storeCommand.RelationalCommand.Parameters.Count);
+            Assert.Equal("p0", storeCommand.RelationalCommand.Parameters[0].InvariantName);
+
+            Assert.Equal(1, storeCommand.ParameterValues.Count);
+            Assert.Equal(1, storeCommand.ParameterValues["p0"]);
         }
 
         [Fact]
@@ -449,9 +449,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             false, false, false, true)
                     }));
 
-            var command = batch.CreateStoreCommandBase();
+            var storeCommand = batch.CreateStoreCommandBase();
 
-            Assert.Equal(1, command.Parameters.Count);
+            Assert.Equal(1, storeCommand.RelationalCommand.Parameters.Count);
+            Assert.Equal("p0", storeCommand.RelationalCommand.Parameters[0].InvariantName);
+
+            Assert.Equal(1, storeCommand.ParameterValues.Count);
+            Assert.Equal(1, storeCommand.ParameterValues["p0"]);
         }
 
         [Fact]
@@ -478,9 +482,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             false, true, false, true)
                     }));
 
-            var command = batch.CreateStoreCommandBase();
+            var storeCommand = batch.CreateStoreCommandBase();
 
-            Assert.Equal(2, command.Parameters.Count);
+            Assert.Equal(2, storeCommand.RelationalCommand.Parameters.Count);
+            Assert.Equal("p0", storeCommand.RelationalCommand.Parameters[0].InvariantName);
+            Assert.Equal("p1", storeCommand.RelationalCommand.Parameters[1].InvariantName);
+
+            Assert.Equal(2, storeCommand.ParameterValues.Count);
+            Assert.Equal(1, storeCommand.ParameterValues["p0"]);
+            Assert.Equal(1, storeCommand.ParameterValues["p1"]);
         }
 
         [Fact]
@@ -507,9 +517,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             true, false, false, false)
                     }));
 
-            var command = batch.CreateStoreCommandBase();
+            var storeCommand = batch.CreateStoreCommandBase();
 
-            Assert.Equal(0, command.Parameters.Count);
+            Assert.Equal(0, storeCommand.RelationalCommand.Parameters.Count);
         }
 
         private class T1
@@ -559,10 +569,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         private class ModificationCommandBatchFake : AffectedCountModificationCommandBatch
         {
             public ModificationCommandBatchFake(
-                IUpdateSqlGenerator sqlGenerator = null,
-                IRelationalCommandBuilderFactory factory = null)
+                IUpdateSqlGenerator sqlGenerator = null)
                 : base(
-                    factory ?? new FakeCommandBuilderFactory(),
+                    new RelationalCommandBuilderFactory(
+                        new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                        new DiagnosticListener("Fake"),
+                        new FakeRelationalTypeMapper()),
                     new RelationalSqlGenerationHelper(),
                     sqlGenerator ?? new FakeSqlGenerator(),
                     new TypedRelationalValueBufferFactoryFactory())
@@ -589,7 +601,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             public void UpdateCachedCommandTextBase(int commandIndex) => base.UpdateCachedCommandText(commandIndex);
 
-            public IRelationalCommand CreateStoreCommandBase() => CreateStoreCommand();
+            public RawSqlCommand CreateStoreCommandBase()
+                => CreateStoreCommand();
         }
 
         private class FakeModificationCommand : ModificationCommand
@@ -608,89 +621,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             public override IReadOnlyList<ColumnModification> ColumnModifications { get; }
         }
 
-        private class FakeCommandBuilderFactory : IRelationalCommandBuilderFactory
-        {
-            private readonly DbDataReader _reader;
-
-            public FakeCommandBuilderFactory(DbDataReader reader = null)
-            {
-                _reader = reader;
-            }
-
-            public IRelationalCommandBuilder Create() => new FakeCommandBuilder(_reader);
-        }
-
-        private class FakeCommandBuilder : IRelationalCommandBuilder
-        {
-            private readonly DbDataReader _reader;
-            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
-
-            public FakeCommandBuilder(DbDataReader reader = null)
-            {
-                _reader = reader;
-            }
-
-            public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
-
-            public void AddParameter(IRelationalParameter relationalParameter) => _parameters.Add(relationalParameter);
-
-            public IRelationalParameter CreateParameter(string name, object value, Func<IRelationalTypeMapper, RelationalTypeMapping> mapType, bool? nullable, string invariantName) 
-                => new RelationalParameter(name, value, new RelationalTypeMapping("name", typeof(Type)), null, invariantName);
-
-            public IRelationalCommand Build()
-                => new FakeRelationalCommand(
-                    Instance.ToString(),
-                    _parameters,
-                    _reader);
-        }
-
-        private class FakeRelationalCommand : IRelationalCommand
-        {
-            private readonly DbDataReader _reader;
-
-            public FakeRelationalCommand(
-                string commandText,
-                IReadOnlyList<IRelationalParameter> parameters,
-                DbDataReader reader)
-            {
-                CommandText = commandText;
-                Parameters = parameters;
-
-                _reader = reader;
-            }
-
-            public string CommandText { get; }
-
-            public IReadOnlyList<IRelationalParameter> Parameters { get; }
-
-            public int ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                throw new NotImplementedException();
-            }
-
-            public object ExecuteScalar(IRelationalConnection connection, bool manageConnection = true)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                throw new NotImplementedException();
-            }
-
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
-                => new RelationalDataReader(null, new FakeDbCommand(), _reader);
-
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null, CancellationToken cancellationToken = default(CancellationToken))
-                => Task.FromResult(new RelationalDataReader(null, new FakeDbCommand(), _reader));
-        }
-
         private const string ConnectionString = "Fake Connection String";
+
+        private static FakeRelationalConnection CreateConnection(DbDataReader dbDataReader)
+        {
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor(
+                    executeReaderAsync: (c, b, ct) =>
+                    {
+                        return Task.FromResult<DbDataReader>(dbDataReader);
+                    },
+                    executeReader: (c, b) =>
+                    {
+                        return dbDataReader;
+                    }));
+
+            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+
+            var options = CreateOptions(optionsExtension);
+
+            return CreateConnection(options);
+        }
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
             => new FakeRelationalConnection(options ?? CreateOptions());

@@ -59,7 +59,9 @@
     <Compile Include="RelationalOptionsExtensionTest.cs" />
     <Compile Include="SqlBatchBuilderTest.cs" />
     <Compile Include="Storage\RawSqlCommandBuilderTest.cs" />
+    <Compile Include="Storage\RelationalCommandBuilderTest.cs" />
     <Compile Include="Storage\RelationalCommandTest.cs" />
+    <Compile Include="Storage\RelationalParameterBuilderTest.cs" />
     <Compile Include="Storage\RelationalSqlGeneratorTest.cs" />
     <Compile Include="Storage\RelationalTransactionExtensionsTest.cs" />
     <Compile Include="Storage\RelationalTypeMapperTest.cs" />

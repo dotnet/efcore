@@ -45,14 +45,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return false;
                         }
 
-                        if (value is IEnumerable
-                            && value.GetType() != typeof(string)
-                            && value.GetType() != typeof(byte[]))
+                        if (value is IEnumerable)
                         {
-                            // TODO: This doesn't always need to be deep.
-                            // We could add a LINQ operator parameter attribute to tell us.
-                            return StructuralComparisons
-                                .StructuralEqualityComparer.Equals(value, otherValue);
+                            var type = value.GetType();
+
+                            if (type == typeof(object[]))
+                            {
+                                // Only compare lengths for FromSql parameters
+                                return ((object[])value).Length == (otherValue as object[])?.Length;
+                            }
+
+                            if (type != typeof(string)
+                                && type != typeof(byte[]))
+                            {
+                                // Comparision for contains parameters
+                                // TODO: This doesn't always need to be deep.
+                                // We could add a LINQ operator parameter attribute to tell us.
+                                return StructuralComparisons
+                                    .StructuralEqualityComparer.Equals(value, otherValue);
+                            }
                         }
                     }
                 }
