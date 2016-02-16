@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEng
         {
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public async void One_to_one()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix).AsTransient())
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public async void One_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix).AsTransient())
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public async void Many_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany" + DbSuffix).AsTransient())
@@ -176,7 +176,7 @@ CREATE TABLE Users_Groups (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public async void Self_referencing()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef" + DbSuffix).AsTransient())
@@ -216,7 +216,7 @@ CREATE TABLE Users_Groups (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public async void Missing_primary_key()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
@@ -245,7 +245,7 @@ CREATE TABLE Users_Groups (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public async void Principal_missing_primary_key()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix).AsTransient())
@@ -295,7 +295,7 @@ CREATE TABLE Principal ( Id INT);");
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public async void It_handles_unsafe_names()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
@@ -344,7 +344,7 @@ CREATE TABLE String (
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public virtual async void Foreign_key_to_unique_index()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix).AsTransient())

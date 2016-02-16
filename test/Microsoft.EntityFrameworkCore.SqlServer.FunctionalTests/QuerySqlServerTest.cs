@@ -2211,6 +2211,7 @@ INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[Cu
                 Sql);
         }
 
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public override void Join_client_new_expression()
         {
             base.Join_client_new_expression();
@@ -2236,6 +2237,7 @@ CROSS JOIN [Employees] AS [e]",
                 Sql);
         }
 
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public override void Client_Join_select_many()
         {
             base.Client_Join_select_many();
@@ -2275,6 +2277,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
         }
 
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public override void Join_customers_orders_with_subquery()
         {
             base.Join_customers_orders_with_subquery();
@@ -2307,6 +2310,7 @@ WHERE [t0].[CustomerID] = 'ALFKI'",
                 Sql);
         }
 
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public override void Join_customers_orders_with_subquery_anonymous_property_method()
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method();
@@ -2321,6 +2325,7 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public override void Join_customers_orders_with_subquery_anonymous_property_method_with_take()
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method_with_take();
@@ -2337,6 +2342,7 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public override void Join_customers_orders_with_subquery_predicate()
         {
             base.Join_customers_orders_with_subquery_predicate();
@@ -2818,6 +2824,7 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         public override void OrderBy_multiple_queries()
         {
             base.OrderBy_multiple_queries();
