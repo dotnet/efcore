@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.Extensions.CommandLineUtils;
 using JetBrains.Annotations;
+using Microsoft.DotNet.Cli.Utils;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Commands
 {
@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var json = command.Option(
                 "--json",
                 "Use json output");
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.OnExecute(
                 () => Execute(
@@ -46,8 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string environment,
             Action<IEnumerable<MigrationInfo>> reportResultsAction)
         {
-            var migrations = new OperationsFactory(startupProject, environment)
-                .CreateMigrationsOperations()
+            var migrations = new OperationExecutor(startupProject, environment)
                 .GetMigrations(context);
 
             reportResultsAction(migrations);

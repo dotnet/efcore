@@ -23,5 +23,16 @@ namespace Microsoft.Extensions.CommandLineUtils
                 template.IndexOf('<') != -1
                     ? CommandOptionType.SingleValue
                     : CommandOptionType.NoValue);
+
+        public static CommandOption HelpOption(this CommandLineApplication command)
+            => command.HelpOption("-h|--help");
+
+        public static CommandOption VerboseOption(this CommandLineApplication command)
+            => command.Option("-v|--verbose", "Enable verbose output");
+
+        public static CommandOption VersionOption(
+            this CommandLineApplication command,
+            Func<string> shortFormVersionGetter)
+            => command.VersionOption("--version", shortFormVersionGetter);
     }
 }

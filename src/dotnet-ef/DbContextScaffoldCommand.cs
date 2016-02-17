@@ -50,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.OnExecute(
                 () =>
@@ -96,8 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string startupProject,
             string environment)
         {
-            await new OperationsFactory(startupProject, environment)
-                .CreateDatabaseOperations()
+            await new OperationExecutor(startupProject, environment)
                 .ReverseEngineerAsync(
                     provider,
                     connection,

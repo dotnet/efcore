@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.OnExecute(
                 () =>
@@ -56,8 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string startupProject,
             string environment)
         {
-            new OperationsFactory(startupProject, environment)
-                .CreateMigrationsOperations()
+            new OperationExecutor(startupProject, environment)
                 .AddMigration(name, outputDir, context);
 
             Reporter.Error.WriteLine("Done. To undo this action, use 'ef migrations remove'");

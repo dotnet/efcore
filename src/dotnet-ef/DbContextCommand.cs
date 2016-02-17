@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
         {
             command.Description = "Commands to manage your DbContext types";
 
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.Command("list", DbContextListCommand.Configure);
             command.Command("scaffold", DbContextScaffoldCommand.Configure);

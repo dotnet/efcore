@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.Extensions.CommandLineUtils;
 using JetBrains.Annotations;
+using Microsoft.DotNet.Cli.Utils;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Commands
 {
@@ -14,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
     {
         public static int Main([NotNull] string[] args)
         {
+            HandleVerboseOption(ref args);
             DebugHelper.HandleDebugSwitch(ref args);
 
             var app = new CommandLineApplication
@@ -22,8 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 FullName = "Entity Framework Core Commands"
             };
 
-            app.HelpOption("-h|--help");
-            app.VersionOption("--version", GetVersion);
+            app.HelpOption();
+            app.VerboseOption();
+            app.VersionOption(GetVersion);
 
             app.Command("database", DatabaseCommand.Configure);
             app.Command("dbcontext", DbContextCommand.Configure);
@@ -48,10 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 {
                     ex = ex.InnerException;
                 }
-                
+
                 if (!(ex is OperationException))
                 {
-                    Reporter.Verbose.WriteLine(ex.ToString().Bold().Black());
+                    Reporter.Error.WriteLine(ex.ToString());
                 }
 
                 Reporter.Error.WriteLine(ex.Message.Bold().Red());
@@ -59,6 +62,20 @@ namespace Microsoft.EntityFrameworkCore.Commands
             }
 
             return result;
+        }
+
+        private static void HandleVerboseOption(ref string[] args)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "-v" || args[i] == "--verbose")
+                {
+                    Environment.SetEnvironmentVariable(CommandContext.Variables.Verbose, bool.TrueString);
+                    args = args.Take(i).Concat(args.Skip(i + 1)).ToArray();
+
+                    return;
+                }
+            }
         }
 
         private static string GetVersion()

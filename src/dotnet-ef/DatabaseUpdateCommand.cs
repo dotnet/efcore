@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.OnExecute(
                 () => Execute(migration.Value, context.Value(), startupProject.Value(), environment.Value()));
@@ -33,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
         private static int Execute(string migration, string context, string startupProject, string environment)
         {
-            new OperationsFactory(startupProject, environment)
-                .CreateMigrationsOperations()
+            new OperationExecutor(startupProject, environment)
                 .UpdateDatabase(migration, context);
 
             return 0;

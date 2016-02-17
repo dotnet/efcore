@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
         {
             command.Description = "Commands to manage your database";
 
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.Command("update", DatabaseUpdateCommand.Configure);
 

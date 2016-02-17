@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var json = command.Option(
                 "--json",
                 "Use json output");
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.OnExecute(
                 () => Execute(
@@ -41,8 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string environment,
             Action<IEnumerable<Type>> reportResultsAction)
         {
-            var contextTypes = new OperationsFactory(startupProject, environment)
-                .CreateDbContextOperations()
+            var contextTypes = new OperationExecutor(startupProject, environment)
                 .GetContextTypes();
 
             reportResultsAction(contextTypes);

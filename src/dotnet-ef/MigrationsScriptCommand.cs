@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.OnExecute(
                 () => Execute(
@@ -58,8 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string startupProject,
             string environment)
         {
-            var sql = new OperationsFactory(startupProject, environment)
-                .CreateMigrationsOperations()
+            var sql = new OperationExecutor(startupProject, environment)
                 .ScriptMigration(from, to, idempotent, context);
 
             if (string.IsNullOrEmpty(output))

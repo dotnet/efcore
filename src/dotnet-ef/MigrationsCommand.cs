@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
         {
             command.Description = "Commands to manage your migrations";
 
-            command.HelpOption("-h|--help");
+            command.HelpOption();
+            command.VerboseOption();
 
             command.Command("add", MigrationsAddCommand.Configure);
             command.Command("list", MigrationsListCommand.Configure);
