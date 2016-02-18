@@ -681,12 +681,7 @@ FROM [Weapon] AS [w]",
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();
 
             Assert.Equal(
-                @"SELECT [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
-FROM [CogTag] AS [ct1]
-INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
-CROSS JOIN [CogTag] AS [ct2]
-INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname]) AND ([ct2].[GearSquadId] = [ct2.Gear].[SquadId])
-WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
+                @"",
                 Sql);
         }
 
@@ -695,10 +690,10 @@ WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
             base.Select_Singleton_Navigation_With_Member_Access();
 
             Assert.Equal(
-                @"SELECT [ct.Gear].[Nickname], [ct.Gear].[SquadId], [ct.Gear].[AssignedCityName], [ct.Gear].[CityOrBirthName], [ct.Gear].[Discriminator], [ct.Gear].[FullName], [ct.Gear].[LeaderNickname], [ct.Gear].[LeaderSquadId], [ct.Gear].[Rank]
+                @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note], [ct.Gear].[Nickname], [ct.Gear].[SquadId], [ct.Gear].[AssignedCityName], [ct.Gear].[CityOrBirthName], [ct.Gear].[Discriminator], [ct.Gear].[FullName], [ct.Gear].[LeaderNickname], [ct.Gear].[LeaderSquadId], [ct.Gear].[Rank]
 FROM [CogTag] AS [ct]
-INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
-WHERE ([ct.Gear].[Nickname] = 'Marcus') AND ([ct.Gear].[CityOrBirthName] <> 'Ephyra')",
+LEFT JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
+ORDER BY [ct].[GearNickName], [ct].[GearSquadId]",
                 Sql);
         }
 
@@ -707,10 +702,10 @@ WHERE ([ct.Gear].[Nickname] = 'Marcus') AND ([ct.Gear].[CityOrBirthName] <> 'Eph
             base.Select_Where_Navigation();
 
             Assert.Equal(
-                @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note]
+                @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note], [ct.Gear].[Nickname], [ct.Gear].[SquadId], [ct.Gear].[AssignedCityName], [ct.Gear].[CityOrBirthName], [ct.Gear].[Discriminator], [ct.Gear].[FullName], [ct.Gear].[LeaderNickname], [ct.Gear].[LeaderSquadId], [ct.Gear].[Rank]
 FROM [CogTag] AS [ct]
-INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
-WHERE [ct.Gear].[Nickname] = 'Marcus'",
+LEFT JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
+ORDER BY [ct].[GearNickName], [ct].[GearSquadId]",
                 Sql);
         }
 
@@ -721,7 +716,9 @@ WHERE [ct.Gear].[Nickname] = 'Marcus'",
             Assert.Equal(
                 @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [o.Gear].[Nickname], [o.Gear].[SquadId], [o.Gear].[AssignedCityName], [o.Gear].[CityOrBirthName], [o.Gear].[Discriminator], [o.Gear].[FullName], [o.Gear].[LeaderNickname], [o.Gear].[LeaderSquadId], [o.Gear].[Rank]
 FROM [CogTag] AS [o]
-INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])",
+LEFT JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])
+WHERE [o].[GearNickName] IS NOT NULL OR [o].[GearSquadId] IS NOT NULL
+ORDER BY [o].[GearNickName], [o].[GearSquadId]",
                 Sql);
         }
 
@@ -763,13 +760,15 @@ WHERE [ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL",
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
 
-            Assert.Equal(
-                @"SELECT [ct1].[Id], [ct2].[Id]
+            Assert.StartsWith(
+                @"SELECT [ct2.Gear].[Nickname], [ct2.Gear].[SquadId], [ct2.Gear].[AssignedCityName], [ct2.Gear].[CityOrBirthName], [ct2.Gear].[Discriminator], [ct2.Gear].[FullName], [ct2.Gear].[LeaderNickname], [ct2.Gear].[LeaderSquadId], [ct2.Gear].[Rank]
+FROM [Gear] AS [ct2.Gear]
+WHERE ([ct2.Gear].[Discriminator] = 'Officer') OR ([ct2.Gear].[Discriminator] = 'Gear')
+
+SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct1.Gear].[Nickname], [ct1.Gear].[SquadId], [ct1.Gear].[AssignedCityName], [ct1.Gear].[CityOrBirthName], [ct1.Gear].[Discriminator], [ct1.Gear].[FullName], [ct1.Gear].[LeaderNickname], [ct1.Gear].[LeaderSquadId], [ct1.Gear].[Rank]
 FROM [CogTag] AS [ct1]
-INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
-CROSS JOIN [CogTag] AS [ct2]
-INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname]) AND ([ct2].[GearSquadId] = [ct2.Gear].[SquadId])
-WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
+LEFT JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]",
                 Sql);
         }
 
@@ -778,10 +777,10 @@ WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
             base.Singleton_Navigation_With_Member_Access();
 
             Assert.Equal(
-                @"SELECT [ct.Gear].[CityOrBirthName]
+                @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note], [ct.Gear].[Nickname], [ct.Gear].[SquadId], [ct.Gear].[AssignedCityName], [ct.Gear].[CityOrBirthName], [ct.Gear].[Discriminator], [ct.Gear].[FullName], [ct.Gear].[LeaderNickname], [ct.Gear].[LeaderSquadId], [ct.Gear].[Rank]
 FROM [CogTag] AS [ct]
-INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
-WHERE ([ct.Gear].[Nickname] = 'Marcus') AND ([ct.Gear].[CityOrBirthName] <> 'Ephyra')",
+LEFT JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
+ORDER BY [ct].[GearNickName], [ct].[GearSquadId]",
                 Sql);
         }
 

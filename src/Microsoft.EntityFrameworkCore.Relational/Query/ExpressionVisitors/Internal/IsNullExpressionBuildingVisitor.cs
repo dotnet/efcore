@@ -9,13 +9,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class IsNullExpressionBuildingVisitor : RelinqExpressionVisitor
     {
+        private bool _nullConstantAdded = false;
+
         public virtual Expression ResultExpression { get; private set; }
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node.Value == null)
+            if (node.Value == null && !_nullConstantAdded)
             {
-                AddToResult(node);
+                AddToResult(new IsNullExpression(node));
+                _nullConstantAdded = true;
             }
 
             return node;

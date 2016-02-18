@@ -4225,13 +4225,13 @@ WHERE ([o].[CustomerID] = 'QUICK') AND ([o].[OrderDate] > '1998-01-01T00:00:00.0
             base.OfType_Select();
 
             Assert.Equal(
-                @"SELECT TOP(1) [o.Customer].[City]
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
 ) AS [t0]
-INNER JOIN [Customers] AS [o.Customer] ON [t0].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [t0].[OrderID]",
+LEFT JOIN [Customers] AS [o.Customer] ON [t0].[CustomerID] = [o.Customer].[CustomerID]
+ORDER BY [t0].[OrderID], [t0].[CustomerID]",
                 Sql);
         }
 
@@ -4240,7 +4240,7 @@ ORDER BY [t0].[OrderID]",
             base.OfType_Select_OfType_Select();
 
             Assert.Equal(
-                @"SELECT TOP(1) [o.Customer].[City]
+                @"SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM (
     SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
@@ -4248,8 +4248,8 @@ FROM (
         FROM [Orders] AS [o]
     ) AS [t0]
 ) AS [t1]
-INNER JOIN [Customers] AS [o.Customer] ON [t1].[CustomerID] = [o.Customer].[CustomerID]
-ORDER BY [t1].[OrderID]",
+LEFT JOIN [Customers] AS [o.Customer] ON [t1].[CustomerID] = [o.Customer].[CustomerID]
+ORDER BY [t1].[OrderID], [t1].[CustomerID]",
                 Sql);
         }
 

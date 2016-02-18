@@ -116,6 +116,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                         Expression.Constant(false, typeof(bool)));
                 }
 
+                if (!_insideConditionalTest
+                    && node.NodeType == ExpressionType.Not
+                    && node.Operand is IsNullExpression)
+                {
+                    return Expression.Condition(
+                        node.Operand,
+                        Expression.Constant(false, typeof(bool)),
+                        Expression.Constant(true, typeof(bool)));
+                }
+
+                if (!_insideConditionalTest && node.Operand is IsNullExpression)
+                {
+                    return Expression.Condition(
+                        node,
+                        Expression.Constant(true, typeof(bool)),
+                        Expression.Constant(false, typeof(bool)));
+                }
+
                 return base.VisitUnary(node);
             }
 

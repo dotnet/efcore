@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -29,6 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.OrElse, " || " },
             { ExpressionType.AndAlso, " && " },
             { ExpressionType.Coalesce, " ?? " },
+            { ExpressionType.Add, " + " },
+            { ExpressionType.Subtract, " - " },
+            { ExpressionType.Multiply, " * " },
+            { ExpressionType.Divide, " * " },
+            { ExpressionType.Modulo, " % " },
         };
 
         protected static Action<IndentedStringBuilder, string> Append
@@ -62,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return new List<IConstantPrinter>
             {
                 new CollectionConstantPrinter(),
+                new MetadataPropertyPrinter(),
                 new DefaultConstantPrinter()
             };
         }
@@ -83,6 +90,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ExpressionType.NotEqual:
                 case ExpressionType.OrElse:
                 case ExpressionType.Coalesce:
+                case ExpressionType.Add:
+                case ExpressionType.Subtract:
+                case ExpressionType.Multiply:
+                case ExpressionType.Divide:
+                case ExpressionType.Modulo:
                     VisitBinary((BinaryExpression)node);
                     break;
 
@@ -277,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (parameter != node.Parameters.Last())
                 {
-                    _stringBuilder.Append(", ");
+                    _stringBuilder.Append(" | ");
                 }
             }
 
@@ -530,6 +542,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     stringBuilder.DecrementIndent();
                     appendAction(stringBuilder, "}");
+
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        private class MetadataPropertyPrinter : IConstantPrinter
+        {
+            public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
+            {
+                var property = value as Property;
+                if (property != null)
+                {
+                    stringBuilder.Append(property.Name);
 
                     return true;
                 }

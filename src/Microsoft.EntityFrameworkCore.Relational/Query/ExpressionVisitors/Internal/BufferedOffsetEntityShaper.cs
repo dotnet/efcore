@@ -24,5 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         public override TEntity Shape(QueryContext queryContext, ValueBuffer valueBuffer)
             => base.Shape(queryContext, valueBuffer.WithOffset(ValueBufferOffset));
+
+        public override string ToString()
+        {
+            return "BufferedOffsetEntityShaper<" + typeof(TEntity).Name + ">";
+        }
     }
 }

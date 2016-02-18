@@ -42,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (methodCallExpression.Method.MethodIsClosedFormOf(_operatorToFlatten))
             {
                 var outerShapedQuery = (MethodCallExpression)methodCallExpression.Arguments[0];
+
                 var outerShaper = (Shaper)((ConstantExpression)outerShapedQuery.Arguments[2]).Value;
 
                 var innerLambda
