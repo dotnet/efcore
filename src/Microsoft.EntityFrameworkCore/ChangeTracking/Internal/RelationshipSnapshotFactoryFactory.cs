@@ -3,10 +3,11 @@
 
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    public class RelationshipSnapshotFactoryFactory : SnapshotFactoryFactory<InternalEntityEntry>
+    public class RelationshipSnapshotFactoryFactory : SnapshotFactoryFactory<IUpdateEntry>
     {
         protected override int GetPropertyIndex(IPropertyBase propertyBase)
             => propertyBase.GetRelationshipIndex();

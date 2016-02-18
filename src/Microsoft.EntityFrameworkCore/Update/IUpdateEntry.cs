@@ -80,6 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="value"> The value to set. </param>
         void SetCurrentValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value);
 
+        object this[IPropertyBase propertyBase]
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for the entity being saved. <see cref="EntityEntry" /> is an API optimized for
         ///     application developers and <see cref="IUpdateEntry" /> is optimized for database providers, but there may be instances

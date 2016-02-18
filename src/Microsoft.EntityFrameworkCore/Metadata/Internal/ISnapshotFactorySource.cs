@@ -4,13 +4,14 @@
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public interface ISnapshotFactorySource
     {
-        Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory { get; }
-        Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory { get; }
+        Func<IUpdateEntry, ISnapshot> OriginalValuesFactory { get; }
+        Func<IUpdateEntry, ISnapshot> RelationshipSnapshotFactory { get; }
         Func<ValueBuffer, ISnapshot> ShadowValuesFactory { get; }
         Func<ISnapshot> EmptyShadowValuesFactory { get; }
     }
