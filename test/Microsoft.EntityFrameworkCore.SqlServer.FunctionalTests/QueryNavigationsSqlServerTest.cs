@@ -241,23 +241,23 @@ LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[Custom
 WHERE [o].[CustomerID] = 'ALFKI'
 ORDER BY [o].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]",
                 Sql);
         }
 
@@ -270,8 +270,8 @@ FROM [Orders] AS [o]",
     SELECT CASE
         WHEN EXISTS (
             SELECT 1
-            FROM [Orders] AS [o]
-            WHERE [c].[CustomerID] = [o].[CustomerID])
+            FROM [Orders] AS [o0]
+            WHERE [c].[CustomerID] = [o0].[CustomerID])
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -316,8 +316,8 @@ WHERE EXISTS (
     SELECT CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM [Orders] AS [o]
-            WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND NOT (([o].[CustomerID] = 'ALFKI') AND [o].[CustomerID] IS NOT NULL))
+            FROM [Orders] AS [o0]
+            WHERE (([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) AND NOT (([o0].[CustomerID] = 'ALFKI') AND [o0].[CustomerID] IS NOT NULL))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -333,8 +333,8 @@ FROM [Customers] AS [c]",
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]",
                 Sql);
         }
 
@@ -372,8 +372,8 @@ FROM [Orders] AS [o]",
             Assert.Equal(
                 @"SELECT (
     SELECT COUNT(*)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
 )
 FROM [Customers] AS [c]",
                 Sql);
@@ -431,8 +431,8 @@ ORDER BY (
             Assert.Equal(
                 @"SELECT (
     SELECT COUNT_BIG(*)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
 )
 FROM [Customers] AS [c]",
                 Sql);
@@ -445,14 +445,14 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT (
     SELECT COUNT(*)
-    FROM [Order Details] AS [o]
-    WHERE [o].[OrderID] = [o].[OrderID]
+    FROM [Order Details] AS [o2]
+    WHERE [o].[OrderID] = [o2].[OrderID]
 ), (
     SELECT CASE
         WHEN EXISTS (
             SELECT 1
-            FROM [Order Details] AS [od]
-            WHERE ([od].[UnitPrice] > 10) AND ([o].[OrderID] = [od].[OrderID]))
+            FROM [Order Details] AS [od1]
+            WHERE ([od1].[UnitPrice] > 10) AND ([o].[OrderID] = [od1].[OrderID]))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ), CASE
@@ -462,14 +462,14 @@ END, [o].[OrderID], (
     SELECT CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM [Order Details] AS [od]
-            WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> 42))
+            FROM [Order Details] AS [od2]
+            WHERE ([o].[OrderID] = [od2].[OrderID]) AND ([od2].[OrderID] <> 42))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ), (
     SELECT COUNT_BIG(*)
-    FROM [Order Details] AS [o]
-    WHERE [o].[OrderID] = [o].[OrderID]
+    FROM [Order Details] AS [o3]
+    WHERE [o].[OrderID] = [o3].[OrderID]
 ), [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] LIKE 'A' + '%'",
@@ -482,9 +482,9 @@ WHERE [o].[CustomerID] LIKE 'A' + '%'",
 
             Assert.Equal(
                 @"SELECT (
-    SELECT SUM([o].[OrderID])
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
+    SELECT SUM([o0].[OrderID])
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
 )
 FROM [Customers] AS [c]",
                 Sql);
@@ -595,12 +595,12 @@ WHERE EXISTS (
         SELECT [o].[OrderID], [o].[ProductID]
         FROM [Order Details] AS [o]
         WHERE [p].[ProductID] = [o].[ProductID]
-    ) AS [t]
+    ) AS [t00]
     INNER JOIN (
         SELECT TOP(1) [orderDetail].[OrderID], [orderDetail].[ProductID]
         FROM [Order Details] AS [orderDetail]
         WHERE [orderDetail].[Quantity] = 1
-    ) AS [t0] ON ([t].[OrderID] = [t0].[OrderID]) AND ([t].[ProductID] = [t0].[ProductID]))",
+    ) AS [t1] ON ([t00].[OrderID] = [t1].[OrderID]) AND ([t00].[ProductID] = [t1].[ProductID]))",
                 Sql);
         }
 

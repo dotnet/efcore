@@ -28,14 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             base.Take_Skip();
 
             Assert.Contains(
-                @"SELECT ""t0"".*
+                @"SELECT ""t"".*
 FROM (
     SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
     FROM ""Customers"" AS ""c""
     ORDER BY ""c"".""ContactName""
     LIMIT @__p_0
-) AS ""t0""
-ORDER BY ""t0"".""ContactName""
+) AS ""t""
+ORDER BY ""t"".""ContactName""
 LIMIT -1 OFFSET @__p_1",
                 Sql);
         }

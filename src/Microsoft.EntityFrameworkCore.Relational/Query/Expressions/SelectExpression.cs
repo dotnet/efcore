@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 #endif
 
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
+        private readonly RelationalQueryCompilationContext _queryCompilationContext;
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
@@ -35,22 +36,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
-        public SelectExpression([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+        public SelectExpression([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] RelationalQueryCompilationContext queryCompilationContext)
             : base(null, null)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
+            _queryCompilationContext = queryCompilationContext;
         }
 
         public SelectExpression(
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [NotNull] string alias)
-            : base(null, Check.NotNull(alias, nameof(alias)))
+            : this(querySqlGeneratorFactory, queryCompilationContext)
         {
-            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
+            Check.NotNull(alias, nameof(alias));
 
-            _querySqlGeneratorFactory = querySqlGeneratorFactory;
+            // When assigning alias to select expression make it unique
+            Alias = queryCompilationContext.CreateUniqueTableAlias(alias);
         }
 
         public override Type Type => _projection.Count == 1
@@ -62,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(alias, nameof(alias));
 
             var selectExpression
-                = new SelectExpression(_querySqlGeneratorFactory, alias)
+                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext, alias)
                 {
                     _limit = _limit,
                     _offset = _offset,
@@ -84,13 +90,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         public virtual bool IsProjectStar { get; set; }
 
-        public virtual void AddTable([NotNull] TableExpressionBase tableExpression)
-            => _tables.Add(Check.NotNull(tableExpression, nameof(tableExpression)));
+        public virtual void AddTable([NotNull] TableExpressionBase tableExpression, bool createUniqueAlias = true)
+        {
+            Check.NotNull(tableExpression, nameof(tableExpression));
+
+            if (createUniqueAlias)
+            {
+                tableExpression.Alias = _queryCompilationContext.CreateUniqueTableAlias(tableExpression.Alias);
+            }
+            _tables.Add(tableExpression);
+        }
 
         public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions)
-            => _tables.AddRange(Check.NotNull(tableExpressions, nameof(tableExpressions)));
+        {
+            Check.NotNull(tableExpressions, nameof(tableExpressions));
 
-        public virtual void ClearTables() => _tables.Clear();
+            // Multiple tables are added while moving current select expression inside subquery hence it does not need to generate unique alias
+            foreach (var tableExpression in tableExpressions.ToList())
+            {
+                AddTable(tableExpression, createUniqueAlias: false);
+            }
+        }
+
+        public virtual void ClearTables()
+        {
+            _tables.Clear();
+        }
 
         public virtual bool IsCorrelated() => new CorrelationFindingExpressionVisitor().IsCorrelated(this);
 
@@ -229,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             _subqueryDepth++;
 
-            var subquery = new SelectExpression(_querySqlGeneratorFactory, SystemAliasPrefix + _subqueryDepth);
+            var subquery = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext, SystemAliasPrefix);
 
             var columnAliasCounter = 0;
 
@@ -277,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ClearProjection();
             ClearOrderBy();
 
-            AddTable(subquery);
+            AddTable(subquery, createUniqueAlias: false);
 
             return subquery;
         }
@@ -382,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                 if (alias != null)
                 {
-                    foreach (var orderByAliasExpression 
+                    foreach (var orderByAliasExpression
                         in _orderBy.Select(o => o.Expression).OfType<AliasExpression>())
                     {
                         if (orderByAliasExpression.TryGetColumnExpression() == null)
@@ -625,8 +650,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
 
-            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
-
             _tables.Add(new CrossJoinExpression(tableExpression));
             _projection.AddRange(projection);
         }
@@ -637,8 +660,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
-
-            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             _tables.Add(new LateralJoinExpression(tableExpression));
             _projection.AddRange(projection);
@@ -657,8 +678,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
-
-            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             var innerJoinExpression = new InnerJoinExpression(tableExpression);
 
@@ -682,39 +701,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(tableExpression, nameof(tableExpression));
             Check.NotNull(projection, nameof(projection));
 
-            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
-
             var outerJoinExpression = new LeftOuterJoinExpression(tableExpression);
 
             _tables.Add(outerJoinExpression);
             _projection.AddRange(projection);
 
             return outerJoinExpression;
-        }
-
-        public virtual string CreateUniqueTableAlias()
-            => CreateUniqueTableAlias(SystemAliasPrefix);
-
-        private string CreateUniqueTableAlias(string currentAlias)
-        {
-            Debug.Assert(currentAlias != null);
-
-            var uniqueAlias = currentAlias;
-            var counter = 0;
-
-            int _;
-            if (currentAlias.StartsWith(SystemAliasPrefix, StringComparison.Ordinal)
-                && int.TryParse(currentAlias.Substring(1), out _))
-            {
-                currentAlias = SystemAliasPrefix;
-            }
-
-            while (_tables.Any(t => string.Equals(t.Alias, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
-            {
-                uniqueAlias = currentAlias + counter++;
-            }
-
-            return uniqueAlias;
         }
 
         private string CreateUniqueProjectionAlias(string currentAlias)

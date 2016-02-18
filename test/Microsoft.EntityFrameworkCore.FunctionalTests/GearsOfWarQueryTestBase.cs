@@ -506,6 +506,30 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Where_count_subquery_without_collision()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(w => w.Weapons.Count == 2);
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_any_subquery_without_collision()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(w => w.Weapons.Any());
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_inverted_boolean()
         {
             using (var context = CreateContext())
@@ -551,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var weapons = context.Weapons
-                    .Select(w => new { w.Id, Num = w.IsAutomatic ? 1 : 0})
+                    .Select(w => new { w.Id, Num = w.IsAutomatic ? 1 : 0 })
                     .ToList();
 
                 Assert.Equal(3, weapons.Count(w => w.Num == 1));
@@ -578,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cartridgeWeapons = context.Weapons
                     .Where(w => w.AmmunitionType.HasValue && w.AmmunitionType == AmmunitionType.Cartridge)
-                    .Select(w => new { w.Id, IsCartidge = w.AmmunitionType.HasValue && w.AmmunitionType.Value == AmmunitionType.Cartridge ? "Yes" : "No"})
+                    .Select(w => new { w.Id, IsCartidge = w.AmmunitionType.HasValue && w.AmmunitionType.Value == AmmunitionType.Cartridge ? "Yes" : "No" })
                     .ToList();
 
                 Assert.All(cartridgeWeapons,
@@ -595,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     .Select(w => new { w.Id, IsCartidge = w.AmmunitionType == AmmunitionType.Shell && w.SynergyWithId == 1 ? "Yes" : "No" })
                     .ToList();
 
-                Assert.Equal(9 , cartridgeWeapons.Count(w => w.IsCartidge == "No"));
+                Assert.Equal(9, cartridgeWeapons.Count(w => w.IsCartidge == "No"));
             }
         }
 
@@ -618,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var cartridgeWeapons = context.Weapons
-                    .Select(w => new { w.Id, IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1})
+                    .Select(w => new { w.Id, IsCartidge = !w.IsAutomatic && w.SynergyWithId == 1 })
                     .ToList();
 
                 Assert.Equal(9, cartridgeWeapons.Count(w => !w.IsCartidge));
@@ -645,8 +669,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cogTags
                     = (from ct in context.Set<CogTag>()
-                        where ct.Gear.Nickname == "Marcus"
-                        select ct).ToList();
+                       where ct.Gear.Nickname == "Marcus"
+                       select ct).ToList();
 
                 Assert.Equal(1, cogTags.Count);
             }
@@ -731,8 +755,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cogTags
                     = (from ct in context.Set<CogTag>()
-                        where ct.Gear == null
-                        select ct).ToList();
+                       where ct.Gear == null
+                       select ct).ToList();
 
                 Assert.Equal(1, cogTags.Count);
             }
@@ -745,8 +769,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cogTags
                     = (from ct in context.Set<CogTag>()
-                        where null == ct.Gear
-                        select ct).ToList();
+                       where null == ct.Gear
+                       select ct).ToList();
 
                 Assert.Equal(1, cogTags.Count);
             }
@@ -759,9 +783,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cogTags
                     = (from ct1 in context.Set<CogTag>()
-                        from ct2 in context.Set<CogTag>()
-                        where ct1.Gear == ct2.Gear
-                        select new { ct1, ct2 }).ToList();
+                       from ct2 in context.Set<CogTag>()
+                       where ct1.Gear == ct2.Gear
+                       select new { ct1, ct2 }).ToList();
 
                 Assert.Equal(6, cogTags.Count);
             }
@@ -774,9 +798,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cogTags
                     = (from ct in context.Set<CogTag>()
-                        where ct.Gear.Nickname == "Marcus"
-                        where ct.Gear.CityOrBirthName != "Ephyra"
-                        select new { B = ct.Gear.CityOrBirthName }).ToList();
+                       where ct.Gear.Nickname == "Marcus"
+                       where ct.Gear.CityOrBirthName != "Ephyra"
+                       select new { B = ct.Gear.CityOrBirthName }).ToList();
 
                 Assert.Equal(1, cogTags.Count);
                 Assert.True(cogTags.All(o => o.B != null));
@@ -790,9 +814,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cogTags
                     = (from ct in context.Set<CogTag>()
-                        where ct.Gear.Nickname == "Marcus"
-                        where ct.Gear.CityOrBirthName != "Ephyra"
-                        select new { A = ct.Gear, B = ct.Gear.CityOrBirthName }).ToList();
+                       where ct.Gear.Nickname == "Marcus"
+                       where ct.Gear.CityOrBirthName != "Ephyra"
+                       select new { A = ct.Gear, B = ct.Gear.CityOrBirthName }).ToList();
 
                 Assert.Equal(1, cogTags.Count);
                 Assert.True(cogTags.All(o => o.A != null && o.B != null));
@@ -806,11 +830,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var gears
                     = (from ct in context.Set<CogTag>()
-                        join g in context.Set<Gear>()
-                            on new { N = ct.GearNickName, S = ct.GearSquadId }
-                            equals new { N = g.Nickname, S = (int?)g.SquadId } into gs
-                        from g in gs
-                        select g).ToList();
+                       join g in context.Set<Gear>()
+                           on new { N = ct.GearNickName, S = ct.GearSquadId }
+                           equals new { N = g.Nickname, S = (int?)g.SquadId } into gs
+                       from g in gs
+                       select g).ToList();
 
                 Assert.Equal(5, gears.Count);
             }
@@ -855,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = (from t in context.Tags
-                             join g in context.Gears.OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName } 
+                             join g in context.Gears.OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName }
                                 equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
                              select g).Include(g => g.Tag);
 
@@ -871,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = (from g in context.Gears.OfType<Officer>()
-                             join t in context.Tags on new { id1 = (int?)g.SquadId, id2 = g.Nickname } 
+                             join t in context.Tags on new { id1 = (int?)g.SquadId, id2 = g.Nickname }
                                 equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
                              select g).Include(g => g.Tag);
 

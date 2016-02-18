@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -19,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
+
+        private const string SystemAliasPrefix = "t";
+        private readonly ISet<string> _tableAliasSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public RelationalQueryCompilationContext(
             [NotNull] IModel model,
@@ -77,6 +82,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                  where selectExpression != null
                  select selectExpression)
                     .First();
+        }
+
+        public virtual string CreateUniqueTableAlias()
+            => CreateUniqueTableAlias(SystemAliasPrefix);
+
+        public virtual string CreateUniqueTableAlias([NotNull] string currentAlias)
+        {
+            Check.NotNull(currentAlias, nameof(currentAlias));
+
+            if (currentAlias.Length == 0)
+            {
+                return currentAlias;
+            }
+
+            var counter = 0;
+            var uniqueAlias = currentAlias;
+
+            while (_tableAliasSet.Contains(uniqueAlias))
+            {
+                uniqueAlias = currentAlias + counter++;
+            }
+
+            _tableAliasSet.Add(uniqueAlias);
+            return uniqueAlias;
         }
     }
 }

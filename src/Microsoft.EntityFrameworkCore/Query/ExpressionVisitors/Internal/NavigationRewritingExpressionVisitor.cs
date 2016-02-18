@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var mainFromClause
                 = new MainFromClause(
-                    _queryModel.GetNewName("subQuery"),
+                    "subQuery",
                     targetEntityType.ClrType, CreateEntityQueryable(targetEntityType));
 
             var querySourceReference = new QuerySourceReferenceExpression(mainFromClause);

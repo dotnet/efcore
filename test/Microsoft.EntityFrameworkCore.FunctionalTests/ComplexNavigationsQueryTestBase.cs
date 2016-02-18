@@ -460,6 +460,43 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Join_navigations_in_inner_selector_translated_to_multiple_subquery_without_collision()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            List<Level3> levelThrees;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.Include(e => e.OneToOne_Optional_FK).ToList();
+                levelTwos = context.LevelTwo.ToList();
+                levelThrees = context.LevelThree.Include(e => e.OneToOne_Optional_FK_Inverse).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e2 in context.LevelTwo
+                            join e1 in context.LevelOne on e2.Id equals e1.OneToOne_Optional_FK.Id
+                            join e3 in context.LevelThree on e2.Id equals e3.OneToOne_Optional_FK_Inverse.Id
+                            select new { Id2 = e2.Id, Id1 = e1.Id, Id3 = e3.Id };
+
+                var result = query.ToList();
+
+                var expected = (from e2 in levelTwos
+                                join e1 in levelOnes on e2.Id equals e1.OneToOne_Optional_FK?.Id
+                                join e3 in levelThrees on e2.Id equals e3.OneToOne_Optional_FK_Inverse?.Id
+                                select new { Id2 = e2.Id, Id1 = e1.Id, Id3 = e3.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Join_navigation_translated_to_subquery_non_key_join()
         {
             List<Level1> levelOnes;

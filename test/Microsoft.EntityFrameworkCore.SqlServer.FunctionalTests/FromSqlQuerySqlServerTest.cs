@@ -249,8 +249,8 @@ INNER JOIN (
     FROM (
         SELECT * FROM ""Customers""
     ) AS [c]
-) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-ORDER BY [c].[CustomerID]",
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[CustomerID]",
                 Sql);
         }
 
@@ -274,8 +274,8 @@ INNER JOIN (
         SELECT * FROM ""Customers""
     ) AS [c]
     WHERE [c].[City] = 'London'
-) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-ORDER BY [c].[CustomerID]",
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[CustomerID]",
                 Sql);
         }
 

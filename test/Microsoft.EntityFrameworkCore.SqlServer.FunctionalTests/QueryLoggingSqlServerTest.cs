@@ -97,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     INNER JOIN (
                         SELECT DISTINCT [c].[CustomerID]
                         FROM [Customers] AS [c]
-                    ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-                    ORDER BY [c].[CustomerID]
+                    ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+                    ORDER BY [c0].[CustomerID]
                 , 
                 queryIndex: 1
             )

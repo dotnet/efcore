@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
             var entityType = _model.FindEntityType(elementType);
 
-            var selectExpression = _selectExpressionFactory.Create();
+            var selectExpression = _selectExpressionFactory.Create(relationalQueryCompilationContext);
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 

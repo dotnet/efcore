@@ -18,12 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
-        public virtual SelectExpression Create()
-            => new SelectExpression(_querySqlGeneratorFactory);
+        public virtual SelectExpression Create(RelationalQueryCompilationContext queryCompilationContext)
+            => new SelectExpression(_querySqlGeneratorFactory, queryCompilationContext);
 
-        public virtual SelectExpression Create(string alias)
+        public virtual SelectExpression Create(RelationalQueryCompilationContext queryCompilationContext, string alias)
             => new SelectExpression(
                 _querySqlGeneratorFactory,
+                queryCompilationContext,
                 Check.NotEmpty(alias, nameof(alias)));
     }
 }

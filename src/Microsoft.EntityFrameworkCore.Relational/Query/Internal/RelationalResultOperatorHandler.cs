@@ -165,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (predicate != null)
             {
-                var innerSelectExpression = handlerContext.SelectExpressionFactory.Create();
+                var innerSelectExpression
+                    = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
 
                 innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
                 innerSelectExpression.Predicate = Expression.Not(predicate);
@@ -194,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleAny(HandlerContext handlerContext)
         {
-            var innerSelectExpression = handlerContext.SelectExpressionFactory.Create();
+            var innerSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
 
             innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
             innerSelectExpression.Predicate = handlerContext.SelectExpression.Predicate;
@@ -235,14 +236,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (entityType != null)
                     {
-                        var outterSelectExpression = handlerContext.SelectExpressionFactory.Create();
+                        var outterSelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext);
                         outterSelectExpression.SetProjectionExpression(Expression.Constant(1));
 
                         var collectionSelectExpression
-                            = handlerContext.SelectExpression.Clone(outterSelectExpression.CreateUniqueTableAlias());
+                            = handlerContext.SelectExpression.Clone(handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias());
                         outterSelectExpression.AddTable(collectionSelectExpression);
 
-                        itemSelectExpression.Alias = outterSelectExpression.CreateUniqueTableAlias();
+                        itemSelectExpression.Alias = handlerContext.QueryModelVisitor.QueryCompilationContext.CreateUniqueTableAlias();
                         var joinExpression = outterSelectExpression.AddInnerJoin(itemSelectExpression);
 
                         foreach (var property in entityType.FindPrimaryKey().Properties)
@@ -333,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             selectExpression.ClearTables();
 
-            var emptySelectExpression = handlerContext.SelectExpressionFactory.Create("empty");
+            var emptySelectExpression = handlerContext.SelectExpressionFactory.Create(handlerContext.QueryModelVisitor.QueryCompilationContext, "empty");
             emptySelectExpression.AddToProjection(new AliasExpression("empty", Expression.Constant(null)));
 
             selectExpression.AddTable(emptySelectExpression);

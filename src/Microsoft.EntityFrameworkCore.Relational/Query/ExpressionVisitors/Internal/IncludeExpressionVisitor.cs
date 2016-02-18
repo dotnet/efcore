@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var targetEntityType = navigation.GetTargetType();
                 var targetTableName = _relationalAnnotationProvider.For(targetEntityType).TableName;
-                var targetTableAlias = targetTableName[0].ToString().ToLower();
+                var targetTableAlias = _queryCompilationContext.CreateUniqueTableAlias(targetTableName[0].ToString().ToLower());
 
                 if (!navigation.IsCollection())
                 {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                         selectExpression.Predicate = oldPredicate;
                         selectExpression.RemoveTable(joinExpression);
-                        selectExpression.AddTable(newJoinExpression);
+                        selectExpression.AddTable(newJoinExpression, createUniqueAlias: false);
                         joinExpression = newJoinExpression;
                     }
 
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 OrderingDirection.Asc);
                     }
 
-                    var targetSelectExpression = _selectExpressionFactory.Create();
+                    var targetSelectExpression = _selectExpressionFactory.Create(_queryCompilationContext);
 
                     targetTableExpression
                         = new TableExpression(
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             targetTableAlias,
                             querySource);
 
-                    targetSelectExpression.AddTable(targetTableExpression);
+                    targetSelectExpression.AddTable(targetTableExpression, createUniqueAlias: false);
 
                     var materializer
                         = _materializerFactory
@@ -290,8 +290,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private JoinExpressionBase AdjustJoinExpression(
             SelectExpression selectExpression, JoinExpressionBase joinExpression)
         {
-            var subquery = new SelectExpression(_querySqlGeneratorFactory, joinExpression.Alias);
-            subquery.AddTable(joinExpression.TableExpression);
+            var subquery = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext) { Alias = joinExpression.Alias };
+            // Don't create new alias when adding tables to subquery
+            subquery.AddTable(joinExpression.TableExpression, createUniqueAlias: false);
             subquery.IsProjectStar = true;
             subquery.Predicate = selectExpression.Predicate;
 

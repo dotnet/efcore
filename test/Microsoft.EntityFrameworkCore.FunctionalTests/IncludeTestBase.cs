@@ -1157,7 +1157,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-		[Fact]
+        [Fact]
         public virtual void Include_with_take()
         {
             using (var context = CreateContext())
