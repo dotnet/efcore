@@ -586,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.True(order.Customer.Orders.All(o => o != null));
             }
         }
-
+        
         [ConditionalFact]
         public virtual async Task Include_multi_level_collection_and_then_include_reference_predicate()
         {

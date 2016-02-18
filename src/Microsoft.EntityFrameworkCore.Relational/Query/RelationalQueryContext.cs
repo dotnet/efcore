@@ -84,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (includeQueryIndex > _activeIncludeQueries.Count)
             {
                 var missingEntries = includeQueryIndex - _activeIncludeQueries.Count;
+
                 for (var i = 0; i < missingEntries; i++)
                 {
                     _activeIncludeQueries.Add(null);
@@ -100,6 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _activeQueries.Remove(valueBufferCursor);
 
             var index = _activeIncludeQueries.IndexOf(valueBufferCursor);
+
             if (index >= 0)
             {
                 _activeIncludeQueries[index] = null;

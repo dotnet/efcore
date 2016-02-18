@@ -20,13 +20,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _relatedValuesEnumerator = relatedValuesEnumerator;
         }
 
-        public virtual IEnumerable<ValueBuffer> GetRelatedValues(
-            [NotNull] IIncludeKeyComparer keyComparer)
+        public virtual IEnumerable<ValueBuffer> GetRelatedValues([NotNull] IIncludeKeyComparer keyComparer)
         {
             if (!_initialized)
             {
                 _hasRemainingRows = _relatedValuesEnumerator.MoveNext();
                 _initialized = true;
+            }
+
+            while (_hasRemainingRows
+                   && !keyComparer.ShouldInclude(_relatedValuesEnumerator.Current))
+            {
+                _hasRemainingRows = _relatedValuesEnumerator.MoveNext();
             }
 
             while (_hasRemainingRows

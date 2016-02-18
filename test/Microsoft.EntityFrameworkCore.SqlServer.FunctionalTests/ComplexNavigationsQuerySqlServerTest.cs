@@ -25,25 +25,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 FROM [Level1] AS [e]
 ORDER BY [e].[Id]
 
-SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
-FROM [Level2] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id]
-    FROM [Level1] AS [e]
-) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [e].[Id], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+WHERE [e].[Id] IS NOT NULL
 ORDER BY [e].[Id], [l].[Id]
 
-SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
-FROM [Level3] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
-    FROM [Level2] AS [l]
-    INNER JOIN (
-        SELECT DISTINCT [e].[Id]
-        FROM [Level1] AS [e]
-    ) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
-) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
-ORDER BY [l0].[Id], [l0].[Id0]", 
+SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [t0].[Id0], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM (
+    SELECT [e].[Id], [l].[Id] AS [Id0]
+    FROM [Level1] AS [e]
+    LEFT JOIN [Level2] AS [l] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+    WHERE [e].[Id] IS NOT NULL
+) AS [t0]
+LEFT JOIN [Level3] AS [l] ON [l].[OneToMany_Optional_InverseId] = [t0].[Id0]
+WHERE [t0].[Id0] IS NOT NULL
+ORDER BY [t0].[Id], [t0].[Id0]", 
                 Sql);
         }
 
@@ -56,43 +53,40 @@ ORDER BY [l0].[Id], [l0].[Id0]",
 FROM [Level1] AS [e]
 ORDER BY [e].[Id]
 
-SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
-FROM [Level2] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id]
-    FROM [Level1] AS [e]
-) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [e].[Id], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+WHERE [e].[Id] IS NOT NULL
 ORDER BY [e].[Id], [l].[Id]
 
-SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l1].[Id], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_InverseId], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_PK_InverseId], [l1].[OneToOne_Optional_SelfId]
-FROM [Level3] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
-    FROM [Level2] AS [l]
-    INNER JOIN (
-        SELECT DISTINCT [e].[Id]
-        FROM [Level1] AS [e]
-    ) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
-) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
-INNER JOIN [Level2] AS [l1] ON [l].[OneToMany_Required_InverseId] = [l1].[Id]
-ORDER BY [l0].[Id], [l0].[Id0], [l1].[Id]
+SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [t0].[Id0], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM (
+    SELECT [e].[Id], [l].[Id] AS [Id0]
+    FROM [Level1] AS [e]
+    LEFT JOIN [Level2] AS [l] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+    WHERE [e].[Id] IS NOT NULL
+) AS [t0]
+LEFT JOIN [Level3] AS [l] ON [l].[OneToMany_Optional_InverseId] = [t0].[Id0]
+INNER JOIN [Level2] AS [l0] ON [l].[OneToMany_Required_InverseId] = [l0].[Id]
+WHERE [t0].[Id0] IS NOT NULL
+ORDER BY [t0].[Id], [t0].[Id0], [l0].[Id]
 
-SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
-FROM [Level3] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [l0].[Id], [l0].[Id0], [l1].[Id] AS [Id1]
-    FROM [Level3] AS [l]
-    INNER JOIN (
-        SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
-        FROM [Level2] AS [l]
-        INNER JOIN (
-            SELECT DISTINCT [e].[Id]
-            FROM [Level1] AS [e]
-        ) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
-    ) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
-    INNER JOIN [Level2] AS [l1] ON [l].[OneToMany_Required_InverseId] = [l1].[Id]
-) AS [l1] ON [l].[OneToMany_Optional_InverseId] = [l1].[Id1]
-ORDER BY [l1].[Id], [l1].[Id0], [l1].[Id1]", 
+SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [t1].[Id1], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM (
+    SELECT [t0].[Id], [t0].[Id0], [l0].[Id] AS [Id1]
+    FROM (
+        SELECT [e].[Id], [l].[Id] AS [Id0]
+        FROM [Level1] AS [e]
+        LEFT JOIN [Level2] AS [l] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+        WHERE [e].[Id] IS NOT NULL
+    ) AS [t0]
+    LEFT JOIN [Level3] AS [l] ON [l].[OneToMany_Optional_InverseId] = [t0].[Id0]
+    INNER JOIN [Level2] AS [l0] ON [l].[OneToMany_Required_InverseId] = [l0].[Id]
+    WHERE [t0].[Id0] IS NOT NULL
+) AS [t1]
+LEFT JOIN [Level3] AS [l] ON [l].[OneToMany_Optional_InverseId] = [t1].[Id1]
+WHERE [t1].[Id1] IS NOT NULL
+ORDER BY [t1].[Id], [t1].[Id0], [t1].[Id1]", 
                 Sql);
         }
 
@@ -107,26 +101,22 @@ LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[Defa
 LEFT JOIN [ComplexNavigationString] AS [c0] ON [x].[PlaceholderDefaultText] = [c0].[DefaultText]
 ORDER BY [c].[DefaultText], [c0].[DefaultText]
 
-SELECT [c].[Text], [c].[ComplexNavigationStringDefaultText], [c].[LanguageName], [c1].[Name], [c1].[CultureString]
-FROM [ComplexNavigationGlobalization] AS [c]
-INNER JOIN (
-    SELECT DISTINCT [c].[DefaultText]
-    FROM [ComplexNavigationField] AS [x]
-    LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[DefaultText]
-) AS [c0] ON [c].[ComplexNavigationStringDefaultText] = [c0].[DefaultText]
-LEFT JOIN [ComplexNavigationLanguage] AS [c1] ON [c].[LanguageName] = [c1].[Name]
-ORDER BY [c0].[DefaultText]
+SELECT [c0].[Text], [c].[DefaultText], [c0].[LanguageName], [c1].[Name], [c1].[CultureString]
+FROM [ComplexNavigationField] AS [x]
+LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[DefaultText]
+LEFT JOIN [ComplexNavigationGlobalization] AS [c0] ON [c0].[ComplexNavigationStringDefaultText] = [c].[DefaultText]
+LEFT JOIN [ComplexNavigationLanguage] AS [c1] ON [c0].[LanguageName] = [c1].[Name]
+WHERE [c].[DefaultText] IS NOT NULL
+ORDER BY [c].[DefaultText]
 
-SELECT [c].[Text], [c].[ComplexNavigationStringDefaultText], [c].[LanguageName], [c1].[Name], [c1].[CultureString]
-FROM [ComplexNavigationGlobalization] AS [c]
-INNER JOIN (
-    SELECT DISTINCT [c].[DefaultText], [c0].[DefaultText] AS [DefaultText0]
-    FROM [ComplexNavigationField] AS [x]
-    LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[DefaultText]
-    LEFT JOIN [ComplexNavigationString] AS [c0] ON [x].[PlaceholderDefaultText] = [c0].[DefaultText]
-) AS [c0] ON [c].[ComplexNavigationStringDefaultText] = [c0].[DefaultText0]
-LEFT JOIN [ComplexNavigationLanguage] AS [c1] ON [c].[LanguageName] = [c1].[Name]
-ORDER BY [c0].[DefaultText], [c0].[DefaultText0]", 
+SELECT [c1].[Text], [c0].[DefaultText], [c1].[LanguageName], [c2].[Name], [c2].[CultureString]
+FROM [ComplexNavigationField] AS [x]
+LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[DefaultText]
+LEFT JOIN [ComplexNavigationString] AS [c0] ON [x].[PlaceholderDefaultText] = [c0].[DefaultText]
+LEFT JOIN [ComplexNavigationGlobalization] AS [c1] ON [c1].[ComplexNavigationStringDefaultText] = [c0].[DefaultText]
+LEFT JOIN [ComplexNavigationLanguage] AS [c2] ON [c1].[LanguageName] = [c2].[Name]
+WHERE [c0].[DefaultText] IS NOT NULL
+ORDER BY [c].[DefaultText], [c0].[DefaultText]", 
                 Sql);
         }
 
@@ -286,23 +276,19 @@ FROM [Level1] AS [e]
 LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
 ORDER BY [e].[Id], [l].[Id]
 
-SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
-FROM [Level2] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id]
-    FROM [Level1] AS [e]
-) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [e].[Id], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
 LEFT JOIN [Level3] AS [l0] ON [l0].[Level2_Optional_Id] = [l].[Id]
+WHERE [e].[Id] IS NOT NULL
 ORDER BY [e].[Id]
 
-SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
-FROM [Level3] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
-    FROM [Level1] AS [e]
-    LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
-) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
-ORDER BY [l0].[Id], [l0].[Id0]",
+SELECT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l].[Id], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
+LEFT JOIN [Level3] AS [l0] ON [l0].[OneToMany_Optional_InverseId] = [l].[Id]
+WHERE [l].[Id] IS NOT NULL
+ORDER BY [e].[Id], [l].[Id]",
                 Sql);
         }
 
@@ -316,23 +302,19 @@ FROM [Level1] AS [e]
 LEFT JOIN [Level1] AS [l] ON [e].[OneToOne_Optional_SelfId] = [l].[Id]
 ORDER BY [e].[Id], [l].[Id]
 
-SELECT [l].[Id], [l].[Name], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_SelfId]
-FROM [Level1] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
-    FROM [Level1] AS [e]
-    LEFT JOIN [Level1] AS [l] ON [e].[OneToOne_Optional_SelfId] = [l].[Id]
-) AS [l0] ON [l].[OneToMany_Optional_Self_InverseId] = [l0].[Id0]
-ORDER BY [l0].[Id], [l0].[Id0]
-
-SELECT [l].[Id], [l].[Name], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Name], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_SelfId]
-FROM [Level1] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id]
-    FROM [Level1] AS [e]
-) AS [e] ON [l].[OneToMany_Optional_Self_InverseId] = [e].[Id]
+SELECT [l].[Id], [l].[Name], [e].[Id], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Name], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level1] AS [l] ON [l].[OneToMany_Optional_Self_InverseId] = [e].[Id]
 LEFT JOIN [Level1] AS [l0] ON [l].[OneToOne_Optional_SelfId] = [l0].[Id]
-ORDER BY [e].[Id]",
+WHERE [e].[Id] IS NOT NULL
+ORDER BY [e].[Id]
+
+SELECT [l0].[Id], [l0].[Name], [l].[Id], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level1] AS [l] ON [e].[OneToOne_Optional_SelfId] = [l].[Id]
+LEFT JOIN [Level1] AS [l0] ON [l0].[OneToMany_Optional_Self_InverseId] = [l].[Id]
+WHERE [l].[Id] IS NOT NULL
+ORDER BY [e].[Id], [l].[Id]",
                 Sql);
         }
 
@@ -346,23 +328,19 @@ FROM [Level1] AS [e]
 LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
 ORDER BY [e].[Id], [l].[Id]
 
-SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
-FROM [Level2] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id]
-    FROM [Level1] AS [e]
-) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [e].[Id], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
 LEFT JOIN [Level3] AS [l0] ON [l0].[Level2_Optional_Id] = [l].[Id]
+WHERE [e].[Id] IS NOT NULL
 ORDER BY [e].[Id]
 
-SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
-FROM [Level3] AS [l]
-INNER JOIN (
-    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
-    FROM [Level1] AS [e]
-    LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
-) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
-ORDER BY [l0].[Id], [l0].[Id0]",
+SELECT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l].[Id], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
+LEFT JOIN [Level3] AS [l0] ON [l0].[OneToMany_Optional_InverseId] = [l].[Id]
+WHERE [l].[Id] IS NOT NULL
+ORDER BY [e].[Id], [l].[Id]",
                 Sql);
         }
 

@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext,
+            [NotNull] LambdaExpression accessorLambda,
             [NotNull] IReadOnlyList<int> queryIndexes,
             bool querySourceRequiresTracking);
     }

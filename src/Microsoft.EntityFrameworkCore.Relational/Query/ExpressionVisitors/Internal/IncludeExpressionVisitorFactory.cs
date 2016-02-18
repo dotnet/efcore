@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             IQuerySource querySource,
             IReadOnlyList<INavigation> navigationPath,
             RelationalQueryCompilationContext relationalQueryCompilationContext,
+            LambdaExpression accessorLambda,
             IReadOnlyList<int> queryIndexes,
             bool querySourceRequiresTracking)
             => new IncludeExpressionVisitor(
@@ -56,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 Check.NotNull(querySource, nameof(querySource)),
                 Check.NotNull(navigationPath, nameof(navigationPath)),
                 Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext)),
+                Check.NotNull(accessorLambda, nameof(accessorLambda)),
                 Check.NotNull(queryIndexes, nameof(queryIndexes)),
                 querySourceRequiresTracking);
     }

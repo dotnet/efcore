@@ -86,18 +86,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         shaper: BufferedEntityShaper<Customer>
     )
     , 
-    entityAccessor: default(System.Func`2[FunctionalTests.TestModels.Northwind.Customer,System.Object]), 
+    entityAccessor: (Customer result) => result, 
     navigationPath: INavigation[] { Customer.Orders, }, 
     includeRelatedValuesStrategyFactories: new Func<IIncludeRelatedValuesStrategy>[]{ () => IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
             relatedValueBuffers: IEnumerable<ValueBuffer> _Query(
                 queryContext: queryContext, 
                 shaperCommandContext: SelectExpression: 
-                    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-                    FROM [Orders] AS [o]
-                    INNER JOIN (
-                        SELECT DISTINCT [c].[CustomerID]
-                        FROM [Customers] AS [c]
-                    ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+                    SELECT [o].[OrderID], [c].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                    FROM [Customers] AS [c]
+                    LEFT JOIN [Orders] AS [o] ON [o].[CustomerID] = [c].[CustomerID]
+                    WHERE [c].[CustomerID] IS NOT NULL
                     ORDER BY [c].[CustomerID]
                 , 
                 queryIndex: 1

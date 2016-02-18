@@ -431,6 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             return result;
                         })
+                // ReSharper disable once ImplicitlyCapturedClosure
                 .Finally(() =>
                     {
                         foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)

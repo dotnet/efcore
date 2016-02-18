@@ -262,11 +262,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToSequence));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<T> _ToSequence<T>(T element)
-            => new AsyncEnumerableAdapter<T>(new[] { element });
+        internal static IAsyncEnumerable<T> _ToSequence<T>(Task<T> task)
+            => new TaskResultAsyncEnumerable<T>(task);
 
         public virtual MethodInfo ToSequence => _toSequence;
-
+        
         private static readonly MethodInfo _toQueryable
             = typeof(AsyncLinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToQueryable));

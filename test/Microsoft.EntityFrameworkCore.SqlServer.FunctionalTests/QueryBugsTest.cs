@@ -142,20 +142,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.Equal(2, result[0].Orders.Count);
                 Assert.Equal(3, result[1].Orders.Count);
 
-                var expectedSql =
+                Assert.Equal(
                     @"SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
 ORDER BY [c].[FirstName], [c].[LastName]
 
-SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
-FROM [Order] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[FirstName], [c].[LastName]
-    FROM [Customer] AS [c]
-) AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])
-ORDER BY [c].[FirstName], [c].[LastName]";
-
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+SELECT [o].[Id], [c].[FirstName], [c].[LastName], [o].[Name]
+FROM [Customer] AS [c]
+LEFT JOIN [Order] AS [o] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])
+WHERE [c].[FirstName] IS NOT NULL AND [c].[LastName] IS NOT NULL
+ORDER BY [c].[FirstName], [c].[LastName]",
+                    TestSqlLoggerFactory.Sql);
             }
         }
 
@@ -184,12 +181,10 @@ ORDER BY [c].[FirstName], [c].[LastName]";
                 Assert.NotNull(result[3].Customer);
                 Assert.NotNull(result[4].Customer);
 
-                var expectedSql =
+                Assert.Equal(
                     @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
-
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])", TestSqlLoggerFactory.Sql);
             }
         }
 

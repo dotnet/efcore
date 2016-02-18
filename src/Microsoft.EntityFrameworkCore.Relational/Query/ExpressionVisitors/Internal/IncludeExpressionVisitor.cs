@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -27,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly IQuerySource _querySource;
         private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
+        private readonly LambdaExpression _accessorLambda;
         private readonly IReadOnlyList<int> _queryIndexes;
         private readonly bool _querySourceRequiresTracking;
 
@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
+            [NotNull] LambdaExpression accessorLambda,
             [NotNull] IReadOnlyList<int> queryIndexes,
             bool querySourceRequiresTracking)
         {
@@ -50,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(navigationPath, nameof(navigationPath));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+            Check.NotNull(accessorLambda, nameof(accessorLambda));
             Check.NotNull(queryIndexes, nameof(queryIndexes));
 
             _selectExpressionFactory = selectExpressionFactory;
@@ -60,59 +62,37 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _querySource = querySource;
             _navigationPath = navigationPath;
             _queryCompilationContext = queryCompilationContext;
+            _accessorLambda = accessorLambda;
             _queryIndexes = queryIndexes;
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
         [CallsMakeGenericMethod(nameof(QueryMethodProvider._Include), typeof(TypeArgumentCategory.EntityTypes), TargetType = typeof(QueryMethodProvider))]
         [CallsMakeGenericMethod(nameof(AsyncQueryMethodProvider._Include), typeof(TypeArgumentCategory.EntityTypes), TargetType = typeof(AsyncQueryMethodProvider))]
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(node, nameof(node));
+            var resultType = methodCallExpression.Type.TryGetSequenceType();
 
-            if (node.Method.MethodIsClosedFormOf(
-                _queryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+            if (resultType != null
+                && methodCallExpression.Method.Name != "_ToSequence")
             {
-                var entityShaper
-                    = ((ConstantExpression)node.Arguments[2]).Value
-                        as Shaper;
-
-                if (entityShaper != null
-                    && entityShaper.IsShaperForQuerySource(_querySource))
-                {
-                    var resultType = node.Method.GetGenericArguments()[0];
-
-                    var memberExpression
-                        = _queryCompilationContext.QuerySourceMapping
-                            .GetExpression(_querySource) as MemberExpression;
-
-                    var entityAccessor
-                        = memberExpression == null
-                            ? (Expression)
-                                Expression
-                                    .Default(typeof(Func<,>)
-                                        .MakeGenericType(resultType, typeof(object)))
-                            : Expression
-                                .Lambda(
-                                    memberExpression,
-                                    memberExpression.GetRootExpression<ParameterExpression>());
-
-                    return
-                        Expression.Call(
-                            _queryCompilationContext.QueryMethodProvider.IncludeMethod
-                                .MakeGenericMethod(resultType),
-                            Expression.Convert(node.Arguments[0], typeof(RelationalQueryContext)),
-                            node,
-                            entityAccessor,
-                            Expression.Constant(_navigationPath),
-                            Expression.NewArrayInit(
-                                _queryCompilationContext.QueryMethodProvider.IncludeRelatedValuesFactoryType,
-                                CreateIncludeRelatedValuesStrategyFactories(_querySource, _navigationPath)),
-                            Expression.Constant(_querySourceRequiresTracking));
-                }
+                return
+                    Expression.Call(
+                        _queryCompilationContext.QueryMethodProvider.IncludeMethod
+                            .MakeGenericMethod(resultType),
+                        Expression.Convert(
+                            EntityQueryModelVisitor.QueryContextParameter,
+                            typeof(RelationalQueryContext)),
+                        methodCallExpression,
+                        _accessorLambda,
+                        Expression.Constant(_navigationPath),
+                        Expression.NewArrayInit(
+                            _queryCompilationContext.QueryMethodProvider.IncludeRelatedValuesFactoryType,
+                            CreateIncludeRelatedValuesStrategyFactories(_querySource, _navigationPath)),
+                        Expression.Constant(_querySourceRequiresTracking));
             }
 
-            return base.VisitMethodCall(node);
+            return base.VisitMethodCall(methodCallExpression);
         }
 
         private IEnumerable<Expression> CreateIncludeRelatedValuesStrategyFactories(
@@ -131,6 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             foreach (var navigation in navigationPath)
             {
                 var queryIndex = _queryIndexes[navigationCount];
+
                 navigationCount++;
 
                 var targetEntityType = navigation.GetTargetType();
@@ -149,29 +130,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     var valueBufferOffset = selectExpression.Projection.Count;
 
                     canProduceInnerJoin
-                        = canProduceInnerJoin && navigation.ForeignKey.IsRequired && navigation.IsDependentToPrincipal();
+                        = canProduceInnerJoin
+                          && navigation.ForeignKey.IsRequired
+                          && navigation.IsDependentToPrincipal();
 
                     var joinExpression
                         = canProduceInnerJoin
                             ? selectExpression
                                 .AddInnerJoin(joinedTableExpression)
                             : selectExpression
-                                .AddOuterJoin(joinedTableExpression);
+                                .AddLeftOuterJoin(joinedTableExpression);
 
                     var oldPredicate = selectExpression.Predicate;
 
                     var materializer
-                        = _materializerFactory
-                            .CreateMaterializer(
-                                targetEntityType,
-                                selectExpression,
-                                (p, se) => se.AddToProjection(
-                                    new AliasExpression(
-                                        new ColumnExpression(
-                                            _relationalAnnotationProvider.For(p).ColumnName,
-                                            p,
-                                            joinedTableExpression))) - valueBufferOffset,
-                                querySource: null);
+                        = CreateReferenceMaterializer(
+                            targetEntityType,
+                            selectExpression,
+                            joinedTableExpression,
+                            valueBufferOffset);
 
                     if (selectExpression.Predicate != oldPredicate)
                     {
@@ -183,12 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         joinExpression = newJoinExpression;
                     }
 
-                    joinExpression.Predicate
-                        = BuildJoinEqualityExpression(
-                            navigation,
-                            navigation.IsDependentToPrincipal() ? targetTableExpression : joinExpression,
-                            navigation.IsDependentToPrincipal() ? joinExpression : targetTableExpression,
-                            querySource);
+                    SetJoinPredicate(querySource, joinExpression, navigation, targetTableExpression);
 
                     targetTableExpression = joinedTableExpression;
 
@@ -206,67 +178,86 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
                 else
                 {
-                    var principalTable
-                        = (selectExpression.Tables.Count == 1)
-                            && selectExpression.Tables.OfType<SelectExpression>().Any(s => s.Tables.Any(t => t.QuerySource == querySource))
-                            // true when select is wrapped e.g. when RowNumber paging is enabled
-                            ? selectExpression.Tables[0]
-                            : selectExpression.Tables.Last(t => t.QuerySource == querySource);
+                    EnsurePrincipalOrdering(querySource, selectExpression, navigation);
 
-                    foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
+                    var targetSelectExpression = selectExpression.Clone();
+
+                    if (targetSelectExpression.Predicate != null
+                        || targetSelectExpression.Limit != null
+                        || targetSelectExpression.Offset != null
+                        || targetSelectExpression.IsDistinct)
                     {
-                        selectExpression
-                            .AddToOrderBy(
-                                _relationalAnnotationProvider.For(property).ColumnName,
-                                property,
-                                principalTable,
-                                OrderingDirection.Asc);
+                        var innerSelectExpression = targetSelectExpression.PushDownSubquery();
+                        
+                        LiftOrderBy(innerSelectExpression, targetSelectExpression);
+
+                        targetTableExpression = innerSelectExpression;
                     }
 
-                    var targetSelectExpression = _selectExpressionFactory.Create();
-
-                    targetTableExpression
+                    TableExpressionBase joinedTableExpression
                         = new TableExpression(
                             targetTableName,
                             _relationalAnnotationProvider.For(targetEntityType).Schema,
                             targetTableAlias,
                             querySource);
 
-                    targetSelectExpression.AddTable(targetTableExpression);
+                    var joinSelectExpression = _selectExpressionFactory.Create();
 
                     var materializer
                         = _materializerFactory
                             .CreateMaterializer(
                                 targetEntityType,
-                                targetSelectExpression,
+                                joinSelectExpression,
                                 (p, se) => se.AddToProjection(
-                                    _relationalAnnotationProvider.For(p).ColumnName,
-                                    p,
-                                    querySource),
+                                    new AliasExpression(
+                                        new ColumnExpression(
+                                            _relationalAnnotationProvider.For(p).ColumnName,
+                                            p,
+                                            // ReSharper disable once AccessToModifiedClosure
+                                            joinedTableExpression))),
                                 querySource: null);
 
-                    var innerJoinSelectExpression
-                        = selectExpression.Clone(
-                            selectExpression.OrderBy
-                                .Select(o => o.Expression)
-                                .Last(o => o.IsAliasWithColumnExpression())
-                                .TryGetColumnExpression().TableAlias);
+                    foreach (var expression in joinSelectExpression.Projection)
+                    {
+                        targetSelectExpression.AddToProjection(expression);
+                    }
 
-                    innerJoinSelectExpression.ClearProjection();
+                    if (joinSelectExpression.Predicate != null)
+                    {
+                        joinSelectExpression.Alias = joinedTableExpression.Alias;
+                        joinSelectExpression.AddTable(joinedTableExpression);
+                        joinSelectExpression.ClearProjection();
+                        joinSelectExpression.IsProjectStar = true;
+                        joinSelectExpression.QuerySource = querySource;
 
-                    var innerJoinExpression = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);
+                        joinedTableExpression = joinSelectExpression;
+                    }
 
-                    LiftOrderBy(innerJoinSelectExpression, targetSelectExpression, innerJoinExpression);
+                    var joinExpression
+                        = targetSelectExpression.AddLeftOuterJoin(joinedTableExpression);
 
-                    innerJoinSelectExpression.IsDistinct = true;
+                    var primaryKeyColumns = new List<Expression>();
 
-                    innerJoinExpression.Predicate
-                        = BuildJoinEqualityExpression(
-                            navigation,
-                            targetTableExpression,
-                            innerJoinExpression,
-                            querySource);
+                    SetJoinPredicate(
+                        querySource, joinExpression, navigation, targetTableExpression, primaryKeyColumns);
 
+                    for (var i = 0; i < navigation.ForeignKey.Properties.Count; i++)
+                    {
+                        targetSelectExpression
+                            .ReplaceInProjection(
+                                navigation.ForeignKey.Properties[i],
+                                primaryKeyColumns[i]);
+
+                        Expression notNullExpression
+                            = Expression.Not(new IsNullExpression(primaryKeyColumns[i]));
+
+                        targetSelectExpression.Predicate
+                            = targetSelectExpression.Predicate == null
+                                ? notNullExpression
+                                : Expression.AndAlso(targetSelectExpression.Predicate, notNullExpression);
+                    }
+
+                    targetTableExpression = joinedTableExpression;
                     selectExpression = targetSelectExpression;
 
                     yield return
@@ -287,33 +278,72 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
-        private JoinExpressionBase AdjustJoinExpression(
-            SelectExpression selectExpression, JoinExpressionBase joinExpression)
+        private LambdaExpression CreateReferenceMaterializer(
+            IEntityType targetEntityType,
+            SelectExpression selectExpression,
+            TableExpressionBase joinedTableExpression,
+            int valueBufferOffset)
         {
-            var subquery = new SelectExpression(_querySqlGeneratorFactory, joinExpression.Alias);
-            subquery.AddTable(joinExpression.TableExpression);
-            subquery.IsProjectStar = true;
-            subquery.Predicate = selectExpression.Predicate;
+            return _materializerFactory
+                .CreateMaterializer(
+                    targetEntityType,
+                    selectExpression,
+                    (p, se) => se.AddToProjection(
+                        new AliasExpression(
+                            new ColumnExpression(
+                                _relationalAnnotationProvider.For(p).ColumnName,
+                                p,
+                                joinedTableExpression))) - valueBufferOffset,
+                    querySource: null);
+        }
 
-            var newJoinExpression = joinExpression is LeftOuterJoinExpression
-                ? (JoinExpressionBase)new LeftOuterJoinExpression(subquery)
-                : new InnerJoinExpression(subquery);
+        private void SetJoinPredicate(
+            IQuerySource querySource,
+            JoinExpressionBase joinExpression,
+            INavigation navigation,
+            TableExpressionBase targetTableExpression,
+            ICollection<Expression> primaryKeyColumns = null)
+        {
+            joinExpression.Predicate
+                = BuildJoinEqualityExpression(
+                    navigation,
+                    navigation.IsDependentToPrincipal() ? targetTableExpression : joinExpression,
+                    navigation.IsDependentToPrincipal() ? joinExpression : targetTableExpression,
+                    querySource,
+                    primaryKeyColumns);
+        }
 
-            newJoinExpression.QuerySource = joinExpression.QuerySource;
-            newJoinExpression.Alias = joinExpression.Alias;
+        private void EnsurePrincipalOrdering(
+            IQuerySource querySource,
+            SelectExpression selectExpression,
+            INavigation navigation)
+        {
+            var principalTable
+                = selectExpression.Tables.Count == 1
+                  && selectExpression.Tables
+                      .OfType<SelectExpression>()
+                      .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
+                    // true when select is wrapped e.g. when RowNumber paging is enabled
+                    ? selectExpression.Tables[0]
+                    : selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
-            return newJoinExpression;
+            foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
+            {
+                selectExpression
+                    .AddToOrderBy(
+                        _relationalAnnotationProvider.For(property).ColumnName,
+                        property,
+                        principalTable,
+                        OrderingDirection.Asc);
+            }
         }
 
         private static void LiftOrderBy(
-            SelectExpression innerJoinSelectExpression,
-            SelectExpression targetSelectExpression,
-            TableExpressionBase innerJoinExpression)
+            SelectExpression innerSelectExpression, SelectExpression targetSelectExpression)
         {
-            foreach (var ordering in innerJoinSelectExpression.OrderBy)
+            foreach (var ordering in innerSelectExpression.OrderBy)
             {
                 var orderingExpression = ordering.Expression;
-
                 var aliasExpression = ordering.Expression as AliasExpression;
 
                 if (aliasExpression?.Alias != null)
@@ -330,28 +360,48 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                var index = innerJoinSelectExpression.AddToProjection(orderingExpression);
-
-                var expression = innerJoinSelectExpression.Projection[index];
+                var index = innerSelectExpression.AddToProjection(orderingExpression);
+                var expression = innerSelectExpression.Projection[index];
 
                 var newExpression
-                    = targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);
+                    = targetSelectExpression.UpdateColumnExpression(expression, innerSelectExpression);
 
-                targetSelectExpression.AddToOrderBy(new Ordering(newExpression, ordering.OrderingDirection));
+                targetSelectExpression
+                    .AddToOrderBy(new Ordering(newExpression, ordering.OrderingDirection));
             }
 
-            if (innerJoinSelectExpression.Limit == null
-                && innerJoinSelectExpression.Offset == null)
+            if (innerSelectExpression.Limit == null
+                && innerSelectExpression.Offset == null)
             {
-                innerJoinSelectExpression.ClearOrderBy();
+                innerSelectExpression.ClearOrderBy();
             }
+        }
+
+        private JoinExpressionBase AdjustJoinExpression(
+            SelectExpression selectExpression, JoinExpressionBase joinExpression)
+        {
+            var subquery = new SelectExpression(_querySqlGeneratorFactory, joinExpression.Alias);
+
+            subquery.AddTable(joinExpression.TableExpression);
+            subquery.IsProjectStar = true;
+            subquery.Predicate = selectExpression.Predicate;
+
+            var newJoinExpression = joinExpression is LeftOuterJoinExpression
+                ? (JoinExpressionBase)new LeftOuterJoinExpression(subquery)
+                : new InnerJoinExpression(subquery);
+
+            newJoinExpression.QuerySource = joinExpression.QuerySource;
+            newJoinExpression.Alias = joinExpression.Alias;
+
+            return newJoinExpression;
         }
 
         private Expression BuildJoinEqualityExpression(
             INavigation navigation,
             TableExpressionBase targetTableExpression,
             TableExpressionBase joinExpression,
-            IQuerySource querySource)
+            IQuerySource querySource,
+            ICollection<Expression> primaryKeyColumns = null)
         {
             Expression joinPredicateExpression = null;
 
@@ -370,6 +420,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var primaryKeyColumnExpression
                     = BuildColumnExpression(
                         joinTableProjections, joinExpression, principalKeyProperty, querySource);
+
+                primaryKeyColumns?.Add(primaryKeyColumnExpression);
 
                 var primaryKeyExpression = primaryKeyColumnExpression;
 
