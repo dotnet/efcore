@@ -7,7 +7,7 @@
     "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
   },
-  "content": "ReverseEngineering/**/*.expected",
+  "content": ["ReverseEngineering/**/*.expected", "ReverseEngineering/**/*.sql"],
   "testRunner": "xunit",
   "commands": {
     "test": "xunit.runner.aspnet"

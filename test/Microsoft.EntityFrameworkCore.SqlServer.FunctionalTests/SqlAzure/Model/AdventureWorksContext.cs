@@ -50,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.PasswordHash).HasColumnType("varchar");
+                entity.Property(e => e.PasswordHash).HasColumnType("varchar(128)");
 
-                entity.Property(e => e.PasswordSalt).HasColumnType("varchar");
+                entity.Property(e => e.PasswordSalt).HasColumnType("varchar(10)");
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
             });
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 
                 entity.Property(e => e.StandardCost).HasColumnType("money");
 
-                entity.Property(e => e.ThumbNailPhoto).HasColumnType("varbinary");
+                entity.Property(e => e.ThumbNailPhoto).HasColumnType("varbinary(max)");
 
                 entity.Property(e => e.Weight).HasColumnType("decimal");
 
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
                     .HasName("AK_ProductModelProductDescription_rowguid")
                     .IsUnique();
 
-                entity.Property(e => e.Culture).HasColumnType("nchar");
+                entity.Property(e => e.Culture).HasColumnType("nchar(6)");
 
                 entity.Property(e => e.ModifiedDate)
                     .HasColumnType("datetime")
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 
                 entity.Property(e => e.SalesOrderID).ForSqlServerUseSequenceHiLo("SalesOrderNumber", "SalesLT");
 
-                entity.Property(e => e.CreditCardApprovalCode).HasColumnType("varchar");
+                entity.Property(e => e.CreditCardApprovalCode).HasColumnType("varchar(15)");
 
                 entity.Property(e => e.DueDate).HasColumnType("datetime");
 

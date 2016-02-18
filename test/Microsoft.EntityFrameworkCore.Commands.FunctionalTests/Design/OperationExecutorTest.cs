@@ -475,7 +475,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     Assert.True(File.Exists(expectedFile));
 
                     var contents = File.ReadAllText(expectedFile);
-                    _output?.WriteLine(contents);
 
                     // original values snapshot
                     Assert.Contains("<TypeInstantiation Name=\"Microsoft.EntityFrameworkCore.ChangeTracking.Internal.Snapshot\" "
