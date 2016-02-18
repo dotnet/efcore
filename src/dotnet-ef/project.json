@@ -4,7 +4,9 @@
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "nowarn": [ "CS1591" ],
+    "xmlDoc": true
   },
   "compile": "..\\Shared\\*.cs",
   "dependencies": {

@@ -2,7 +2,9 @@
   "version": "1.0.0-*",
   "description": "Reusable Microsoft.EntityFrameworkCore.Relational.Design functional tests for provider writers.",
   "compilationOptions": {
-    "keyFile": "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk",
+    "nowarn": [ "CS1591" ],
+    "xmlDoc": true
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",

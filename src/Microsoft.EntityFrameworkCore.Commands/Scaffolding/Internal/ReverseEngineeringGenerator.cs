@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// <param name="projectPath"> path to the project, must not be empty, can be absolute or relative </param>
         /// <param name="outputPath"> path to output directory, can be null or empty, can be absolute or relative (to the project path) </param>
         /// <returns>
-        ///  an <see cref="NamespaceAndOutputPaths"> object containing the canonicalized paths
+        ///  an <see cref="NamespaceAndOutputPaths" /> object containing the canonicalized paths
         ///  and the namespace
         /// </returns>
         internal static NamespaceAndOutputPaths ConstructNamespaceAndCanonicalizedPaths(

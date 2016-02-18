@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     updates the <see cref="TableSelectionSet" />'s <see cref="TableSelectionSet.Selection" />(s)
         ///     to mark that they have been matched.
         /// </summary>
-        /// <param name="tableSelectionSet"> the <see cref="TableSelectionSet" /> to test </param>
+        /// <param name="tableSet"> the <see cref="TableSelectionSet" /> to test </param>
         /// <param name="tableName"> name of the database table to check </param>
         /// <returns> whether or not the table is allowed </returns>
         public static bool Allows(this TableSelectionSet tableSet, string tableName)
