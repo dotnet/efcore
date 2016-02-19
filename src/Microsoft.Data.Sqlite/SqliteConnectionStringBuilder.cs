@@ -127,7 +127,7 @@ namespace Microsoft.Data.Sqlite
                         return;
 
                     default:
-                        Debug.Fail("Unexpected keyword: " + keyword);
+                        Debug.Assert(false, "Unexpected keyword: " + keyword);
                         return;
                 }
             }

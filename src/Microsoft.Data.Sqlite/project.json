@@ -15,6 +15,7 @@
       "dependencies": {
         "System.AppContext": "4.1.0-*",
         "System.Data.Common": "4.0.1-*",
+        "System.Diagnostics.Debug": "4.0.10-*",
         "System.Linq": "4.1.0-*",
         "System.Reflection.Extensions": "4.0.1-*",
         "System.Runtime.Extensions": "4.1.0-*",
