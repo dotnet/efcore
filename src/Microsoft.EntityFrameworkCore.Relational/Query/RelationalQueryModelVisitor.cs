@@ -257,8 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var compositePredicateVisitor = _compositePredicateExpressionVisitorFactory.Create();
 
-            foreach (var selectExpression 
-                in QueriesBySource.Values.Where(se => se.Predicate != null))
+            foreach (var selectExpression in QueriesBySource.Values)
             {
                 selectExpression.Predicate
                     = compositePredicateVisitor.Visit(selectExpression.Predicate);

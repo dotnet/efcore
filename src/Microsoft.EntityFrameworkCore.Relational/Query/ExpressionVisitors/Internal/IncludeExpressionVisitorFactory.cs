@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class IncludeExpressionVisitorFactory : IIncludeExpressionVisitorFactory
     {
         private readonly ISelectExpressionFactory _selectExpressionFactory;
+        private readonly ICompositePredicateExpressionVisitorFactory _compositePredicateExpressionVisitorFactory;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
@@ -23,18 +24,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         public IncludeExpressionVisitorFactory(
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
+            [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
         {
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
+            Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
 
             _selectExpressionFactory = selectExpressionFactory;
+            _compositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             _materializerFactory = materializerFactory;
             _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
@@ -49,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             bool querySourceRequiresTracking)
             => new IncludeExpressionVisitor(
                 _selectExpressionFactory,
+                _compositePredicateExpressionVisitorFactory,
                 _materializerFactory,
                 _shaperCommandContextFactory,
                 _relationalAnnotationProvider,

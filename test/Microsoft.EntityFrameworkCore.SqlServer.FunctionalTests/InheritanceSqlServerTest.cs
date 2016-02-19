@@ -193,7 +193,7 @@ INNER JOIN (
     WHERE [e].[Discriminator] = 'Eagle'
     ORDER BY [e].[Species]
 ) AS [e0] ON [a].[EagleId] = [e0].[Species]
-WHERE ([a].[Discriminator] = 'Kiwi') OR ([a].[Discriminator] = 'Eagle')
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
 ORDER BY [e0].[Species]",
                 Sql);
         }
@@ -213,7 +213,7 @@ INNER JOIN (
     SELECT DISTINCT [c].[Name], [c].[Id]
     FROM [Country] AS [c]
 ) AS [c0] ON [a].[CountryId] = [c0].[Id]
-WHERE ([a].[Discriminator] = 'Kiwi') OR ([a].[Discriminator] = 'Eagle')
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle')
 ORDER BY [c0].[Name], [c0].[Id]",
                 Sql);
         }

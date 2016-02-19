@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class IncludeExpressionVisitor : ExpressionVisitorBase
     {
         private readonly ISelectExpressionFactory _selectExpressionFactory;
+        private readonly ICompositePredicateExpressionVisitorFactory _compositePredicateExpressionVisitorFactory;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         public IncludeExpressionVisitor(
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
+            [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
@@ -43,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             bool querySourceRequiresTracking)
         {
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
+            Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
@@ -53,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Check.NotNull(queryIndexes, nameof(queryIndexes));
 
             _selectExpressionFactory = selectExpressionFactory;
+            _compositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             _materializerFactory = materializerFactory;
             _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
@@ -122,6 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var selectExpression
                 = _queryCompilationContext.FindSelectExpression(querySource);
 
+            var compositePredicateExpressionVisitor
+                = _compositePredicateExpressionVisitorFactory.Create();
+
             var targetTableExpression
                 = selectExpression.GetTableForQuerySource(querySource);
 
@@ -149,14 +156,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     var valueBufferOffset = selectExpression.Projection.Count;
 
                     canProduceInnerJoin
-                        = canProduceInnerJoin && navigation.ForeignKey.IsRequired && navigation.IsDependentToPrincipal();
+                        = canProduceInnerJoin 
+                            && navigation.ForeignKey.IsRequired 
+                            && navigation.IsDependentToPrincipal();
 
                     var joinExpression
                         = canProduceInnerJoin
-                            ? selectExpression
-                                .AddInnerJoin(joinedTableExpression)
-                            : selectExpression
-                                .AddOuterJoin(joinedTableExpression);
+                            ? selectExpression.AddInnerJoin(joinedTableExpression)
+                            : selectExpression.AddOuterJoin(joinedTableExpression);
 
                     var oldPredicate = selectExpression.Predicate;
 
@@ -175,6 +182,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     if (selectExpression.Predicate != oldPredicate)
                     {
+                        selectExpression.Predicate
+                            = compositePredicateExpressionVisitor
+                                .Visit(selectExpression.Predicate);
+
                         var newJoinExpression = AdjustJoinExpression(selectExpression, joinExpression);
 
                         selectExpression.Predicate = oldPredicate;
@@ -208,7 +219,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var principalTable
                         = (selectExpression.Tables.Count == 1)
-                            && selectExpression.Tables.OfType<SelectExpression>().Any(s => s.Tables.Any(t => t.QuerySource == querySource))
+                            && selectExpression.Tables
+                                .OfType<SelectExpression>()
+                                .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
                             // true when select is wrapped e.g. when RowNumber paging is enabled
                             ? selectExpression.Tables[0]
                             : selectExpression.Tables.Last(t => t.QuerySource == querySource);
@@ -267,6 +280,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             innerJoinExpression,
                             querySource);
 
+                    targetSelectExpression.Predicate
+                        = compositePredicateExpressionVisitor
+                            .Visit(targetSelectExpression.Predicate);
+
                     selectExpression = targetSelectExpression;
 
                     yield return
@@ -296,7 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             subquery.IsProjectStar = true;
             subquery.Predicate = selectExpression.Predicate;
 
-            var newJoinExpression = joinExpression is LeftOuterJoinExpression
+            var newJoinExpression 
+                = joinExpression is LeftOuterJoinExpression
                 ? (JoinExpressionBase)new LeftOuterJoinExpression(subquery)
                 : new InnerJoinExpression(subquery);
 

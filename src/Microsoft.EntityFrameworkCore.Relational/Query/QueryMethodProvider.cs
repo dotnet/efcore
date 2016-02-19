@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var comparer = EqualityComparer<TKey>.Default;
                 var hasNext = sourceEnumerator.MoveNext();
-
+                
                 while (hasNext)
                 {
                     var outer = outerShaper.Shape(queryContext, sourceEnumerator.Current);

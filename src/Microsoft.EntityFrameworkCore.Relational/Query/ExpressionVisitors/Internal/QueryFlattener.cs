@@ -109,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var newShapedQueryMethod
                     = Expression.Call(
-                        _relationalQueryCompilationContext.QueryMethodProvider
-                            .QueryMethod,
+                        _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod,
                         outerShapedQuery.Arguments[0],
                         outerShapedQuery.Arguments[1],
                         Expression.Default(typeof(int?)));
