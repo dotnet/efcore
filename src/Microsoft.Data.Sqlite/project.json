@@ -17,6 +17,7 @@
         "System.Data.Common": "4.0.1-*",
         "System.Linq": "4.1.0-*",
         "System.Reflection.Extensions": "4.0.1-*",
+        "System.Runtime.Extensions": "4.1.0-*",
         "System.Runtime.InteropServices": "4.1.0-*",
         "System.Text.Encoding": "4.0.11-*"
       }
