@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEng
 
         protected override string DbSuffix { get; } = "Attributes";
         protected override bool UseFluentApiOnly { get; } = false;
-        protected override string ExpectedResultsParentDir { get; } = Path.Combine("ReverseEngineering", "Expected", "UseAttributesInsteadOfFluentApi");
+        protected override string ExpectedResultsParentDir { get; } = Path.Combine("ReverseEngineering", "Expected", "Attributes");
 
         protected override string ProviderName => "Microsoft.EntityFrameworkCore.Sqlite.Design";
     }

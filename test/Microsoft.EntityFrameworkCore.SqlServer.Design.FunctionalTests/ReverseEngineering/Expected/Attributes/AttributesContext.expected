@@ -189,13 +189,6 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.WithVarcharNullDefaultValue).HasColumnType("varchar(1)");
             });
 
-            modelBuilder.Entity<ReferredToByTableWithUnmappablePrimaryKeyColumn>(entity =>
-            {
-                entity.Property(e => e.ReferredToByTableWithUnmappablePrimaryKeyColumnID).ValueGeneratedNever();
-
-                entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
-            });
-
             modelBuilder.Entity<SelfReferencing>(entity =>
             {
                 entity.Property(e => e.SelfReferencingID).ValueGeneratedNever();
@@ -204,6 +197,13 @@ namespace E2ETest.Namespace
             modelBuilder.Entity<Test_Spaces_Keywords_Table>(entity =>
             {
                 entity.Property(e => e.Test_Spaces_Keywords_TableID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<UnmappablePKColumn>(entity =>
+            {
+                entity.Property(e => e.UnmappablePKColumnID).ValueGeneratedNever();
+
+                entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
             });
         }
 
@@ -219,9 +219,9 @@ namespace E2ETest.Namespace
         public virtual DbSet<OneToOneSeparateFKDependent> OneToOneSeparateFKDependent { get; set; }
         public virtual DbSet<OneToOneSeparateFKPrincipal> OneToOneSeparateFKPrincipal { get; set; }
         public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
-        public virtual DbSet<ReferredToByTableWithUnmappablePrimaryKeyColumn> ReferredToByTableWithUnmappablePrimaryKeyColumn { get; set; }
         public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
         public virtual DbSet<Test_Spaces_Keywords_Table> Test_Spaces_Keywords_Table { get; set; }
+        public virtual DbSet<UnmappablePKColumn> UnmappablePKColumn { get; set; }
 
         // Unable to generate entity type for table 'dbo.TableWithUnmappablePrimaryKeyColumn'. Please see the warning messages.
     }

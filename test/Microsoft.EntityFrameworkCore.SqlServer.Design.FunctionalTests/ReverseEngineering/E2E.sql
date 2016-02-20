@@ -86,6 +86,11 @@ if exists (select * from sysobjects where id = object_id('dbo.TableWithUnmappabl
 	drop table "dbo"."TableWithUnmappablePrimaryKeyColumn"
 GO
 
+if exists (select * from sysobjects where id = object_id('dbo.UnmappablePKColumn') and sysstat & 0xf = 3)
+	drop table "dbo"."UnmappablePKColumn"
+GO
+
+-- TODO: Remove this
 if exists (select * from sysobjects where id = object_id('dbo.ReferredToByTableWithUnmappablePrimaryKeyColumn') and sysstat & 0xf = 3)
 	drop table "dbo"."ReferredToByTableWithUnmappablePrimaryKeyColumn"
 GO
@@ -382,8 +387,8 @@ CREATE TABLE "OneToOneFKToUniqueKeyDependent" (
 
 GO
 
-CREATE TABLE "ReferredToByTableWithUnmappablePrimaryKeyColumn" (
-	"ReferredToByTableWithUnmappablePrimaryKeyColumnID" "int" PRIMARY KEY,
+CREATE TABLE "UnmappablePKColumn" (
+	"UnmappablePKColumnID" "int" PRIMARY KEY,
 	"AColumn" nvarchar(20) NOT NULL,
 	"ValueGeneratedOnAddColumn" "int" IDENTITY(1, 1) NOT NULL,
 )
@@ -397,8 +402,8 @@ CREATE TABLE "TableWithUnmappablePrimaryKeyColumn" (
 	CONSTRAINT "FK_TableWithUnmappablePrimaryKeyColumn" FOREIGN KEY 
 	(
 		"TableWithUnmappablePrimaryKeyColumnFK"
-	) REFERENCES "dbo"."ReferredToByTableWithUnmappablePrimaryKeyColumn" (
-		"ReferredToByTableWithUnmappablePrimaryKeyColumnID"
+	) REFERENCES "dbo"."UnmappablePKColumn" (
+		"UnmappablePKColumnID"
 	),
 	CONSTRAINT "UK_TableWithUnmappablePrimaryKeyColumn" UNIQUE
 	(

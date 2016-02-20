@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 "OneToOneSeparateFKPrincipal",
                 "OneToOneFKToUniqueKeyDependent",
                 "OneToOneFKToUniqueKeyPrincipal",
-                "ReferredToByTableWithUnmappablePrimaryKeyColumn",
+                "UnmappablePKColumn",
                 "TableWithUnmappablePrimaryKeyColumn",
                 "selfreferencing"
             });
@@ -107,9 +107,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "OneToOneSeparateFKDependent.expected",
             "OneToOneSeparateFKPrincipal.expected",
             "PropertyConfiguration.expected",
-            "ReferredToByTableWithUnmappablePrimaryKeyColumn.expected",
             "SelfReferencing.expected",
-            "Test_Spaces_Keywords_Table.expected"
+            "Test_Spaces_Keywords_Table.expected",
+            "UnmappablePKColumn.expected"
         };
 
         [Fact]
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             };
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
-                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_UseAttributesInsteadOfFluentApi"),
+                Path.Combine("ReverseEngineering", "Expected", "Attributes"),
                 contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir)
                     .Replace("{{connectionString}}", _connectionString))
             {
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             };
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
-                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_AllFluentApi"),
+                Path.Combine("ReverseEngineering", "Expected", "AllFluentApi"),
                 inputFile => inputFile.Replace("{{connectionString}}", _connectionString))
             {
                 Files = new List<string> { "SqlServerReverseEngineerTestE2EContext.expected" }
@@ -255,7 +255,7 @@ CREATE SEQUENCE NumericSequence
                     ContextClassName = "SequenceContext"
                 };
                 var expectedFileSet = new FileSet(new FileSystemFileService(),
-                    Path.Combine("ReverseEngineering", "ExpectedResults"),
+                    Path.Combine("ReverseEngineering", "Expected"),
                     contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
                 {
                     Files = new List<string> { "SequenceContext.expected" }

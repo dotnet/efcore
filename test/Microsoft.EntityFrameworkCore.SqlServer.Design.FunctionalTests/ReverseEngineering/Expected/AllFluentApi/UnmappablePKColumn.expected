@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public partial class ReferredToByTableWithUnmappablePrimaryKeyColumn
+    public partial class UnmappablePKColumn
     {
-        public int ReferredToByTableWithUnmappablePrimaryKeyColumnID { get; set; }
+        public int UnmappablePKColumnID { get; set; }
         public string AColumn { get; set; }
         public int ValueGeneratedOnAddColumn { get; set; }
     }

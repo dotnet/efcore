@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2ETest.Namespace
 {
-    public partial class ReferredToByTableWithUnmappablePrimaryKeyColumn
+    public partial class UnmappablePKColumn
     {
-        public int ReferredToByTableWithUnmappablePrimaryKeyColumnID { get; set; }
+        public int UnmappablePKColumnID { get; set; }
         [Required]
         [MaxLength(20)]
         public string AColumn { get; set; }

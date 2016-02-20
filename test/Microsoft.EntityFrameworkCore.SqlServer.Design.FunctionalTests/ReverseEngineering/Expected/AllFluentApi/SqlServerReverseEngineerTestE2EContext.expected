@@ -293,17 +293,6 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.WithVarcharNullDefaultValue).HasColumnType("varchar(1)");
             });
 
-            modelBuilder.Entity<ReferredToByTableWithUnmappablePrimaryKeyColumn>(entity =>
-            {
-                entity.Property(e => e.ReferredToByTableWithUnmappablePrimaryKeyColumnID).ValueGeneratedNever();
-
-                entity.Property(e => e.AColumn)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
-                entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
-            });
-
             modelBuilder.Entity<SelfReferencing>(entity =>
             {
                 entity.Property(e => e.SelfReferencingID).ValueGeneratedNever();
@@ -352,6 +341,17 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e._volatile).HasColumnName("volatile");
             });
+
+            modelBuilder.Entity<UnmappablePKColumn>(entity =>
+            {
+                entity.Property(e => e.UnmappablePKColumnID).ValueGeneratedNever();
+
+                entity.Property(e => e.AColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
+            });
         }
 
         public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
@@ -366,9 +366,9 @@ namespace E2ETest.Namespace
         public virtual DbSet<OneToOneSeparateFKDependent> OneToOneSeparateFKDependent { get; set; }
         public virtual DbSet<OneToOneSeparateFKPrincipal> OneToOneSeparateFKPrincipal { get; set; }
         public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
-        public virtual DbSet<ReferredToByTableWithUnmappablePrimaryKeyColumn> ReferredToByTableWithUnmappablePrimaryKeyColumn { get; set; }
         public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
         public virtual DbSet<Test_Spaces_Keywords_Table> Test_Spaces_Keywords_Table { get; set; }
+        public virtual DbSet<UnmappablePKColumn> UnmappablePKColumn { get; set; }
 
         // Unable to generate entity type for table 'dbo.TableWithUnmappablePrimaryKeyColumn'. Please see the warning messages.
     }
