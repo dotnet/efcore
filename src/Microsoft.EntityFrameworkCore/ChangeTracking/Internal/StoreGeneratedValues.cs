@@ -4,82 +4,80 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    public abstract partial class InternalEntityEntry
+    public struct StoreGeneratedValues
     {
-        private struct StoreGeneratedValues
+        private static readonly object _nullSentinel = new object();
+
+        private readonly object[] _values;
+
+        public StoreGeneratedValues(IUpdateEntry entry)
         {
-            private static readonly object _nullSentinel = new object();
+            var entityType = entry.EntityType;
+            _values = new object[entityType.StoreGeneratedCount()];
+        }
 
-            private readonly object[] _values;
+        public bool IsEmpty => _values == null;
 
-            public StoreGeneratedValues(InternalEntityEntry entry)
+        public bool TryGetValue(IPropertyBase propertyBase, out object value)
+        {
+            if (_values == null)
             {
-                var entityType = entry.EntityType;
-                _values = new object[entityType.StoreGeneratedCount()];
+                value = null;
+                return false;
             }
 
-            public bool IsEmpty => _values == null;
-
-            public bool TryGetValue(IPropertyBase propertyBase, out object value)
+            var index = propertyBase.GetStoreGeneratedIndex();
+            if (index == -1)
             {
-                if (_values == null)
-                {
-                    value = null;
-                    return false;
-                }
-
-                var index = propertyBase.GetStoreGeneratedIndex();
-                if (index == -1)
-                {
-                    value = null;
-                    return false;
-                }
-
-                value = _values[index];
-                if (value == null)
-                {
-                    return false;
-                }
-
-                if (value == _nullSentinel)
-                {
-                    value = null;
-                }
-
-                return true;
+                value = null;
+                return false;
             }
 
-            public T GetValue<T>(T currentValue, int index)
+            value = _values[index];
+            if (value == null)
             {
-                if (IsEmpty)
-                {
-                    return currentValue;
-                }
-
-                var value = _values[index];
-
-                return value == null
-                    ? currentValue
-                    : value == _nullSentinel
-                        ? default(T)
-                        : (T)value;
+                return false;
             }
 
-            public bool CanStoreValue(IPropertyBase propertyBase)
-                => (_values != null)
-                   && (propertyBase.GetStoreGeneratedIndex() != -1);
-
-            public void SetValue(IPropertyBase propertyBase, object value)
+            if (value == _nullSentinel)
             {
-                var index = propertyBase.GetStoreGeneratedIndex();
-
-                Debug.Assert(index != -1);
-
-                _values[index] = value ?? _nullSentinel;
+                value = null;
             }
+
+            return true;
+        }
+
+        public T GetValue<T>(T currentValue, int index)
+        {
+            if (IsEmpty)
+            {
+                return currentValue;
+            }
+
+            var value = _values[index];
+
+            return value == null
+                ? currentValue
+                : value == _nullSentinel
+                    ? default(T)
+                    : (T)value;
+        }
+
+        public bool CanStoreValue(IPropertyBase propertyBase)
+            => (_values != null)
+               && (propertyBase.GetStoreGeneratedIndex() != -1);
+
+        public void SetValue(IPropertyBase propertyBase, object value)
+        {
+            var index = propertyBase.GetStoreGeneratedIndex();
+
+            Debug.Assert(index != -1);
+
+            _values[index] = value ?? _nullSentinel;
         }
     }
 }

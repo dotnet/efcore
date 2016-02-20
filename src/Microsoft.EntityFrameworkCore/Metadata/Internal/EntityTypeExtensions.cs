@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -131,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : new RelationshipSnapshotFactoryFactory().Create(entityType);
         }
 
-        public static Func<InternalEntityEntry, ISnapshot> GetOriginalValuesFactory([NotNull] this IEntityType entityType)
+        public static Func<IUpdateEntry, ISnapshot> GetOriginalValuesFactory([NotNull] this IEntityType entityType)
         {
             var source = entityType as ISnapshotFactorySource;
 

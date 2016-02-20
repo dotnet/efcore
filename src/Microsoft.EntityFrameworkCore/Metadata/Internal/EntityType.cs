@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -49,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts _counts;
-        private Func<InternalEntityEntry, ISnapshot> _relationshipSnapshotFactory;
-        private Func<InternalEntityEntry, ISnapshot> _originalValuesFactory;
+        private Func<IUpdateEntry, ISnapshot> _relationshipSnapshotFactory;
+        private Func<IUpdateEntry, ISnapshot> _originalValuesFactory;
         private Func<ValueBuffer, ISnapshot> _shadowValuesFactory;
         private Func<ISnapshot> _emptyShadowValuesFactory;
 
@@ -1106,16 +1107,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private PropertyCounts CalculateCounts() => EntityTypeExtensions.CalculateCounts(this);
 
-        public virtual Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory
+        public virtual Func<IUpdateEntry, ISnapshot> RelationshipSnapshotFactory
             => LazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, CreateRelationshipSnapshotFactory);
 
-        private Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory()
+        private Func<IUpdateEntry, ISnapshot> CreateRelationshipSnapshotFactory()
             => new RelationshipSnapshotFactoryFactory().Create(this);
 
-        public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
+        public virtual Func<IUpdateEntry, ISnapshot> OriginalValuesFactory
             => LazyInitializer.EnsureInitialized(ref _originalValuesFactory, CreateOriginalValuesFactory);
 
-        private Func<InternalEntityEntry, ISnapshot> CreateOriginalValuesFactory()
+        private Func<IUpdateEntry, ISnapshot> CreateOriginalValuesFactory()
             => new OriginalValuesFactoryFactory().Create(this);
 
         public virtual Func<ValueBuffer, ISnapshot> ShadowValuesFactory
