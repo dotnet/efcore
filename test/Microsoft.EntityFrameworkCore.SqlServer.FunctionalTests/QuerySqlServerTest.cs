@@ -2212,11 +2212,14 @@ INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[Cu
         {
             base.Join_client_new_expression();
 
-            Assert.Equal(
+            // See issue#4458
+            Assert.Contains(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+FROM [Orders] AS [o]",
+                Sql);
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -2237,14 +2240,19 @@ CROSS JOIN [Employees] AS [e]",
         {
             base.Client_Join_select_many();
 
-            Assert.StartsWith(
+            // See issue#4458
+            Assert.Contains(
                 @"SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
+FROM [Employees] AS [e2]",
+                Sql);
 
-SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
-FROM [Employees] AS [e1]
+            Assert.Contains(
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+FROM [Employees] AS [e1]",
+                Sql);
 
-SELECT [e3].[EmployeeID], [e3].[City], [e3].[Country], [e3].[FirstName], [e3].[ReportsTo], [e3].[Title]
+            Assert.Contains(
+                @"SELECT [e3].[EmployeeID], [e3].[City], [e3].[Country], [e3].[FirstName], [e3].[ReportsTo], [e3].[Title]
 FROM [Employees] AS [e3]",
                 Sql);
         }
@@ -2276,12 +2284,15 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
         {
             base.Join_customers_orders_with_subquery();
 
-            Assert.Equal(
+            // See issue#4458
+            Assert.Contains(
                 @"SELECT [o2].[CustomerID], [o2].[OrderID]
 FROM [Orders] AS [o2]
-ORDER BY [o2].[OrderID]
+ORDER BY [o2].[OrderID]",
+                Sql);
 
-SELECT [c].[CustomerID], [c].[ContactName]
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[ContactName]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -2308,12 +2319,15 @@ WHERE [t].[CustomerID] = 'ALFKI'",
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method();
 
-            Assert.Equal(
+            // See issue#4458
+            Assert.Contains(
                 @"SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]
-ORDER BY [o2].[OrderID]
+ORDER BY [o2].[OrderID]",
+                Sql);
 
-SELECT [c].[CustomerID]
+            Assert.Contains(
+                @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -2322,14 +2336,17 @@ FROM [Customers] AS [c]",
         {
             base.Join_customers_orders_with_subquery_anonymous_property_method_with_take();
 
-            Assert.Equal(
+            // See issue#4458
+            Assert.Contains(
                 @"@__p_0: 5
 
 SELECT TOP(@__p_0) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o2]
-ORDER BY [o2].[OrderID]
+ORDER BY [o2].[OrderID]",
+                Sql);
 
-SELECT [c].[CustomerID]
+            Assert.Contains(
+                @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -2338,13 +2355,16 @@ FROM [Customers] AS [c]",
         {
             base.Join_customers_orders_with_subquery_predicate();
 
-            Assert.Equal(
+            // See issue#4458
+            Assert.Contains(
                 @"SELECT [o2].[CustomerID], [o2].[OrderID]
 FROM [Orders] AS [o2]
 WHERE [o2].[OrderID] > 0
-ORDER BY [o2].[OrderID]
+ORDER BY [o2].[OrderID]",
+                Sql);
 
-SELECT [c].[CustomerID], [c].[ContactName]
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[ContactName]
 FROM [Customers] AS [c]",
                 Sql);
         }
@@ -2819,12 +2839,15 @@ FROM [Customers] AS [c]",
         {
             base.OrderBy_multiple_queries();
 
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            // See issue#4458
+            Assert.Contains(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
                 Sql);
         }
 
