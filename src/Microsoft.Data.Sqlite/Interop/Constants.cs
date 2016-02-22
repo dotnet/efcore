@@ -26,6 +26,7 @@ namespace Microsoft.Data.Sqlite.Interop
         public const int SQLITE_OPEN_SHAREDCACHE = 0x00020000;
         public const int SQLITE_OPEN_PRIVATECACHE = 0x00040000;
 
+        public const int SQLITE_BUSY = 5;
         public const int SQLITE_LOCKED = 6;
 
         public static readonly IntPtr SQLITE_TRANSIENT = new IntPtr(-1);

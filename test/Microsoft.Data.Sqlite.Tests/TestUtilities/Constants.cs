@@ -6,7 +6,6 @@ namespace Microsoft.Data.Sqlite.TestUtilities
     internal static class Constants
     {
         public const int SQLITE_ERROR = 1;
-        public const int SQLITE_BUSY = 5;
         public const int SQLITE_READONLY = 8;
         public const int SQLITE_CANTOPEN = 14;
     }

@@ -148,14 +148,21 @@ INSERT INTO a VALUES (2);";
                     insertCommand.CommandTimeout = 10;
                     insertCommand.CommandText = "INSERT INTO a VALUES ( 1);";
 
+                    var startRead = new ManualResetEventSlim(false);
+
                     var t1 = Task.Factory.StartNew(() =>
                         {
                             using (var reader = selectCommand.ExecuteReader())
                             {
+                                startRead.Set();
                                 Thread.Sleep(insertCommand.CommandTimeout * 1000 / 2); // delay task 2, but not beyond its timeout
                             }
                         });
-                    var t2 = Task.Factory.StartNew(() => { insertCommand.ExecuteNonQuery(); });
+                    var t2 = Task.Factory.StartNew(() =>
+                    {
+                        startRead.Wait();
+                        insertCommand.ExecuteNonQuery();
+                    });
                     Task.WaitAll(t1, t2);
                 }
             }

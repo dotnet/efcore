@@ -114,7 +114,10 @@ namespace Microsoft.Data.Sqlite
                         : Strings.TransactionConnectionMismatch);
             }
 
-            //TODO not necessary to call every time a command is executed. Only on first command or when timeout changes
+            /*
+              This is not a guarantee. SQLITE_BUSY can still be thrown before the command timeout.
+              This sets a timeout handler but this can be cleared by concurrent commands.
+            */
             NativeMethods.sqlite3_busy_timeout(Connection.DbHandle, CommandTimeout * 1000);
 
             var hasChanges = false;
@@ -171,7 +174,7 @@ namespace Microsoft.Data.Sqlite
                 try
                 {
                     var timer = Stopwatch.StartNew();
-                    while (SQLITE_LOCKED == (rc = NativeMethods.sqlite3_step(stmt)))
+                    while (SQLITE_LOCKED == (rc = NativeMethods.sqlite3_step(stmt)) || rc == SQLITE_BUSY)
                     {
                         if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
                         {
