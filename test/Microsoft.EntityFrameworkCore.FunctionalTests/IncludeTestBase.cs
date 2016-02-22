@@ -230,6 +230,24 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_collection_on_additional_from_clause_no_tracking()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                       from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
+                       select c2)
+                        .ToList();
+
+                Assert.Equal(455, customers.Count);
+                Assert.Equal(4150, customers.SelectMany(c => c.Orders).Count());
+                Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_on_additional_from_clause_with_filter()
         {
             using (var context = CreateContext())
@@ -303,6 +321,65 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(36, customers.SelectMany(c => c.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
+        public virtual void Include_collection_on_group_join_clause_with_filter()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.Customer)
+                       join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
+                       where c.CustomerID == "ALFKI"
+                       select new { c, g })
+                        .ToList();
+
+                Assert.Equal(1, customers.Count);
+                Assert.Equal(6, customers.SelectMany(c => c.c.Orders).Count());
+                Assert.True(customers.SelectMany(c => c.c.Orders).All(o => o.Customer != null));
+                Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
+        public virtual void Include_collection_on_inner_group_join_clause_with_filter()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                       join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
+                        on c.CustomerID equals o.CustomerID into g
+                       where c.CustomerID == "ALFKI"
+                       select new { c, g })
+                        .ToList();
+
+                Assert.Equal(1, customers.Count);
+                Assert.Equal(6, customers.SelectMany(c => c.g).Count());
+                Assert.True(customers.SelectMany(c => c.g).SelectMany(o => o.OrderDetails).All(od => od.Order != null));
+                Assert.Equal(1 + 6 + 12, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalFact]
+        [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
+        public virtual void Include_collection_when_groupby()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>().Include(c => c.Orders)
+                       where c.CustomerID == "ALFKI"
+                       group c by c.City)
+                        .ToList();
+
+                Assert.Equal(1, customers.Count);
+                Assert.Equal(6, customers.SelectMany(c => c.Single().Orders).Count());
                 Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
             }
         }
@@ -612,6 +689,26 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.True(orders.All(o => o.o2.Customer != null));
                 Assert.Equal(2, orders.Select(o => o.o2.Customer).Distinct().Count());
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_with_client_filter()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .Where(c => c.IsLondon)
+                        .ToList();
+
+                Assert.Equal(6, customers.Count);
+                Assert.Equal(46, customers.SelectMany(c => c.Orders).Count());
+                Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(13, customers.First().Orders.Count); // AROUT
+                Assert.Equal(9, customers.Last().Orders.Count); // SEVES
+                Assert.Equal(6 + 46, context.ChangeTracker.Entries().Count());
             }
         }
 

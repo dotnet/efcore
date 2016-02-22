@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _relationalAnnotationProvider = relationalAnnotationProvider;
         }
 
-        public virtual LambdaExpression CreateMaterializer(
+        public virtual Expression<Func<ValueBuffer, object>> CreateMaterializer(
             IEntityType entityType,
             SelectExpression selectExpression,
             Func<IProperty, SelectExpression, int> projectionAdder,

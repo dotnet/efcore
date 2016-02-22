@@ -634,6 +634,27 @@ ORDER BY [c0].[City], [c0].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_collection_when_groupby()
+        {
+            base.Include_collection_when_groupby();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY [c].[City], [c].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [c].[City], [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = N'ALFKI'
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[City], [c0].[CustomerID]",
+                Sql);
+        }
+
         public override void Include_collection_on_additional_from_clause2()
         {
             base.Include_collection_on_additional_from_clause2();

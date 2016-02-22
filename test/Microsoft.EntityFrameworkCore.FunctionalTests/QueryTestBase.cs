@@ -4139,6 +4139,36 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void GroupJoin_tracking_groups()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select orders,
+                entryCount: 830,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                         Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_tracking_groups2()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select new { c, orders },
+                entryCount: 921,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
+
+        [ConditionalFact]
         public virtual void GroupJoin_simple2()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -4867,6 +4897,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         private void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             bool assertOrder = false,
+            int? entryCount = null,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem1 : class
             where TItem2 : class
@@ -4878,6 +4909,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     query(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
                     assertOrder,
                     asserter);
+
+                if (entryCount != null)
+                {
+                    Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+                }
             }
         }
 

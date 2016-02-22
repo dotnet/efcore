@@ -2935,6 +2935,36 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 from o in orders.DefaultIfEmpty()
                 select o);
         }
+        
+        [ConditionalFact]
+        public virtual async Task GroupJoin_tracking_groups()
+        {
+            await AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select orders,
+                entryCount: 830,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                         Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupJoin_tracking_groups2()
+        {
+            await AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select new { c, orders },
+                entryCount: 921,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
 
         [ConditionalFact]
         public virtual async Task SelectMany_Joined()
@@ -3318,6 +3348,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         private async Task AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             bool assertOrder = false,
+            int? entryCount = null,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem1 : class
             where TItem2 : class
@@ -3329,6 +3360,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     await query(context.Set<TItem1>(), context.Set<TItem2>()).ToArrayAsync(),
                     assertOrder,
                     asserter);
+
+                if (entryCount != null)
+                {
+                    Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+                }
             }
         }
 

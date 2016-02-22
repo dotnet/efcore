@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (_operatorToFlatten.Name != "_GroupJoin")
                 {
                     var compositeShaper
-                        = _createCompositeShaperMethodInfo
+                        = (Shaper)_createCompositeShaperMethodInfo
                             .MakeGenericMethod(
                                 outerShaper.Type,
                                 innerShaper.Type,
@@ -88,6 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     innerShaper,
                                     materializer
                                 });
+
+                    compositeShaper.SaveAccessorExpression(
+                        _relationalQueryCompilationContext.QuerySourceMapping);
 
                     return Expression.Call(
                         outerShapedQuery.Method
@@ -114,15 +118,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         outerShapedQuery.Arguments[1],
                         Expression.Default(typeof(int?)));
 
+                var defaultGroupJoinInclude
+                    = Expression.Default(
+                        _relationalQueryCompilationContext.QueryMethodProvider.GroupJoinIncludeType);
+
                 return
                     Expression.Call(
                         groupJoinMethod,
-                        EntityQueryModelVisitor.QueryContextParameter,
+                        Expression.Convert(
+                            EntityQueryModelVisitor.QueryContextParameter,
+                            typeof(RelationalQueryContext)),
                         newShapedQueryMethod,
                         Expression.Constant(outerShaper),
                         Expression.Constant(innerShaper),
                         methodCallExpression.Arguments[3],
-                        methodCallExpression.Arguments[4]);
+                        methodCallExpression.Arguments[4],
+                        defaultGroupJoinInclude,
+                        defaultGroupJoinInclude);
             }
 
             return methodCallExpression;
@@ -170,6 +182,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 => base.IsShaperForQuerySource(querySource)
                    || _outerShaper.IsShaperForQuerySource(querySource)
                    || _innerShaper.IsShaperForQuerySource(querySource);
+
+            public override void SaveAccessorExpression(QuerySourceMapping querySourceMapping)
+            {
+                _outerShaper.SaveAccessorExpression(querySourceMapping);
+                _innerShaper.SaveAccessorExpression(querySourceMapping);
+            }
+
+            public override Expression GetAccessorExpression(IQuerySource querySource)
+                => _outerShaper.GetAccessorExpression(querySource)
+                   ?? _innerShaper.GetAccessorExpression(querySource);
         }
     }
 }

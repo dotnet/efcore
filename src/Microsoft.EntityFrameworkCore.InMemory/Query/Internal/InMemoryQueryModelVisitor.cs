@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -69,36 +70,70 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(accessorLambda, nameof(accessorLambda));
 
             var keyComparerParameter = Expression.Parameter(typeof(IIncludeKeyComparer), "keyComparer");
-            var navigationPath = includeSpecification.NavigationPath;
+
+            MethodInfo includeMethod;
+
+            var resultItemTypeInfo = resultType.GetTypeInfo();
+
+            if (resultItemTypeInfo.IsGenericType
+                && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
+                    || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
+            {
+                includeMethod
+                    = _includeGroupedMethodInfo.MakeGenericMethod(
+                        resultType.GenericTypeArguments[0],
+                        resultType.GenericTypeArguments[1]);
+            }
+            else
+            {
+                includeMethod = _includeMethodInfo.MakeGenericMethod(resultType);
+            }
 
             Expression
                 = Expression.Call(
-                    _includeMethodInfo.MakeGenericMethod(resultType),
+                    includeMethod,
                     QueryContextParameter,
                     Expression,
-                    Expression.Constant(navigationPath),
+                    Expression.Constant(includeSpecification),
                     accessorLambda,
-                    Expression.NewArrayInit(
-                        typeof(RelatedEntitiesLoader),
-                        navigationPath.Select(
-                            n =>
+                    Expression.Constant(
+                        includeSpecification.NavigationPath
+                            .Select(n =>
                                 {
                                     var targetType = n.GetTargetType();
+                                    var materializer = _materializerFactory.CreateMaterializer(targetType);
 
-                                    var materializer
-                                        = _materializerFactory
-                                            .CreateMaterializer(targetType);
-
-                                    return Expression.Lambda<RelatedEntitiesLoader>(
-                                        Expression.Call(
-                                            _getRelatedValueBuffersMethodInfo,
-                                            QueryContextParameter,
-                                            Expression.Constant(targetType),
-                                            keyComparerParameter,
-                                            materializer),
-                                        keyComparerParameter);
-                                })),
+                                    return new RelatedEntitiesLoader(targetType, materializer.Compile());
+                                })
+                            .ToArray()),
                     Expression.Constant(querySourceRequiresTracking));
+        }
+
+        private sealed class RelatedEntitiesLoader : IRelatedEntitiesLoader
+        {
+            private readonly IEntityType _targetType;
+            private readonly Func<IEntityType, ValueBuffer, object> _materializer;
+
+            public RelatedEntitiesLoader(IEntityType targetType, Func<IEntityType, ValueBuffer, object> materializer)
+            {
+                _targetType = targetType;
+                _materializer = materializer;
+            }
+
+            public IEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
+            {
+                return ((InMemoryQueryContext)queryContext).Store
+                    .GetTables(_targetType)
+                    .SelectMany(t =>
+                        t.Rows.Select(vs => new EntityLoadInfo(
+                            new ValueBuffer(vs), vb => _materializer(t.EntityType, vb)))
+                            .Where(eli => keyComparer.ShouldInclude(eli.ValueBuffer)));
+            }
+
+            public void Dispose()
+            {
+                // no-op
+            }
         }
 
         private static readonly MethodInfo _includeMethodInfo
@@ -109,43 +144,110 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static IEnumerable<TResult> Include<TResult>(
             QueryContext queryContext,
             IEnumerable<TResult> source,
-            IReadOnlyList<INavigation> navigationPath,
+            IncludeSpecification includeSpecification,
             Func<TResult, object> accessorLambda,
+            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            bool querySourceRequiresTracking)
+        {
+            foreach (var result in source)
+            {
+                var entityOrCollection = accessorLambda.Invoke(result);
+
+                if (includeSpecification.IsEnumerableTarget)
+                {
+                    foreach (var entity in (IEnumerable)entityOrCollection)
+                    {
+                        queryContext.QueryBuffer
+                            .Include(
+                                queryContext,
+                                entity,
+                                includeSpecification.NavigationPath,
+                                relatedEntitiesLoaders,
+                                querySourceRequiresTracking);
+                    }
+                }
+                else
+                {
+                    queryContext.QueryBuffer
+                        .Include(
+                            queryContext,
+                            entityOrCollection,
+                            includeSpecification.NavigationPath,
+                            relatedEntitiesLoaders,
+                            querySourceRequiresTracking);
+                }
+
+                yield return result;
+            }
+        }
+
+        private static readonly MethodInfo _includeGroupedMethodInfo
+            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IncludeGrouped));
+
+        [UsedImplicitly]
+        private static IEnumerable<IGrouping<TKey, TOut>> IncludeGrouped<TKey, TOut>(
+            QueryContext queryContext,
+            IEnumerable<IGrouping<TKey, TOut>> groupings,
+            IncludeSpecification includeSpecification,
+            Func<TOut, object> accessorLambda,
             IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
-            return
-                source
-                    .Select(result =>
-                        {
-                            queryContext.QueryBuffer
-                                .Include(
-                                    accessorLambda.Invoke(result),
-                                    navigationPath,
-                                    relatedEntitiesLoaders,
-                                    querySourceRequiresTracking);
-
-                            return result;
-                        });
+            return groupings.Select(g =>
+                new IncludeGrouping<TKey, TOut>(
+                    queryContext,
+                    g,
+                    includeSpecification.NavigationPath,
+                    accessorLambda,
+                    relatedEntitiesLoaders,
+                    querySourceRequiresTracking));
         }
 
-        private static readonly MethodInfo _getRelatedValueBuffersMethodInfo
-            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(GetRelatedValueBuffers));
-
-        [UsedImplicitly]
-        private static IEnumerable<EntityLoadInfo> GetRelatedValueBuffers(
-            QueryContext queryContext,
-            IEntityType targetType,
-            IIncludeKeyComparer keyComparer,
-            Func<IEntityType, ValueBuffer, object> materializer)
+        private class IncludeGrouping<TKey, TOut> : IGrouping<TKey, TOut>
         {
-            return ((InMemoryQueryContext)queryContext).Store
-                .GetTables(targetType)
-                .SelectMany(t =>
-                    t.Rows.Select(vs => new EntityLoadInfo(
-                        new ValueBuffer(vs), vb => materializer(t.EntityType, vb)))
-                        .Where(eli => keyComparer.ShouldInclude(eli.ValueBuffer)));
+            private readonly QueryContext _queryContext;
+            private readonly IGrouping<TKey, TOut> _grouping;
+            private readonly IReadOnlyList<INavigation> _navigationPath;
+            private readonly Func<TOut, object> _accessorLambda;
+            private readonly IReadOnlyList<RelatedEntitiesLoader> _relatedEntitiesLoaders;
+            private readonly bool _querySourceRequiresTracking;
+
+            public IncludeGrouping(
+                QueryContext queryContext,
+                IGrouping<TKey, TOut> grouping,
+                IReadOnlyList<INavigation> navigationPath,
+                Func<TOut, object> accessorLambda,
+                IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
+                bool querySourceRequiresTracking)
+            {
+                _queryContext = queryContext;
+                _grouping = grouping;
+                _navigationPath = navigationPath;
+                _accessorLambda = accessorLambda;
+                _relatedEntitiesLoaders = relatedEntitiesLoaders;
+                _querySourceRequiresTracking = querySourceRequiresTracking;
+            }
+
+            public TKey Key => _grouping.Key;
+
+            public IEnumerator<TOut> GetEnumerator()
+            {
+                foreach (var result in _grouping)
+                {
+                    _queryContext.QueryBuffer
+                        .Include(
+                            _queryContext,
+                            _accessorLambda.Invoke(result),
+                            _navigationPath,
+                            _relatedEntitiesLoaders,
+                            _querySourceRequiresTracking);
+
+                    yield return result;
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         public static readonly MethodInfo EntityQueryMethodInfo
@@ -175,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     new EntityLoadInfo(
                                         valueBuffer,
                                         vr => materializer(t.EntityType, vr)),
-                                    queryStateManager, 
+                                    queryStateManager,
                                     throwOnNullKey: false);
                         }));
         }

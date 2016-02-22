@@ -1828,9 +1828,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // TODO: add more tests for this
-        // also, doesn't currently work
-        //[ConditionalFact]
+        [ConditionalFact]
         public virtual void Include_with_optional_navigation()
         {
             List<Level1> expected;

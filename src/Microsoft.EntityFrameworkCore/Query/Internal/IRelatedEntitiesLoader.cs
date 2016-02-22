@@ -7,8 +7,10 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public interface IIncludeRelatedValuesStrategy : IDisposable
+    public interface IRelatedEntitiesLoader : IDisposable
     {
-        IEnumerable<EntityLoadInfo> GetRelatedValues([NotNull] IIncludeKeyComparer keyComparer);
+        IEnumerable<EntityLoadInfo> Load(
+            [NotNull] QueryContext queryContext,
+            [NotNull] IIncludeKeyComparer keyComparer);
     }
 }

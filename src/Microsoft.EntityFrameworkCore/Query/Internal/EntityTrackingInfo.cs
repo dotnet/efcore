@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -34,6 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             QuerySourceReferenceExpression = querySourceReferenceExpression;
 
+            var sequenceType = querySourceReferenceExpression.Type.TryGetSequenceType();
+            
+            IsEnumerableTarget 
+                = sequenceType != null
+                    && sequenceType == entityType.ClrType;
+
             _entityType = entityType;
 
             _includedNavigationPaths
@@ -56,6 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
         }
+
+        public virtual bool IsEnumerableTarget { get; }
 
         public virtual QuerySourceReferenceExpression QuerySourceReferenceExpression { get; }
         public virtual IQuerySource QuerySource => QuerySourceReferenceExpression.ReferencedQuerySource;

@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
+// ReSharper disable ImplicitlyCapturedClosure
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncQueryMethodProvider : IQueryMethodProvider
@@ -245,6 +247,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        public virtual Type GroupJoinIncludeType => typeof(AsyncGroupJoinInclude);
+
+        public virtual object CreateGroupJoinInclude(
+            IReadOnlyList<INavigation> navigationPath,
+            bool querySourceRequiresTracking,
+            object existingGroupJoinInclude,
+            object relatedEntitiesLoaders)
+        {
+            var previousGroupJoinInclude
+                = new AsyncGroupJoinInclude(
+                    navigationPath,
+                    (IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>>)relatedEntitiesLoaders,
+                    querySourceRequiresTracking);
+
+            var groupJoinInclude = existingGroupJoinInclude as AsyncGroupJoinInclude;
+
+            if (groupJoinInclude != null)
+            {
+                groupJoinInclude.SetPrevious(previousGroupJoinInclude);
+
+                return null;
+            }
+
+            return previousGroupJoinInclude;
+        }
+
         public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
 
         private static readonly MethodInfo _groupJoinMethodInfo
@@ -253,36 +281,44 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
-            QueryContext queryContext,
+            RelationalQueryContext queryContext,
             IAsyncEnumerable<ValueBuffer> source,
             IShaper<TOuter> outerShaper,
             IShaper<TInner> innerShaper,
             Func<TInner, TKey> innerKeySelector,
-            Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+            Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector,
+            AsyncGroupJoinInclude outerGroupJoinInclude,
+            AsyncGroupJoinInclude innerGroupJoinInclude)
             => new GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult>(
                 queryContext,
                 source,
                 outerShaper,
                 innerShaper,
                 innerKeySelector,
-                resultSelector);
+                resultSelector,
+                outerGroupJoinInclude,
+                innerGroupJoinInclude);
 
         private class GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> : IAsyncEnumerable<TResult>
         {
-            private readonly QueryContext _queryContext;
+            private readonly RelationalQueryContext _queryContext;
             private readonly IAsyncEnumerable<ValueBuffer> _source;
             private readonly IShaper<TOuter> _outerShaper;
             private readonly IShaper<TInner> _innerShaper;
             private readonly Func<TInner, TKey> _innerKeySelector;
             private readonly Func<TOuter, IAsyncEnumerable<TInner>, TResult> _resultSelector;
+            private readonly AsyncGroupJoinInclude _outerGroupJoinInclude;
+            private readonly AsyncGroupJoinInclude _innerGroupJoinInclude;
 
             public GroupJoinAsyncEnumerable(
-                QueryContext queryContext,
+                RelationalQueryContext queryContext,
                 IAsyncEnumerable<ValueBuffer> source,
                 IShaper<TOuter> outerShaper,
                 IShaper<TInner> innerShaper,
                 Func<TInner, TKey> innerKeySelector,
-                Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+                Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector,
+                AsyncGroupJoinInclude outerGroupJoinInclude,
+                AsyncGroupJoinInclude innerGroupJoinInclude)
             {
                 _queryContext = queryContext;
                 _source = source;
@@ -290,6 +326,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _innerShaper = innerShaper;
                 _innerKeySelector = innerKeySelector;
                 _resultSelector = resultSelector;
+                _outerGroupJoinInclude = outerGroupJoinInclude;
+                _innerGroupJoinInclude = innerGroupJoinInclude;
             }
 
             public IAsyncEnumerator<TResult> GetEnumerator() => new GroupJoinAsyncEnumerator(this);
@@ -315,6 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (_sourceEnumerator == null)
                     {
+                        _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
+                        _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
                         _hasNext = await _sourceEnumerator.MoveNext();
                     }
@@ -324,6 +364,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var outer
                             = _groupJoinAsyncEnumerable._outerShaper
                                 .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
+
+                        if (_groupJoinAsyncEnumerable._outerGroupJoinInclude != null)
+                        {
+                            await _groupJoinAsyncEnumerable._outerGroupJoinInclude.IncludeAsync(outer, cancellationToken);
+                        }
 
                         var inner
                             = _groupJoinAsyncEnumerable._innerShaper
@@ -343,6 +388,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         var currentGroupKey = _groupJoinAsyncEnumerable._innerKeySelector(inner);
+
+                        if (_groupJoinAsyncEnumerable._innerGroupJoinInclude != null)
+                        {
+                            await _groupJoinAsyncEnumerable._innerGroupJoinInclude.IncludeAsync(inner, cancellationToken);
+                        }
 
                         inners.Add(inner);
 
@@ -371,6 +421,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 break;
                             }
 
+                            if (_groupJoinAsyncEnumerable._innerGroupJoinInclude != null)
+                            {
+                                await _groupJoinAsyncEnumerable._innerGroupJoinInclude.IncludeAsync(inner, cancellationToken);
+                            }
+
                             inners.Add(inner);
                         }
 
@@ -386,7 +441,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public TResult Current { get; private set; }
 
-                public void Dispose() => _sourceEnumerator?.Dispose();
+                public void Dispose()
+                {
+                    _sourceEnumerator?.Dispose();
+                    _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Dispose();
+                    _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Dispose();
+                }
             }
         }
 
@@ -402,19 +462,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             IAsyncEnumerable<T> innerResults,
             Func<T, object> entityAccessor,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<IAsyncIncludeRelatedValuesStrategy>> includeRelatedValuesStrategyFactories,
+            IReadOnlyList<Func<QueryContext, IAsyncRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
             bool querySourceRequiresTracking)
         {
             queryContext.BeginIncludeScope();
 
-            var includeRelatedValuesStrategies
-                = includeRelatedValuesStrategyFactories
-                    .Select(f => f())
-                    .ToList();
-
-            var relatedValueBuffers
-                = includeRelatedValuesStrategies
-                    .Select<IAsyncIncludeRelatedValuesStrategy, AsyncRelatedEntitiesLoader>(s => s.GetRelatedValues)
+            var relatedEntitiesLoaders
+                = relatedEntitiesLoaderFactories.Select(f => f(queryContext))
                     .ToArray();
 
             return innerResults
@@ -423,63 +477,64 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             await queryContext.QueryBuffer
                                 .IncludeAsync(
-                                    entityAccessor == null ? result : entityAccessor(result), // TODO: Compile time?
+                                    queryContext,
+                                    entityAccessor == null
+                                        ? result
+                                        : entityAccessor(result), // TODO: Compile time?
                                     navigationPath,
-                                    relatedValueBuffers,
-                                    cancellationToken,
-                                    querySourceRequiresTracking);
+                                    relatedEntitiesLoaders,
+                                    querySourceRequiresTracking,
+                                    cancellationToken);
 
                             return result;
                         })
                 .Finally(() =>
                     {
-                        foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
+                        foreach (var relatedEntitiesLoader in relatedEntitiesLoaders)
                         {
-                            includeRelatedValuesStrategy.Dispose();
+                            relatedEntitiesLoader.Dispose();
                         }
 
                         queryContext.EndIncludeScope();
                     });
         }
 
-        public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod
-            => _createReferenceIncludeStrategyMethodInfo;
+        public virtual Type RelatedEntitiesLoaderType => typeof(IAsyncRelatedEntitiesLoader);
 
-        private static readonly MethodInfo _createReferenceIncludeStrategyMethodInfo
+        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod => _createReferenceRelatedEntitiesLoaderMethod;
+
+        private static readonly MethodInfo _createReferenceRelatedEntitiesLoaderMethod
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_CreateReferenceIncludeStrategy));
+                .GetDeclaredMethod(nameof(_CreateReferenceRelatedEntitiesLoader));
 
         [UsedImplicitly]
-        private static IAsyncIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
-            RelationalQueryContext relationalQueryContext,
+        private static IAsyncRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
             int valueBufferOffset,
             int queryIndex,
             Func<ValueBuffer, object> materializer)
-            => new ReferenceIncludeRelatedValuesStrategy(
-                relationalQueryContext, valueBufferOffset, queryIndex, materializer);
+            => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
 
-        private class ReferenceIncludeRelatedValuesStrategy : IAsyncIncludeRelatedValuesStrategy
+        private class ReferenceRelatedEntitiesLoader : IAsyncRelatedEntitiesLoader
         {
-            private readonly RelationalQueryContext _queryContext;
             private readonly int _valueBufferOffset;
             private readonly int _queryIndex;
             private readonly Func<ValueBuffer, object> _materializer;
 
-            public ReferenceIncludeRelatedValuesStrategy(
-                RelationalQueryContext queryContext,
+            public ReferenceRelatedEntitiesLoader(
                 int valueBufferOffset,
                 int queryIndex,
                 Func<ValueBuffer, object> materializer)
             {
-                _queryContext = queryContext;
                 _valueBufferOffset = valueBufferOffset;
                 _queryIndex = queryIndex;
                 _materializer = materializer;
             }
 
-            public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(IIncludeKeyComparer keyComparer)
+            public IAsyncEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
             {
-                var valueBuffer = _queryContext.GetIncludeValueBuffer(_queryIndex).WithOffset(_valueBufferOffset);
+                var valueBuffer
+                    = ((RelationalQueryContext)queryContext)
+                        .GetIncludeValueBuffer(_queryIndex).WithOffset(_valueBufferOffset);
 
                 return new AsyncEnumerableAdapter<EntityLoadInfo>(
                     new EntityLoadInfo(valueBuffer, _materializer));
@@ -534,41 +589,49 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public virtual MethodInfo CreateCollectionIncludeRelatedValuesStrategyMethod
-            => _createCollectionIncludeStrategyMethodInfo;
+        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod => _createCollectionRelatedEntitiesLoaderMethod;
 
-        private static readonly MethodInfo _createCollectionIncludeStrategyMethodInfo
+        private static readonly MethodInfo _createCollectionRelatedEntitiesLoaderMethod
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_CreateCollectionIncludeStrategy));
+                .GetDeclaredMethod(nameof(_CreateCollectionRelatedEntitiesLoader));
 
         [UsedImplicitly]
-        private static IAsyncIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
-            IAsyncEnumerable<ValueBuffer> relatedValueBuffers, Func<ValueBuffer, object> materializer)
-            => new CollectionIncludeRelatedValuesStrategy(relatedValueBuffers, materializer);
+        private static IAsyncRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
+            QueryContext queryContext,
+            ShaperCommandContext shaperCommandContext,
+            int queryIndex,
+            Func<ValueBuffer, object> materializer)
+            => new CollectionRelatedEntitiesLoader(
+                queryContext, shaperCommandContext, queryIndex, materializer);
 
-        private class CollectionIncludeRelatedValuesStrategy : IAsyncIncludeRelatedValuesStrategy
+        private class CollectionRelatedEntitiesLoader : IAsyncRelatedEntitiesLoader
         {
             private readonly AsyncIncludeCollectionIterator _includeCollectionIterator;
             private readonly Func<ValueBuffer, object> _materializer;
 
-            public CollectionIncludeRelatedValuesStrategy(
-                IAsyncEnumerable<ValueBuffer> relatedValueBuffers, Func<ValueBuffer, object> materializer)
+            public CollectionRelatedEntitiesLoader(
+                QueryContext queryContext,
+                ShaperCommandContext shaperCommandContext,
+                int queryIndex,
+                Func<ValueBuffer, object> materializer)
             {
-                _materializer = materializer;
                 _includeCollectionIterator
-                    = new AsyncIncludeCollectionIterator(relatedValueBuffers.GetEnumerator());
+                    = new AsyncIncludeCollectionIterator(
+                        _Query(queryContext, shaperCommandContext, queryIndex)
+                            .GetEnumerator());
+
+                _materializer = materializer;
             }
 
-            public IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(IIncludeKeyComparer keyComparer)
+            public IAsyncEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
             {
-                return _includeCollectionIterator
-                    .GetRelatedValues(keyComparer)
-                    .Select(vr => new EntityLoadInfo(vr, _materializer));
+                return
+                    _includeCollectionIterator
+                        .GetRelatedValues(keyComparer)
+                        .Select(vr => new EntityLoadInfo(vr, _materializer));
             }
 
-            public void Dispose() => _includeCollectionIterator.Dispose();
+            public void Dispose() => _includeCollectionIterator?.Dispose();
         }
-
-        public virtual Type IncludeRelatedValuesFactoryType => typeof(Func<IAsyncIncludeRelatedValuesStrategy>);
     }
 }

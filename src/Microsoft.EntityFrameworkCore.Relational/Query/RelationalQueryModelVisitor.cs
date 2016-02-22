@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     switch (binaryExpression.NodeType)
                     {
                         case ExpressionType.Equal:
-                            _expressions.Add(binaryExpression.Left);
+                            _expressions.Add(binaryExpression.Left.RemoveConvert());
                             return expression;
                         case ExpressionType.AndAlso:
                             return VisitBinary(binaryExpression);

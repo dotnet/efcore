@@ -69,13 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             IOrderedAsyncEnumerable<TResult> IOrderedAsyncEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
-                => !@descending
+                => !descending
                     ? _results.OrderBy(keySelector, comparer)
                     : _results.OrderByDescending(keySelector, comparer);
 
             IOrderedEnumerable<TResult> IOrderedEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
-                => !@descending
+                => !descending
                     ? _results.ToEnumerable().OrderBy(keySelector, comparer)
                     : _results.ToEnumerable().OrderByDescending(keySelector, comparer);
         }
@@ -171,11 +171,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         for (var i = 0; i < entityTrackingInfos.Count; i++)
                         {
-                            var entity = entityAccessors[i](result as TIn);
+                            var entityOrCollection = entityAccessors[i](result as TIn);
 
-                            if (entity != null)
+                            if (entityOrCollection != null)
                             {
-                                queryContext.StartTracking(entity, entityTrackingInfos[i]);
+                                var entityTrackingInfo = entityTrackingInfos[i];
+
+                                if (entityTrackingInfo.IsEnumerableTarget)
+                                {
+                                    foreach (var entity in (IEnumerable)entityOrCollection)
+                                    {
+                                        queryContext.StartTracking(entity, entityTrackingInfos[i]);
+                                    }
+                                }
+                                else
+                                {
+                                    queryContext.StartTracking(entityOrCollection, entityTrackingInfos[i]);
+                                }
                             }
                         }
                     }
@@ -522,8 +534,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var aggregateMethods
                 = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(methodName)
-                    .Where(mi => (mi.GetParameters().Length == 2)
-                                 && (mi.GetParameters()[1].ParameterType == typeof(CancellationToken)))
+                    .Where(mi => mi.GetParameters().Length == 2
+                                 && mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
                     .ToList();
 
             return
@@ -591,8 +603,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return candidateMethods
                 .SingleOrDefault(mi =>
-                    (mi.GetParameters().Length == parameterCount + 2)
-                    && (mi.GetParameters().Last().ParameterType == typeof(CancellationToken)))
+                    mi.GetParameters().Length == parameterCount + 2
+                    && mi.GetParameters().Last().ParameterType == typeof(CancellationToken))
                    ?? candidateMethods.Single(mi => mi.GetParameters().Length == parameterCount + 1);
         }
     }

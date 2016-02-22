@@ -417,6 +417,7 @@
     <Compile Include="Query\Internal\Grouping.cs" />
     <Compile Include="Query\Internal\IAsyncEnumerableAccessor.cs" />
     <Compile Include="Query\Internal\IAsyncQueryProvider.cs" />
+    <Compile Include="Query\Internal\IAsyncRelatedEntitiesLoader.cs" />
     <Compile Include="Query\Internal\ICompiledQueryCache.cs" />
     <Compile Include="Query\Internal\IEntityTrackingInfoFactory.cs" />
     <Compile Include="Query\Internal\IExpressionPrinter.cs" />
@@ -426,6 +427,7 @@
     <Compile Include="Query\Internal\IQueryBuffer.cs" />
     <Compile Include="Query\Internal\IQueryCompiler.cs" />
     <Compile Include="Query\Internal\IQueryOptimizer.cs" />
+    <Compile Include="Query\Internal\IRelatedEntitiesLoader.cs" />
     <Compile Include="Query\Internal\IWeakReferenceIdentityMap.cs" />
     <Compile Include="Query\Internal\LinqOperatorProvider.cs" />
     <Compile Include="Query\Internal\NullIncludeComparer.cs" />

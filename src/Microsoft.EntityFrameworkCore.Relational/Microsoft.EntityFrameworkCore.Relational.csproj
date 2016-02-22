@@ -256,10 +256,10 @@
     <Compile Include="Query\ExpressionVisitors\RelationalProjectionExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\SqlTranslatingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\SqlTranslatingExpressionVisitorFactory.cs" />
+    <Compile Include="Query\Internal\AsyncGroupJoinInclude.cs" />
     <Compile Include="Query\Internal\AsyncIncludeCollectionIterator.cs" />
     <Compile Include="Query\Internal\AsyncQueryingEnumerable.cs" />
-    <Compile Include="Query\Internal\IAsyncIncludeRelatedValuesStrategy.cs" />
-    <Compile Include="Query\Internal\IIncludeRelatedValuesStrategy.cs" />
+    <Compile Include="Query\Internal\GroupJoinInclude.cs" />
     <Compile Include="Query\Internal\IncludeCollectionIterator.cs" />
     <Compile Include="Query\Internal\IShaperCommandContextFactory.cs" />
     <Compile Include="Query\Internal\IValueBufferCursor.cs" />

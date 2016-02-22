@@ -88,33 +88,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     , 
     entityAccessor: default(System.Func`2[FunctionalTests.TestModels.Northwind.Customer,System.Object]), 
     navigationPath: INavigation[] { Customer.Orders, }, 
-    includeRelatedValuesStrategyFactories: new Func<IIncludeRelatedValuesStrategy>[]{ () => IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
-            relatedValueBuffers: IEnumerable<ValueBuffer> _Query(
-                queryContext: queryContext, 
-                shaperCommandContext: SelectExpression: 
-                    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-                    FROM [Orders] AS [o]
-                    INNER JOIN (
-                        SELECT DISTINCT [c].[CustomerID]
-                        FROM [Customers] AS [c]
-                    ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-                    ORDER BY [c0].[CustomerID]
-                , 
-                queryIndex: 1
-            )
-            , 
-            materializer: (ValueBuffer valueBuffer) => 
-            {
-                var var2
-                var2 = new Order()
-                var2.OrderID = (int) object valueBuffer.get_Item(0)
-                var2.CustomerID = (string) object valueBuffer.get_Item(1)
-                var2.EmployeeID = (Nullable<int>) object valueBuffer.get_Item(2)
-                var2.OrderDate = (Nullable<DateTime>) object valueBuffer.get_Item(3)
-                var2
-            }
-        )
-         }
+    relatedEntitiesLoaderFactories: List<Func<QueryContext, IRelatedEntitiesLoader>> 
+    { 
+        System.Func`2[QueryContext,Internal.IRelatedEntitiesLoader], 
+    }
     , 
     querySourceRequiresTracking: True
 )",

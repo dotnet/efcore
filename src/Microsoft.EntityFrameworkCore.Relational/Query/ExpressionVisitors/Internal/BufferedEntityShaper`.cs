@@ -29,12 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Debug.Assert(queryContext != null);
 
-            var entity = (TEntity)queryContext.QueryBuffer
-                .GetEntity(
-                    Key,
-                    new EntityLoadInfo(valueBuffer, Materializer),
-                    queryStateManager: IsTrackingQuery,
-                    throwOnNullKey: !AllowNullResult);
+            var entity
+                = (TEntity)queryContext.QueryBuffer
+                    .GetEntity(
+                        Key,
+                        new EntityLoadInfo(valueBuffer, Materializer),
+                        queryStateManager: IsTrackingQuery,
+                        throwOnNullKey: !AllowNullResult);
 
             return entity;
         }

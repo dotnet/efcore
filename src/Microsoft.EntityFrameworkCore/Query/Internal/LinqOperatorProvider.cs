@@ -155,11 +155,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     for (var i = 0; i < entityTrackingInfos.Count; i++)
                     {
-                        var entity = entityAccessors[i](result as TIn);
+                        var entityOrCollection = entityAccessors[i](result as TIn);
 
-                        if (entity != null)
+                        if (entityOrCollection != null)
                         {
-                            queryContext.StartTracking(entity, entityTrackingInfos[i]);
+                            var entityTrackingInfo = entityTrackingInfos[i];
+
+                            if (entityTrackingInfo.IsEnumerableTarget)
+                            {
+                                foreach (var entity in (IEnumerable)entityOrCollection)
+                                {
+                                    queryContext.StartTracking(entity, entityTrackingInfos[i]);
+                                }
+                            }
+                            else
+                            {
+                                queryContext.StartTracking(entityOrCollection, entityTrackingInfos[i]);
+                            }
                         }
                     }
                 }

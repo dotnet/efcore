@@ -364,6 +364,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 queryModel.SelectClause.Selector,
                                 Expression.Parameter(queryModel.SelectClause.Selector.Type, "result"));
 
+                    var sequenceType = resultQuerySourceReferenceExpression.Type.TryGetSequenceType();
+
+                    if (sequenceType != null
+                        && QueryCompilationContext.Model.FindEntityType(sequenceType) != null)
+                    {
+                        includeSpecification.IsEnumerableTarget = true;
+                    }
+
                     QueryCompilationContext.Logger
                         .LogDebug(
                             CoreLoggingEventId.IncludingNavigation,
@@ -418,8 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             throw new NotImplementedException(CoreStrings.IncludeNotImplemented);
         }
 
-        protected virtual void TrackEntitiesInResults<TResult>(
-            [NotNull] QueryModel queryModel)
+        protected virtual void TrackEntitiesInResults<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
