@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             command.CommandTimeout,
                             command.Parameters
                                 .Cast<DbParameter>()
-                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
+                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? FormatParameterValue(p.Value) : "?"),
                             elapsedMilliseconds);
                     },
                 state =>
@@ -50,6 +51,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         state.CommandTimeout,
                         Environment.NewLine,
                         state.CommandText));
+        }
+
+        public static object FormatParameterValue(object parameterValue)
+        {
+            if (parameterValue.GetType() != typeof(byte[]))
+            {
+                return Convert.ToString(parameterValue, CultureInfo.InvariantCulture);
+            }
+            var stringValueBuilder = new StringBuilder();
+            var buffer = (byte[])parameterValue;
+            stringValueBuilder.Append("0x");
+            for (var i = 0; i < buffer.Length; i++)
+            {
+                if (i > 31)
+                {
+                    stringValueBuilder.Append("...");
+                    break;
+                }
+                stringValueBuilder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
+            }
+            return stringValueBuilder.ToString();
         }
 
         private static void LogInformation<TState>(
