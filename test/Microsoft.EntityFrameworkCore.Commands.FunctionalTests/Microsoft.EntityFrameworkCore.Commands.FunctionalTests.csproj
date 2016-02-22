@@ -68,9 +68,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\src\Microsoft.EntityFrameworkCore.Commands\tools\OperationHandlers.cs">
-      <Link>OperationHandlers.cs</Link>
-    </Compile>
     <Compile Include="Design\Internal\ForwardingProxyTest.cs" />
     <Compile Include="Design\OperationExecutorTest.cs" />
     <Compile Include="Migrations\CodeCompilationTest.cs" />

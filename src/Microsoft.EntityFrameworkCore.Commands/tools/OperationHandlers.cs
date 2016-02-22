@@ -1,14 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if ENABLE_HANDLERS && NET451
 using System;
 
-#endif
+// ReSharper disable once CheckNamespace
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-#if !OMIT_HANDLER_INTERFACES
     public interface IOperationResultHandler
     {
         int Version { get; }
@@ -25,10 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         void WriteDebug(string message);
         void WriteTrace(string message);
     }
-#endif
 
-#if ENABLE_HANDLERS && NET451
-    public class OperationResultHandler : MarshalByRefObject, IOperationResultHandler
+    public partial class OperationResultHandler : IOperationResultHandler
     {
         private bool _hasResult;
         private object _result;
@@ -62,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
     }
 
-    public class OperationLogHandler : MarshalByRefObject, IOperationLogHandler
+    public partial class OperationLogHandler : IOperationLogHandler
     {
         private readonly Action<string> _writeError;
         private readonly Action<string> _writeWarning;
@@ -95,6 +91,15 @@ namespace Microsoft.EntityFrameworkCore.Design
         public virtual void WriteDebug(string message) => _writeDebug?.Invoke(message);
 
         public virtual void WriteTrace(string message) => _writeTrace?.Invoke(message);
+    }
+
+#if NET451
+    partial class OperationResultHandler : MarshalByRefObject
+    {
+    }
+
+    partial class OperationLogHandler : MarshalByRefObject
+    {
     }
 #endif
 }

@@ -12,14 +12,18 @@ namespace Microsoft.EntityFrameworkCore.Commands.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
+        // NOTE: These classes are compiled by the PowerShell module and must not reference external types.
+        private static readonly IEnumerable<Type> _ignoredTypes = new[]
+        {
+            typeof(IOperationLogHandler),
+            typeof(IOperationResultHandler),
+            typeof(OperationLogHandler),
+            typeof(OperationResultHandler)
+        };
+
         protected override Assembly TargetAssembly => typeof(MigrationsOperations).GetTypeInfo().Assembly;
 
         protected override IEnumerable<Type> GetAllTypes(IEnumerable<Type> types)
-        {
-            // NOTE: These classes are compiled by the PowerShell module and must not reference external types.
-            return base.GetAllTypes(types).Where(
-                t => t.FullName != "Microsoft.EntityFrameworkCore.Design.IOperationResultHandler"
-                     && t.FullName != "Microsoft.EntityFrameworkCore.Design.IOperationLogHandler");
-        }
+            => base.GetAllTypes(types).Except(_ignoredTypes);
     }
 }

@@ -2,21 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.DotNet.ProjectModel.Loader;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Design;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.Extensions.PlatformAbstractions;
 using NuGet.Frameworks;
 
@@ -24,9 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Commands
 {
     public class OperationExecutor
     {
-        private readonly LazyRef<DbContextOperations> _contextOperations;
-        private readonly LazyRef<DatabaseOperations> _databaseOperations;
-        private readonly LazyRef<MigrationsOperations> _migrationsOperations;
+        private const string ExecutorTypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
+
+        private readonly Assembly _commandsAssembly;
+        private readonly object _executor;
+        private readonly string _startupProjectDir;
 
         private const string DataDirEnvName = "ADONET_DATA_DIR";
         private const string DefaultConfiguration = "Debug";
@@ -56,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 new[] { startupProject, "-f", startupProjectContext.TargetFramework.GetShortFolderName() });
             if (buildCommand.Execute().ExitCode != 0)
             {
-                throw new OperationException("Build failed.");
+                throw new CommandException("Build failed.");
             }
 
             Reporter.Verbose.WriteLine("Build succeeded.".Bold().Black());
@@ -69,104 +65,140 @@ namespace Microsoft.EntityFrameworkCore.Commands
             }
 
             var projectFile = ProjectReader.GetProject(project);
-            var startupAssemblyName = new AssemblyName(startupProjectContext.ProjectFile.Name);
-            var assemblyName = new AssemblyName(projectFile.Name);
+            var startupAssemblyName = startupProjectContext.ProjectFile.Name;
+            var assemblyName = projectFile.Name;
             var projectDir = projectFile.ProjectDirectory;
-            var startupProjectDir = startupProjectContext.ProjectFile.ProjectDirectory;
+            _startupProjectDir = startupProjectContext.ProjectFile.ProjectDirectory;
             var rootNamespace = projectFile.Name;
             var assemblyLoadContext = startupProjectContext.CreateLoadContext();
-            var assemblyLoader = new AssemblyLoader(assemblyLoadContext.LoadFromAssemblyName);
 
-            var startupAssembly = assemblyLoadContext.LoadFromAssemblyName(startupAssemblyName);
+            _commandsAssembly = assemblyLoadContext.LoadFromAssemblyName(
+                new AssemblyName("Microsoft.EntityFrameworkCore.Commands"));
 
-            Assembly assembly;
-            try
+            var assemblyLoader = Activator.CreateInstance(
+                _commandsAssembly.GetType(
+                    "Microsoft.EntityFrameworkCore.Design.AssemblyLoader",
+                    throwOnError: true,
+                    ignoreCase: false),
+                (Func<AssemblyName, Assembly>)assemblyLoadContext.LoadFromAssemblyName);
+
+            var logHandler = Activator.CreateInstance(
+                _commandsAssembly.GetType(
+                    "Microsoft.EntityFrameworkCore.Design.OperationLogHandler",
+                    throwOnError: true,
+                    ignoreCase: false),
+                (Action<string>)(m => Reporter.Error.WriteLine(m.Bold().Red())),
+                (Action<string>)(m => Reporter.Error.WriteLine(m.Bold().Yellow())),
+                (Action<string>)Reporter.Error.WriteLine,
+                (Action<string>)(m => Reporter.Verbose.WriteLine(m.Bold().Black())),
+                (Action<string>)(m => Reporter.Verbose.WriteLine(m.Bold().Black())));
+
+            _executor = Activator.CreateInstance(
+                _commandsAssembly.GetType(ExecutorTypeName, throwOnError: true, ignoreCase: false),
+                logHandler,
+                new Dictionary<string, string>
             {
-                assembly = assemblyLoadContext.LoadFromAssemblyName(assemblyName);
-            }
-            catch (Exception ex)
-            {
-                throw new OperationException(
-                    CommandsStrings.UnreferencedAssembly(projectFile.Name, startupProjectContext.ProjectFile.Name),
-                    ex);
-            }
-
-            _contextOperations = new LazyRef<DbContextOperations>(
-                () => new DbContextOperations(
-                    new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                    assembly,
-                    startupAssembly,
-                    environment,
-                    startupProjectDir));
-            _databaseOperations = new LazyRef<DatabaseOperations>(
-                () => new DatabaseOperations(
-                    assemblyLoader,
-                    new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                    startupAssembly,
-                    environment,
-                    projectDir,
-                    startupProjectDir,
-                    rootNamespace));
-            _migrationsOperations = new LazyRef<MigrationsOperations>(
-                () => new MigrationsOperations(
-                    assemblyLoader,
-                    new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                    assembly,
-                    startupAssembly,
-                    environment,
-                    projectDir,
-                    startupProjectDir,
-                    rootNamespace));
+                    ["targetName"] = assemblyName,
+                    ["startupTargetName"] = startupAssemblyName,
+                    ["environment"] = environment,
+                    ["projectDir"] = projectDir,
+                    ["rootNamespace"] = rootNamespace
+                },
+                assemblyLoader);
         }
 
-        public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, string, bool> confirmCheck)
-            => _contextOperations.Value.DropDatabase(contextName, confirmCheck);
+        public virtual void DropDatabase(
+            [CanBeNull] string contextType,
+            [NotNull] Func<string, string, bool> confirmCheck)
+            => Execute<object>(
+                "DropDatabase",
+                new Dictionary<string, object>
+                {
+                    ["contextType"] = contextType,
+                    ["confirmCheck"] = confirmCheck
+                });
 
-        public virtual MigrationFiles AddMigration(
+        public virtual IDictionary AddMigration(
             [NotNull] string name,
             [CanBeNull] string outputDir,
             [CanBeNull] string contextType)
-            => _migrationsOperations.Value.AddMigration(name, outputDir, contextType);
+           => Execute<IDictionary>(
+               "AddMigration",
+               new Dictionary<string, object>
+               {
+                   ["name"] = name,
+                   ["outputDir"] = outputDir,
+                   ["contextType"] = contextType
+               });
 
         public virtual void UpdateDatabase([CanBeNull] string targetMigration, [CanBeNull] string contextType)
-            => _migrationsOperations.Value.UpdateDatabase(targetMigration, contextType);
+            => Execute<object>(
+                "UpdateDatabase",
+                new Dictionary<string, object>
+                {
+                    ["targetMigration"] = targetMigration,
+                    ["contextType"] = contextType
+                });
 
         public virtual string ScriptMigration(
             [CanBeNull] string fromMigration,
             [CanBeNull] string toMigration,
             bool idempotent,
             [CanBeNull] string contextType)
-            => _migrationsOperations.Value.ScriptMigration(fromMigration, toMigration, idempotent, contextType);
+            => Execute<string>(
+                "ScriptMigration",
+                new Dictionary<string, object>
+                {
+                    ["fromMigration"] = fromMigration,
+                    ["toMigration"] = toMigration,
+                    ["idempotent"] = idempotent,
+                    ["contextType"] = contextType
+                });
 
-        public virtual MigrationFiles RemoveMigration([CanBeNull] string contextType, bool force)
-            => _migrationsOperations.Value.RemoveMigration(contextType, force);
+        public virtual IEnumerable<string> RemoveMigration([CanBeNull] string contextType, bool force)
+            => Execute<IEnumerable<string>>(
+                "RemoveMigration",
+                new Dictionary<string, object>
+                {
+                    ["contextType"] = contextType,
+                    ["force"] = force
+                });
 
-        public virtual IEnumerable<Type> GetContextTypes()
-            => _contextOperations.Value.GetContextTypes();
+        public virtual IEnumerable<IDictionary> GetContextTypes()
+            => Execute<IEnumerable<IDictionary>>(
+                "GetContextTypes",
+                new Dictionary<string, object>());
 
-        public virtual IEnumerable<MigrationInfo> GetMigrations([CanBeNull] string contextType)
-            => _migrationsOperations.Value.GetMigrations(contextType);
+        public virtual IEnumerable<IDictionary> GetMigrations([CanBeNull] string contextType)
+            => Execute<IEnumerable<IDictionary>>(
+                "GetMigrations",
+                new Dictionary<string, object>
+                {
+                    ["contextType"] = contextType
+                });
 
-        public virtual Task<ReverseEngineerFiles> ReverseEngineerAsync(
+        public virtual IEnumerable<string> ReverseEngineer(
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
             [CanBeNull] string dbContextClassName,
-            [NotNull] IEnumerable<string> schemas,
-            [NotNull] IEnumerable<string> tables,
+            [NotNull] IEnumerable<string> schemaFilters,
+            [NotNull] IEnumerable<string> tableFilters,
             bool useDataAnnotations,
-            bool overwriteFiles,
-            CancellationToken cancellationToken = default(CancellationToken))
-            => _databaseOperations.Value.ReverseEngineerAsync(
-                provider,
-                connectionString,
-                outputDir,
-                dbContextClassName,
-                schemas,
-                tables,
-                useDataAnnotations,
-                overwriteFiles,
-                cancellationToken);
+            bool overwriteFiles)
+            => Execute<IEnumerable<string>>(
+                "ReverseEngineer",
+                new Dictionary<string, object>
+                {
+                    ["provider"] = provider,
+                    ["connectionString"] = connectionString,
+                    ["outputDir"] = outputDir,
+                    ["dbContextClassName"] = dbContextClassName,
+                    ["schemaFilters"] = schemaFilters,
+                    ["tableFilters"] = tableFilters,
+                    ["useDataAnnotations"] = useDataAnnotations,
+                    ["overwriteFiles"] = overwriteFiles
+                });
 
         private ProjectContext GetCompatibleProjectContext(string projectPath)
         {
@@ -184,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     f => new NuGetFramework(f));
             if (framework == null)
             {
-                throw new OperationException(
+                throw new CommandException(
                     "The project '" + projectFile.Name + "' doesn't target a framework compatible with .NET Standard "+
                     "App 1.5. You must target a compatible framework such as 'netstandard1.3' in order to use the " +
                     "Entity Framework .NET Core CLI Commands.");
@@ -198,6 +230,47 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 .WithTargetFramework(framework)
                 .WithRuntimeIdentifiers(PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers())
                 .Build();
+        }
+
+        private T Execute<T>(string operation, IDictionary args)
+        {
+            var resultHandler = (dynamic)Activator.CreateInstance(
+                _commandsAssembly.GetType(
+                    "Microsoft.EntityFrameworkCore.Design.OperationResultHandler",
+                    throwOnError: true,
+                    ignoreCase: false));
+
+            var currentDirectory = Directory.GetCurrentDirectory();
+
+            Reporter.Verbose.WriteLine(("Using current directory '" + _startupProjectDir + "'.").Bold().Black());
+
+            Directory.SetCurrentDirectory(_startupProjectDir);
+            try
+            {
+                Activator.CreateInstance(
+                    _commandsAssembly.GetType(ExecutorTypeName + "+" + operation, throwOnError: true, ignoreCase: true),
+                    _executor,
+                    resultHandler,
+                    args);
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(currentDirectory);
+            }
+
+            if (resultHandler.ErrorType != null)
+            {
+                throw new OperationException(
+                    resultHandler.ErrorType,
+                    resultHandler.ErrorStackTrace,
+                    resultHandler.ErrorMessage);
+            }
+            if (resultHandler.HasResult)
+            {
+                return (T)resultHandler.Result;
+            }
+
+            return default(T);
         }
     }
 }

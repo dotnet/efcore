@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Commands
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     startupProject.Value(),
                     environment.Value(),
                     json.HasValue()
-                        ? (Action<IEnumerable<MigrationInfo>>)ReportJsonResults
+                        ? (Action<IEnumerable<IDictionary>>)ReportJsonResults
                         : ReportResults));
         }
 
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string context,
             string startupProject,
             string environment,
-            Action<IEnumerable<MigrationInfo>> reportResultsAction)
+            Action<IEnumerable<IDictionary>> reportResultsAction)
         {
             var migrations = new OperationExecutor(startupProject, environment)
                 .GetMigrations(context);
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             return 0;
         }
 
-        private static void ReportJsonResults(IEnumerable<MigrationInfo> migrations)
+        private static void ReportJsonResults(IEnumerable<IDictionary> migrations)
         {
             Reporter.Output.Write("[");
 
@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
                 Reporter.Output.WriteLine();
                 Reporter.Output.WriteLine("  {");
-                Reporter.Output.WriteLine("    \"id\": \"" + migration.Id + "\",");
-                Reporter.Output.WriteLine("    \"name\": \"" + migration.Name + "\"");
+                Reporter.Output.WriteLine("    \"id\": \"" + migration["Id"] + "\",");
+                Reporter.Output.WriteLine("    \"name\": \"" + migration["Name"] + "\"");
                 Reporter.Output.Write("  }");
             }
 
@@ -82,12 +82,12 @@ namespace Microsoft.EntityFrameworkCore.Commands
             Reporter.Output.WriteLine("]");
         }
 
-        private static void ReportResults(IEnumerable<MigrationInfo> migrations)
+        private static void ReportResults(IEnumerable<IDictionary> migrations)
         {
             var any = false;
             foreach (var migration in migrations)
             {
-                Reporter.Output.WriteLine(migration.Id);
+                Reporter.Output.WriteLine(migration["Id"] as string);
                 any = true;
             }
 

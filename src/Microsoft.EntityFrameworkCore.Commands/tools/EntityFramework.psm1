@@ -136,8 +136,10 @@ function Add-Migration {
             contextType = $contextTypeName
         }
 
-        $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
-        $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
+        $dteProject.ProjectItems.AddFromFile($artifacts.MigrationFile) | Out-Null
+        $dteProject.ProjectItems.AddFromFile($artifacts.MetadataFile) | Out-Null
+        $dteProject.ProjectItems.AddFromFile($artifacts.SnapshotFile) | Out-Null
+        $DTE.ItemOperations.OpenFile($artifacts.MigrationFile) | Out-Null
         ShowConsole
     }
 
@@ -707,7 +709,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     if (![Type]::GetType('Microsoft.EntityFrameworkCore.Design.OperationResultHandler')) {
         Add-Type -Path (Join-Path $PSScriptRoot OperationHandlers.cs) -CompilerParameters (
             New-Object CodeDom.Compiler.CompilerParameters -Property @{
-                CompilerOptions = '/d:ENABLE_HANDLERS;NET451'
+                CompilerOptions = '/d:NET451'
             })
     }
 
