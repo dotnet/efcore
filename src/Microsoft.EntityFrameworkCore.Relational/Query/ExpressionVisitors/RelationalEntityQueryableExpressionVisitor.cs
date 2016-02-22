@@ -106,10 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return base.VisitMethodCall(node);
         }
 
-        [CallsMakeGenericMethod(nameof(QueryMethodProvider._ShapedQuery), typeof(ValueBuffer), TargetType = typeof(QueryMethodProvider))]
-        [CallsMakeGenericMethod(nameof(QueryMethodProvider._ShapedQuery), typeof(TypeArgumentCategory.EntityTypes), TargetType = typeof(QueryMethodProvider))]
-        [CallsMakeGenericMethod(nameof(AsyncQueryMethodProvider._ShapedQuery), typeof(ValueBuffer), TargetType = typeof(AsyncQueryMethodProvider))]
-        [CallsMakeGenericMethod(nameof(AsyncQueryMethodProvider._ShapedQuery), typeof(TypeArgumentCategory.EntityTypes), TargetType = typeof(AsyncQueryMethodProvider))]
         protected override Expression VisitEntityQueryable(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));

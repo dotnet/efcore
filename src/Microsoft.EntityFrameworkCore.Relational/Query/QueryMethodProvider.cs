@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
-        internal static IEnumerable<T> _ShapedQuery<T>(
+        private static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_DefaultIfEmptyShapedQuery));
 
         [UsedImplicitly]
-        internal static IEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
+        private static IEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
-        internal static TResult GetResult<TResult>(IEnumerable<ValueBuffer> valueBuffers)
+        private static TResult GetResult<TResult>(IEnumerable<ValueBuffer> valueBuffers)
         {
             using (var enumerator = valueBuffers.GetEnumerator())
             {
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
-        internal static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+        private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             QueryContext queryContext,
             IEnumerable<ValueBuffer> source,
             IShaper<TOuter> outerShaper,
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
-        internal static IEnumerable<T> _Include<T>(
+        private static IEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IEnumerable<T> innerResults,
             Func<T, object> entityAccessor,
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_CreateReferenceIncludeStrategy));
 
         [UsedImplicitly]
-        internal static IIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
+        private static IIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
             RelationalQueryContext relationalQueryContext,
             int valueBufferOffset,
             int queryIndex,

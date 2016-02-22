@@ -6,13 +6,11 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class DependentsMapFactoryFactory : IdentityMapFactoryFactoryBase
     {
-        [CallsMakeGenericMethod(nameof(CreateFactory), typeof(TypeArgumentCategory.Keys))]
         public virtual Func<IDependentsMap> Create([NotNull] IForeignKey foreignKey)
             => (Func<IDependentsMap>)typeof(DependentsMapFactoryFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))

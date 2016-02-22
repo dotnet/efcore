@@ -131,10 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .ExtractParameters(query, queryContext, _evaluatableExpressionFilter, _logger);
         }
 
-        [CallsMakeGenericMethod(nameof(IDatabase.CompileQuery), typeof(TypeArgumentCategory.EntityTypes), TargetType = typeof(IDatabase))]
-        [CallsMakeGenericMethod(nameof(IDatabase.CompileQuery), typeof(TypeArgumentCategory.Properties), TargetType = typeof(IDatabase))]
-        [CallsMakeGenericMethod(nameof(IDatabase.CompileQuery), typeof(TypeArgumentCategory.NavigationProperties), TargetType = typeof(IDatabase))]
-        [CallsMakeGenericMethod(nameof(IDatabase.CompileQuery), typeof(TypeArgumentCategory.Primitives), TargetType = typeof(IDatabase))]
         protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));

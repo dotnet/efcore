@@ -83,7 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
                     assembly,
                     startupAssembly,
-                    projectDir,
                     environment));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(

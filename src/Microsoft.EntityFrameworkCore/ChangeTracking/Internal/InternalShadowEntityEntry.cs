@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _propertyValues = entityType.GetShadowValuesFactory()(valueBuffer);
         }
 
-        protected internal override T ReadShadowValue<T>(int shadowIndex)
+        protected override T ReadShadowValue<T>(int shadowIndex)
             => _propertyValues.GetValue<T>(shadowIndex);
 
         protected override object ReadPropertyValue(IPropertyBase propertyBase)

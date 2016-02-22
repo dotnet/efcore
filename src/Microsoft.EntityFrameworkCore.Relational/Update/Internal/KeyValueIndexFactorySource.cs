@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -19,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual IKeyValueIndexFactory GetKeyValueIndexFactory(IKey key)
             => _factories.GetOrAdd(key, Create);
 
-        [CallsMakeGenericMethod(nameof(CreateFactory), typeof(TypeArgumentCategory.Keys))]
         public virtual IKeyValueIndexFactory Create([NotNull] IKey key)
             => (IKeyValueIndexFactory)typeof(KeyValueIndexFactorySource).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))

@@ -5,13 +5,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class TaskBlockingExpressionVisitor : ExpressionVisitorBase, ITaskBlockingExpressionVisitor
     {
-        [CallsMakeGenericMethod(nameof(_Result), typeof(TypeArgumentCategory.Properties))]
         public override Expression Visit(Expression expression)
         {
             if (expression != null)

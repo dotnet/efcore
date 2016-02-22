@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public override object Entity { get; }
 
-        protected internal override T ReadShadowValue<T>(int shadowIndex)
+        protected override T ReadShadowValue<T>(int shadowIndex)
             => _shadowValues.GetValue<T>(shadowIndex);
 
         protected override object ReadPropertyValue(IPropertyBase propertyBase)

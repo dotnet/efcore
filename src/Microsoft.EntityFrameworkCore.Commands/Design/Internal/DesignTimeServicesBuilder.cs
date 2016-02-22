@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -67,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddSingleton<CSharpMigrationOperationGenerator>()
                 .AddSingleton<CSharpSnapshotGenerator>()
                 .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
-                .AddSingleton<RuntimeTypeDiscoverer>()
                 .AddScaffolding();
 
         private void ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
@@ -87,9 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddTransient(_ => contextServices.GetService<IMigrationsIdGenerator>())
                 .AddTransient(_ => contextServices.GetService<IMigrationsModelDiffer>())
                 .AddTransient(_ => contextServices.GetService<IMigrator>())
-                .AddTransient(_ => contextServices.GetService<IModel>())
-                .AddTransient(_ => contextServices.GetService<IStateManager>())
-                .AddTransient(_ => contextServices.GetService<IInternalEntityEntryFactory>());
+                .AddTransient(_ => contextServices.GetService<IModel>());
 
         private void ConfigureUserServices(IServiceCollection services)
             => _startup.ConfigureDesignTimeServices(services);

@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly ConcurrentDictionary<Type, Func<DbContext, object>> _cache
             = new ConcurrentDictionary<Type, Func<DbContext, object>>();
 
-        [CallsMakeGenericMethod(nameof(CreateConstructor), typeof(TypeArgumentCategory.EntityTypes))]
         public virtual object Create(DbContext context, Type type)
             => _cache.GetOrAdd(
                 type,

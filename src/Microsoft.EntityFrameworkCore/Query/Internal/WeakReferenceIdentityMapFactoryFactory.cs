@@ -5,7 +5,6 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -13,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class WeakReferenceIdentityMapFactoryFactory : IdentityMapFactoryFactoryBase
     {
-        [CallsMakeGenericMethod(nameof(CreateFactory), typeof(TypeArgumentCategory.Keys))]
         public virtual Func<IWeakReferenceIdentityMap> Create([NotNull] IKey key)
             => (Func<IWeakReferenceIdentityMap>)typeof(WeakReferenceIdentityMapFactoryFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))

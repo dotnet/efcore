@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToEnumerable));
 
         [UsedImplicitly]
-        internal static EnumerableAdapter<TResult> _ToEnumerable<TResult>(IAsyncEnumerable<TResult> results)
+        private static EnumerableAdapter<TResult> _ToEnumerable<TResult>(IAsyncEnumerable<TResult> results)
             => new EnumerableAdapter<TResult>(results);
 
         internal class EnumerableAdapter<TResult> : IAsyncEnumerable<TResult>, IEnumerable<TResult>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToOrdered));
 
         [UsedImplicitly]
-        internal static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IAsyncEnumerable<TResult> results)
+        private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IAsyncEnumerable<TResult> results)
             => new OrderedEnumerableAdapter<TResult>(results);
 
         internal class OrderedEnumerableAdapter<TResult>
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_InterceptExceptions));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<T> _InterceptExceptions<T>(
+        private static IAsyncEnumerable<T> _InterceptExceptions<T>(
             IAsyncEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackEntities));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<TOut> _TrackEntities<TOut, TIn>(
+        private static IAsyncEnumerable<TOut> _TrackEntities<TOut, TIn>(
             IAsyncEnumerable<TOut> results,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackGroupedEntities));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<TrackingGrouping<TKey, TOut, TIn>> _TrackGroupedEntities<TKey, TOut, TIn>(
+        private static IAsyncEnumerable<TrackingGrouping<TKey, TOut, TIn>> _TrackGroupedEntities<TKey, TOut, TIn>(
             IAsyncEnumerable<IGrouping<TKey, TOut>> groupings,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToSequence));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<T> _ToSequence<T>(T element)
+        private static IAsyncEnumerable<T> _ToSequence<T>(T element)
             => new AsyncEnumerableAdapter<T>(new[] { element });
 
         public virtual MethodInfo ToSequence => _toSequence;
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToQueryable));
 
         [UsedImplicitly]
-        internal static IOrderedQueryable<TSource> _ToQueryable<TSource>(IAsyncEnumerable<TSource> source)
+        private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IAsyncEnumerable<TSource> source)
             => new AsyncQueryableAdapter<TSource>(source);
 
         private sealed class AsyncQueryableAdapter<T> : IOrderedQueryable<T>
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Join));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
+        private static IAsyncEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
             IAsyncEnumerable<TOuter> outer,
             IAsyncEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+        private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             IAsyncEnumerable<TOuter> outer,
             IAsyncEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Select));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
+        private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             IAsyncEnumerable<TSource> source, Func<TSource, TResult> selector)
             => source.Select(selector);
 
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_OrderBy));
 
         [UsedImplicitly]
-        internal static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
+        private static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
             IAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.OrderBy(expression)
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ThenBy));
 
         [UsedImplicitly]
-        internal static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
+        private static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.ThenBy(expression)
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Where));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<TSource> _Where<TSource>(
+        private static IAsyncEnumerable<TSource> _Where<TSource>(
             IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate) => source.Where(predicate);
 
         public virtual MethodInfo Where => _where;
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector)

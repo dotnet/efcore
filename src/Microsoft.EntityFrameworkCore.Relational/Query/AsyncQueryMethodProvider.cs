@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<T> _ShapedQuery<T>(
+        private static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_DefaultIfEmptyShapedQuery));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
+        private static IAsyncEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
-        internal static async Task<TResult> GetResult<TResult>(
+        private static async Task<TResult> GetResult<TResult>(
             IAsyncEnumerable<ValueBuffer> valueBuffers, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+        private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             QueryContext queryContext,
             IAsyncEnumerable<ValueBuffer> source,
             IShaper<TOuter> outerShaper,
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
-        internal static IAsyncEnumerable<T> _Include<T>(
+        private static IAsyncEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IAsyncEnumerable<T> innerResults,
             Func<T, object> entityAccessor,

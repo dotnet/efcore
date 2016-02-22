@@ -8,7 +8,6 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.Dnx.Compilation.CSharp;
 using Microsoft.Extensions.CompilationAbstractions;
-using IOPath = System.IO.Path;
 
 namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {

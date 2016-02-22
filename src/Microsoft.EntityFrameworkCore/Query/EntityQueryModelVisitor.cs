@@ -23,7 +23,6 @@ using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionVisitors;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -211,10 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [CallsMakeGenericMethod(nameof(Internal.LinqOperatorProvider._InterceptExceptions), typeof(TypeArgumentCategory.Properties), TargetType = typeof(LinqOperatorProvider))]
-        [CallsMakeGenericMethod(nameof(AsyncLinqOperatorProvider._InterceptExceptions), typeof(TypeArgumentCategory.Properties), TargetType = typeof(AsyncLinqOperatorProvider))]
-        [CallsMakeGenericMethod(nameof(Internal.LinqOperatorProvider._InterceptExceptions), typeof(TypeArgumentCategory.Primitives), TargetType = typeof(LinqOperatorProvider))]
-        [CallsMakeGenericMethod(nameof(AsyncLinqOperatorProvider._InterceptExceptions), typeof(TypeArgumentCategory.Primitives), TargetType = typeof(AsyncLinqOperatorProvider))]
         protected virtual void InterceptExceptions()
         {
             _expression
@@ -252,8 +247,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => CoreStrings.LogOptimizedQueryModel(queryModel));
         }
 
-        [CallsMakeGenericMethod(nameof(Internal.LinqOperatorProvider._ToSequence), typeof(TypeArgumentCategory.Properties), TargetType = typeof(LinqOperatorProvider))]
-        [CallsMakeGenericMethod(nameof(AsyncLinqOperatorProvider._ToSequence), typeof(TypeArgumentCategory.Properties), TargetType = typeof(AsyncLinqOperatorProvider))]
         protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -268,7 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [CallsMakeGenericMethod(nameof(TaskToSequence), typeof(TypeArgumentCategory.Properties))]
         protected virtual void AsyncSingleResultToSequence([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -749,7 +741,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return ReplaceClauseReferences(groupJoinClause.JoinClause.InnerSequence, groupJoinClause.JoinClause);
         }
 
-        [CallsMakeGenericMethod(nameof(Internal.LinqOperatorProvider._Where), typeof(TypeArgumentCategory.Properties), TargetType = typeof(LinqOperatorProvider))]
         public override void VisitWhereClause(
             [NotNull] WhereClause whereClause, [NotNull] QueryModel queryModel, int index)
         {
@@ -788,10 +779,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(ordering.OrderingDirection));
         }
 
-        [CallsMakeGenericMethod(nameof(Internal.LinqOperatorProvider._Select), typeof(ValueBuffer), typeof(TypeArgumentCategory.Properties), TargetType = typeof(LinqOperatorProvider))]
-        [CallsMakeGenericMethod(nameof(AsyncLinqOperatorProvider._Select), typeof(ValueBuffer), typeof(TypeArgumentCategory.Properties), TargetType = typeof(AsyncLinqOperatorProvider))]
-        [CallsMakeGenericMethod(nameof(Internal.LinqOperatorProvider._Select), typeof(ValueBuffer), typeof(TypeArgumentCategory.NavigationProperties), TargetType = typeof(LinqOperatorProvider))]
-        [CallsMakeGenericMethod(nameof(AsyncLinqOperatorProvider._Select), typeof(ValueBuffer), typeof(TypeArgumentCategory.NavigationProperties), TargetType = typeof(AsyncLinqOperatorProvider))]
         public override void VisitSelectClause(
             [NotNull] SelectClause selectClause, [NotNull] QueryModel queryModel)
         {

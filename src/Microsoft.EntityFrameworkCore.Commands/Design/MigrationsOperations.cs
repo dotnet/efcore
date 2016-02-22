@@ -55,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 loggerProvider,
                 assembly,
                 startupAssembly,
-                projectDir,
                 environment);
 
             var startup = new StartupInvoker(startupAssembly, environment);

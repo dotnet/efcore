@@ -4,7 +4,6 @@
 using System;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -12,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class IdentityMapFactoryFactory : IdentityMapFactoryFactoryBase
     {
-        [CallsMakeGenericMethod(nameof(CreateFactory), typeof(TypeArgumentCategory.Keys))]
         public virtual Func<IIdentityMap> Create([NotNull] IKey key)
             => (Func<IIdentityMap>)typeof(IdentityMapFactoryFactory).GetTypeInfo()
             .GetDeclaredMethod(nameof(CreateFactory))
