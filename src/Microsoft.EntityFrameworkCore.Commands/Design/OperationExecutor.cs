@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,16 +13,25 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-    public class OperationExecutor : MarshalByRefObject
+    /// <summary>
+    ///     A version-resilient, AppDomain-and-reflection-friendly facade for command operations.
+    /// </summary>
+    public partial class OperationExecutor
     {
         private readonly LazyRef<DbContextOperations> _contextOperations;
         private readonly LazyRef<DatabaseOperations> _databaseOperations;
         private readonly LazyRef<MigrationsOperations> _migrationsOperations;
 
         public OperationExecutor([NotNull] object logHandler, [NotNull] IDictionary args)
+            : this(logHandler, args, new AssemblyLoader())
+        {
+        }
+
+        public OperationExecutor([NotNull] object logHandler, [NotNull] IDictionary args, [NotNull] AssemblyLoader assemblyLoader)
         {
             Check.NotNull(logHandler, nameof(logHandler));
             Check.NotNull(args, nameof(args));
+            Check.NotNull(assemblyLoader, nameof(assemblyLoader));
 
             var unwrappedLogHandler = ForwardingProxy.Unwrap<IOperationLogHandler>(logHandler);
             var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
@@ -35,8 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             var projectDir = (string)args["projectDir"];
             var startupProjectDir = (string)args["startupProjectDir"];
             var rootNamespace = (string)args["rootNamespace"];
-
-            var assemblyLoader = new AssemblyLoader();
 
             // NOTE: LazyRef is used so any exceptions get passed to the resultHandler
             var startupAssembly = new LazyRef<Assembly>(
@@ -122,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        private IEnumerable<string> AddMigrationImpl(
+        private IDictionary AddMigrationImpl(
             [NotNull] string name,
             [CanBeNull] string outputDir,
             [CanBeNull] string contextType)
@@ -134,10 +139,12 @@ namespace Microsoft.EntityFrameworkCore.Design
                 outputDir,
                 contextType);
 
-            // NOTE: First file will be opened in VS
-            yield return files.MigrationFile;
-            yield return files.MetadataFile;
-            yield return files.SnapshotFile;
+            return new Hashtable
+            {
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile
+            };
         }
 
         public class UpdateDatabase : OperationBase
@@ -201,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(args, nameof(args));
 
                 var contextType = (string)args["contextType"];
-                var force = args.Contains("force") && (bool)args["force"];
+                var force = (bool)args["force"];
 
                 Execute(() => executor.RemoveMigrationImpl(contextType, force));
             }
@@ -341,7 +348,28 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        public abstract class OperationBase : MarshalByRefObject
+        public class DropDatabase : OperationBase
+        {
+            public DropDatabase(
+                [NotNull] OperationExecutor executor,
+                [NotNull] object resultHandler,
+                [NotNull] IDictionary args)
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                var contextType = (string)args["contextType"];
+                var confirmCheck = (Func<string, string, bool>)args["confirmCheck"];
+
+                Execute(() => executor.DropDatabaseImpl(contextType, confirmCheck));
+            }
+        }
+
+        private void DropDatabaseImpl(string contextType, Func<string, string, bool> confirmCheck)
+            => _contextOperations.Value.DropDatabase(contextType, confirmCheck);
+
+        public abstract partial class OperationBase
         {
             private readonly IOperationResultHandler _resultHandler;
 
@@ -381,6 +409,14 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
     }
+
+#if NET451
+    partial class OperationExecutor : MarshalByRefObject
+    {
+        partial class OperationBase : MarshalByRefObject
+        {
+        }
+    }
+#endif
 }
 
-#endif

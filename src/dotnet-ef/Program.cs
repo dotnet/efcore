@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Commands
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     ex = ex.InnerException;
                 }
 
-                if (!(ex is OperationException))
+                if ((ex as OperationErrorException)?.Type != OperationErrorException.OperationException)
                 {
                     Reporter.Error.WriteLine(ex.ToString());
                 }

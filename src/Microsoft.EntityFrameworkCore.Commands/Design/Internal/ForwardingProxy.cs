@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451
-
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -11,8 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         public static T Unwrap<T>([NotNull] object target)
             where T : class
+#if NET451
             => target as T ?? new ForwardingProxy<T>(target).GetTransparentProxy();
+#else
+            => (T)target;
+#endif
     }
 }
 
-#endif

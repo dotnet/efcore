@@ -1,9 +1,5 @@
 {
   "compilationOptions": {
-    "define": [
-      "OMIT_HANDLER_INTERFACES",
-      "ENABLE_HANDLERS"
-    ],
     "keyFile": "../../tools/Key.snk",
     "preserveCompilationContext": true
   },
@@ -12,7 +8,6 @@
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*"
   },
-  "compileFiles": "../../src/Microsoft.EntityFrameworkCore.Commands/tools/OperationHandlers.cs",
   "testRunner": "xunit",
   "frameworks": {
     "netstandardapp1.5": {

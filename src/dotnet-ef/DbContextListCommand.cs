@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     startupProject.Value(),
                     environment.Value(),
                     json.HasValue()
-                        ? (Action<IEnumerable<Type>>)ReportJsonResults
+                        ? (Action<IEnumerable<IDictionary>>)ReportJsonResults
                         : ReportResults)
                 );
         }
@@ -39,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
         private static int Execute(
             string startupProject,
             string environment,
-            Action<IEnumerable<Type>> reportResultsAction)
+            Action<IEnumerable<IDictionary>> reportResultsAction)
         {
-            var contextTypes = new OperationExecutor(startupProject, environment)
+            var contextTypes = new ReflectionOperationExecutor(startupProject, environment)
                 .GetContextTypes();
 
             reportResultsAction(contextTypes);
@@ -49,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             return 0;
         }
 
-        private static void ReportJsonResults(IEnumerable<Type> contextTypes)
+        private static void ReportJsonResults(IEnumerable<IDictionary> contextTypes)
         {
             Reporter.Output.Write("[");
 
@@ -66,19 +67,19 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 }
 
                 Reporter.Output.WriteLine();
-                Reporter.Output.Write("  { \"fullName\": \"" + contextType.FullName + "\" }");
+                Reporter.Output.Write("  { \"fullName\": \"" + contextType["FullName"] + "\" }");
             }
 
             Reporter.Output.WriteLine();
             Reporter.Output.WriteLine("]");
         }
 
-        private static void ReportResults(IEnumerable<Type> contextTypes)
+        private static void ReportResults(IEnumerable<IDictionary> contextTypes)
         {
             var any = false;
             foreach (var contextType in contextTypes)
             {
-                Reporter.Output.WriteLine(contextType.FullName);
+                Reporter.Output.WriteLine(contextType["FullName"] as string);
                 any = true;
             }
 

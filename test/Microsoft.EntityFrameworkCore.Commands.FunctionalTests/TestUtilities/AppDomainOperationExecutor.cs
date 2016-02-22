@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Design;
 namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     // NOTE: If you break this file, you probably broke the PowerShell module too.
-    public class OperationExecutorWrapper : IDisposable
+    public class AppDomainOperationExecutor : IDisposable
     {
         private const string AssemblyName = "Microsoft.EntityFrameworkCore.Commands";
         private const string TypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
         private readonly AppDomain _domain;
         private readonly object _executor;
 
-        public OperationExecutorWrapper(
+        public AppDomainOperationExecutor(
             string targetDir,
             string targetName,
             string projectDir,
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
         public string GetContextType(string name)
             => InvokeOperation<string>("GetContextType", new Hashtable { { "name", name } });
 
-        public IEnumerable<string> AddMigration(string name, string outputDir, string contextType)
-            => InvokeOperation<IEnumerable<string>>(
+        public IDictionary AddMigration(string name, string outputDir, string contextType)
+            => InvokeOperation<IDictionary>(
                 "AddMigration",
                 new Hashtable { { "name", name }, { "outputDir", outputDir }, { "contextType", contextType } });
 
@@ -118,10 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 
             if (resultHandler.ErrorType != null)
             {
-                throw new WrappedOperationException(
-                    resultHandler.ErrorMessage,
+                throw new OperationErrorException(
+                    resultHandler.ErrorType,
                     resultHandler.ErrorStackTrace,
-                    resultHandler.ErrorType);
+                    resultHandler.ErrorMessage);
             }
             if (!isVoid
                 && !resultHandler.HasResult)

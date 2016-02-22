@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
         private static int Execute(string migration, string context, string startupProject, string environment)
         {
-            new OperationExecutor(startupProject, environment)
+            new ReflectionOperationExecutor(startupProject, environment)
                 .UpdateDatabase(migration, context);
 
             return 0;

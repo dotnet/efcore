@@ -23,6 +23,7 @@
         "portable-net452+win81"
       ],
       "dependencies": {
+        "System.Collections.NonGeneric": "4.0.1-*",
         "System.IO": "4.1.0-*",
         "System.IO.FileSystem": "4.0.1-*"
       }

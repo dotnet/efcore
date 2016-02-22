@@ -50,7 +50,7 @@ function Use-DbContext {
         if ($candidates.length -gt 1 -and $exactMatch -is "String") {
             $candidates = $exactMatch
         }
-        
+
         if ($candidates.length -lt 1) {
             throw "No DbContext named '$Context' was found"
         } elseif ($candidates.length -gt 1 -and !($candidates -is "String")) {
@@ -136,8 +136,10 @@ function Add-Migration {
             contextType = $contextTypeName
         }
 
-        $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
-        $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
+        $dteProject.ProjectItems.AddFromFile($artifacts.MigrationFile) | Out-Null
+        $dteProject.ProjectItems.AddFromFile($artifacts.MetadataFile) | Out-Null
+        $dteProject.ProjectItems.AddFromFile($artifacts.SnapshotFile) | Out-Null
+        $DTE.ItemOperations.OpenFile($artifacts.MigrationFile) | Out-Null
         ShowConsole
     }
 
@@ -498,7 +500,7 @@ function Scaffold-DbContext {
 
         $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
         $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
-        
+
         ShowConsole
     }
 }
@@ -535,7 +537,7 @@ function GetContextTypes($projectName, $startupProjectName, $environment) {
     $project = $values.Project
 
     if (IsDotNetProject $startupProject) {
-        $types = InvokeDotNetEf $startupProject -Json dbcontext list 
+        $types = InvokeDotNetEf $startupProject -Json dbcontext list
         return $types | %{ $_.fullName }
     } else {
         $contextTypes = InvokeOperation $startupProject $environment $project GetContextTypes -skipBuild
@@ -640,7 +642,7 @@ function InvokeDotNetEf($project, [switch] $Json) {
         $arguments += "--json"
     } else {
         # TODO better json output parsing so we don't need to suppress verbose output
-        $arguments = ,"--verbose" + $arguments 
+        $arguments = ,"--verbose" + $arguments
     }
     $command = "ef $($arguments -join ' ')"
     try {
@@ -707,7 +709,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     if (![Type]::GetType('Microsoft.EntityFrameworkCore.Design.OperationResultHandler')) {
         Add-Type -Path (Join-Path $PSScriptRoot OperationHandlers.cs) -CompilerParameters (
             New-Object CodeDom.Compiler.CompilerParameters -Property @{
-                CompilerOptions = '/d:ENABLE_HANDLERS;NET451'
+                CompilerOptions = '/d:NET451'
             })
     }
 
