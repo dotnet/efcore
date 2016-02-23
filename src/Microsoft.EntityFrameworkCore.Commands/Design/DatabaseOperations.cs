@@ -23,15 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly DesignTimeServicesBuilder _servicesBuilder;
 
         public DatabaseOperations(
+            [NotNull] AssemblyLoader assemblyLoader,
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace)
         {
+            Check.NotNull(assemblyLoader, nameof(assemblyLoader));
             Check.NotNull(loggerProvider, nameof(loggerProvider));
-            Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _rootNamespace = rootNamespace;
 
             var startup = new StartupInvoker(startupAssembly, environment);
-            _servicesBuilder = new DesignTimeServicesBuilder(startup);
+            _servicesBuilder = new DesignTimeServicesBuilder(assemblyLoader, startup);
         }
 
         public virtual Task<ReverseEngineerFiles> ReverseEngineerAsync(

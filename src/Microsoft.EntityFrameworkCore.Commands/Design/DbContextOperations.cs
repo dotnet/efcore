@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly Assembly _startupAssembly;
         private readonly LazyRef<ILogger> _logger;
         private readonly IServiceProvider _runtimeServices;
-        private readonly DesignTimeServicesBuilder _servicesBuilder;
 
         public DbContextOperations(
             [NotNull] ILoggerProvider loggerProvider,
@@ -44,11 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var startup = new StartupInvoker(startupAssembly, environment);
             _runtimeServices = startup.ConfigureServices();
-
-            _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
-        public virtual DbContext CreateContext([CanBeNull] string contextType) 
+        public virtual DbContext CreateContext([CanBeNull] string contextType)
             => CreateContext(FindContextType(contextType).Value);
 
         private DbContext CreateContext(Func<DbContext> factory)

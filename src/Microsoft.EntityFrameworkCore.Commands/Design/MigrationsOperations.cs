@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly DbContextOperations _contextOperations;
 
         public MigrationsOperations(
+            [NotNull] AssemblyLoader assemblyLoader,
             [NotNull] ILoggerProvider loggerProvider,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
@@ -37,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] string projectDir,
             [NotNull] string rootNamespace)
         {
+            Check.NotNull(assemblyLoader, nameof(assemblyLoader));
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
@@ -58,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 environment);
 
             var startup = new StartupInvoker(startupAssembly, environment);
-            _servicesBuilder = new DesignTimeServicesBuilder(startup);
+            _servicesBuilder = new DesignTimeServicesBuilder(assemblyLoader, startup);
         }
 
         public virtual MigrationFiles AddMigration(

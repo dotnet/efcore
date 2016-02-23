@@ -20,11 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public partial class DesignTimeServicesBuilder
     {
+        private readonly AssemblyLoader _assemblyLoader;
         private readonly StartupInvoker _startup;
 
         public DesignTimeServicesBuilder(
+            [NotNull] AssemblyLoader assemblyLoader,
             [NotNull] StartupInvoker startupInvoker)
         {
+            _assemblyLoader = assemblyLoader;
             _startup = startupInvoker;
         }
 
@@ -90,12 +93,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private void ConfigureUserServices(IServiceCollection services)
             => _startup.ConfigureDesignTimeServices(services);
 
-        private static Type GetProviderDesignTimeServices(string provider, bool throwOnError)
+        private Type GetProviderDesignTimeServices(string provider, bool throwOnError)
         {
             Assembly providerAssembly;
             try
             {
-                providerAssembly = Assembly.Load(new AssemblyName(provider));
+                providerAssembly = _assemblyLoader.Load(provider);
             }
             catch (Exception ex)
             {
@@ -121,12 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         provider));
             }
 
+            Assembly designTimeProviderAssembly;
             try
             {
-                return Type.GetType(
-                    providerServicesAttribute.FullyQualifiedTypeName,
-                    throwOnError: true,
-                    ignoreCase: false);
+                designTimeProviderAssembly = _assemblyLoader.Load(providerServicesAttribute.AssemblyName);
             }
             catch (Exception ex)
             when (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException)
@@ -139,6 +140,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 throw new OperationException(
                     CommandsStrings.CannotFindDesignTimeProviderAssembly(providerServicesAttribute.PackageName), ex);
             }
+
+            return designTimeProviderAssembly.GetType(
+                providerServicesAttribute.TypeName,
+                throwOnError: true,
+                ignoreCase: false);
         }
     }
 }

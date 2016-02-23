@@ -8,5 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
-    fullyQualifiedTypeName: "Microsoft.EntityFrameworkCore.Scaffolding.SqliteDesignTimeServices, Microsoft.EntityFrameworkCore.Sqlite.Design",
+    typeName: "Microsoft.EntityFrameworkCore.Scaffolding.SqliteDesignTimeServices",
+    assemblyName: "Microsoft.EntityFrameworkCore.Sqlite.Design, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
     packageName: "Microsoft.EntityFrameworkCore.Sqlite.Design")]

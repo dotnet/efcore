@@ -35,12 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Design
             var projectDir = (string)args["projectDir"];
             var rootNamespace = (string)args["rootNamespace"];
 
-            var startupAssembly = Assembly.Load(new AssemblyName(startupTargetName));
+            var assemblyLoader = new AssemblyLoader();
+            var startupAssembly = assemblyLoader.Load(startupTargetName);
 
             Assembly assembly;
             try
             {
-                assembly = Assembly.Load(new AssemblyName(targetName));
+                assembly = assemblyLoader.Load(targetName);
             }
             catch (Exception ex)
             {
@@ -55,14 +56,15 @@ namespace Microsoft.EntityFrameworkCore.Design
                     environment));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
+                    assemblyLoader,
                     loggerProvider,
-                    assembly,
                     startupAssembly,
                     environment,
                     projectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
+                    assemblyLoader,
                     loggerProvider,
                     assembly,
                     startupAssembly,
