@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly RelationalTypeMapping _uniqueidentifier = new RelationalTypeMapping("uniqueidentifier", typeof(Guid));
         private readonly RelationalTypeMapping _decimal = new RelationalTypeMapping("decimal(18, 2)", typeof(decimal));
         private readonly RelationalTypeMapping _time = new RelationalTypeMapping("time", typeof(TimeSpan));
+        private readonly RelationalTypeMapping _xml = new RelationalTypeMapping("xml", typeof(string));
 
         private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
@@ -82,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "tinyint", _tinyint },
                     { "uniqueidentifier", _uniqueidentifier },
                     { "varbinary", _varbinary },
-                    { "varchar", _varchar }
+                    { "varchar", _varchar },
+                    { "xml", _xml }
                 };
 
             _simpleMappings
