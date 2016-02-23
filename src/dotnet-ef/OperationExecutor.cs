@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
             [CanBeNull] string dbContextClassName,
-            [CanBeNull] List<string> schemas,
-            [CanBeNull] List<string> tables,
+            [NotNull] IEnumerable<string> schemas,
+            [NotNull] IEnumerable<string> tables,
             bool useDataAnnotations,
             bool overwriteFiles,
             CancellationToken cancellationToken = default(CancellationToken))

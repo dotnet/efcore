@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -50,14 +49,16 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
             [CanBeNull] string dbContextClassName,
-            [CanBeNull] List<string> schemas,
-            [CanBeNull] List<string> tables,
+            [NotNull] IEnumerable<string> schemas,
+            [NotNull] IEnumerable<string> tables,
             bool useDataAnnotations,
             bool overwriteFiles,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
+            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(tables, nameof(tables));
 
             var services = _servicesBuilder.Build(provider);
 

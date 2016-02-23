@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             command.Description = "List your DbContext types";
 
             var startupProject = command.Option(
-                "-s|--startupProject <project>",
+                "-s|--startup-project <project>",
                 "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",

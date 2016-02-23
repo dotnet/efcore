@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 "-c|--context <context>",
                 "The DbContext to use. If omitted, the default DbContext is used");
             var startupProject = command.Option(
-                "-s|--startupProject <project>",
+                "-s|--startup-project <project>",
                 "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design
         public void Allows_updates_IsMatched_for_matching_selections()
         {
             var tableNames = new List<string> { "table0", "table1", "table2" };
-            var tableSelectionSet = new TableSelectionSet(tableNames, null);
+            var tableSelectionSet = new TableSelectionSet(tableNames);
 
             Assert.Equal(3, tableSelectionSet.Tables.Count);
 

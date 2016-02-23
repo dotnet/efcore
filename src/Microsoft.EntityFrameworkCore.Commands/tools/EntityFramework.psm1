@@ -359,7 +359,7 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER Provider
     Specifies the provider to use. For example, Microsoft.EntityFrameworkCore.SqlServer.
 
-.PARAMETER OutputDirectory
+.PARAMETER OutputDir
     Specifies the directory to use to output the classes. If omitted, the top-level project directory is used.
 
 .PARAMETER Context
@@ -396,10 +396,10 @@ function Scaffold-DbContext {
         [string] $Connection,
         [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
-        [string] $OutputDirectory,
-        [string] $ContextClassName,
-        [string[]] $Schemas,
-        [string[]] $Tables,
+        [string] $OutputDir,
+        [string] $Context,
+        [string[]] $Schemas = @(),
+        [string[]] $Tables = @(),
         [switch] $DataAnnotations,
         [switch] $Force,
         [string] $Project,
@@ -413,8 +413,8 @@ function Scaffold-DbContext {
     $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject ReverseEngineer @{
         connectionString = $Connection
         provider = $Provider
-        outputDir = $OutputDirectory
-        dbContextClassName = $ContextClassName
+        outputDir = $OutputDir
+        dbContextClassName = $Context
         schemaFilters = $Schemas
         tableFilters = $Tables
         useDataAnnotations = [bool]$DataAnnotations

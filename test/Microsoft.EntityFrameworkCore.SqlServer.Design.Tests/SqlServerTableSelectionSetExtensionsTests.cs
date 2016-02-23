@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design
                 "schema0.table1", "[schema0].[table1]", "[schema0].table1", "schema0.[table1]",
                 "schema1.table0", "[schema1].[table0]", "[schema1].table0", "schema1.[table0]"
             };
-            var tableSelectionSet = new TableSelectionSet(tableNames, null);
+            var tableSelectionSet = new TableSelectionSet(tableNames);
 
             Assert.Equal(0, tableSelectionSet.Schemas.Count);
             Assert.Equal(12, tableSelectionSet.Tables.Count);

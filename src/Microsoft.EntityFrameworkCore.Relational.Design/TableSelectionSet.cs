@@ -13,19 +13,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public static readonly TableSelectionSet All = new TableSelectionSet();
 
         public TableSelectionSet()
-            : this(null, null)
+            : this(Enumerable.Empty<string>(), Enumerable.Empty<string>())
         {
         }
 
-        public TableSelectionSet([CanBeNull] IReadOnlyList<string> tables)
-            : this(tables, null)
+        public TableSelectionSet([NotNull] IEnumerable<string> tables)
+            : this(tables, Enumerable.Empty<string>())
         {
         }
 
-        public TableSelectionSet([CanBeNull] IReadOnlyList<string> tables, [CanBeNull] IReadOnlyList<string> schemas)
+        public TableSelectionSet([NotNull] IEnumerable<string> tables, [NotNull] IEnumerable<string> schemas)
         {
-            Schemas = schemas?.Select(schema => new Selection(schema)).ToList().AsReadOnly() ?? new List<Selection>().AsReadOnly();
-            Tables = tables?.Select(table => new Selection(table)).ToList().AsReadOnly() ?? new List<Selection>().AsReadOnly();
+            Check.NotNull(tables, nameof(tables));
+            Check.NotNull(schemas, nameof(schemas));
+
+            Schemas = schemas.Select(schema => new Selection(schema)).ToList();
+            Tables = tables.Select(table => new Selection(table)).ToList();
         }
 
         public virtual IReadOnlyList<Selection> Schemas { get; }

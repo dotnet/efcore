@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 "Selects a table for which to generate classes.",
                 CommandOptionType.MultipleValue);
             var startupProject = command.Option(
-                "-s|--startupProject <project>",
+                "-s|--startup-project <project>",
                 "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",
@@ -92,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string context,
             bool force,
             string outputDir,
-            List<string> schemas,
-            List<string> tables,
+            IEnumerable<string> schemas,
+            IEnumerable<string> tables,
             string startupProject,
             string environment)
         {
