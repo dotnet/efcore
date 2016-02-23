@@ -21,7 +21,7 @@ k-standard-goals
             DotnetPack(projectFile, BUILD_DIR, Configuration);
         }
     
-        foreach (var nupkg in Files.Include(Path.Combine(BUILD_DIR, "*.FunctionalTests/*.nupkg")))
+        foreach (var nupkg in Files.Include(Path.Combine(BUILD_DIR, "*.FunctionalTests/" + Configuration + "/*.nupkg")))
         {
             File.Copy(nupkg, Path.Combine(BUILD_DIR, Path.GetFileName(nupkg)), true);
         }
