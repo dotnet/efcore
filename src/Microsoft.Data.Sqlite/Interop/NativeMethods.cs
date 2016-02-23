@@ -3,6 +3,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+#if !NET451
+using Microsoft.Data.Sqlite.Utilities;
+#endif
 
 namespace Microsoft.Data.Sqlite.Interop
 {
@@ -21,7 +24,41 @@ namespace Microsoft.Data.Sqlite.Interop
             _dllName = dllName;
         }
 
-        private static ISqlite3 Sqlite3 => _sqlite3.Value;
+        private static ISqlite3 Sqlite3
+        {
+            get
+            {
+                if (!_sqlite3.IsValueCreated)
+                {
+                    OnLoad();
+                }
+                return _sqlite3.Value;
+            }
+        }
+
+        static partial void OnLoad();
+
+#if !NET451
+        private static volatile bool _isLoaded;
+
+        static partial void OnLoad()
+        {
+            if (_isLoaded)
+            {
+                // prevent re-entrant calls
+                return;
+            }
+            _isLoaded = true;
+            if (ApplicationDataHelper.TemporaryFolderPath != null)
+            {
+                using (var connection = new SqliteConnection("Data Source=:memory:"))
+                {
+                    connection.Open();
+                    connection.ExecuteNonQuery("PRAGMA temp_store_directory = '" + ApplicationDataHelper.TemporaryFolderPath + "';");
+                }
+            }
+        }
+#endif
 
         public static int sqlite3_bind_blob(Sqlite3StmtHandle pStmt, int i, byte[] zData, int nData, IntPtr xDel)
             => Sqlite3.bind_blob(pStmt, i, zData, nData, xDel);

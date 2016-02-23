@@ -9,7 +9,6 @@ using System.IO;
 using Microsoft.Data.Sqlite.Interop;
 
 #if !NET451
-using System.Reflection;
 using Microsoft.Data.Sqlite.Utilities;
 #endif
 
@@ -105,8 +104,6 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Strings.OpenRequiresSetConnectionString);
             }
 
-
-
             var filename = ConnectionStringBuilder.DataSource;
             var flags = 0;
 
@@ -170,56 +167,17 @@ namespace Microsoft.Data.Sqlite
             MarshalEx.ThrowExceptionForRC(rc, _db);
 
             SetState(ConnectionState.Open);
-
-            OnOpened();
         }
-
-        partial void OnOpened();
 
 #if !NET451
-        partial void OnOpened()
-        {
-            var appDataType = CurrentApplicationData?.GetType();
-            var temporaryFolder = appDataType?.GetRuntimeProperty("TemporaryFolder").GetValue(CurrentApplicationData);
-            var temporaryFolderPath = temporaryFolder?.GetType().GetRuntimeProperty("Path").GetValue(temporaryFolder) as string;
-            if (temporaryFolderPath != null)
-            {
-                DbConnectionExtensions.ExecuteNonQuery(this, "PRAGMA temp_store_directory = '" + temporaryFolderPath + "';");
-            }
-        }
-
-        private static object CurrentApplicationData
-        {
-            get
-            {
-                try
-                {
-                    return Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
-                        ?.GetRuntimeProperty("Current").GetValue(null);
-                }
-                catch (TargetInvocationException ex) when (ex.InnerException?.HResult == -2147009196)
-                {
-                    // Ignore "The process has no package identity."
-                    return null;
-                }
-            }
-        }
-
         private static string BaseDirectory
-        {
-            get
-            {
-                var appDataType = CurrentApplicationData?.GetType();
-                var localFolder = appDataType?.GetRuntimeProperty("LocalFolder").GetValue(CurrentApplicationData);
-                return Environment.GetEnvironmentVariable("ADONET_DATA_DIR")
-                    ?? (localFolder?.GetType().GetRuntimeProperty("Path").GetValue(localFolder) as string)
-                    ?? AppContext.BaseDirectory;
-            }
-        }
+            => Environment.GetEnvironmentVariable("ADONET_DATA_DIR")
+                ?? ApplicationDataHelper.LocalFolderPath
+                ?? AppContext.BaseDirectory;
 #else
         private static string BaseDirectory
-            => AppDomain.CurrentDomain.GetData("DataDirectory") as string ??
-            AppDomain.CurrentDomain.BaseDirectory;
+            => AppDomain.CurrentDomain.GetData("DataDirectory") as string
+                ?? AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
         public override void Close()
