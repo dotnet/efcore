@@ -84,6 +84,8 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.varcharColumn).HasColumnType("varchar(1)");
 
                 entity.Property(e => e.varcharMaxColumn).HasColumnType("varchar(max)");
+
+                entity.Property(e => e.xmlColumn).HasColumnType("xml");
             });
 
             modelBuilder.Entity<MultipleFKsDependent>(entity =>

@@ -46,6 +46,7 @@ namespace E2ETest.Namespace
         public byte[] varbinaryMaxColumn { get; set; }
         public byte[] timestampColumn { get; set; }
         public Guid? uniqueidentifierColumn { get; set; }
+        public string xmlColumn { get; set; }
         public string typeAliasColumn { get; set; }
         public byte[] binaryVaryingColumn { get; set; }
         public byte[] binaryVarying133Column { get; set; }
