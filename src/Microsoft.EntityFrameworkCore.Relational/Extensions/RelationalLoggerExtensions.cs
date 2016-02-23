@@ -38,14 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             command.CommandTimeout,
                             command.Parameters
                                 .Cast<DbParameter>()
-                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? FormatParameterValue(p.Value) : "?"),
+                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
                             elapsedMilliseconds);
                     },
                 state =>
                     RelationalStrings.RelationalLoggerExecutedCommand(
                         string.Format($"{elapsedMilliseconds:N0}"),
                         state.Parameters
-                            .Select(kv => $"{kv.Key}='{Convert.ToString(kv.Value, CultureInfo.InvariantCulture)}'")
+                            .Select(kv => $"{kv.Key}='{FormatParameterValue(kv.Value)}'")
                             .Join(),
                         state.CommandType,
                         state.CommandTimeout,
