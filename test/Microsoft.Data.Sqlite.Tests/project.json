@@ -10,17 +10,17 @@
   },
   "testRunner": "xunit",
   "frameworks": {
-    "net451": {
-      "frameworkAssemblies": {
-        "System.Runtime": "",
-        "System.Threading.Tasks": ""
-      }
-    },
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
         "dotnet-test-xunit": "1.0.0-*",
         "Microsoft.NETCore.Platforms": "1.0.1-*"
+      }
+    },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Runtime": "",
+        "System.Threading.Tasks": ""
       }
     }
   },
