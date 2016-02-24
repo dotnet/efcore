@@ -4,6 +4,8 @@
 *.suo
 *.user
 /.nuget/
+/.vscode/
+/.dotnet/
 /.vs/
 /artifacts/
 /packages/
