@@ -21,7 +21,7 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/runtimes/win7-x86/native/sqlite3.dl
             Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win7-x64/native/sqlite3.dll"),
             Tuple.Create("sqlite3.dll", "test/Microsoft.Data.Sqlite.Tests/sqlite3.dll"));
         DownloadAndExtract(
-            "https://www.sqlite.org/2016/sqlite-uap-3110000.vsix",
+            "https://www.sqlite.org/2016/sqlite-uwp-3110000.vsix",
             Tuple.Create(
                 "Redist/Retail/x86/sqlite3.dll",
                 "src/Microsoft.Data.Sqlite/build/netcore50/win10-x86/native/sqlite3.dll"),
