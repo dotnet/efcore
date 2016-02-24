@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "UnmappablePKColumn.expected"
         };
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [Fact]
+        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public void Sequences()
         {

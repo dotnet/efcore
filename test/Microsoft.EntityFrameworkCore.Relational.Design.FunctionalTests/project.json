@@ -13,6 +13,12 @@
     "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*"
   },
   "frameworks": {
+    "dnxcore50": {
+      "imports": "portable-net452+win81",
+      "dependencies": {
+        "Microsoft.NETCore.Platforms": "1.0.1-*"
+      }
+    },
     "net451": {
       "frameworkAssemblies": {
         "System.Collections.Concurrent": { "type": "build" },
@@ -49,16 +55,6 @@
         "System.Threading.Tasks.Parallel": "",
         "System.Xml.ReaderWriter": "",
         "System.Xml.XDocument": ""
-      },
-      "dependencies": {
-        "Microsoft.Dnx.Runtime": "1.0.0-*"
-      }
-    },
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
-      "dependencies": {
-        "Microsoft.Dnx.Runtime": "1.0.0-*",
-        "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     }
   }

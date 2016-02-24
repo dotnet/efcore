@@ -11,13 +11,13 @@
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {},
-    "dnx451": {},
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
-    }
+    },
+    "net451": { },
+    "dnx451": { }
   }
 }

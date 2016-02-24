@@ -1,17 +1,17 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-
-#if DNX451 || DNXCORE50
-using System;
-using System.IO;
 using Microsoft.Extensions.CompilationAbstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.EntityFrameworkCore.Internal;
+
+#if DNX451 || DNXCORE50
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
 
@@ -104,11 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compil
                     }
                 }
             }
-#endif
-#if NET451 || DNX451
-            _references.Add(MetadataReference.CreateFromFile(Assembly.Load(name).Location));
 #else
-            throw new InvalidOperationException("Unable to create metadata reference from name: " + name);
+            _references.Add(MetadataReference.CreateFromFile(Assembly.Load(name).Location));
 #endif
         }
     }
