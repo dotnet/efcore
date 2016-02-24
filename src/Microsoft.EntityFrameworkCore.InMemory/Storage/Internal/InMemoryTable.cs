@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -27,10 +28,43 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => _rows.Add(CreateKey(entry), CreateValueBuffer(entry));
 
         public virtual void Delete(IUpdateEntry entry)
-            => _rows.Remove(CreateKey(entry));
+        {
+            var key = CreateKey(entry);
+
+            if (_rows.ContainsKey(key))
+            {
+                _rows.Remove(key);
+            }
+            else
+            {
+                throw new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, new[] { entry });
+            }
+        }
 
         public virtual void Update(IUpdateEntry entry)
-            => _rows[CreateKey(entry)] = CreateValueBuffer(entry);
+        {
+            var key = CreateKey(entry);
+
+            if (_rows.ContainsKey(key))
+            {
+                var properties = entry.EntityType.GetProperties().ToList();
+                var valueBuffer = new object[properties.Count];
+
+                for(var index = 0; index < valueBuffer.Length; index++)
+                {
+                    valueBuffer[index] = entry.IsModified(properties[index])
+                        ? entry.GetCurrentValue(properties[index])
+                        : _rows[key][index];
+                }
+
+                _rows[key] = valueBuffer;
+            }
+            else
+            {
+                throw new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, new[] { entry });
+            }
+
+        }
 
         private TKey CreateKey(IUpdateEntry entry)
             => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);

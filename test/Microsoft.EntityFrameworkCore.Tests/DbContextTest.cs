@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -20,7 +20,6 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -2450,7 +2449,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
 
-                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+                var product = context.Add(new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
 
                 product.Name = "Cracked Cookies";
 
@@ -2482,7 +2490,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
                 Assert.False(context.ChangeTracker.AutoDetectChangesEnabled);
 
-                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+                var product = context.Add(new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
 
                 product.Name = "Cracked Cookies";
 
@@ -2498,7 +2515,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ButTheHedgehogContext(provider))
             {
-                Assert.Empty(context.Products);
+                Assert.Equal("Little Hedgehogs", context.Products.Single().Name);
             }
         }
 

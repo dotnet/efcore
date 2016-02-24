@@ -85,6 +85,8 @@
     <Compile Include="ShadowStateUpdateTest.cs" />
     <Compile Include="StoreGeneratedInMemoryTest.cs" />
     <Compile Include="TestInMemoryModelSource.cs" />
+    <Compile Include="UpdatesInMemoryFixture.cs" />
+    <Compile Include="UpdatesInMemoryTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

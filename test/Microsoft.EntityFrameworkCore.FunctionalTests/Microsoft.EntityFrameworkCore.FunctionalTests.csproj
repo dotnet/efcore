@@ -158,6 +158,10 @@
     <Compile Include="TestModels\NullSemanticsModel\NullSemanticsEntityBase.cs" />
     <Compile Include="TestModels\NullSemanticsModel\NullSemanticsModelInitializer.cs" />
     <Compile Include="TestModels\SnapshotMonsterContext.cs" />
+    <Compile Include="TestModels\UpdatesModel\Category.cs" />
+    <Compile Include="TestModels\UpdatesModel\Product.cs" />
+    <Compile Include="TestModels\UpdatesModel\UpdatesContext.cs" />
+    <Compile Include="TestModels\UpdatesModel\UpdatesModelInitializer.cs" />
     <Compile Include="TestStore.cs" />
     <Compile Include="TestUtilities\AnnotationComparer.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
@@ -181,6 +185,8 @@
     <Compile Include="TestUtilities\Xunit\SkipXunitTheoryTestCase.cs" />
     <Compile Include="TestUtilities\Xunit\UseCultureAttribute.cs" />
     <Compile Include="ThrowingMonsterStateManager.cs" />
+    <Compile Include="UpdatesFixtureBase.cs" />
+    <Compile Include="UpdatesTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

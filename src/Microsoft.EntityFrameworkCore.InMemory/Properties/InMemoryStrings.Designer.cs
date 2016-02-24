@@ -28,6 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("TransactionsNotSupported"); }
         }
 
+        /// <summary>
+        /// Attempted to update or delete an entity that does not exist in the store.
+        /// </summary>
+        public static string UpdateConcurrencyException
+        {
+            get { return GetString("UpdateConcurrencyException"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

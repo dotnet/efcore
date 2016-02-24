@@ -8,6 +8,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class InMemoryTestStore : TestStore
     {
+        private Action _deleteDatabase;
+
         public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase)
         {
             return new InMemoryTestStore().CreateShared(name, initializeDatabase);
@@ -18,6 +20,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             base.CreateShared(typeof(InMemoryTestStore).Name + name, initializeDatabase);
 
             return this;
+        }
+
+        public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action deleteDatabase)
+            => new InMemoryTestStore().CreateTransient(initializeDatabase, deleteDatabase);
+
+        private InMemoryTestStore CreateTransient(Action initializeDatabase, Action deleteDatabase)
+        {
+            initializeDatabase?.Invoke();
+
+            _deleteDatabase = deleteDatabase;
+            return this;
+        }
+
+        public override void Dispose()
+        {
+            _deleteDatabase?.Invoke();
+
+            base.Dispose();
         }
     }
 }

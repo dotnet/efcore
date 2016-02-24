@@ -63,6 +63,7 @@
     <Compile Include="TestSqlLoggerFactory.cs" />
     <Compile Include="TransactionFixtureBase.cs" />
     <Compile Include="TransactionTestBase.cs" />
+    <Compile Include="UpdatesRelationalTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

@@ -126,6 +126,8 @@
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
     <Compile Include="TransactionSqlServerFixture.cs" />
     <Compile Include="TransactionSqlServerTest.cs" />
+    <Compile Include="UpdatesSqlServerFixture.cs" />
+    <Compile Include="UpdatesSqlServerTest.cs" />
     <Compile Include="Utilities\DbContextOptionsBuilderExtensions.cs" />
     <Compile Include="Utilities\SqlFileLogger.cs" />
     <Compile Include="Utilities\SqlServerConditionAttribute.cs" />
