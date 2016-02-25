@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
             }
         }
 
-#if DNX451
+#if NET451
         private partial class ColdStartEnabledTests : MarshalByRefObject
         {
         }

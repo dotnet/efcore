@@ -31,24 +31,6 @@
         "System.Threading.Tasks": { "type": "build" }
       }
     },
-    "dnx451": {
-      "frameworkAssemblies": {
-        "System.Collections": "",
-        "System.Diagnostics.Debug": "",
-        "System.Globalization": "",
-        "System.Linq": "",
-        "System.ObjectModel": "",
-        "System.Reflection": "",
-        "System.Reflection.Extensions": "",
-        "System.Runtime": "",
-        "System.Runtime.Extensions": "",
-        "System.Text.RegularExpressions": "",
-        "System.Threading.Tasks": ""
-      },
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
-    },
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {

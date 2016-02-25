@@ -1,4 +1,5 @@
 {
+  "version": "1.0.0-*",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk"
   },
@@ -15,7 +16,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "dnx451": {},
+    "net451": {},
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {

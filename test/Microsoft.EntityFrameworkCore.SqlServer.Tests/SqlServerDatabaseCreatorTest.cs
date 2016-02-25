@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .GetTypeInfo()
                 .DeclaredConstructors;
 
-#if DNX451
+#if NET451
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                     .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
 #else

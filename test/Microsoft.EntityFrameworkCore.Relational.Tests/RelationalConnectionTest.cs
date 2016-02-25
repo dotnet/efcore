@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             connection.Open();
 
-#if DNX451
+#if NET451
             // On CoreCLR, DbConnection.Dispose() calls DbConnection.Close()
             connection.Close();
 #endif
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             connection.Open();
 
-#if DNX451
+#if NET451
             connection.Close();
 #endif
 
