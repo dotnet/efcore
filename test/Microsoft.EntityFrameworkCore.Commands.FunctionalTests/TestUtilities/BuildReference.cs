@@ -2,25 +2,30 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.Dnx.Compilation.CSharp;
 using Microsoft.Extensions.CompilationAbstractions;
+using Microsoft.Extensions.DependencyModel;
 
 namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     public class BuildReference
     {
-        public BuildReference(MetadataReference reference, bool copyLocal = false, string path = null)
+        private static readonly DependencyContext _dependencyContext =
+            DependencyContext.Load(typeof(BuildReference).GetTypeInfo().Assembly);
+
+        public BuildReference(IEnumerable<MetadataReference> references, bool copyLocal = false, string path = null)
         {
-            Reference = reference;
+            References = references;
             CopyLocal = copyLocal;
             Path = path;
         }
 
-        public MetadataReference Reference { get; }
+        public IEnumerable<MetadataReference> References { get; }
 
         public bool CopyLocal { get; }
 
@@ -44,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                                 $"In-memory assembly '{name}' cannot be copied locally.");
                         }
 
-                        return new BuildReference(roslynMetadataReference.MetadataReference);
+                        return new BuildReference(new[] { roslynMetadataReference.MetadataReference });
                     }
 
                     var metadataFileReference = metadataReference as IMetadataFileReference;
@@ -66,17 +71,32 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                         {
                             metadataProjectReference.EmitReferenceAssembly(stream);
 
-                            return new BuildReference(MetadataReference.CreateFromStream(stream));
+                            return new BuildReference(new[] { MetadataReference.CreateFromStream(stream) });
                         }
                     }
                 }
             }
 #if (NET451 || DNX451)
+            if (_dependencyContext != null)
+            {
+                var library = _dependencyContext
+                    .CompileLibraries
+                    .FirstOrDefault(l => l.PackageName.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+                if (library != null)
+                {
+                    return new BuildReference(
+                        library.ResolveReferencePaths().Select(file => MetadataReference.CreateFromFile(file)),
+                        copyLocal);
+
+                }
+            }
+#if DNX451
             var assembly = Assembly.Load(name);
             if (!string.IsNullOrEmpty(assembly.Location))
             {
                 return new BuildReference(
-                    MetadataReference.CreateFromFile(assembly.Location),
+                    new[] { MetadataReference.CreateFromFile(assembly.Location) },
                     copyLocal,
                     new Uri(assembly.CodeBase).LocalPath);
             }
@@ -89,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
         public static BuildReference ByPath(string path, bool copyLocal = false)
         {
             return new BuildReference(
-                MetadataReference.CreateFromFile(path),
+                new[] { MetadataReference.CreateFromFile(path) },
                 copyLocal,
                 path);
         }

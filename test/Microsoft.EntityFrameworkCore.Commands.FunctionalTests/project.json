@@ -4,12 +4,14 @@
       "OMIT_HANDLER_INTERFACES",
       "ENABLE_HANDLERS"
     ],
-    "keyFile": "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk",
+    "preserveCompilationContext": true
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*",
+    "Microsoft.Extensions.DependencyModel": "1.0.0-*"
   },
   "compile": "..\\..\\src\\Microsoft.EntityFrameworkCore.Commands\\Design\\OperationHandlers.cs",
   "testRunner": "xunit",
@@ -20,7 +22,8 @@
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*"
+        "Microsoft.NETCore.Platforms": "1.0.1-*",
+        "System.Threading.Tasks.Parallel": "4.0.1-*"
       }
     },
     "net451": { },
