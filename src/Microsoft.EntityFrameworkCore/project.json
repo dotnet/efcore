@@ -1,10 +1,6 @@
 {
   "version": "1.0.0-*",
   "description": "Entity Framework is Microsoft's recommended data access technology for new applications.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -19,9 +15,6 @@
     "Remotion.Linq": "2.0.2"
   },
   "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "Microsoft.EntityFrameworkCore.CoreStrings": "Properties/CoreStrings.resx"
-  },
   "resource": [
     "Properties/Microsoft.EntityFrameworkCore.rd.xml"
   ],

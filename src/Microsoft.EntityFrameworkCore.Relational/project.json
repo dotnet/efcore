@@ -1,10 +1,6 @@
 {
   "version": "1.0.0-*",
   "description": "Shared Entity Framework components for relational data stores.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -16,9 +12,6 @@
     "System.Diagnostics.DiagnosticSource": "4.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "Microsoft.EntityFrameworkCore.Relational.RelationalStrings": "Properties/RelationalStrings.resx"
-  },
   "resource": [
     "Properties/Microsoft.EntityFrameworkCore.Relational.rd.xml"
   ],

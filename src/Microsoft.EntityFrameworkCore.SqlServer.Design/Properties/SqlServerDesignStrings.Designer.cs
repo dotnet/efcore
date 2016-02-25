@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class SqlServerDesignStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Design.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Design.Properties.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// For column {columnId} unable to interpret default value {defaultValue}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.

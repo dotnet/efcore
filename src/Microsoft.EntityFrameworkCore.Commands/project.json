@@ -1,10 +1,6 @@
 {
   "version": "1.0.0-*",
   "description": "Command line utilities for Entity Framework.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -12,9 +8,6 @@
     "xmlDoc": true
   },
   "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "Microsoft.EntityFrameworkCore.Commands.CommandsStrings": "Properties/CommandsStrings.resx"
-  },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*"
   },

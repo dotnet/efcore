@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class SqliteDesignStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Design.SqliteDesignStrings", typeof(SqliteDesignStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Design.Properties.SqliteDesignStrings", typeof(SqliteDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// Scaffolding from a SQLite database will ignore any schema selection arguments. 

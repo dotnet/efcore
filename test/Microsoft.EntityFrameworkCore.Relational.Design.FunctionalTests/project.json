@@ -40,25 +40,6 @@
         "System.Xml.ReaderWriter": { "type": "build" },
         "System.Xml.XDocument": { "type": "build" }
       }
-    },
-    "dnx451": {
-      "frameworkAssemblies": {
-        "System.Collections.Concurrent": "",
-        "System.Diagnostics.Tools": "",
-        "System.Dynamic.Runtime": "",
-        "System.IO": "",
-        "System.Reflection.Primitives": "",
-        "System.Resources.ResourceManager": "",
-        "System.Runtime.InteropServices": "",
-        "System.Runtime.Numerics": "",
-        "System.Runtime.Serialization.Json": "",
-        "System.Text.Encoding": "",
-        "System.Text.Encoding.Extensions": "",
-        "System.Threading": "",
-        "System.Threading.Tasks.Parallel": "",
-        "System.Xml.ReaderWriter": "",
-        "System.Xml.XDocument": ""
-      }
     }
   }
 }

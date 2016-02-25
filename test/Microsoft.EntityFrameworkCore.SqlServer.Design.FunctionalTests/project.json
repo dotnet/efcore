@@ -10,9 +10,6 @@
   },
   "content": ["ReverseEngineering/**/*.expected", "ReverseEngineering/**/*.sql"],
   "testRunner": "xunit",
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
     "dnxcore50": {
       "imports": "portable-net452+win81",
@@ -20,7 +17,6 @@
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     },
-    "net451": { },
-    "dnx451": { }
+    "net451": { }
   }
 }

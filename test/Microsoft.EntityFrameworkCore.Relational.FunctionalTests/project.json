@@ -17,7 +17,6 @@
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     },
-    "net451": { },
-    "dnx451": { }
+    "net451": { }
   }
 }

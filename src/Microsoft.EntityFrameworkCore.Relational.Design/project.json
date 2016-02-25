@@ -1,10 +1,6 @@
 {
   "version": "1.0.0-*",
   "description": "Shared Design-time Entity Framework components for relational data stores.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -15,9 +11,6 @@
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "Microsoft.EntityFrameworkCore.Relational.Design.RelationalDesignStrings": "Properties/RelationalDesignStrings.resx"
-  },
   "frameworks": {
     "net451": { },
     "dotnet5.4": {

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class RelationalDesignStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Relational.Design.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Relational.Design.Properties.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.

@@ -7,9 +7,6 @@
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
   },
   "testRunner": "xunit",
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
     "dnxcore50": {
       "imports": "portable-net452+win81",
@@ -18,7 +15,6 @@
         "System.Threading.Tasks.Parallel": "4.0.1-*"
       }
     },
-    "net451": { },
-    "dnx451": { }
+    "net451": { }
   }
 }

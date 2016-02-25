@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AB8D4BD7-8AB6-4004-AF21-32790EED93BC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.InMemory.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.InMemory\Microsoft.EntityFrameworkCore.InMemory.csproj">
+      <Project>{6b102cc4-4396-4a7b-9f72-2c6b5c4d8310}</Project>
+      <Name>Microsoft.EntityFrameworkCore.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
+      <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
+      <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.InMemory.FunctionalTests\Microsoft.EntityFrameworkCore.InMemory.FunctionalTests.csproj">
+      <Project>{305b30d3-0e30-46e9-ba9d-060e0b79be98}</Project>
+      <Name>Microsoft.EntityFrameworkCore.InMemory.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Tests\Microsoft.EntityFrameworkCore.Tests.csproj">
+      <Project>{313f46fe-9962-4a15-805f-fcbdf5a6181e}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="InMemoryDatabaseCreatorTest.cs" />
+    <Compile Include="InMemoryDatabaseProviderTest.cs" />
+    <Compile Include="InMemoryDatabaseTest.cs" />
+    <Compile Include="InMemoryDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="InMemoryEntityFrameworkServicesBuilderExtensionsTest.cs" />
+    <Compile Include="InMemoryIntegerValueGeneratorFactoryTest.cs" />
+    <Compile Include="InMemoryIntegerValueGeneratorTest.cs" />
+    <Compile Include="InMemoryOptionsExtensionTest.cs" />
+    <Compile Include="InMemoryTransactionManagerTest.cs" />
+    <Compile Include="InMemoryValueGeneratorSelectorTest.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

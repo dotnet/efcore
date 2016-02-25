@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class CommandsStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Commands.CommandsStrings", typeof(CommandsStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Commands.Properties.CommandsStrings", typeof(CommandsStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// The name '{migrationName}' is used by an existing migration.
@@ -301,19 +301,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// To protect potentially sensitive information in your connection string, you should move it out of source code. See {fwLink} for guidance on storing connection strings.
-        /// </summary>
-        public static string SensitiveInformationWarning
-        {
-            get { return GetString("SensitiveInformationWarning"); }
-        }
-
-        /// <summary>
         /// Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list or by using the '--targetProject' option for DNX commands. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer().MigrationsAssembly("{assembly}")
         /// </summary>
         public static string MigrationsAssemblyMismatch([CanBeNull] object assembly, [CanBeNull] object migrationsAssembly)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsAssemblyMismatch", "assembly", "migrationsAssembly"), assembly, migrationsAssembly);
+        }
+
+        /// <summary>
+        /// To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+        /// </summary>
+        public static string SensitiveInformationWarning
+        {
+            get { return GetString("SensitiveInformationWarning"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

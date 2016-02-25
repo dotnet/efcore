@@ -9,6 +9,6 @@ using System.Resources;
 
 #if CSPROJ
 
-[assembly: AssemblyInformationalVersion("7.0.0-csproj")]
+[assembly: AssemblyInformationalVersion("1.0.0-csproj")]
 
 #endif

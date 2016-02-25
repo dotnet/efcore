@@ -1,10 +1,6 @@
 {
   "version": "1.0.0-*",
   "description": "SQLite data store for Entity Framework.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -16,14 +12,11 @@
     "Microsoft.Data.Sqlite": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "Microsoft.EntityFrameworkCore.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
-  },
   "resource": [
     "Properties/Microsoft.EntityFrameworkCore.Sqlite.rd.xml"
   ],
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "dotnet5.4": {
       "imports": "portable-net452+win81",
       "dependencies": {

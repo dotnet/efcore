@@ -5,16 +5,13 @@
   },
   "content": "config.json",
   "testRunner": "xunit",
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*",
+        "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     },
-    "dnx451": { }
+    "net451": { }
   }
 }

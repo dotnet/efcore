@@ -1,10 +1,6 @@
 {
   "version": "1.0.0-*",
   "description": "Design-time Entity Framework Functionality for Microsoft SQL Server data store.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -16,9 +12,6 @@
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "Microsoft.EntityFrameworkCore.SqlServer.Design.SqlServerDesignStrings": "Properties/SqlServerDesignStrings.resx"
-  },
   "frameworks": {
     "net451": {},
     "dotnet5.4": {

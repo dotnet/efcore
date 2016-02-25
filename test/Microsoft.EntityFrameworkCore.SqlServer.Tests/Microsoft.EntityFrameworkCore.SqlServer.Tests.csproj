@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7D1C4E40-0DE6-4C50-AB84-CA8647EA92DF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="CommandConfigurationTests.cs" />
+    <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilderTests.cs" />
+    <Compile Include="Metadata\Conventions\SqlServerValueGenerationStrategyConventionTest.cs" />
+    <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqlServerInternalMetadataBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
+    <Compile Include="Migrations\SqlServerHistoryRepositoryTest.cs" />
+    <Compile Include="Migrations\SqlServerMigrationSqlGeneratorTest.cs" />
+    <Compile Include="Migrations\SqlServerModelDifferTest.cs" />
+    <Compile Include="SqlServerConnectionTest.cs" />
+    <Compile Include="SqlServerDatabaseCreatorTest.cs" />
+    <Compile Include="SqlServerDatabaseSourceTest.cs" />
+    <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SqlServerEntityFrameworkServicesBuilderExtensionsTest.cs" />
+    <Compile Include="SqlServerModelValidatorTest.cs" />
+    <Compile Include="SqlServerOptionsExtensionTest.cs" />
+    <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
+    <Compile Include="SqlServerTestHelpers.cs" />
+    <Compile Include="SqlServerTypeMapperTest.cs" />
+    <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
+    <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
+    <Compile Include="Storage\SqlServerSqlGeneratorTest.cs" />
+    <Compile Include="Storage\SqlServerTypeMappingTest.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatchTest.cs" />
+    <Compile Include="Update\SqlServerUpdateSqlGeneratorTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+      <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.SqlServer\Microsoft.EntityFrameworkCore.SqlServer.csproj">
+      <Project>{99595b81-d47c-40ba-8c61-5328a5a0e4ab}</Project>
+      <Name>Microsoft.EntityFrameworkCore.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
+      <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
+      <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.FunctionalTests.csproj">
+      <Project>{47c167c3-abb0-442d-b528-7666e1fbf19a}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Tests\Microsoft.EntityFrameworkCore.Relational.Tests.csproj">
+      <Project>{1a884122-dc9e-42b1-8821-e43340f954d1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.csproj">
+      <Project>{87ab43b7-767b-467b-9aa9-47badf850d6a}</Project>
+      <Name>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Tests\Microsoft.EntityFrameworkCore.Tests.csproj">
+      <Project>{313f46fe-9962-4a15-805f-fcbdf5a6181e}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
