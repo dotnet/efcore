@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Revers
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
         }
 
-        protected abstract E2ECompiler GetCompiler();
+        protected abstract ICollection<BuildReference> References { get; }
         protected abstract string ProviderName { get; }
 
         protected abstract void ConfigureDesignTimeServices(IServiceCollection services);
@@ -110,19 +111,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Revers
         {
             var fileContents = fileSet.Files.Select(fileSet.Contents).ToList();
 
-            var compilationResult = GetCompiler().Compile(fileContents);
-
-            if (compilationResult.Messages.Any())
+            var source = new BuildSource
             {
-                _output.WriteLine("Compilation Errors from compiling generated code");
-                _output.WriteLine("================================================");
-                foreach (var message in compilationResult.Messages)
-                {
-                    _output.WriteLine(message);
-                }
-                _output.WriteLine("================================================");
-                Assert.True(false, "Failed to compile: see Compilation Errors in Output.");
+                Sources = fileContents
+            };
+            foreach (var r in References)
+            {
+                source.References.Add(r);
             }
+            source.BuildInMemory();
         }
 
         private class TestLoggerProvider : ILoggerProvider

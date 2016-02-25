@@ -1,6 +1,7 @@
 {
   "compilationOptions": {
-    "keyFile": "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk",
+    "preserveCompilationContext": true
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*",

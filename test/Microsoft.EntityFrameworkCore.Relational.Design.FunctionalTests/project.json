@@ -18,7 +18,8 @@
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*"
+        "Microsoft.NETCore.Platforms": "1.0.1-*",
+        "System.Threading.Tasks.Parallel": "4.0.1-*"
       }
     },
     "net451": {
@@ -57,9 +58,6 @@
         "System.Threading.Tasks.Parallel": "",
         "System.Xml.ReaderWriter": "",
         "System.Xml.XDocument": ""
-      },
-      "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*"
       }
     }
   }

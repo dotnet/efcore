@@ -9,11 +9,11 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities
 {
     public class BuildSource
     {
-        public ICollection<BuildReference> References  { get; }  = new List<BuildReference>
+        public ICollection<BuildReference> References { get; } = new List<BuildReference>
             {
 #if (NET451 || DNX451)
                 BuildReference.ByName("mscorlib")
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
             };
 
         public string TargetDir { get; set; }
-        public ICollection<string> Sources { get; } = new List<string>();
+        public ICollection<string> Sources { get; set; } = new List<string>();
 
         public BuildFileResult Build()
         {
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            var targetPath = Path.Combine(TargetDir, projectName + ".dll");
+            var targetPath = Path.Combine(TargetDir ?? Path.GetTempPath(), projectName + ".dll");
 
             using (var stream = File.OpenWrite(targetPath))
             {

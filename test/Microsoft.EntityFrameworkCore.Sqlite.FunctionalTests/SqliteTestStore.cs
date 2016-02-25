@@ -16,6 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
             new SqliteTestStore(name).CreateShared(initializeDatabase);
+            
+#if DNXCORE50
+        private static string BaseDirectory => AppContext.BaseDirectory;
+#else 
+        private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
+#endif
 
         public static SqliteTestStore CreateScratch(bool sharedCache = false)
         {
@@ -24,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             {
                 name = "scratch-" + Interlocked.Increment(ref _scratchCount);
             }
-            while (File.Exists(name + ".db"));
+            while (File.Exists(name + ".db") || File.Exists(Path.Combine(BaseDirectory, name + ".db")));
 
             return new SqliteTestStore(name).CreateTransient(sharedCache);
         }

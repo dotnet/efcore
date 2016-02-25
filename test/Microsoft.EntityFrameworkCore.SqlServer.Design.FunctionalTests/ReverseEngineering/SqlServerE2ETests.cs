@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
@@ -57,36 +58,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         {
         }
 
-        protected override E2ECompiler GetCompiler() => new E2ECompiler
-        {
-            NamedReferences =
-            {
-                "Microsoft.EntityFrameworkCore",
-                "Microsoft.EntityFrameworkCore.Relational",
-                // ReSharper disable once RedundantCommaInInitializer
-                "Microsoft.EntityFrameworkCore.SqlServer",
-#if DNXCORE50
-                        "System.Data.Common",
-                        "System.Linq.Expressions",
-                        "System.Reflection",
-                        "System.ComponentModel.Annotations",
-#else
-            },
-            References =
-            {
-                MetadataReference.CreateFromFile(
-                    Assembly.Load(new AssemblyName(
-                        "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
-                MetadataReference.CreateFromFile(
-                    Assembly.Load(new AssemblyName(
-                        "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location)
-#endif
-            }
-        };
-
-        // weird extenstion method call because the compiler can't disambiguate without adding a project reference
-        // ApplyConfiguration swaps out the Server if this tests are configured to run against something different that localdb.
-        // ReSharper disable once InvokeAsExtensionMethod
         private readonly string _connectionString =
             new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
@@ -112,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "UnmappablePKColumn.expected"
         };
 
-        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
+        [Fact]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
@@ -161,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [Fact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
+        [Fact]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
@@ -209,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [ConditionalFact(Skip = "Fix MetadataReferencesProvider.AddReferenceFromName for dnxcore50")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public void Sequences()
         {
@@ -279,5 +250,25 @@ CREATE SEQUENCE NumericSequence
                 AssertCompile(actualFileSet);
             }
         }
+
+        protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
+        {
+#if DNXCORE50
+            BuildReference.ByName("System.Collections"),
+            BuildReference.ByName("System.Data.Common"),
+            BuildReference.ByName("System.Linq.Expressions"),
+            BuildReference.ByName("System.Reflection"),
+            BuildReference.ByName("System.ComponentModel.Annotations"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", depContextAssembly: typeof(SqlServerE2ETests).GetTypeInfo().Assembly),
+#else
+            BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
+#endif
+            BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+        };
     }
 }

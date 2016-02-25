@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Commands.Migrations
@@ -97,13 +98,13 @@ namespace MyNamespace
             {
                 References =
                 {
-                    BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
 #if DNXCORE50
                     BuildReference.ByName("System.Text.RegularExpressions"),
 #else
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands.FunctionalTests", depContextAssembly: GetType().GetTypeInfo().Assembly),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
@@ -167,13 +168,14 @@ namespace MyNamespace
             {
                 References =
                 {
-                    BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
 #if DNXCORE50
+                    BuildReference.ByName("System.Runtime"),
                     BuildReference.ByName("System.Text.RegularExpressions"),
 #else
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands.FunctionalTests", depContextAssembly: GetType().GetTypeInfo().Assembly),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },

@@ -3,7 +3,7 @@
 
 using System.IO;
 
-namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities
 {
     public class BuildFileResult
     {

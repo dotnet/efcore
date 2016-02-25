@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Tests;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Commands.Migrations

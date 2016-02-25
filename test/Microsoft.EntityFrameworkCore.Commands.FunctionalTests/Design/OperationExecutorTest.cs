@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
