@@ -10,12 +10,13 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "dnx451": {},
     "dnxcore50": {
       "imports": "portable-net452+win81",
       "dependencies": {
+        "dotnet-test-xunit": "1.0.0-dev-*",
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
-    }
+    },
+    "dnx451": {}
   }
 }

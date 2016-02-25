@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                     File.Copy(reference.Path, Path.Combine(TargetDir, Path.GetFileName(reference.Path)));
                 }
 
-                references.Add(reference.Reference);
+                references.AddRange(reference.References);
             }
 
             var compilation = CSharpCompilation.Create(
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                     throw new InvalidOperationException("Assemblies cannot be copied locally for in-memory builds.");
                 }
 
-                references.Add(reference.Reference);
+                references.AddRange(reference.References);
             }
 
             var compilation = CSharpCompilation.Create(
