@@ -4,21 +4,30 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.CompilationAbstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.EntityFrameworkCore.Internal;
 
-#if DNX451 || DNXCORE50
+#if DNX451
+using Microsoft.Extensions.CompilationAbstractions;
 using Microsoft.Dnx.Compilation.CSharp;
+#elif DNXCORE50
+using Microsoft.Extensions.DependencyModel;
 #endif
 
 namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compilation
 {
     public class MetadataReferencesProvider
     {
+
+#if DNXCORE50
+        private static readonly DependencyContext _dependencyContext =
+            DependencyContext.Load(typeof(MetadataReferencesProvider).GetTypeInfo().Assembly);
+#endif
+
         private bool _isInitialized;
         private readonly List<MetadataReference> _references = new List<MetadataReference>();
 
@@ -67,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compil
                 InitializeReferences();
             }
 
-#if DNX451 || DNXCORE50
+#if DNX451
             if (CompilationServices.Default != null)
             {
                 var libraryExport = CompilationServices.Default.LibraryExporter.GetExport(name);
@@ -102,6 +111,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compil
                             }
                         }
                     }
+                }
+            }
+#elif DNXCORE50
+            if (_dependencyContext != null)
+            {
+                var library = _dependencyContext
+                    .CompileLibraries
+                    .FirstOrDefault(l => l.PackageName.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+                if (library != null)
+                {
+                    _references.AddRange(library.ResolveReferencePaths().Select(file => MetadataReference.CreateFromFile(file)));
                 }
             }
 #else

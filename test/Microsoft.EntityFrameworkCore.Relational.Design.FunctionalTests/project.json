@@ -4,13 +4,15 @@
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk",
     "nowarn": [ "CS1591" ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "preserveCompilationContext": true
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "1.0.0-*",
-    "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*"
+    "Microsoft.Extensions.DependencyModel": "1.0.0-*",
+    "Microsoft.CodeAnalysis.CSharp": "1.1.0-rc1-*"
   },
   "frameworks": {
     "dnxcore50": {
@@ -55,6 +57,9 @@
         "System.Threading.Tasks.Parallel": "",
         "System.Xml.ReaderWriter": "",
         "System.Xml.XDocument": ""
+      },
+      "dependencies": {
+        "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*"
       }
     }
   }

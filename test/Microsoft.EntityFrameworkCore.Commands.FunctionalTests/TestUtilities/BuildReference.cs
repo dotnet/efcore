@@ -7,16 +7,21 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+#if DNX451
 using Microsoft.Dnx.Compilation.CSharp;
 using Microsoft.Extensions.CompilationAbstractions;
+#elif DNXCORE50
 using Microsoft.Extensions.DependencyModel;
+#endif
 
 namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     public class BuildReference
     {
+#if DNXCORE50
         private static readonly DependencyContext _dependencyContext =
             DependencyContext.Load(typeof(BuildReference).GetTypeInfo().Assembly);
+#endif
 
         public BuildReference(IEnumerable<MetadataReference> references, bool copyLocal = false, string path = null)
         {
@@ -33,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 
         public static BuildReference ByName(string name, bool copyLocal = false)
         {
+#if DNX451
             if (CompilationServices.Default != null)
             {
                 var library = CompilationServices.Default.LibraryExporter.GetExport(name);
@@ -76,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                     }
                 }
             }
-#if (NET451 || DNX451)
+
+#elif DNXCORE50
             if (_dependencyContext != null)
             {
                 var library = _dependencyContext
@@ -91,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 
                 }
             }
-#if DNX451
+#else
             var assembly = Assembly.Load(name);
             if (!string.IsNullOrEmpty(assembly.Location))
             {

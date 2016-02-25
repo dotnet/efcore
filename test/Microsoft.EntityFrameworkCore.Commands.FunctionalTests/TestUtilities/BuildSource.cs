@@ -13,16 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
     public class BuildSource
     {
-        public ICollection<BuildReference> References
-        { get; }
-        = new List<BuildReference>
+        public ICollection<BuildReference> References  { get; }  = new List<BuildReference>
             {
 #if (NET451 || DNX451)
-            BuildReference.ByName("mscorlib")
+                BuildReference.ByName("mscorlib")
 #else
-            BuildReference.ByName("System.Runtime")
+                BuildReference.ByName("System.Runtime")
 #endif
-        };
+            };
 
         public string TargetDir { get; set; }
         public ICollection<string> Sources { get; } = new List<string>();
@@ -36,6 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
             {
                 if (reference.CopyLocal)
                 {
+                    if (string.IsNullOrEmpty(reference.Path))
+                    {
+                        throw new InvalidOperationException("Could not find path for reference " + reference.ToString());
+                    }
                     File.Copy(reference.Path, Path.Combine(TargetDir, Path.GetFileName(reference.Path)));
                 }
 

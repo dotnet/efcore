@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 
         #region Model
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Model_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Entities_are_stored_in_model_snapshot()
         {
             Test(
@@ -155,7 +155,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region EntityType
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void EntityType_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -180,7 +180,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void BaseType_is_stored_in_snapshot()
         {
             Test(
@@ -230,7 +230,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Properties_are_stored_in_snapshot()
         {
             Test(
@@ -259,7 +259,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Primary_key_is_stored_in_snapshot()
         {
             Test(
@@ -287,7 +287,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Alternate_keys_are_stored_in_snapshot()
         {
             Test(
@@ -317,7 +317,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Indexes_are_stored_in_snapshot()
         {
             Test(
@@ -344,7 +344,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Indexes_are_stored_in_snapshot_including_composite_index()
         {
             Test(
@@ -374,7 +374,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Foreign_keys_are_stored_in_snapshot()
         {
             Test(
@@ -419,7 +419,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Relationship_principal_key_is_stored_in_snapshot()
         {
             Test(
@@ -469,7 +469,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void TableName_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -502,7 +502,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void PrimaryKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -538,7 +538,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void AlternateKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -582,7 +582,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region Property
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Property_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -603,7 +603,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 );
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Property_isNullable_is_stored_in_snapshot()
         {
             Test(
@@ -625,7 +625,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Property_ValueGenerated_value_is_stored_in_snapshot()
         {
             Test(
@@ -647,7 +647,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Property_maxLength_is_stored_in_snapshot()
         {
             Test(
@@ -669,7 +669,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Property_RequiresValueGenerator_is_not_stored_in_snapshot()
         {
             Test(
@@ -690,7 +690,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("AlternateId").RequiresValueGenerator); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Property_concurrencyToken_is_stored_in_snapshot()
         {
             Test(
@@ -712,7 +712,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
         {
             Test(
@@ -739,7 +739,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region HasIndex
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Index_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -763,7 +763,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Index_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -791,7 +791,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region ForeignKey
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void ForeignKey_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -840,7 +840,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void ForeignKey_isRequired_is_stored_in_snapshot()
         {
             Test(
@@ -888,7 +888,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void ForeignKey_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -933,7 +933,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void ForeignKey_deleteBehavior_is_stored_in_snapshot()
         {
             Test(
@@ -979,7 +979,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
         {
             Test(
@@ -1025,7 +1025,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void ForeignKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -1099,7 +1099,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
         {
             Test(

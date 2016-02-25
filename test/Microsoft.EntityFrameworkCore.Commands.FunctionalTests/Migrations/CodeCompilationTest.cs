@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
     public class CodeCompilationTest
     {
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Migrations_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -127,7 +127,7 @@ namespace MyNamespace
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
-        [Fact(Skip = "Fix BuildReference.ByName for dnxcore50")]
+        [Fact]
         public void Snapshots_compile()
         {
             var codeHelper = new CSharpHelper();
