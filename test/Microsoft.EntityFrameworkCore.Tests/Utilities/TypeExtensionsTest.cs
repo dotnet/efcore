@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
 using Moq;
 #endif
 
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
         {
             var definedTypeInfos = definedTypes.Select(t => t.GetTypeInfo()).ToArray();
 
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             var assembly = new Mock<Assembly>();
             assembly.SetupGet(a => a.DefinedTypes).Returns(definedTypeInfos);
 

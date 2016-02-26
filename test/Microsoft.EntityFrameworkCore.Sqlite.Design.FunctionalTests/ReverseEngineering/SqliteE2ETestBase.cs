@@ -401,7 +401,7 @@ CREATE TABLE Comment (
                 "Microsoft.EntityFrameworkCore.Sqlite",
                 // ReSharper disable once RedundantCommaInInitializer
                 "Microsoft.Data.Sqlite",
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",

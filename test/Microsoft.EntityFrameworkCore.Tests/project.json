@@ -15,8 +15,11 @@
         "Moq": "4.2.1312.1622"
       }
     },
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*",
         "moq.netcore": "4.4.0-*"

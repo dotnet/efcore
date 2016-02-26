@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
 using System.Threading;
 #endif
 

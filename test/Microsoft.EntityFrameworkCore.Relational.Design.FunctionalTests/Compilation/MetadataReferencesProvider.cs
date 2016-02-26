@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-#if DNX451 || DNXCORE50
+#if DNX451 || NETSTANDARDAPP1_5
 using System;
 using System.IO;
 using Microsoft.Extensions.CompilationAbstractions;
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compil
         {
             _isInitialized = true;
 
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             AddReferenceFromName("System.Collections");
             AddReferenceFromName("System.Dynamic.Runtime");
             AddReferenceFromName("System.Linq");
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Compil
                 InitializeReferences();
             }
 
-#if DNX451 || DNXCORE50
+#if DNX451 || NETSTANDARDAPP1_5
             if (CompilationServices.Default != null)
             {
                 var libraryExport = CompilationServices.Default.LibraryExporter.GetExport(name);
