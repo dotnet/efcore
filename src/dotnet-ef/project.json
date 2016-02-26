@@ -5,7 +5,9 @@
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "emitEntryPoint": true,
-    "nowarn": [ "CS1591" ],
+    "nowarn": [
+      "CS1591"
+    ],
     "xmlDoc": true
   },
   "compile": "..\\Shared\\*.cs",
@@ -16,8 +18,11 @@
     "Microsoft.Extensions.CommandLineUtils": "1.0.0-*"
   },
   "frameworks": {
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*",
         "System.Security.Cryptography.Algorithms": "4.0.0-*"

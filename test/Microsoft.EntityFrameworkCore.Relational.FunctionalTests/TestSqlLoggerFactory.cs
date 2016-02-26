@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
-#if !DNXCORE50
+#if !NETSTANDARDAPP1_5
 using System.Runtime.Remoting.Messaging;
 
 #endif
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         // ReSharper disable once ClassNeverInstantiated.Local
         private class SqlLogger : ILogger
         {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             private readonly static AsyncLocal<SqlLoggerData> _loggerData = new AsyncLocal<SqlLoggerData>();
 #else
             private const string ContextName = "__SQL";
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 get
                 {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                     var loggerData = _loggerData.Value;
 #else
                     var loggerData = (SqlLoggerData)CallContext.LogicalGetData(ContextName);
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             private static SqlLoggerData CreateLoggerData()
             {
                 var loggerData = new SqlLoggerData();
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                 _loggerData.Value = loggerData;
 #else
                 CallContext.LogicalSetData(ContextName, loggerData);
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             // ReSharper disable once MemberCanBeMadeStatic.Local
             public void ResetLoggerData()
                 =>
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                     _loggerData.Value = null;
 #else
                     CallContext.LogicalSetData(ContextName, null);

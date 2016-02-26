@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 
         public override void Before(MethodInfo methodUnderTest)
         {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             _originalCulture = CultureInfo.CurrentCulture;
             _originalUICulture = CultureInfo.CurrentUICulture;
             CultureInfo.CurrentCulture = Culture;
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 
         public override void After(MethodInfo methodUnderTest)
         {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             CultureInfo.CurrentCulture = _originalCulture;
             CultureInfo.CurrentUICulture = _originalUICulture;
 #else

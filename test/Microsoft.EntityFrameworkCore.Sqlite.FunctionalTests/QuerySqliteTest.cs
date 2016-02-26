@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
 using System.Threading;
 #endif
 

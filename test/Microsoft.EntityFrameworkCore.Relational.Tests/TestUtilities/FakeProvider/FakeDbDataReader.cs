@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             {
                 DisposeCount++;
 
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                 CloseCount++;
 #endif
                 base.Dispose(true);
