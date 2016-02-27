@@ -46,6 +46,18 @@ namespace Microsoft.EntityFrameworkCore.Design
             _runtimeServices = startup.ConfigureServices();
         }
 
+        public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, bool> confirmCheck)
+        {
+            using (var context = CreateContext(contextName))
+            {
+                if (confirmCheck(
+                    $"Are you sure you want to drop the database '{context.Database.GetDbConnection().Database}' on server '{context.Database.GetDbConnection().DataSource}'? (y/N)"))
+                {
+                    context.Database.EnsureDeleted();
+                }
+            }
+        }
+
         public virtual DbContext CreateContext([CanBeNull] string contextType)
             => CreateContext(FindContextType(contextType).Value);
 
@@ -200,5 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                          || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
                 .ToDictionary(t => t.Key, t => t.Value);
         }
+
     }
 }
