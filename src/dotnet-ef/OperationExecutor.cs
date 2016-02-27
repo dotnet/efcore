@@ -12,9 +12,11 @@ using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.DotNet.ProjectModel.Loader;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.Extensions.PlatformAbstractions;
@@ -118,6 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     startupProjectDir,
                     rootNamespace));
         }
+
+        public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, bool> confirmCheck) 
+            => _contextOperations.Value.DropDatabase(contextName, confirmCheck);
 
         public virtual MigrationFiles AddMigration(
             [NotNull] string name,
