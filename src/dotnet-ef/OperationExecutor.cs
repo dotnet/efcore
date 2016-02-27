@@ -109,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
         {
             using (var context = _contextOperations.Value.CreateContext(contextName))
             {
-                DatabaseFacade database = new DatabaseFacade(context);
-                database.EnsureDeleted();
+                context.Database.EnsureDeleted();
             }
         }
 
