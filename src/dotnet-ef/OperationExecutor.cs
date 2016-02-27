@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     rootNamespace));
         }
 
-        public virtual void DropDatabase(string contextName)
+        public virtual void DropDatabase([CanBeNull] string contextName)
         {
             using (var context = _contextOperations.Value.CreateContext(contextName))
             {
