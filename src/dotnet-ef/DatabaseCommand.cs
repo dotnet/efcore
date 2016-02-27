@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             command.VerboseOption();
 
             command.Command("update", DatabaseUpdateCommand.Configure);
+            command.Command("delete", DatabaseDeleteCommand.Configure);
 
             command.OnExecute(() => command.ShowHelp());
         }
