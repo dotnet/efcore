@@ -15,6 +15,7 @@ using Microsoft.DotNet.ProjectModel.Loader;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using NuGet.Frameworks;
@@ -102,6 +103,15 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     environment,
                     projectDir,
                     rootNamespace));
+        }
+
+        public virtual void DropDatabase(string contextName)
+        {
+            using (var context = _contextOperations.Value.CreateContext(contextName))
+            {
+                DatabaseFacade database = new DatabaseFacade(context);
+                database.EnsureDeleted();
+            }
         }
 
         public virtual MigrationFiles AddMigration(
