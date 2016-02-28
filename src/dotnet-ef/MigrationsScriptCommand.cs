@@ -62,6 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var sql = new OperationExecutor(startupProject, environment)
                 .ScriptMigration(from, to, idempotent, context);
 
+            if (string.IsNullOrWhiteSpace(sql))
+            {
+                Reporter.Error.WriteLine("There is no migration");
+
+                return 0;
+            }
+
             if (string.IsNullOrEmpty(output))
             {
                 Reporter.Output.WriteLine(sql);
