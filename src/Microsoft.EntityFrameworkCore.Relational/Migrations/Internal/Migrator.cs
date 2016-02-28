@@ -198,6 +198,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var migrations = _migrationsAssembly.Migrations;
 
+            if (!migrations.Any())
+            {
+                return string.Empty;
+            }
+
             if (string.IsNullOrEmpty(fromMigration))
             {
                 fromMigration = Migration.InitialDatabase;
