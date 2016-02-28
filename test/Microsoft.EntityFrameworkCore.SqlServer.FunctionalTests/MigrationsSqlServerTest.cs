@@ -16,6 +16,46 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
+        public override void Can_generate_migration_from_initial_database_to_initial()
+        {
+            base.Can_generate_migration_from_initial_database_to_initial();
+
+            Assert.Equal(
+                @"IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+
+GO
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_no_migration_script()
+        {
+            base.Can_generate_no_migration_script();
+
+            Assert.Equal(
+                @"IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+
+GO
+
+",
+                Sql);
+        }
+
         public override void Can_generate_up_scripts()
         {
             base.Can_generate_up_scripts();

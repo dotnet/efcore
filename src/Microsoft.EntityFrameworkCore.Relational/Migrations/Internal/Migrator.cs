@@ -118,12 +118,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IReadOnlyList<HistoryRow> appliedMigrationEntries,
             string targetMigration = null)
         {
+            IReadOnlyList<Migration> migrationsToApply, migrationsToRevert;
+            PopulateMigrations(
+                appliedMigrationEntries.Select(t => t.MigrationId),
+                targetMigration,
+                out migrationsToApply,
+                out migrationsToRevert);
+
+            for (var i = 0; i < migrationsToRevert.Count; i++)
+            {
+                var migration = migrationsToRevert[i];
+
+                yield return () =>
+                {
+                    _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
+
+                    return GenerateDownSql(
+                        migration,
+                        i != migrationsToRevert.Count - 1
+                            ? migrationsToRevert[i + 1]
+                            : null);
+                };
+            }
+
+            foreach (var migration in migrationsToApply)
+            {
+                yield return () =>
+                {
+                    _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+
+                    return GenerateUpSql(migration);
+                };
+            }
+        }
+
+        private void PopulateMigrations(
+            IEnumerable<string> appliedMigrationEntries,
+            string targetMigration,
+            out IReadOnlyList<Migration> migrationsToApply,
+            out IReadOnlyList<Migration> migrationsToRevert)
+        {
             var appliedMigrations = new Dictionary<string, TypeInfo>();
             var unappliedMigrations = new Dictionary<string, TypeInfo>();
             foreach (var migration in _migrationsAssembly.Migrations)
             {
                 if (appliedMigrationEntries.Any(
-                    e => string.Equals(e.MigrationId, migration.Key, StringComparison.OrdinalIgnoreCase)))
+                    e => string.Equals(e, migration.Key, StringComparison.OrdinalIgnoreCase)))
                 {
                     appliedMigrations.Add(migration.Key, migration.Value);
                 }
@@ -132,9 +172,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     unappliedMigrations.Add(migration.Key, migration.Value);
                 }
             }
-
-            IReadOnlyList<Migration> migrationsToApply;
-            IReadOnlyList<Migration> migrationsToRevert;
             if (string.IsNullOrEmpty(targetMigration))
             {
                 migrationsToApply = unappliedMigrations
@@ -163,32 +200,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
             }
-
-            for (var i = 0; i < migrationsToRevert.Count; i++)
-            {
-                var migration = migrationsToRevert[i];
-
-                yield return () =>
-                    {
-                        _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
-
-                        return GenerateDownSql(
-                            migration,
-                            i != migrationsToRevert.Count - 1
-                                ? migrationsToRevert[i + 1]
-                                : null);
-                    };
-            }
-
-            foreach (var migration in migrationsToApply)
-            {
-                yield return () =>
-                    {
-                        _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
-
-                        return GenerateUpSql(migration);
-                    };
-            }
         }
 
         public virtual string GenerateScript(
@@ -196,107 +207,76 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             string toMigration = null,
             bool idempotent = false)
         {
-            var migrations = _migrationsAssembly.Migrations;
+            var firstMigrationId = _migrationsAssembly.Migrations.Select(t => t.Key).FirstOrDefault();
+            var skippedMigrations = _migrationsAssembly.Migrations
+                .Where(t => string.Compare(t.Key, fromMigration, StringComparison.OrdinalIgnoreCase) < 0)
+                .Select(t => t.Key);
 
-            if (string.IsNullOrEmpty(fromMigration))
-            {
-                fromMigration = Migration.InitialDatabase;
-            }
-            else if (fromMigration != Migration.InitialDatabase)
-            {
-                fromMigration = _migrationsAssembly.GetMigrationId(fromMigration);
-            }
-
-            if (string.IsNullOrEmpty(toMigration))
-            {
-                toMigration = migrations.Keys.Last();
-            }
-            else if (toMigration != Migration.InitialDatabase)
-            {
-                toMigration = _migrationsAssembly.GetMigrationId(toMigration);
-            }
+            IReadOnlyList<Migration> migrationsToApply, migrationsToRevert;
+            PopulateMigrations(
+                skippedMigrations,
+                toMigration,
+                out migrationsToApply,
+                out migrationsToRevert);
 
             var builder = new IndentedStringBuilder();
 
-            // If going up...
-            if (string.Compare(fromMigration, toMigration, StringComparison.OrdinalIgnoreCase) <= 0)
+            if (fromMigration == Migration.InitialDatabase || string.IsNullOrEmpty(fromMigration))
             {
-                var migrationsToApply = migrations.Where(
-                    m => (string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) > 0)
-                         && (string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) <= 0))
-                    .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider));
-                var checkFirst = true;
-                foreach (var migration in migrationsToApply)
+                builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
+                builder.Append(_sqlGenerationHelper.BatchTerminator);
+            }
+
+            for (var i = 0; i < migrationsToRevert.Count; i++)
+            {
+                var migration = migrationsToRevert[i];
+                var previousMigration = i != migrationsToRevert.Count - 1
+                    ? migrationsToRevert[i + 1]
+                    : null;
+
+                _logger.LogDebug(RelationalStrings.GeneratingDown(migration.GetId()));
+
+                foreach (var command in GenerateDownSql(migration, previousMigration))
                 {
-                    if (checkFirst)
+                    if (idempotent)
                     {
-                        if (migration.GetId() == migrations.Keys.First())
+                        builder.AppendLine(_historyRepository.GetBeginIfExistsScript(migration.GetId()));
+                        using (builder.Indent())
                         {
-                            builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
-                            builder.Append(_sqlGenerationHelper.BatchTerminator);
+                            builder.AppendLines(command.CommandText);
                         }
-
-                        checkFirst = false;
+                        builder.AppendLine(_historyRepository.GetEndIfScript());
+                    }
+                    else
+                    {
+                        builder.AppendLine(command.CommandText);
                     }
 
-                    _logger.LogDebug(RelationalStrings.GeneratingUp(migration.GetId()));
-
-                    foreach (var command in GenerateUpSql(migration))
-                    {
-                        if (idempotent)
-                        {
-                            builder.AppendLine(_historyRepository.GetBeginIfNotExistsScript(migration.GetId()));
-                            using (builder.Indent())
-                            {
-                                builder.AppendLines(command.CommandText);
-                            }
-                            builder.AppendLine(_historyRepository.GetEndIfScript());
-                        }
-                        else
-                        {
-                            builder.AppendLine(command.CommandText);
-                        }
-
-                        builder.Append(_sqlGenerationHelper.BatchTerminator);
-                    }
+                    builder.Append(_sqlGenerationHelper.BatchTerminator);
                 }
             }
-            else // If going down...
+
+            foreach (var migration in migrationsToApply)
             {
-                var migrationsToRevert = migrations
-                    .Where(
-                        m => (string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) > 0)
-                             && (string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) <= 0))
-                    .OrderByDescending(m => m.Key)
-                    .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider))
-                    .ToList();
-                for (var i = 0; i < migrationsToRevert.Count; i++)
+                _logger.LogDebug(RelationalStrings.GeneratingUp(migration.GetId()));
+
+                foreach (var command in GenerateUpSql(migration))
                 {
-                    var migration = migrationsToRevert[i];
-                    var previousMigration = i != migrationsToRevert.Count - 1
-                        ? migrationsToRevert[i + 1]
-                        : null;
-
-                    _logger.LogDebug(RelationalStrings.GeneratingDown(migration.GetId()));
-
-                    foreach (var command in GenerateDownSql(migration, previousMigration))
+                    if (idempotent)
                     {
-                        if (idempotent)
+                        builder.AppendLine(_historyRepository.GetBeginIfNotExistsScript(migration.GetId()));
+                        using (builder.Indent())
                         {
-                            builder.AppendLine(_historyRepository.GetBeginIfExistsScript(migration.GetId()));
-                            using (builder.Indent())
-                            {
-                                builder.AppendLines(command.CommandText);
-                            }
-                            builder.AppendLine(_historyRepository.GetEndIfScript());
+                            builder.AppendLines(command.CommandText);
                         }
-                        else
-                        {
-                            builder.AppendLine(command.CommandText);
-                        }
-
-                        builder.Append(_sqlGenerationHelper.BatchTerminator);
+                        builder.AppendLine(_historyRepository.GetEndIfScript());
                     }
+                    else
+                    {
+                        builder.AppendLine(command.CommandText);
+                    }
+
+                    builder.Append(_sqlGenerationHelper.BatchTerminator);
                 }
             }
 

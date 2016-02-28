@@ -115,6 +115,28 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void Can_generate_no_migration_script()
+        {
+            using (var db = _fixture.CreateEmptyContext())
+            {
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
+
+                SetSql(migrator.GenerateScript());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_migration_from_initial_database_to_initial()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
+
+                SetSql(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
+            }
+        }
+
+        [Fact]
         public virtual void Can_generate_up_scripts()
         {
             using (var db = _fixture.CreateContext())
