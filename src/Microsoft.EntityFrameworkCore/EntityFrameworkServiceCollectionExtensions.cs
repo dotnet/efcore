@@ -120,9 +120,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped(p => GetProviderServices(p).ValueGeneratorCache)
                 .AddScoped(p => GetProviderServices(p).ModelSource)
                 .AddScoped(p => GetProviderServices(p).ModelValidator)
-                .AddQuery()
-                .AddOptions()
-                .AddLogging());
+                .AddQuery());
+
+            serviceCollection.AddOptions();
+            serviceCollection.AddLogging();
 
             return new EntityFrameworkServicesBuilder(serviceCollection);
         }
