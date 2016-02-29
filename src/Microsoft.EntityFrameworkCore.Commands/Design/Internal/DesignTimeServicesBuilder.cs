@@ -64,12 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         protected virtual void ConfigureServices([NotNull] IServiceCollection services)
             => services
-                .AddLogging()
                 .AddSingleton<CSharpHelper>()
                 .AddSingleton<CSharpMigrationOperationGenerator>()
                 .AddSingleton<CSharpSnapshotGenerator>()
                 .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
-                .AddScaffolding();
+                .AddScaffolding()
+                .AddLogging();
 
         private void ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
             => _startup.ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);

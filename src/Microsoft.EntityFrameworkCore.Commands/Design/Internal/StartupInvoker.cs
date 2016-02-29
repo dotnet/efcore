@@ -89,7 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
-            => services.AddLogging();
+        {
+            services.AddLogging();
+            return services;
+        }
 
         private IServiceProvider GetHostServices()
             => ConfigureHostServices(new ServiceCollection()).BuildServiceProvider();
