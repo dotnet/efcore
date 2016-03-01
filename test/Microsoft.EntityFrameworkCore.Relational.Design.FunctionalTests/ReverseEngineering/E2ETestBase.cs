@@ -28,8 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Revers
             _output = output;
 
             var serviceCollection = new ServiceCollection()
-                .AddLogging()
                 .AddScaffolding();
+
+            serviceCollection.AddLogging();
 
             ConfigureDesignTimeServices(serviceCollection);
 
