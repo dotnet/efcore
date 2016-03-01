@@ -253,7 +253,7 @@ CREATE SEQUENCE NumericSequence
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.Data.Common"),
             BuildReference.ByName("System.Linq.Expressions"),

@@ -3,7 +3,9 @@
   "description": "Reusable Microsoft.EntityFrameworkCore.Relational.Design functional tests for provider writers.",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk",
-    "nowarn": [ "CS1591" ],
+    "nowarn": [
+      "CS1591"
+    ],
     "xmlDoc": true,
     "preserveCompilationContext": true
   },
@@ -15,8 +17,11 @@
     "Microsoft.CodeAnalysis.CSharp": "1.1.0-rc1-20151109-01"
   },
   "frameworks": {
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*",
         "System.Threading.Tasks.Parallel": "4.0.1-*"
@@ -24,21 +29,51 @@
     },
     "net451": {
       "frameworkAssemblies": {
-        "System.Collections.Concurrent": { "type": "build" },
-        "System.Diagnostics.Tools": { "type": "build" },
-        "System.Dynamic.Runtime": { "type": "build" },
-        "System.IO": { "type": "build" },
-        "System.Reflection.Primitives": { "type": "build" },
-        "System.Resources.ResourceManager": { "type": "build" },
-        "System.Runtime.InteropServices": { "type": "build" },
-        "System.Runtime.Numerics": { "type": "build" },
-        "System.Runtime.Serialization.Json": { "type": "build" },
-        "System.Text.Encoding": { "type": "build" },
-        "System.Text.Encoding.Extensions": { "type": "build" },
-        "System.Threading": { "type": "build" },
-        "System.Threading.Tasks.Parallel": { "type": "build" },
-        "System.Xml.ReaderWriter": { "type": "build" },
-        "System.Xml.XDocument": { "type": "build" }
+        "System.Collections.Concurrent": {
+          "type": "build"
+        },
+        "System.Diagnostics.Tools": {
+          "type": "build"
+        },
+        "System.Dynamic.Runtime": {
+          "type": "build"
+        },
+        "System.IO": {
+          "type": "build"
+        },
+        "System.Reflection.Primitives": {
+          "type": "build"
+        },
+        "System.Resources.ResourceManager": {
+          "type": "build"
+        },
+        "System.Runtime.InteropServices": {
+          "type": "build"
+        },
+        "System.Runtime.Numerics": {
+          "type": "build"
+        },
+        "System.Runtime.Serialization.Json": {
+          "type": "build"
+        },
+        "System.Text.Encoding": {
+          "type": "build"
+        },
+        "System.Text.Encoding.Extensions": {
+          "type": "build"
+        },
+        "System.Threading": {
+          "type": "build"
+        },
+        "System.Threading.Tasks.Parallel": {
+          "type": "build"
+        },
+        "System.Xml.ReaderWriter": {
+          "type": "build"
+        },
+        "System.Xml.XDocument": {
+          "type": "build"
+        }
       }
     }
   }

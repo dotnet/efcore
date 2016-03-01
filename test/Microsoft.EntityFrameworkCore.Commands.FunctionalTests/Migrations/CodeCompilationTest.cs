@@ -98,7 +98,7 @@ namespace MyNamespace
             {
                 References =
                 {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                     BuildReference.ByName("System.Text.RegularExpressions"),
 #else
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
@@ -168,7 +168,7 @@ namespace MyNamespace
             {
                 References =
                 {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                     BuildReference.ByName("System.Runtime"),
                     BuildReference.ByName("System.Text.RegularExpressions"),
 #else

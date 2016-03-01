@@ -4,7 +4,9 @@
   "compilationOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
-    "nowarn": [ "CS1591" ],
+    "nowarn": [
+      "CS1591"
+    ],
     "xmlDoc": true
   },
   "dependencies": {
@@ -16,9 +18,12 @@
     "Properties/Microsoft.EntityFrameworkCore.Sqlite.rd.xml"
   ],
   "frameworks": {
-    "net451": { },
-    "dotnet5.4": {
-      "imports": "portable-net452+win81",
+    "net451": {},
+    "netstandard1.3": {
+      "imports": [
+        "dotnet5.4",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "System.IO.FileSystem": "4.0.1-*"
       }

@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
 
         private static DateTime ParseDate(string date)
         {
-#if !DNXCORE50
+#if !NETSTANDARDAPP1_5
             return DateTime.Parse(date, new CultureInfo("en-US", useUserOverride: false));
 #else
             return DateTime.Parse(date, new CultureInfo("en-US"));

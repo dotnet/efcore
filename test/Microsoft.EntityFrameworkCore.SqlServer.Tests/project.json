@@ -8,13 +8,16 @@
   },
   "testRunner": "xunit",
   "frameworks": {
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*",
         "System.Threading.Tasks.Parallel": "4.0.1-*"
       }
     },
-    "net451": { }
+    "net451": {}
   }
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
 using Microsoft.Extensions.DependencyModel;
 #endif
 
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUt
 {
     public class BuildReference
     {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
         private static readonly DependencyContext DefaultDependencyContext =
             DependencyContext.Load(typeof(BuildReference).GetTypeInfo().Assembly);
 #endif
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUt
 
         public static BuildReference ByName(string name, bool copyLocal = false, Assembly depContextAssembly = null)
         {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             var depContext = depContextAssembly == null
                 ? DefaultDependencyContext
                 : DependencyContext.Load(depContextAssembly);
