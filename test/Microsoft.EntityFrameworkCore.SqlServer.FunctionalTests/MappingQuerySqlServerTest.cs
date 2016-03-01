@@ -8,6 +8,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class MappingQuerySqlServerTest : MappingQueryTestBase, IClassFixture<MappingQuerySqlServerFixture>
     {
+        public override void All_different_database_item()
+        {
+            base.All_different_database_item();
+
+            Assert.Equal(@"SELECT [u].[UnicornId], [u].[UnicornName]
+FROM [Pink].[Fluffy].[Unicorns] AS [u]",
+                Sql);
+        }
+
         public override void All_customers()
         {
             base.All_customers();

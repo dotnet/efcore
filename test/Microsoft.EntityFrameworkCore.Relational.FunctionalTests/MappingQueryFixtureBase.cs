@@ -14,6 +14,16 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
+            modelBuilder.Entity<MappingQueryTestBase.DifferentDatabaseItem>(e =>
+            {
+                e.HasKey(c => c.ItemKey);
+                e.Property(c => c.ItemKey).Metadata.Relational().ColumnName = "UnicornId";
+                e.Property(c => c.Value).Metadata.Relational().ColumnName = "UnicornName";
+                e.Metadata.Relational().TableName = "Unicorns";
+                e.Metadata.Relational().Schema = "Fluffy";
+                e.Metadata.Relational().Database = "Pink";
+            });
+
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
                     e.HasKey(c => c.CustomerID);

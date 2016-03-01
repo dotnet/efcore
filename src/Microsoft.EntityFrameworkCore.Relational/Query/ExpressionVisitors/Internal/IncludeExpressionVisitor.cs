@@ -147,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         = new TableExpression(
                             targetTableName,
                             _relationalAnnotationProvider.For(targetEntityType).Schema,
+                            _relationalAnnotationProvider.For(targetEntityType).Database,
                             targetTableAlias,
                             querySource);
 
@@ -239,6 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         = new TableExpression(
                             targetTableName,
                             _relationalAnnotationProvider.For(targetEntityType).Schema,
+                            _relationalAnnotationProvider.For(targetEntityType).Database,
                             targetTableAlias,
                             querySource);
 

@@ -59,7 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 var annotations = _relationalExtensions.For(entityType);
 
-                var name = annotations.Schema + "." + annotations.TableName;
+                var databaseName = annotations.Database ?? _relationalExtensions.For(model).DatabaseName;
+
+                var name = databaseName + "." + annotations.Schema + "." + annotations.TableName;
 
                 if (!tables.Add(name))
                 {

@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         string TableName { get; }
         string Schema { get; }
+        string Database { get; }
         IProperty DiscriminatorProperty { get; }
         object DiscriminatorValue { get; }
     }

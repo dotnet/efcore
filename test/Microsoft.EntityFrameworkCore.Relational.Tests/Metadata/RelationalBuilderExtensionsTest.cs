@@ -329,6 +329,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
         }
 
         [Fact]
+        public void Cat_set_database_table_and_schema_name()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ToTable("testDatabase","Customizer", "db0");
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("db0", entityType.Relational().Schema);
+            Assert.Equal("testDatabase", entityType.Relational().Database);
+        }
+
+        [Fact]
+        public void Can_set_database_table_and_schema_name_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .ToTable("testDatabase", "Customizer", "db0");
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("db0", entityType.Relational().Schema);
+            Assert.Equal("testDatabase", entityType.Relational().Database);
+        }
+
+        [Fact]
         public void Can_set_table_and_schema_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -573,6 +607,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Tests
             Assert.Equal("db0", modelBuilder.Model.Relational().DefaultSchema);
             Assert.Equal("Customizer", entityType.Relational().TableName);
             Assert.Equal("db0", entityType.Relational().Schema);
+        }
+
+
+        [Fact]
+        public void Model_database_is_not_used_if_table_database_is_set()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ToTable("testDatabase", "Custemirizo", "db1");
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+
+            Assert.NotEqual(modelBuilder.Model.Relational().DatabaseName, entityType.Relational().Database);
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("db1", entityType.Relational().Schema);
+            Assert.Equal("Custemirizo", entityType.Relational().TableName);
+            Assert.Equal("testDatabase", entityType.Relational().Database);
         }
 
         [Fact]
