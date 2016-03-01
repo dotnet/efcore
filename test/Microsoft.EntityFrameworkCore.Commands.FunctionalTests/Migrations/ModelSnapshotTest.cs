@@ -1138,7 +1138,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
         b.HasBaseType(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+BaseType"");
 
         b.ToTable(""DerivedType"");
-
     });
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshotTest+BaseType"", b =>
