@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine()
                     .Append("b.ToTable(")
                     .Append(_code.Literal(entityType.DisplayName()))
-                    .AppendLine(");");
+                    .Append(");");
             }
         }
 
@@ -190,17 +190,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var firstProperty = true;
             foreach (var property in properties)
             {
-                if (!firstProperty)
-                {
-                    stringBuilder.AppendLine();
-                }
-                else
-                {
-                    firstProperty = false;
-                }
+                stringBuilder.AppendLine();
 
                 GenerateProperty(property, stringBuilder);
             }
