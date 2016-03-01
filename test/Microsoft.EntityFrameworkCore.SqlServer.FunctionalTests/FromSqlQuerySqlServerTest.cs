@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE [c].[ContactName] LIKE ('%' + 'z') + '%'",
+WHERE [c].[ContactName] LIKE (N'%' + N'z') + N'%'",
                 Sql);
         }
 
@@ -124,7 +124,7 @@ FROM (
     SELECT *
     FROM ""Customers""
 ) AS [c]
-WHERE [c].[City] = 'London'",
+WHERE [c].[City] = N'London'",
                 Sql);
         }
 
@@ -263,7 +263,7 @@ ORDER BY [c0].[CustomerID]",
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE [c].[City] = 'London'
+WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -273,7 +273,7 @@ INNER JOIN (
     FROM (
         SELECT * FROM ""Customers""
     ) AS [c]
-    WHERE [c].[City] = 'London'
+    WHERE [c].[City] = N'London'
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[CustomerID]",
                 Sql);

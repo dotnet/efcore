@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.Name', N'FullName', 'COLUMN';" + EOL,
+                "EXEC sp_rename N'dbo.People.Name', N'FullName', N'COLUMN';" + EOL,
                 Sql);
         }
 
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', 'INDEX';" + EOL,
+                "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
         }
 

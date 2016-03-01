@@ -691,7 +691,7 @@ INNER JOIN [NullSemanticsEntity2] AS [e2] ON [e1].[NullableIntA] = [e2].[Nullabl
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
+WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL",
                 Sql);
         }
 
@@ -702,7 +702,7 @@ WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] NOT IN ('Foo') AND [e].[NullableStringA] IS NOT NULL",
+WHERE [e].[NullableStringA] NOT IN (N'Foo') AND [e].[NullableStringA] IS NOT NULL",
                 Sql);
         }
 
@@ -713,7 +713,7 @@ WHERE [e].[NullableStringA] NOT IN ('Foo') AND [e].[NullableStringA] IS NOT NULL
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
+WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL",
                 Sql);
         }
 
@@ -724,7 +724,7 @@ WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] IN ('Foo', 'Blah') OR [e].[NullableStringA] IS NULL",
+WHERE [e].[NullableStringA] IN (N'Foo', N'Blah') OR [e].[NullableStringA] IS NULL",
                 Sql);
         }
 
@@ -735,7 +735,7 @@ WHERE [e].[NullableStringA] IN ('Foo', 'Blah') OR [e].[NullableStringA] IS NULL"
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] NOT IN ('Foo', 'Blah') AND [e].[NullableStringA] IS NOT NULL",
+WHERE [e].[NullableStringA] NOT IN (N'Foo', N'Blah') AND [e].[NullableStringA] IS NOT NULL",
                 Sql);
         }
 
@@ -746,7 +746,7 @@ WHERE [e].[NullableStringA] NOT IN ('Foo', 'Blah') AND [e].[NullableStringA] IS 
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
+WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL",
                 Sql);
         }
 
@@ -759,7 +759,7 @@ WHERE [e].[NullableStringA] IN ('Foo') OR [e].[NullableStringA] IS NULL",
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] NOT IN ('Foo', @__prm3_2) AND [e].[NullableStringA] IS NOT NULL",
+WHERE [e].[NullableStringA] NOT IN (N'Foo', @__prm3_2) AND [e].[NullableStringA] IS NOT NULL",
                 Sql);
         }
 
@@ -772,7 +772,7 @@ WHERE [e].[NullableStringA] NOT IN ('Foo', @__prm3_2) AND [e].[NullableStringA] 
 
 SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> 'Foo') OR [e].[NullableStringA] IS NULL)) AND [e].[NullableStringA] IS NOT NULL) AND [e].[NullableStringA] IS NOT NULL) AND (([e].[NullableStringA] <> @__prm3_2) OR [e].[NullableStringA] IS NULL)",
+WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL)) AND [e].[NullableStringA] IS NOT NULL) AND [e].[NullableStringA] IS NOT NULL) AND (([e].[NullableStringA] <> @__prm3_2) OR [e].[NullableStringA] IS NULL)",
                 Sql);
         }
 
@@ -900,7 +900,7 @@ END) OR [e].[NullableStringC] IS NULL",
             Assert.Equal(
                 @"SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
-WHERE [e].[NullableStringA] LIKE ('%' + [e].[NullableStringB]) + '%' AND [e].[BoolA] = 1",
+WHERE [e].[NullableStringA] LIKE (N'%' + [e].[NullableStringB]) + N'%' AND [e].[BoolA] = 1",
                 Sql);
         }
 
