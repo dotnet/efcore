@@ -1912,8 +1912,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddSingleton<DatabaseProviderSelector>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
-                .AddLogging()
                 .AddSingleton(factory);
+
+            serviceCollection.AddLogging();
 
             var provider = serviceCollection.BuildServiceProvider();
 
