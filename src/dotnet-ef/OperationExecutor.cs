@@ -156,8 +156,13 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var frameworks = projectFile.GetTargetFrameworks().Select(f => f.FrameworkName);
             var framework = NuGetFrameworkUtility.GetNearest(
                 frameworks,
-                FrameworkConstants.CommonFrameworks.DnxCore50,
-                f => new NuGetFramework(f));
+                FrameworkConstants.CommonFrameworks.NetStandardApp15,
+                f => new NuGetFramework(f))
+                // TODO: Remove with dnxcore50
+                ?? NuGetFrameworkUtility.GetNearest(
+                    frameworks,
+                    FrameworkConstants.CommonFrameworks.DnxCore50,
+                    f => new NuGetFramework(f));
             if (framework == null)
             {
                 throw new OperationException(
