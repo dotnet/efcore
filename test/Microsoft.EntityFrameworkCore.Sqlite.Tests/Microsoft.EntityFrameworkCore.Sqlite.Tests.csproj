@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="DbSetAsTableNameSqliteTest.cs" />
     <Compile Include="Infrastructure\SqliteEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\Conventions\SqliteConventionSetBuilderTests.cs" />

@@ -200,20 +200,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Pegasus>().HasKey(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<Pegasus>(b =>
+                    {
+                        b.ToTable("Pegasus");
+                        b.HasKey(e => new { e.Id1, e.Id2 });
+                    });
 
                 modelBuilder.Entity<Unicorn>(b =>
                     {
+                        b.ToTable("Unicorn");
                         b.HasKey(e => new { e.Id1, e.Id2, e.Id3 });
                         b.Property(e => e.Id1).UseSqlServerIdentityColumn();
                         b.Property(e => e.Id3).ValueGeneratedOnAdd();
                     });
 
                 modelBuilder.Entity<EarthPony>(b =>
-                {
-                    b.HasKey(e => new { e.Id1, e.Id2});
-                    b.Property(e => e.Id1).UseSqlServerIdentityColumn();
-                });
+                    {
+                        b.ToTable("EarthPony");
+                        b.HasKey(e => new { e.Id1, e.Id2 });
+                        b.Property(e => e.Id1).UseSqlServerIdentityColumn();
+                    });
             }
         }
 

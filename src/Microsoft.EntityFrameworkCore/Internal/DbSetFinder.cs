@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly ConcurrentDictionary<Type, IReadOnlyList<DbSetProperty>> _cache
             = new ConcurrentDictionary<Type, IReadOnlyList<DbSetProperty>>();
 
-        public virtual IReadOnlyList<DbSetProperty> FindSets(DbContext context) => _cache.GetOrAdd(context.GetType(), FindSets);
+        public virtual IReadOnlyList<DbSetProperty> FindSets(DbContext context) 
+            => _cache.GetOrAdd(context.GetType(), FindSets);
 
         private static DbSetProperty[] FindSets(Type contextType)
         {
@@ -25,17 +26,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .Where(
                     p => !p.IsStatic()
                          && !p.GetIndexParameters().Any()
-                         && (p.DeclaringType != typeof(DbContext))
+                         && p.DeclaringType != typeof(DbContext)
                          && p.PropertyType.GetTypeInfo().IsGenericType
-                         && (p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)))
+                         && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
                 .OrderBy(p => p.Name)
-                .Select(p =>
-                    {
-                        return new DbSetProperty(
-                            p.Name,
-                            p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(),
-                            p.SetMethod == null ? null : factory.Create(p));
-                    })
+                .Select(
+                    p => new DbSetProperty(
+                        p.Name,
+                        p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(),
+                        p.SetMethod == null ? null : factory.Create(p)))
                 .ToArray();
         }
     }

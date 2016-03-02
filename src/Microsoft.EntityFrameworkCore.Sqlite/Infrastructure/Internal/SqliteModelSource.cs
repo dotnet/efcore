@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
-    public class SqliteModelSource : ModelSource
+    public class SqliteModelSource : RelationalModelSource
     {
         public SqliteModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
             : base(setFinder, coreConventionSetBuilder, modelCustomizer, modelCacheKeyFactory)

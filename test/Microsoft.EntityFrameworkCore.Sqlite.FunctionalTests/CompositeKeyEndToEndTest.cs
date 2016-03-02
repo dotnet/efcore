@@ -130,17 +130,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             public DbSet<Pegasus> Pegasuses { get; set; }
             public DbSet<EarthPony> EarthPonies { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString(_databaseName));
-            }
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString(_databaseName));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Pegasus>().HasKey(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<Pegasus>(b =>
+                    {
+                        b.ToTable("Pegasus");
+                        b.HasKey(e => new { e.Id1, e.Id2 });
+                    });
 
                 modelBuilder.Entity<EarthPony>(b =>
                     {
+                        b.ToTable("EarthPony");
                         b.HasKey(e => new { e.Id1, e.Id2 });
                         b.Property(e => e.Id1);
                     });

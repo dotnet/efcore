@@ -231,30 +231,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                 var tables = await testStore.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
                 Assert.Equal(1, tables.Count());
-                Assert.Equal("Blog", tables.Single());
+                Assert.Equal("Blogs", tables.Single());
 
                 var columns = (await testStore.QueryAsync<string>(
-                    "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blog' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
+                    "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
                 Assert.Equal(15, columns.Length);
 
                 Assert.Equal(
                     new[]
                     {
-                        "Blog.AndChew (varbinary)",
-                        "Blog.AndRow (timestamp)",
-                        "Blog.Cheese (nvarchar)",
-                        "Blog.CupOfChar (int)",
-                        "Blog.ErMilan (int)",
-                        "Blog.Fuse (smallint)",
-                        "Blog.George (bit)",
-                        "Blog.Key1 (nvarchar)",
-                        "Blog.Key2 (varbinary)",
-                        "Blog.NotFigTime (datetime2)",
-                        "Blog.On (real)",
-                        "Blog.OrNothing (float)",
-                        "Blog.TheGu (uniqueidentifier)",
-                        "Blog.ToEat (tinyint)",
-                        "Blog.WayRound (bigint)"
+                        "Blogs.AndChew (varbinary)",
+                        "Blogs.AndRow (timestamp)",
+                        "Blogs.Cheese (nvarchar)",
+                        "Blogs.CupOfChar (int)",
+                        "Blogs.ErMilan (int)",
+                        "Blogs.Fuse (smallint)",
+                        "Blogs.George (bit)",
+                        "Blogs.Key1 (nvarchar)",
+                        "Blogs.Key2 (varbinary)",
+                        "Blogs.NotFigTime (datetime2)",
+                        "Blogs.On (real)",
+                        "Blogs.OrNothing (float)",
+                        "Blogs.TheGu (uniqueidentifier)",
+                        "Blogs.ToEat (tinyint)",
+                        "Blogs.WayRound (bigint)"
                     },
                     columns);
             }

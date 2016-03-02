@@ -121,43 +121,43 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                     testStore.ExecuteNonQuery(@"
 CREATE TRIGGER TRG_InsertProduct
-ON Product
+ON Products
 AFTER INSERT AS
 BEGIN
 	if @@ROWCOUNT = 0
 		return
 	set nocount on;
 
-    INSERT INTO ProductBackup
+    INSERT INTO ProductBackups
     SELECT * FROM INSERTED;
 END");
 
                     testStore.ExecuteNonQuery(@"
 CREATE TRIGGER TRG_UpdateProduct
-ON Product
+ON Products
 AFTER UPDATE AS
 BEGIN
 	if @@ROWCOUNT = 0
 		return
 	set nocount on;
 
-    DELETE FROM ProductBackup
+    DELETE FROM ProductBackups
     WHERE Id IN(SELECT DELETED.Id FROM DELETED);
 
-    INSERT INTO ProductBackup
+    INSERT INTO ProductBackups
     SELECT * FROM INSERTED;
 END");
 
                     testStore.ExecuteNonQuery(@"
 CREATE TRIGGER TRG_DeleteProduct
-ON Product
+ON Products
 AFTER DELETE AS
 BEGIN
 	if @@ROWCOUNT = 0
 		return
 	set nocount on;
 
-    DELETE FROM ProductBackup
+    DELETE FROM ProductBackups
     WHERE Id IN(SELECT DELETED.Id FROM DELETED);
 END");
                 }

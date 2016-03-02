@@ -187,6 +187,7 @@
     <Compile Include="Internal\DbContextActivator.cs" />
     <Compile Include="Internal\DbContextServices.cs" />
     <Compile Include="Internal\DbSetFinder.cs" />
+    <Compile Include="Internal\DbSetFinderExtensions.cs" />
     <Compile Include="Internal\DbSetInitializer.cs" />
     <Compile Include="Internal\DbSetProperty.cs" />
     <Compile Include="Internal\DbSetSource.cs" />

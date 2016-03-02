@@ -11,17 +11,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         public DbSetProperty(
             [NotNull] string name,
-            [NotNull] Type entityType,
+            [NotNull] Type clrType,
             [CanBeNull] IClrPropertySetter setter)
         {
             Name = name;
-            EntityType = entityType;
+            ClrType = clrType;
             Setter = setter;
         }
 
         public string Name { get; }
 
-        public Type EntityType { get; }
+        public Type ClrType { get; }
 
         public IClrPropertySetter Setter { get; }
     }

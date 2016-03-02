@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="CommandConfigurationTests.cs" />
+    <Compile Include="DbSetAsTableNameSqlServerTest.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilderTests.cs" />
     <Compile Include="Metadata\Conventions\SqlServerValueGenerationStrategyConventionTest.cs" />
     <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />

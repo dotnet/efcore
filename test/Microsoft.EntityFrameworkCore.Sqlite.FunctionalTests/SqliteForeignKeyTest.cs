@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
         }
-        
+
         public void Dispose() => _testStore.Dispose();
 
         [Theory]
@@ -115,47 +115,45 @@ CREATE TABLE Comment (
                 var comment = context.Comments.Include(u => u.User).Single();
                 Assert.Equal(id, comment.User.Id);
             }
-
         }
     }
 
-
-    class BloggingContext : DbContext
+    internal class BloggingContext : DbContext
     {
         public BloggingContext(DbContextOptions options)
             : base(options)
         {
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Comment>(entity =>
-            {
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Comments)
-                    .HasPrincipalKey(p => p.AltId)
-                    .HasForeignKey(d => d.UserAltId);
-            });
+                {
+                    entity.ToTable("Comment");
 
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.HasAlternateKey(e => e.AltId);
-            });
+                    entity.HasOne(d => d.User)
+                        .WithMany(p => p.Comments)
+                        .HasPrincipalKey(p => p.AltId)
+                        .HasForeignKey(d => d.UserAltId);
+                });
+
+            modelBuilder.Entity<User>(entity => { entity.HasAlternateKey(e => e.AltId); });
         }
 
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<User> User { get; set; }
     }
-    class Comment
+
+    internal class Comment
     {
         public long Id { get; set; }
-
 
         public int UserAltId { get; set; }
 
         public virtual User User { get; set; }
     }
 
-    class User
+    internal class User
     {
         public long Id { get; set; }
 
@@ -163,5 +161,4 @@ CREATE TABLE Comment (
 
         public virtual ICollection<Comment> Comments { get; set; }
     }
-
 }

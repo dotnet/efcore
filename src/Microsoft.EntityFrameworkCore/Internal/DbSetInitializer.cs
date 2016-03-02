@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.Setter != null))
             {
-                setInfo.Setter.SetClrValue(context, _setSource.Create(context, setInfo.EntityType));
+                setInfo.Setter.SetClrValue(context, _setSource.Create(context, setInfo.ClrType));
             }
         }
 

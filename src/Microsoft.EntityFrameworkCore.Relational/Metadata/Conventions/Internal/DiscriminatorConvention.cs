@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
         {
-            if ((oldBaseType != null)
-                && (oldBaseType.BaseType == null)
+            if (oldBaseType != null
+                && oldBaseType.BaseType == null
                 && !oldBaseType.GetDerivedTypes().Any())
             {
                 var oldBaseTypeBuilder = oldBaseType.Builder;
