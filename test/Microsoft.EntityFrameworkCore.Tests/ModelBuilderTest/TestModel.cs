@@ -409,6 +409,18 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public int Id { get; set; }
 
             public Alpha Alpha { get; set; }
+
+            public Theta NavTheta { get; set; }
+            public IList<Theta> InverseNavThetas { get; set; }
+            public IList<Iota> AllIotas { get; set; }
+        }
+
+        protected class Iota
+        {
+            public int Id { get; set; }
+
+            public Theta FirstTheta { get; set; }
+            public Theta SecondTheta { get; set; }
         }
 
         protected interface IEntityBase

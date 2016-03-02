@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             .RemoveForeignKey(existingForeignKey, ConfigurationSource.Convention);
                     }
 
-                    break;
+                    continue;
                 }
 
                 foreach (var navigation in relationshipCandidate.NavigationProperties)

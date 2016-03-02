@@ -1901,6 +1901,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Null(fk.PrincipalToDependent);
                 Assert.True(fk.Properties.Single().IsShadowProperty);
             }
+
+            [Fact]
+            public virtual void Ambiguous_relationship_candidate_does_not_block_creating_further_relationships()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var theta = modelBuilder.Entity<Theta>().Metadata;
+
+                Assert.NotNull(theta.FindNavigation("NavTheta"));
+                Assert.NotNull(theta.FindNavigation("InverseNavThetas"));
+                Assert.Same(theta.FindNavigation("NavTheta").ForeignKey, theta.FindNavigation("InverseNavThetas").ForeignKey);
+            }
         }
     }
 }
