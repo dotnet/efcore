@@ -188,9 +188,26 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         }
 
         [Fact]
-        public void It_logs_warning_for_bad_foreign_key()
+        public void It_logs_warning_for_bad_foreign_key_principal_table()
         {
-            // will fail because Id is not found
+            // will fail because the referenced table, Parent, is not found
+            var sql = @"CREATE TABLE Children (
+                            Id INT PRIMARY KEY,
+                            ParentId INT,
+                            FOREIGN KEY (ParentId) REFERENCES Parent (Id)
+                        );";
+
+            GetModel(sql);
+
+            Assert.Contains("Trace: " +
+                            SqliteDesignStrings.PrincipalTableNotFound(0, "Children", "Parent"),
+                _logger.FullLog);
+        }
+
+        [Fact]
+        public void It_logs_warning_for_bad_foreign_key_column()
+        {
+            // will fail because the referenced column, Id, is not found
             var sql = @"CREATE TABLE Parent ( Name PRIMARY KEY);
                         CREATE TABLE Children (
                             Id INT PRIMARY KEY,
@@ -200,8 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Warning: " +
-                            RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound("Children(ParentId)"),
+            Assert.Contains("Trace: " +
+                            SqliteDesignStrings.PrincipalColumnNotFound(0, "Children", "Id", "Parent"),
                 _logger.FullLog);
         }
 

@@ -129,17 +129,53 @@
   <data name="ColumnNameEmptyOnTable" xml:space="preserve">
     <value>Found a column on table [{schemaName}].[{tableName}] with an empty or null name. Skipping column.</value>
   </data>
+  <data name="ColumnNotInSelectionSet" xml:space="preserve">
+    <value>Column {columnName} belongs to table [{schema}].[{tableName}] which is not included in the selection set. Skipping.</value>
+  </data>
   <data name="DataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
     <value>For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.</value>
+  </data>
+  <data name="ForeignKeyColumnNotInSelectionSet" xml:space="preserve">
+    <value>Foreign key column {columnName} belongs to foreign key {fkName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.</value>
   </data>
   <data name="ForeignKeyNameEmpty" xml:space="preserve">
     <value>Found a foreign key on table [{schemaName}].[{tableName}] with an empty or null name. Skipping foreign key.</value>
   </data>
+  <data name="FoundColumn" xml:space="preserve">
+    <value>Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.</value>
+  </data>
+  <data name="FoundDefaultSchema" xml:space="preserve">
+    <value>Found default schema {defaultSchema}.</value>
+  </data>
+  <data name="FoundForeignKeyColumn" xml:space="preserve">
+    <value>Found foreign key column with schema: {schema}, table: {tableName}, foreign key name: {fkName}, principal table schema: {principalTableSchema}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
+  </data>
+  <data name="FoundIndexColumn" xml:space="preserve">
+    <value>Found index column with schema: {schema}, table: {tableName}, index name: {indexName}, unique: {isUnique}, type description: {typeDesc}, column name: {columnName}, ordinal: {ordinal}.</value>
+  </data>
+  <data name="FoundSequence" xml:space="preserve">
+    <value>Found sequence with schema: {schema}, name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
+  </data>
+  <data name="FoundTable" xml:space="preserve">
+    <value>Found table with schema: {schema}, name: {name}.</value>
+  </data>
+  <data name="FoundTypeAlias" xml:space="preserve">
+    <value>Found type alias {alias} which maps to underlying data type {dataType}.</value>
+  </data>
+  <data name="IndexColumnNotInSelectionSet" xml:space="preserve">
+    <value>Index column {columnName} belongs to index {indexName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.</value>
+  </data>
   <data name="IndexNameEmpty" xml:space="preserve">
     <value>Found an index on table [{schemaName}].[{tableName}] with an empty or null name. Skipping index.</value>
   </data>
+  <data name="PrincipalTableNotInSelectionSet" xml:space="preserve">
+    <value>For foreign key {fkName} on table [{schema}].[{tableName}], unable to model the end of the foreign key on principal table [{principalTableSchema}].[{principalTableName}]. This is usually because the principal table was not included in the selection set.</value>
+  </data>
   <data name="SequenceNameEmpty" xml:space="preserve">
     <value>Found a sequence in schema [{schemaName}] with an empty or null name. Skipping sequence.</value>
+  </data>
+  <data name="TableNotInSelectionSet" xml:space="preserve">
+    <value>Table [{schema}].[{tableName}] is not included in the selection set. Skipping.</value>
   </data>
   <data name="UnableToConvertDefaultValue" xml:space="preserve">
     <value>For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.</value>

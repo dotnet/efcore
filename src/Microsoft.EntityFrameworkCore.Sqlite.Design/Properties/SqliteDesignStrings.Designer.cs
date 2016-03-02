@@ -13,6 +13,78 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Design.Properties.SqliteDesignStrings", typeof(SqliteDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        /// Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.
+        /// </summary>
+        public static string ColumnNameEmptyOnIndex([CanBeNull] object indexName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNameEmptyOnIndex", "indexName", "tableName"), indexName, tableName);
+        }
+
+        /// <summary>
+        /// Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.
+        /// </summary>
+        public static string FoundColumn([CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object ordinal, [CanBeNull] object isNotNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundColumn", "tableName", "columnName", "dataType", "ordinal", "isNotNullable", "primaryKeyOrdinal", "defaultValue"), tableName, columnName, dataType, ordinal, isNotNullable, primaryKeyOrdinal, defaultValue);
+        }
+
+        /// <summary>
+        /// Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.
+        /// </summary>
+        public static string FoundForeignKeyColumn([CanBeNull] object tableName, [CanBeNull] object id, [CanBeNull] object principalTableName, [CanBeNull] object columnName, [CanBeNull] object principalColumnName, [CanBeNull] object deleteAction, [CanBeNull] object ordinal)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundForeignKeyColumn", "tableName", "id", "principalTableName", "columnName", "principalColumnName", "deleteAction", "ordinal"), tableName, id, principalTableName, columnName, principalColumnName, deleteAction, ordinal);
+        }
+
+        /// <summary>
+        /// Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        /// </summary>
+        public static string FoundIndex([CanBeNull] object indexName, [CanBeNull] object tableName, [CanBeNull] object isUnique)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundIndex", "indexName", "tableName", "isUnique"), indexName, tableName, isUnique);
+        }
+
+        /// <summary>
+        /// Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.
+        /// </summary>
+        public static string FoundIndexColumn([CanBeNull] object indexName, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object ordinal)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundIndexColumn", "indexName", "tableName", "columnName", "ordinal"), indexName, tableName, columnName, ordinal);
+        }
+
+        /// <summary>
+        /// Found table with name: {name}.
+        /// </summary>
+        public static string FoundTable([CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundTable", "name"), name);
+        }
+
+        /// <summary>
+        /// For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principalTableName}. Skipping foreign key.
+        /// </summary>
+        public static string PrincipalColumnNotFound([CanBeNull] object id, [CanBeNull] object tableName, [CanBeNull] object principalColumnName, [CanBeNull] object principalTableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PrincipalColumnNotFound", "id", "tableName", "principalColumnName", "principalTableName"), id, tableName, principalColumnName, principalTableName);
+        }
+
+        /// <summary>
+        /// For foreign key with identity {id} on table {tableName}, unable to find the principal table {principalTableName}. Either the principal table is missing from the database or it was not included in the selection set. Skipping foreign key.
+        /// </summary>
+        public static string PrincipalTableNotFound([CanBeNull] object id, [CanBeNull] object tableName, [CanBeNull] object principalTableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PrincipalTableNotFound", "id", "tableName", "principalTableName"), id, tableName, principalTableName);
+        }
+
+        /// <summary>
+        /// Table {tableName} is not included in the selection set. Skipping.
+        /// </summary>
+        public static string TableNotInSelectionSet([CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TableNotInSelectionSet", "tableName"), tableName);
+        }
+
+        /// <summary>
         /// Scaffolding from a SQLite database will ignore any schema selection arguments. 
         /// </summary>
         public static string UsingSchemaSelectionsWarning

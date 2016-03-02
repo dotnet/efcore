@@ -104,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             var command = _connection.CreateCommand();
             command.CommandText = "SELECT SCHEMA_NAME()";
             var schema = command.ExecuteScalar() as string ?? "dbo";
+            Logger.LogTrace(SqlServerDesignStrings.FoundDefaultSchema(schema));
             _databaseModel.DefaultSchemaName = schema;
         }
 
@@ -134,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     var alias = reader.GetValueOrDefault<string>("type_name");
                     var underlyingSystemType = reader.GetValueOrDefault<string>("underlying_system_type");
+                    Logger.LogTrace(SqlServerDesignStrings.FoundTypeAlias(alias, underlyingSystemType));
                     typeAliasMap.Add(alias, underlyingSystemType);
                 }
             }
@@ -170,6 +172,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         Min = reader.GetValueOrDefault<long?>("minimum_value"),
                         Max = reader.GetValueOrDefault<long?>("maximum_value")
                     };
+
+                    Logger.LogTrace(SqlServerDesignStrings.FoundSequence(
+                        sequence.SchemaName, sequence.Name, sequence.DataType, sequence.IsCyclic,
+                        sequence.IncrementBy, sequence.Start, sequence.Min, sequence.Max));
 
                     if (string.IsNullOrEmpty(sequence.Name))
                     {
@@ -209,10 +215,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         Name = reader.GetValueOrDefault<string>("name")
                     };
 
+                    Logger.LogTrace(SqlServerDesignStrings.FoundTable(table.SchemaName, table.Name));
+
                     if (_tableSelectionSet.Allows(table.SchemaName, table.Name))
                     {
                         _databaseModel.Tables.Add(table);
                         _tables[TableKey(table)] = table;
+                    }
+                    else
+                    {
+                        Logger.LogTrace(
+                            SqlServerDesignStrings.TableNotInSelectionSet(table.SchemaName, table.Name));
                     }
                 }
             }
@@ -258,9 +271,25 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                     var schemaName = reader.GetValueOrDefault<string>("schema");
                     var tableName = reader.GetValueOrDefault<string>("table");
                     var columnName = reader.GetValueOrDefault<string>("column_name");
+                    var dataTypeName = reader.GetValueOrDefault<string>("typename");
+                    var ordinal = reader.GetValueOrDefault<int>("ordinal");
+                    var nullable = reader.GetValueOrDefault<bool>("nullable");
+                    var primaryKeyOrdinal = reader.GetValueOrDefault<int?>("primary_key_ordinal");
+                    var defaultValue = reader.GetValueOrDefault<string>("default_sql");
+                    var precision = reader.GetValueOrDefault<int?>("precision");
+                    var scale = reader.GetValueOrDefault<int?>("scale");
+                    var maxLength = reader.GetValueOrDefault<int?>("max_length");
+                    var isIdentity = reader.GetValueOrDefault<bool>("is_identity");
+                    var isComputed = reader.GetValueOrDefault<bool>("is_computed");
+
+                    Logger.LogTrace(SqlServerDesignStrings.FoundColumn(
+                        schemaName, tableName, columnName, dataTypeName, ordinal, nullable,
+                        primaryKeyOrdinal, defaultValue, precision, scale, maxLength, isIdentity, isComputed));
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
+                        Logger.LogTrace(
+                            SqlServerDesignStrings.ColumnNotInSelectionSet(columnName, schemaName, tableName));
                         continue;
                     }
 
@@ -278,12 +307,6 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         continue;
                     }
 
-                    var dataTypeName = reader.GetValueOrDefault<string>("typename");
-                    var nullable = reader.GetValueOrDefault<bool>("nullable");
-                    var scale = reader.GetValueOrDefault<int?>("scale");
-                    var maxLength = reader.GetValueOrDefault<int?>("max_length");
-                    var dateTimePrecision = default(int?);
-
                     if (dataTypeName == "nvarchar"
                         || dataTypeName == "nchar")
                     {
@@ -297,30 +320,28 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         maxLength = null;
                     }
 
+                    var dateTimePrecision = default(int?);
                     if (_dateTimePrecisionTypes.Contains(dataTypeName))
                     {
                         dateTimePrecision = scale ?? DefaultDateTimePrecision;
                         scale = null;
                     }
 
-                    var isIdentity = reader.GetValueOrDefault<bool>("is_identity");
-                    var isComputed = reader.GetValueOrDefault<bool>("is_computed") || dataTypeName == "timestamp";
-
                     var column = new ColumnModel
                     {
                         Table = table,
                         DataType = dataTypeName,
                         Name = columnName,
-                        Ordinal = reader.GetValueOrDefault<int>("ordinal") - 1,
+                        Ordinal = ordinal - 1,
                         IsNullable = nullable,
-                        PrimaryKeyOrdinal = reader.GetValueOrDefault<int?>("primary_key_ordinal"),
-                        DefaultValue = reader.GetValueOrDefault<string>("default_sql"),
-                        Precision = reader.GetValueOrDefault<int?>("precision"),
+                        PrimaryKeyOrdinal = primaryKeyOrdinal,
+                        DefaultValue = defaultValue,
+                        Precision = precision,
                         Scale = scale,
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,
                         ValueGenerated = isIdentity
                             ? ValueGenerated.OnAdd
-                            : isComputed
+                            : isComputed || dataTypeName == "timestamp"
                                 ? ValueGenerated.OnAddOrUpdate
                                 : default(ValueGenerated?)
                     };
@@ -360,9 +381,18 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     var schemaName = reader.GetValueOrDefault<string>("schema_name");
                     var tableName = reader.GetValueOrDefault<string>("table_name");
                     var indexName = reader.GetValueOrDefault<string>("index_name");
+                    var isUnique = reader.GetValueOrDefault<bool>("is_unique");
+                    var typeDesc = reader.GetValueOrDefault<string>("type_desc");
+                    var columnName = reader.GetValueOrDefault<string>("column_name");
+                    var indexOrdinal = reader.GetValueOrDefault<byte>("key_ordinal");
+
+                    Logger.LogTrace(SqlServerDesignStrings.FoundIndexColumn(
+                        schemaName, tableName, indexName, isUnique, typeDesc, columnName, indexOrdinal));
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
+                        Logger.LogTrace(SqlServerDesignStrings.IndexColumnNotInSelectionSet(
+                            columnName, indexName, schemaName, tableName));
                         continue;
                     }
 
@@ -389,15 +419,12 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         {
                             Table = table,
                             Name = indexName,
-                            IsUnique = reader.GetValueOrDefault<bool>("is_unique")
+                            IsUnique = isUnique
                         };
-                        index.SqlServer().IsClustered = reader.GetValueOrDefault<string>("type_desc") == "CLUSTERED";
+                        index.SqlServer().IsClustered = typeDesc == "CLUSTERED";
 
                         table.Indexes.Add(index);
                     }
-
-                    var columnName = reader.GetValueOrDefault<string>("column_name");
-                    var indexOrdinal = reader.GetValueOrDefault<byte>("key_ordinal");
 
                     ColumnModel column;
                     if (string.IsNullOrEmpty(columnName))
@@ -456,6 +483,17 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                     var schemaName = reader.GetValueOrDefault<string>("schema_name");
                     var tableName = reader.GetValueOrDefault<string>("table_name");
                     var fkName = reader.GetValueOrDefault<string>("foreign_key_name");
+                    var principalTableSchemaName = reader.GetValueOrDefault<string>("principal_table_schema_name");
+                    var principalTableName = reader.GetValueOrDefault<string>("principal_table_name");
+                    var fromColumnName = reader.GetValueOrDefault<string>("constraint_column_name");
+                    var toColumnName = reader.GetValueOrDefault<string>("referenced_column_name");
+                    var updateAction = reader.GetValueOrDefault<string>("update_referential_action_desc");
+                    var deleteAction = reader.GetValueOrDefault<string>("delete_referential_action_desc");
+                    var ordinal = reader.GetValueOrDefault<int>("constraint_column_id");
+
+                    Logger.LogTrace(SqlServerDesignStrings.FoundForeignKeyColumn(
+                        schemaName, tableName, fkName, principalTableSchemaName, principalTableName,
+                        fromColumnName, toColumnName, updateAction, deleteAction, ordinal));
 
                     if (string.IsNullOrEmpty(fkName))
                     {
@@ -465,6 +503,8 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
+                        Logger.LogTrace(SqlServerDesignStrings.ForeignKeyColumnNotInSelectionSet(
+                            fromColumnName, fkName, schemaName, tableName));
                         continue;
                     }
 
@@ -478,13 +518,17 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                         lastFkTableName = tableName;
                         var table = _tables[TableKey(tableName, schemaName)];
 
-                        var principalSchemaTableName = reader.GetValueOrDefault<string>("principal_table_schema_name");
-                        var principalTableName = reader.GetValueOrDefault<string>("principal_table_name");
                         TableModel principalTable = null;
-                        if (!string.IsNullOrEmpty(principalSchemaTableName)
+                        if (!string.IsNullOrEmpty(principalTableSchemaName)
                             && !string.IsNullOrEmpty(principalTableName))
                         {
-                            _tables.TryGetValue(TableKey(principalTableName, principalSchemaTableName), out principalTable);
+                            _tables.TryGetValue(TableKey(principalTableName, principalTableSchemaName), out principalTable);
+                        }
+
+                        if (principalTable == null)
+                        {
+                            Logger.LogTrace(SqlServerDesignStrings.PrincipalTableNotInSelectionSet(
+                                fkName, schemaName, tableName, principalTableSchemaName, principalTableName));
                         }
 
                         fkInfo = new ForeignKeyModel
@@ -492,7 +536,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
                             Name = fkName,
                             Table = table,
                             PrincipalTable = principalTable,
-                            OnDelete = ConvertToReferentialAction(reader.GetValueOrDefault<string>("delete_referential_action_desc"))
+                            OnDelete = ConvertToReferentialAction(deleteAction)
                         };
 
                         table.ForeignKeys.Add(fkInfo);
@@ -500,10 +544,8 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
 
                     var fkColumn = new ForeignKeyColumnModel
                     {
-                        Ordinal = reader.GetValueOrDefault<int>("constraint_column_id")
+                        Ordinal = ordinal
                     };
-
-                    var fromColumnName = reader.GetValueOrDefault<string>("constraint_column_name");
 
                     ColumnModel fromColumn;
                     if ((fromColumn = FindColumnForForeignKey(fromColumnName, fkInfo.Table, fkName)) != null)
@@ -513,7 +555,6 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name";
 
                     if (fkInfo.PrincipalTable != null)
                     {
-                        var toColumnName = reader.GetValueOrDefault<string>("referenced_column_name");
                         ColumnModel toColumn;
                         if ((toColumn = FindColumnForForeignKey(toColumnName, fkInfo.PrincipalTable, fkName)) != null)
                         {

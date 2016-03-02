@@ -4,17 +4,28 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqliteDatabaseModelFactory : IDatabaseModelFactory
     {
+        public SqliteDatabaseModelFactory([NotNull] ILoggerFactory loggerFactory)
+        {
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+
+            Logger = loggerFactory.CreateCommandsLogger();
+        }
+
+        public virtual ILogger Logger { get; }
+
         private SqliteConnection _connection;
         private TableSelectionSet _tableSelectionSet;
         private DatabaseModel _databaseModel;
@@ -59,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     ? databaseName
                     : _connection.DataSource;
 
-                GetSqliteMaster();
+                GetTables();
                 GetColumns();
                 GetIndexes();
                 GetForeignKeys();
@@ -67,42 +78,37 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
         }
 
-        private void GetSqliteMaster()
+        private void GetTables()
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT type, name, tbl_name FROM sqlite_master ORDER BY type DESC";
-
-            using (var reader = command.ExecuteReader())
+            using (var command = _connection.CreateCommand())
             {
-                while (reader.Read())
+                command.CommandText =
+                    "SELECT name FROM sqlite_master" +
+                    " WHERE type = 'table' AND name <> 'sqlite_sequence'";
+
+                using (var reader = command.ExecuteReader())
                 {
-                    var type = reader.GetValueOrDefault<string>("type");
-                    var name = reader.GetValueOrDefault<string>("name");
-                    var tableName = reader.GetValueOrDefault<string>("tbl_name");
-
-                    if (type == "table"
-                        && name != "sqlite_sequence"
-                        && _tableSelectionSet.Allows(name))
+                    while (reader.Read())
                     {
-                        var table = new TableModel
-                        {
-                            Database = _databaseModel,
-                            Name = name
-                        };
+                        var name = reader.GetValueOrDefault<string>("name");
 
-                        _databaseModel.Tables.Add(table);
-                        _tables.Add(name, table);
-                    }
-                    else if (type == "index"
-                             && _tables.ContainsKey(tableName))
-                    {
-                        var table = _tables[tableName];
+                        Logger.LogTrace(SqliteDesignStrings.FoundTable(name));
 
-                        table.Indexes.Add(new IndexModel
+                        if (_tableSelectionSet.Allows(name))
                         {
-                            Name = name,
-                            Table = table
-                        });
+                            var table = new TableModel
+                            {
+                                Database = _databaseModel,
+                                Name = name
+                            };
+
+                            _databaseModel.Tables.Add(table);
+                            _tables.Add(name, table);
+                        }
+                        else
+                        {
+                            Logger.LogTrace(SqliteDesignStrings.TableNotInSelectionSet(name));
+                        }
                     }
                 }
             }
@@ -112,31 +118,40 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             foreach (var table in _databaseModel.Tables)
             {
-                var command = _connection.CreateCommand();
-                command.CommandText = $"PRAGMA table_info(\"{table.Name.Replace("\"", "\"\"")}\");";
-
-                using (var reader = command.ExecuteReader())
+                using (var command = _connection.CreateCommand())
                 {
-                    var ordinal = 0;
-                    while (reader.Read())
+                    command.CommandText = $"PRAGMA table_info(\"{table.Name.Replace("\"", "\"\"")}\");";
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        var isPk = reader.GetValueOrDefault<bool>("pk");
-                        var typeName = reader.GetValueOrDefault<string>("type");
-                        var notNull = isPk || reader.GetValueOrDefault<bool>("notnull");
-
-                        var column = new ColumnModel
+                        var ordinal = 0;
+                        while (reader.Read())
                         {
-                            Table = table,
-                            Name = reader.GetValueOrDefault<string>("name"),
-                            DataType = typeName,
-                            PrimaryKeyOrdinal = isPk ? reader.GetValueOrDefault<int>("pk") : default(int?),
-                            IsNullable = !notNull,
-                            DefaultValue = reader.GetValueOrDefault<string>("dflt_value"),
-                            Ordinal = ordinal++
-                        };
+                            var columnName = reader.GetValueOrDefault<string>("name");
+                            var dataType = reader.GetValueOrDefault<string>("type");
+                            var primaryKeyOrdinal = reader.GetValueOrDefault<int>("pk");
+                            var notNull = reader.GetValueOrDefault<bool>("notnull");
+                            var defaultValue = reader.GetValueOrDefault<string>("dflt_value");
 
-                        table.Columns.Add(column);
-                        _tableColumns[ColumnKey(table, column.Name)] = column;
+                            Logger.LogTrace(SqliteDesignStrings.FoundColumn(
+                                table.Name, columnName, dataType, ordinal,
+                                notNull, primaryKeyOrdinal, defaultValue));
+
+                            var isPk = primaryKeyOrdinal != 0;
+                            var column = new ColumnModel
+                            {
+                                Table = table,
+                                Name = columnName,
+                                DataType = dataType,
+                                Ordinal = ordinal++,
+                                IsNullable = !notNull && !isPk,
+                                PrimaryKeyOrdinal = isPk ? primaryKeyOrdinal : default(int?),
+                                DefaultValue = defaultValue
+                            };
+
+                            table.Columns.Add(column);
+                            _tableColumns[ColumnKey(table, column.Name)] = column;
+                        }
                     }
                 }
             }
@@ -146,50 +161,61 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             foreach (var table in _databaseModel.Tables)
             {
-                var indexInfo = _connection.CreateCommand();
-                indexInfo.CommandText = $"PRAGMA index_list(\"{table.Name.Replace("\"", "\"\"")}\");";
-
-                using (var reader = indexInfo.ExecuteReader())
+                using (var indexInfo = _connection.CreateCommand())
                 {
-                    while (reader.Read())
-                    {
-                        var indexName = reader.GetValueOrDefault<string>("name");
-                        var isUnique = reader.GetValueOrDefault<bool>("unique");
-                        var index = table.Indexes.FirstOrDefault(i => i.Name.Equals(indexName, StringComparison.OrdinalIgnoreCase));
+                    indexInfo.CommandText = $"PRAGMA index_list(\"{table.Name.Replace("\"", "\"\"")}\");";
 
-                        if (index != null)
-                        {
-                            index.IsUnique = isUnique;
-                        }
-                    }
-                }
-
-                foreach (var index in table.Indexes)
-                {
-                    var indexColumns = _connection.CreateCommand();
-                    indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
-
-                    index.IndexColumns = new List<IndexColumnModel>();
-                    using (var reader = indexColumns.ExecuteReader())
+                    using (var reader = indexInfo.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            var columnName = reader.GetValueOrDefault<string>("name");
-                            if (string.IsNullOrEmpty(columnName))
+                            var index = new IndexModel
                             {
-                                continue;
-                            }
-
-                            var indexOrdinal = reader.GetValueOrDefault<int>("seqno");
-                            var column = _tableColumns[ColumnKey(index.Table, columnName)];
-
-                            var indexColumn = new IndexColumnModel
-                            {
-                                Ordinal = indexOrdinal,
-                                Column = column
+                                Name = reader.GetValueOrDefault<string>("name"),
+                                Table = table,
+                                IsUnique = reader.GetValueOrDefault<bool>("unique")
                             };
 
-                            index.IndexColumns.Add(indexColumn);
+                            Logger.LogTrace(SqliteDesignStrings
+                                .FoundIndex(index.Name, table.Name, index.IsUnique));
+
+                            table.Indexes.Add(index);
+                        }
+                    }
+
+                    foreach (var index in table.Indexes)
+                    {
+                        var indexColumns = _connection.CreateCommand();
+                        indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
+
+                        index.IndexColumns = new List<IndexColumnModel>();
+                        using (var reader = indexColumns.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var columnName = reader.GetValueOrDefault<string>("name");
+                                var indexOrdinal = reader.GetValueOrDefault<int>("seqno");
+
+                                Logger.LogTrace(SqliteDesignStrings.FoundIndexColumn(
+                                    index.Name, table.Name, columnName, indexOrdinal));
+
+                                if (string.IsNullOrEmpty(columnName))
+                                {
+                                    Logger.LogWarning(SqliteDesignStrings
+                                        .ColumnNameEmptyOnIndex(index.Name, table.Name));
+                                    continue;
+                                }
+
+                                var column = _tableColumns[ColumnKey(index.Table, columnName)];
+
+                                var indexColumn = new IndexColumnModel
+                                {
+                                    Ordinal = indexOrdinal,
+                                    Column = column
+                                };
+
+                                index.IndexColumns.Add(indexColumn);
+                            }
                         }
                     }
                 }
@@ -200,59 +226,75 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             foreach (var dependentTable in _databaseModel.Tables)
             {
-                var fkList = _connection.CreateCommand();
-                fkList.CommandText = $"PRAGMA foreign_key_list(\"{dependentTable.Name.Replace("\"", "\"\"")}\");";
-
-                var tableForeignKeys = new Dictionary<int, ForeignKeyModel>();
-
-                using (var reader = fkList.ExecuteReader())
+                using (var fkList = _connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    fkList.CommandText = $"PRAGMA foreign_key_list(\"{dependentTable.Name.Replace("\"", "\"\"")}\");";
+
+                    var tableForeignKeys = new Dictionary<int, ForeignKeyModel>();
+
+                    using (var reader = fkList.ExecuteReader())
                     {
-                        var id = reader.GetValueOrDefault<int>("id");
-                        var fkOrdinal = reader.GetValueOrDefault<int>("seq");
-                        var principalTableName = reader.GetValueOrDefault<string>("table");
-
-                        ForeignKeyModel foreignKey;
-                        if (!tableForeignKeys.TryGetValue(id, out foreignKey))
+                        while (reader.Read())
                         {
-                            TableModel principalTable;
-                            _tables.TryGetValue(principalTableName, out principalTable);
-                            foreignKey = new ForeignKeyModel
-                            {
-                                Table = dependentTable,
-                                PrincipalTable = principalTable,
-                                OnDelete = ConvertToReferentialAction(reader.GetValueOrDefault<string>("on_delete"))
-                            };
-                            tableForeignKeys.Add(id, foreignKey);
-                        }
-
-                        var fromColumnName = reader.GetValueOrDefault<string>("from");
-                        var fkColumn = new ForeignKeyColumnModel
-                        {
-                            Ordinal = fkOrdinal
-                        };
-
-                        fkColumn.Column = _tableColumns[ColumnKey(dependentTable, fromColumnName)];
-
-                        if (foreignKey.PrincipalTable != null)
-                        {
+                            var id = reader.GetValueOrDefault<int>("id");
+                            var principalTableName = reader.GetValueOrDefault<string>("table");
+                            var fromColumnName = reader.GetValueOrDefault<string>("from");
                             var toColumnName = reader.GetValueOrDefault<string>("to");
+                            var deleteAction = reader.GetValueOrDefault<string>("on_delete");
+                            var fkOrdinal = reader.GetValueOrDefault<int>("seq");
+
+                            Logger.LogTrace(SqliteDesignStrings.FoundForeignKeyColumn(
+                                dependentTable.Name, id, principalTableName, fromColumnName,
+                                toColumnName, deleteAction, fkOrdinal));
+
+                            ForeignKeyModel foreignKey;
+                            if (!tableForeignKeys.TryGetValue(id, out foreignKey))
+                            {
+                                TableModel principalTable;
+                                if (!_tables.TryGetValue(principalTableName, out principalTable))
+                                {
+                                    Logger.LogTrace(SqliteDesignStrings.PrincipalTableNotFound(
+                                        id, dependentTable.Name, principalTableName));
+                                    continue;
+                                }
+
+                                foreignKey = new ForeignKeyModel
+                                {
+                                    Table = dependentTable,
+                                    PrincipalTable = principalTable,
+                                    OnDelete = ConvertToReferentialAction(deleteAction)
+                                };
+                            }
+
+                            var fkColumn = new ForeignKeyColumnModel
+                            {
+                                Ordinal = fkOrdinal
+                            };
+
+                            fkColumn.Column = _tableColumns[ColumnKey(dependentTable, fromColumnName)];
+
                             ColumnModel toColumn;
                             if (!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
                             {
-                                toColumn = new ColumnModel { Name = toColumnName };
+                                Logger.LogTrace(SqliteDesignStrings.PrincipalColumnNotFound(
+                                    id, dependentTable.Name, toColumnName, principalTableName));
+                                continue;
                             }
                             fkColumn.PrincipalColumn = toColumn;
+
+                            foreignKey.Columns.Add(fkColumn);
+
+                            if (!tableForeignKeys.ContainsKey(id))
+                            {
+                                tableForeignKeys.Add(id, foreignKey);
+                            }
                         }
-
-                        foreignKey.Columns.Add(fkColumn);
                     }
-                }
 
-                foreach (var foreignKey in tableForeignKeys)
-                {
-                    dependentTable.ForeignKeys.Add(foreignKey.Value);
+                    foreach (var foreignKey in tableForeignKeys)
+                    {
+                        dependentTable.ForeignKeys.Add(foreignKey.Value);
+                    }
                 }
             }
         }

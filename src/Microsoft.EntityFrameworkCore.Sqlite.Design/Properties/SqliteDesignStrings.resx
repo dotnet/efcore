@@ -117,6 +117,33 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ColumnNameEmptyOnIndex" xml:space="preserve">
+    <value>Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.</value>
+  </data>
+  <data name="FoundColumn" xml:space="preserve">
+    <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, not nullable: {isNotNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}.</value>
+  </data>
+  <data name="FoundForeignKeyColumn" xml:space="preserve">
+    <value>Found foreign key column on table: {tableName}, id: {id}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
+  </data>
+  <data name="FoundIndex" xml:space="preserve">
+    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
+  </data>
+  <data name="FoundIndexColumn" xml:space="preserve">
+    <value>Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.</value>
+  </data>
+  <data name="FoundTable" xml:space="preserve">
+    <value>Found table with name: {name}.</value>
+  </data>
+  <data name="PrincipalColumnNotFound" xml:space="preserve">
+    <value>For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principalTableName}. Skipping foreign key.</value>
+  </data>
+  <data name="PrincipalTableNotFound" xml:space="preserve">
+    <value>For foreign key with identity {id} on table {tableName}, unable to find the principal table {principalTableName}. Either the principal table is missing from the database or it was not included in the selection set. Skipping foreign key.</value>
+  </data>
+  <data name="TableNotInSelectionSet" xml:space="preserve">
+    <value>Table {tableName} is not included in the selection set. Skipping.</value>
+  </data>
   <data name="UsingSchemaSelectionsWarning" xml:space="preserve">
     <value>Scaffolding from a SQLite database will ignore any schema selection arguments. </value>
   </data>

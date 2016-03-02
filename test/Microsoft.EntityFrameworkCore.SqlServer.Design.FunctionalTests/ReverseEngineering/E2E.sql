@@ -186,7 +186,7 @@ CREATE TABLE "dbo"."AllDataTypes" (
 GO
 
 CREATE INDEX "IX_UnscaffoldableIndex"
-	ON "dbo"."AllDataTypes" ( nvarcharColumn, sql_variantColumn )
+	ON "dbo"."AllDataTypes" ( nvarcharColumn, sql_variantColumn, hierarchyidColumn )
 
 GO
 

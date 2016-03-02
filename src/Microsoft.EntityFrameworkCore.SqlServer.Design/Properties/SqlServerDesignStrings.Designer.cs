@@ -45,11 +45,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// Column {columnName} belongs to table [{schema}].[{tableName}] which is not included in the selection set. Skipping.
+        /// </summary>
+        public static string ColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object schema, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ColumnNotInSelectionSet", "columnName", "schema", "tableName"), columnName, schema, tableName);
+        }
+
+        /// <summary>
         /// For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.
         /// </summary>
         public static string DataTypeDoesNotAllowSqlServerIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DataTypeDoesNotAllowSqlServerIdentityStrategy", "columnId", "sqlServerDataType"), columnId, sqlServerDataType);
+        }
+
+        /// <summary>
+        /// Foreign key column {columnName} belongs to foreign key {fkName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.
+        /// </summary>
+        public static string ForeignKeyColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object fkName, [CanBeNull] object schema, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyColumnNotInSelectionSet", "columnName", "fkName", "schema", "tableName"), columnName, fkName, schema, tableName);
         }
 
         /// <summary>
@@ -61,6 +77,70 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
+        /// </summary>
+        public static string FoundColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object ordinal, [CanBeNull] object isNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue, [CanBeNull] object precision, [CanBeNull] object scale, [CanBeNull] object maxLength, [CanBeNull] object isIdentity, [CanBeNull] object isComputed)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundColumn", "schema", "tableName", "columnName", "dataType", "ordinal", "isNullable", "primaryKeyOrdinal", "defaultValue", "precision", "scale", "maxLength", "isIdentity", "isComputed"), schema, tableName, columnName, dataType, ordinal, isNullable, primaryKeyOrdinal, defaultValue, precision, scale, maxLength, isIdentity, isComputed);
+        }
+
+        /// <summary>
+        /// Found default schema {defaultSchema}.
+        /// </summary>
+        public static string FoundDefaultSchema([CanBeNull] object defaultSchema)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundDefaultSchema", "defaultSchema"), defaultSchema);
+        }
+
+        /// <summary>
+        /// Found foreign key column with schema: {schema}, table: {tableName}, foreign key name: {fkName}, principal table schema: {principalTableSchema}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.
+        /// </summary>
+        public static string FoundForeignKeyColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object fkName, [CanBeNull] object principalTableSchema, [CanBeNull] object principalTableName, [CanBeNull] object columnName, [CanBeNull] object principalColumnName, [CanBeNull] object updateAction, [CanBeNull] object deleteAction, [CanBeNull] object ordinal)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundForeignKeyColumn", "schema", "tableName", "fkName", "principalTableSchema", "principalTableName", "columnName", "principalColumnName", "updateAction", "deleteAction", "ordinal"), schema, tableName, fkName, principalTableSchema, principalTableName, columnName, principalColumnName, updateAction, deleteAction, ordinal);
+        }
+
+        /// <summary>
+        /// Found index column with schema: {schema}, table: {tableName}, index name: {indexName}, unique: {isUnique}, type description: {typeDesc}, column name: {columnName}, ordinal: {ordinal}.
+        /// </summary>
+        public static string FoundIndexColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object indexName, [CanBeNull] object isUnique, [CanBeNull] object typeDesc, [CanBeNull] object columnName, [CanBeNull] object ordinal)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundIndexColumn", "schema", "tableName", "indexName", "isUnique", "typeDesc", "columnName", "ordinal"), schema, tableName, indexName, isUnique, typeDesc, columnName, ordinal);
+        }
+
+        /// <summary>
+        /// Found sequence with schema: {schema}, name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        /// </summary>
+        public static string FoundSequence([CanBeNull] object schema, [CanBeNull] object name, [CanBeNull] object dataType, [CanBeNull] object isCyclic, [CanBeNull] object increment, [CanBeNull] object start, [CanBeNull] object min, [CanBeNull] object max)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundSequence", "schema", "name", "dataType", "isCyclic", "increment", "start", "min", "max"), schema, name, dataType, isCyclic, increment, start, min, max);
+        }
+
+        /// <summary>
+        /// Found table with schema: {schema}, name: {name}.
+        /// </summary>
+        public static string FoundTable([CanBeNull] object schema, [CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundTable", "schema", "name"), schema, name);
+        }
+
+        /// <summary>
+        /// Found type alias {alias} which maps to underlying data type {dataType}.
+        /// </summary>
+        public static string FoundTypeAlias([CanBeNull] object alias, [CanBeNull] object dataType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundTypeAlias", "alias", "dataType"), alias, dataType);
+        }
+
+        /// <summary>
+        /// Index column {columnName} belongs to index {indexName} on table [{schema}].[{tableName}] which is not included in the selection set. Skipping.
+        /// </summary>
+        public static string IndexColumnNotInSelectionSet([CanBeNull] object columnName, [CanBeNull] object indexName, [CanBeNull] object schema, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IndexColumnNotInSelectionSet", "columnName", "indexName", "schema", "tableName"), columnName, indexName, schema, tableName);
+        }
+
+        /// <summary>
         /// Found an index on table [{schemaName}].[{tableName}] with an empty or null name. Skipping index.
         /// </summary>
         public static string IndexNameEmpty([CanBeNull] object schemaName, [CanBeNull] object tableName)
@@ -69,11 +149,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// For foreign key {fkName} on table [{schema}].[{tableName}], unable to model the end of the foreign key on principal table [{principalTableSchema}].[{principalTableName}]. This is usually because the principal table was not included in the selection set.
+        /// </summary>
+        public static string PrincipalTableNotInSelectionSet([CanBeNull] object fkName, [CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object principalTableSchema, [CanBeNull] object principalTableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PrincipalTableNotInSelectionSet", "fkName", "schema", "tableName", "principalTableSchema", "principalTableName"), fkName, schema, tableName, principalTableSchema, principalTableName);
+        }
+
+        /// <summary>
         /// Found a sequence in schema [{schemaName}] with an empty or null name. Skipping sequence.
         /// </summary>
         public static string SequenceNameEmpty([CanBeNull] object schemaName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("SequenceNameEmpty", "schemaName"), schemaName);
+        }
+
+        /// <summary>
+        /// Table [{schema}].[{tableName}] is not included in the selection set. Skipping.
+        /// </summary>
+        public static string TableNotInSelectionSet([CanBeNull] object schema, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TableNotInSelectionSet", "schema", "tableName"), schema, tableName);
         }
 
         /// <summary>
