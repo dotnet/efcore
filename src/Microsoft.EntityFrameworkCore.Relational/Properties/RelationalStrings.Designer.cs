@@ -357,11 +357,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Cannot use column name '{columnName}' in entity '{entityType}' for property '{property}' since it is being used for another property.
+        /// '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').
         /// </summary>
-        public static string DuplicateColumnName([CanBeNull] object columnName, [CanBeNull] object entityType, [CanBeNull] object property)
+        public static string DuplicateColumnName([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object dataType1, [CanBeNull] object dataType2)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnName", "columnName", "entityType", "property"), columnName, entityType, property);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnName", "entityType1", "property1", "entityType2", "property2", "columnName", "table", "dataType1", "dataType2"), entityType1, property1, entityType2, property2, columnName, table, dataType1, dataType2);
         }
 
         /// <summary>

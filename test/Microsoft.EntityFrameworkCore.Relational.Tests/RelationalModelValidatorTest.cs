@@ -1,11 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Tests.Infrastructure;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
@@ -81,7 +78,18 @@ namespace Microsoft.EntityFrameworkCore.Internal.Tests
             modelBuilder.Entity<Product>();
             modelBuilder.Entity<Product>().Property(b => b.Name).HasColumnName("Id");
 
-            VerifyError(RelationalStrings.DuplicateColumnName("Id", typeof(Product).FullName, "Name"), modelBuilder.Model);
+            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Product).Name, "Id", typeof(Product).Name, "Name", "Id", ".Product", "default_int_mapping", "just_string(2000)"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_columns_in_derived_types_with_different_types()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Dog>();
+
+            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "just_string(2000)", "default_int_mapping"), modelBuilder.Model);
         }
 
         [Fact]
@@ -89,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Internal.Tests
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>();
-            modelBuilder.Entity<Dog>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type);
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type);
 
             Validate(modelBuilder.Model);
         }
@@ -183,25 +191,27 @@ namespace Microsoft.EntityFrameworkCore.Internal.Tests
         {
         }
 
-        private class Product
+        protected class Product
         {
             public int Id { get; set; }
             public string Name { get; set; }
         }
 
-        private class Animal
+        protected class Animal
         {
             public int Id { get; set; }
         }
 
-        private class Cat : Animal
+        protected class Cat : Animal
         {
             public string Breed { get; set; }
+            public string Type { get; set; }
         }
 
-        private class Dog : Animal
+        protected class Dog : Animal
         {
             public string Breed { get; set; }
+            public int Type { get; set; }
         }
 
         protected override ModelValidator CreateModelValidator()
@@ -210,27 +220,5 @@ namespace Microsoft.EntityFrameworkCore.Internal.Tests
                     new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
                 new TestAnnotationProvider(),
                 new TestRelationalTypeMapper());
-
-        private class TestRelationalTypeMapper : IRelationalTypeMapper
-        {
-            public RelationalTypeMapping FindMapping(IProperty property)
-            {
-                throw new NotImplementedException();
-            }
-
-            public RelationalTypeMapping FindMapping(Type clrType)
-            {
-                throw new NotImplementedException();
-            }
-
-            public RelationalTypeMapping FindMapping(string typeName)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void ValidateTypeName(string typeName)
-            {
-            }
-        }
     }
 }

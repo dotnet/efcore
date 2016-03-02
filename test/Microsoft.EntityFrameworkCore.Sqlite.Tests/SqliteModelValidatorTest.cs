@@ -25,13 +25,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
             modelBuilder.Entity<Product>();
             modelBuilder.Entity<Product>().Property(b => b.Name).ForSqliteHasColumnName("Id");
 
-            VerifyError(RelationalStrings.DuplicateColumnName("Id", typeof(Product).FullName, "Name"), modelBuilder.Model);
+            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Product).Name, "Id", typeof(Product).Name, "Name", "Id", ".Product", "INTEGER", "TEXT"), modelBuilder.Model);
         }
 
-        private class Product
+        public override void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Dog>();
+
+            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "TEXT", "INTEGER"), modelBuilder.Model);
         }
 
         protected override ModelValidator CreateModelValidator()
