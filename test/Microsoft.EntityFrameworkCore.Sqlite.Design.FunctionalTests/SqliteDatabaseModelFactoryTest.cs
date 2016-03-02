@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
@@ -16,11 +19,23 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
     {
         private readonly SqliteTestStore _testStore;
         private readonly SqliteDatabaseModelFactory _factory;
+        private readonly TestLogger _logger;
 
         public SqliteDatabaseModelFactoryTest()
         {
             _testStore = SqliteTestStore.CreateScratch();
-            _factory = new SqliteDatabaseModelFactory();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging();
+            new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
+
+            var serviceProvider = serviceCollection
+                .BuildServiceProvider();
+
+            _logger = new TestLogger();
+            serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
+
+            _factory = serviceProvider
+                .GetService<IDatabaseModelFactory>() as SqliteDatabaseModelFactory;
         }
 
         [Fact]
