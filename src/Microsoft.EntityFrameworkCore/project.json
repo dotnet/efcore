@@ -23,7 +23,8 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.ComponentModel.DataAnnotations": ""
+        "System.ComponentModel.DataAnnotations": "",
+        "System.Runtime": { "type": "build" }
       }
     },
     "netstandard1.3": {
