@@ -2,33 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.DotNet.Cli.Utils;
 
 namespace Microsoft.Extensions.CommandLineUtils
 {
     internal static class CommandLineApplicationExtensions
     {
-        public static void Confirm(this CommandLineApplication command, string message, Func<int> confirmCallback, Func<int> cancelCallback, Func<bool> forceCheck)
-        {
-            command.OnExecute(
-                () =>
-                {
-                    var readedKey = 'N';
-                    if (!forceCheck())
-                    {
-                        Reporter.Output.WriteLine(message);
-                        readedKey = Console.ReadKey().KeyChar;
-                    }
-
-                    if (forceCheck() || (readedKey == 'y') || (readedKey == 'Y'))
-                    {
-                        return confirmCallback();
-                    }
-
-                    return cancelCallback();
-                });
-        }
-
         public static void OnExecute(this CommandLineApplication command, Action invoke)
             => command.OnExecute(
                 () =>
