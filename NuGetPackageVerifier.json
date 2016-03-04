@@ -7,14 +7,11 @@
             "dotnet-ef": { },
             "Microsoft.EntityFrameworkCore.Commands": { },
             "Microsoft.EntityFrameworkCore": { },
-            "Microsoft.EntityFrameworkCore.FunctionalTests": { },
             "Microsoft.EntityFrameworkCore.InMemory": { },
             "Microsoft.EntityFrameworkCore.SqlServer": { },
             "Microsoft.EntityFrameworkCore.SqlServer.Design": { },
             "Microsoft.EntityFrameworkCore.Relational": { },
             "Microsoft.EntityFrameworkCore.Relational.Design": { },
-            "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": { },
-            "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": { },
             "Microsoft.EntityFrameworkCore.Sqlite": { },
             "Microsoft.EntityFrameworkCore.Sqlite.Design": { }
         }
