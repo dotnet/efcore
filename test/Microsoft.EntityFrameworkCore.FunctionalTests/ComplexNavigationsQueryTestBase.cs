@@ -228,8 +228,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // issue #3186
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Join_navigation_key_access_optional()
         {
             List<Level1> levelOnes;
@@ -295,8 +294,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // issue #3186
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Navigation_key_access_optional_comparison()
         {
             List<Level2> levelTwos;
@@ -1860,13 +1858,124 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Include_nested_with_optional_navigation()
+        {
+            List<Level1> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne
+                                .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
+                                .ThenInclude(e => e.OneToOne_Required_FK).ToList()
+                            where l1.OneToOne_Optional_FK?.Name != "L2 09"
+                            select l1).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from l1 in context.LevelOne
+                                .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
+                                .ThenInclude(e => e.OneToOne_Required_FK)
+                            where l1.OneToOne_Optional_FK.Name != "L2 09"
+                            select l1;
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    var expectedElement = expected.Where(e => e.Id == result[i].Id).Single();
+
+                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Id, result[i].OneToOne_Optional_FK?.Id);
+                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.Name, result[i].OneToOne_Optional_FK?.Name);
+
+                    var resultCollection = result[i].OneToOne_Optional_FK?.OneToMany_Required;
+                    Assert.Equal(expectedElement.OneToOne_Optional_FK?.OneToMany_Required?.Count, resultCollection?.Count);
+
+                    if (resultCollection != null)
+                    {
+                        foreach (var inner in resultCollection)
+                        {
+                            Assert.True(expectedElement.OneToOne_Optional_FK.OneToMany_Required.Select(e => e.Id).Contains(inner.Id));
+                        }
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_groupjoin_skip_and_take()
+        {
+            List<KeyValuePair<Level1, IEnumerable<Level2>>> expected;
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne
+                                .Include(e => e.OneToMany_Optional)
+                                .ThenInclude(e => e.OneToOne_Optional_FK)
+                                .ToList()
+                            join l2 in context.LevelTwo
+                                .Include(e => e.OneToOne_Required_PK)
+                                .ToList()
+                            on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
+                            where l1.Name != "L1 03" || l1.Name == null
+                            select new KeyValuePair<Level1, IEnumerable<Level2>>(l1, grouping)).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = (from l1 in context.LevelOne
+                                 .Include(e => e.OneToMany_Optional)
+                                 .ThenInclude(e => e.OneToOne_Optional_FK)
+                             join l2 in context.LevelTwo.Include(e => e.OneToOne_Required_PK)
+                             on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
+                             where l1.Name != "L1 03"
+                             select new { l1, grouping }).Skip(1).Take(5);
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    var expectedElement = expected.Where(e => e.Key.Id == result[i].l1.Id).Single();
+
+                    var expectedOneToManyOptional = expectedElement.Key.OneToMany_Optional?.ToList();
+                    var actualOneToManyOptional = result[i].l1.OneToMany_Optional?.ToList();
+
+                    Assert.Equal(expectedOneToManyOptional?.Count, actualOneToManyOptional?.Count);
+                    if (expectedOneToManyOptional != null)
+                    {
+                        for (int j = 0; j < expectedOneToManyOptional.Count; j++)
+                        {
+                            Assert.Equal(expectedOneToManyOptional[j].OneToOne_Optional_FK.Id, actualOneToManyOptional[j].OneToOne_Optional_FK.Id);
+                        }
+                    }
+
+                    var expectedGrouping = expectedElement.Value?.ToList();
+                    var actualGrouping = result[i].grouping?.ToList();
+                    Assert.Equal(expectedGrouping?.Count(), result[i].grouping?.Count());
+                    if (expectedGrouping != null)
+                    {
+                        for (int j = 0; j < expectedGrouping.Count(); j++)
+                        {
+                            Assert.Equal(expectedGrouping[j].Id, actualGrouping[j].Id);
+                            Assert.Equal(expectedGrouping[j].OneToOne_Required_PK.Id, actualGrouping[j].OneToOne_Required_PK.Id);
+                        }
+                    }
+                }
+            }
+        }
+
         ////[ConditionalFact]
         public virtual void Join_flattening_bug_4539()
         {
             using (var context = CreateContext())
             {
                 var query = from l1 in context.LevelOne
-                            join l1_Optional in context.LevelTwo on (int?)l1.Id equals EF.Property<int?>(l1_Optional, "Level1_Optional_Id") into grouping
+                            join l1_Optional in context.LevelTwo on (int?)l1.Id equals l1_Optional.Level1_Optional_Id into grouping
                             from l1_Optional in grouping.DefaultIfEmpty()
                             from l2 in context.LevelTwo
                             join l2_Required_Reverse in context.LevelOne on l2.Level1_Required_Id equals l2_Required_Reverse.Id

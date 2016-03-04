@@ -281,15 +281,15 @@ ORDER BY [g1].[Nickname], [g1].[SquadId]",
             base.Select_Where_Navigation_Included();
 
             Assert.Equal(
-                @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+                @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [o.Gear].[Nickname], [o.Gear].[SquadId], [o.Gear].[AssignedCityName], [o.Gear].[CityOrBirthName], [o.Gear].[Discriminator], [o.Gear].[FullName], [o.Gear].[LeaderNickname], [o.Gear].[LeaderSquadId], [o.Gear].[Rank], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [CogTag] AS [o]
-INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])
+LEFT JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])
 LEFT JOIN (
     SELECT [g].*
     FROM [Gear] AS [g]
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [g] ON ([o].[GearNickName] = [g].[Nickname]) AND ([o].[GearSquadId] = [g].[SquadId])
-WHERE [o.Gear].[Nickname] = N'Marcus'",
+ORDER BY [o].[GearNickName], [o].[GearSquadId]",
                 Sql);
         }
 
@@ -468,16 +468,18 @@ ORDER BY [t00].[Nickname], [t00].[SquadId]",
             base.Include_with_nested_navigation_in_order_by();
 
             Assert.Equal(
-                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+                @"SELECT [w.Owner.CityOfBirth].[Name], [w.Owner.CityOfBirth].[Location]
+FROM [City] AS [w.Owner.CityOfBirth]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [w.Owner].[Nickname], [w.Owner].[SquadId], [w.Owner].[AssignedCityName], [w.Owner].[CityOrBirthName], [w.Owner].[Discriminator], [w.Owner].[FullName], [w.Owner].[LeaderNickname], [w.Owner].[LeaderSquadId], [w.Owner].[Rank], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Weapon] AS [w]
-INNER JOIN [Gear] AS [w.Owner] ON [w].[OwnerFullName] = [w.Owner].[FullName]
-INNER JOIN [City] AS [w.Owner.CityOfBirth] ON [w.Owner].[CityOrBirthName] = [w.Owner.CityOfBirth].[Name]
+LEFT JOIN [Gear] AS [w.Owner] ON [w].[OwnerFullName] = [w.Owner].[FullName]
 LEFT JOIN (
     SELECT [g].*
     FROM [Gear] AS [g]
     WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [g] ON [w].[OwnerFullName] = [g].[FullName]
-ORDER BY [w.Owner.CityOfBirth].[Name]",
+ORDER BY [w].[OwnerFullName]",
                 Sql);
         }
 

@@ -248,8 +248,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // TODO: include doesn't work with optional navigations
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Included()
         {
             using (var context = CreateContext())
@@ -400,8 +399,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // TODO: include doesn't work with optional navigations
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Include_with_nested_navigation_in_order_by()
         {
             using (var context = CreateContext())
