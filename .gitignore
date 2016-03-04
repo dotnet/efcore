@@ -31,3 +31,6 @@ config.test.json
 *.log
 /.build/
 .testPublish/
+.idea/
+*.sln.iml
+*.DotSettings
