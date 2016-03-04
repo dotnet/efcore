@@ -58,8 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             _provider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlite()
-                .AddDbContext<BatContext>()
-                .ServiceCollection()
                 .BuildServiceProvider();
         }
 

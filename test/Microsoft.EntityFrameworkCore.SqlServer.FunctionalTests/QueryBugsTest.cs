@@ -136,7 +136,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -174,8 +173,7 @@ ORDER BY [c0].[FirstName], [c0].[LastName]";
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSqlServer().
-                ServiceCollection()
+                .AddSqlServer()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -418,7 +416,6 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -462,7 +459,6 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 

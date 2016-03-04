@@ -20,9 +20,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public void Adds_in_memory_services()
         {
             var services = new ServiceCollection();
-            var builder = new EntityFrameworkServicesBuilder(services);
 
-            _applyServices.Invoke(new InMemoryOptionsExtension(), new object[] { builder });
+            _applyServices.Invoke(new InMemoryOptionsExtension(), new object[] { services });
 
             Assert.True(services.Any(sd => sd.ServiceType == typeof(IInMemoryDatabase)));
         }

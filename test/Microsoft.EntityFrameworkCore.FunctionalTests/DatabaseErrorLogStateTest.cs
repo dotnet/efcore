@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .GetInfrastructure()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -126,7 +125,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .ServiceCollection()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -168,7 +166,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .GetInfrastructure()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 

@@ -35,7 +35,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .ServiceCollection()
                     .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder();

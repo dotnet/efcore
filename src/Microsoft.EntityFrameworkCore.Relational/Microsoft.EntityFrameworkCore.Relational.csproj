@@ -73,7 +73,7 @@
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Infrastructure\RelationalCommandListBuilder.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
-    <Compile Include="Infrastructure\RelationalEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="Infrastructure\RelationalServiceCollectionExtensions.cs" />
     <Compile Include="Infrastructure\RelationalLoggingEventId.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
     <Compile Include="Internal\RelationalDiagnostics.cs" />

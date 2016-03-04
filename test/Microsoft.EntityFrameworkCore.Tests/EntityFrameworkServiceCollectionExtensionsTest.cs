@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             // Query
             VerifySingleton<IMemoryCache>();
-            VerifySingleton<ICompiledQueryCache>();
 
+            VerifyScoped<ICompiledQueryCache>();
             VerifyScoped<IAsyncQueryProvider>();
             VerifyScoped<IQueryContextFactory>();
             VerifyScoped<IQueryCompiler>();
@@ -105,10 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             _secondContext = _testHelpers.CreateContext(serviceProvider);
         }
 
-        private IServiceCollection AddServices(IServiceCollection serviceCollection)
-        {
-            return _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework()).GetInfrastructure();
-        }
+        private IServiceCollection AddServices(IServiceCollection serviceCollection) 
+            => _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework());
 
         public void Dispose()
         {

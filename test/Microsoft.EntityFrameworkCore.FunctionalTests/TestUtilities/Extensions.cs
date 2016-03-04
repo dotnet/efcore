@@ -4,10 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable once CheckNamespace
 
@@ -15,9 +13,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public static class Extensions
     {
-        public static IServiceCollection ServiceCollection(this EntityFrameworkServicesBuilder builder)
-            => builder.GetInfrastructure();
-
         public static IEnumerable<T> NullChecked<T>(this IEnumerable<T> enumerable)
             => enumerable ?? Enumerable.Empty<T>();
 

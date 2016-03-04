@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
@@ -23,12 +22,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .AddDbContext<JustSomeContext>()
-                .ServiceCollection()
                 .AddSingleton<InMemoryModelSource, MyModelSource>()
                 .BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
+            using (var context = new JustSomeContext(serviceProvider))
             {
                 var model = context.Model;
 
@@ -44,12 +41,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .AddDbContext<JustSomeContext>()
-                .ServiceCollection()
                 .AddSingleton<IModelCustomizer, MyModelCustomizer>()
                 .BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
+            using (var context = new JustSomeContext(serviceProvider))
             {
                 var model = context.Model;
                 Assert.Equal("Us!", model["AllYourModelAreBelongTo"]);
@@ -94,9 +89,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             public DbSet<Peak> Peaks { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Base>().HasAnnotation("AllYourBaseAreBelongTo", "Us!");
-            }
+                => modelBuilder.Entity<Base>().HasAnnotation("AllYourBaseAreBelongTo", "Us!");
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();

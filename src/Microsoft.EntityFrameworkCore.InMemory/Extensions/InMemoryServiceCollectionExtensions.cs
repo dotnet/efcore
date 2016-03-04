@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -16,18 +15,16 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class InMemoryEntityFrameworkServicesBuilderExtensions
+    public static class InMemoryServiceCollectionExtensions
     {
-        public static EntityFrameworkServicesBuilder AddInMemoryDatabase([NotNull] this EntityFrameworkServicesBuilder builder)
+        public static IServiceCollection AddInMemoryDatabase([NotNull] this IServiceCollection services)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(services, nameof(services));
 
-            var service = builder.GetInfrastructure();
-
-            service.TryAddEnumerable(ServiceDescriptor
+            services.TryAddEnumerable(ServiceDescriptor
                 .Singleton<IDatabaseProvider, DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>>());
 
-            service.TryAdd(new ServiceCollection()
+            services.TryAdd(new ServiceCollection()
                 .AddSingleton<InMemoryValueGeneratorCache>()
                 .AddSingleton<IInMemoryStore, InMemoryStore>()
                 .AddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
@@ -39,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<InMemoryDatabaseCreator>()
                 .AddQuery());
 
-            return builder;
+            return services;
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)

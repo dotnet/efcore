@@ -61,7 +61,7 @@
     <Compile Include="Infrastructure\Internal\SqliteModelSource.cs" />
     <Compile Include="Infrastructure\Internal\SqliteOptionsExtension.cs" />
     <Compile Include="Infrastructure\SqliteDbContextOptionsBuilder.cs" />
-    <Compile Include="Infrastructure\SqliteEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="Infrastructure\SqliteServiceCollectionExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteEntityTypeBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteIndexBuilderExtensions.cs" />
     <Compile Include="Metadata\Builders\SqliteKeyBuilderExtensions.cs" />

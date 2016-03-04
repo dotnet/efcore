@@ -28,13 +28,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
-    public static class RelationalEntityFrameworkServicesBuilderExtensions
+    public static class RelationalServiceCollectionExtensions
     {
-        public static EntityFrameworkServicesBuilder AddRelational([NotNull] this EntityFrameworkServicesBuilder builder)
+        public static IServiceCollection AddRelational([NotNull] this IServiceCollection services)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(services, nameof(services));
 
-            builder.GetInfrastructure()
+            services
                 .TryAdd(new ServiceCollection()
                     .AddSingleton(s => new DiagnosticListener("Microsoft.EntityFrameworkCore"))
                     .AddSingleton<DiagnosticSource>(s => s.GetService<DiagnosticListener>())
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .AddScoped(p => GetProviderServices(p).AnnotationProvider)
                     .AddQuery());
 
-            return builder;
+            return services;
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)

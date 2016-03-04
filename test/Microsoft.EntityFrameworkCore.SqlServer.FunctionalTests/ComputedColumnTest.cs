@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
@@ -40,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
@@ -143,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new NullableContext(serviceProvider, "NullableEnumComputedColumns"))

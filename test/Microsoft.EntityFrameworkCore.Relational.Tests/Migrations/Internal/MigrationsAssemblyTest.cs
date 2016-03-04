@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 
         private class ConcreteOptionsExtension : RelationalOptionsExtension
         {
-            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public override void ApplyServices(IServiceCollection services)
             {
             }
         }

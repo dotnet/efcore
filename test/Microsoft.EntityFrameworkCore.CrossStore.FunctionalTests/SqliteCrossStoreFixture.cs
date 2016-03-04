@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                 new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlite()
-                    .ServiceCollection()
                     .BuildServiceProvider());
         }
 

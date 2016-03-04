@@ -100,7 +100,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var connStrBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)

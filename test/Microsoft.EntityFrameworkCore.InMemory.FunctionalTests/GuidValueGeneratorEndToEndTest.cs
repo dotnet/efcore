@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var guids = new List<Guid>();
