@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
     public class FakeDbParameterCollection : DbParameterCollection
     {

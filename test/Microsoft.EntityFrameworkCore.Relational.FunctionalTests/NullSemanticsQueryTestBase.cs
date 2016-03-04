@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;

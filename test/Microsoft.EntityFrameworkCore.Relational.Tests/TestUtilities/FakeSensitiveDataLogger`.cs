@@ -5,7 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
 {
     public class FakeSensitiveDataLogger<T> : ISensitiveDataLogger<T>
 

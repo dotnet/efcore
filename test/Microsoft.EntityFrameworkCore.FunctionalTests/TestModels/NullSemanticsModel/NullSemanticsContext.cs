@@ -4,7 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel
 {
     public class NullSemanticsContext : DbContext
     {

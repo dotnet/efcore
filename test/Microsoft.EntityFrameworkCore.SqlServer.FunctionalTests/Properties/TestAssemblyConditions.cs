@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 
 [assembly: TestFramework("ConditionalTestFramework", "Microsoft.EntityFrameworkCore.FunctionalTests")]

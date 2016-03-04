@@ -3,10 +3,12 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class ClrPropertySetterFactoryTest
     {

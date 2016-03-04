@@ -8,7 +8,7 @@
     <ProjectGuid>{AB8D4BD7-8AB6-4004-AF21-32790EED93BC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.InMemory.Tests</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.InMemory.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

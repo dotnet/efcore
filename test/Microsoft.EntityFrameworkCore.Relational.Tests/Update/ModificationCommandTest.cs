@@ -6,10 +6,11 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Update
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 {
     public class ModificationCommandTest
     {

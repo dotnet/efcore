@@ -8,7 +8,7 @@
     <ProjectGuid>{47C167C3-ABB0-442D-B528-7666E1FBF19A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

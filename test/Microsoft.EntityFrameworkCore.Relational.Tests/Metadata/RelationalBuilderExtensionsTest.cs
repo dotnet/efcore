@@ -1,15 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Tests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 {
     public class RelationalBuilderExtensionsTest
     {

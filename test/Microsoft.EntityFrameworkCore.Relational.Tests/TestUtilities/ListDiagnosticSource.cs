@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
 {
     public class ListDiagnosticSource : DiagnosticSource
     {

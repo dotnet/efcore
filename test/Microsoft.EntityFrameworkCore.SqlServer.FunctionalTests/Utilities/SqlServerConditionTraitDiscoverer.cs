@@ -7,7 +7,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public class SqlServerConditionTraitDiscoverer : ITraitDiscoverer
     {

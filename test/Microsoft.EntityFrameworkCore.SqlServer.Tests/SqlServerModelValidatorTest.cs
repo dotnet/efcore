@@ -4,9 +4,9 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Internal.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
@@ -34,12 +34,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             modelBuilder.Entity<Dog>();
 
             VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "nvarchar(max)", "int"), modelBuilder.Model);
-        }
-
-        private class Product
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
         }
 
         public virtual void Throws_for_unsupported_data_types()

@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels
 {

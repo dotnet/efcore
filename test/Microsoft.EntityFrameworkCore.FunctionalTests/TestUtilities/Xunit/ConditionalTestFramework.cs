@@ -2,22 +2,24 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 // ReSharper disable once CheckNamespace
-public class ConditionalTestFramework : XunitTestFramework
+namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
-    public ConditionalTestFramework(IMessageSink messageSink)
-        : base(messageSink)
+    public class ConditionalTestFramework : XunitTestFramework
     {
-        messageSink.OnMessage(new DiagnosticMessage
+        public ConditionalTestFramework(IMessageSink messageSink)
+            : base(messageSink)
         {
-            Message = "Using " + nameof(ConditionalTestFramework)
-        });
-    }
+            messageSink.OnMessage(new DiagnosticMessage
+            {
+                Message = "Using " + nameof(ConditionalTestFramework)
+            });
+        }
 
-    protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)
-        => new ConditionalTestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);
+        protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)
+            => new ConditionalTestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);
+    }
 }

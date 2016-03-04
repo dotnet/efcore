@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.InMemory
+namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 {
     public class InMemoryDbContextOptionsExtensionsTest
     {

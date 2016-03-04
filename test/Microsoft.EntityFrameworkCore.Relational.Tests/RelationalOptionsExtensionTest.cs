@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests
 {
     public class RelationalOptionsExtensionTest
     {

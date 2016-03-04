@@ -3,12 +3,10 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata
+namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
 {
     public class SqliteInternalMetadataBuilderExtensionsTest
     {

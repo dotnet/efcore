@@ -8,7 +8,7 @@
     <ProjectGuid>{7E436D99-82A6-496C-A725-0819CBED056D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite.Tests</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

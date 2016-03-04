@@ -14,7 +14,7 @@ using Xunit;
 // ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable UnusedMember.Local
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class ClrCollectionAccessorFactoryTest
     {

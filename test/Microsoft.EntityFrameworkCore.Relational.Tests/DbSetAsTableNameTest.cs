@@ -3,7 +3,7 @@
 
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests
 {
     public abstract class DbSetAsTableNameTest
     {

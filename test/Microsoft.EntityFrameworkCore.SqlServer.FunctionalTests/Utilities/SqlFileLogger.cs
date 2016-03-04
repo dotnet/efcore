@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     // Watch the log in PS with: "tail -f $env:userprofile\.klog\sql.log"
     public class SqlFileLogger : TestFileLogger

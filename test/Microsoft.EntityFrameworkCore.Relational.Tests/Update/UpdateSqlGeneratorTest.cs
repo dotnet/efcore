@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 {
     public class UpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {

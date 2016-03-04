@@ -8,7 +8,7 @@
     <ProjectGuid>{7EAC2B8E-4AF6-40D2-95C0-A6662762A7E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

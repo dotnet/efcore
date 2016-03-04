@@ -3,13 +3,11 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.Internal
 {
     public class RelationalPropertyMappingValidationConventionTest
     {

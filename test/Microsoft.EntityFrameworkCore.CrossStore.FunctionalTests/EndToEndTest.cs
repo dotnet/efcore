@@ -3,16 +3,17 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 {
     public abstract class EndToEndTest<TTestStore, TFixture> : IDisposable
         where TTestStore : TestStore

@@ -4,6 +4,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using Xunit;
@@ -11,7 +13,7 @@ using Xunit;
 // ReSharper disable ConvertPropertyToExpressionBody
 // ReSharper disable ConvertToAutoProperty
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class EntityMaterializerSourceTest
     {

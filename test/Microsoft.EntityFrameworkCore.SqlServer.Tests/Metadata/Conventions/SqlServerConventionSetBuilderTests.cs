@@ -4,10 +4,10 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Tests;
+using Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Conventions.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
 {
     public class SqlServerConventionSetBuilderTests : ConventionSetBuilderTests
     {

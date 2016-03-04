@@ -3,13 +3,13 @@
 
 using System;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Relational.Tests.Update;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 {
     public class SqlServerUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {

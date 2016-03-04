@@ -4,7 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
+namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels
 {
     public class CrossStoreContext : DbContext
     {
