@@ -36,9 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUt
                 {
                     if (string.IsNullOrEmpty(reference.Path))
                     {
-                        throw new InvalidOperationException("Could not find path for reference " + reference.ToString());
+                        throw new InvalidOperationException("Could not find path for reference " + reference);
                     }
-                    File.Copy(reference.Path, Path.Combine(TargetDir, Path.GetFileName(reference.Path)));
+                    File.Copy(reference.Path, Path.Combine(TargetDir, Path.GetFileName(reference.Path)), overwrite: true);
                 }
 
                 references.AddRange(reference.References);

@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -65,7 +64,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             long id1;
@@ -126,7 +124,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var ids = new int[3];

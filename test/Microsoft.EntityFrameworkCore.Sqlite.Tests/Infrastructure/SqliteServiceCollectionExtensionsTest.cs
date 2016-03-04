@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Infrastructure
 {
-    public class SqliteEntityFrameworkServicesBuilderExtensionsTest : RelationalEntityFrameworkServicesBuilderExtensionsTest
+    public class SqliteServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTest
     {
         public override void Services_wire_up_correctly()
         {
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Infrastructure
             VerifyScoped<SqliteCompositeMemberTranslator>();
         }
 
-        public SqliteEntityFrameworkServicesBuilderExtensionsTest()
+        public SqliteServiceCollectionExtensionsTest()
             : base(SqliteTestHelpers.Instance)
         {
         }

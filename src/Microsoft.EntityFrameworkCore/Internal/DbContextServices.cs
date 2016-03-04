@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -15,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private IServiceProvider _provider;
         private IDbContextOptions _contextOptions;
+        private ILoggerFactory _loggerFactory;
+        private IMemoryCache _memoryCache;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<IDatabaseProviderServices> _providerServices;
@@ -23,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual IDbContextServices Initialize(
             IServiceProvider scopedProvider,
             IDbContextOptions contextOptions,
+            ILoggerFactory loggerFactory,
+            IMemoryCache memoryCache,
             DbContext context,
             ServiceProviderSource serviceProviderSource)
         {
@@ -32,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             _provider = scopedProvider;
             _contextOptions = contextOptions;
+            _loggerFactory = loggerFactory;
+            _memoryCache = memoryCache;
             _context = context;
 
             _providerServices = new LazyRef<IDatabaseProviderServices>(() =>
@@ -67,6 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual DbContext Context => _context;
 
         public virtual IModel Model => _contextOptions.FindExtension<CoreOptionsExtension>()?.Model ?? _modelFromSource.Value;
+
+        public virtual ILoggerFactory LoggerFactory => _loggerFactory ?? _provider.GetRequiredService<ILoggerFactory>();
+
+        public virtual IMemoryCache MemoryCache => _memoryCache ?? _provider.GetRequiredService<IMemoryCache>();
 
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 

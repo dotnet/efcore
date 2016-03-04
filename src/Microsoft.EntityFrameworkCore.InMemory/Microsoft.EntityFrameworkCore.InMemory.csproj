@@ -59,7 +59,7 @@
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
     <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />
-    <Compile Include="Extensions\InMemoryEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="Extensions\InMemoryServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\Internal\InMemoryLoggerExtensions.cs" />
     <Compile Include="Infrastructure\InMemoryDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\InMemoryLoggingEventId.cs" />

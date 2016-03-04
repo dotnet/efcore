@@ -163,7 +163,6 @@
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
-    <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="Infrastructure\IAnnotatable.cs" />
     <Compile Include="Infrastructure\IAnnotation.cs" />
@@ -182,9 +181,9 @@
     <Compile Include="Infrastructure\ModelSource.cs" />
     <Compile Include="Infrastructure\SensitiveDataLogger.cs" />
     <Compile Include="Internal\ConcurrencyDetector.cs" />
+    <Compile Include="Internal\InterceptingLogger.cs" />
     <Compile Include="Internal\CoreOptionsExtension.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />
-    <Compile Include="Internal\DbContextActivator.cs" />
     <Compile Include="Internal\DbContextServices.cs" />
     <Compile Include="Internal\DbSetFinder.cs" />
     <Compile Include="Internal\DbSetFinderExtensions.cs" />

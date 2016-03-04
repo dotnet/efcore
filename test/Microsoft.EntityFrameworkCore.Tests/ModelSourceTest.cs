@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 });
 
             var model = CreateDefaultModelSource(setFinderMock.Object)
-                .GetModel(new Mock<DbContext>().Object, null,
+                .GetModel(new Mock<DbContext>(null, null).Object, null,
                     new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 
             Assert.Equal(

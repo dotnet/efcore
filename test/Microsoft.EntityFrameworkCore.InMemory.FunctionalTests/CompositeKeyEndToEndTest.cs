@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .GetInfrastructure()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -63,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             long id1;
@@ -120,7 +118,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var ids = new int[3];

@@ -23,7 +23,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class SqlServerEntityFrameworkServicesBuilderExtensions
+    public static class SqlServerServiceCollectionExtensions
     {
         /// <summary>
         ///     <para>
@@ -50,20 +50,20 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         }
         ///     </code>
         /// </example>
-        /// <param name="builder"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
         ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
         /// </returns>
-        public static EntityFrameworkServicesBuilder AddSqlServer([NotNull] this EntityFrameworkServicesBuilder builder)
+        public static IServiceCollection AddSqlServer([NotNull] this IServiceCollection services)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(services, nameof(services));
 
-            var service = builder.AddRelational().GetInfrastructure();
+            services.AddRelational();
 
-            service.TryAddEnumerable(ServiceDescriptor
+            services.TryAddEnumerable(ServiceDescriptor
                 .Singleton<IDatabaseProvider, DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>>());
 
-            service.TryAdd(new ServiceCollection()
+            services.TryAdd(new ServiceCollection()
                 .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                 .AddSingleton<SqlServerTypeMapper>()
                 .AddSingleton<SqlServerSqlGenerationHelper>()
@@ -84,7 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<SqlServerCompiledQueryCacheKeyGenerator>()
                 .AddQuery());
 
-            return builder;
+            return services;
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)

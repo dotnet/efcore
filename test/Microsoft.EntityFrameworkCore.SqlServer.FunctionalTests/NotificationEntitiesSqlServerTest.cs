@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .ServiceCollection()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 

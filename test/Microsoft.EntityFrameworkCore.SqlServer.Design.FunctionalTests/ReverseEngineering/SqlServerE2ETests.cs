@@ -270,6 +270,8 @@ CREATE SEQUENCE NumericSequence
 #endif
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+            BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions"),
+            BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions")
         };
     }
 }

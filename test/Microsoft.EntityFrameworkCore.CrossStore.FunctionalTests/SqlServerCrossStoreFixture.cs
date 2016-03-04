@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer()
                     .AddInMemoryDatabase()
-                    .ServiceCollection()
                     .BuildServiceProvider());
         }
 

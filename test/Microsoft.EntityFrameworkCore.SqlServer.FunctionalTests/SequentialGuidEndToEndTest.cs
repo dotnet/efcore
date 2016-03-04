@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "GooieBronies"))
@@ -53,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var guids = new List<Guid>();

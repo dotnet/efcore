@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     {
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
-            var serviceCollection = new ServiceCollection().AddEntityFramework().AddInMemoryDatabase().ServiceCollection();
+            var serviceCollection = new ServiceCollection().AddEntityFramework().AddInMemoryDatabase();
 
             if (throwingStateManager)
             {

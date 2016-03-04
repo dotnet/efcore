@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
             .AddEntityFramework()
             .AddSqlite()
-            .ServiceCollection()
             .BuildServiceProvider();
 
         [Fact]

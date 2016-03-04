@@ -62,7 +62,7 @@
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
     <Compile Include="Extensions\SqlServerDbContextOptionsExtensions.cs" />
-    <Compile Include="Extensions\SqlServerEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="Extensions\SqlServerServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\SqlServerEntityTypeBuilderExtensions.cs" />
     <Compile Include="Extensions\SqlServerIndexBuilderExtensions.cs" />
     <Compile Include="Extensions\SqlServerKeyBuilderExtensions.cs" />

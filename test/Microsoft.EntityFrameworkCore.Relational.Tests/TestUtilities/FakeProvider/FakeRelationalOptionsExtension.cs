@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         {
         }
 
-        public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+        public override void ApplyServices(IServiceCollection bservices)
         {
             throw new NotImplementedException();
         }

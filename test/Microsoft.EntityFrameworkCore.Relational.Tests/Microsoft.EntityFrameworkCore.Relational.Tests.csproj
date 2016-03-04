@@ -54,7 +54,7 @@
     <Compile Include="RelationalConnectionTest.cs" />
     <Compile Include="RelationalDatabaseFacadeExtensionsTest.cs" />
     <Compile Include="RelationalDatabaseTest.cs" />
-    <Compile Include="RelationalEntityFrameworkServicesBuilderExtensionsTest.cs" />
+    <Compile Include="RelationalServiceCollectionExtensionsTest.cs" />
     <Compile Include="RelationalModelValidatorTest.cs" />
     <Compile Include="RelationalOptionsExtensionTest.cs" />
     <Compile Include="SqlBatchBuilderTest.cs" />

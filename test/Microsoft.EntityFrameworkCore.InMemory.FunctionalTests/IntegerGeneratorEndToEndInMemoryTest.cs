@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             AddEntities(serviceProvider);
@@ -57,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             await AddEntitiesAsync(serviceProvider);
@@ -96,7 +94,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             const int threadCount = 50;

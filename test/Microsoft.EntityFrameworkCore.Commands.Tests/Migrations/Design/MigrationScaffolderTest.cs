@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private class MockRelationalOptionsExtension : RelationalOptionsExtension
         {
-            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public override void ApplyServices(IServiceCollection services)
             {
             }
         }

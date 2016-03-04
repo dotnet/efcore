@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlite()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -63,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlite()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var ids = new int[3];

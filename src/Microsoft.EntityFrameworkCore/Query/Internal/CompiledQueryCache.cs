@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -16,9 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly IMemoryCache _memoryCache;
 
-        public CompiledQueryCache([NotNull] IMemoryCache memoryCache)
+        public CompiledQueryCache([NotNull] IDbContextServices contextServices)
         {
-            _memoryCache = memoryCache;
+            _memoryCache = contextServices.MemoryCache;
         }
 
         public virtual Func<QueryContext, TResult> GetOrAddQuery<TResult>(

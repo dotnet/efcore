@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 {
-    public class InMemoryEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public class InMemoryServiceCollectionExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
         public override void Services_wire_up_correctly()
         {
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 
         }
 
-        public InMemoryEntityFrameworkServicesBuilderExtensionsTest()
+        public InMemoryServiceCollectionExtensionsTest()
             : base(InMemoryTestHelpers.Instance)
         {
         }
