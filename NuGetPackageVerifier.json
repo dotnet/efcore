@@ -19,6 +19,16 @@
             "Microsoft.EntityFrameworkCore.Sqlite.Design": { }
         }
     },
+    "adx-nonshipping": {
+        "rules": [
+            // don't run any rules for packages the ADX team creates but doesn't ship
+        ],
+        "packages": {
+            "Microsoft.EntityFrameworkCore.FunctionalTests": {},
+            "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": {},
+            "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": {}
+        }
+    },
     "Default": { // Rules to run for packages not listed in any other set.
         "rules": [
             "DefaultCompositeRule"
