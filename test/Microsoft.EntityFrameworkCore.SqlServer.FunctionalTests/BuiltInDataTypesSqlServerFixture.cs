@@ -310,13 +310,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
-        // See Issue #4478
-        //public string Text { get; set; }
-        //public string Ntext { get; set; }
+        public string Text { get; set; }
+        public string Ntext { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
-        // See Issue #4478
-        //public byte[] Image { get; set; }
+        public byte[] Image { get; set; }
         public decimal Decimal { get; set; }
         public decimal Dec { get; set; }
         public decimal Numeric { get; set; }
@@ -392,13 +390,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
-        // See Issue #4478
-        //public string Text { get; set; }
-        //public string Ntext { get; set; }
+        public string Text { get; set; }
+        public string Ntext { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
-        // See Issue #4478
-        //public byte[] Image { get; set; }
+        public byte[] Image { get; set; }
         public decimal? Decimal { get; set; }
         public decimal? Dec { get; set; }
         public decimal? Numeric { get; set; }

@@ -1223,7 +1223,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Metadata.Internal.EntityTypeTest", new Model().AddEntityType(typeof(EntityTypeTest)).Name);
             Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Metadata.Internal.EntityTypeTest+Customer", new Model().AddEntityType(typeof(Customer)).Name);
-            Assert.Equal("System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest+Customer>", new Model().AddEntityType(typeof(List<Customer>)).Name);
+            Assert.Equal("System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Tests.Metadata.Internal.EntityTypeTest+Customer>", new Model().AddEntityType(typeof(List<Customer>)).Name);
         }
 
         [Fact]
