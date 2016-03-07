@@ -218,6 +218,42 @@ ORDER BY [c0].[Name], [c0].[Id]",
                 Sql);
         }
 
+        public override void Discriminator_used_when_projection_over_derived_type()
+        {
+            base.Discriminator_used_when_projection_over_derived_type();
+
+            Assert.Equal(
+                @"SELECT [k].[FoundOn]
+FROM [Animal] AS [k]
+WHERE [k].[Discriminator] = N'Kiwi'",
+                Sql);
+        }
+
+        public override void Discriminator_used_when_projection_over_derived_type2()
+        {
+            base.Discriminator_used_when_projection_over_derived_type2();
+
+            Assert.Equal(
+                @"SELECT [b].[IsFlightless], [b].[Discriminator]
+FROM [Animal] AS [b]
+WHERE ([b].[Discriminator] = N'Kiwi') OR ([b].[Discriminator] = N'Eagle')",
+                Sql);
+        }
+
+        public override void Discriminator_used_when_projection_over_of_type()
+        {
+            base.Discriminator_used_when_projection_over_of_type();
+
+            Assert.Equal(
+                @"SELECT [t].[FoundOn]
+FROM (
+    SELECT [a0].[Species], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
+    FROM [Animal] AS [a0]
+    WHERE [a0].[Discriminator] = N'Kiwi'
+) AS [t]",
+                Sql);
+        }
+
         public override void Can_insert_update_delete()
         {
             base.Can_insert_update_delete();

@@ -841,8 +841,9 @@ FROM [Gear] AS [g]
 INNER JOIN [CogTag] AS [t] ON [g].[FullName] = (
     SELECT TOP(1) [subQuery0].[FullName]
     FROM [Gear] AS [subQuery0]
-    WHERE ([subQuery0].[Nickname] = [t].[GearNickName]) AND ([subQuery0].[SquadId] = [t].[GearSquadId])
-)",
+    WHERE (([subQuery0].[Discriminator] = N'Officer') OR ([subQuery0].[Discriminator] = N'Gear')) AND (([subQuery0].[Nickname] = [t].[GearNickName]) AND ([subQuery0].[SquadId] = [t].[GearSquadId]))
+)
+WHERE ([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')",
                 Sql);
         }
 
