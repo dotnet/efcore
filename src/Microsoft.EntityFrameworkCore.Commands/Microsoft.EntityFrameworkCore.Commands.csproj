@@ -76,7 +76,7 @@
     <Compile Include="Design\MigrationsOperations.cs" />
     <Compile Include="Design\OperationException.cs" />
     <Compile Include="Design\OperationExecutor.cs" />
-    <Compile Include="Design\OperationHandlers.cs" />
+    <Compile Include="tools\OperationHandlers.cs" />
     <Compile Include="Migrations\Design\CSharpHelper.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationOperationGenerator.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationsGenerator.cs" />

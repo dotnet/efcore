@@ -28,9 +28,6 @@
   },
   "packInclude": {
     "build/": "build/**",
-    "tools/": [
-      "tools/**",
-      "Design\\OperationHandlers.cs"
-    ]
+    "tools/": "tools/**"
   }
 }
