@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
             var force = command.Option(
                 "-f|--force",
-                "The DbContext to use. If omitted, the default DbContext is used");
+                "Force confirm message. If omitted, confirm message not used");
             command.HelpOption();
             command.VerboseOption();
 
