@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.Extensions.PlatformAbstractions;
 using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Commands
@@ -177,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             return new ProjectContextBuilder()
                 .WithProject(projectFile)
                 .WithTargetFramework(framework)
+                .WithRuntimeIdentifiers(PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers())
                 .Build();
         }
     }
