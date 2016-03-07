@@ -32,3 +32,17 @@ k-standard-goals
         File.Copy(nupkg, Path.Combine(BUILD_DIR, Path.GetFileName(nupkg)), true);
     }
   }
+
+#publish-efci-artifacts target="test-compile" if='IsTeamCity'
+  @{
+    // produce .NET Core test artifacts for testing
+    var testProjects = Files.Include("test/Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests/project.json")
+    .Include("test/Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests/project.json");
+    var tfm = "netstandardapp1.5";
+    foreach (var projectFile in testProjects)
+    {
+      var projectName = Path.GetFileName(Path.GetDirectoryName(projectFile));
+      var output = Path.Combine(Directory.GetCurrentDirectory(), "artifacts/tests", projectName, tfm);
+      Dotnet(string.Format("publish --configuration Release --output {0} --framework {1} {2}", output, tfm, projectFile));
+    }
+  }
