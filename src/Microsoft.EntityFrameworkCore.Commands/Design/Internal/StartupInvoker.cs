@@ -5,8 +5,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -14,16 +16,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly Type _startupType;
         private readonly string _environment;
+        private readonly string _startupProjectDir;
 
         public StartupInvoker(
             [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment)
+            [CanBeNull] string environment,
+            [NotNull] string startupProjectDir)
         {
             Check.NotNull(startupAssembly, nameof(startupAssembly));
+            Check.NotEmpty(startupProjectDir, nameof(startupProjectDir));
 
             _environment = !string.IsNullOrEmpty(environment)
                 ? environment
                 : "Development";
+
+            _startupProjectDir = startupProjectDir;
 
             _startupType = startupAssembly.DefinedTypes.Where(t => t.Name == "Startup" + _environment)
                 .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "Startup"))
@@ -90,7 +97,28 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
         {
+            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = _environment });
+
             services.AddLogging();
+            services.AddOptions();
+
+            if (PlatformServices.Default != null)
+            {
+                if (PlatformServices.Default.Application != null)
+                {
+                    services.AddSingleton<IApplicationEnvironment>(
+                        new ApplicationEnvironment(PlatformServices.Default.Application)
+                        {
+                            ApplicationBasePath = _startupProjectDir
+                        });
+                }
+
+                if (PlatformServices.Default.Runtime != null)
+                {
+                    services.AddSingleton(PlatformServices.Default.Runtime);
+                }
+            }
+
             return services;
         }
 

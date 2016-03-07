@@ -604,6 +604,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
                     targetName = $targetAssemblyName
                     environment = $environment
                     projectDir = $fullPath
+                    startupProjectDir = $startupFullPath
                     rootNamespace = $rootNamespace
                 }
             ),

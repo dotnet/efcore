@@ -28,19 +28,21 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
+            [NotNull] string startupProjectDir,
             [NotNull] string rootNamespace)
         {
             Check.NotNull(assemblyLoader, nameof(assemblyLoader));
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
+            Check.NotEmpty(startupProjectDir, nameof(startupProjectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
             _loggerProvider = loggerProvider;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
 
-            var startup = new StartupInvoker(startupAssembly, environment);
+            var startup = new StartupInvoker(startupAssembly, environment, startupProjectDir);
             _servicesBuilder = new DesignTimeServicesBuilder(assemblyLoader, startup);
         }
 

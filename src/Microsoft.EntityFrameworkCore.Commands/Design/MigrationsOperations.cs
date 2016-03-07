@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
+            [NotNull] string startupProjectDir,
             [NotNull] string rootNamespace)
         {
             Check.NotNull(assemblyLoader, nameof(assemblyLoader));
@@ -43,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
+            Check.NotEmpty(startupProjectDir, nameof(startupProjectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
             var loggerFactory = new LoggerFactory();
@@ -57,9 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Design
                 loggerProvider,
                 assembly,
                 startupAssembly,
-                environment);
+                environment,
+                startupProjectDir);
 
-            var startup = new StartupInvoker(startupAssembly, environment);
+            var startup = new StartupInvoker(startupAssembly, environment, startupProjectDir);
             _servicesBuilder = new DesignTimeServicesBuilder(assemblyLoader, startup);
         }
 

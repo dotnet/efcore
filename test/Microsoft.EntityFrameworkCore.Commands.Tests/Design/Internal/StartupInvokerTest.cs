@@ -3,7 +3,10 @@
 
 using System;
 using System.Reflection;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.PlatformAbstractions;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -14,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void ConfigureDesignTimeServices_uses_Development_environment_when_unspecified()
         {
             var services = new ServiceCollection();
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                environment: null);
+            var startup = CreateStartupInvoker(environment: null);
 
             startup.ConfigureDesignTimeServices(services);
 
@@ -28,9 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void ConfigureDesignTimeServices_invokes_static_methods()
         {
             var services = new ServiceCollection();
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                "Static");
+            var startup = CreateStartupInvoker("Static");
 
             startup.ConfigureDesignTimeServices(services);
 
@@ -41,9 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void ConfigureDesignTimeServices_is_noop_when_not_found()
         {
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                environment: "Unknown");
+            var startup = CreateStartupInvoker("Unknown");
 
             startup.ConfigureDesignTimeServices(new ServiceCollection());
         }
@@ -51,9 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void ConfigureServices_uses_Development_environment_when_unspecified()
         {
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                environment: null);
+            var startup = CreateStartupInvoker(environment: null);
 
             var services = startup.ConfigureServices();
 
@@ -64,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void ConfigureServices_is_noop_when_not_found()
         {
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                environment: "Unknown");
+            var startup = CreateStartupInvoker("Unknown");
 
             var services = startup.ConfigureServices();
 
@@ -76,9 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void ConfigureServices_invokes_static_methods()
         {
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                "Static");
+            var startup = CreateStartupInvoker("Static");
 
             var services = startup.ConfigureServices();
 
@@ -89,9 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [Fact]
         public void ConfigureServices_invokes_method_with_alternative_signature()
         {
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                "Alternative");
+            var startup = CreateStartupInvoker("Alternative");
 
             var services = startup.ConfigureServices();
 
@@ -99,13 +88,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal("Alternative", service.Value);
         }
 
+        private StartupInvoker CreateStartupInvoker(string environment)
+            => new StartupInvoker(
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
+                environment,
+                "Irrelevant");
+
         [Fact]
         public void ConfigureDesignTimeServices_works_on_other_types()
         {
             var services = new ServiceCollection();
-            var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
-                environment: null);
+            var startup = CreateStartupInvoker(environment: null);
 
             startup.ConfigureDesignTimeServices(typeof(NotStartup), services);
 
@@ -117,6 +110,30 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             public void ConfigureDesignTimeServices(IServiceCollection services)
                 => services.AddSingleton(new TestService("NotStartup"));
+        }
+
+        [Fact]
+        public void ConfigureServices_injects_services()
+        {
+            var assembly = MockAssembly.Create(typeof(StartupInjected));
+            var startup = new StartupInvoker(assembly, "Injected", @"C:\The\Right\Path");
+
+            var services = startup.ConfigureServices();
+            var service = services.GetRequiredService<TestService>();
+
+            Assert.Equal("Injected", service.Value);
+        }
+
+        private class StartupInjected
+        {
+            public StartupInjected(IHostingEnvironment env, IApplicationEnvironment appEnv)
+            {
+                Assert.Equal("Injected", env.EnvironmentName);
+                Assert.Equal(@"C:\The\Right\Path", appEnv.ApplicationBasePath);
+            }
+
+            private void ConfigureInjectedServices(IServiceCollection services)
+                => services.AddSingleton(new TestService("Injected"));
         }
     }
 

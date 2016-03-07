@@ -65,11 +65,13 @@
     <Compile Include="Design\AssemblyLoader.cs" />
     <Compile Include="Design\DatabaseOperations.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
+    <Compile Include="Design\Internal\ApplicationEnvironment.cs" />
     <Compile Include="Design\Internal\CommandLogger.cs" />
     <Compile Include="Design\Internal\CommandLoggerAdapter.cs" />
     <Compile Include="Design\Internal\DesignTimeServicesBuilder.cs" />
     <Compile Include="Design\Internal\ForwardingProxy.cs" />
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
+    <Compile Include="Design\Internal\HostingEnvironment.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
     <Compile Include="Design\Internal\StartupInvoker.cs" />
     <Compile Include="Design\MigrationInfo.cs" />

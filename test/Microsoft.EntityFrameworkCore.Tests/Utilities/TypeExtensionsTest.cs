@@ -7,11 +7,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Xunit;
-
-#if NETSTANDARDAPP1_5
-using Moq;
-#endif
 
 namespace Microsoft.EntityFrameworkCore.Tests.Utilities
 {
@@ -450,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
         [Fact]
         public void GetConstructibleTypes_works()
         {
-            var assembly = CreateMockAssembly(
+            var assembly = MockAssembly.Create(
                 typeof(SomeAbstractClass),
                 typeof(SomeGenericClass<>),
                 typeof(SomeGenericClass<int>),
@@ -478,31 +475,5 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             {
             }
         }
-
-        private Assembly CreateMockAssembly(params Type[] definedTypes)
-        {
-            var definedTypeInfos = definedTypes.Select(t => t.GetTypeInfo()).ToArray();
-
-#if NETSTANDARDAPP1_5
-            var assembly = new Mock<Assembly>();
-            assembly.SetupGet(a => a.DefinedTypes).Returns(definedTypeInfos);
-
-            return assembly.Object;
-#else
-            return new MockAssembly(definedTypeInfos);
-#endif
-        }
-
-#if NET451
-        private class MockAssembly : Assembly
-        {
-            public MockAssembly(IEnumerable<TypeInfo> definedTypes)
-            {
-                DefinedTypes = definedTypes;
-            }
-
-            public override IEnumerable<TypeInfo> DefinedTypes { get; }
-        }
-#endif
     }
 }

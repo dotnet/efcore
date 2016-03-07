@@ -11,10 +11,12 @@
   },
   "compile": "../Shared/*.cs",
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*"
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "netstandard1.3": {
       "imports": [
         "dotnet5.4",

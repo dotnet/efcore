@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var startupAssemblyName = new AssemblyName(startupProjectContext.ProjectFile.Name);
             var assemblyName = new AssemblyName(projectFile.Name);
             var projectDir = projectFile.ProjectDirectory;
+            var startupProjectDir = startupProjectContext.ProjectFile.ProjectDirectory;
             var rootNamespace = projectFile.Name;
             var assemblyLoadContext = startupProjectContext.CreateLoadContext();
             var assemblyLoader = new AssemblyLoader(assemblyLoadContext.LoadFromAssemblyName);
@@ -85,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
                     assembly,
                     startupAssembly,
-                    environment));
+                    environment,
+                    startupProjectDir));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     assemblyLoader,
@@ -93,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     startupAssembly,
                     environment,
                     projectDir,
+                    startupProjectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
@@ -102,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     startupAssembly,
                     environment,
                     projectDir,
+                    startupProjectDir,
                     rootNamespace));
         }
 

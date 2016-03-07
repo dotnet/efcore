@@ -149,6 +149,7 @@
     <Compile Include="TestUtilities\ListLogger.cs" />
     <Compile Include="TestUtilities\ListLoggerFactory.cs" />
     <Compile Include="TestUtilities\ListLogger`.cs" />
+    <Compile Include="TestUtilities\MockAssembly.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
