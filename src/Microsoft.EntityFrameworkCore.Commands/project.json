@@ -9,7 +9,7 @@
     ],
     "xmlDoc": true
   },
-  "compile": "..\\Shared\\*.cs",
+  "compile": "../Shared/*.cs",
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*"
   },
@@ -28,9 +28,6 @@
   },
   "packInclude": {
     "build/": "build/**",
-    "tools/": [
-      "tools/**",
-      "Design\\OperationHandlers.cs"
-    ]
+    "tools/": "tools/**"
   }
 }

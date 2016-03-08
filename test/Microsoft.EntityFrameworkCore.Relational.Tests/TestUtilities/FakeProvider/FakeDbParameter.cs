@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
                 throw new NotImplementedException();
             }
         }
-#if (NET451 || DNX451)
+#if NET451
         public override DataRowVersion SourceVersion
         {
             get

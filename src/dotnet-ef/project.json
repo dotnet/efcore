@@ -10,7 +10,7 @@
     ],
     "xmlDoc": true
   },
-  "compile": "..\\Shared\\*.cs",
+  "compile": "../Shared/*.cs",
   "dependencies": {
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.DotNet.ProjectModel.Loader": "1.0.0-*",

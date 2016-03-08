@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-#if (NET451 || DNX451)
+#if NET451
         [Fact]
         public void Throws_when_using_with_IListSource()
         {

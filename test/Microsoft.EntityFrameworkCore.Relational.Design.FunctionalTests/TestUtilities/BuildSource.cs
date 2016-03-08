@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUt
     {
         public ICollection<BuildReference> References { get; } = new List<BuildReference>
             {
-#if (NET451 || DNX451)
+#if NET451
                 BuildReference.ByName("mscorlib")
 #else
                 BuildReference.ByName("System.Runtime")
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUt
                         $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
-#if (NET451 || DNX451)
+#if NET451
                 assembly = Assembly.Load(stream.ToArray());
 #else
                 assembly = (Assembly)typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")

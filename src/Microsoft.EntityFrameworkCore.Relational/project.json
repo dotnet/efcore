@@ -13,10 +13,8 @@
     "Microsoft.EntityFrameworkCore": "1.0.0-*",
     "System.Diagnostics.DiagnosticSource": "4.0.0-*"
   },
-  "compile": "..\\Shared\\*.cs",
-  "resource": [
-    "Properties/Microsoft.EntityFrameworkCore.Relational.rd.xml"
-  ],
+  "compile": "../Shared/*.cs",
+  "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.Relational.rd.xml",
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {

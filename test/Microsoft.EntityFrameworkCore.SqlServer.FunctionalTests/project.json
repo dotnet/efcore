@@ -8,10 +8,8 @@
     "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*"
   },
-  "content": [
-    "**/*.sql",
-    "config.json"
-  ],
+  "content": "**/*.sql",
+  "contentFiles": "config.json",
   "publishExclude": [
     "obj/**",
     "bin/**"
@@ -27,6 +25,6 @@
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     },
-    "net451": {}
+    "net451": { }
   }
 }
