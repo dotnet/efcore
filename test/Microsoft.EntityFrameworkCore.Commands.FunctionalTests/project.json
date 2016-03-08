@@ -12,7 +12,7 @@
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*"
   },
-  "compile": "..\\..\\src\\Microsoft.EntityFrameworkCore.Commands\\tools\\OperationHandlers.cs",
+  "compileFiles": "../../src/Microsoft.EntityFrameworkCore.Commands/tools/OperationHandlers.cs",
   "testRunner": "xunit",
   "frameworks": {
     "netstandardapp1.5": {
@@ -24,6 +24,6 @@
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     },
-    "net451": {}
+    "net451": { }
   }
 }

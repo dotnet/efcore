@@ -7,7 +7,7 @@
     "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0-*"
   },
-  "content": "northwind.db",
+  "contentFiles": "northwind.db",
   "testRunner": "xunit",
   "frameworks": {
     "netstandardapp1.5": {
@@ -19,6 +19,6 @@
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
     },
-    "net451": {}
+    "net451": { }
   }
 }
