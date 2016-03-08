@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -40,8 +42,22 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [Fact]
         public virtual void Include_property_expression_invalid()
         {
+            var anonymousType = new { Customer = default(Customer), OrderDetails = default(ICollection<OrderDetail>) }.GetType();
+            var lambdaExpression = Expression.Lambda(
+                Expression.New(
+                    anonymousType.GetConstructors()[0],
+                    new List<Expression>
+                    {
+                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("Customer")[0]),
+                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("OrderDetails")[0])
+                    },
+                    anonymousType.GetMember("Customer")[0],
+                    anonymousType.GetMember("OrderDetails")[0]
+                    ),
+                Expression.Parameter(typeof(Order), "o"));
+
             Assert.Equal(
-                CoreStrings.InvalidComplexPropertyExpression("o => new <>f__AnonymousType104`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
+                CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
                 Assert.Throws<ArgumentException>(
                     () =>
                     {
@@ -57,8 +73,22 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [Fact]
         public virtual void Then_include_property_expression_invalid()
         {
+            var anonymousType = new { Customer = default(Customer), OrderDetails = default(ICollection<OrderDetail>) }.GetType();
+            var lambdaExpression = Expression.Lambda(
+                Expression.New(
+                    anonymousType.GetConstructors()[0],
+                    new List<Expression>
+                    {
+                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("Customer")[0]),
+                        Expression.MakeMemberAccess(Expression.Parameter(typeof(Order), "o"), typeof(Order).GetMember("OrderDetails")[0])
+                    },
+                    anonymousType.GetMember("Customer")[0],
+                    anonymousType.GetMember("OrderDetails")[0]
+                    ),
+                Expression.Parameter(typeof(Order), "o"));
+
             Assert.Equal(
-                CoreStrings.InvalidComplexPropertyExpression("o => new <>f__AnonymousType104`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
+                CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
                 Assert.Throws<ArgumentException>(
                     () =>
                     {
