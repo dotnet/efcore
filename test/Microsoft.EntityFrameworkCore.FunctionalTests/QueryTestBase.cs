@@ -1270,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         [ConditionalFact]
         public virtual void Where_subquery_expression()
-        { 
+        {
             AssertQuery<Order, Order>((o1, o2) =>
                 {
                     var firstOrder = o1.First();
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     return o1.Where(x => o2.Where(expr).Any());
                 });
         }
-        
+
         [ConditionalFact]
         public virtual void Where_subquery_expression_same_parametername()
         {
@@ -4314,6 +4314,26 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)));
         }
+
+        [ConditionalFact]
+        public virtual void Contains_with_subquery_and_local_array_closure()
+        {
+            var ids = new[] { "London", "Buenos Aires" };
+
+            AssertQuery<Customer>(cs =>
+                cs.Where(c =>
+                    cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+                    entryCount: 9);
+
+
+            ids = new[] { "London" };
+
+            AssertQuery<Customer>(cs =>
+                cs.Where(c =>
+                    cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+                    entryCount: 6);
+        }
+
 
         [ConditionalFact]
         public virtual void Contains_with_local_int_array_closure()

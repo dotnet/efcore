@@ -45,25 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return false;
                         }
 
-                        if (value is IEnumerable)
+                        if (value is IEnumerable
+                            && value.GetType() == typeof(object[]))
                         {
-                            var type = value.GetType();
-
-                            if (type == typeof(object[]))
-                            {
-                                // Only compare lengths for FromSql parameters
-                                return ((object[])value).Length == (otherValue as object[])?.Length;
-                            }
-
-                            if (type != typeof(string)
-                                && type != typeof(byte[]))
-                            {
-                                // Comparision for contains parameters
-                                // TODO: This doesn't always need to be deep.
-                                // We could add a LINQ operator parameter attribute to tell us.
-                                return StructuralComparisons
-                                    .StructuralEqualityComparer.Equals(value, otherValue);
-                            }
+                            // FromSql parameters must have the same number of elements
+                            return ((object[])value).Length == (otherValue as object[])?.Length;
                         }
                     }
                 }
@@ -93,9 +79,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual IRelationalCommand GetRelationalCommand(
             [NotNull] IReadOnlyDictionary<string, object> parameters)
         {
-            return _commandCache.GetOrAdd(
-                new CommandCacheKey(parameters),
-                cck => QuerySqlGeneratorFactory().GenerateSql(parameters));
+            IRelationalCommand relationalCommand;
+            var key = new CommandCacheKey(parameters);
+
+            if (_commandCache.TryGetValue(key, out relationalCommand))
+            {
+                return relationalCommand;
+            }
+
+            var generator = QuerySqlGeneratorFactory();
+            relationalCommand = generator.GenerateSql(parameters);
+
+            if(generator.IsCacheable)
+            {
+                _commandCache.TryAdd(key, relationalCommand);
+            }
+
+            return relationalCommand;
         }
 
         public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)

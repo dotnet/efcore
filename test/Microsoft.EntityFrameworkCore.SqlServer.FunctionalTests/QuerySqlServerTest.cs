@@ -4383,6 +4383,27 @@ WHERE [c].[CustomerID] IN (N'ABCDE')",
                 Sql);
         }
 
+        public override void Contains_with_subquery_and_local_array_closure()
+        {
+            base.Contains_with_subquery_and_local_array_closure();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Customers] AS [c1]
+    WHERE [c1].[City] IN (N'London', N'Buenos Aires') AND ([c1].[CustomerID] = [c].[CustomerID]))
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Customers] AS [c1]
+    WHERE [c1].[City] IN (N'London') AND ([c1].[CustomerID] = [c].[CustomerID]))",
+                Sql);
+        }
+
         public override void Contains_with_local_array_inline()
         {
             base.Contains_with_local_array_inline();

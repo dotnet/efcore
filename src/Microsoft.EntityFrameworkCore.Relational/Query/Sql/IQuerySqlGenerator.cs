@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
     {
         IRelationalCommand GenerateSql([NotNull] IReadOnlyDictionary<string, object> parameterValues);
 
+        bool IsCacheable { get; }
+
         IRelationalValueBufferFactory CreateValueBufferFactory(
             [NotNull] IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,
             [NotNull] DbDataReader dataReader);

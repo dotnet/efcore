@@ -66,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             SelectExpression = selectExpression;
         }
 
+        public virtual bool IsCacheable { get; private set; }
+
         protected virtual SelectExpression SelectExpression { get; }
 
         protected virtual ISqlGenerationHelper SqlGenerator => _sqlGenerationHelper;
@@ -80,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
 
             _parametersValues = parameterValues;
+            IsCacheable = true;
 
             Visit(SelectExpression);
 
@@ -636,6 +639,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
                         {
                             AddInExpressionValues(parameterValue, inConstants, inParameter);
+
+                            IsCacheable = false;
                         }
                     }
                     else
