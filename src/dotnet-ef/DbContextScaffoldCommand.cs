@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 "-o|--output-dir <path>",
                 "Directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
             var schemas = command.Option(
-                "-s|--schema <schema>",
+                "--schema <schema>",
                 "Selects a schema for which to generate classes.",
                 CommandOptionType.MultipleValue);
             var tables = command.Option(
