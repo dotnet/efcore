@@ -12,9 +12,9 @@
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
-  "compile": "..\\Shared\\*.cs",
+  "compile": "../Shared/*.cs",
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "netstandard1.3": {
       "imports": [
         "dotnet5.4",

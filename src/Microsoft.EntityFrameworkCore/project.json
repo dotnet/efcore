@@ -16,10 +16,8 @@
     "Microsoft.Extensions.Logging": "1.0.0-*",
     "Remotion.Linq": "2.0.2"
   },
-  "compile": "..\\Shared\\*.cs",
-  "resource": [
-    "Properties/Microsoft.EntityFrameworkCore.rd.xml"
-  ],
+  "compile": "../Shared/*.cs",
+  "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.rd.xml",
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {

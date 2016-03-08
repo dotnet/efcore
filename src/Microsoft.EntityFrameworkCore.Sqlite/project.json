@@ -13,12 +13,10 @@
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*",
     "Microsoft.Data.Sqlite": "1.0.0-*"
   },
-  "compile": "..\\Shared\\*.cs",
-  "resource": [
-    "Properties/Microsoft.EntityFrameworkCore.Sqlite.rd.xml"
-  ],
+  "compile": "../Shared/*.cs",
+  "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.Sqlite.rd.xml",
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "netstandard1.3": {
       "imports": [
         "dotnet5.4",
