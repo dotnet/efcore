@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The key {key} contains properties in shadow state and is referenced by a relationship from  '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.
+        /// The key {key} contains properties in shadow state and is referenced by a relationship from '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.
         /// </summary>
         public static string ReferencedShadowKey([CanBeNull] object key, [CanBeNull] object referencingEntityTypeWithNavigation, [CanBeNull] object referencedEntityTypeWithNavigation)
         {
@@ -941,27 +941,35 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.
+        /// Unable to determine the relationship represented by navigation property '{entityType}.{navigation} of type '{propertyType}'. Either manually configure the relationship, or ignore this property from the model.
         /// </summary>
-        public static string NavigationNotAdded([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string NavigationNotAdded([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNotAdded", "navigation", "entityType"), navigation, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNotAdded", "entityType", "navigation", "propertyType"), entityType, navigation, propertyType);
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' has not been added to the model or ignored.
+        /// The property '{entityType}.{property}' could not be mapped, because it is of type '{propertyType}' which is not a supported primitive type or a valid entity type. Either explicitly map this property, or ignore it.
         /// </summary>
-        public static string PropertyNotAdded([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyNotAdded([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotAdded", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotAdded", "entityType", "property", "propertyType"), entityType, property, propertyType);
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.
+        /// The property '{entityType}.{property}' is of type '{propertyType}' which is not supported by current database provider. Either change the property CLR type or manually configure the database type for it.
         /// </summary>
-        public static string PropertyNotMapped([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyNotMapped([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotMapped", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotMapped", "entityType", "property", "propertyType"), entityType, property, propertyType);
+        }
+
+        /// <summary>
+        /// The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property from the model.
+        /// </summary>
+        public static string InterfacePropertyNotAdded([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InterfacePropertyNotAdded", "entityType", "navigation", "propertyType"), entityType, navigation, propertyType);
         }
 
         /// <summary>

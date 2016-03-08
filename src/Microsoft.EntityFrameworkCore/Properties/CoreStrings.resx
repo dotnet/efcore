@@ -466,13 +466,16 @@
     <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.</value>
   </data>
   <data name="NavigationNotAdded" xml:space="preserve">
-    <value>The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.</value>
+    <value>Unable to determine the relationship represented by navigation property '{entityType}.{navigation} of type '{propertyType}'. Either manually configure the relationship, or ignore this property from the model.</value>
   </data>
   <data name="PropertyNotAdded" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' has not been added to the model or ignored.</value>
+    <value>The property '{entityType}.{property}' could not be mapped, because it is of type '{propertyType}' which is not a supported primitive type or a valid entity type. Either explicitly map this property, or ignore it.</value>
   </data>
   <data name="PropertyNotMapped" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.</value>
+    <value>The property '{entityType}.{property}' is of type '{propertyType}' which is not supported by current database provider. Either change the property CLR type or manually configure the database type for it.</value>
+  </data>
+  <data name="InterfacePropertyNotAdded" xml:space="preserve">
+    <value>The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property from the model.</value>
   </data>
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
