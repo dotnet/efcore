@@ -124,27 +124,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    try
+                    using (_exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection())
                     {
-                        _exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection();
+                        try
+                        {
                         // TODO remove this when/if bug is resolved in Ix-Async https://github.com/Reactive-Extensions/Rx.NET/issues/166
                         cancellationToken.ThrowIfCancellationRequested();
-                        return await _innerEnumerator.MoveNext(cancellationToken);
-                    }
-                    catch (Exception exception)
-                    {
-                        _exceptionInterceptor._logger
-                            .LogError(
-                                CoreLoggingEventId.DatabaseError,
-                                () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
-                                exception,
-                                e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
+                            return await _innerEnumerator.MoveNext(cancellationToken);
+                        }
+                        catch (Exception exception)
+                        {
+                            _exceptionInterceptor._logger
+                                .LogError(
+                                    CoreLoggingEventId.DatabaseError,
+                                    () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
+                                    exception,
+                                    e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
 
-                        throw;
-                    }
-                    finally
-                    {
-                        _exceptionInterceptor._queryContext.ConcurrencyDetector.ExitCriticalSection();
+                            throw;
+                        }
                     }
                 }
 

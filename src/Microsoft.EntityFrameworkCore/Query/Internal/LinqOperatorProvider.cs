@@ -107,25 +107,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public bool MoveNext()
                 {
-                    try
+                    using (_exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection())
                     {
-                        _exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection();
-                        return _innerEnumerator.MoveNext();
-                    }
-                    catch (Exception exception)
-                    {
-                        _exceptionInterceptor._logger
-                            .LogError(
-                                CoreLoggingEventId.DatabaseError,
-                                () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
-                                exception,
-                                e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
+                        try
+                        {
+                            return _innerEnumerator.MoveNext();
+                        }
+                        catch (Exception exception)
+                        {
+                            _exceptionInterceptor._logger
+                                .LogError(
+                                    CoreLoggingEventId.DatabaseError,
+                                    () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
+                                    exception,
+                                    e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
 
-                        throw;
-                    }
-                    finally
-                    {
-                        _exceptionInterceptor._queryContext.ConcurrencyDetector.ExitCriticalSection();
+                            throw;
+                        }
                     }
                 }
 

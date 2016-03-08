@@ -47,18 +47,12 @@ namespace Microsoft.EntityFrameworkCore
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
 
-            try
+            using (concurrencyDetector.EnterCriticalSection())
             {
-                concurrencyDetector.EnterCriticalSection();
-
                 return databaseFacade
                     .GetService<IRawSqlCommandBuilder>()
                     .Build(sql, parameters)
                     .ExecuteNonQuery(GetRelationalConnection(databaseFacade));
-            }
-            finally
-            {
-                concurrencyDetector.ExitCriticalSection();
             }
         }
 
@@ -72,18 +66,12 @@ namespace Microsoft.EntityFrameworkCore
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
 
-            try
+            using (concurrencyDetector.EnterCriticalSection())
             {
-                concurrencyDetector.EnterCriticalSection();
-
                 return await databaseFacade
                     .GetService<IRawSqlCommandBuilder>()
                     .Build(sql, parameters)
                     .ExecuteNonQueryAsync(GetRelationalConnection(databaseFacade), cancellationToken: cancellationToken);
-            }
-            finally
-            {
-                concurrencyDetector.ExitCriticalSection();
             }
         }
 

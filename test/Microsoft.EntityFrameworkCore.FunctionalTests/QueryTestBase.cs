@@ -4744,7 +4744,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<NotSupportedException>(
+                    Assert.Throws<InvalidOperationException>(
                     () => context.Customers.ToList()).Message);
             }
         }
@@ -4758,7 +4758,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<NotSupportedException>(
+                    Assert.Throws<InvalidOperationException>(
                         () => context.Customers.First()).Message);
             }
         }

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<NotSupportedException>(
+                    Assert.Throws<InvalidOperationException>(
                         () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
             }
         }
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<NotSupportedException>(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () => await context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
             }
         }

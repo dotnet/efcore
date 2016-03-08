@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -111,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return newEntry;
         }
 
-        public virtual InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey) 
+        public virtual InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
             => GetOrCreateIdentityMap(key).TryGetEntry(valueBuffer, throwOnNullKey);
 
         public virtual InternalEntityEntry TryGetEntry(object entity)
@@ -181,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             IIdentityMap identityMap;
-            if (_identityMaps == null 
+            if (_identityMaps == null
                 || !_identityMaps.TryGetValue(key, out identityMap))
             {
                 return null;
@@ -281,10 +280,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return Enumerable.Empty<Tuple<INavigation, InternalEntityEntry>>();
         }
 
-        public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey) 
+        public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
             => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntry(foreignKey, dependentEntry);
 
-        public virtual InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry dependentEntry, IForeignKey foreignKey) 
+        public virtual InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
             => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntryUsingRelationshipSnapshot(foreignKey, dependentEntry);
 
         public virtual void UpdateIdentityMap(InternalEntityEntry entry, IKey key)
@@ -320,8 +319,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
-            return dependentIdentityMap != null 
-                ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry) 
+            return dependentIdentityMap != null
+                ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry)
                 : Enumerable.Empty<InternalEntityEntry>();
         }
 
@@ -393,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             foreach (var entry in Entries.Where(
                 e => e.EntityState != EntityState.Detached
-                && e.HasConceptualNull).ToList())
+                     && e.HasConceptualNull).ToList())
             {
                 entry.HandleConceptualNulls();
             }
@@ -404,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return Entries
-                .Where(e => (e.EntityState == EntityState.Added)
+                .Where(e => e.EntityState == EntityState.Added
                             || e.EntityState == EntityState.Modified
                             || e.EntityState == EntityState.Deleted)
                 .Select(e => e.PrepareToSave())
@@ -444,14 +443,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         protected virtual int SaveChanges(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave)
         {
-            try
+            using (_concurrencyDetector.EnterCriticalSection())
             {
-                _concurrencyDetector.EnterCriticalSection();
                 return _database.SaveChanges(entriesToSave);
-            }
-            finally
-            {
-                _concurrencyDetector.ExitCriticalSection();
             }
         }
 
@@ -459,23 +453,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            try
+            using (_concurrencyDetector.EnterCriticalSection())
             {
-                _concurrencyDetector.EnterCriticalSection();
                 return await _database.SaveChangesAsync(entriesToSave, cancellationToken);
-            }
-            finally
-            {
-                _concurrencyDetector.ExitCriticalSection();
             }
         }
 
         public virtual void AcceptAllChanges()
         {
             var changedEntries = Entries
-                .Where(e => (e.EntityState == EntityState.Added)
-                            || (e.EntityState == EntityState.Modified)
-                            || (e.EntityState == EntityState.Deleted))
+                .Where(e => e.EntityState == EntityState.Added
+                            || e.EntityState == EntityState.Modified
+                            || e.EntityState == EntityState.Deleted)
                 .ToList();
 
             AcceptAllChanges(changedEntries);
