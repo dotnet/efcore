@@ -1132,6 +1132,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("AmbiguousOneToOneRelationship", "dependentToPrincipalNavigationSpecification", "principalToDependentNavigationSpecification"), dependentToPrincipalNavigationSpecification, principalToDependentNavigationSpecification);
         }
 
+        /// <summary>
+        /// The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        /// </summary>
+        public static string InvalidComplexPropertyExpression([CanBeNull] object propertyAccessExpression)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidComplexPropertyExpression", "propertyAccessExpression"), propertyAccessExpression);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

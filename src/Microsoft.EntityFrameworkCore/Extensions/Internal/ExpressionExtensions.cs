@@ -77,11 +77,11 @@ namespace System.Linq.Expressions
             var newExpression
                 = RemoveConvert(lambdaExpression.Body) as NewExpression;
 
+            var parameterExpression
+                = lambdaExpression.Parameters.Single();
+
             if (newExpression != null)
             {
-                var parameterExpression
-                    = lambdaExpression.Parameters.Single();
-
                 var propertyInfos
                     = newExpression
                         .Arguments
@@ -93,7 +93,7 @@ namespace System.Linq.Expressions
             }
 
             var propertyPath
-                = propertyMatcher(lambdaExpression.Body, lambdaExpression.Parameters.Single());
+                = propertyMatcher(lambdaExpression.Body, parameterExpression);
 
             return propertyPath != null ? new[] { propertyPath } : null;
         }
@@ -114,22 +114,13 @@ namespace System.Linq.Expressions
                 = propertyAccessExpression
                     .Parameters
                     .Single()
-                    .MatchComplexPropertyAccess(propertyAccessExpression.Body);
+                    .MatchPropertyAccess(propertyAccessExpression.Body);
 
             if (propertyPath == null)
             {
                 throw new ArgumentException(
-                    CoreStrings.InvalidPropertiesExpression(propertyAccessExpression),
-                    nameof(propertyAccessExpression));
+                    CoreStrings.InvalidComplexPropertyExpression(propertyAccessExpression));
             }
-
-            return propertyPath;
-        }
-
-        private static PropertyInfo[] MatchComplexPropertyAccess(
-            this Expression parameterExpression, Expression propertyAccessExpression)
-        {
-            var propertyPath = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
             return propertyPath;
         }

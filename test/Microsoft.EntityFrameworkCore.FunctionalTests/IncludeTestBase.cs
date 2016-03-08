@@ -38,6 +38,41 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_property_expression_invalid()
+        {
+            Assert.Equal(
+                CoreStrings.InvalidComplexPropertyExpression("o => new <>f__AnonymousType104`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                    {
+                        using (var context = CreateContext())
+                        {
+                            var query = context.Set<Order>()
+                                .Include(o => new { o.Customer, o.OrderDetails })
+                                .ToList();
+                        }
+                    }).Message);
+        }
+
+        [Fact]
+        public virtual void Then_include_property_expression_invalid()
+        {
+            Assert.Equal(
+                CoreStrings.InvalidComplexPropertyExpression("o => new <>f__AnonymousType104`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                    {
+                        using (var context = CreateContext())
+                        {
+                            var query = context.Set<Customer>()
+                                .Include(o => o.Orders)
+                                .ThenInclude(o => new { o.Customer, o.OrderDetails })
+                                .ToList();
+                        }
+                    }).Message);
+        }
+
+        [Fact]
         public virtual void Include_closes_reader()
         {
             using (var context = CreateContext())
@@ -1259,7 +1294,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var customers 
+                var customers
                     = context.Set<Customer>()
                         .OrderByDescending(c => c.City)
                         .Include(c => c.Orders)
