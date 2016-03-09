@@ -882,12 +882,16 @@ ORDER BY [l1].[Id], [l1].[Id0]",
                 Sql);
         }
 
+        // TODO remove condition when https://github.com/aspnet/EntityFramework/issues/4739 is resolved
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Include_with_groupjoin_skip_and_take()
         {
             base.Include_with_groupjoin_skip_and_take();
 
-            Assert.Equal(
-                @"@__p_0: ?
+            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            {
+                Assert.Equal(
+                    @"@__p_0: ?
 @__p_1: ?
 
 SELECT [e].[Id], [e].[Name], [e].[OneToMany_Optional_Self_InverseId], [e].[OneToMany_Required_Self_InverseId], [e].[OneToOne_Optional_SelfId], [t].[Id], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_InverseId], [t].[OneToMany_Optional_Self_InverseId], [t].[OneToMany_Required_InverseId], [t].[OneToMany_Required_Self_InverseId], [t].[OneToOne_Optional_PK_InverseId], [t].[OneToOne_Optional_SelfId], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_InverseId], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_PK_InverseId], [l1].[OneToOne_Optional_SelfId]
@@ -922,7 +926,8 @@ INNER JOIN (
 ) AS [e2] ON [l].[OneToMany_Optional_InverseId] = [e2].[Id]
 LEFT JOIN [Level3] AS [l0] ON [l0].[Level2_Optional_Id] = [l].[Id]
 ORDER BY [e2].[Id]",
-                Sql);
+                    Sql);
+            }
         }
 
         public override void Join_flattening_bug_4539()

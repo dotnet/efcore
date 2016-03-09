@@ -138,7 +138,9 @@
     <Compile Include="Utilities\TestSqlServerModelSource.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.json" />
+    <Content Include="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
