@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     Exception exception = null;
                     try
                     {
-                        result = query.GetAwaiter().GetResult();
+                        result = await query;
                     }
                     catch (Exception e)
                     {

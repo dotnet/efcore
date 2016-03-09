@@ -71,6 +71,7 @@
       <DependentUpon>SqlServerDesignStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="SqlDataReaderExtension.cs" />
     <Compile Include="SqlServerDatabaseModelFactory.cs" />
     <Compile Include="SqlServerDesignTimeServices.cs" />
     <Compile Include="SqlServerScaffoldingModelFactory.cs" />
