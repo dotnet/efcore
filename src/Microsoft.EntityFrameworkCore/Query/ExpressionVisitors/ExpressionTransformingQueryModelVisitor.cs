@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
     public class ExpressionTransformingQueryModelVisitor : QueryModelVisitorBase
     {
-        protected RelinqExpressionVisitor TransformingVisitor { get; private set; }
+        protected virtual RelinqExpressionVisitor TransformingVisitor { get; private set; }
 
         public ExpressionTransformingQueryModelVisitor([NotNull] RelinqExpressionVisitor transformingVisitor)
         {
