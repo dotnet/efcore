@@ -30,14 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static readonly ParameterExpression QueryContextParameter
             = Expression.Parameter(typeof(QueryContext), "queryContext");
 
-        private static readonly string EFTypeName = typeof(EF).FullName;
+        private static readonly string _efTypeName = typeof(EF).FullName;
 
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
             methodInfo != null
             && methodInfo.IsGenericMethod
             // string comparison because MethodInfo.Equals is not .NET Native-safe
             && methodInfo.Name == nameof(EF.Property)
-            && methodInfo.DeclaringType.FullName == EFTypeName;
+            && methodInfo.DeclaringType?.FullName == _efTypeName;
 
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
@@ -1173,7 +1173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+            if (IsPropertyMethod(methodCallExpression.Method))
             {
                 var querySourceReferenceExpression
                     = methodCallExpression.Arguments[0].GetRootExpression<QuerySourceReferenceExpression>();
@@ -1197,6 +1197,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 property,
                                 querySourceReferenceExpression?.ReferencedQuerySource);
                         }
+
+                        throw new InvalidOperationException(
+                            CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));
                     }
                 }
             }
