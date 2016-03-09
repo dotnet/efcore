@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
     {
         private SqlConnection _connection;
+        private Version _serverVersion;
         private TableSelectionSet _tableSelectionSet;
         private DatabaseModel _databaseModel;
         private Dictionary<string, TableModel> _tables;
@@ -51,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private void ResetState()
         {
             _connection = null;
+            _serverVersion = null;
             _tableSelectionSet = null;
             _databaseModel = new DatabaseModel();
             _tables = new Dictionary<string, TableModel>();
@@ -71,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
                 _databaseModel.DatabaseName = _connection.Database;
 
+                Version.TryParse(_connection.ServerVersion, out _serverVersion);
                 if (SupportsSequences)
                 {
                     GetSequences();
@@ -86,18 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             }
         }
 
-        private bool SupportsSequences
-        {
-            get
-            {
-                Version v;
-                if (Version.TryParse(_connection.ServerVersion, out v))
-                {
-                    return v.Major >= 11;
-                }
-                return false;
-            }
-        }
+        private bool SupportsSequences => _serverVersion?.Major >= 11;
+
+        private string TemporalTableWhereClause =>
+            _serverVersion?.Major >= 13 ? " AND t.temporal_type <> 1" : string.Empty;
 
         private void GetDefaultSchema()
         {
@@ -203,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             var command = _connection.CreateCommand();
             command.CommandText =
                 "SELECT schema_name(t.schema_id) AS [schema], t.name FROM sys.tables AS t " +
-                $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'";
+                $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'" +
+                TemporalTableWhereClause;
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
@@ -262,7 +258,8 @@ FROM sys.index_columns ic
     RIGHT JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
     RIGHT JOIN sys.types tp ON tp.user_type_id = c.user_type_id
     JOIN sys.tables AS t ON t.object_id = c.object_id
-WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
+WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
+                                  TemporalTableWhereClause;
 
             using (var reader = command.ExecuteReader())
             {
@@ -370,7 +367,8 @@ FROM sys.indexes i
     INNER JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
     INNER JOIN sys.tables t ON t.object_id = i.object_id
 WHERE object_schema_name(i.object_id) <> 'sys'
-    AND object_name(i.object_id) <> '" + HistoryRepository.DefaultTableName + @"'
+    AND object_name(i.object_id) <> '" + HistoryRepository.DefaultTableName + @"'" +
+                                  TemporalTableWhereClause + @"
 ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.key_ordinal";
 
             using (var reader = command.ExecuteReader())
