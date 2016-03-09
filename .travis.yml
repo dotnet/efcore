@@ -25,4 +25,4 @@ branches:
 #   - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi
 env: KOREBUILD_TEST_SKIPMONO=1
 script:
-  - ./build.sh verify
+  - ./build.sh --quiet verify
