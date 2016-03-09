@@ -181,11 +181,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Exception ex;
                 if (async)
                 {
-                    ex = await Assert.ThrowsAsync<NotSupportedException>(() => context.SaveChangesAsync());
+                    ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
                 }
                 else
                 {
-                    ex = Assert.Throws<NotSupportedException>(() => context.SaveChanges());
+                    ex = Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
                 }
 
                 Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);

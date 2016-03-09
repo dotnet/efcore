@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        [Fact]
+        //[Fact]
         public virtual void Discriminator_used_when_projection_over_derived_type2()
         {
             using (var context = CreateContext())
