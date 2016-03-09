@@ -2012,5 +2012,245 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var result = query.ToList();
             }
         }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property()
+        {
+            var expected = new List<int>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(e => e.OneToMany_Optional).Select(e => e.Id)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.SelectMany(l1 => l1.OneToMany_Optional);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Id));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property_and_projection()
+        {
+            var expected = new List<string>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(e => e.OneToMany_Optional).Select(e => e.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.SelectMany(l1 => l1.OneToMany_Optional).Select(e => e.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property_and_filter_before()
+        {
+            var expected = new List<int>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ToList()
+                    .Where(e => e.Id == 1)
+                    .SelectMany(e => e.OneToMany_Optional).Select(e => e.Id)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(e => e.Id == 1)
+                    .SelectMany(l1 => l1.OneToMany_Optional);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Id));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property_and_filter_after()
+        {
+            var expected = new List<int>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(e => e.OneToMany_Optional).Select(e => e.Id)
+                    .Where(e => e != 6)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .Where(e => e.Id != 6);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Id));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_nested_navigation_property_required()
+        {
+            var expected = new List<int>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Required_FK.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(e => e.OneToOne_Required_FK.OneToMany_Optional).Select(e => e.Id)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.SelectMany(l1 => l1.OneToOne_Required_FK.OneToMany_Optional);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Id));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_nested_navigation_property_optional_and_projection()
+        {
+            var expected = new List<string>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK.OneToMany_Optional)
+                    .ToList()
+                    .Where(e => e.OneToOne_Optional_FK != null)
+                    .SelectMany(e => e.OneToOne_Optional_FK.OneToMany_Optional).Select(e => e.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.SelectMany(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional).Select(e => e.Name);
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_SelectMany_calls()
+        {
+            var expected = new List<string>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Optional).ThenInclude(e => e.OneToMany_Optional)
+                    .ToList()
+                    .SelectMany(e => e.OneToMany_Optional)
+                    .SelectMany(e => e.OneToMany_Optional)
+                    .Select(e => e.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.SelectMany(e => e.OneToMany_Optional).SelectMany(e => e.OneToMany_Optional);
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i].Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_navigation_property_with_another_navigation_in_subquery()
+        {
+            var expected = new List<string>();
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Optional).ThenInclude(e => e.OneToOne_Optional_FK)
+                    .ToList()
+                    .SelectMany(e => e.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK))
+                    .Select(e => e?.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.SelectMany(l1 => l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK));
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
     }
 }

@@ -372,6 +372,7 @@
     <Compile Include="Query\EntityQueryModelVisitor.cs" />
     <Compile Include="Query\EntityQueryModelVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\EntityQueryableExpressionVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\ExpressionTransformingQueryModelVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\ExpressionVisitorBase.cs" />
     <Compile Include="Query\ExpressionVisitors\IEntityQueryableExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IEntityResultFindingExpressionVisitorFactory.cs" />
