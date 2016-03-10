@@ -111,24 +111,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-
-                optionsBuilder
-                    .EnableSensitiveDataLogging()
-                    .UseSqlServer(testDatabase.ConnectionString);
-
-                using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
-                {
-                    await CreateBlogDatabaseAsync<Blog>(db);
-                }
-
                 var loggingFactory = new TestSqlLoggerFactory();
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
                     .AddSingleton<ILoggerFactory>(loggingFactory)
                     .BuildServiceProvider();
-                using (var db = new BloggingContext(serviceProvider, optionsBuilder.Options))
+
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .EnableSensitiveDataLogging()
+                    .UseSqlServer(testDatabase.ConnectionString)
+                    .UseInternalServiceProvider(serviceProvider);
+
+                using (var db = new BloggingContext(optionsBuilder.Options))
+                {
+                    await CreateBlogDatabaseAsync<Blog>(db);
+                }
+
+                using (var db = new BloggingContext(optionsBuilder.Options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
                     toUpdate.Name = "Blog is Updated";
@@ -198,13 +198,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testDatabase.ConnectionString);
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseSqlServer(testDatabase.ConnectionString)
+                    .UseInternalServiceProvider(_fixture.ServiceProvider);
 
                 int updatedId;
                 int deletedId;
                 int addedId;
-                using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
+                using (var db = new BloggingContext(optionsBuilder.Options))
                 {
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
@@ -243,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
                 }
 
-                using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
+                using (var db = new BloggingContext(optionsBuilder.Options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Id == updatedId);
                     Assert.Equal("Blog is Updated", toUpdate.Name);
@@ -307,9 +308,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class SchemaContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public SchemaContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbConnection Connection { get; set; }
@@ -317,10 +320,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public DbSet<Jack> Jacks { get; set; }
             public DbSet<Black> Blacks { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(Connection);
-            }
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                => optionsBuilder.UseSqlServer(Connection).UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -368,14 +369,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testDatabase.ConnectionString);
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseSqlServer(testDatabase.ConnectionString)
+                    .UseInternalServiceProvider(_fixture.ServiceProvider);
 
                 int blog1Id;
                 int blog2Id;
                 int blog3Id;
 
-                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, optionsBuilder.Options))
+                using (var context = new BloggingContext<TBlog>(optionsBuilder.Options))
                 {
                     var blogs = await CreateBlogDatabaseAsync<TBlog>(context);
                     blog1Id = blogs[0].Id;
@@ -386,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.NotEqual(blog1Id, blog2Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, optionsBuilder.Options))
+                using (var context = new BloggingContext<TBlog>(optionsBuilder.Options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -422,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     Assert.NotEqual(0, blog3Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, optionsBuilder.Options))
+                using (var context = new BloggingContext<TBlog>(optionsBuilder.Options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(3, blogs.Count);
@@ -495,17 +497,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class NorthwindContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public NorthwindContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerNorthwindContext.ConnectionString)
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -526,8 +530,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class BloggingContext : BloggingContext<Blog>
         {
-            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public BloggingContext(DbContextOptions options)
+                : base(options)
             {
             }
         }
@@ -555,15 +559,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class BloggingContext<TBlog> : DbContext
             where TBlog : class, IBlog
         {
-            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public BloggingContext(DbContextOptions options)
+                : base(options)
             {
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
-            }
+            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+                => modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
 
             public DbSet<TBlog> Blogs { get; set; }
         }

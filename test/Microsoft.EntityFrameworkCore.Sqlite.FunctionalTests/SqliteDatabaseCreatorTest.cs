@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,17 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         private IRelationalDatabaseCreator GetDatabaseCreator(string connectionString)
-        {
-            var services = new ServiceCollection();
-            services
-                .AddEntityFramework()
-                .AddSqlite();
-
-            var options = new DbContextOptionsBuilder();
-            options.UseSqlite(connectionString);
-
-            return new DbContext(services.BuildServiceProvider(), options.Options)
+            => new DbContext(new DbContextOptionsBuilder()
+                .UseSqlite(connectionString)
+                .UseInternalServiceProvider(new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddSqlite()
+                    .BuildServiceProvider())
+                .Options)
                 .GetService<IRelationalDatabaseCreator>();
-        }
     }
 }

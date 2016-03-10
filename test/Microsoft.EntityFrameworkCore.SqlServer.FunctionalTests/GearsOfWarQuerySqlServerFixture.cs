@@ -33,10 +33,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlServer(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlServer(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new GearsOfWarContext(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -56,9 +57,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             optionsBuilder
                 .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(_serviceProvider)
                 .UseSqlServer(testStore.Connection);
 
-            var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options);
+            var context = new GearsOfWarContext(optionsBuilder.Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

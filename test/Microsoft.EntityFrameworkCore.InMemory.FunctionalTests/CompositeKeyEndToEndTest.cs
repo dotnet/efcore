@@ -171,9 +171,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private class BronieContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public BronieContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Pegasus> Pegasuses { get; set; }
@@ -181,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<EarthPony> EarthPonies { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

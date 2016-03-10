@@ -1035,14 +1035,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
         private class EarlyLearningCenter : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public EarlyLearningCenter()
-                : this(TestHelpers.Instance.CreateServiceProvider())
             {
+                _serviceProvider = TestHelpers.Instance.CreateServiceProvider();
             }
 
             public EarlyLearningCenter(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1071,7 +1073,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .UseInMemoryDatabase();
         }
 
         public class KeyValueEntityTracker

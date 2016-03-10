@@ -36,24 +36,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         protected DbContextOptions BuildOptions()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            => new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseSqlite(
+                    _testStore.ConnectionString,
+                    b => ConfigureOptions(b).SuppressForeignKeyEnforcement())
+                .Options;
 
-            var sqliteDbContextOptionsBuilder
-                = optionsBuilder.UseSqlite(_testStore.ConnectionString)
-                    .SuppressForeignKeyEnforcement();
-
-            ConfigureOptions(sqliteDbContextOptionsBuilder);
-
-            return optionsBuilder.Options;
-        }
-
-        protected virtual void ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
-        {
-        }
+        protected virtual SqliteDbContextOptionsBuilder ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder) 
+            => sqliteDbContextOptionsBuilder;
 
         public override NorthwindContext CreateContext() 
-            => new SqliteNorthwindContext(_serviceProvider, _options);
+            => new SqliteNorthwindContext(_options);
 
         public void Dispose() => _testStore.Dispose();
 

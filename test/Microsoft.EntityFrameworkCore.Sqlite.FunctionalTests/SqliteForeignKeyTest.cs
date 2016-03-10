@@ -25,14 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         [InlineData(false)]
         public void It_enforces_foreign_key(bool suppress)
         {
-            var builder = new DbContextOptionsBuilder();
-            var sqliteBuilder = builder.UseSqlite(_testStore.ConnectionString);
-            if (suppress)
-            {
-                sqliteBuilder.SuppressForeignKeyEnforcement();
-            }
-
-            var options = builder.Options;
+            var options = new DbContextOptionsBuilder()
+                .UseSqlite(_testStore.ConnectionString,
+                    b =>
+                        {
+                            if (suppress)
+                            {
+                                b.SuppressForeignKeyEnforcement();
+                            }
+                        }).Options;
 
             using (var context = new MyContext(options))
             {

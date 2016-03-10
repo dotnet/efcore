@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class BloggingContext : DbContext
         {
             public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+                : base(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options)
             {
             }
 

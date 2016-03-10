@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
     public class GoTContext : DbContext
     {
-        public GoTContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public GoTContext(DbContextOptions options)
+            : base(options)
         {
         }
 
@@ -109,11 +109,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 ["Trusted_Connection"] = true
             };
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(connStrBuilder.ConnectionString);
-            _options = optionsBuilder.Options;
+            _options = new DbContextOptionsBuilder()
+                .UseSqlServer(connStrBuilder.ConnectionString)
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
         }
 
-        public virtual GoTContext CreateContext() => new GoTContext(_serviceProvider, _options);
+        public virtual GoTContext CreateContext() => new GoTContext(_options);
     }
 }

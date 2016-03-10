@@ -433,8 +433,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                                     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                                     {
                                         optionsBuilder
-                                            .UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyProject.MyContext;Integrated Security=True"")
-                                            .MigrationsAssembly(""UnknownAssembly"");
+                                            .UseSqlServer(
+                                                ""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyProject.MyContext;Integrated Security=True"",
+                                                b => b.MigrationsAssembly(""UnknownAssembly""));
                                     }
                                 }
 

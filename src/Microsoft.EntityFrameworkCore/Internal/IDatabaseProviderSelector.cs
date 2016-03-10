@@ -7,6 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 {
     public interface IDatabaseProviderSelector
     {
-        IDatabaseProviderServices SelectServices(ServiceProviderSource providerSource);
+        IDatabaseProviderServices SelectServices();
     }
 }

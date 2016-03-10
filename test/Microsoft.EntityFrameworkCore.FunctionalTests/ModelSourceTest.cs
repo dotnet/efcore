@@ -81,9 +81,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         private class JustSomeContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public JustSomeContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Peak> Peaks { get; set; }
@@ -92,7 +94,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 => modelBuilder.Entity<Base>().HasAnnotation("AllYourBaseAreBelongTo", "Us!");
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         private class Base

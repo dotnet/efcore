@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         public void Can_add_extension_with_max_batch_size()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite("Database=Crunchie").MaxBatchSize(123);
+            optionsBuilder.UseSqlite("Database=Crunchie", b => b.MaxBatchSize(123));
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         public void Can_add_extension_with_command_timeout()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite("Database=Crunchie").CommandTimeout(30);
+            optionsBuilder.UseSqlite("Database=Crunchie", b => b.CommandTimeout(30));
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         public void Can_add_extension_with_ambient_transaction_warning_suppressed()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite("Database=Crunchie").SuppressAmbientTransactionWarning();
+            optionsBuilder.UseSqlite("Database=Crunchie", b => b.SuppressAmbientTransactionWarning());
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
@@ -101,8 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
 
-            optionsBuilder.UseSqlite("some string")
-                .SuppressForeignKeyEnforcement();
+            optionsBuilder.UseSqlite("some string", b => b.SuppressForeignKeyEnforcement());
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 

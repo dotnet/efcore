@@ -27,11 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
             _testStore = SqliteTestStore.CreateScratch();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(_testStore.ConnectionString);
-            _options = optionsBuilder.Options;
+            _options = new DbContextOptionsBuilder()
+                .UseSqlite(_testStore.ConnectionString)
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
 
-            using (var context = new DbContext(_serviceProvider, _options))
+            using (var context = new DbContext(_options))
             {
                 context.Database.EnsureCreated();
 
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             }
         }
 
-        public DbContext CreateContext() => new DbContext(_serviceProvider, _options);
+        public DbContext CreateContext() => new DbContext(_options);
 
         public void Dispose() => _testStore.Dispose();
     }

@@ -28,12 +28,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(_testStore.Connection);
+            _options = new DbContextOptionsBuilder()
+                .UseSqlServer(_testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
 
-            _options = optionsBuilder.Options;
-
-            using (var context = new DbContext(_serviceProvider, _options))
+            using (var context = new DbContext(_options))
             {
                 context.Database.EnsureCreated();
             }
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override DbContext CreateContext()
         {
-            var context = new DbContext(_serviceProvider, _options);
+            var context = new DbContext(_options);
             context.Database.UseTransaction(_testStore.Transaction);
             return context;
         }

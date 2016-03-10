@@ -13,24 +13,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     public class InheritanceSqliteFixture : InheritanceRelationalFixture, IDisposable
     {
         private readonly DbContextOptions _options;
-        private readonly IServiceProvider _serviceProvider;
         private readonly SqliteTestStore _testStore;
 
         public InheritanceSqliteFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
+            _testStore = SqliteTestStore.CreateScratch();
+
+            _options = new DbContextOptionsBuilder()
+                .UseSqlite(_testStore.Connection)
+                .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlite()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
-                    .BuildServiceProvider();
-
-            _testStore = SqliteTestStore.CreateScratch();
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(_testStore.Connection);
-            _options = optionsBuilder.Options;
+                    .BuildServiceProvider())
+                .Options;
 
             // TODO: Do this via migrations & update pipeline
 
@@ -72,10 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             {
                 SeedData(context);
             }
+
             TestSqlLoggerFactory.Reset();
         }
 
-        public override InheritanceContext CreateContext() => new InheritanceContext(_serviceProvider, _options);
+        public override InheritanceContext CreateContext() => new InheritanceContext(_options);
 
         public void Dispose() => _testStore.Dispose();
     }

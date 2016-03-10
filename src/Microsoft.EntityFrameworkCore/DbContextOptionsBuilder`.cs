@@ -1,9 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -54,5 +57,24 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseModel([NotNull] IModel model)
             => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
+
+        public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+            => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
+
+        public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
+            => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
+
+        public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+            => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
+
+        /// <summary>
+        ///     Enables application data to be included in exception messages, logging, etc. This can include the values assigned to properties
+        ///     of your entity instances, parameter values for commands being sent to the database, and other such data. You should only enable
+        ///     this flag if you have the appropriate security measures in place based on the sensitivity of this data.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging()
+            => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging();
+
     }
 }

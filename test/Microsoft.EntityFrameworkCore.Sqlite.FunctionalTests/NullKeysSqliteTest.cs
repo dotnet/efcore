@@ -28,17 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString("StringsContext"));
-                _options = optionsBuilder.Options;
+                _options = new DbContextOptionsBuilder()
+                    .UseSqlite(SqliteTestStore.CreateConnectionString("StringsContext"))
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .Options;
 
                 EnsureCreated();
             }
 
-            public override DbContext CreateContext()
-            {
-                return new DbContext(_serviceProvider, _options);
-            }
+            public override DbContext CreateContext() 
+                => new DbContext(_options);
         }
     }
 }

@@ -14,23 +14,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     public class NorthwindQueryInMemoryFixture : NorthwindQueryFixtureBase
     {
         private readonly DbContextOptions _options;
-        private readonly IServiceProvider _serviceProvider;
 
         private readonly TestLoggerFactory _testLoggerFactory = new TestLoggerFactory();
 
         public NorthwindQueryInMemoryFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(_testLoggerFactory)
-                    .BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                .AddSingleton<ILoggerFactory>(_testLoggerFactory)
+                .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
-            _options = optionsBuilder.Options;
+            _options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(serviceProvider).Options;
 
             using (var context = CreateContext())
             {
@@ -39,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         }
 
         public override NorthwindContext CreateContext()
-            => new NorthwindContext(_serviceProvider, _options);
+            => new NorthwindContext(_options);
     }
 
     public class TestLoggerFactory : ILoggerFactory

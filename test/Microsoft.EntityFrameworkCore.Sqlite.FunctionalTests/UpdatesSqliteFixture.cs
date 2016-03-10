@@ -29,10 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 DatabaseName,
                 () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlite(_connectionString);
-
-                    using (var context = new UpdatesContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new UpdatesContext(new DbContextOptionsBuilder()
+                        .UseSqlite(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider).Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -47,11 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override UpdatesContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection)
-                .SuppressForeignKeyEnforcement();
-
-            var context = new UpdatesContext(_serviceProvider, optionsBuilder.Options);
+            var context = new UpdatesContext(new DbContextOptionsBuilder()
+                .UseSqlite(testStore.Connection,
+                    b => b.SuppressForeignKeyEnforcement())
+                .UseInternalServiceProvider(_serviceProvider).Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

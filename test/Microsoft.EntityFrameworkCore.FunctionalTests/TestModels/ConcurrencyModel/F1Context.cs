@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyMo
 {
     public class F1Context : DbContext
     {
-        public F1Context(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public F1Context(DbContextOptions options)
+            : base(options)
         {
         }
 

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         public void Can_add_extension_with_transactions_ignored()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase().IgnoreTransactions();
+            optionsBuilder.UseInMemoryDatabase(b => b.IgnoreTransactions());
 
             var extension = optionsBuilder.Options.Extensions.OfType<InMemoryOptionsExtension>().Single();
 

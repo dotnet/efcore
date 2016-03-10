@@ -31,10 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlite(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlite(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new F1Context(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new F1Context(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -50,10 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override F1Context CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlite(testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new F1Context(_serviceProvider, optionsBuilder.Options);
+            var context = new F1Context(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
         }

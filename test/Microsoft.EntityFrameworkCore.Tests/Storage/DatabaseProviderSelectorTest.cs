@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Storage
                 Mock.Of<IDbContextOptions>(),
                 new[] { provider });
 
-            Assert.Same(provider.GetProviderServices(serviceProvider), selector.SelectServices(ServiceProviderSource.Explicit));
+            Assert.Same(provider.GetProviderServices(serviceProvider), selector.SelectServices());
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Storage
 
             Assert.Equal(CoreStrings.MultipleProvidersConfigured("'Database1' 'Database2' 'Database4' "),
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectServices()).Message);
         }
 
         [Fact]
@@ -52,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Storage
                 Mock.Of<IDbContextOptions>(),
                 null);
 
-            Assert.Equal(CoreStrings.NoProviderServices,
+            Assert.Equal(CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectServices()).Message);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Storage
 
             Assert.Equal(CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectServices(ServiceProviderSource.Implicit)).Message);
+                    () => selector.SelectServices()).Message);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Storage
 
             Assert.Equal(CoreStrings.MultipleProvidersAvailable("'Database1' 'Database2' 'Database3' "),
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectServices()).Message);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Storage
 
             Assert.Equal(CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectServices()).Message);
         }
 
         private static IDatabaseProvider CreateSource(string name, bool configured, bool available)

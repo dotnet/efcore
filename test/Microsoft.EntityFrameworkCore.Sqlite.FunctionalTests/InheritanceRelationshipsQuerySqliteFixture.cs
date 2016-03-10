@@ -25,10 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override InheritanceRelationshipsContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlite(testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new InheritanceRelationshipsContext(_serviceProvider, optionsBuilder.Options);
+            var context = new InheritanceRelationshipsContext(optionsBuilder.Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
@@ -41,11 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             => SqliteTestStore.GetOrCreateShared(
                 nameof(InheritanceRelationshipsQuerySqliteTest),
                 () =>
-                {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString(nameof(InheritanceRelationshipsQuerySqliteTest)));
+                    {
+                        var optionsBuilder = new DbContextOptionsBuilder()
+                            .UseSqlite(SqliteTestStore.CreateConnectionString(nameof(InheritanceRelationshipsQuerySqliteTest)))
+                            .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new InheritanceRelationshipsContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new InheritanceRelationshipsContext(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();

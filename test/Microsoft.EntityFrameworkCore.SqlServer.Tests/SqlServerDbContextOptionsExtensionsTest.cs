@@ -3,7 +3,6 @@
 
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Xunit;
 
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         public void Can_add_extension_with_max_batch_size()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(123);
+            optionsBuilder.UseSqlServer("Database=Crunchie", b => b.MaxBatchSize(123));
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         public void Can_add_extension_with_command_timeout()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer("Database=Crunchie").CommandTimeout(30);
+            optionsBuilder.UseSqlServer("Database=Crunchie", b => b.CommandTimeout(30));
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         public void Can_add_extension_with_ambient_transaction_warning_suppressed()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer("Database=Crunchie").SuppressAmbientTransactionWarning();
+            optionsBuilder.UseSqlServer("Database=Crunchie", b => b.SuppressAmbientTransactionWarning());
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
 
-            optionsBuilder.UseSqlServer("Database=Kilimanjaro").UseRowNumberForPaging();
+            optionsBuilder.UseSqlServer("Database=Kilimanjaro", b => b.UseRowNumberForPaging());
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 

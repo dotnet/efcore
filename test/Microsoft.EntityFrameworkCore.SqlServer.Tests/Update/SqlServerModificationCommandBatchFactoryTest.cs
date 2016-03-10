@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
         public void Uses_MaxBatchSize_specified_in_SqlServerOptionsExtension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(1);
+            optionsBuilder.UseSqlServer("Database=Crunchie", b => b.MaxBatchSize(1));
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(

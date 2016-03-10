@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
     public class AdventureWorksContext : DbContext
     {
         private readonly string _connectionString;
+        private readonly IServiceProvider _serviceProvider;
 
         public AdventureWorksContext(string connectionString)
         {
@@ -17,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
         }
 
         public AdventureWorksContext(string connectionString, IServiceProvider serviceProvider)
-            : base(serviceProvider)
         {
             _connectionString = connectionString;
+            _serviceProvider = serviceProvider;
         }
 
         public virtual DbSet<Address> Address { get; set; }
@@ -90,15 +91,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
         public virtual DbSet<WorkOrder> WorkOrder { get; set; }
         public virtual DbSet<WorkOrderRouting> WorkOrderRouting { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.UseSqlServer(_connectionString);
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder options) 
+            => options.UseSqlServer(_connectionString).UseInternalServiceProvider(_serviceProvider);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            ConfigureModel(modelBuilder);
-        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+            => ConfigureModel(modelBuilder);
 
         public static void ConfigureModel(ModelBuilder modelBuilder)
         {

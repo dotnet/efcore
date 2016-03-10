@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels
 {
     public class CrossStoreContext : DbContext
     {
-        public CrossStoreContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public CrossStoreContext(DbContextOptions options)
+            : base(options)
         {
         }
 

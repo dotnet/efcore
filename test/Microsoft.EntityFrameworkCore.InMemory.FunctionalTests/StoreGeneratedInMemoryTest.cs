@@ -185,10 +185,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             {
                 return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
-                        var optionsBuilder = new DbContextOptionsBuilder();
-                        optionsBuilder.UseInMemoryDatabase();
+                        var optionsBuilder = new DbContextOptionsBuilder()
+                            .UseInMemoryDatabase()
+                            .UseInternalServiceProvider(_serviceProvider);
 
-                        using (var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options))
+                        using (var context = new StoreGeneratedContext(optionsBuilder.Options))
                         {
                             context.Database.EnsureDeleted();
                             context.Database.EnsureCreated();
@@ -198,10 +199,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryDatabase();
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
 
-                var context = new StoreGeneratedContext(_serviceProvider, optionsBuilder.Options);
+                var context = new StoreGeneratedContext(optionsBuilder.Options);
 
                 return context;
             }

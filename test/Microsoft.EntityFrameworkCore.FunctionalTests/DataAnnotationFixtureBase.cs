@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
     public class DataAnnotationContext : DbContext
     {
-        public DataAnnotationContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public DataAnnotationContext(DbContextOptions options)
+            : base(options)
         {
         }
 

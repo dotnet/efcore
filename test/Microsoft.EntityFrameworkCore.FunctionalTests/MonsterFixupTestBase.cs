@@ -1601,15 +1601,15 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         protected abstract void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
 
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
-            => new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName),
+            => new SnapshotMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
                 OnModelCreating<SnapshotMonsterContext.Message, SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>);
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
-            => new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName),
+            => new ChangedChangingMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
                 OnModelCreating<ChangedChangingMonsterContext.Message, ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>);
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
-            => new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName),
+            => new ChangedOnlyMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
                 OnModelCreating<ChangedOnlyMonsterContext.Message, ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>);
 
         public virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)

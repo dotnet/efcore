@@ -13,26 +13,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase, IDisposable
     {
         private readonly DbContextOptions _options;
-        private readonly IServiceProvider _serviceProvider;
         private readonly SqlServerTestStore _testStore;
 
         public OneToOneQuerySqlServerFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
+            _testStore = SqlServerTestStore.CreateScratch();
+
+            _options = new DbContextOptionsBuilder()
+                .UseSqlServer(_testStore.ConnectionString)
+                .UseInternalServiceProvider(new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
-                    .BuildServiceProvider();
+                    .BuildServiceProvider())
+                .Options;
 
-            _testStore = SqlServerTestStore.CreateScratch();
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(_testStore.ConnectionString);
-            _options = optionsBuilder.Options;
-
-            using (var context = new DbContext(_serviceProvider, _options))
+            using (var context = new DbContext(_options))
             {
                 context.Database.EnsureCreated();
 
@@ -40,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public DbContext CreateContext() => new DbContext(_serviceProvider, _options);
+        public DbContext CreateContext() => new DbContext(_options);
+
         public void Dispose() => _testStore.Dispose();
     }
 }

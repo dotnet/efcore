@@ -191,9 +191,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public BloggingContext(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Blog> Blogs { get; set; }
@@ -217,13 +219,13 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 public string Name { get; set; }
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog>().HasKey(b => b.Url);
-            }
+            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+                => modelBuilder.Entity<Blog>().HasKey(b => b.Url);
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         private class TestLoggerFactory : ILoggerFactory

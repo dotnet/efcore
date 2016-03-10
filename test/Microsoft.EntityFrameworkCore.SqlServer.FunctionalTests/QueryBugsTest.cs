@@ -113,15 +113,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class MyContext603 : DbContext
         {
-            public MyContext603(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext603(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Product>().ToTable("Product");
@@ -237,9 +241,11 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
 
         public class MyContext925 : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public MyContext925(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer> Customers { get; set; }
@@ -248,7 +254,8 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -377,9 +384,11 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
         // TODO: replace with GearsOfWar context when it's refactored properly
         public class MyContext963 : DbContext
         {
-            public MyContext963(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext963(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Targaryen> Targaryens { get; set; }
@@ -388,7 +397,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             public DbSet<Dragon> Dragons { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -497,16 +508,20 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         public class MyContext3758 : DbContext
         {
-            public MyContext3758(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext3758(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer3758> Customers { get; set; }
             public DbSet<Order3758> Orders { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3758"));
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3758"))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

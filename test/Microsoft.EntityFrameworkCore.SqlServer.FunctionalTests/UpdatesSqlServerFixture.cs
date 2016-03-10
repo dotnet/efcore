@@ -26,27 +26,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-            {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
-
-                using (var context = new UpdatesContext(_serviceProvider, optionsBuilder.Options))
                 {
-                    context.Database.EnsureDeleted();
-                    if (context.Database.EnsureCreated())
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                        .UseInternalServiceProvider(_serviceProvider);
+
+                    using (var context = new UpdatesContext(optionsBuilder.Options))
                     {
-                        UpdatesModelInitializer.Seed(context);
+                        context.Database.EnsureDeleted();
+                        if (context.Database.EnsureCreated())
+                        {
+                            UpdatesModelInitializer.Seed(context);
+                        }
                     }
-                }
-            });
+                });
         }
 
         public override UpdatesContext CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlServer(testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new UpdatesContext(_serviceProvider, optionsBuilder.Options);
+            var context = new UpdatesContext(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
         }

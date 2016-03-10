@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
     {
         public static readonly string StoreName = "Northwind";
 
-        public NorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public NorthwindContext(DbContextOptions options)
+            : base(options)
         {
         }
 

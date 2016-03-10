@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         [Fact]
         public void Identity_metadata_not_on_text_is_ignored()
         {
-            using (var context = new JokerContext(_provider, _options))
+            using (var context = new JokerContext(_options))
             {
                 context.Database.EnsureCreated();
             }
@@ -52,24 +52,26 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            var builder = new DbContextOptionsBuilder();
-            builder.UseSqlite(_testStore.Connection);
-            _options = builder.Options;
             _provider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlite()
                 .BuildServiceProvider();
+
+            _options = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(_provider)
+                .UseSqlite(_testStore.Connection)
+                .Options;
         }
 
-        private BatContext CreateContext() => new BatContext(_provider, _options);
+        private BatContext CreateContext() => new BatContext(_options);
 
         public void Dispose() => _testStore.Dispose();
     }
 
     public class JokerContext : DbContext
     {
-        public JokerContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public JokerContext(DbContextOptions options)
+            : base(options)
         {
         }
 
@@ -88,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
     public class BatContext : DbContext
     {
-        public BatContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public BatContext(DbContextOptions options)
+            : base(options)
         {
         }
 

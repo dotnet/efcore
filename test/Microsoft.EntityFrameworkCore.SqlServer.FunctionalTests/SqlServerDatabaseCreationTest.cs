@@ -310,15 +310,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             private readonly SqlServerTestStore _testStore;
 
             public BloggingContext(SqlServerTestStore testStore)
-                : base(CreateServiceProvider())
             {
                 _testStore = testStore;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_testStore.ConnectionString);
-            }
+                => optionsBuilder
+                    .UseSqlServer(_testStore.ConnectionString)
+                    .UseInternalServiceProvider(CreateServiceProvider());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

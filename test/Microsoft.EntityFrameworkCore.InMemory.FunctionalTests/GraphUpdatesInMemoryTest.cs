@@ -185,12 +185,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryDatabase();
-
-                return new GraphUpdatesContext(_serviceProvider, optionsBuilder.Options);
-            }
+                => new GraphUpdatesContext(new DbContextOptionsBuilder()
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider).Options);
 
             public class InMemoryGraphUpdatesTestStore : InMemoryTestStore
             {

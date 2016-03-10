@@ -35,10 +35,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
-                        var optionsBuilder = new DbContextOptionsBuilder();
-                        optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
+                        var optionsBuilder = new DbContextOptionsBuilder()
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                            .UseInternalServiceProvider(_serviceProvider);
 
-                        using (var context = new GraphUpdatesContext(_serviceProvider, optionsBuilder.Options))
+                        using (var context = new GraphUpdatesContext(optionsBuilder.Options))
                         {
                             context.Database.EnsureDeleted();
                             if (context.Database.EnsureCreated())
@@ -51,10 +52,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             public override DbContext CreateContext(SqlServerTestStore testStore)
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testStore.Connection);
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.Connection)
+                    .UseInternalServiceProvider(_serviceProvider);
 
-                var context = new GraphUpdatesContext(_serviceProvider, optionsBuilder.Options);
+                var context = new GraphUpdatesContext(optionsBuilder.Options);
                 context.Database.UseTransaction(testStore.Transaction);
                 return context;
             }

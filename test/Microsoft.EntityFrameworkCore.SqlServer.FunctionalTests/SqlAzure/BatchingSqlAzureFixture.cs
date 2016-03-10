@@ -10,9 +10,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
     {
         public AdventureWorksContext CreateContext(int maxBatchSize)
         {
-            var optionsBuilder = new DbContextOptionsBuilder(Options);
+            var optionsBuilder = new DbContextOptionsBuilder(Options).UseInternalServiceProvider(Services);
+
             new SqlServerDbContextOptionsBuilder(optionsBuilder).MaxBatchSize(maxBatchSize);
-            return new AdventureWorksContext(Services, optionsBuilder.Options);
+
+            return new AdventureWorksContext(optionsBuilder.Options);
         }
     }
 }

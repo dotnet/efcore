@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Inheritance;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,18 +10,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     public class InheritanceInMemoryFixture : InheritanceFixtureBase
     {
         private readonly DbContextOptionsBuilder _optionsBuilder = new DbContextOptionsBuilder();
-        private readonly IServiceProvider _serviceProvider;
 
         public InheritanceInMemoryFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                .BuildServiceProvider();
 
-            _optionsBuilder.UseInMemoryDatabase();
+            _optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(serviceProvider);
 
             using (var context = CreateContext())
             {
@@ -30,9 +27,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
         }
 
-        public override InheritanceContext CreateContext()
-        {
-            return new InheritanceContext(_serviceProvider, _optionsBuilder.Options);
-        }
+        public override InheritanceContext CreateContext() 
+            => new InheritanceContext(_optionsBuilder.Options);
     }
 }
