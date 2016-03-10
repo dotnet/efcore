@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public void Can_replace_ModelSource_without_access_to_internals()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<InMemoryModelSource, MyModelSource>()
                 .BuildServiceProvider();
 
@@ -39,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public void Can_customize_ModelBuilder()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<IModelCustomizer, MyModelCustomizer>()
                 .BuildServiceProvider();
 

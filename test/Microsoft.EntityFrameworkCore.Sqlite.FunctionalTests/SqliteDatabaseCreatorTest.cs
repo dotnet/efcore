@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             => new DbContext(new DbContextOptionsBuilder()
                 .UseSqlite(connectionString)
                 .UseInternalServiceProvider(new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlite()
+                    .AddEntityFrameworkSqlite()
                     .BuildServiceProvider())
                 .Options)
                 .GetService<IRelationalDatabaseCreator>();

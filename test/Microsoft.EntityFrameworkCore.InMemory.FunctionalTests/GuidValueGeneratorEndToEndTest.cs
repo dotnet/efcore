@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public async Task Can_use_GUIDs_end_to_end_async()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var guids = new List<Guid>();

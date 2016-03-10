@@ -92,6 +92,26 @@ namespace Microsoft.EntityFrameworkCore.Tests
             VerifyScoped<CompiledQueryCacheKeyGenerator>();
         }
 
+        protected virtual void AssertServicesSame(IServiceCollection services1, IServiceCollection services2)
+        {
+            var sortedServices1 = services1
+                .OrderBy(s => s.ServiceType.GetHashCode())
+                .ToList();
+
+            var sortedServices2 = services2
+                .OrderBy(s => s.ServiceType.GetHashCode())
+                .ToList();
+
+            Assert.Equal(sortedServices1.Count, sortedServices2.Count);
+
+            for (int i = 0; i < sortedServices1.Count; i++)
+            {
+                Assert.Equal(sortedServices1[i].ServiceType, sortedServices2[i].ServiceType);
+                Assert.Equal(sortedServices1[i].ImplementationType, sortedServices2[i].ImplementationType);
+                Assert.Equal(sortedServices1[i].Lifetime, sortedServices2[i].Lifetime);
+            }
+        }
+
         private readonly TestHelpers _testHelpers;
         private readonly DbContext _firstContext;
         private readonly DbContext _secondContext;
@@ -106,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         private IServiceCollection AddServices(IServiceCollection serviceCollection) 
-            => _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework());
+            => _testHelpers.AddProviderServices(serviceCollection);
 
         public void Dispose()
         {

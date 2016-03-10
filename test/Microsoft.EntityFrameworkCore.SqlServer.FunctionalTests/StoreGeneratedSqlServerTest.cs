@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public StoreGeneratedSqlServerFixture()
             {
                 _serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
+                    .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
             }

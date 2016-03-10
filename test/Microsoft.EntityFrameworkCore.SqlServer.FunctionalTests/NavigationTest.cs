@@ -98,8 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public NavigationTestFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             var connStrBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)

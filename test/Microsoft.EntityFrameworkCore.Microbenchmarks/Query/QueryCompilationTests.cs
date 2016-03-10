@@ -79,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
             public QueryCompilationFixture()
                 : base("Perf_Query_Compilation", 0, 0, 0, 0)
             {
-                var collection = new ServiceCollection();
-                collection.AddEntityFramework().AddSqlServer();
-                collection.AddSingleton<IMemoryCache, NonCachingMemoryCache>();
-                _noQueryCacheServiceProvider = collection.BuildServiceProvider();
+                _noQueryCacheServiceProvider = new ServiceCollection()
+                    .AddEntityFrameworkSqlServer()
+                    .AddSingleton<IMemoryCache, NonCachingMemoryCache>()
+                    .BuildServiceProvider();
             }
 
             public override OrdersContext CreateContext()

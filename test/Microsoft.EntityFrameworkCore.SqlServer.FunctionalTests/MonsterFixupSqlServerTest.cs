@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
             var serviceCollection = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer();
+                .AddEntityFrameworkSqlServer();
 
             if (throwingStateManager)
             {

@@ -22,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public NotificationEntitiesInMemoryFixture()
             {
                 var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
+                    .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 

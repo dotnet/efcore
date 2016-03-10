@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             private SqliteTestStore _store;
 
             public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             public virtual void CreateDatabase()

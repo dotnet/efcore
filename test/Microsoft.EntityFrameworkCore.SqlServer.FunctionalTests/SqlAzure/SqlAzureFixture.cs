@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
             SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql");
 
             Services = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory()).BuildServiceProvider();
 
             Options = new DbContextOptionsBuilder()

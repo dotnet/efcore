@@ -15,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public TransactionSqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
+                .AddEntityFrameworkSqlite()
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
