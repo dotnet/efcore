@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests
 {
-    public abstract class RelationalEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public abstract class RelationalServiceCollectionExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
         public override void Services_wire_up_correctly()
         {
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             VerifyScoped<MigrationsSqlGenerator>();
         }
 
-        protected RelationalEntityFrameworkServicesBuilderExtensionsTest(RelationalTestHelpers testHelpers)
+        protected RelationalServiceCollectionExtensionsTest(RelationalTestHelpers testHelpers)
             : base(testHelpers)
         {
         }

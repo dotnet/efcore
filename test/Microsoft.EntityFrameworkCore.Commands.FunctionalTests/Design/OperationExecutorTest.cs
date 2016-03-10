@@ -235,7 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     References =
                             {
                                 BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
-                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true)
+                                BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true)
                             },
                     Sources = { @"
                         using Microsoft.EntityFrameworkCore;
@@ -265,6 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                                 BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                 BuildReference.ByPath(contextsBuild.TargetPath)
                             },
                     Sources = { @"

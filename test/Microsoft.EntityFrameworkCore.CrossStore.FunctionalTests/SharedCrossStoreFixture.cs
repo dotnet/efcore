@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
                 .AddInMemoryDatabase()
                 .AddSqlite()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider())
         {
         }

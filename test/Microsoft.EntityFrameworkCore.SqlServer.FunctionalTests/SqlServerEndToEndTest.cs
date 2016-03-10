@@ -126,7 +126,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .ServiceCollection()
                     .AddSingleton<ILoggerFactory>(loggingFactory)
                     .BuildServiceProvider();
                 using (var db = new BloggingContext(serviceProvider, optionsBuilder.Options))
@@ -279,8 +278,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .AddDbContext<SchemaContext>()
-                    .ServiceCollection()
                     .BuildServiceProvider();
 
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
@@ -289,11 +286,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 await testDatabase.ExecuteNonQueryAsync("CREATE TABLE Apple.Jack (MyKey int)");
                 await testDatabase.ExecuteNonQueryAsync("CREATE TABLE Apple.Black (MyKey int)");
 
-                using (var context = serviceProvider
-                    .GetRequiredService<IServiceScopeFactory>()
-                    .CreateScope()
-                    .ServiceProvider
-                    .GetRequiredService<SchemaContext>())
+                using (var context = new SchemaContext(serviceProvider))
                 {
                     context.Connection = testDatabase.Connection;
 
@@ -302,11 +295,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     context.SaveChanges();
                 }
 
-                using (var context = serviceProvider
-                    .GetRequiredService<IServiceScopeFactory>()
-                    .CreateScope()
-                    .ServiceProvider
-                    .GetRequiredService<SchemaContext>())
+                using (var context = new SchemaContext(serviceProvider))
                 {
                     context.Connection = testDatabase.Connection;
 

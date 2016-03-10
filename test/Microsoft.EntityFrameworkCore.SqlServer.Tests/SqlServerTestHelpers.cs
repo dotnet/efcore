@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
         public new static SqlServerTestHelpers Instance { get; } = new SqlServerTestHelpers();
 
-        public override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
-            => builder.AddSqlServer();
+        public override IServiceCollection AddProviderServices(IServiceCollection services)
+            => services.AddSqlServer();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -47,8 +48,11 @@ namespace Microsoft.EntityFrameworkCore
     {
         private static readonly ConcurrentDictionary<Type, Type> _optionsTypes = new ConcurrentDictionary<Type, Type>();
 
-        private IServiceProvider _globalServiceProvider;
-        private DbContextOptions _options;
+        private readonly IServiceProvider _internalServicesProvider;
+        private readonly DbContextOptions _options;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IMemoryCache _memoryCache;
+
         private IDbContextServices _contextServices;
         private IDbSetInitializer _setInitializer;
         private ChangeTracker _changeTracker;
@@ -63,116 +67,153 @@ namespace Microsoft.EntityFrameworkCore
         private bool _disposed;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContext" /> class. The
-        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" />
-        ///     method will be called to configure the database (and other options) to be used for this context.
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="DbContext" /> class. The
+        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />
+        ///         method will be called to configure the database (and other options) to be used for this context.
+        ///     </para>
+        ///     <para>
+        ///         EF will create and manage an internal service provider for all internal EF services.
+        ///     </para>
         /// </summary>
-        protected DbContext()
+        /// <param name="loggerFactory">
+        ///     Optional <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
+        ///     for logging done by this context.
+        /// </param>
+        /// <param name="memoryCache">
+        ///     Optional <see cref="IMemoryCache" /> to be used for query caching by this context. The context will
+        ///     create and manage a memory cache if none is passed in.
+        /// </param>
+        protected DbContext(
+            [CanBeNull] ILoggerFactory loggerFactory = null,
+            [CanBeNull] IMemoryCache memoryCache = null)
+            : this(new DbContextOptions<DbContext>(), loggerFactory, memoryCache)
         {
-            var serviceProvider = DbContextActivator.ServiceProvider;
-
-            Initialize(serviceProvider, GetOptions(serviceProvider));
         }
 
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="DbContext" /> class using an <see cref="IServiceProvider" />.
+        ///         Initializes a new instance of the <see cref="DbContext" /> class. The
+        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />
+        ///         method will be called to configure the database (and other options) to be used for this context.
         ///     </para>
         ///     <para>
-        ///         The service provider must contain all the services required by Entity Framework (and the database being
-        ///         used). The Entity Framework services can be registered using the
+        ///         The service provider used for all EF internal services is passed into this constructor. This is only
+        ///         needed if the application needs to manage the service provider in a special way, or if the application
+        ///         needs to modify some of the internal services used by EF. External services used by EF, such as the
+        ///         <see cref="ILoggerFactory" /> and <see cref="IMemoryCache" />, should be passed as arguments to this
+        ///         constructor rather than being configured in this internal service provider.
+        ///     </para>
+        ///     <para>
+        ///         The internal service provider must contain all the services required by Entity Framework (and
+        ///         the database being used). The Entity Framework services can be registered using the
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
         ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
         ///         services required. For example, the Microsoft SQL Server provider includes an AddSqlServer() method
         ///         to add the required services.
         ///     </para>
-        ///     <para>
-        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
-        ///         <see cref="DbContextOptions{TContext}" /> registered, then this will be used as the options for
-        ///         this context instance. The <see cref="OnConfiguring" /> method
-        ///         will still be called to allow further configuration of the options.
-        ///     </para>
         /// </summary>
-        /// <param name="serviceProvider">The service provider to be used.</param>
-        public DbContext([NotNull] IServiceProvider serviceProvider)
+        /// <param name="internalServicesProvider">
+        ///     The service provider to be used for all internal services needed by the Entity Framework.
+        /// </param>
+        /// <param name="loggerFactory">
+        ///     Optional <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
+        ///     for logging done by this context.
+        /// </param>
+        /// <param name="memoryCache">
+        ///     Optional <see cref="IMemoryCache" /> to be used for query caching by this context. The context will
+        ///     create and manage a memory cache if none is passed in.
+        /// </param>
+        protected DbContext(
+            [NotNull] IServiceProvider internalServicesProvider,
+            [CanBeNull] ILoggerFactory loggerFactory = null,
+            [CanBeNull] IMemoryCache memoryCache = null)
+            : this(internalServicesProvider, new DbContextOptions<DbContext>(), loggerFactory, memoryCache)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-
-            Initialize(serviceProvider, GetOptions(serviceProvider));
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContext" /> with the specified options. The
-        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
-        ///     configuration of the options.
-        /// </summary>
-        /// <param name="options">The options for this context.</param>
-        public DbContext([NotNull] DbContextOptions options)
-        {
-            Check.NotNull(options, nameof(options));
-
-            Initialize(DbContextActivator.ServiceProvider, options);
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContext" /> class using an <see cref="IServiceProvider" />
-        ///     and the specified options.
         ///     <para>
+        ///         Initializes a new instance of the <see cref="DbContext" /> class using the specified options.
         ///         The <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
         ///         configuration of the options.
         ///     </para>
         ///     <para>
-        ///         The service provider must contain all the services required by Entity Framework (and the database being
-        ///         used). The Entity Framework services can be registered using the
+        ///         EF will create and manage an internal service provider for all internal EF services.
+        ///     </para>
+        /// </summary>
+        /// <param name="options">The options for this context.</param>
+        /// <param name="loggerFactory">
+        ///     Optional <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
+        ///     for logging done by this context.
+        /// </param>
+        /// <param name="memoryCache">
+        ///     Optional <see cref="IMemoryCache" /> to be used for query caching by this context. The context will
+        ///     create and manage a memory cache if none is passed in.
+        /// </param>
+        public DbContext(
+            [NotNull] DbContextOptions options,
+            [CanBeNull] ILoggerFactory loggerFactory = null,
+            [CanBeNull] IMemoryCache memoryCache = null)
+        {
+            Check.NotNull(options, nameof(options));
+
+            _options = options;
+            _loggerFactory = loggerFactory;
+            _memoryCache = memoryCache;
+
+            InitializeSets(ServiceProviderCache.Instance.GetOrAdd(options));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="DbContext" /> class using the specified options.
+        ///         The <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
+        ///         configuration of the options.
+        ///     </para>
+        ///     <para>
+        ///         The service provider used for all EF internal services is passed into this constructor. This is only
+        ///         needed if the application needs to manage the service provider in a special way, or if the application
+        ///         needs to modify some of the internal services used by EF. External services used by EF, such as the
+        ///         <see cref="ILoggerFactory" /> and <see cref="IMemoryCache" />, should be passed as arguments to this
+        ///         constructor rather than being configured in this internal service provider.
+        ///     </para>
+        ///     <para>
+        ///         The internal service provider must contain all the services required by Entity Framework (and
+        ///         the database being used). The Entity Framework services can be registered using the
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
         ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
         ///         services required. For example, the Microsoft SQL Server provider includes an AddSqlServer() method
         ///         to add the required services.
         ///     </para>
-        ///     <para>
-        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
-        ///         <see cref="DbContextOptions{TContext}" />
-        ///         registered, then this will be used as the options for this context instance. The
-        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />
-        ///         method will still be called to allow further configuration of the options.
-        ///     </para>
         /// </summary>
-        /// <param name="serviceProvider">The service provider to be used.</param>
+        /// <param name="internalServicesProvider">
+        ///     The service provider to be used for all internal services needed by the Entity Framework.
+        /// </param>
         /// <param name="options">The options for this context.</param>
-        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] DbContextOptions options)
+        /// <param name="loggerFactory">
+        ///     Optional <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
+        ///     for logging done by this context.
+        /// </param>
+        /// <param name="memoryCache">
+        ///     Optional <see cref="IMemoryCache" /> to be used for query caching by this context. The context will
+        ///     create and manage a memory cache if none is passed in.
+        /// </param>
+        public DbContext(
+            [NotNull] IServiceProvider internalServicesProvider,
+            [NotNull] DbContextOptions options,
+            [CanBeNull] ILoggerFactory loggerFactory = null,
+            [CanBeNull] IMemoryCache memoryCache = null)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(internalServicesProvider, nameof(internalServicesProvider));
             Check.NotNull(options, nameof(options));
 
-            Initialize(serviceProvider, options);
-        }
-
-        private void Initialize(IServiceProvider serviceProvider, DbContextOptions options)
-        {
-            _globalServiceProvider = serviceProvider;
+            _internalServicesProvider = internalServicesProvider;
             _options = options;
-            InitializeSets(serviceProvider, options);
-        }
+            _loggerFactory = loggerFactory;
+            _memoryCache = memoryCache;
 
-        private DbContextOptions GetOptions(IServiceProvider serviceProvider)
-        {
-            if (serviceProvider == null)
-            {
-                return new DbContextOptions<DbContext>();
-            }
-
-            var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
-
-            var options = (DbContextOptions)serviceProvider.GetService(genericOptions)
-                          ?? serviceProvider.GetService<DbContextOptions>();
-
-            if ((options != null)
-                && (options.GetType() != genericOptions))
-            {
-                throw new InvalidOperationException(CoreStrings.NonGenericOptions);
-            }
-
-            return options ?? new DbContextOptions<DbContext>();
+            InitializeSets(internalServicesProvider);
         }
 
         private IChangeDetector ChangeDetector
@@ -191,11 +232,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     throw new ObjectDisposedException(GetType().Name);
                 }
-                return (_contextServices ?? (_contextServices = InitializeServices(_globalServiceProvider, _options))).ServiceProvider;
+                return (_contextServices ?? (_contextServices = InitializeServices())).ServiceProvider;
             }
         }
 
-        private IDbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
+        private IDbContextServices InitializeServices()
         {
             if (_initializing)
             {
@@ -206,15 +247,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 _initializing = true;
 
-                var optionsBuilder = new DbContextOptionsBuilder(options);
+                var optionsBuilder = new DbContextOptionsBuilder(_options);
 
                 OnConfiguring(optionsBuilder);
 
-                var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
+                var providerSource = _internalServicesProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
 
-                serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
-
-                _logger = serviceProvider.GetRequiredService<ILogger<DbContext>>();
+                var serviceProvider = _internalServicesProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
 
                 _serviceScope = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
@@ -222,9 +261,13 @@ namespace Microsoft.EntityFrameworkCore
 
                 var scopedServiceProvider = _serviceScope.ServiceProvider;
 
-                return scopedServiceProvider
+                var contextServices = scopedServiceProvider
                     .GetRequiredService<IDbContextServices>()
-                    .Initialize(scopedServiceProvider, optionsBuilder.Options, this, providerSource);
+                    .Initialize(scopedServiceProvider, optionsBuilder.Options, _loggerFactory, _memoryCache, this, providerSource);
+
+                _logger = scopedServiceProvider.GetRequiredService<ILogger<DbContext>>();
+
+                return contextServices;
             }
             finally
             {
@@ -232,9 +275,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void InitializeSets(IServiceProvider serviceProvider, DbContextOptions options)
-            => (serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options))
-                .GetRequiredService<IDbSetInitializer>().InitializeSets(this);
+        private void InitializeSets(IServiceProvider internalServicesProvider)
+            => internalServicesProvider.GetRequiredService<IDbSetInitializer>().InitializeSets(this);
 
         /// <summary>
         ///     <para>
@@ -857,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return (_setInitializer
-                ?? (_setInitializer = ServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
+                    ?? (_setInitializer = ServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
         }
     }
 }

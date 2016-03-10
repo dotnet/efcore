@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             set { _enforceForeignKeys = value; }
         }
 
-        public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+        public override void ApplyServices(IServiceCollection services)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(services, nameof(services));
 
-            builder.AddSqlite();
+            services.AddSqlite();
         }
     }
 }

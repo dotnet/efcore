@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "Bronies"))
@@ -38,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             AddEntities(serviceProvider);
@@ -75,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "BroniesAsync"))
@@ -92,7 +89,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
@@ -129,7 +125,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "ManyBronies"))
@@ -172,7 +167,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
@@ -189,7 +183,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             AddEntitiesWithIds(serviceProvider, 4);
@@ -264,7 +257,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
@@ -295,7 +287,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))

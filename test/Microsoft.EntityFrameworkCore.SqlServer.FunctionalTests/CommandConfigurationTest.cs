@@ -29,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             public virtual void CreateDatabase()
@@ -74,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 

@@ -33,7 +33,7 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="DbSetAsTableNameSqliteTest.cs" />
-    <Compile Include="Infrastructure\SqliteEntityFrameworkServicesBuilderExtensionsTest.cs" />
+    <Compile Include="Infrastructure\SqliteServiceCollectionExtensionsTest.cs" />
     <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\Conventions\SqliteConventionSetBuilderTests.cs" />
     <Compile Include="Metadata\Internal\SqliteInternalMetadataBuilderExtensionsTest.cs" />

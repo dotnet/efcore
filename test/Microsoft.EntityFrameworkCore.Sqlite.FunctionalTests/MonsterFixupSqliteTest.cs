@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             var serviceCollection = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection();
+                .AddSqlite();
 
             if (throwingStateManager)
             {

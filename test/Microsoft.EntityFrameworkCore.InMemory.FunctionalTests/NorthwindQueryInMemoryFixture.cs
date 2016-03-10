@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddInMemoryDatabase()
-                    .ServiceCollection()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(_testLoggerFactory)
                     .BuildServiceProvider();

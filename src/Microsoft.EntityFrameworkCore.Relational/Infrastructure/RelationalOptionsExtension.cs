@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -159,6 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return relationalOptionsExtensions[0];
         }
 
-        public abstract void ApplyServices(EntityFrameworkServicesBuilder builder);
+        public abstract void ApplyServices(IServiceCollection services);
     }
 }

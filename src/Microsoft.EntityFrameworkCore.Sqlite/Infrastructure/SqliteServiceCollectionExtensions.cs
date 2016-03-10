@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -22,18 +21,18 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class SqliteEntityFrameworkServicesBuilderExtensions
+    public static class SqliteServiceCollectionExtensions
     {
-        public static EntityFrameworkServicesBuilder AddSqlite([NotNull] this EntityFrameworkServicesBuilder builder)
+        public static IServiceCollection AddSqlite([NotNull] this IServiceCollection services)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(services, nameof(services));
 
-            var service = builder.AddRelational().GetInfrastructure();
+            services.AddRelational();
 
-            service.TryAddEnumerable(ServiceDescriptor
+            services.TryAddEnumerable(ServiceDescriptor
                 .Singleton<IDatabaseProvider, DatabaseProvider<SqliteDatabaseProviderServices, SqliteOptionsExtension>>());
 
-            service.TryAdd(new ServiceCollection()
+            services.TryAdd(new ServiceCollection()
                 .AddSingleton<SqliteValueGeneratorCache>()
                 .AddSingleton<SqliteAnnotationProvider>()
                 .AddSingleton<SqliteTypeMapper>()
@@ -50,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<SqliteHistoryRepository>()
                 .AddQuery());
 
-            return builder;
+            return services;
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)

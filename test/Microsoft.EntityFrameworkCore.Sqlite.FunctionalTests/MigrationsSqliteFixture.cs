@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlite()
-                .ServiceCollection()
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder();

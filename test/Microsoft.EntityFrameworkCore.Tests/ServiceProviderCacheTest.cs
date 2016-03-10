@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests
@@ -41,14 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
         {
-            public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public virtual void ApplyServices(IServiceCollection services)
             {
             }
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public virtual void ApplyServices(IServiceCollection services)
             {
             }
         }

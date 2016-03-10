@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     this method does nothing.
         /// </summary>
         /// <param name="builder"> The builder to add services to. </param>
-        public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
+        public virtual void ApplyServices(IServiceCollection builder)
         {
         }
     }

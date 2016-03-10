@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlite()
-                .ServiceCollection()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 

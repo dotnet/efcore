@@ -412,6 +412,8 @@ CREATE TABLE IF NOT EXISTS Comment (
 #endif
                 BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                 BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+                BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions"),
+                BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions")
             };
 
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere

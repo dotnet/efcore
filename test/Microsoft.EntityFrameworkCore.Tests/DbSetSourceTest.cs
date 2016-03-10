@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_create_new_generic_DbSet()
         {
-            var context = Mock.Of<DbContext>();
+            var context = new Mock<DbContext>(null, null).Object;
 
             var factorySource = new DbSetSource();
 
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Always_creates_a_new_DbSet_instance()
         {
-            var context = Mock.Of<DbContext>();
+            var context = new Mock<DbContext>(null, null).Object;
 
             var factorySource = new DbSetSource();
 

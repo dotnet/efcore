@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
-    public class SqlServerEntityFrameworkServicesBuilderExtensionsTest : RelationalEntityFrameworkServicesBuilderExtensionsTest
+    public class SqlServerServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTest
     {
         public override void Services_wire_up_correctly()
         {
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             VerifyScoped<SqlServerCompositeMemberTranslator>();
         }
 
-        public SqlServerEntityFrameworkServicesBuilderExtensionsTest()
+        public SqlServerServiceCollectionExtensionsTest()
             : base(SqlServerTestHelpers.Instance)
         {
         }

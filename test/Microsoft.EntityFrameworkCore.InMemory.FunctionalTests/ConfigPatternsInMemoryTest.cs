@@ -39,10 +39,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
         }
 
         [Fact]
@@ -117,10 +114,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
         }
 
         [Fact]
@@ -211,10 +205,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
         }
 
         [Fact]
@@ -321,9 +312,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<Blog> Blogs { get; set; }
         }
 
-        // This one is a bit strange because the context gets the configuration from the service provider
-        // but doesn't get the service provider and so creates a new one for use internally. This works fine
-        // although it would be much more common to inject both when using DI explicitly.
         [Fact]
         public void Can_register_configuration_with_DI_container_and_have_it_injected()
         {
@@ -475,132 +463,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             {
                 Assert.NotNull(serviceProvider);
                 Assert.NotNull(options);
-            }
-
-            public DbSet<Account> Accounts { get; set; }
-        }
-
-        [Fact]
-        public void Can_inject_different_configurations_into_different_contexts_without_declaring_in_constructor()
-        {
-            var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorBlogContext>();
-            blogOptions.UseInMemoryDatabase();
-
-            var accountOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorAccountContext>();
-            accountOptions.UseInMemoryDatabase();
-
-            var services = new ServiceCollection();
-            services.AddTransient<InjectDifferentConfigurationsNoConstructorBlogContext>()
-                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountContext>()
-                .AddTransient<InjectDifferentConfigurationsNoConstructorBlogController>()
-                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountController>()
-                .AddSingleton(blogOptions.Options)
-                .AddSingleton(accountOptions.Options)
-                .AddEntityFramework()
-                .AddInMemoryDatabase();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorBlogController>().Test();
-            serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorAccountController>().Test();
-        }
-
-        [Fact]
-        public void Cannot_inject_different_configurations_into_different_contexts_both_as_base_type_without_constructor()
-        {
-            var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorBlogContext>();
-            blogOptions.UseInMemoryDatabase();
-
-            var accountOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsNoConstructorAccountContext>();
-            accountOptions.UseInMemoryDatabase();
-
-            var services = new ServiceCollection();
-            services.AddTransient<InjectDifferentConfigurationsNoConstructorBlogContext>()
-                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountContext>()
-                .AddTransient<InjectDifferentConfigurationsNoConstructorBlogController>()
-                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountController>()
-                .AddSingleton<DbContextOptions>(blogOptions.Options)
-                .AddSingleton<DbContextOptions>(accountOptions.Options)
-                .AddEntityFramework()
-                .AddInMemoryDatabase();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            Assert.Equal(
-                CoreStrings.NonGenericOptions,
-                Assert.Throws<InvalidOperationException>(
-                    () => serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorBlogController>().Test()).Message);
-        }
-
-        private class InjectDifferentConfigurationsNoConstructorBlogController
-        {
-            private readonly InjectDifferentConfigurationsNoConstructorBlogContext _context;
-
-            public InjectDifferentConfigurationsNoConstructorBlogController(InjectDifferentConfigurationsNoConstructorBlogContext context)
-            {
-                Assert.NotNull(context);
-
-                _context = context;
-            }
-
-            public void Test()
-            {
-                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>>(
-                    _context.GetService<IDbContextOptions>());
-
-                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                _context.SaveChanges();
-
-                var blog = _context.Blogs.SingleOrDefault();
-
-                Assert.NotEqual(0, blog.Id);
-                Assert.Equal("The Waffle Cart", blog.Name);
-            }
-        }
-
-        private class InjectDifferentConfigurationsNoConstructorAccountController
-        {
-            private readonly InjectDifferentConfigurationsNoConstructorAccountContext _context;
-
-            public InjectDifferentConfigurationsNoConstructorAccountController(InjectDifferentConfigurationsNoConstructorAccountContext context)
-            {
-                Assert.NotNull(context);
-
-                _context = context;
-            }
-
-            public void Test()
-            {
-                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>>(
-                    _context.GetService<IDbContextOptions>());
-
-                _context.Accounts.Add(new Account { Name = "Eeky Bear" });
-                _context.SaveChanges();
-
-                var account = _context.Accounts.SingleOrDefault();
-
-                Assert.Equal(1, account.Id);
-                Assert.Equal("Eeky Bear", account.Name);
-            }
-        }
-
-        private class InjectDifferentConfigurationsNoConstructorBlogContext : DbContext
-        {
-            public InjectDifferentConfigurationsNoConstructorBlogContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
-            {
-                Assert.NotNull(serviceProvider);
-            }
-
-            public DbSet<Blog> Blogs { get; set; }
-        }
-
-        private class InjectDifferentConfigurationsNoConstructorAccountContext : DbContext
-        {
-            public InjectDifferentConfigurationsNoConstructorAccountContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
-            {
-                Assert.NotNull(serviceProvider);
             }
 
             public DbSet<Account> Accounts { get; set; }

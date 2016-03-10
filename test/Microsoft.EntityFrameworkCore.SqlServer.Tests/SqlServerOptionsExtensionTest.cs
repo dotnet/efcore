@@ -16,9 +16,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         public void ApplyServices_adds_SQL_server_services()
         {
             var services = new ServiceCollection();
-            var builder = new EntityFrameworkServicesBuilder(services);
 
-            new SqlServerOptionsExtension().ApplyServices(builder);
+            new SqlServerOptionsExtension().ApplyServices(services);
 
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalDatabase)));
         }

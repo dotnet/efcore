@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
             .AddEntityFramework()
             .AddSqlServer()
-            .ServiceCollection()
             .BuildServiceProvider();
 
         [Fact]
