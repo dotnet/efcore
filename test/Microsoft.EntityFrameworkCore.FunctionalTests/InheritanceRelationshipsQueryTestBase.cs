@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
@@ -12,6 +13,32 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
     where TTestStore : TestStore
     where TFixture : InheritanceRelationshipsQueryFixtureBase<TTestStore>, new()
     {
+
+        [Fact]
+        public virtual void Entity_can_make_separate_relationships_with_base_type_and_derived_type_both()
+        {
+            using (var context = CreateContext())
+            {
+                var model = context.Model;
+                var principalEntityType = model.FindEntityType(typeof(DerivedInheritanceRelationshipEntity));
+                var dependentEntityType = model.FindEntityType(typeof(BaseReferenceOnDerived));
+                var derivedDependentEntityType = model.FindEntityType(typeof(DerivedReferenceOnDerived));
+
+                var fkOnBase = dependentEntityType.GetForeignKeys().Single();
+                Assert.Equal(principalEntityType, fkOnBase.PrincipalEntityType);
+                Assert.Equal(dependentEntityType, fkOnBase.DeclaringEntityType);
+                Assert.Equal(nameof(BaseReferenceOnDerived.BaseParent), fkOnBase.DependentToPrincipal.Name);
+                Assert.Equal(nameof(DerivedInheritanceRelationshipEntity.BaseReferenceOnDerived), fkOnBase.PrincipalToDependent.Name);
+
+                var fkOnDerived = derivedDependentEntityType.GetDeclaredForeignKeys().Single();
+                Assert.NotSame(fkOnBase, fkOnDerived);
+                Assert.Equal(principalEntityType, fkOnDerived.PrincipalEntityType);
+                Assert.Equal(derivedDependentEntityType, fkOnDerived.DeclaringEntityType);
+                Assert.Null(fkOnDerived.DependentToPrincipal);
+                Assert.Equal(nameof(DerivedInheritanceRelationshipEntity.DerivedReferenceOnDerived), fkOnDerived.PrincipalToDependent.Name);
+            }
+        }
+
         [Fact]
         public virtual void Include_reference_with_inheritance1()
         {
