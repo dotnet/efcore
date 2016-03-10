@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public F1SqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();

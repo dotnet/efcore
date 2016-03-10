@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public MappingQuerySqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
+                .AddEntityFrameworkSqlite()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 

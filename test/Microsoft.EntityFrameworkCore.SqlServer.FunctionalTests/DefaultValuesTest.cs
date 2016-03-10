@@ -13,8 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class DefaultValuesTest : IDisposable
     {
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-            .AddEntityFramework()
-            .AddSqlServer()
+            .AddEntityFrameworkSqlServer()
             .BuildServiceProvider();
 
         [Fact]

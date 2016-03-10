@@ -27,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public class CommandConfigurationTestFixture : IDisposable
         {
             public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             public virtual void CreateDatabase()
@@ -71,8 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             var loggerFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 

@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SqliteServiceCollectionExtensions
     {
-        public static IServiceCollection AddSqlite([NotNull] this IServiceCollection services)
+        public static IServiceCollection AddEntityFrameworkSqlite([NotNull] this IServiceCollection services)
         {
             Check.NotNull(services, nameof(services));
 

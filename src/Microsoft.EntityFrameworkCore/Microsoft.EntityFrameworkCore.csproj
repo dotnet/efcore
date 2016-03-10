@@ -163,6 +163,7 @@
     <Compile Include="Infrastructure\DbContextOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptions`.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
+    <Compile Include="Infrastructure\EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="Infrastructure\IAnnotatable.cs" />
     <Compile Include="Infrastructure\IAnnotation.cs" />

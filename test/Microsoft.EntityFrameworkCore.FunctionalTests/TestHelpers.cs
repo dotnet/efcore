@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             Func<IServiceCollection, IServiceCollection> addProviderServices)
         {
             var services = new ServiceCollection();
-            addProviderServices(services.AddEntityFramework());
+            addProviderServices(services);
 
             if (customServices != null)
             {
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             return services.BuildServiceProvider();
         }
 
-        public virtual IServiceCollection AddProviderServices(IServiceCollection services) => services.AddInMemoryDatabase();
+        public virtual IServiceCollection AddProviderServices(IServiceCollection services) => services.AddEntityFrameworkInMemoryDatabase();
 
         protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
 

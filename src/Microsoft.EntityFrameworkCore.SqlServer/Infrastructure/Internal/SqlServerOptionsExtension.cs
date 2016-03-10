@@ -31,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         }
 
         public override void ApplyServices(IServiceCollection services)
-            => Check.NotNull(services, nameof(services)).AddSqlServer();
+            => Check.NotNull(services, nameof(services)).AddEntityFrameworkSqlServer();
     }
 }

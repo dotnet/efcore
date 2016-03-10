@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public MappingQuerySqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 

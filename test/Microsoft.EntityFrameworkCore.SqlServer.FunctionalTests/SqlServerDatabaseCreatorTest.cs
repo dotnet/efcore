@@ -222,8 +222,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
+                    .AddEntityFrameworkSqlServer()
                     .BuildServiceProvider();
 
                 var optionsBuilder = new DbContextOptionsBuilder()
@@ -370,8 +369,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 new DbContextOptionsBuilder()
                     .UseSqlServer(testStore.ConnectionString)
                     .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFramework()
-                        .AddSqlServer()
+                        .AddEntityFrameworkSqlServer()
                         .AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>().BuildServiceProvider()).Options))
                 .Instance;
 

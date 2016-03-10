@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public void Can_save_and_query_with_explicit_services_and_OnConfiguring()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryDatabase();
+            services.AddEntityFrameworkInMemoryDatabase();
             var serviceProvider = services.BuildServiceProvider();
 
             using (var context = new ExplicitServicesImplicitConfigBlogContext(serviceProvider))
@@ -126,8 +126,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase()
                 .UseInternalServiceProvider(new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase().BuildServiceProvider());
+                    .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
 
             using (var context = new ExplicitServicesAndConfigBlogContext(optionsBuilder.Options))
             {
@@ -182,9 +181,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         [Fact]
         public void Throws_on_attempt_to_use_store_with_no_store_services()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework();
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = new ServiceCollection().AddEntityFramework().BuildServiceProvider();
 
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,
@@ -219,8 +216,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var services = new ServiceCollection();
             services.AddTransient<InjectContextBlogContext>()
                 .AddTransient<InjectContextController>()
-                .AddEntityFramework()
-                .AddInMemoryDatabase();
+                .AddEntityFrameworkInMemoryDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -276,8 +272,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .AddTransient<InjectContextAndConfigurationBlogContext>()
                 .AddTransient<InjectContextAndConfigurationController>()
                 .AddSingleton(p => optionsBuilder.UseInternalServiceProvider(p).Options)
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             serviceProvider.GetRequiredService<InjectContextAndConfigurationController>().Test();
@@ -327,8 +322,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             services.AddTransient<InjectConfigurationBlogContext>()
                 .AddTransient<InjectConfigurationController>()
                 .AddSingleton(optionsBuilder.Options)
-                .AddEntityFramework()
-                .AddInMemoryDatabase();
+                .AddEntityFrameworkInMemoryDatabase();
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -388,8 +382,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .AddTransient<InjectDifferentConfigurationsAccountController>()
                 .AddSingleton(p => blogOptions.UseInternalServiceProvider(p).Options)
                 .AddSingleton(p => accountOptions.UseInternalServiceProvider(p).Options)
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             serviceProvider.GetRequiredService<InjectDifferentConfigurationsBlogController>().Test();

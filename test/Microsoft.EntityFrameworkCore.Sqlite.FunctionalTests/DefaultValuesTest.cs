@@ -12,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     public class DefaultValuesTest : IDisposable
     {
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-            .AddEntityFramework()
-            .AddSqlite()
+            .AddEntityFrameworkSqlite()
             .BuildServiceProvider();
 
         [Fact]

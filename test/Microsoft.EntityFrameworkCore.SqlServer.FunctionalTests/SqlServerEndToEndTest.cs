@@ -55,8 +55,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
-                    .AddEntityFramework()
-                    .AddSqlServer();
+                    .AddEntityFrameworkSqlServer();
 
                 serviceCollection.AddSingleton<IRelationalValueBufferFactoryFactory, TestTypedValueBufferFactoryFactory>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -113,8 +112,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 var loggingFactory = new TestSqlLoggerFactory();
                 var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
+                    .AddEntityFrameworkSqlServer()
                     .AddSingleton<ILoggerFactory>(loggingFactory)
                     .BuildServiceProvider();
 
@@ -277,8 +275,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
+                    .AddEntityFrameworkSqlServer()
                     .BuildServiceProvider();
 
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())

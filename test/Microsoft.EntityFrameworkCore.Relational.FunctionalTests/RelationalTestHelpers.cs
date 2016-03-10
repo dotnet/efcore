@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public new static RelationalTestHelpers Instance { get; } = new RelationalTestHelpers();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
-            => services.AddInMemoryDatabase().AddRelational();
+            => services.AddEntityFrameworkInMemoryDatabase().AddRelational();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(b => b.IgnoreTransactions());

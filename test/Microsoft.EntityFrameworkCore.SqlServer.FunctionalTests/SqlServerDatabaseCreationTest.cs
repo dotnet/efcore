@@ -295,15 +295,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        private static IServiceProvider CreateServiceProvider()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer();
-
-            return serviceCollection.BuildServiceProvider();
-        }
+        private static IServiceProvider CreateServiceProvider() 
+            => new ServiceCollection().AddEntityFrameworkSqlServer().BuildServiceProvider();
 
         private class BloggingContext : DbContext
         {

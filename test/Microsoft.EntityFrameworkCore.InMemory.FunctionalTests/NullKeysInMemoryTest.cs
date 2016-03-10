@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public NullKeysInMemoryFixture()
             {
                 var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
+                    .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 

@@ -15,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_computed_columns()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
@@ -37,8 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_computed_columns_with_null_values()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
@@ -140,8 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_computed_columns_with_nullable_enum()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new NullableContext(serviceProvider, "NullableEnumComputedColumns"))

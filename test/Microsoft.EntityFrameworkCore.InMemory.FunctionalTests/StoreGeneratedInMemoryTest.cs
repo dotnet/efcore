@@ -175,8 +175,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public StoreGeneratedInMemoryFixture()
             {
                 _serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
+                    .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
             }
