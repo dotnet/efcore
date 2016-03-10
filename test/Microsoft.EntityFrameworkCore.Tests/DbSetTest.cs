@@ -384,19 +384,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class EarlyLearningCenter : DbContext
         {
-            public EarlyLearningCenter()
-                : base(TestHelpers.Instance.CreateServiceProvider())
-            {
-            }
-
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
         }
     }
 }

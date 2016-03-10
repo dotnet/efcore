@@ -11,10 +11,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.UpdatesModel
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
 
-        public UpdatesContext(
-            IServiceProvider serviceProvider,
-            DbContextOptions options)
-            : base(serviceProvider, options)
+        public UpdatesContext(DbContextOptions options)
+            : base(options)
         {
         }
 

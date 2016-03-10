@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -13,21 +12,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     {
         public const string DatabaseName = "GearsOfWarQueryTest";
 
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
 
         public GearsOfWarQueryInMemoryFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-
-            optionsBuilder.UseInMemoryDatabase();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(serviceProvider);
 
             _options = optionsBuilder.Options;
         }
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    using (var context = new GearsOfWarContext(_serviceProvider, _options))
+                    using (var context = new GearsOfWarContext(_options))
                     {
                         GearsOfWarModelInitializer.Seed(context);
                     }
@@ -45,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public override GearsOfWarContext CreateContext(InMemoryTestStore _)
         {
-            var context = new GearsOfWarContext(_serviceProvider, _options);
+            var context = new GearsOfWarContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

@@ -36,11 +36,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             entityType.GetOrSetPrimaryKey(idProperty);
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase();
+                .UseModel(model)
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(_fixture.ServiceProvider);
 
             T entity;
-            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 var entry = context.ChangeTracker.GetInfrastructure().GetOrCreateEntry(new T());
                 entity = (T)entry.Entity;
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 var entityFromStore = context.Set<T>().Single();
                 var entityEntry = context.Entry(entityFromStore);
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 var entityFromStore = context.Set<T>().Single();
                 var entry = context.Entry(entityFromStore);
@@ -81,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 Assert.Equal(0, context.Set<T>().Count());
             }

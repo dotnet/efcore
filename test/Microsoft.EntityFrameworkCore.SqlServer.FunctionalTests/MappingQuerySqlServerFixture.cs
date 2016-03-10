@@ -27,14 +27,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             _testDatabase = SqlServerNorthwindContext.GetSharedStore();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
-            optionsBuilder.UseSqlServer(_testDatabase.ConnectionString);
-            _options = optionsBuilder.Options;
+            _options = new DbContextOptionsBuilder()
+                .UseModel(CreateModel())
+                .UseSqlServer(_testDatabase.ConnectionString)
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
         }
 
         public DbContext CreateContext()
         {
-            var context = new DbContext(_serviceProvider, _options);
+            var context = new DbContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

@@ -3894,8 +3894,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         protected class GraphUpdatesContext : DbContext
         {
-            public GraphUpdatesContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public GraphUpdatesContext(DbContextOptions options)
+                : base(options)
             {
             }
 

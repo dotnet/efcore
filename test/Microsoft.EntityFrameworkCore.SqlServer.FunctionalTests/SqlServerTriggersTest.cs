@@ -166,20 +166,16 @@ END");
             }
 
             public TriggersContext CreateContext(SqlServerTestStore testStore)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder
+                => new TriggersContext(new DbContextOptionsBuilder()
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(testStore.Connection);
-
-                return new TriggersContext(_serviceProvider, optionsBuilder.Options);
-            }
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .UseSqlServer(testStore.Connection).Options);
         }
 
         public class TriggersContext : DbContext
         {
-            public TriggersContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public TriggersContext(DbContextOptions options)
+                : base(options)
             {
             }
 

@@ -752,23 +752,19 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         protected class StoreGeneratedContext : DbContext
         {
-            public StoreGeneratedContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public StoreGeneratedContext(DbContextOptions options)
+                : base(options)
             {
             }
 
             public DbSet<Gumball> Gumballs { get; set; }
         }
 
-        protected StoreGeneratedContext CreateContext()
-        {
-            return (StoreGeneratedContext)Fixture.CreateContext(TestStore);
-        }
+        protected StoreGeneratedContext CreateContext() 
+            => (StoreGeneratedContext)Fixture.CreateContext(TestStore);
 
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
+        public void Dispose() 
+            => TestStore.Dispose();
 
         protected TFixture Fixture { get; }
 

@@ -88,29 +88,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class NorthwindContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly SqlConnection _connection;
 
             public NorthwindContext(IServiceProvider serviceProvider, SqlConnection connection)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _connection = connection;
             }
 
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_connection);
-            }
+                => optionsBuilder
+                    .UseSqlServer(_connection)
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(b =>
+                => modelBuilder.Entity<Customer>(b =>
                     {
                         b.HasKey(c => c.CustomerID);
                         b.ForSqlServerToTable("Customers");
                     });
-            }
         }
 
         private class Customer

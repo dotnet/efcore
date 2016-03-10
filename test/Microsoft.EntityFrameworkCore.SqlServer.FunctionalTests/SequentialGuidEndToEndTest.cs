@@ -83,20 +83,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class BronieContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly string _databaseName;
 
             public BronieContext(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _databaseName = databaseName;
             }
 
             public DbSet<Pegasus> Pegasuses { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         private class Pegasus

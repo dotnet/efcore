@@ -34,9 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Set_throws_for_type_not_in_model()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            optionsBuilder
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
 
-            using (var context = new DbContext(TestHelpers.Instance.CreateServiceProvider(), optionsBuilder.Options))
+            using (var context = new DbContext(optionsBuilder.Options))
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>());
                 Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
@@ -65,13 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Each_context_gets_new_scoped_services_with_implicit_services()
         {
             IServiceProvider contextServices;
-            using (var context = new Mock<DbContext>(null, null) { CallBase = true }.Object)
+            using (var context = new Mock<DbContext> { CallBase = true }.Object)
             {
                 contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
                 Assert.Same(contextServices, ((IInfrastructure<IServiceProvider>)context).Instance);
             }
 
-            using (var context = new Mock<DbContext>(null, null) { CallBase = true }.Object)
+            using (var context = new Mock<DbContext> { CallBase = true }.Object)
             {
                 Assert.NotSame(contextServices, ((IInfrastructure<IServiceProvider>)context).Instance);
             }
@@ -82,16 +84,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
 
-            var options = new DbContextOptionsBuilder().Options;
+            var options = new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options;
 
             IServiceProvider contextServices;
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(options))
             {
                 contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
                 Assert.Same(contextServices, ((IInfrastructure<IServiceProvider>)context).Instance);
             }
 
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = new DbContext(options))
             {
                 Assert.NotSame(contextServices, ((IInfrastructure<IServiceProvider>)context).Instance);
             }
@@ -124,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
+            using (var context = new DbContext(new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
             {
                 var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();
 
@@ -145,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
+            using (var context = new DbContext(
+                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
             {
                 var stateManager = (FakeStateManager)context.GetService<IStateManager>();
 
@@ -170,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new DbContext(serviceProvider, new DbContextOptionsBuilder().Options))
+            using (var context = new DbContext(
+                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
@@ -2113,26 +2117,31 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class EarlyLearningCenter : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public EarlyLearningCenter()
             {
             }
 
             public EarlyLearningCenter(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public EarlyLearningCenter(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+                : base(options)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
-                => optionsBuilder.UseInMemoryDatabase();
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -2164,7 +2173,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class FakeModelSource : IModelSource
         {
-            public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null) 
+            public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null)
                 => null;
         }
 
@@ -2193,10 +2202,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_external_services()
         {
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2224,9 +2233,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_options()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .Options;
 
             var singleton = new object[3];
 
@@ -2252,21 +2261,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_options_and_external_services()
         {
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContextWithOC3B>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .UseLoggerFactory(loggerFactory)
+                .UseMemoryCache(memoryCache)
+                .Options;
 
             IInMemoryStore singleton;
 
-            using (var context = new ConstructorTestContextWithOC3B(options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContextWithOC3A(options))
             {
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2277,7 +2288,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Contains("System.Random", loggerFactory.CreatedLoggers);
             }
 
-            using (var context = new ConstructorTestContextWithOC3B(options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContextWithOC3A(options))
             {
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2289,9 +2300,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_controlling_internal_services()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
             var singleton = new object[3];
 
@@ -2319,14 +2331,15 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_controlling_internal_services_with_external_services()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2356,17 +2369,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_controlling_internal_services_with_options()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContextWithOC4A>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(internalServiceProivder)
+                .Options;
 
             var singleton = new object[3];
 
-            using (var context = new ConstructorTestContextWithOC4A(internalServiceProivder, options))
+            using (var context = new ConstructorTestContextWithOC3A(options))
             {
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
@@ -2380,7 +2395,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(singleton[2], internalServiceProivder.GetService<IMemoryCache>());
             }
 
-            using (var context = new ConstructorTestContextWithOC4A(internalServiceProivder, options))
+            using (var context = new ConstructorTestContextWithOC3A(options))
             {
                 Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
@@ -2392,25 +2407,29 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_controlling_internal_services_with_options_and_external_services()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContextWithOC4B>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
+                .UseInMemoryDatabase()
+                .UseLoggerFactory(loggerFactory)
+                .UseMemoryCache(memoryCache)
+                .UseInternalServiceProvider(internalServiceProivder)
+                .Options;
 
             IInMemoryStore singleton;
 
-            using (var context = new ConstructorTestContextWithOC4B(internalServiceProivder, options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContextWithOC3A(options))
             {
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2423,7 +2442,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStore>());
             }
 
-            using (var context = new ConstructorTestContextWithOC4B(internalServiceProivder, options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContextWithOC3A(options))
             {
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2435,9 +2454,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_options_no_OnConfiguring()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContext1A>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInMemoryDatabase()
+                .Options;
 
             var singleton = new object[3];
 
@@ -2463,21 +2482,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_options_and_external_services_no_OnConfiguring()
         {
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContext1B>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInMemoryDatabase()
+                .UseLoggerFactory(loggerFactory)
+                .UseMemoryCache(memoryCache)
+                .Options;
 
             IInMemoryStore singleton;
 
-            using (var context = new ConstructorTestContext1B(options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2488,7 +2509,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Contains("System.Random", loggerFactory.CreatedLoggers);
             }
 
-            using (var context = new ConstructorTestContext1B(options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2500,17 +2521,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_controlling_internal_services_with_options_no_OnConfiguring()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContext2A>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(internalServiceProivder)
+                .Options;
 
             var singleton = new object[3];
 
-            using (var context = new ConstructorTestContext2A(internalServiceProivder, options))
+            using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
@@ -2524,7 +2547,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(singleton[2], internalServiceProivder.GetService<IMemoryCache>());
             }
 
-            using (var context = new ConstructorTestContext2A(internalServiceProivder, options))
+            using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
@@ -2536,25 +2559,29 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_controlling_internal_services_with_options_and_external_services_no_OnConfiguring()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ConstructorTestContext2B>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInMemoryDatabase()
+                .UseLoggerFactory(loggerFactory)
+                .UseMemoryCache(memoryCache)
+                .UseInternalServiceProvider(internalServiceProivder)
+                .Options;
 
             IInMemoryStore singleton;
 
-            using (var context = new ConstructorTestContext2B(internalServiceProivder, options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2567,7 +2594,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStore>());
             }
 
-            using (var context = new ConstructorTestContext2B(internalServiceProivder, options, loggerFactory, memoryCache))
+            using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2579,9 +2606,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_non_derived_context_with_options()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .Options;
 
             var singleton = new object[3];
 
@@ -2607,21 +2634,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_non_derived_context_with_options_and_external_services()
         {
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseLoggerFactory(loggerFactory)
+                .UseMemoryCache(memoryCache)
+                .Options;
 
             IInMemoryStore singleton;
 
-            using (var context = new DbContext(options, loggerFactory, memoryCache))
+            using (var context = new DbContext(options))
             {
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2632,7 +2661,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Contains("System.Random", loggerFactory.CreatedLoggers);
             }
 
-            using (var context = new DbContext(options, loggerFactory, memoryCache))
+            using (var context = new DbContext(options))
             {
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2644,17 +2673,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_non_derived_context_controlling_internal_services_with_options()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(internalServiceProivder)
+                .Options;
 
             var singleton = new object[3];
 
-            using (var context = new DbContext(internalServiceProivder, options))
+            using (var context = new DbContext(options))
             {
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
@@ -2668,7 +2699,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(singleton[2], internalServiceProivder.GetService<IMemoryCache>());
             }
 
-            using (var context = new DbContext(internalServiceProivder, options))
+            using (var context = new DbContext(options))
             {
                 Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
@@ -2680,25 +2711,29 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_non_derived_context_controlling_internal_services_with_options_and_external_services()
         {
-            var internalServices = new ServiceCollection();
-            internalServices.AddEntityFramework().AddInMemoryDatabase();
-            var internalServiceProivder = internalServices.BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
 
-            var appServices = new ServiceCollection();
-            appServices.AddLogging();
-            appServices.AddCaching();
-            var appServiceProivder = appServices.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddCaching()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-            optionsBuilder.UseInMemoryDatabase();
-            var options = optionsBuilder.Options;
+            var options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseLoggerFactory(loggerFactory)
+                .UseMemoryCache(memoryCache)
+                .UseInternalServiceProvider(internalServiceProivder)
+                .Options;
 
             IInMemoryStore singleton;
 
-            using (var context = new DbContext(internalServiceProivder, options, loggerFactory, memoryCache))
+            using (var context = new DbContext(options))
             {
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2711,7 +2746,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStore>());
             }
 
-            using (var context = new DbContext(internalServiceProivder, options, loggerFactory, memoryCache))
+            using (var context = new DbContext(options))
             {
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2723,10 +2758,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC1A>()
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC1A>()
+                .BuildServiceProvider();
 
             var singleton = new object[3];
             DbContext context1;
@@ -2765,10 +2799,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_with_external_services()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC1B>()
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC1B>()
+                .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2803,10 +2836,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_with_options()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseInMemoryDatabase())
+                .BuildServiceProvider();
 
             var singleton = new object[4];
 
@@ -2840,10 +2872,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_with_options_and_external_services()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC3B>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC3A>(b => b.UseInMemoryDatabase())
+                .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2855,7 +2886,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2869,7 +2900,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -2881,12 +2912,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_controlling_internal_services()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContextWithOC2A>()
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<ConstructorTestContextWithOC2A>()
+                .BuildServiceProvider();
 
             var singleton = new object[3];
 
@@ -2918,12 +2948,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_controlling_internal_services_with_external_services()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContextWithOC2B>()
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<ConstructorTestContextWithOC2B>()
+                .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2958,12 +2987,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_controlling_internal_services_with_options()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContextWithOC4A>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
+
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    b => b.UseInMemoryDatabase()
+                        .UseInternalServiceProvider(internalServiceProivder))
+                .BuildServiceProvider();
 
             var singleton = new object[4];
 
@@ -2971,7 +3004,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC4A>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
@@ -2985,7 +3018,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC4A>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
@@ -2997,12 +3030,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_controlling_internal_services_with_options_and_external_services()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContextWithOC4B>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
+
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    b => b.UseInMemoryDatabase()
+                        .UseInternalServiceProvider(internalServiceProivder))
+                .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -3014,7 +3051,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC4B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -3028,7 +3065,89 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC4B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.Same(options, context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Fact]
+        public void Can_add_derived_context_one_service_provider_with_options()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            var singleton = new object[4];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
+                Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Fact]
+        public void Can_add_derived_context_one_service_provider_with_options_and_external_services()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<ConstructorTestContextWithOC3A>(
+                    (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
+            var memoryCache = appServiceProivder.GetService<IMemoryCache>();
+
+            IInMemoryStore singleton;
+            IDbContextOptions options;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+
+                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.NotNull(options = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -3040,10 +3159,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_with_options_no_OnConfiguring()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddDbContext<ConstructorTestContext1A>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(b => b.UseInMemoryDatabase())
+                .BuildServiceProvider();
 
             var singleton = new object[4];
 
@@ -3077,10 +3195,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_with_options_and_external_services_no_OnConfiguring()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddDbContext<ConstructorTestContext1B>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(b => b.UseInMemoryDatabase())
+                .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -3092,7 +3209,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -3106,7 +3223,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -3118,12 +3235,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_controlling_internal_services_with_options_no_OnConfiguring()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContext2A>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
+
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(
+                    b => b.UseInMemoryDatabase()
+                        .UseInternalServiceProvider(internalServiceProivder))
+                .BuildServiceProvider();
 
             var singleton = new object[4];
 
@@ -3131,7 +3252,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext2A>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
@@ -3145,7 +3266,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext2A>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
@@ -3157,12 +3278,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_add_derived_context_controlling_internal_services_with_options_and_external_services_no_OnConfiguring()
         {
-            var appServiceProivder
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContext2B>(b => b.UseInMemoryDatabase())
-                    .BuildServiceProvider();
+            var internalServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .BuildServiceProvider();
+
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(
+                    b => b.UseInMemoryDatabase()
+                        .UseInternalServiceProvider(internalServiceProivder))
+                .BuildServiceProvider();
 
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -3174,7 +3299,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext2B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -3188,7 +3313,89 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext2B>();
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.Same(options, context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Fact]
+        public void Can_add_derived_context_one_provider_with_options_no_OnConfiguring()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<ConstructorTestContext1A>(
+                    (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            var singleton = new object[4];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
+                Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Fact]
+        public void Can_add_derived_context_one_provider_with_options_and_external_services_no_OnConfiguring()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<ConstructorTestContext1A>(
+                    (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
+            var memoryCache = appServiceProivder.GetService<IMemoryCache>();
+
+            IInMemoryStore singleton;
+            IDbContextOptions options;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.NotNull(options = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.Same(singleton, context.GetService<IInMemoryStore>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
@@ -3229,64 +3436,39 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-        private class ConstructorTestContext1B : DbContext
-        {
-            public ConstructorTestContext1B(
-                DbContextOptions options,
-                ILoggerFactory loggerFactory,
-                IMemoryCache memoryCache)
-                : base(options, loggerFactory, memoryCache)
-            {
-            }
-        }
-
-        private class ConstructorTestContext2A : DbContext
-        {
-            public ConstructorTestContext2A(
-                IServiceProvider internalServicesProvider,
-                DbContextOptions options)
-                : base(internalServicesProvider, options)
-            {
-            }
-        }
-
-        private class ConstructorTestContext2B : DbContext
-        {
-            public ConstructorTestContext2B(
-                IServiceProvider internalServicesProvider,
-                DbContextOptions options,
-                ILoggerFactory loggerFactory,
-                IMemoryCache memoryCache)
-                : base(internalServicesProvider, options, loggerFactory, memoryCache)
-            {
-            }
-        }
-
         private class ConstructorTestContextWithOCBase : DbContext
         {
+            private readonly IServiceProvider _internalServicesProvider;
+            private readonly ILoggerFactory _loggerFactory;
+            private readonly IMemoryCache _memoryCache;
             private readonly bool _isConfigured;
 
             protected ConstructorTestContextWithOCBase(
                 ILoggerFactory loggerFactory = null,
                 IMemoryCache memoryCache = null)
-                : base(loggerFactory, memoryCache)
             {
+                _loggerFactory = loggerFactory;
+                _memoryCache = memoryCache;
             }
 
             protected ConstructorTestContextWithOCBase(
                 IServiceProvider internalServicesProvider,
                 ILoggerFactory loggerFactory = null,
                 IMemoryCache memoryCache = null)
-                : base(internalServicesProvider, loggerFactory, memoryCache)
             {
+                _internalServicesProvider = internalServicesProvider;
+                _loggerFactory = loggerFactory;
+                _memoryCache = memoryCache;
             }
 
             protected ConstructorTestContextWithOCBase(
                 DbContextOptions options,
                 ILoggerFactory loggerFactory = null,
                 IMemoryCache memoryCache = null)
-                : base(options, loggerFactory, memoryCache)
+                : base(options)
             {
+                _loggerFactory = loggerFactory;
+                _memoryCache = memoryCache;
                 _isConfigured = true;
             }
 
@@ -3295,8 +3477,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 DbContextOptions options,
                 ILoggerFactory loggerFactory = null,
                 IMemoryCache memoryCache = null)
-                : base(internalServicesProvider, options, loggerFactory, memoryCache)
+                : base(options)
             {
+                _internalServicesProvider = internalServicesProvider;
+                _loggerFactory = loggerFactory;
+                _memoryCache = memoryCache;
                 _isConfigured = true;
             }
 
@@ -3307,6 +3492,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 if (!optionsBuilder.IsConfigured)
                 {
                     optionsBuilder.UseInMemoryDatabase();
+                }
+
+                if (_internalServicesProvider != null)
+                {
+                    optionsBuilder.UseInternalServiceProvider(_internalServicesProvider);
+                }
+
+                if (_memoryCache != null)
+                {
+                    optionsBuilder.UseMemoryCache(_memoryCache);
+                }
+
+                if (_loggerFactory != null)
+                {
+                    optionsBuilder.UseLoggerFactory(_loggerFactory);
                 }
             }
         }
@@ -3333,16 +3533,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-        private class ConstructorTestContextWithOC4A : ConstructorTestContextWithOCBase
-        {
-            public ConstructorTestContextWithOC4A(
-                IServiceProvider internalServicesProvider,
-                DbContextOptions options)
-                : base(internalServicesProvider, options)
-            {
-            }
-        }
-
         private class ConstructorTestContextWithOC1B : ConstructorTestContextWithOCBase
         {
             public ConstructorTestContextWithOC1B(
@@ -3360,29 +3550,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 ILoggerFactory loggerFactory,
                 IMemoryCache memoryCache)
                 : base(internalServicesProvider, loggerFactory, memoryCache)
-            {
-            }
-        }
-
-        private class ConstructorTestContextWithOC3B : ConstructorTestContextWithOCBase
-        {
-            public ConstructorTestContextWithOC3B(
-                DbContextOptions options,
-                ILoggerFactory loggerFactory,
-                IMemoryCache memoryCache)
-                : base(options, loggerFactory, memoryCache)
-            {
-            }
-        }
-
-        private class ConstructorTestContextWithOC4B : ConstructorTestContextWithOCBase
-        {
-            public ConstructorTestContextWithOC4B(
-                IServiceProvider internalServicesProvider,
-                DbContextOptions options,
-                ILoggerFactory loggerFactory,
-                IMemoryCache memoryCache)
-                : base(internalServicesProvider, options, loggerFactory, memoryCache)
             {
             }
         }
@@ -3405,9 +3572,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class UseModelInOnModelCreatingContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public UseModelInOnModelCreatingContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
@@ -3418,7 +3587,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         [Fact]
@@ -3439,9 +3610,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class UseInOnModelCreatingContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public UseInOnModelCreatingContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
@@ -3450,7 +3623,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 => Products.ToList();
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         [Fact]
@@ -3471,15 +3646,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class UseInOnConfiguringContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public UseInOnConfiguringContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
+                optionsBuilder.UseInternalServiceProvider(_serviceProvider);
+
                 Products.ToList();
 
                 base.OnConfiguring(optionsBuilder);
@@ -3569,17 +3748,19 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class ButTheHedgehogContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public ButTheHedgehogContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         [Theory]
@@ -3769,7 +3950,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void It_disposes_scope()
         {
             var fakeServiceProvider = new FakeServiceProvider();
-            var context = new DbContext(fakeServiceProvider, new DbContextOptions<DbContext>());
+            var context = new DbContext(
+                new DbContextOptionsBuilder().UseInternalServiceProvider(fakeServiceProvider).Options);
 
             var scopeService = Assert.IsType<FakeServiceProvider.FakeServiceScope>(context.GetService<IServiceScopeFactory>().CreateScope());
 

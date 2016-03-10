@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
 {
     public abstract class MonsterContext : DbContext
     {
-        protected MonsterContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        protected MonsterContext(DbContextOptions options)
+            : base(options)
         {
         }
 

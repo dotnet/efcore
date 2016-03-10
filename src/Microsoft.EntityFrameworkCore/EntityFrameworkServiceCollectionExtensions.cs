@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
@@ -79,32 +80,39 @@ namespace Microsoft.Extensions.DependencyInjection
             [NotNull] this IServiceCollection serviceCollection,
             [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null)
             where TContext : DbContext
+            => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b));
+
+        public static IServiceCollection AddDbContext<TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
+            where TContext : DbContext
         {
             serviceCollection.AddCaching();
             serviceCollection.AddLogging();
 
-            serviceCollection.AddSingleton(_ => DbContextOptionsFactory<TContext>(optionsAction));
-            serviceCollection.AddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
+            serviceCollection.TryAddSingleton(p => DbContextOptionsFactory<TContext>(p, optionsAction));
+            serviceCollection.TryAddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
 
-            serviceCollection.AddScoped<TContext>();
+            serviceCollection.TryAddScoped<TContext>();
 
             return serviceCollection;
         }
 
         private static DbContextOptions<TContext> DbContextOptionsFactory<TContext>(
-            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction)
+            [NotNull] IServiceProvider applicationServiceProvider,
+            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
             var options = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
 
-            if (optionsAction != null)
-            {
-                var builder = new DbContextOptionsBuilder<TContext>(options);
-                optionsAction(builder);
-                options = builder.Options;
-            }
+            var builder = new DbContextOptionsBuilder<TContext>(options);
 
-            return options;
+            builder.UseMemoryCache(applicationServiceProvider.GetService<IMemoryCache>());
+            builder.UseLoggerFactory(applicationServiceProvider.GetService<ILoggerFactory>());
+
+            optionsAction?.Invoke(applicationServiceProvider, builder);
+
+            return builder.Options;
         }
 
         /// <summary>
@@ -127,8 +135,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     <para>
         ///         For derived contexts to be registered in the <see cref="IServiceProvider" /> and resolve their services
         ///         from the <see cref="IServiceProvider" /> you must chain a call to the
-        ///         <see cref="AddDbContext{TContext}" /> method on the returned
-        ///         <see cref="IServiceCollection" />.
+        ///         <see cref="AddDbContext{TContext}(IServiceCollection, Action{Microsoft.EntityFrameworkCore.DbContextOptionsBuilder})" />
+        ///         method on the returned <see cref="IServiceCollection" />.
         ///     </para>
         /// </remarks>
         /// <example>

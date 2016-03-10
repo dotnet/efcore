@@ -32,16 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
 
+        // TODO use clone connection method once implemented see #1406
         public virtual ISqlServerConnection CreateMasterConnection()
-        {
-            var builder = new SqlConnectionStringBuilder { ConnectionString = ConnectionString, InitialCatalog = "master" };
-
-            // TODO use clone connection method once implemented see #1406
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout);
-
-            return new SqlServerConnection(optionsBuilder.Options, Logger);
-        }
+            => new SqlServerConnection(new DbContextOptionsBuilder()
+                .UseSqlServer(
+                    new SqlConnectionStringBuilder { ConnectionString = ConnectionString, InitialCatalog = "master" }.ConnectionString,
+                    b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout)).Options, Logger);
 
         public override bool IsMultipleActiveResultSetsEnabled
             => (bool)(_multipleActiveResultSetsEnabled

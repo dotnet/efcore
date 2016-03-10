@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
         ChangedOnlyMonsterContext.Computer, ChangedOnlyMonsterContext.ComputerDetail, ChangedOnlyMonsterContext.Driver,
         ChangedOnlyMonsterContext.License>
     {
-        public ChangedOnlyMonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
-            : base(serviceProvider, options, onModelCreating)
+        public ChangedOnlyMonsterContext(DbContextOptions options, Action<ModelBuilder> onModelCreating)
+            : base(options, onModelCreating)
         {
         }
 

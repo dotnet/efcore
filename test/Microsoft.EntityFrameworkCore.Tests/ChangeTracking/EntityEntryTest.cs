@@ -213,13 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
         private class FreezerContext : DbContext
         {
-            public FreezerContext()
-                : base(TestHelpers.Instance.CreateServiceProvider())
-            {
-            }
-
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
 
             public DbSet<Chunky> Icecream { get; set; }
         }

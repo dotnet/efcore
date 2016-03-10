@@ -16,10 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         IDbContextServices Initialize(
             [NotNull] IServiceProvider scopedProvider,
             [NotNull] IDbContextOptions contextOptions,
-            [CanBeNull] ILoggerFactory loggerFactory,
-            [CanBeNull] IMemoryCache memoryCache,
-            [NotNull] DbContext context,
-            ServiceProviderSource serviceProviderSource);
+            [NotNull] DbContext context);
 
         DbContext Context { get; }
         IModel Model { get; }
@@ -27,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         IMemoryCache MemoryCache { get; }
         IDbContextOptions ContextOptions { get; }
         IDatabaseProviderServices DatabaseProviderServices { get; }
-        IServiceProvider ServiceProvider { get; }
+        IServiceProvider InternalServiceProvider { get; }
     }
 }

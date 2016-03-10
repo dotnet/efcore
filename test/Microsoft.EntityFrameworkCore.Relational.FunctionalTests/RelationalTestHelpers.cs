@@ -19,6 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             => services.AddInMemoryDatabase().AddRelational();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase().IgnoreTransactions();
+            => optionsBuilder.UseInMemoryDatabase(b => b.IgnoreTransactions());
     }
 }

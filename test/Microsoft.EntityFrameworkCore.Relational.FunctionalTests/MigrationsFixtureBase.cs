@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public class MigrationsContext : DbContext
         {
-            public MigrationsContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public MigrationsContext(DbContextOptions options)
+                : base(options)
             {
             }
         }

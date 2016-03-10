@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNavigationsModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 DatabaseName,
                 () =>
                     {
-                        var optionsBuilder = new DbContextOptionsBuilder();
-                        optionsBuilder.UseSqlite(_connectionString);
+                        var optionsBuilder = new DbContextOptionsBuilder()
+                            .UseSqlite(_connectionString)
+                            .UseInternalServiceProvider(_serviceProvider);
 
-                        using (var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options))
+                        using (var context = new ComplexNavigationsContext(optionsBuilder.Options))
                         {
                             // TODO: Delete DB if model changed
                             context.Database.EnsureDeleted();
@@ -51,11 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override ComplexNavigationsContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection)
-                .SuppressForeignKeyEnforcement();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlite(
+                    testStore.Connection,
+                    b => b.SuppressForeignKeyEnforcement())
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options);
+            var context = new ComplexNavigationsContext(optionsBuilder.Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
