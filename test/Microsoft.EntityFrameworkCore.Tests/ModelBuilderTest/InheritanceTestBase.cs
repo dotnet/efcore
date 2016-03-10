@@ -68,6 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Ignore<BackOrder>();
+
                 var principalEntityBuilder = modelBuilder.Entity<Customer>();
                 principalEntityBuilder.Ignore(nameof(Customer.Orders));
                 var derivedPrincipalEntityBuilder = modelBuilder.Entity<SpecialCustomer>();
@@ -93,10 +95,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(Order.Customer), fk.DependentToPrincipal.Name);
                 Assert.Null(fk.PrincipalToDependent);
                 Assert.Same(principalEntityBuilder.Metadata, fk.PrincipalEntityType);
-                var newDerivedFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
-                Assert.Equal(nameof(Order.Customer), newDerivedFk.DependentToPrincipal.Name);
-                Assert.Equal(nameof(SpecialCustomer.SpecialOrders), newDerivedFk.PrincipalToDependent.Name);
-                Assert.Same(derivedPrincipalEntityBuilder.Metadata, newDerivedFk.PrincipalEntityType);
+                derivedFk = derivedPrincipalEntityBuilder.Metadata.GetNavigations().Single().ForeignKey;
+                var anotherDerivedFk = derivedDependentEntityBuilder.Metadata.GetDeclaredNavigations().Single().ForeignKey;
+                Assert.NotSame(derivedFk, anotherDerivedFk);
+                Assert.Null(derivedFk.DependentToPrincipal);
+                Assert.Equal(nameof(SpecialCustomer.SpecialOrders), derivedFk.PrincipalToDependent.Name);
+                Assert.Equal(nameof(Order.Customer), anotherDerivedFk.DependentToPrincipal.Name);
+                Assert.Null(anotherDerivedFk.PrincipalToDependent);
+                Assert.Same(principalEntityBuilder.Metadata, anotherDerivedFk.PrincipalEntityType);
                 Assert.Empty(principalEntityBuilder.Metadata.GetNavigations());
             }
 
@@ -106,12 +112,15 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<OrderDetails>();
+
                 var principalEntityBuilder = modelBuilder.Entity<Customer>();
                 principalEntityBuilder.Ignore(nameof(Customer.Orders));
                 var derivedPrincipalEntityBuilder = modelBuilder.Entity<SpecialCustomer>();
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
+                derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
                 var otherDerivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
+                otherDerivedDependentEntityBuilder.Ignore(nameof(BackOrder.SpecialOrder));
 
                 Assert.Same(principalEntityBuilder.Metadata, derivedPrincipalEntityBuilder.Metadata.BaseType);
                 Assert.Same(dependentEntityBuilder.Metadata, derivedDependentEntityBuilder.Metadata.BaseType);

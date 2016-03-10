@@ -1403,6 +1403,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         principalProperties);
                 }
 
+                if (newRelationshipBuilder == null)
+                {
+                    return null;
+                }
+
                 newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(newRelationshipBuilder);
 
                 foreach (var addedForeignKey in addedForeignKeys)

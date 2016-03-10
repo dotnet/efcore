@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public Whoopper Whoopper { get; set; }
         }
 
-        private class Customer
+        protected class Customer
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
             public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
@@ -95,12 +95,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public CustomerDetails Details { get; set; }
         }
 
-        private class SpecialCustomer : Customer
+        protected class SpecialCustomer : Customer
         {
             public ICollection<SpecialOrder> SpecialOrders { get; set; }
         }
 
-        private class CustomerDetails
+        protected class CustomerDetails
         {
             public int Id { get; set; }
             public int CustomerId { get; set; }
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public Customer Customer { get; set; }
         }
 
-        private class Order
+        protected class Order
         {
             public int OrderId { get; set; }
 
@@ -116,18 +116,34 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public Guid AnotherCustomerId { get; set; }
             public Customer Customer { get; set; }
 
+            public OrderCombination OrderCombination  { get; set; }
+
             public OrderDetails Details { get; set; }
         }
 
-        private class SpecialOrder : Order
+        protected class SpecialOrder : Order
         {
+            public BackOrder BackOrder { get; set; }
+            public OrderCombination SpecialOrderCombination { get; set; }
         }
 
-        private class BackOrder : Order
+        protected class BackOrder : Order
         {
+            public int SpecialOrderId { get; set; }
+            public SpecialOrder SpecialOrder { get; set; }
         }
 
-        private class OrderDetails
+        [NotMapped]
+        protected class OrderCombination
+        {
+            public int Id { get; set; }
+            public int OrderId { get; set; }
+            public Order Order { get; set; }
+            public int SpecialOrderId { get; set; }
+            public SpecialOrder SpecialOrder { get; set; }
+        }
+
+        protected class OrderDetails
         {
             public static readonly PropertyInfo OrderIdProperty = typeof(OrderDetails).GetProperty("OrderId");
 

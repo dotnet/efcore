@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     var inverseTargetType = FindCandidateNavigationPropertyType(inversePropertyInfo);
                     if ((inverseTargetType == null)
-                        || !inverseTargetType.GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo())
+                        || (inverseTargetType != entityType.ClrType)
                         || (navigationPropertyInfo == inversePropertyInfo)
                         || candidateTargetEntityTypeBuilder.IsIgnored(inversePropertyInfo.Name, ConfigurationSource.Convention))
                     {
