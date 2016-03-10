@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Directory.CreateDirectory(directoryName);
             var fullFileName = Path.Combine(directoryName, fileName);
-            File.WriteAllText(fullFileName, contents);
+            File.WriteAllText(fullFileName, contents, Encoding.UTF8);
 
             return fullFileName;
         }

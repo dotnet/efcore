@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
 
                 _logger.Value.LogInformation(CommandsStrings.RevertingSnapshot);
-                File.WriteAllText(modelSnapshotFile, modelSnapshotCode);
+                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
             }
 
             return files;
@@ -310,12 +310,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             _logger.Value.LogDebug(CommandsStrings.WritingMigration(migrationFile));
             Directory.CreateDirectory(migrationDirectory);
-            File.WriteAllText(migrationFile, migration.MigrationCode);
-            File.WriteAllText(migrationMetadataFile, migration.MetadataCode);
+            File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
+            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
 
             _logger.Value.LogDebug(CommandsStrings.WritingSnapshot(modelSnapshotFile));
             Directory.CreateDirectory(modelSnapshotDirectory);
-            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode);
+            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
 
             return new MigrationFiles
             {
