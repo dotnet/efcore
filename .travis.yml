@@ -20,5 +20,11 @@ before_install:
   - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi
 before_script:
   - sqlite3 -version
+branches:
+  only:
+    - master
+    - release
+    - dev
+    - /^(.*\\/)?ci-.*$/
 script:
   - ./build.sh --quiet verify
