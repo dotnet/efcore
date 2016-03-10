@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             public NullKeysSqliteFixture()
             {
                 _serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlite()
+                    .AddEntityFrameworkSqlite()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 

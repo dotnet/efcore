@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 _options = new DbContextOptionsBuilder()
                     .UseSqlServer(SqlServerTestStore.CreateConnectionString("NotificationEntities"))
                     .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFramework()
-                        .AddSqlServer()
+                        .AddEntityFrameworkSqlServer()
                         .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                         .BuildServiceProvider())
                     .Options;

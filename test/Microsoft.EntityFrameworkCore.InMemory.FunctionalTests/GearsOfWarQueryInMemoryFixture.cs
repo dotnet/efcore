@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public GearsOfWarQueryInMemoryFixture()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 

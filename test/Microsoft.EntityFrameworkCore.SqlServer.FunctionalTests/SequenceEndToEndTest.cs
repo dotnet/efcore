@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_sequence_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "Bronies"))
@@ -35,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             // Use a different service provider so a different generator is used but with
             // the same server sequence.
             serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             AddEntities(serviceProvider);
@@ -71,8 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public async Task Can_use_sequence_end_to_end_async()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "BroniesAsync"))
@@ -87,8 +84,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             // Use a different service provider so a different generator is used but with
             // the same server sequence.
             serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
@@ -123,8 +119,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "ManyBronies"))
@@ -165,8 +160,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_explicit_values()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
@@ -181,8 +175,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             // Use a different service provider so a different generator is used but with
             // the same server sequence.
             serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             AddEntitiesWithIds(serviceProvider, 4);
@@ -256,8 +249,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_sequence_with_nullable_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
@@ -286,8 +278,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_identity_with_nullable_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))

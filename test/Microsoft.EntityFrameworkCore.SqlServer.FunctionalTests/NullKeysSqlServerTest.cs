@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 _options = new DbContextOptionsBuilder()
                     .UseSqlServer(SqlServerTestStore.CreateConnectionString("StringsContext"))
                     .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFramework()
-                        .AddSqlServer()
+                        .AddEntityFrameworkSqlServer()
                         .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                         .BuildServiceProvider())
                     .Options;

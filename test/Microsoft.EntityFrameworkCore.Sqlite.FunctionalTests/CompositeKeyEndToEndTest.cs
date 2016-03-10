@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -60,8 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             var ids = new int[3];

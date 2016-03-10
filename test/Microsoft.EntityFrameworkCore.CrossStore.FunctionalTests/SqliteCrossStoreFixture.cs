@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
         {
             _sharedCrossStoreFixture = new SharedCrossStoreFixture(
                 new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlite()
+                    .AddEntityFrameworkSqlite()
                     .BuildServiceProvider());
         }
 

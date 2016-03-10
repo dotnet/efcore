@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         {
             Check.NotNull(services, nameof(services));
 
-            services.AddSqlite();
+            services.AddEntityFrameworkSqlite();
         }
     }
 }

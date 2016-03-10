@@ -44,8 +44,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         {
         ///             var connectionString = "connection string to database";
         /// 
-        ///             services.AddEntityFramework() 
-        ///                 .AddSqlServer()
+        ///             services
+        ///                 .AddEntityFrameworkSqlServer()
         ///                 .AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString)); 
         ///         }
         ///     </code>
@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>
         ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
         /// </returns>
-        public static IServiceCollection AddSqlServer([NotNull] this IServiceCollection services)
+        public static IServiceCollection AddEntityFrameworkSqlServer([NotNull] this IServiceCollection services)
         {
             Check.NotNull(services, nameof(services));
 

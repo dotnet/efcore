@@ -34,6 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(services, nameof(services));
 
+            services.AddEntityFramework();
+
             services
                 .TryAdd(new ServiceCollection()
                     .AddSingleton(s => new DiagnosticListener("Microsoft.EntityFrameworkCore"))

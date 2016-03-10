@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public MigrationsSqlServerFixture()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             var connectionStringBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)

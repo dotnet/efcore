@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public new static SqliteTestHelpers Instance { get; } = new SqliteTestHelpers();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
-            => services.AddSqlite();
+            => services.AddEntityFrameworkSqlite();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(new SqliteConnection("Data Source=:memory:"));

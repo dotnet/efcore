@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public NorthwindQueryInMemoryFixture()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(_testLoggerFactory)
                 .BuildServiceProvider();

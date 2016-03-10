@@ -2301,8 +2301,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_derived_context_controlling_internal_services()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var singleton = new object[3];
@@ -2332,8 +2331,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_derived_context_controlling_internal_services_with_external_services()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -2370,8 +2368,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_derived_context_controlling_internal_services_with_options()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
@@ -2408,8 +2405,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_derived_context_controlling_internal_services_with_options_and_external_services()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -2522,8 +2518,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_derived_context_controlling_internal_services_with_options_no_OnConfiguring()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
@@ -2560,8 +2555,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_derived_context_controlling_internal_services_with_options_and_external_services_no_OnConfiguring()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -2674,8 +2668,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_non_derived_context_controlling_internal_services_with_options()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder()
@@ -2712,8 +2705,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_use_non_derived_context_controlling_internal_services_with_options_and_external_services()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -2913,8 +2905,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_controlling_internal_services()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC2A>()
                 .BuildServiceProvider();
 
@@ -2949,8 +2940,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_controlling_internal_services_with_external_services()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC2B>()
                 .BuildServiceProvider();
 
@@ -2988,8 +2978,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_controlling_internal_services_with_options()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -3031,8 +3020,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_controlling_internal_services_with_options_and_external_services()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -3078,8 +3066,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_one_service_provider_with_options()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -3117,8 +3104,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_one_service_provider_with_options_and_external_services()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
                     (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -3236,8 +3222,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_controlling_internal_services_with_options_no_OnConfiguring()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -3279,8 +3264,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_controlling_internal_services_with_options_and_external_services_no_OnConfiguring()
         {
             var internalServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var appServiceProivder = new ServiceCollection()
@@ -3326,8 +3310,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_one_provider_with_options_no_OnConfiguring()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -3365,8 +3348,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_add_derived_context_one_provider_with_options_and_external_services_no_OnConfiguring()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
                 .BuildServiceProvider();
@@ -3558,8 +3540,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Model_cannot_be_used_in_OnModelCreating()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             using (var context = new UseModelInOnModelCreatingContext(serviceProvider))
@@ -3596,8 +3577,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Context_cannot_be_used_in_OnModelCreating()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             using (var context = new UseInOnModelCreatingContext(serviceProvider))
@@ -3632,8 +3612,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Context_cannot_be_used_in_OnConfiguring()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             using (var context = new UseInOnConfiguringContext(serviceProvider))

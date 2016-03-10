@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public UpdatesSqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
         }
 

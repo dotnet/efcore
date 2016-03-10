@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
+                    .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()

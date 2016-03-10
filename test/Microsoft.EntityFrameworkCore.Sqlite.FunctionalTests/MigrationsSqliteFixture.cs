@@ -14,8 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public MigrationsSqliteFixture()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()

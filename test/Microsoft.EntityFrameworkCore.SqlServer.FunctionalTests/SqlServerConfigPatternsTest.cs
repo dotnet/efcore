@@ -80,8 +80,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     using (var context = new NorthwindContext(
                         new DbContextOptionsBuilder().UseInternalServiceProvider(
                             new ServiceCollection()
-                                .AddEntityFramework()
-                                .AddSqlServer()
+                                .AddEntityFrameworkSqlServer()
                                 .BuildServiceProvider()).Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
@@ -117,8 +116,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     using (var context = new NorthwindContext(new DbContextOptionsBuilder()
                         .UseSqlServer(SqlServerNorthwindContext.ConnectionString)
                         .UseInternalServiceProvider(new ServiceCollection()
-                            .AddEntityFramework()
-                            .AddSqlServer()
+                            .AddEntityFrameworkSqlServer()
                             .BuildServiceProvider()).Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
@@ -153,8 +151,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             {
                                 using (var context = new NorthwindContext(
                                     new DbContextOptionsBuilder().UseInternalServiceProvider(new ServiceCollection()
-                                        .AddEntityFramework()
-                                        .AddSqlServer()
+                                        .AddEntityFrameworkSqlServer()
                                         .BuildServiceProvider()).Options))
                                 {
                                     Assert.Equal(91, context.Customers.Count());
@@ -251,8 +248,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public async Task Can_register_context_with_DI_container_and_have_it_injected()
             {
                 var serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
+                    .AddEntityFrameworkSqlServer()
                     .AddTransient<NorthwindContext>()
                     .AddTransient<MyController>()
                     .AddSingleton(p => new DbContextOptionsBuilder().UseInternalServiceProvider(p).Options)
@@ -414,8 +410,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework()
-                        .AddSqlServer()
+                        .AddEntityFrameworkSqlServer()
                         .BuildServiceProvider();
 
                     using (var context1 = new NorthwindContext(serviceProvider))
@@ -467,9 +462,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceProvider = new ServiceCollection()
-                        .AddEntityFramework()
-                        .AddSqlServer()
-                        .AddInMemoryDatabase()
+                        .AddEntityFrameworkSqlServer()
+                        .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider();
 
                     await NestedContextTest(() => new BlogContext(serviceProvider), () => new NorthwindContext(serviceProvider));

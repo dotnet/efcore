@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             protected GraphUpdatesSqlServerFixtureBase()
             {
                 _serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
+                    .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
             }

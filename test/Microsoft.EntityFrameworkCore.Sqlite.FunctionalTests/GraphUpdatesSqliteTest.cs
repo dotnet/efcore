@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             public GraphUpdatesSqliteFixture()
             {
                 _serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlite()
+                    .AddEntityFrameworkSqlite()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
             }
