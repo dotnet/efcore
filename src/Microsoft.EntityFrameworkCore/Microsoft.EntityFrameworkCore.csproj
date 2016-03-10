@@ -130,8 +130,10 @@
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
     <Compile Include="DbContext.cs" />
+    <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptionsBuilder.cs" />
     <Compile Include="DbContextOptionsBuilder`.cs" />
+    <Compile Include="DbContextOptions`.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="DbUpdateConcurrencyException.cs" />
     <Compile Include="DbUpdateException.cs" />
@@ -160,8 +162,6 @@
     <Compile Include="Infrastructure\CoreLoggingEventId.cs" />
     <Compile Include="Infrastructure\DatabaseFacade.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
-    <Compile Include="Infrastructure\DbContextOptions.cs" />
-    <Compile Include="Infrastructure\DbContextOptions`.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
