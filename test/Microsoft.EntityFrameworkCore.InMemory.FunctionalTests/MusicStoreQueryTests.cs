@@ -24,10 +24,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     .AddInMemoryDatabase()
                     .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(serviceProvider);
 
-            using (var db = new MusicStoreContext(serviceProvider, optionsBuilder.Options))
+            using (var db = new MusicStoreContext(optionsBuilder.Options))
             {
                 var albums = GetAlbums("~/Images/placeholder.png", Genres, Artists);
 
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 db.SaveChanges();
             }
 
-            using (var db = new MusicStoreContext(serviceProvider, optionsBuilder.Options))
+            using (var db = new MusicStoreContext(optionsBuilder.Options))
             {
                 var q = from album in db.Albums
                         join genre in db.Genres on album.GenreId equals genre.GenreId
@@ -71,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public class MusicStoreContext : DbContext
         {
-            public MusicStoreContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public MusicStoreContext(DbContextOptions options)
+                : base(options)
             {
             }
 

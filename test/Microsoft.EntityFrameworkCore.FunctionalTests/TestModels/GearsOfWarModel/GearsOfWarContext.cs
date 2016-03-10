@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarMod
     {
         public static readonly string StoreName = "GearsOfWar";
 
-        public GearsOfWarContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public GearsOfWarContext(DbContextOptions options)
+            : base(options)
         {
         }
 

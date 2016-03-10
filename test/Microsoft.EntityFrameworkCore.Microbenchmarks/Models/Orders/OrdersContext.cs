@@ -3,12 +3,12 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.Orders;
-using Microsoft.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders
 {
     public class OrdersContext : DbContext
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly string _connectionString;
         private readonly bool _disableBatching;
 
@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders
         }
 
         public OrdersContext(IServiceProvider serviceProvider, string connectionString, bool disableBatching = false)
-            : base(serviceProvider)
         {
+            _serviceProvider = serviceProvider;
             _connectionString = connectionString;
             _disableBatching = disableBatching;
         }
@@ -31,13 +31,16 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders
         public DbSet<Product> Products { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            var sqlBuilder = optionsBuilder.UseSqlServer(_connectionString);
-
-            if (_disableBatching)
-            {
-                sqlBuilder.MaxBatchSize(1);
-            }
-        }
+            => optionsBuilder
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseSqlServer(
+                    _connectionString,
+                    b =>
+                        {
+                            if (_disableBatching)
+                            {
+                                b.MaxBatchSize(1);
+                            }
+                        });
     }
 }

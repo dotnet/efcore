@@ -32,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlite(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlite(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new NullSemanticsContext(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -52,14 +53,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public override NullSemanticsContext CreateContext(SqliteTestStore testStore, bool useRelationalNulls)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            var sqliteOptions = optionsBuilder.UseSqlite(testStore.Connection);
+            optionsBuilder
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseSqlite(
+                    testStore.Connection,
+                    b =>
+                        {
+                            if (useRelationalNulls)
+                            {
+                                b.UseRelationalNulls();
+                            }
+                        }
+                );
 
-            if (useRelationalNulls)
-            {
-                sqliteOptions.UseRelationalNulls();
-            }
-
-            var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
+            var context = new NullSemanticsContext(optionsBuilder.Options);
             
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

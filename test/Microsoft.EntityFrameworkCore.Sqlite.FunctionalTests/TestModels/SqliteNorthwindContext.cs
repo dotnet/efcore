@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.TestModels
 {
     public class SqliteNorthwindContext : NorthwindContext
     {
-        public SqliteNorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public SqliteNorthwindContext(DbContextOptions options)
+            : base(options)
         {
         }
 

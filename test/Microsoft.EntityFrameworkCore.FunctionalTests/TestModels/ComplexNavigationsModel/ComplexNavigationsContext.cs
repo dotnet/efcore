@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNaviga
     {
         public static readonly string StoreName = "ComplexNavigations";
 
-        public ComplexNavigationsContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public ComplexNavigationsContext(DbContextOptions options)
+            : base(options)
         {
         }
 

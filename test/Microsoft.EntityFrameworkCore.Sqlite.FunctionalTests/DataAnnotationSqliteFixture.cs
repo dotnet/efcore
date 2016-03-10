@@ -27,13 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         public override SqliteTestStore CreateTestStore()
-        {
-            return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
+            => SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlite(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlite(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new DataAnnotationContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new DataAnnotationContext(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -45,18 +45,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                         TestSqlLoggerFactory.SqlStatements.Clear();
                     }
                 });
-        }
 
         public override DataAnnotationContext CreateContext(SqliteTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-
-            optionsBuilder
+            var optionsBuilder = new DbContextOptionsBuilder()
                 .EnableSensitiveDataLogging()
-                .UseSqlite(testStore.Connection)
-                .SuppressForeignKeyEnforcement();
+                .UseSqlite(
+                    testStore.Connection,
+                    b => b.SuppressForeignKeyEnforcement())
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new DataAnnotationContext(_serviceProvider, optionsBuilder.Options);
+            var context = new DataAnnotationContext(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
         }

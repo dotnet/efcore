@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -71,14 +73,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model)
-        {
-            Check.NotNull(model, nameof(model));
+        public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model) 
+            => SetOption(e => e.Model = Check.NotNull(model, nameof(model)));
 
-            SetOption(e => e.Model = model);
+        public virtual DbContextOptionsBuilder UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory) 
+            => SetOption(e => e.LoggerFactory = loggerFactory);
 
-            return this;
-        }
+        public virtual DbContextOptionsBuilder UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
+            => SetOption(e => e.MemoryCache = memoryCache);
+
+        public virtual DbContextOptionsBuilder UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+            => SetOption(e => e.InternalServiceProvider = serviceProvider);
 
         /// <summary>
         ///     Enables application data to be included in exception messages, logging, etc. This can include the values assigned to properties
@@ -107,10 +112,8 @@ namespace Microsoft.EntityFrameworkCore
             _options = _options.WithExtension(extension);
         }
 
-        private DbContextOptionsBuilder SetOption([NotNull] Action<CoreOptionsExtension> setAction)
+        private DbContextOptionsBuilder SetOption(Action<CoreOptionsExtension> setAction)
         {
-            Check.NotNull(setAction, nameof(setAction));
-
             var existingExtension = Options.FindExtension<CoreOptionsExtension>();
 
             var extension

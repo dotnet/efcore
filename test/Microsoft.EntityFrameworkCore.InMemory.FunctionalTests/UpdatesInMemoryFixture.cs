@@ -21,15 +21,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 .AddInMemoryDatabase()
                 .BuildServiceProvider();
 
-            _optionsBuilder = new DbContextOptionsBuilder();
-            _optionsBuilder.UseInMemoryDatabase();
+            _optionsBuilder = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(_serviceProvider);
         }
 
         public override InMemoryTestStore CreateTestStore()
             => InMemoryTestStore.CreateScratch(
                 () =>
                 {
-                    using (var context = new UpdatesContext(_serviceProvider, _optionsBuilder.Options))
+                    using (var context = new UpdatesContext(_optionsBuilder.Options))
                     {
                         UpdatesModelInitializer.Seed(context);
                     }
@@ -39,9 +40,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     _serviceProvider.GetRequiredService<IInMemoryStore>().Clear();
                 });
 
-        public override UpdatesContext CreateContext(InMemoryTestStore testStore)
-        {
-            return new UpdatesContext(_serviceProvider, _optionsBuilder.Options);
-        }
+        public override UpdatesContext CreateContext(InMemoryTestStore testStore) 
+            => new UpdatesContext(_optionsBuilder.Options);
     }
 }

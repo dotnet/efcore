@@ -19,26 +19,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public class NotificationEntitiesSqlServerFixture : NotificationEntitiesFixtureBase
         {
-            private readonly IServiceProvider _serviceProvider;
             private readonly DbContextOptions _options;
 
             public NotificationEntitiesSqlServerFixture()
             {
-                _serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
-
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("NotificationEntities"));
-                _options = optionsBuilder.Options;
+                _options = new DbContextOptionsBuilder()
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("NotificationEntities"))
+                    .UseInternalServiceProvider(new ServiceCollection()
+                        .AddEntityFramework()
+                        .AddSqlServer()
+                        .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                        .BuildServiceProvider())
+                    .Options;
 
                 EnsureCreated();
             }
 
             public override DbContext CreateContext() 
-                => new DbContext(_serviceProvider, _options);
+                => new DbContext(_options);
         }
     }
 }

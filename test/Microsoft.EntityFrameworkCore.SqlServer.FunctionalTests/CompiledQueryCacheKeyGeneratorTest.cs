@@ -55,13 +55,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             protected override void OnModelCreating(ModelBuilder modelBuilder) => modelBuilder.Entity<Poco1>();
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                var optionBuilder = optionsBuilder.UseSqlServer(_connection);
-                if (_rowNumberPaging)
-                {
-                    optionBuilder.UseRowNumberForPaging();
-                }
-            }
+                => optionsBuilder.UseSqlServer(
+                    _connection, b =>
+                        {
+                            if (_rowNumberPaging)
+                            {
+                                b.UseRowNumberForPaging();
+                            }
+                        });
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -11,29 +12,55 @@ namespace Microsoft.EntityFrameworkCore
 {
     public static class SqliteDbContextOptionsBuilderExtensions
     {
-        public static SqliteDbContextOptionsBuilder UseSqlite([NotNull] this DbContextOptionsBuilder options, [NotNull] string connectionString)
+        public static DbContextOptionsBuilder UseSqlite(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [NotNull] string connectionString,
+            [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
         {
-            Check.NotNull(options, nameof(options));
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            var extension = GetOrCreateExtension(options);
+            var extension = GetOrCreateExtension(optionsBuilder);
             extension.ConnectionString = connectionString;
-            ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-            return new SqliteDbContextOptionsBuilder(options);
+            sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
+
+            return optionsBuilder;
         }
 
-        public static SqliteDbContextOptionsBuilder UseSqlite([NotNull] this DbContextOptionsBuilder options, [NotNull] DbConnection connection)
+        public static DbContextOptionsBuilder UseSqlite(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [NotNull] DbConnection connection,
+            [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
         {
-            Check.NotNull(options, nameof(options));
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
 
-            var extension = GetOrCreateExtension(options);
+            var extension = GetOrCreateExtension(optionsBuilder);
             extension.Connection = connection;
-            ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(extension);
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-            return new SqliteDbContextOptionsBuilder(options);
+            sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
+
+            return optionsBuilder;
         }
+
+        public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
+            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
+            [NotNull] string connectionString,
+            [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
+            where TContext : DbContext
+            => (DbContextOptionsBuilder<TContext>)UseSqlite(
+                (DbContextOptionsBuilder)optionsBuilder, connectionString, sqliteOptionsAction);
+
+        public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
+            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
+            [NotNull] DbConnection connection,
+            [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
+            where TContext : DbContext
+            => (DbContextOptionsBuilder<TContext>)UseSqlite(
+                (DbContextOptionsBuilder)optionsBuilder, connection, sqliteOptionsAction);
 
         private static SqliteOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder options)
         {

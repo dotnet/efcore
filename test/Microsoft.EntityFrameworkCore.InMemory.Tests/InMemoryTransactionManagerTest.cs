@@ -70,9 +70,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         [Fact]
         public void Does_not_throw_on_BeginTransaction_when_transactions_ignored()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase()
-                .IgnoreTransactions();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(b => b.IgnoreTransactions());
 
             var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
 
@@ -86,9 +85,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         [Fact]
         public async Task Does_not_throw_on_BeginTransactionAsync_when_transactions_ignored()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase()
-                .IgnoreTransactions();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(b => b.IgnoreTransactions());
 
             var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
 
@@ -102,9 +100,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         [Fact]
         public void Does_not_throw_on_CommitTransaction_when_transactions_ignored()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase()
-                .IgnoreTransactions();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(b => b.IgnoreTransactions());
 
             var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
 
@@ -114,9 +111,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         [Fact]
         public void Does_not_throw_on_RollbackTransaction_when_transactions_ignored()
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase()
-                .IgnoreTransactions();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(b => b.IgnoreTransactions());
 
             var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
 

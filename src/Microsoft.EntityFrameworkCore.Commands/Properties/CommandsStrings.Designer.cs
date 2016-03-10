@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list or by using the '--targetProject' option for DNX commands. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer().MigrationsAssembly("{assembly}")
+        /// Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list or by using the '--targetProject' option for DNX commands. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b => b.MigrationsAssembly("{assembly}"))
         /// </summary>
         public static string MigrationsAssemblyMismatch([CanBeNull] object assembly, [CanBeNull] object migrationsAssembly)
         {

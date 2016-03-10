@@ -18,20 +18,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 
         public SqlAzureFixture()
         {
-            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql", recreateIfAlreadyExists: false);
+            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql");
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.EnableSensitiveDataLogging()
-                .UseSqlServer(SqlServerTestStore.CreateConnectionString("adventureworks"));
-            Options = optionsBuilder.Options;
+            Services = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory()).BuildServiceProvider();
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework()
-                .AddSqlServer();
-            serviceCollection.AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
-            Services = serviceCollection.BuildServiceProvider();
+            Options = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(Services)
+                .EnableSensitiveDataLogging()
+                .UseSqlServer(SqlServerTestStore.CreateConnectionString("adventureworks")).Options;
         }
 
-        public virtual AdventureWorksContext CreateContext() => new AdventureWorksContext(Services, Options);
+        public virtual AdventureWorksContext CreateContext() => new AdventureWorksContext(Options);
     }
 }

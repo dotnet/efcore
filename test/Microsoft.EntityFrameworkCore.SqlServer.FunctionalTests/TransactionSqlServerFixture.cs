@@ -47,19 +47,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         public override DbContext CreateContext(SqlServerTestStore testStore)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.ConnectionString);
-
-            return new DbContext(_serviceProvider, optionsBuilder.Options);
-        }
+            => new DbContext(new DbContextOptionsBuilder()
+                .UseSqlServer(testStore.ConnectionString)
+                .UseInternalServiceProvider(_serviceProvider).Options);
 
         public override DbContext CreateContext(DbConnection connection)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(connection);
-
-            return new DbContext(_serviceProvider, optionsBuilder.Options);
-        }
+            => new DbContext(new DbContextOptionsBuilder()
+                .UseSqlServer(connection)
+                .UseInternalServiceProvider(_serviceProvider).Options);
     }
 }

@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
     {
         private readonly Action<ModelBuilder> _onModelCreating;
 
-        public MonsterContext(IServiceProvider serviceProvider, DbContextOptions options, Action<ModelBuilder> onModelCreating)
-            : base(serviceProvider, options)
+        public MonsterContext(DbContextOptions options, Action<ModelBuilder> onModelCreating)
+            : base(options)
         {
             _onModelCreating = onModelCreating;
         }

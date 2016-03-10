@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(customServices);
 
-            using (var context = new JustAContext(serviceProvider, new DbContextOptionsBuilder().Options))
+            using (var context = new JustAContext(
+                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
             {
                 Assert.NotNull(context.One);
                 Assert.NotNull(context.GetTwo());
@@ -45,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         public class JustAContext : DbContext
         {
-            public JustAContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public JustAContext(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -54,15 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             private DbSet<object> Two { get; set; }
             public DbSet<string> Three { get; private set; }
 
-            public DbSet<string> Four
-            {
-                get { return null; }
-            }
+            public DbSet<string> Four => null;
 
-            public DbSet<object> GetTwo()
-            {
-                return Two;
-            }
+            public DbSet<object> GetTwo() => Two;
         }
     }
 }

@@ -5,7 +5,9 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -14,7 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class CoreOptionsExtension : IDbContextOptionsExtension
     {
+        private IServiceProvider _internalServiceProvider;
         private IModel _model;
+        private ILoggerFactory _loggerFactory;
+        private IMemoryCache _memoryCache;
         private bool _isSensitiveDataLoggingEnabled;
 
         /// <summary>
@@ -37,8 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <param name="copyFrom"> The <see cref="CoreOptionsExtension" /> to copy options from. </param>
         public CoreOptionsExtension([NotNull] CoreOptionsExtension copyFrom)
         {
-            _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
+            _internalServiceProvider = copyFrom.InternalServiceProvider;
             _model = copyFrom.Model;
+            _loggerFactory = copyFrom.LoggerFactory;
+            _memoryCache = copyFrom.MemoryCache;
+            _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
         }
 
         /// <summary>
@@ -67,6 +75,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             get { return _model; }
             [param: CanBeNull] set { _model = value; }
+        }
+
+        public virtual ILoggerFactory LoggerFactory
+        {
+            get { return _loggerFactory; }
+            [param: CanBeNull] set { _loggerFactory = value; }
+        }
+
+        public virtual IMemoryCache MemoryCache
+        {
+            get { return _memoryCache; }
+            [param: CanBeNull] set { _memoryCache = value; }
+        }
+
+        public virtual IServiceProvider InternalServiceProvider
+        {
+            get { return _internalServiceProvider; }
+            [param: CanBeNull] set { _internalServiceProvider = value; }
         }
 
         /// <summary>

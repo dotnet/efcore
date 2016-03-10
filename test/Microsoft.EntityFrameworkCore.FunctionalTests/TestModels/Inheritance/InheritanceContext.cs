@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Inheritance
     {
         public static readonly string StoreName = "Inheritance";
 
-        public InheritanceContext(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public InheritanceContext(DbContextOptions options)
+            : base(options)
         {
         }
     }
