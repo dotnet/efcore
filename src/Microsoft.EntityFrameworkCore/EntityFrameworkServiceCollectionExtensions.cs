@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
             [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
-            serviceCollection.AddCaching();
+            serviceCollection.AddMemoryCache();
             serviceCollection.AddLogging();
 
             serviceCollection.TryAddSingleton(p => DbContextOptionsFactory<TContext>(p, optionsAction));

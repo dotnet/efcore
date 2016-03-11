@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddCaching();
+            serviceCollection.AddMemoryCache();
 
             return serviceCollection
                 .AddSingleton(_ => MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly())
