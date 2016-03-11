@@ -3386,6 +3386,208 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
+        [Fact]
+        public void Throws_with_new_when_no_EF_services()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
+                .Options;
+
+            using (var context = new ConstructorTestContextWithSets(options))
+            {
+                Assert.Equal(
+                    CoreStrings.NoEfServices,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_EF_services()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextWithSets>(
+                    (p, b) => b.UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>();
+
+                Assert.Equal(
+                    CoreStrings.NoEfServices,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_new_when_no_EF_services_and_no_sets()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
+                .Options;
+
+            using (var context = new ConstructorTestContext1A(options))
+            {
+                Assert.Equal(
+                    CoreStrings.NoEfServices,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_EF_services_and_no_sets()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(
+                    (p, b) => b.UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.Equal(
+                    CoreStrings.NoEfServices,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_new_when_no_provider()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
+                .Options;
+
+            using (var context = new ConstructorTestContextWithSets(options))
+            {
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_provider()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddDbContext<ConstructorTestContextWithSets>(
+                    (p, b) => b.UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>();
+
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_new_when_no_provider_and_no_sets()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
+                .Options;
+
+            using (var context = new ConstructorTestContext1A(options))
+            {
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_provider_and_no_sets()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddDbContext<ConstructorTestContext1A>(
+                    (p, b) => b.UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_new_when_no_EF_services_because_parameterless_constructor()
+        {
+            using (var context = new ConstructorTestContextNoConfigurationWithSets())
+            {
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_EF_services_because_parameterless_constructor()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextNoConfigurationWithSets>()
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfigurationWithSets>();
+
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_new_when_no_EF_services_and_no_sets_because_parameterless_constructor()
+        {
+            using (var context = new ConstructorTestContextNoConfiguration())
+            {
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_EF_services_and_no_sets_because_parameterless_constructor()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextNoConfiguration>()
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
+
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
         private class WrappingLoggerFactory : ILoggerFactory
         {
             private readonly ILoggerFactory _loggerFactory;
@@ -3411,11 +3613,30 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class ConstructorTestContext1A : DbContext
         {
-            public ConstructorTestContext1A(
-                DbContextOptions options)
+            public ConstructorTestContext1A(DbContextOptions options)
                 : base(options)
             {
             }
+        }
+
+        private class ConstructorTestContextWithSets : DbContext
+        {
+            public ConstructorTestContextWithSets(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+        }
+
+
+        private class ConstructorTestContextNoConfiguration : DbContext
+        {
+        }
+
+        private class ConstructorTestContextNoConfigurationWithSets : DbContext
+        {
+            public DbSet<Product> Products { get; set; }
         }
 
         private class ConstructorTestContextWithOCBase : DbContext
@@ -3449,19 +3670,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 IMemoryCache memoryCache = null)
                 : base(options)
             {
-                _loggerFactory = loggerFactory;
-                _memoryCache = memoryCache;
-                _isConfigured = true;
-            }
-
-            protected ConstructorTestContextWithOCBase(
-                IServiceProvider internalServicesProvider,
-                DbContextOptions options,
-                ILoggerFactory loggerFactory = null,
-                IMemoryCache memoryCache = null)
-                : base(options)
-            {
-                _internalServicesProvider = internalServicesProvider;
                 _loggerFactory = loggerFactory;
                 _memoryCache = memoryCache;
                 _isConfigured = true;

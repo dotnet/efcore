@@ -79,6 +79,7 @@
     <Compile Include="CrossStoreFixture.cs" />
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="InMemoryCrossStoreFixture.cs" />
+    <Compile Include="ProviderSpecificServicesTest.cs" />
     <Compile Include="SharedCrossStoreFixture.cs" />
     <Compile Include="SqliteCrossStoreFixture.cs" />
     <Compile Include="SqlServerCrossStoreFixture.cs" />

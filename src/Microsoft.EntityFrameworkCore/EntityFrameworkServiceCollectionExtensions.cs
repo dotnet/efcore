@@ -89,12 +89,10 @@ namespace Microsoft.Extensions.DependencyInjection
             [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
-            var options = new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>());
-
-            var builder = new DbContextOptionsBuilder<TContext>(options);
-
-            builder.UseMemoryCache(applicationServiceProvider.GetService<IMemoryCache>());
-            builder.UseLoggerFactory(applicationServiceProvider.GetService<ILoggerFactory>());
+            var builder = new DbContextOptionsBuilder<TContext>(
+                new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()))
+                .UseMemoryCache(applicationServiceProvider.GetService<IMemoryCache>())
+                .UseLoggerFactory(applicationServiceProvider.GetService<ILoggerFactory>());
 
             optionsAction?.Invoke(applicationServiceProvider, builder);
 

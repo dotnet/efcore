@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,7 +42,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="accessor"> The object exposing the service provider. </param>
         /// <returns> The requested service. </returns>
         public static TService GetService<TService>([NotNull] this IInfrastructure<IServiceProvider> accessor)
-            => Check.NotNull(accessor, nameof(accessor)).Instance.GetRequiredService<TService>();
+        {
+            Check.NotNull(accessor, nameof(accessor));
+
+            var service = accessor.Instance.GetService<TService>();
+            if (service == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
+            }
+
+            return service;
+        }
 
         /// <summary>
         ///     <para>

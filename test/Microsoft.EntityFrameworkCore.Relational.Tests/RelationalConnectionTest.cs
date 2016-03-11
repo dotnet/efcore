@@ -9,12 +9,126 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests
 {
     public class RelationalConnectionTest
     {
+        [Fact]
+        public void Throws_with_new_when_no_EF_services_use_Database()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
+                .Options;
+
+            using (var context = new ConstructorTestContext1A(options))
+            {
+                Assert.Equal(
+                    CoreStrings.NoEfServices,
+                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_EF_services_use_Database()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(
+                    (p, b) => b.UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.Equal(
+                    CoreStrings.NoEfServices,
+                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_new_when_no_provider_use_Database()
+        {
+            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+                .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
+                .Options;
+
+            using (var context = new ConstructorTestContext1A(options))
+            {
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_provider_use_Database()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFramework()
+                .AddDbContext<ConstructorTestContext1A>(
+                    (p, b) => b.UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_new_when_no_EF_services_because_parameterless_constructor_use_Database()
+        {
+            using (var context = new ConstructorTestContextNoConfiguration())
+            {
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_with_add_when_no_EF_services_because_parameterless_constructor_use_Database()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<ConstructorTestContextNoConfiguration>()
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
+
+                Assert.Equal(
+                    CoreStrings.NoProviderConfigured,
+                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            }
+        }
+
+        private class ConstructorTestContext1A : DbContext
+        {
+            public ConstructorTestContext1A(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private class ConstructorTestContextNoConfiguration : DbContext
+        {
+        }
+
         [Fact]
         public void Can_create_new_connection_lazily_using_given_connection_string()
         {

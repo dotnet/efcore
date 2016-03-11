@@ -40,11 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(configured)));
             }
 
-            if (_providers.Length == 0)
-            {
-                throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
-            }
-
             if (_providers.Length > 1)
             {
                 throw new InvalidOperationException(CoreStrings.MultipleProvidersAvailable(BuildDatabaseNamesString(_providers)));

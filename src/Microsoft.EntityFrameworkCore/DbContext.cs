@@ -136,9 +136,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 var scopedServiceProvider = _serviceScope.ServiceProvider;
 
-                var contextServices = scopedServiceProvider
-                    .GetRequiredService<IDbContextServices>()
-                    .Initialize(scopedServiceProvider, options, this);
+                var contextServices = scopedServiceProvider.GetService<IDbContextServices>();
+
+                if (contextServices == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.NoEfServices);
+                }
+
+                contextServices.Initialize(scopedServiceProvider, options, this);
 
                 _logger = scopedServiceProvider.GetRequiredService<ILogger<DbContext>>();
 
