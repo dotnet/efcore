@@ -4736,6 +4736,29 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Select_Where_Subquery_Equality()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = (from o in context.Orders.Take(2)
+                      // ReSharper disable once UseMethodAny.0
+                      where (from od in context.OrderDetails.Take(2)
+                             where (from c in context.Set<Customer>()
+                                    where c.CustomerID == o.CustomerID
+                                    select c).First().Country
+                                   == (from o2 in context.Set<Order>()
+                                       join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
+                                       where o2.OrderID == od.OrderID
+                                       select c).First().Country
+                             select od).Count() > 0
+                      select o).ToList();
+
+                Assert.Equal(1, orders.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Throws_on_concurrent_query_list()
         {
             using (var context = CreateContext())

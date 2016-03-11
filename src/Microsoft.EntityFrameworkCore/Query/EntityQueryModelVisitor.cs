@@ -235,8 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this)
-                .Rewrite(queryModel);
+            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 

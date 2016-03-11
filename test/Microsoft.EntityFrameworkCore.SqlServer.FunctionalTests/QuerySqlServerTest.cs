@@ -219,6 +219,34 @@ FROM [Customers] AS [c0]",
                 Sql);
         }
 
+        public override void Select_Where_Subquery_Equality()
+        {
+            base.Select_Where_Subquery_Equality();
+
+            Assert.StartsWith(
+                @"@__p_0: 2
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+) AS [t]
+
+SELECT [t1].[OrderID]
+FROM (
+    SELECT TOP(2) [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice]
+    FROM [Order Details] AS [o4]
+) AS [t1]
+
+SELECT [c5].[CustomerID], [c5].[Country]
+FROM [Customers] AS [c5]
+
+SELECT [o23].[OrderID], [c6].[Country]
+FROM [Orders] AS [o23]
+INNER JOIN [Customers] AS [c6] ON [o23].[CustomerID] = [c6].[CustomerID]",
+                Sql);
+        }
+
         public override void Where_subquery_anon()
         {
             base.Where_subquery_anon();
