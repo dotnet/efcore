@@ -21,9 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
-            var json = command.Option(
-                "--json",
-                "Use json output");
+            var json = command.JsonOption();
+
             command.HelpOption();
             command.VerboseOption();
 

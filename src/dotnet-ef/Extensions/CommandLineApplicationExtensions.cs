@@ -30,6 +30,9 @@ namespace Microsoft.Extensions.CommandLineUtils
         public static CommandOption VerboseOption(this CommandLineApplication command)
             => command.Option("-v|--verbose", "Enable verbose output");
 
+        public static CommandOption JsonOption(this CommandLineApplication command)
+            => command.Option("--json", "Use json output");
+
         public static CommandOption VersionOption(
             this CommandLineApplication command,
             Func<string> shortFormVersionGetter)
