@@ -211,13 +211,15 @@ namespace Microsoft.Data.Sqlite
             {
                 var appDataType = CurrentApplicationData?.GetType();
                 var localFolder = appDataType?.GetRuntimeProperty("LocalFolder").GetValue(CurrentApplicationData);
-                return (localFolder?.GetType().GetRuntimeProperty("Path").GetValue(localFolder) as string)
+                return Environment.GetEnvironmentVariable("ADONET_DATA_DIR")
+                    ?? (localFolder?.GetType().GetRuntimeProperty("Path").GetValue(localFolder) as string)
                     ?? AppContext.BaseDirectory;
             }
         }
 #else
         private static string BaseDirectory
-            => AppDomain.CurrentDomain.BaseDirectory;
+            => AppDomain.CurrentDomain.GetData("DataDirectory") as string ??
+            AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
         public override void Close()
