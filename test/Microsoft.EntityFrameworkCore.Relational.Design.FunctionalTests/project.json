@@ -38,13 +38,7 @@
         "System.Dynamic.Runtime": {
           "type": "build"
         },
-        "System.IO": {
-          "type": "build"
-        },
         "System.Reflection.Primitives": {
-          "type": "build"
-        },
-        "System.Resources.ResourceManager": {
           "type": "build"
         },
         "System.Runtime.InteropServices": {
@@ -60,9 +54,6 @@
           "type": "build"
         },
         "System.Text.Encoding.Extensions": {
-          "type": "build"
-        },
-        "System.Threading": {
           "type": "build"
         },
         "System.Threading.Tasks.Parallel": {
