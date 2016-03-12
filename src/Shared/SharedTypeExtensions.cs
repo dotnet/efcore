@@ -85,8 +85,13 @@ namespace System
         public static Type UnwrapEnumType(this Type type)
         {
             var isNullable = type.IsNullableType();
-            type = isNullable ? type.UnwrapNullableType() : type;
-            var underlyingEnumType = type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;
+            var underlyingNonNullableType = isNullable ? type.UnwrapNullableType() : type;
+            if (!underlyingNonNullableType.GetTypeInfo().IsEnum)
+            {
+                return type;
+            }
+
+            var underlyingEnumType = Enum.GetUnderlyingType(underlyingNonNullableType);
             return isNullable ? MakeNullable(underlyingEnumType) : underlyingEnumType;
         }
 

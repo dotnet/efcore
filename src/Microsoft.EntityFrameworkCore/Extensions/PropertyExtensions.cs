@@ -49,6 +49,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Gets a value indicating whether this property is used as an index (or part of a composite index).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns>
+        ///     True if the property is used as an index, otherwise false.
+        /// </returns>
+        public static bool IsIndex([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var indexMetadata = property as IPropertyIndexMetadata;
+            if (indexMetadata != null)
+            {
+                return indexMetadata.Indexes != null;
+            }
+
+            return FindContainingIndexes(property).Any();
+        }
+
+        /// <summary>
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
         /// </summary>
         /// <param name="property"> The property to check. </param>
@@ -115,6 +135,12 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IIndex> FindContainingIndexes([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));
+
+            var indexMetadata = property as IPropertyIndexMetadata;
+            if (indexMetadata != null)
+            {
+                return indexMetadata.Indexes ?? Enumerable.Empty<IIndex>();
+            }
 
             var entityType = property.DeclaringEntityType;
             return entityType.GetAllBaseTypesInclusive()

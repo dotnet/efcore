@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
     public class Navigation : ConventionalAnnotatable, IMutableNavigation, INavigationAccessors, IPropertyIndexesAccessor
     {
-        // Warning: Never access these fieldd directly as access needs to be thread-safe
+        // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
         private IClrPropertySetter _setter;
         private IClrCollectionAccessor _collectionAccessor;
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessors Accessors
             => LazyInitializer.EnsureInitialized(ref _accessors, () => new PropertyAccessorsFactory().Create(this));
 
-        public virtual PropertyIndexes Indexes
+        public virtual PropertyIndexes PropertyIndexes
         {
             get { return LazyInitializer.EnsureInitialized(ref _indexes, () => DeclaringEntityType.CalculateIndexes(this)); }
 

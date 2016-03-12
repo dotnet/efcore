@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual string BatchTerminator => string.Empty;
 
         public virtual string GenerateParameterName(string name)
-            => $"@{Check.NotEmpty(name, nameof(name))}";
+            => "@" + name;
 
         public virtual string GenerateLiteral(object value)
             => value != null

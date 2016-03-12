@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var indexesAccessor = propertyBase as IPropertyIndexesAccessor;
 
             return indexesAccessor != null
-                ? indexesAccessor.Indexes
+                ? indexesAccessor.PropertyIndexes
                 : propertyBase.DeclaringEntityType.CalculateIndexes(propertyBase);
         }
 
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var indexAccessor = propertyBase as IPropertyIndexesAccessor;
             if (indexAccessor != null)
             {
-                indexAccessor.Indexes = indexes;
+                indexAccessor.PropertyIndexes = indexes;
             }
         }
 

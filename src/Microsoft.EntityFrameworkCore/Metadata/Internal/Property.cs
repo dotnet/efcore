@@ -15,7 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
     public class Property
-        : ConventionalAnnotatable, IMutableProperty, IPropertyBaseAccessors, IPropertyIndexesAccessor, IPropertyKeyMetadata
+        : ConventionalAnnotatable,
+        IMutableProperty,
+        IPropertyBaseAccessors,
+        IPropertyIndexesAccessor,
+        IPropertyKeyMetadata,
+        IPropertyIndexMetadata
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
@@ -360,6 +365,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<Key> FindContainingKeys()
             => ((IProperty)this).FindContainingKeys().Cast<Key>();
 
+        public virtual IEnumerable<Index> FindContainingIndexes()
+            => ((IProperty)this).FindContainingIndexes().Cast<Index>();
+
         private bool TryGetFlag(PropertyFlags flag, out bool value)
         {
             var coded = _flags & (int)flag;
@@ -418,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessors Accessors
             => LazyInitializer.EnsureInitialized(ref _accessors, () => new PropertyAccessorsFactory().Create(this));
 
-        public virtual PropertyIndexes Indexes
+        public virtual PropertyIndexes PropertyIndexes
         {
             get { return LazyInitializer.EnsureInitialized(ref _indexes, CalculateIndexes); }
 
@@ -440,6 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IKey PrimaryKey { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IKey> Keys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
+        public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
 
         private PropertyIndexes CalculateIndexes() => DeclaringEntityType.CalculateIndexes(this);
     }

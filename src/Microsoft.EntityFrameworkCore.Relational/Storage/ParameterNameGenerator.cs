@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private int _count;
 
-        public virtual string GenerateNext()
-            => $"p{_count++}";
+        public virtual string GenerateNext() => $"p{_count++}";
+
+        public virtual void Reset() => _count = 0;
     }
 }

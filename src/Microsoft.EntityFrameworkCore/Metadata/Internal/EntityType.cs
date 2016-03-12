@@ -922,6 +922,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var index = new Index(properties, this, configurationSource);
             _indexes.Add(properties, index);
+            
+            foreach (var property in properties)
+            {
+                var currentIndexes = property.Indexes;
+                if (currentIndexes == null)
+                {
+                    property.Indexes = new IIndex[] { index };
+                }
+                else
+                {
+                    var newIndex = currentIndexes.ToList();
+                    newIndex.Add(index);
+                    property.Indexes = newIndex;
+                }
+            }
 
             return index;
         }
@@ -975,6 +990,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             _indexes.Remove(index.Properties);
             index.Builder = null;
+
+            foreach (var property in index.Properties)
+            {
+                property.Indexes =
+                    property.Indexes != null
+                    && property.Indexes.Count > 1
+                        ? property.Indexes.Where(k => k != index).ToList()
+                        : null;
+            }
+
             return index;
         }
 
@@ -1112,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             foreach (var indexedProperty in this.GetPropertiesAndNavigations().OfType<IPropertyIndexesAccessor>())
             {
-                indexedProperty.Indexes = null;
+                indexedProperty.PropertyIndexes = null;
             }
 
             // This path should only kick in when the model is still mutable and therefore access does not need

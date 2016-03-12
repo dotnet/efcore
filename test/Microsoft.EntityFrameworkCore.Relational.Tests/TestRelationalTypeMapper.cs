@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
 
         protected override RelationalTypeMapping FindCustomMapping(IProperty property)
         {
-            var clrType = property.ClrType.UnwrapEnumType();
+            var clrType = property.ClrType.UnwrapNullableType();
 
             return clrType == typeof(string)
                 ? GetByteArrayMapping(

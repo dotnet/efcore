@@ -148,6 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             Check.NotNull(clrType, nameof(clrType));
 
+            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
+
             return clrType == typeof(string)
                 ? _nvarcharmax
                 : (clrType == typeof(byte[])
@@ -159,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             Check.NotNull(property, nameof(property));
 
-            var clrType = property.ClrType.UnwrapEnumType();
+            var clrType = property.ClrType.UnwrapNullableType();
 
             return clrType == typeof(string)
                 ? GetStringMapping(
@@ -175,6 +177,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         // indexes in SQL Server have a max size of 900 bytes
         protected override bool RequiresKeyMapping(IProperty property)
-            => base.RequiresKeyMapping(property) || property.FindContainingIndexes().Any();
+            => base.RequiresKeyMapping(property) || property.IsIndex();
     }
 }

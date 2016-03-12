@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<IUpdateEntry> entries)
         {
-            var commands = CreateModificationCommands(entries);
+            var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
+            var commands = CreateModificationCommands(entries, parameterNameGenerator);
             var sortedCommandSets = TopologicalSort(commands);
 
             // TODO: Enable batching of dependent commands by passing through the dependency graph
@@ -49,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     if (!batch.AddCommand(modificationCommand))
                     {
                         yield return batch;
+                        parameterNameGenerator.Reset();
                         batch = _modificationCommandBatchFactory.Create();
                         batch.AddCommand(modificationCommand);
                     }
@@ -58,9 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<IUpdateEntry> entries)
+        protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
+            [NotNull] IReadOnlyList<IUpdateEntry> entries,
+            [NotNull] ParameterNameGenerator parameterNameGenerator)
         {
-            var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             // TODO: Handle multiple state entries that update the same row
             return entries.Select(
                 e =>
