@@ -41,9 +41,6 @@
         "System.Reflection.Primitives": {
           "type": "build"
         },
-        "System.Runtime.InteropServices": {
-          "type": "build"
-        },
         "System.Runtime.Numerics": {
           "type": "build"
         },
