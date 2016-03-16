@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var app = new CommandLineApplication
             {
                 Name = "dotnet ef",
-                FullName = "Entity Framework Core Commands"
+                FullName = "Entity Framework .NET Core CLI Commands"
             };
 
             app.HelpOption();
