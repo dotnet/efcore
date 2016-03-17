@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
     {
         private static string EOL => Environment.NewLine;
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddColumnOperation_required_args()
         {
             Test(
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddColumnOperation_all_args()
         {
             Test(
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddColumnOperation_DefaultValueSql()
         {
             Test(
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddColumnOperation_ComutedExpression()
         {
             Test(
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddForeignKeyOperation_required_args()
         {
             Test(
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddForeignKeyOperation_all_args()
         {
             Test(
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddForeignKeyOperation_composite()
         {
             Test(
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddPrimaryKey_required_args()
         {
             Test(
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddPrimaryKey_all_args()
         {
             Test(
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddPrimaryKey_composite()
         {
             Test(
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddUniqueConstraint_required_args()
         {
             Test(
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddUniqueConstraint_all_args()
         {
             Test(
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AddUniqueConstraint_composite()
         {
             Test(
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AlterColumnOperation_required_args()
         {
             Test(
@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AlterColumnOperation_all_args()
         {
             Test(
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AlterColumnOperation_DefaultValueSql()
         {
             Test(
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AlterColumnOperation_computedColumnSql()
         {
             Test(
@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AlterSequenceOperation_required_args()
         {
             Test(
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void AlterSequenceOperation_all_args()
         {
             Test(
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateIndexOperation_required_args()
         {
             Test(
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateIndexOperation_all_args()
         {
             Test(
@@ -549,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateIndexOperation_composite()
         {
             Test(
@@ -571,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateSchemaOperation_required_args()
         {
             Test(
@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 o => Assert.Equal("my", o.Name));
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateSequenceOperation_required_args()
         {
             Test(
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateSequenceOperation_required_args_not_long()
         {
             Test(
@@ -617,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateSequenceOperation_all_args()
         {
             Test(
@@ -653,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateSequenceOperation_all_args_not_long()
         {
             Test(
@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_Columns_required_args()
         {
             Test(
@@ -726,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_Columns_all_args()
         {
             Test(
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_Columns_DefaultValueSql()
         {
             Test(
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_Columns_computedColumnSql()
         {
             Test(
@@ -850,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_ForeignKeys_required_args()
         {
             Test(
@@ -899,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_ForeignKeys_all_args()
         {
             Test(
@@ -962,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_ForeignKeys_composite()
         {
             Test(
@@ -1013,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_PrimaryKey_required_args()
         {
             Test(
@@ -1051,7 +1051,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_PrimaryKey_all_args()
         {
             Test(
@@ -1093,7 +1093,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_PrimaryKey_composite()
         {
             Test(
@@ -1133,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_UniqueConstraints_required_args()
         {
             Test(
@@ -1174,7 +1174,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_UniqueConstraints_all_args()
         {
             Test(
@@ -1219,7 +1219,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void CreateTableOperation_UniqueConstraints_composite()
         {
             Test(
@@ -1262,7 +1262,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropColumnOperation_required_args()
         {
             Test(
@@ -1281,7 +1281,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropColumnOperation_all_args()
         {
             Test(
@@ -1303,7 +1303,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropForeignKeyOperation_required_args()
         {
             Test(
@@ -1322,7 +1322,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropForeignKeyOperation_all_args()
         {
             Test(
@@ -1344,7 +1344,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropIndexOperation_required_args()
         {
             Test(
@@ -1363,7 +1363,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropIndexOperation_all_args()
         {
             Test(
@@ -1385,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropPrimaryKeyOperation_required_args()
         {
             Test(
@@ -1404,7 +1404,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropPrimaryKeyOperation_all_args()
         {
             Test(
@@ -1426,7 +1426,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropSchemaOperation_required_args()
         {
             Test(
@@ -1436,7 +1436,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 o => Assert.Equal("my", o.Name));
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropSequenceOperation_required_args()
         {
             Test(
@@ -1446,7 +1446,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropSequenceOperation_all_args()
         {
             Test(
@@ -1465,7 +1465,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropTableOperation_required_args()
         {
             Test(
@@ -1475,7 +1475,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 o => Assert.Equal("Post", o.Name));
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropTableOperation_all_args()
         {
             Test(
@@ -1494,7 +1494,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropUniqueConstraintOperation_required_args()
         {
             Test(
@@ -1513,7 +1513,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void DropUniqueConstraintOperation_all_args()
         {
             Test(
@@ -1535,7 +1535,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameColumnOperation_required_args()
         {
             Test(
@@ -1557,7 +1557,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameColumnOperation_all_args()
         {
             Test(
@@ -1582,7 +1582,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameIndexOperation_required_args()
         {
             Test(
@@ -1604,7 +1604,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameIndexOperation_all_args()
         {
             Test(
@@ -1629,7 +1629,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameSequenceOperation_required_args()
         {
             Test(
@@ -1639,7 +1639,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameSequenceOperation_all_args()
         {
             Test(
@@ -1664,7 +1664,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameTableOperation_required_args()
         {
             Test(
@@ -1674,7 +1674,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 o => Assert.Equal("Post", o.Name));
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RenameTableOperation_all_args()
         {
             Test(
@@ -1699,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RestartSequenceOperation_required_args()
         {
             Test(
@@ -1718,7 +1718,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void RestartSequenceOperation_all_args()
         {
             Test(
@@ -1740,7 +1740,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void SqlOperation_required_args()
         {
             Test(

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
     public class CodeCompilationTest
     {
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void Migrations_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -128,7 +128,7 @@ namespace MyNamespace
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
-        [Fact]
+        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
         public void Snapshots_compile()
         {
             var codeHelper = new CSharpHelper();
