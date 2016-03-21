@@ -43,6 +43,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual bool SetTableName([CanBeNull] string value)
             => Annotations.SetAnnotation(RelationalAnnotationNames.TableName, Check.NullButNotEmpty(value, nameof(value)));
 
+        public virtual string Database
+        {
+            get
+            {
+                var rootAnnotations = new RelationalAnnotations(EntityType.RootType(), Annotations.ProviderPrefix);
+                return (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.DatabaseName) ?? ((Model)EntityType.Model).Relational().DefaultSchema;
+            }
+            [param: CanBeNull]
+            set { SetDatabase(value); }
+        }
+
         public virtual string Schema
         {
             get
@@ -53,6 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [param: CanBeNull]
             set { SetSchema(value); }
         }
+
+        protected virtual bool SetDatabase([CanBeNull] string value)
+          => Annotations.SetAnnotation(RelationalAnnotationNames.DatabaseName, Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual bool SetSchema([CanBeNull] string value)
             => Annotations.SetAnnotation(RelationalAnnotationNames.Schema, Check.NullButNotEmpty(value, nameof(value)));

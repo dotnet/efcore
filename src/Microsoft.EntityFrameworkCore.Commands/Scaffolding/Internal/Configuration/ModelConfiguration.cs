@@ -288,7 +288,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
             var entityType = entityConfiguration.EntityType;
-            if (ExtensionsProvider.For(entityType).Schema != null
+
+            if (ExtensionsProvider.For(entityType).Database != null
+                && ExtensionsProvider.For(entityType).Database != ExtensionsProvider.For(Model).DatabaseName)
+            {
+                var delimitedTableName =
+                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
+                var delimitedSchemaName =
+                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).Schema);
+                var delimetedDatabaseName =
+                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).Database);
+
+                entityConfiguration.FluentApiConfigurations.Add(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                         /* hasAttributeEquivalent */ true,
+                        nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                        delimetedDatabaseName,
+                        delimitedTableName,
+                        delimitedSchemaName));
+            }
+            else if (ExtensionsProvider.For(entityType).Schema != null
                 && ExtensionsProvider.For(entityType).Schema != ExtensionsProvider.For(Model).DefaultSchema)
             {
                 var delimitedTableName =

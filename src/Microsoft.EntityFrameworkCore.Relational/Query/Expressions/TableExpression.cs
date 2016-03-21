@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public TableExpression(
             [NotNull] string table,
             [CanBeNull] string schema,
+            [CanBeNull] string database,
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(
@@ -24,11 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             Table = table;
             Schema = schema;
+            Database = database;
         }
 
         public virtual string Table { get; }
 
         public virtual string Schema { get; }
+
+        public virtual string Database { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {

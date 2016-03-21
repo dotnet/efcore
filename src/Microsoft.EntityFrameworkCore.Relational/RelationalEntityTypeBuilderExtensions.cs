@@ -37,13 +37,31 @@ namespace Microsoft.EntityFrameworkCore
 
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string database,
+            [CanBeNull] string name,
+            [CanBeNull] string schema)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NullButNotEmpty(database, nameof(database));
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
+                .Relational(ConfigurationSource.Explicit)
+                .ToTable(database, name, schema);
+
+            return entityTypeBuilder;
+        }
+
+
+        public static EntityTypeBuilder ToTable(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
-
             ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .Relational(ConfigurationSource.Explicit)
                 .ToTable(name, schema);

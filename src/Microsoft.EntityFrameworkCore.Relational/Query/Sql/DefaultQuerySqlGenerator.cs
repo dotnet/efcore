@@ -432,6 +432,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
+            if (tableExpression.Database != null)
+            {
+                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Database))
+                    .Append(".");
+            }
+
             if (tableExpression.Schema != null)
             {
                 _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Schema))

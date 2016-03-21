@@ -60,6 +60,29 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         }
 
         [Fact]
+        public void Can_override_existing_schema_database()
+        {
+            var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
+
+            typeBuilder.Metadata.Relational().Schema = "Explicit";
+
+            Assert.False(typeBuilder.Relational(ConfigurationSource.DataAnnotation).ToTable("TestDatabase1", "Splod", "2"));
+            Assert.Equal("Splot", typeBuilder.Metadata.Relational().TableName);
+            Assert.Equal("Explicit", typeBuilder.Metadata.Relational().Schema);
+            Assert.Equal("TestDatabase1", typeBuilder.Metadata.Relational().Database);
+
+            Assert.False(typeBuilder.Relational(ConfigurationSource.DataAnnotation).ToTable("TestDatabase2", "Splod", "2"));
+            Assert.Equal("Splot", typeBuilder.Metadata.Relational().TableName);
+            Assert.Equal("Explicit", typeBuilder.Metadata.Relational().Schema);
+            Assert.Equal("TestDatabase2", typeBuilder.Metadata.Relational().Database);
+
+            Assert.True(typeBuilder.Relational(ConfigurationSource.Explicit).ToTable("TestDatabase3", "Splew", "1"));
+            Assert.Equal("Splew", typeBuilder.Metadata.Relational().TableName);
+            Assert.Equal("1", typeBuilder.Metadata.Relational().Schema);
+            Assert.Equal("TestDatabase3", typeBuilder.Metadata.Relational().Database);
+        }
+
+        [Fact]
         public void Can_override_existing_schema()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -270,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Metadata.Relational().DiscriminatorValue);
             Assert.Equal(6, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
                 .Metadata.Relational().DiscriminatorValue);
-            
+
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((Type)null));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);

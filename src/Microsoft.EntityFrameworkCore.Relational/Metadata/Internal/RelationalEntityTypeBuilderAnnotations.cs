@@ -51,6 +51,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
+        public virtual bool ToTable([CanBeNull] string database, [CanBeNull] string name, [CanBeNull] string schema)
+        {
+            Check.NullButNotEmpty(database, nameof(database));
+            if (!SetDatabase(database))
+            {
+                return false;
+            }
+
+            return ToTable(name, schema);
+        }
+
         public virtual DiscriminatorBuilder HasDiscriminator() => DiscriminatorBuilder(null, null);
 
         public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] Type discriminatorType)

@@ -138,6 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     new TableExpression(
                         name,
                         _relationalAnnotationProvider.For(entityType).Schema,
+                        _relationalAnnotationProvider.For(entityType).Database,
                         tableAlias,
                         _querySource));
             }

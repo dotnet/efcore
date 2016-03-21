@@ -10,6 +10,19 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
     public abstract class MappingQueryTestBase
     {
         [Fact]
+        public virtual void All_different_database_item()
+        {
+            using (var context = CreateContext())
+            {
+                var items
+                    = context.Set<DifferentDatabaseItem>()
+                        .ToList();
+
+                Assert.Equal(5, items.Count);
+            }
+        }
+
+        [Fact]
         public virtual void All_customers()
         {
             using (var context = CreateContext())
@@ -63,6 +76,12 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         protected abstract DbContext CreateContext();
+
+        public class DifferentDatabaseItem
+        {
+            public int ItemKey { get; set; }
+            public string Value { get; set; }
+        }
 
         public class MappedCustomer : Customer
         {
