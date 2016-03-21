@@ -38,7 +38,8 @@
       ],
       "dependencies": {
         "Microsoft.CSharp": "4.0.1-*",
-        "System.Data.Common": "4.0.1-*"
+        "System.Data.Common": "4.0.1-*",
+        "System.Text.RegularExpressions": "4.0.12-*"
       }
     }
   }

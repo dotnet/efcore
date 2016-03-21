@@ -35,6 +35,7 @@
         "System.ComponentModel.Annotations": "4.1.0-*",
         "System.Linq.Queryable": "4.0.1-*",
         "System.ObjectModel": "4.0.12-*",
+        "System.Reflection.Extensions": "4.0.1-*",
         "System.Reflection.TypeExtensions": "4.1.0-*"
       }
     }

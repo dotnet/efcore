@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUt
             {
                 var library = depContext
                     .CompileLibraries
-                    .FirstOrDefault(l => l.PackageName.Equals(name, StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(l => l.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
                 if (library != null)
                 {
