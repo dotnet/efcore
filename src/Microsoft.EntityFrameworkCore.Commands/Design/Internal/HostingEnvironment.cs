@@ -8,16 +8,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class HostingEnvironment : IHostingEnvironment
     {
-        public string EnvironmentName { get; set; }
+        public virtual string EnvironmentName { get; set; }
 
-        public string ApplicationName { get; set; }
+        public virtual string ApplicationName { get; set; }
 
-        public string WebRootPath { get; set; }
+        public virtual string WebRootPath { get; set; }
 
-        public IFileProvider WebRootFileProvider { get; set; }
+        public virtual IFileProvider WebRootFileProvider { get; set; }
 
-        public string ContentRootPath { get; set; }
+        public virtual string ContentRootPath { get; set; }
 
-        public IFileProvider ContentRootFileProvider { get; set; }
+        public virtual IFileProvider ContentRootFileProvider { get; set; }
     }
 }
