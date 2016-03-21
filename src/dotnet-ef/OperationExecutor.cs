@@ -28,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
         private readonly LazyRef<DatabaseOperations> _databaseOperations;
         private readonly LazyRef<MigrationsOperations> _migrationsOperations;
 
+        private const string DataDirEnvName = "ADONET_DATA_DIR";
+        private const string DefaultConfiguration = "Debug";
+
         public OperationExecutor([CanBeNull] string startupProject, [CanBeNull] string environment)
         {
             var project = Path.Combine(Directory.GetCurrentDirectory(), Project.FileName);
@@ -57,6 +60,13 @@ namespace Microsoft.EntityFrameworkCore.Commands
             }
 
             Reporter.Verbose.WriteLine("Build succeeded.".Bold().Black());
+
+            var runtimeOutputPath = startupProjectContext.GetOutputPaths(DefaultConfiguration)?.RuntimeOutputPath;
+            if (!string.IsNullOrEmpty(runtimeOutputPath))
+            {
+                // TODO set data directory in AppDomain when/if this supports desktop .NET
+                Environment.SetEnvironmentVariable(DataDirEnvName, runtimeOutputPath);
+            }
 
             var projectFile = ProjectReader.GetProject(project);
             var startupAssemblyName = new AssemblyName(startupProjectContext.ProjectFile.Name);
