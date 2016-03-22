@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -16,6 +17,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class ModelSnapshotTest
     {
         private class EntityWithOneProperty
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 
         #region Model
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Model_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -113,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -134,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
                 });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Entities_are_stored_in_model_snapshot()
         {
             Test(
@@ -180,7 +182,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region EntityType
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void EntityType_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -205,7 +207,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void BaseType_is_stored_in_snapshot()
         {
             Test(
@@ -257,7 +259,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Discriminator_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -318,7 +320,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Properties_are_stored_in_snapshot()
         {
             Test(
@@ -347,7 +349,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Primary_key_is_stored_in_snapshot()
         {
             Test(
@@ -375,7 +377,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Alternate_keys_are_stored_in_snapshot()
         {
             Test(
@@ -405,7 +407,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Indexes_are_stored_in_snapshot()
         {
             Test(
@@ -432,7 +434,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Indexes_are_stored_in_snapshot_including_composite_index()
         {
             Test(
@@ -462,7 +464,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Foreign_keys_are_stored_in_snapshot()
         {
             Test(
@@ -507,7 +509,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Relationship_principal_key_is_stored_in_snapshot()
         {
             Test(
@@ -557,7 +559,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void TableName_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -590,7 +592,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void PrimaryKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -626,7 +628,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void AlternateKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -670,7 +672,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region Property
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -691,7 +693,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 );
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_isNullable_is_stored_in_snapshot()
         {
             Test(
@@ -713,7 +715,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_ValueGenerated_value_is_stored_in_snapshot()
         {
             Test(
@@ -735,7 +737,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_maxLength_is_stored_in_snapshot()
         {
             Test(
@@ -757,7 +759,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_RequiresValueGenerator_is_not_stored_in_snapshot()
         {
             Test(
@@ -778,7 +780,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("AlternateId").RequiresValueGenerator); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_concurrencyToken_is_stored_in_snapshot()
         {
             Test(
@@ -800,7 +802,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_column_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -822,7 +824,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_column_type_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -844,7 +846,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -867,7 +869,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -890,7 +892,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:GeneratedValueSql"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -913,7 +915,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:GeneratedValueSql"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
         {
             Test(
@@ -936,7 +938,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Property_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -969,7 +971,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region HasKey
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Key_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -993,7 +995,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Key_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1017,7 +1019,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("KeyName", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["Relational:Name"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Key_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1051,7 +1053,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region HasIndex
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Index_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1075,7 +1077,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Index_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -1099,7 +1101,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(true, o.GetEntityTypes().First().GetIndexes().First().IsUnique); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Index_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1123,7 +1125,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Index_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1157,7 +1159,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
 
         #region ForeignKey
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1206,7 +1208,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_isRequired_is_stored_in_snapshot()
         {
             Test(
@@ -1254,7 +1256,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_isUnique_is_stored_in_snapshot()
         {
             Test(
@@ -1299,7 +1301,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_deleteBehavior_is_stored_in_snapshot()
         {
             Test(
@@ -1345,7 +1347,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
         {
             Test(
@@ -1391,7 +1393,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_name_preserved_when_generic()
         {
             IModel originalModel = null;
@@ -1465,7 +1467,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_constraint_name_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -1514,7 +1516,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                 o => { Assert.Equal("Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]); });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void ForeignKey_multiple_annotations_are_stored_in_snapshot()
         {
             Test(
@@ -1571,7 +1573,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
                     });
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
         {
             Test(

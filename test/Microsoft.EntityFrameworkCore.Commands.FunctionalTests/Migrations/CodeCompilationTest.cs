@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -16,9 +17,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class CodeCompilationTest
     {
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Migrations_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -128,7 +130,7 @@ namespace MyNamespace
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public void Snapshots_compile()
         {
             var codeHelper = new CSharpHelper();

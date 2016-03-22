@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering;
 using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
@@ -18,6 +19,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public abstract class SqliteE2ETestBase : E2ETestBase
     {
         public const string TestProjectPath = "testout";
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEng
         {
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public async void One_to_one()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix).AsTransient())
@@ -75,7 +77,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
             }
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public async void One_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix).AsTransient())
@@ -129,7 +131,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
             }
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public async void Many_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany" + DbSuffix).AsTransient())
@@ -178,7 +180,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public async void Self_referencing()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef" + DbSuffix).AsTransient())
@@ -218,7 +220,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public async void Missing_primary_key()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
@@ -247,7 +249,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
             }
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public async void Principal_missing_primary_key()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix).AsTransient())
@@ -297,7 +299,7 @@ CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
             }
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public async void It_handles_unsafe_names()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
@@ -346,7 +348,7 @@ CREATE TABLE IF NOT EXISTS String (
             }
         }
 
-        [Fact(Skip = "https://github.com/aspnet/EntityFramework/issues/4841")]
+        [ConditionalFact]
         public virtual async void Foreign_key_to_unique_index()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix).AsTransient())
