@@ -6,7 +6,6 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class DbContextServices : IDbContextServices
     {
-        private IServiceProvider _provider;
+        private IServiceProvider _scopedProvider;
         private IDbContextOptions _contextOptions;
         private ICurrentDbContext _currentContext;
         private LazyRef<IModel> _modelFromSource;
@@ -27,16 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             IDbContextOptions contextOptions,
             DbContext context)
         {
-            Check.NotNull(scopedProvider, nameof(scopedProvider));
-            Check.NotNull(contextOptions, nameof(contextOptions));
-            Check.NotNull(context, nameof(context));
-
-            _provider = scopedProvider;
+            _scopedProvider = scopedProvider;
             _contextOptions = contextOptions;
             _currentContext = new CurrentDbContext(context);
 
             _providerServices = new LazyRef<IDatabaseProviderServices>(() =>
-                _provider.GetRequiredService<IDatabaseProviderSelector>().SelectServices());
+                _scopedProvider.GetRequiredService<IDatabaseProviderSelector>().SelectServices());
 
             _modelFromSource = new LazyRef<IModel>(CreateModel);
 
@@ -69,11 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public virtual IModel Model => CoreOptions?.Model ?? _modelFromSource.Value;
 
-        public virtual ILoggerFactory LoggerFactory => CoreOptions?.LoggerFactory ?? _provider.GetRequiredService<ILoggerFactory>();
+        public virtual ILoggerFactory LoggerFactory
+            => CoreOptions?.LoggerFactory ?? _scopedProvider?.GetRequiredService<ILoggerFactory>();
 
-        public virtual IMemoryCache MemoryCache => CoreOptions?.MemoryCache ?? _provider.GetRequiredService<IMemoryCache>();
+        public virtual IMemoryCache MemoryCache
+            => CoreOptions?.MemoryCache ?? _scopedProvider?.GetRequiredService<IMemoryCache>();
 
-        private CoreOptionsExtension CoreOptions => _contextOptions.FindExtension<CoreOptionsExtension>();
+        private CoreOptionsExtension CoreOptions
+            => _contextOptions?.FindExtension<CoreOptionsExtension>();
 
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 
@@ -89,6 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        public virtual IServiceProvider InternalServiceProvider => _provider;
+        public virtual IServiceProvider InternalServiceProvider => _scopedProvider;
     }
 }

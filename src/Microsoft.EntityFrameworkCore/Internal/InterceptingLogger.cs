@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -11,16 +12,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private readonly ILogger _logger;
 
-        public InterceptingLogger([NotNull] IDbContextServices contextServices)
+        public InterceptingLogger(
+            [NotNull] IDbContextServices contextServices,
+            [NotNull] IServiceProvider serviceProvider)
         {
-            _logger = contextServices.LoggerFactory.CreateLogger(typeof(T).DisplayName());
+            _logger = (contextServices.LoggerFactory
+                       ?? serviceProvider.GetRequiredService<ILoggerFactory>())
+                .CreateLogger(typeof(T).DisplayName());
         }
 
         public virtual void Log<TState>(
-            LogLevel logLevel, 
-            EventId eventId, 
-            TState state, 
-            Exception exception, 
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception exception,
             Func<TState, Exception, string> formatter)
             => _logger.Log(logLevel, eventId, state, exception, formatter);
 

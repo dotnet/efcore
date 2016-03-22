@@ -4010,6 +4010,113 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
+        public void Can_use_logger_before_context_exists_and_after_disposed()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            Assert.NotNull(appServiceProivder.GetService<ILogger<Random>>());
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var _ = context.Model;
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            Assert.NotNull(appServiceProivder.GetService<ILogger<Random>>());
+        }
+
+        [Fact]
+        public void Can_use_logger_before_context_exists_and_after_disposed_when_logger_factory_replaced()
+        {
+            WrappingLoggerFactory loggerFactory = null;
+
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<DbContext>((p, b) =>
+                    b.UseInMemoryDatabase()
+                        .UseInternalServiceProvider(p)
+                        .UseLoggerFactory(loggerFactory = new WrappingLoggerFactory(p.GetService<ILoggerFactory>())))
+                .BuildServiceProvider();
+
+            Assert.NotNull(appServiceProivder.GetService<ILogger<Random>>());
+            Assert.Null(loggerFactory);
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var _ = context.Model;
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+
+                Assert.Equal(1, loggerFactory.CreatedLoggers.Count(n => n == "System.Random"));
+            }
+
+            Assert.NotNull(appServiceProivder.GetService<ILogger<Random>>());
+            Assert.Equal(1, loggerFactory.CreatedLoggers.Count(n => n == "System.Random"));
+        }
+
+        [Fact]
+        public void Can_use_memory_cache_before_context_exists_and_after_disposed()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            var memoryCache = appServiceProivder.GetService<IMemoryCache>();
+            Assert.NotNull(memoryCache);
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var _ = context.Model;
+
+                Assert.Same(memoryCache, context.GetService<IMemoryCache>());
+            }
+
+            Assert.Same(memoryCache, appServiceProivder.GetService<IMemoryCache>());
+        }
+
+        [Fact]
+        public void Can_use_memory_cache_before_context_exists_and_after_disposed_when_logger_factory_replaced()
+        {
+            var replacecMemoryCache = new MemoryCache(new MemoryCacheOptions());
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<DbContext>((p, b) =>
+                    b.UseInMemoryDatabase()
+                        .UseInternalServiceProvider(p)
+                        .UseMemoryCache(replacecMemoryCache))
+                .BuildServiceProvider();
+
+            var memoryCache = appServiceProivder.GetService<IMemoryCache>();
+            Assert.NotSame(replacecMemoryCache, memoryCache);
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var _ = context.Model;
+
+                Assert.Same(replacecMemoryCache, context.GetService<IDbContextServices>().MemoryCache);
+            }
+
+            Assert.Same(memoryCache, appServiceProivder.GetService<IMemoryCache>());
+        }
+
+        [Fact]
         public void Throws_with_new_when_no_EF_services()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
