@@ -9,21 +9,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class SqlServerIndexAnnotations : RelationalIndexAnnotations, ISqlServerIndexAnnotations
     {
         public SqlServerIndexAnnotations([NotNull] IIndex index)
-            : base(index, SqlServerAnnotationNames.Prefix)
+            : base(index, SqlServerFullAnnotationNames.Instance)
         {
         }
 
         protected SqlServerIndexAnnotations([NotNull] RelationalAnnotations annotations)
-            : base(annotations)
+            : base(annotations, SqlServerFullAnnotationNames.Instance)
         {
         }
 
         public virtual bool? IsClustered
         {
-            get { return (bool?)Annotations.GetAnnotation(SqlServerAnnotationNames.Clustered); }
+            get { return (bool?)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.Clustered, null); }
             [param: CanBeNull] set { SetIsClustered(value); }
         }
 
-        protected virtual bool SetIsClustered(bool? value) => Annotations.SetAnnotation(SqlServerAnnotationNames.Clustered, value);
+        protected virtual bool SetIsClustered(bool? value) => Annotations.SetAnnotation(
+            SqlServerFullAnnotationNames.Instance.Clustered,
+            null,
+            value);
     }
 }

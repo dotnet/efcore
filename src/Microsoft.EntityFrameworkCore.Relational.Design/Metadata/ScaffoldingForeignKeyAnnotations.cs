@@ -10,21 +10,28 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     public class ScaffoldingForeignKeyAnnotations : RelationalForeignKeyAnnotations
     {
-        public ScaffoldingForeignKeyAnnotations([NotNull] IForeignKey foreignKey, [CanBeNull] string providerPrefix)
-            : base(foreignKey, providerPrefix)
+        public ScaffoldingForeignKeyAnnotations([NotNull] IForeignKey foreignKey)
+            : base(foreignKey, ScaffoldingFullAnnotationNames.Instance)
         {
         }
 
         public virtual string DependentEndNavigation
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.DependentEndNavigation); }
-            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.DependentEndNavigation, Check.NullButNotEmpty(value, nameof(value))); }
+            get { return (string)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.DependentEndNavigation, null); }
+            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingFullAnnotationNames.Instance.DependentEndNavigation, null, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
         public virtual string PrincipalEndNavigation
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.PrincipalEndNavigation); }
-            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.PrincipalEndNavigation, Check.NullButNotEmpty(value, nameof(value))); }
+            get { return (string)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.PrincipalEndNavigation, null); }
+            [param: CanBeNull]
+            set
+            {
+                Annotations.SetAnnotation(
+                    ScaffoldingFullAnnotationNames.Instance.PrincipalEndNavigation,
+                    null,
+                    Check.NullButNotEmpty(value, nameof(value)));
+            }
         }
     }
 }

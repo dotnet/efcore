@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -20,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            var relationalEntityTypeBuilder = ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
-                .SqlServer(ConfigurationSource.Explicit);
-            relationalEntityTypeBuilder.TableName = name;
+            entityTypeBuilder.Metadata.SqlServer().TableName = name;
 
             return entityTypeBuilder;
         }
@@ -42,10 +38,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            var relationalEntityTypeBuilder = ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
-                .SqlServer(ConfigurationSource.Explicit);
-            relationalEntityTypeBuilder.TableName = name;
-            relationalEntityTypeBuilder.Schema = schema;
+            var relationalEntityTypeAnnotations = entityTypeBuilder.Metadata.SqlServer();
+            relationalEntityTypeAnnotations.TableName = name;
+            relationalEntityTypeAnnotations.Schema = schema;
 
             return entityTypeBuilder;
         }

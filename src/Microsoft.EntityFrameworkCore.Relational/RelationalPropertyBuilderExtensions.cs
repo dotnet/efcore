@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            propertyBuilder.Metadata.Relational().ColumnName = name;
+            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasColumnName(name);
 
             return propertyBuilder;
         }
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(typeName, nameof(typeName));
 
-            propertyBuilder.Metadata.Relational().ColumnType = typeName;
+            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasColumnType(typeName);
 
             return propertyBuilder;
         }
@@ -60,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
             }
 
-            propertyBuilder.Metadata.Relational().GeneratedValueSql = sql;
+            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasGeneratedValueSql(sql);
 
             return propertyBuilder;
         }
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.SetValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
             }
 
-            propertyBuilder.Metadata.Relational().GeneratedValueSql = sql;
+            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasGeneratedValueSql(sql);
 
             return propertyBuilder;
         }
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
             }
 
-            propertyBuilder.Metadata.Relational().DefaultValue = value;
+            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasDefaultValue(value);
 
             return propertyBuilder;
         }

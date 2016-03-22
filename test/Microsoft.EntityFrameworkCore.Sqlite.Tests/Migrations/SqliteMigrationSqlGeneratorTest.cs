@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
             };
             if (autoincrement)
             {
-                addIdColumn.AddAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement, true);
+                addIdColumn.AddAnnotation(SqliteFullAnnotationNames.Instance.Autoincrement, true);
             }
 
             Generate(

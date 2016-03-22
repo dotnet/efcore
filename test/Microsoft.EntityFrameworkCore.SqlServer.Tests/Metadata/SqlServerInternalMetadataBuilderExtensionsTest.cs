@@ -78,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             var idProperty = entityTypeBuilder.Property("Id", ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
 
-            Assert.True(keyBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
+            Assert.True(keyBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(true));
             Assert.True(keyBuilder.Metadata.SqlServer().IsClustered);
 
-            Assert.True(keyBuilder.SqlServer(ConfigurationSource.DataAnnotation).Clustered(false));
+            Assert.True(keyBuilder.SqlServer(ConfigurationSource.DataAnnotation).IsClustered(false));
             Assert.False(keyBuilder.Metadata.SqlServer().IsClustered);
 
-            Assert.False(keyBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
+            Assert.False(keyBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(true));
             Assert.False(keyBuilder.Metadata.SqlServer().IsClustered);
 
             Assert.Equal(1, keyBuilder.Metadata.GetAnnotations().Count(
@@ -99,13 +99,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(indexBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
+            Assert.True(indexBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(true));
             Assert.True(indexBuilder.Metadata.SqlServer().IsClustered);
 
-            Assert.True(indexBuilder.SqlServer(ConfigurationSource.DataAnnotation).Clustered(false));
+            Assert.True(indexBuilder.SqlServer(ConfigurationSource.DataAnnotation).IsClustered(false));
             Assert.False(indexBuilder.Metadata.SqlServer().IsClustered);
 
-            Assert.False(indexBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
+            Assert.False(indexBuilder.SqlServer(ConfigurationSource.Convention).IsClustered(true));
             Assert.False(indexBuilder.Metadata.SqlServer().IsClustered);
 
             Assert.Equal(1, indexBuilder.Metadata.GetAnnotations().Count(
@@ -120,13 +120,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name("Splew"));
+            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasConstraintName("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.SqlServer().Name);
 
-            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.DataAnnotation).Name("Splow"));
+            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.DataAnnotation).HasConstraintName("Splow"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.SqlServer().Name);
 
-            Assert.False(relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name("Splod"));
+            Assert.False(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasConstraintName("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.SqlServer().Name);
 
             Assert.Equal(1, relationshipBuilder.Metadata.GetAnnotations().Count(

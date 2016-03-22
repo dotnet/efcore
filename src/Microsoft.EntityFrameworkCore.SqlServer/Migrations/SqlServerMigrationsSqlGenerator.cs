@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Generate(operation, model, builder);
 
-            var clustered = operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] as bool?;
+            var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
             if (operation.IsUnique
                 && (clustered != true))
             {
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             RelationalCommandListBuilder builder)
         {
             var valueGenerationStrategy = annotatable[
-                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
+                SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
 
             ColumnDefinition(
                 schema,
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var clustered = operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] as bool?;
+            var clustered = operation[SqlServerFullAnnotationNames.Instance.Clustered] as bool?;
             if (clustered.HasValue)
             {
                 builder.Append(clustered.Value ? "CLUSTERED " : "NONCLUSTERED ");

@@ -126,13 +126,13 @@ namespace Microsoft.EntityFrameworkCore
 
             var property = propertyBuilder.Metadata;
 
-            name = name ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
+            name = name ?? SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName;
 
             var model = property.DeclaringEntityType.Model;
 
             var sequence =
                 model.SqlServer().FindSequence(name, schema) ??
-                new Sequence(model, SqlServerAnnotationNames.Prefix, name, schema) { IncrementBy = 10 };
+                new Sequence(model, SqlServerFullAnnotationNames.Instance.SequencePrefix, name, schema) { IncrementBy = 10 };
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
             property.ValueGenerated = ValueGenerated.OnAdd;

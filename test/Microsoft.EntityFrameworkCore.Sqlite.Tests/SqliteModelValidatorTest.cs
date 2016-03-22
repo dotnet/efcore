@@ -48,6 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
 
     public class TestSqliteAnnotationProvider : TestAnnotationProvider
     {
-        public override IRelationalPropertyAnnotations For(IProperty property) => new RelationalPropertyAnnotations(property, SqliteAnnotationNames.Prefix);
+        public override IRelationalPropertyAnnotations For(IProperty property) => new RelationalPropertyAnnotations(property, SqliteFullAnnotationNames.Instance);
     }
 }

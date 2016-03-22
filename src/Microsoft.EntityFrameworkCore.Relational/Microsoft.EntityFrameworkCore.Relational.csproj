@@ -95,6 +95,7 @@
     <Compile Include="Metadata\Internal\RelationalAnnotationsBuilder.cs" />
     <Compile Include="Metadata\Internal\RelationalEntityTypeBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalForeignKeyBuilderAnnotations.cs" />
+    <Compile Include="Metadata\Internal\RelationalFullAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\RelationalIndexBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalInternalMetadataBuilderExtensions.cs" />
     <Compile Include="Metadata\Internal\RelationalKeyBuilderAnnotations.cs" />
@@ -114,7 +115,6 @@
     <Compile Include="Metadata\RelationalIndexAnnotations.cs" />
     <Compile Include="Metadata\RelationalKeyAnnotations.cs" />
     <Compile Include="Metadata\RelationalModelAnnotations.cs" />
-    <Compile Include="Metadata\RelationalModelExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyAnnotations.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
     <Compile Include="Metadata\RelationalSequenceBuilder.cs" />

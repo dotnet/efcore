@@ -9,21 +9,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class SqlServerKeyAnnotations : RelationalKeyAnnotations, ISqlServerKeyAnnotations
     {
         public SqlServerKeyAnnotations([NotNull] IKey key)
-            : base(key, SqlServerAnnotationNames.Prefix)
+            : base(key, SqlServerFullAnnotationNames.Instance)
         {
         }
 
         protected SqlServerKeyAnnotations([NotNull] RelationalAnnotations annotations)
-            : base(annotations)
+            : base(annotations, SqlServerFullAnnotationNames.Instance)
         {
         }
 
         public virtual bool? IsClustered
         {
-            get { return (bool?)Annotations.GetAnnotation(SqlServerAnnotationNames.Clustered); }
+            get { return (bool?)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.Clustered, null); }
             [param: CanBeNull] set { SetIsClustered(value); }
         }
 
-        protected virtual bool SetIsClustered(bool? value) => Annotations.SetAnnotation(SqlServerAnnotationNames.Clustered, value);
+        protected virtual bool SetIsClustered(bool? value)
+            => Annotations.SetAnnotation(SqlServerFullAnnotationNames.Instance.Clustered, null, value);
     }
 }

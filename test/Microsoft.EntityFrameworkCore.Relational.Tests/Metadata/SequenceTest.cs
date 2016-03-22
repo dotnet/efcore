@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         [Fact]
         public void Can_be_created_with_default_values()
         {
-            var sequence = new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo");
+            var sequence = new Sequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         [Fact]
         public void Can_be_created_with_specified_values()
         {
-            var sequence = new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo", "Smoo")
+            var sequence = new Sequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo", "Smoo")
             {
                 StartValue = 1729,
                 IncrementBy = 11,
@@ -49,15 +49,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         [Fact]
         public void Can_only_be_created_for_byte_short_int_and_long()
         {
-            Assert.Same(typeof(byte), new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo") { ClrType = typeof(byte) }.ClrType);
-            Assert.Same(typeof(short), new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo") { ClrType = typeof(short) }.ClrType);
-            Assert.Same(typeof(int), new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo") { ClrType = typeof(int) }.ClrType);
-            Assert.Same(typeof(long), new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo") { ClrType = typeof(long) }.ClrType);
+            Assert.Same(typeof(byte), new Sequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo") { ClrType = typeof(byte) }.ClrType);
+            Assert.Same(typeof(short), new Sequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo") { ClrType = typeof(short) }.ClrType);
+            Assert.Same(typeof(int), new Sequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo") { ClrType = typeof(int) }.ClrType);
+            Assert.Same(typeof(long), new Sequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo") { ClrType = typeof(long) }.ClrType);
 
             Assert.Equal(
                 RelationalStrings.BadSequenceType,
                 Assert.Throws<ArgumentException>(
-                    () => new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo") { ClrType = typeof(decimal) }).Message);
+                    () => new Sequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo") { ClrType = typeof(decimal) }).Message);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         {
             var model = new Model();
 
-            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "Foo");
+            var sequence = new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
 
             Assert.Same(model, sequence.Model);
         }
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         {
             var model = new Model();
 
-            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "Foo");
+            var sequence = new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
 
             Assert.Null(sequence.Schema);
 
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             var model = new Model();
 
             model.Relational().DefaultSchema = "db0";
-            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "Foo", "db1");
+            var sequence = new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo", "db1");
 
             Assert.Equal("db1", sequence.Schema);
         }
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         public void Can_serialize_and_deserialize()
         {
             var model = new Model();
-            new Sequence(model, RelationalAnnotationNames.Prefix, "Foo", "Smoo")
+            new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo", "Smoo")
             {
                 StartValue = 1729,
                 IncrementBy = 11,
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 ClrType = typeof(int)
             };
 
-            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "Foo", "Smoo");
+            var sequence = new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo", "Smoo");
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         public void Can_serialize_and_deserialize_with_defaults()
         {
             var model = new Model();
-            new Sequence(model, RelationalAnnotationNames.Prefix, "Foo");
+            new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
 
-            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "Foo");
+            var sequence = new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -140,14 +140,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         public void Can_serialize_and_deserialize_with_funky_names()
         {
             var model = new Model();
-            new Sequence(model, RelationalAnnotationNames.Prefix, "'Foo'", "''S'''m'oo'''")
+            new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "'Foo'", "''S'''m'oo'''")
             {
                 StartValue = 1729,
                 IncrementBy = 11,
                 ClrType = typeof(int)
             };
 
-            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "'Foo'", "''S'''m'oo'''");
+            var sequence = new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "'Foo'", "''S'''m'oo'''");
 
             Assert.Equal("'Foo'", sequence.Name);
             Assert.Equal("''S'''m'oo'''", sequence.Schema);
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         public void Throws_on_bad_serialized_form()
         {
             var model = new Model();
-            new Sequence(model, RelationalAnnotationNames.Prefix, "Foo", "Smoo")
+            new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo", "Smoo")
             {
                 StartValue = 1729,
                 IncrementBy = 11,
@@ -171,14 +171,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 ClrType = typeof(int)
             };
 
-            var annotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Sequence + "Smoo.Foo";
+            var annotationName = RelationalFullAnnotationNames.Instance.SequencePrefix + "Smoo.Foo";
 
             model[annotationName] = ((string)model[annotationName]).Replace("1", "Z");
 
             Assert.Equal(
                 RelationalStrings.BadSequenceString,
                 Assert.Throws<ArgumentException>(
-                    () => new Sequence(model, RelationalAnnotationNames.Prefix, "Foo", "Smoo").ClrType).Message);
+                    () => new Sequence(model, RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo", "Smoo").ClrType).Message);
         }
     }
 }

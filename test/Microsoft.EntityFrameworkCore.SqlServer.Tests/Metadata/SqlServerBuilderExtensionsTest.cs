@@ -467,11 +467,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
+            Assert.Equal(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-            Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(relationalExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -602,8 +602,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Null(sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-            Assert.Null(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(relationalExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(sqlServerExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -621,10 +621,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
+            Assert.Equal(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-            Assert.NotNull(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(model.Relational().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.NotNull(model.SqlServer().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -815,8 +815,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-            Assert.Null(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(model.Relational().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.SqlServer().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -836,8 +836,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-            Assert.Null(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
+            Assert.Null(model.Relational().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.SqlServer().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]

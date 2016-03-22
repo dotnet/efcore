@@ -10,49 +10,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     public class DiscriminatorBuilder
     {
-        public DiscriminatorBuilder([NotNull] RelationalEntityTypeBuilderAnnotations annotationsBuilder)
+        public DiscriminatorBuilder([NotNull] RelationalAnnotationsBuilder annotationsBuilder,
+            [NotNull] Func<InternalEntityTypeBuilder, RelationalEntityTypeBuilderAnnotations> getRelationalEntityTypeBuilderAnnotations)
         {
             AnnotationsBuilder = annotationsBuilder;
+            GetRelationalEntityTypeBuilderAnnotations = getRelationalEntityTypeBuilderAnnotations;
         }
 
-        protected virtual RelationalEntityTypeBuilderAnnotations AnnotationsBuilder { get; }
+        private Func<InternalEntityTypeBuilder, RelationalEntityTypeBuilderAnnotations> GetRelationalEntityTypeBuilderAnnotations { get; }
+        protected virtual RelationalAnnotationsBuilder AnnotationsBuilder { get; }
+        protected virtual InternalEntityTypeBuilder EntityTypeBuilder => (InternalEntityTypeBuilder)AnnotationsBuilder.MetadataBuilder;
 
         public virtual DiscriminatorBuilder HasValue([CanBeNull] object value)
-            => HasValue(AnnotationsBuilder.EntityTypeBuilder, value);
+            => HasValue(EntityTypeBuilder, value);
 
         public virtual DiscriminatorBuilder HasValue<TEntity>([CanBeNull] object value)
             => HasValue(typeof(TEntity), value);
 
         public virtual DiscriminatorBuilder HasValue([NotNull] Type entityType, [CanBeNull] object value)
         {
-            var entityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder.ModelBuilder.Entity(entityType, AnnotationsBuilder.Annotations.ConfigurationSource);
+            var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(entityType, AnnotationsBuilder.ConfigurationSource);
             return HasValue(entityTypeBuilder, value);
         }
 
         public virtual DiscriminatorBuilder HasValue([NotNull] string entityTypeName, [CanBeNull] object value)
         {
-            var entityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder.ModelBuilder.Entity(entityTypeName, AnnotationsBuilder.Annotations.ConfigurationSource);
+            var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(entityTypeName, AnnotationsBuilder.ConfigurationSource);
             return HasValue(entityTypeBuilder, value);
         }
 
         private DiscriminatorBuilder HasValue([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [CanBeNull] object value)
         {
-            var baseEntityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder;
+            var baseEntityTypeBuilder = EntityTypeBuilder;
             if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityTypeBuilder.Metadata)
-                && (entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, AnnotationsBuilder.Annotations.ConfigurationSource) == null))
+                && (entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, AnnotationsBuilder.ConfigurationSource) == null))
             {
                 throw new InvalidOperationException(RelationalStrings.DiscriminatorEntityTypeNotDerived(
                     entityTypeBuilder.Metadata.DisplayName(),
                     baseEntityTypeBuilder.Metadata.DisplayName()));
             }
 
-            var annotationsBuilder = baseEntityTypeBuilder == entityTypeBuilder ?
-                AnnotationsBuilder
-                : new RelationalEntityTypeBuilderAnnotations(
-                    entityTypeBuilder,
-                    AnnotationsBuilder.Annotations.ConfigurationSource,
-                    AnnotationsBuilder.Annotations.ProviderPrefix);
-            return annotationsBuilder.DiscriminatorValue(value) ? this : null;
+            return GetRelationalEntityTypeBuilderAnnotations(entityTypeBuilder).HasDiscriminatorValue(value) ? this : null;
         }
     }
 }

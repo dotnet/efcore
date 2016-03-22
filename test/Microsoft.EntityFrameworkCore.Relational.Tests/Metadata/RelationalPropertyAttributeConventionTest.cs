@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var propertyBuilder = entityBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
-            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
+            propertyBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.ColumnName, "ConventionalName", ConfigurationSource.Convention);
+            propertyBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.ColumnType, "BYTE", ConfigurationSource.Convention);
 
             new RelationalColumnAttributeConvention().Apply(propertyBuilder);
 
@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var propertyBuilder = entityBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
-            propertyBuilder.HasAnnotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
+            propertyBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
+            propertyBuilder.HasAnnotation(RelationalFullAnnotationNames.Instance.ColumnType, "BYTE", ConfigurationSource.Explicit);
 
             new RelationalColumnAttributeConvention().Apply(propertyBuilder);
 

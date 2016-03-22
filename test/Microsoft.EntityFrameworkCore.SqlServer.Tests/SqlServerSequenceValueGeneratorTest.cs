@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var state = new SqlServerSequenceValueGeneratorState(
                 new Sequence(
-                    new Model(), RelationalAnnotationNames.Prefix, "Foo")
+                    new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo")
                 {
                     IncrementBy = blockSize
                 });
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var state = new SqlServerSequenceValueGeneratorState(
                 new Sequence(
-                    new Model(), RelationalAnnotationNames.Prefix, "Foo")
+                    new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo")
                 {
                     IncrementBy = blockSize
                 });
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var state = new SqlServerSequenceValueGeneratorState(
                 new Sequence(
-                    new Model(), RelationalAnnotationNames.Prefix, "Foo")
+                    new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo")
                 {
                     IncrementBy = 4
                 });

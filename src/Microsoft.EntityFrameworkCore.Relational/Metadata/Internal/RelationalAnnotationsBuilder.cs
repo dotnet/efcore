@@ -10,24 +10,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         public RelationalAnnotationsBuilder(
             [NotNull] InternalMetadataBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(internalBuilder.Metadata, providerPrefix)
+            ConfigurationSource configurationSource)
+            : base(internalBuilder.Metadata)
         {
             Check.NotNull(internalBuilder, nameof(internalBuilder));
 
-            EntityTypeBuilder = internalBuilder;
+            MetadataBuilder = internalBuilder;
             ConfigurationSource = configurationSource;
         }
 
         public virtual ConfigurationSource ConfigurationSource { get; }
 
-        public virtual InternalMetadataBuilder EntityTypeBuilder { get; }
+        public virtual InternalMetadataBuilder MetadataBuilder { get; }
 
-        public override bool SetAnnotation(string annotationName, object value)
-        {
-            var fullName = (ProviderPrefix ?? RelationalAnnotationNames.Prefix) + annotationName;
-            return EntityTypeBuilder.HasAnnotation(fullName, value, ConfigurationSource);
-        }
+        public override bool SetAnnotation(
+            string relationalAnnotationName,
+            string providerAnnotationName,
+            object value)
+            => MetadataBuilder.HasAnnotation(providerAnnotationName ?? relationalAnnotationName, value, ConfigurationSource);
     }
 }

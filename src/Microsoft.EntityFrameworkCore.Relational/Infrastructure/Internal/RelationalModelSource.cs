@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                 if (entityType.BaseType == null
                     && sets.ContainsKey(entityType.ClrType))
                 {
-                    entityType.Builder.Relational(ConfigurationSource.Convention).TableName = sets[entityType.ClrType].Name;
+                    entityType.Builder.Relational(ConfigurationSource.Convention).ToTable(sets[entityType.ClrType].Name);
                 }
             }
         }

@@ -10,11 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public RelationalForeignKeyBuilderAnnotations(
             [NotNull] InternalRelationshipBuilder internalBuilder,
             ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource, providerPrefix))
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
         {
         }
-
-        public new virtual bool Name([CanBeNull] string value) => SetName(value);
+        
+        public virtual bool HasConstraintName([CanBeNull] string value) => SetName(value);
     }
 }

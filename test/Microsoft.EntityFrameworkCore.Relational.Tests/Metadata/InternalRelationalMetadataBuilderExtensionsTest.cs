@@ -86,28 +86,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Entity(typeof(Splot), ConfigurationSource.Convention)
                 .Property("Id", typeof(int), ConfigurationSource.Convention);
 
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).ColumnName("Splew"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).ColumnType("int"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).DefaultValue(1));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).GeneratedValueSql("2"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splew"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasGeneratedValueSql("2"));
             Assert.Equal("Splew", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("int", propertyBuilder.Metadata.Relational().ColumnType);
             Assert.Equal(1, propertyBuilder.Metadata.Relational().DefaultValue);
             Assert.Equal("2", propertyBuilder.Metadata.Relational().GeneratedValueSql);
 
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).ColumnName("Splow"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).ColumnType("varchar"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).DefaultValue(0));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).GeneratedValueSql("NULL"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnName("Splow"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnType("varchar"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValue(0));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasGeneratedValueSql("NULL"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
             Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
             Assert.Equal("NULL", propertyBuilder.Metadata.Relational().GeneratedValueSql);
 
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).ColumnName("Splod"));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).ColumnType("int"));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).DefaultValue(1));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).GeneratedValueSql("2"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splod"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasGeneratedValueSql("2"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
             Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
@@ -122,13 +122,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             var idProperty = entityTypeBuilder.Property("Id", ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
 
-            Assert.True(keyBuilder.Relational(ConfigurationSource.Convention).Name("Splew"));
+            Assert.True(keyBuilder.Relational(ConfigurationSource.Convention).HasName("Splew"));
             Assert.Equal("Splew", keyBuilder.Metadata.Relational().Name);
 
-            Assert.True(keyBuilder.Relational(ConfigurationSource.DataAnnotation).Name("Splow"));
+            Assert.True(keyBuilder.Relational(ConfigurationSource.DataAnnotation).HasName("Splow"));
             Assert.Equal("Splow", keyBuilder.Metadata.Relational().Name);
 
-            Assert.False(keyBuilder.Relational(ConfigurationSource.Convention).Name("Splod"));
+            Assert.False(keyBuilder.Relational(ConfigurationSource.Convention).HasName("Splod"));
             Assert.Equal("Splow", keyBuilder.Metadata.Relational().Name);
         }
 
@@ -140,13 +140,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(indexBuilder.Relational(ConfigurationSource.Convention).Name("Splew"));
+            Assert.True(indexBuilder.Relational(ConfigurationSource.Convention).HasName("Splew"));
             Assert.Equal("Splew", indexBuilder.Metadata.Relational().Name);
 
-            Assert.True(indexBuilder.Relational(ConfigurationSource.DataAnnotation).Name("Splow"));
+            Assert.True(indexBuilder.Relational(ConfigurationSource.DataAnnotation).HasName("Splow"));
             Assert.Equal("Splow", indexBuilder.Metadata.Relational().Name);
 
-            Assert.False(indexBuilder.Relational(ConfigurationSource.Convention).Name("Splod"));
+            Assert.False(indexBuilder.Relational(ConfigurationSource.Convention).HasName("Splod"));
             Assert.Equal("Splow", indexBuilder.Metadata.Relational().Name);
         }
 
@@ -158,13 +158,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(relationshipBuilder.Relational(ConfigurationSource.Convention).Name("Splew"));
+            Assert.True(relationshipBuilder.Relational(ConfigurationSource.Convention).HasConstraintName("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.Relational().Name);
 
-            Assert.True(relationshipBuilder.Relational(ConfigurationSource.DataAnnotation).Name("Splow"));
+            Assert.True(relationshipBuilder.Relational(ConfigurationSource.DataAnnotation).HasConstraintName("Splow"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
 
-            Assert.False(relationshipBuilder.Relational(ConfigurationSource.Convention).Name("Splod"));
+            Assert.False(relationshipBuilder.Relational(ConfigurationSource.Convention).HasConstraintName("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
         }
 

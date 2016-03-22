@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if ((property.ValueGenerated == ValueGenerated.OnAdd)
                 && property.ClrType.UnwrapNullableType().IsInteger())
             {
-                yield return new Annotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement, true);
+                yield return new Annotation(SqliteFullAnnotationNames.Instance.Autoincrement, true);
             }
         }
     }

@@ -11,29 +11,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalModelAnnotations : IRelationalModelAnnotations
     {
-        public RelationalModelAnnotations([NotNull] IModel model, [CanBeNull] string providerPrefix)
-            : this(new RelationalAnnotations(model, providerPrefix))
+        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
+
+        public RelationalModelAnnotations([NotNull] IModel model, [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : this(new RelationalAnnotations(model), providerFullAnnotationNames)
         {
         }
 
-        protected RelationalModelAnnotations([NotNull] RelationalAnnotations annotations)
+        protected RelationalModelAnnotations(
+            [NotNull] RelationalAnnotations annotations,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
         {
             Annotations = annotations;
+            ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
 
         protected virtual RelationalAnnotations Annotations { get; }
-
         protected virtual IModel Model => (IModel)Annotations.Metadata;
 
         public virtual IReadOnlyList<ISequence> Sequences
         {
             get
             {
-                var providerSequences = Annotations.ProviderPrefix != null
-                    ? Sequence.GetSequences(Model, Annotations.ProviderPrefix).ToList()
+                var providerSequences = ProviderFullAnnotationNames != null
+                    ? Sequence.GetSequences(Model, ProviderFullAnnotationNames.SequencePrefix).ToList()
                     : new List<ISequence>();
 
-                return Sequence.GetSequences(Model, RelationalAnnotationNames.Prefix)
+                return Sequence.GetSequences(Model, RelationalFullAnnotationNames.Instance.SequencePrefix)
                     .Where(rs => !providerSequences.Any(ss => (ss.Name == rs.Name) && (ss.Schema == rs.Schema)))
                     .Concat(providerSequences)
                     .ToList();
@@ -41,26 +45,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         public virtual ISequence FindSequence(string name, string schema = null)
-            => (Annotations.ProviderPrefix == null ? null : Sequence.FindSequence(Model, Annotations.ProviderPrefix, name, schema))
-               ?? Sequence.FindSequence(Model, RelationalAnnotationNames.Prefix, name, schema);
+            => (ProviderFullAnnotationNames == null
+                ? null
+                : Sequence.FindSequence(Model, ProviderFullAnnotationNames.SequencePrefix, name, schema))
+               ?? Sequence.FindSequence(Model, RelationalFullAnnotationNames.Instance.SequencePrefix, name, schema);
 
         public virtual Sequence GetOrAddSequence([CanBeNull] string name, [CanBeNull] string schema = null)
             => new Sequence(
-                (Model)Model,
-                Annotations.ProviderPrefix ?? RelationalAnnotationNames.Prefix,
+                (IMutableModel)Model,
+                (ProviderFullAnnotationNames ?? RelationalFullAnnotationNames.Instance).SequencePrefix,
                 Check.NotEmpty(name, nameof(name)),
                 Check.NullButNotEmpty(schema, nameof(schema)));
 
         public virtual string DefaultSchema
         {
-            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultSchema); }
-            [param: CanBeNull] set { Annotations.SetAnnotation(RelationalAnnotationNames.DefaultSchema, Check.NullButNotEmpty(value, nameof(value))); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.DefaultSchema,
+                    ProviderFullAnnotationNames?.DefaultSchema);
+            }
+            [param: CanBeNull] set { SetDefaultSchema(value); }
         }
+
+        protected virtual bool SetDefaultSchema([CanBeNull] string value)
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.DefaultSchema,
+                ProviderFullAnnotationNames?.DefaultSchema,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string DatabaseName
         {
-            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DatabaseName); }
-            [param: CanBeNull] set { Annotations.SetAnnotation(RelationalAnnotationNames.DatabaseName, Check.NullButNotEmpty(value, nameof(value))); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.DatabaseName,
+                    ProviderFullAnnotationNames?.DatabaseName);
+            }
+            [param: CanBeNull] set { SetDatabaseName(value); }
         }
+
+        protected virtual bool SetDatabaseName([CanBeNull] string value)
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.DatabaseName,
+                ProviderFullAnnotationNames?.DatabaseName,
+                Check.NullButNotEmpty(value, nameof(value)));
     }
 }

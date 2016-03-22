@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private static string BuildAnnotationName(string annotationPrefix, string name, string schema)
-            => annotationPrefix + RelationalAnnotationNames.Sequence + schema + "." + name;
+            => annotationPrefix + schema + "." + name;
 
         public static ISequence FindSequence(
             [NotNull] IModel model,
@@ -82,10 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(annotationPrefix, nameof(annotationPrefix));
 
-            var startsWith = annotationPrefix + RelationalAnnotationNames.Sequence;
-
             return model.GetAnnotations()
-                .Where(a => a.Name.StartsWith(startsWith))
+                .Where(a => a.Name.StartsWith(annotationPrefix, StringComparison.Ordinal))
                 .Select(a => new Sequence(model, a.Name));
         }
 

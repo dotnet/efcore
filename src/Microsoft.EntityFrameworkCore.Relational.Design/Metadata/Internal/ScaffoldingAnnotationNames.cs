@@ -5,11 +5,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
     public static class ScaffoldingAnnotationNames
     {
-        public const string AnnotationPrefix = "Scaffolding:";
-        public const string UseProviderMethodName = AnnotationPrefix + "UseProviderMethodName";
-        public const string ColumnOrdinal = AnnotationPrefix + "ColumnOrdinal";
-        public const string DependentEndNavigation = AnnotationPrefix + "DependentEndNavigation";
-        public const string PrincipalEndNavigation = AnnotationPrefix + "PrincipalEndNavigation";
-        public const string EntityTypeErrors = AnnotationPrefix + "EntityTypeErrors";
+        public const string Prefix = "Scaffolding:";
+        public const string UseProviderMethodName = "UseProviderMethodName";
+        public const string ColumnOrdinal = "ColumnOrdinal";
+        public const string DependentEndNavigation = "DependentEndNavigation";
+        public const string PrincipalEndNavigation = "PrincipalEndNavigation";
+        public const string EntityTypeErrors = "EntityTypeErrors";
     }
 }

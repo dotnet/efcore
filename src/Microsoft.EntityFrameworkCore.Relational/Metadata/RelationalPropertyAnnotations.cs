@@ -4,67 +4,94 @@
 using System;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.Internal;
 
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalPropertyAnnotations : IRelationalPropertyAnnotations
     {
-        public RelationalPropertyAnnotations([NotNull] IProperty property, [CanBeNull] string providerPrefix)
-            : this(new RelationalAnnotations(property, providerPrefix))
+        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
+
+        public RelationalPropertyAnnotations([NotNull] IProperty property,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : this(new RelationalAnnotations(property), providerFullAnnotationNames)
         {
         }
 
-        protected RelationalPropertyAnnotations([NotNull] RelationalAnnotations annotations)
+        protected RelationalPropertyAnnotations([NotNull] RelationalAnnotations annotations,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
         {
             Annotations = annotations;
+            ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
 
         protected virtual RelationalAnnotations Annotations { get; }
-
         protected virtual IProperty Property => (IProperty)Annotations.Metadata;
 
         public virtual string ColumnName
         {
-            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnName) ?? Property.Name; }
-            [param: CanBeNull]
-            set { SetColumnName(value); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.ColumnName,
+                    ProviderFullAnnotationNames?.ColumnName)
+                       ?? Property.Name;
+            }
+            [param: CanBeNull] set { SetColumnName(value); }
         }
 
         protected virtual bool SetColumnName([CanBeNull] string value)
-            => Annotations.SetAnnotation(RelationalAnnotationNames.ColumnName, Check.NullButNotEmpty(value, nameof(value)));
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.ColumnName,
+                ProviderFullAnnotationNames?.ColumnName,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string ColumnType
         {
-            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.ColumnType); }
-            [param: CanBeNull]
-            set { SetColumnType(value); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.ColumnType,
+                    ProviderFullAnnotationNames?.ColumnType);
+            }
+            [param: CanBeNull] set { SetColumnType(value); }
         }
 
         protected virtual bool SetColumnType([CanBeNull] string value)
-            => Annotations.SetAnnotation(RelationalAnnotationNames.ColumnType, Check.NullButNotEmpty(value, nameof(value)));
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.ColumnType,
+                ProviderFullAnnotationNames?.ColumnType,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string GeneratedValueSql
         {
-            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.GeneratedValueSql); }
-            [param: CanBeNull]
-            set { SetGeneratedValueSql(value); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.GeneratedValueSql,
+                    ProviderFullAnnotationNames?.GeneratedValueSql);
+            }
+            [param: CanBeNull] set { SetGeneratedValueSql(value); }
         }
 
         protected virtual bool SetGeneratedValueSql([CanBeNull] string value)
-            => Annotations.SetAnnotation(RelationalAnnotationNames.GeneratedValueSql, Check.NullButNotEmpty(value, nameof(value)));
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.GeneratedValueSql,
+                ProviderFullAnnotationNames?.GeneratedValueSql,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual object DefaultValue
         {
             get
             {
-                return Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValue);
+                return Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.DefaultValue,
+                    ProviderFullAnnotationNames?.DefaultValue);
             }
-            [param: CanBeNull]
-            set { SetDefaultValue(value); }
+            [param: CanBeNull] set { SetDefaultValue(value); }
         }
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)
@@ -74,7 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var valueType = value.GetType();
                 if (Property.ClrType.UnwrapNullableType() != valueType)
                 {
-                    throw new InvalidOperationException(RelationalStrings.IncorrectDefaultValueType(value, valueType, Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.IncorrectDefaultValueType(
+                            value, valueType, Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
                 }
 
                 if (valueType.GetTypeInfo().IsEnum)
@@ -83,7 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             }
 
-            return Annotations.SetAnnotation(RelationalAnnotationNames.DefaultValue, value);
+            return Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.DefaultValue,
+                ProviderFullAnnotationNames?.DefaultValue,
+                value);
         }
     }
 }

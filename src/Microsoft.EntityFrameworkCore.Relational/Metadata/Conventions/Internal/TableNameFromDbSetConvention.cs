@@ -28,14 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (oldBaseType == null
                     && entityType.BaseType != null)
                 {
-                    entityTypeBuilder.Relational(ConfigurationSource.Convention).TableName = null;
+                    entityTypeBuilder.Relational(ConfigurationSource.Convention).ToTable(null);
                 }
                 else if (oldBaseType != null
                          && entityType.BaseType == null
                          && _sets.ContainsKey(entityType.ClrType))
                 {
-                    entityTypeBuilder.Relational(ConfigurationSource.Convention).TableName
-                        = _sets[entityType.ClrType].Name;
+                    entityTypeBuilder.Relational(ConfigurationSource.Convention).ToTable(_sets[entityType.ClrType].Name);
                 }
             }
             return true;

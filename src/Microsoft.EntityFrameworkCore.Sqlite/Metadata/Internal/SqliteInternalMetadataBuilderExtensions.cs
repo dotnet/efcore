@@ -10,31 +10,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalModelBuilderAnnotations Sqlite(
             [NotNull] this InternalModelBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalModelBuilderAnnotations(builder, configurationSource, SqliteAnnotationNames.Prefix);
+            => new RelationalModelBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         public static RelationalPropertyBuilderAnnotations Sqlite(
             [NotNull] this InternalPropertyBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalPropertyBuilderAnnotations(builder, configurationSource, SqliteAnnotationNames.Prefix);
+            => new RelationalPropertyBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         public static RelationalEntityTypeBuilderAnnotations Sqlite(
             [NotNull] this InternalEntityTypeBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, SqliteAnnotationNames.Prefix);
+            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         public static RelationalKeyBuilderAnnotations Sqlite(
             [NotNull] this InternalKeyBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalKeyBuilderAnnotations(builder, configurationSource, SqliteAnnotationNames.Prefix);
+            => new RelationalKeyBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         public static RelationalIndexBuilderAnnotations Sqlite(
             [NotNull] this InternalIndexBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalIndexBuilderAnnotations(builder, configurationSource, SqliteAnnotationNames.Prefix);
+            => new RelationalIndexBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
 
         public static RelationalForeignKeyBuilderAnnotations Sqlite(
             [NotNull] this InternalRelationshipBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqliteAnnotationNames.Prefix);
+            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqliteFullAnnotationNames.Instance);
     }
 }

@@ -12,32 +12,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class SqlServerPropertyAnnotations : RelationalPropertyAnnotations, ISqlServerPropertyAnnotations
     {
         public SqlServerPropertyAnnotations([NotNull] IProperty property)
-            : base(property, SqlServerAnnotationNames.Prefix)
+            : base(property, SqlServerFullAnnotationNames.Instance)
         {
         }
 
         protected SqlServerPropertyAnnotations([NotNull] RelationalAnnotations annotations)
-            : base(annotations)
+            : base(annotations, SqlServerFullAnnotationNames.Instance)
         {
         }
 
         public virtual string HiLoSequenceName
         {
-            get { return (string)Annotations.GetAnnotation(SqlServerAnnotationNames.HiLoSequenceName); }
+            get { return (string)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.HiLoSequenceName, null); }
             [param: CanBeNull] set { SetHiLoSequenceName(value); }
         }
 
         protected virtual bool SetHiLoSequenceName([CanBeNull] string value)
-            => Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, Check.NullButNotEmpty(value, nameof(value)));
+            => Annotations.SetAnnotation(
+                SqlServerFullAnnotationNames.Instance.HiLoSequenceName,
+                null,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string HiLoSequenceSchema
         {
-            get { return (string)Annotations.GetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema); }
+            get { return (string)Annotations.GetAnnotation(SqlServerFullAnnotationNames.Instance.HiLoSequenceSchema, null); }
             [param: CanBeNull] set { SetHiLoSequenceSchema(value); }
         }
 
         protected virtual bool SetHiLoSequenceSchema([CanBeNull] string value)
-            => Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, Check.NullButNotEmpty(value, nameof(value)));
+            => Annotations.SetAnnotation(
+                SqlServerFullAnnotationNames.Instance.HiLoSequenceSchema,
+                null,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
@@ -50,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     return null;
                 }
 
-                var value = (SqlServerValueGenerationStrategy?)Annotations.GetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+                var value = (SqlServerValueGenerationStrategy?)Annotations.GetAnnotation(
+                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy,
+                    null);
 
                 return value ?? Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
             }
@@ -80,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             }
 
-            return Annotations.SetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
+            return Annotations.SetAnnotation(SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy, null, value);
         }
 
         public virtual ISequence FindHiLoSequence()
@@ -94,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var sequenceName = HiLoSequenceName
                                ?? modelExtensions.HiLoSequenceName
-                               ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
+                               ?? SqlServerModelAnnotations.DefaultHiLoSequenceName;
 
             var sequenceSchema = HiLoSequenceSchema
                                  ?? modelExtensions.HiLoSequenceSchema;

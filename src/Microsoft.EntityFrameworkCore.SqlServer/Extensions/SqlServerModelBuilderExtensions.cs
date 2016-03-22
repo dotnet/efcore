@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = modelBuilder.Model;
 
-            name = name ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
+            name = name ?? SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName;
 
             var sequence =
                 model.SqlServer().FindSequence(name, schema) ??

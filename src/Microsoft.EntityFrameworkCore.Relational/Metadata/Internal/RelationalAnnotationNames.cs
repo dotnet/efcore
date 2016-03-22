@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public const string Schema = "Schema";
         public const string DefaultSchema = "DefaultSchema";
         public const string Name = "Name";
-        public const string Sequence = "Sequence:";
+        public const string SequencePrefix = "Sequence:";
         public const string DiscriminatorProperty = "DiscriminatorProperty";
         public const string DiscriminatorValue = "DiscriminatorValue";
     }

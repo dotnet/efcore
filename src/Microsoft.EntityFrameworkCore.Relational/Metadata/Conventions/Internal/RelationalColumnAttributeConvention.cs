@@ -13,12 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             if (!string.IsNullOrWhiteSpace(attribute.Name))
             {
-                propertyBuilder.Relational(ConfigurationSource.DataAnnotation).ColumnName(attribute.Name);
+                propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnName(attribute.Name);
             }
 
             if (!string.IsNullOrWhiteSpace(attribute.TypeName))
             {
-                propertyBuilder.Relational(ConfigurationSource.DataAnnotation).ColumnType(attribute.TypeName);
+                propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnType(attribute.TypeName);
             }
 
             return propertyBuilder;

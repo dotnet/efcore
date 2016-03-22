@@ -71,6 +71,7 @@
     <Compile Include="Metadata\Conventions\SqliteConventionSetBuilder.cs" />
     <Compile Include="Metadata\Internal\SqliteAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\SqliteAnnotationProvider.cs" />
+    <Compile Include="Metadata\Internal\SqliteFullAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\SqliteInternalMetadataBuilderExtensions.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensions.cs" />
     <Compile Include="Migrations\Internal\SqliteHistoryRepository.cs" />

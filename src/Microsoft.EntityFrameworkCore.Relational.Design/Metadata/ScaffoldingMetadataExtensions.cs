@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -13,12 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public static class ScaffoldingMetadataExtensions
     {
         public static ScaffoldingModelAnnotations Scaffolding([NotNull] this IModel model)
-            => new ScaffoldingModelAnnotations(Check.NotNull(model, nameof(model)), ScaffoldingAnnotationNames.AnnotationPrefix);
+            => new ScaffoldingModelAnnotations(Check.NotNull(model, nameof(model)));
 
         public static ScaffoldingPropertyAnnotations Scaffolding([NotNull] this IProperty property)
-            => new ScaffoldingPropertyAnnotations(Check.NotNull(property, nameof(property)), ScaffoldingAnnotationNames.AnnotationPrefix);
+            => new ScaffoldingPropertyAnnotations(Check.NotNull(property, nameof(property)));
 
         public static ScaffoldingForeignKeyAnnotations Scaffolding([NotNull] this IForeignKey foreignKey)
-            => new ScaffoldingForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), ScaffoldingAnnotationNames.AnnotationPrefix);
+            => new ScaffoldingForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
     }
 }

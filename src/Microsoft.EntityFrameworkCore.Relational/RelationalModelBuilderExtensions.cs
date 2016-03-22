@@ -3,7 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -133,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            modelBuilder.Model.Relational().DefaultSchema = schema;
+            modelBuilder.GetInfrastructure().Relational(ConfigurationSource.Explicit).HasDefaultSchema(schema);
 
             return modelBuilder;
         }

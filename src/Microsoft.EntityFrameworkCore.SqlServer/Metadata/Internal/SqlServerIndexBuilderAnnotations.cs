@@ -10,12 +10,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public SqlServerIndexBuilderAnnotations(
             [NotNull] InternalIndexBuilder internalBuilder,
             ConfigurationSource configurationSource)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource, SqlServerAnnotationNames.Prefix))
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource))
         {
         }
 
+#pragma warning disable 109
         public new virtual bool Name([CanBeNull] string value) => SetName(value);
 
-        public virtual bool Clustered(bool value) => SetIsClustered(value);
+        public new virtual bool IsClustered(bool value) => SetIsClustered(value);
+#pragma warning restore 109
     }
 }

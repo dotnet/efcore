@@ -9,15 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     public class ScaffoldingPropertyAnnotations : RelationalPropertyAnnotations
     {
-        public ScaffoldingPropertyAnnotations([NotNull] IProperty property, [CanBeNull] string providerPrefix)
-            : base(property, providerPrefix)
+        public ScaffoldingPropertyAnnotations([NotNull] IProperty property)
+            : base(property, ScaffoldingFullAnnotationNames.Instance)
         {
         }
 
         public virtual int ColumnOrdinal
         {
-            get { return (int)Annotations.GetAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal); }
-            set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, value); }
+            get { return (int)Annotations.GetAnnotation(ScaffoldingFullAnnotationNames.Instance.ColumnOrdinal, null); }
+            set { Annotations.SetAnnotation(ScaffoldingFullAnnotationNames.Instance.ColumnOrdinal, null, value); }
         }
     }
 }

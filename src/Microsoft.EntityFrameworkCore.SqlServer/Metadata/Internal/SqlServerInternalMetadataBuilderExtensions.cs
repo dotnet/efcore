@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalEntityTypeBuilderAnnotations SqlServer(
             [NotNull] this InternalEntityTypeBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, SqlServerAnnotationNames.Prefix);
+            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, SqlServerFullAnnotationNames.Instance);
 
         public static SqlServerKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalKeyBuilder builder,
@@ -35,6 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static RelationalForeignKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalRelationshipBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqlServerAnnotationNames.Prefix);
+            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqlServerFullAnnotationNames.Instance);
     }
 }

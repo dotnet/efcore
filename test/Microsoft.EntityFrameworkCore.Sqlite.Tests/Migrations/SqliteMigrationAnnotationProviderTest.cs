@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         private readonly ModelBuilder _modelBuilder;
         private readonly SqliteMigrationsAnnotationProvider _provider;
 
-        private readonly Annotation _autoincrement = new Annotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement, true);
+        private readonly Annotation _autoincrement = new Annotation(SqliteFullAnnotationNames.Instance.Autoincrement, true);
 
         public SqliteMigrationAnnotationProviderTest()
         {

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             => (RelationalEntityTypeAnnotations)SqlServer((IEntityType)entityType);
 
         public static IRelationalEntityTypeAnnotations SqlServer([NotNull] this IEntityType entityType)
-            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), SqlServerAnnotationNames.Prefix);
+            => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), SqlServerFullAnnotationNames.Instance);
 
         public static SqlServerKeyAnnotations SqlServer([NotNull] this IMutableKey key)
             => (SqlServerKeyAnnotations)SqlServer((IKey)key);
@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore
         public static ISqlServerIndexAnnotations SqlServer([NotNull] this IIndex index)
             => new SqlServerIndexAnnotations(Check.NotNull(index, nameof(index)));
 
-        public static IRelationalForeignKeyAnnotations SqlServer([NotNull] this IForeignKey foreignKey)
-            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), SqlServerAnnotationNames.Prefix);
-
         public static RelationalForeignKeyAnnotations SqlServer([NotNull] this IMutableForeignKey foreignKey)
             => (RelationalForeignKeyAnnotations)SqlServer((IForeignKey)foreignKey);
+
+        public static IRelationalForeignKeyAnnotations SqlServer([NotNull] this IForeignKey foreignKey)
+            => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), SqlServerFullAnnotationNames.Instance);
 
         public static SqlServerModelAnnotations SqlServer([NotNull] this IMutableModel model)
             => (SqlServerModelAnnotations)SqlServer((IModel)model);

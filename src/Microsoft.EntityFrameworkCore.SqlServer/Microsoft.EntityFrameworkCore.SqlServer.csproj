@@ -77,6 +77,7 @@
     <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
     <Compile Include="Metadata\Conventions\SqlServerConventionSetBuilder.cs" />
     <Compile Include="Metadata\Internal\SqlServerAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\SqlServerFullAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\SqlServerIndexBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerInternalMetadataBuilderExtensions.cs" />
     <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />

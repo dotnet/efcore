@@ -10,14 +10,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public SqlServerModelBuilderAnnotations(
             [NotNull] InternalModelBuilder internalBuilder,
             ConfigurationSource configurationSource)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource, SqlServerAnnotationNames.Prefix))
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource))
         {
         }
 
+#pragma warning disable 109
         public new virtual bool HiLoSequenceName([CanBeNull] string value) => SetHiLoSequenceName(value);
 
         public new virtual bool HiLoSequenceSchema([CanBeNull] string value) => SetHiLoSequenceSchema(value);
 
         public new virtual bool ValueGenerationStrategy(SqlServerValueGenerationStrategy? value) => SetValueGenerationStrategy(value);
+#pragma warning restore 109
     }
 }

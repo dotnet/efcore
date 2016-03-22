@@ -12,34 +12,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalKeyAnnotations : IRelationalKeyAnnotations
     {
-        public RelationalKeyAnnotations([NotNull] IKey key, [CanBeNull] string providerPrefix)
-            : this(new RelationalAnnotations(key, providerPrefix))
+        protected const string DefaultPrimaryKeyNamePrefix = "PK";
+        protected const string DefaultAlternateKeyNamePrefix = "AK";
+
+        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
+
+        public RelationalKeyAnnotations([NotNull] IKey key,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : this(new RelationalAnnotations(key), providerFullAnnotationNames)
         {
         }
 
-        protected RelationalKeyAnnotations([NotNull] RelationalAnnotations annotations)
+        protected RelationalKeyAnnotations([NotNull] RelationalAnnotations annotations,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
         {
             Annotations = annotations;
+            ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
 
         protected virtual RelationalAnnotations Annotations { get; }
-
         protected virtual IKey Key => (IKey)Annotations.Metadata;
+
+        protected virtual IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
+            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
 
         public virtual string Name
         {
-            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name) ?? GetDefaultName(); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(RelationalFullAnnotationNames.Instance.Name, ProviderFullAnnotationNames?.Name)
+                       ?? GetDefaultName();
+            }
             [param: CanBeNull] set { SetName(value); }
         }
 
         protected virtual bool SetName([CanBeNull] string value)
-            => Annotations.SetAnnotation(RelationalAnnotationNames.Name, Check.NullButNotEmpty(value, nameof(value)));
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.Name,
+                ProviderFullAnnotationNames?.Name,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
         {
-            var entityType = new RelationalEntityTypeAnnotations(Key.DeclaringEntityType, Annotations.ProviderPrefix);
-
-            return GetDefaultKeyName(entityType.TableName, Key.IsPrimaryKey(), Key.Properties.Select(p => p.Name));
+            return GetDefaultKeyName(
+                GetAnnotations(Key.DeclaringEntityType).TableName,
+                Key.IsPrimaryKey(),
+                Key.Properties.Select(p => p.Name));
         }
 
         public static string GetDefaultKeyName(
@@ -49,15 +67,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Check.NotNull(propertyNames, nameof(propertyNames));
 
             var builder = new StringBuilder();
-            builder
-                .Append(primaryKey ? "PK_" : "AK_")
-                .Append(tableName);
 
-            if (!primaryKey)
+            if (primaryKey)
             {
                 builder
+                    .Append(DefaultPrimaryKeyNamePrefix)
                     .Append("_")
-                    .Append(string.Join("_", propertyNames));
+                    .Append(tableName);
+            }
+            else
+            {
+                builder
+                    .Append(DefaultAlternateKeyNamePrefix)
+                    .Append("_")
+                    .Append(tableName)
+                    .Append("_")
+                    .AppendJoin(propertyNames, "_");
             }
 
             return builder.ToString();

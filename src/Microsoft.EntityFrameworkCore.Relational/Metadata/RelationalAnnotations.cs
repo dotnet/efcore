@@ -4,45 +4,42 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalAnnotations
     {
-        public RelationalAnnotations(
-            [NotNull] IAnnotatable metadata,
-            [CanBeNull] string providerPrefix)
+        public RelationalAnnotations([NotNull] IAnnotatable metadata)
         {
             Check.NotNull(metadata, nameof(metadata));
-            Check.NullButNotEmpty(providerPrefix, nameof(providerPrefix));
 
             Metadata = metadata;
-            ProviderPrefix = providerPrefix;
         }
 
         public virtual IAnnotatable Metadata { get; }
 
-        public virtual string ProviderPrefix { get; }
-
-        public virtual object GetAnnotation([NotNull] string annotationName)
+        public virtual object GetAnnotation([NotNull] string fallbackAnnotationName, [CanBeNull] string primaryAnnotationName)
         {
-            Check.NotEmpty(annotationName, nameof(annotationName));
+            // Not using Check for perf
+            Debug.Assert(!string.IsNullOrEmpty(fallbackAnnotationName));
 
-            return (ProviderPrefix == null ? null : Metadata[ProviderPrefix + annotationName])
-                   ?? Metadata[RelationalAnnotationNames.Prefix + annotationName];
+            return (primaryAnnotationName == null ? null : Metadata[primaryAnnotationName])
+                   ?? Metadata[fallbackAnnotationName];
         }
 
-        public virtual bool SetAnnotation([NotNull] string annotationName, [CanBeNull] object value)
+        public virtual bool SetAnnotation(
+            [NotNull] string relationalAnnotationName,
+            [CanBeNull] string providerAnnotationName,
+            [CanBeNull] object value)
         {
-            Check.NotEmpty(annotationName, nameof(annotationName));
+            // Not using Check for perf
+            Debug.Assert(!string.IsNullOrEmpty(relationalAnnotationName));
 
             var annotatable = Metadata as IMutableAnnotatable;
             Debug.Assert(annotatable != null);
 
-            var fullName = (ProviderPrefix ?? RelationalAnnotationNames.Prefix) + annotationName;
-            annotatable[fullName] = value;
+            annotatable[providerAnnotationName ?? relationalAnnotationName] = value;
             return true;
         }
     }

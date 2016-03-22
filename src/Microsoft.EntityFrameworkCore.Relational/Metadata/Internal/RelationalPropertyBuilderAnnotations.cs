@@ -10,17 +10,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public RelationalPropertyBuilderAnnotations(
             [NotNull] InternalPropertyBuilder internalBuilder,
             ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource, providerPrefix))
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
         {
         }
 
-        public new virtual bool ColumnName([CanBeNull] string value) => SetColumnName(value);
+        public virtual bool HasColumnName([CanBeNull] string value) => SetColumnName(value);
 
-        public new virtual bool ColumnType([CanBeNull] string value) => SetColumnType(value);
+        public virtual bool HasColumnType([CanBeNull] string value) => SetColumnType(value);
 
-        public new virtual bool GeneratedValueSql([CanBeNull] string value) => SetGeneratedValueSql(value);
+        public virtual bool HasGeneratedValueSql([CanBeNull] string value) => SetGeneratedValueSql(value);
 
-        public new virtual bool DefaultValue([CanBeNull] object value) => SetDefaultValue(value);
+        public virtual bool HasDefaultValue([CanBeNull] object value) => SetDefaultValue(value);
     }
 }

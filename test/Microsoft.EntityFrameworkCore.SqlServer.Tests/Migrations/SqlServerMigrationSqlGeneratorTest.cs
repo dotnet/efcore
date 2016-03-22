@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     ClrType = typeof(int),
                     ColumnType = "int",
                     IsNullable = false,
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] =
+                    [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 {
                     Table = "People",
                     Columns = new[] { "Id" },
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = false
+                    [SqlServerFullAnnotationNames.Instance.Clustered] = false
                 });
 
             Assert.Equal(
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Table = "People",
                     Name = "Id",
                     ClrType = typeof(int),
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] =
+                    [SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy] =
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Name = "IX_People_Name",
                     Table = "People",
                     Columns = new[] { "Name" },
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = true
+                    [SqlServerFullAnnotationNames.Instance.Clustered] = true
                 });
 
             Assert.Equal(
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = true
+                    [SqlServerFullAnnotationNames.Instance.Clustered] = true
                 });
 
             Assert.Equal(
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = false
+                    [SqlServerFullAnnotationNames.Instance.Clustered] = false
                 });
 
             Assert.Equal(

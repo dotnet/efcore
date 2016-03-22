@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
 
             Assert.Equal(1, model.GetAnnotations().Count());
 
-            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, model.GetAnnotations().Single().Name);
+            Assert.Equal(SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy, model.GetAnnotations().Single().Name);
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.GetAnnotations().Single().Value);
         }
 
@@ -31,18 +31,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
             var annotations = model.GetAnnotations().OrderBy(a => a.Name);
             Assert.Equal(3, annotations.Count());
 
-            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName, annotations.ElementAt(0).Name);
-            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, annotations.ElementAt(0).Value);
+            Assert.Equal(SqlServerFullAnnotationNames.Instance.HiLoSequenceName, annotations.ElementAt(0).Name);
+            Assert.Equal(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName, annotations.ElementAt(0).Value);
 
             Assert.Equal(
-                SqlServerAnnotationNames.Prefix +
-                RelationalAnnotationNames.Sequence +
+                SqlServerFullAnnotationNames.Instance.SequencePrefix +
                 "." +
-                SqlServerAnnotationNames.DefaultHiLoSequenceName,
+                SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName,
                 annotations.ElementAt(1).Name);
             Assert.NotNull(annotations.ElementAt(1).Value);
 
-            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, annotations.ElementAt(2).Name);
+            Assert.Equal(SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy, annotations.ElementAt(2).Name);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, annotations.ElementAt(2).Value);
         }
     }

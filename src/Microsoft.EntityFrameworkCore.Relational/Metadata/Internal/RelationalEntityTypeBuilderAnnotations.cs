@@ -12,23 +12,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class RelationalEntityTypeBuilderAnnotations : RelationalEntityTypeAnnotations
     {
+        protected readonly string DefaultDiscriminatorName = "Discriminator";
+
         public RelationalEntityTypeBuilderAnnotations(
             [NotNull] InternalEntityTypeBuilder internalBuilder,
             ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource, providerPrefix))
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
         {
         }
 
-        public new virtual RelationalAnnotationsBuilder Annotations => (RelationalAnnotationsBuilder)base.Annotations;
-
-        public virtual InternalEntityTypeBuilder EntityTypeBuilder => (InternalEntityTypeBuilder)Annotations.EntityTypeBuilder;
+        protected new virtual RelationalAnnotationsBuilder Annotations => (RelationalAnnotationsBuilder)base.Annotations;
+        protected virtual InternalEntityTypeBuilder EntityTypeBuilder => (InternalEntityTypeBuilder)Annotations.MetadataBuilder;
 
         public virtual bool ToTable([CanBeNull] string name)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
             return SetTableName(name);
+        }
+
+        public virtual bool ToSchema([CanBeNull] string name)
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+
+            return SetSchema(name);
         }
 
         public virtual bool ToTable([CanBeNull] string name, [CanBeNull] string schema)
@@ -103,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            return new DiscriminatorBuilder(this);
+            return new DiscriminatorBuilder(Annotations, entityBuilder
+                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource, ProviderFullAnnotationNames));
         }
 
         private DiscriminatorBuilder DiscriminatorBuilder(
@@ -131,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else if (discriminatorProperty == null)
             {
-                propertyBuilder = rootTypeBuilder.Property(GetDefaultDiscriminatorName(), ConfigurationSource.Convention);
+                propertyBuilder = rootTypeBuilder.Property(DefaultDiscriminatorName, ConfigurationSource.Convention);
             }
             else
             {
@@ -175,15 +184,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             propertyBuilder.IsRequired(true, configurationSource);
-            //propertyBuilder.ReadOnlyBeforeSave(true, configurationSource);// #2132
+            // TODO: #2132
+            //propertyBuilder.ReadOnlyBeforeSave(true, configurationSource);
             propertyBuilder.ReadOnlyAfterSave(true, configurationSource);
             propertyBuilder.RequiresValueGenerator(true, configurationSource);
 
-            return new DiscriminatorBuilder(this);
+            return new DiscriminatorBuilder(Annotations, entityBuilder
+                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource, ProviderFullAnnotationNames));
         }
 
-        public new virtual bool DiscriminatorValue([CanBeNull] object value) => SetDiscriminatorValue(value);
-
-        protected virtual string GetDefaultDiscriminatorName() => "Discriminator";
+        public virtual bool HasDiscriminatorValue([CanBeNull] object value) => SetDiscriminatorValue(value);
     }
 }

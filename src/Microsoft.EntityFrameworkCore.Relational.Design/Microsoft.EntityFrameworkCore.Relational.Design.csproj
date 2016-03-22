@@ -8,7 +8,7 @@
     <ProjectGuid>{1942C281-C12B-4818-8CC8-C42842871FF5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Scaffolding</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -75,6 +75,7 @@
     <Compile Include="Metadata\IndexColumnModel.cs" />
     <Compile Include="Metadata\IndexModel.cs" />
     <Compile Include="Metadata\Internal\ScaffoldingAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\ScaffoldingFullAnnotationNames.cs" />
     <Compile Include="Metadata\ScaffoldingForeignKeyAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingMetadataExtensions.cs" />
     <Compile Include="Metadata\ScaffoldingModelAnnotations.cs" />

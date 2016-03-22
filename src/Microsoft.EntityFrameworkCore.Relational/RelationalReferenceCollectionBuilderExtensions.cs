@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -18,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            referenceCollectionBuilder.Metadata.Relational().Name = name;
+            referenceCollectionBuilder.GetInfrastructure<InternalRelationshipBuilder>().Relational(ConfigurationSource.Explicit).HasConstraintName(name);
 
             return referenceCollectionBuilder;
         }

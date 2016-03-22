@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -11,38 +12,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalForeignKeyAnnotations : IRelationalForeignKeyAnnotations
     {
-        public RelationalForeignKeyAnnotations([NotNull] IForeignKey foreignKey, [CanBeNull] string providerPrefix)
-            : this(new RelationalAnnotations(foreignKey, providerPrefix))
+        protected const string DefaultForeignKeyNamePrefix = "FK";
+
+        protected readonly RelationalFullAnnotationNames ProviderFullAnnotationNames;
+
+        public RelationalForeignKeyAnnotations([NotNull] IForeignKey foreignKey,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
+            : this(new RelationalAnnotations(foreignKey), providerFullAnnotationNames)
         {
         }
 
-        protected RelationalForeignKeyAnnotations([NotNull] RelationalAnnotations annotations)
+        protected RelationalForeignKeyAnnotations([NotNull] RelationalAnnotations annotations,
+            [CanBeNull] RelationalFullAnnotationNames providerFullAnnotationNames)
         {
             Annotations = annotations;
+            ProviderFullAnnotationNames = providerFullAnnotationNames;
         }
 
         protected virtual RelationalAnnotations Annotations { get; }
-
         protected virtual IForeignKey ForeignKey => (IForeignKey)Annotations.Metadata;
+
+        protected virtual IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
+            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
 
         public virtual string Name
         {
-            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name) ?? GetDefaultName(); }
+            get
+            {
+                return (string)Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.Name,
+                    ProviderFullAnnotationNames?.Name)
+                       ?? GetDefaultName();
+            }
             [param: CanBeNull] set { SetName(value); }
         }
 
         protected virtual bool SetName([CanBeNull] string value)
-            => Annotations.SetAnnotation(RelationalAnnotationNames.Name, Check.NullButNotEmpty(value, nameof(value)));
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.Name,
+                ProviderFullAnnotationNames?.Name,
+                Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
         {
-            var entityType = new RelationalEntityTypeAnnotations(ForeignKey.DeclaringEntityType, Annotations.ProviderPrefix);
-            var principalEntityType = new RelationalEntityTypeAnnotations(
-                ForeignKey.PrincipalEntityType,
-                Annotations.ProviderPrefix);
-
-            return GetDefaultForeignKeyName(entityType.TableName,
-                principalEntityType.TableName, ForeignKey.Properties.Select(p => p.Name));
+            return GetDefaultForeignKeyName(
+                GetAnnotations(ForeignKey.DeclaringEntityType).TableName,
+                GetAnnotations(ForeignKey.PrincipalEntityType).TableName,
+                ForeignKey.Properties.Select(p => p.Name));
         }
 
         public static string GetDefaultForeignKeyName(
@@ -54,9 +70,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Check.NotEmpty(principalTableName, nameof(principalTableName));
             Check.NotNull(dependentEndPropertyNames, nameof(dependentEndPropertyNames));
 
-            return "FK_" + dependentTableName +
-                "_" + principalTableName +
-                "_" + string.Join("_", dependentEndPropertyNames);
+            return new StringBuilder()
+                .Append(DefaultForeignKeyNamePrefix)
+                .Append("_")
+                .Append(dependentTableName)
+                .Append("_")
+                .Append(principalTableName)
+                .Append("_")
+                .AppendJoin(dependentEndPropertyNames, "_")
+                .ToString();
         }
     }
 }

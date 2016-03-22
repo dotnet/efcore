@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,5 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             model[CoreAnnotationNames.ProductVersionAnnotation] = value;
         }
+
+        public static IEnumerable<IEntityType> GetRootEntityTypes([NotNull] this IModel model)
+            => model.GetEntityTypes().Where(e => e.BaseType == null);
     }
 }

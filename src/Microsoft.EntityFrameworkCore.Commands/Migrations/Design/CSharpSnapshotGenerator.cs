@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultSchema, nameof(RelationalModelBuilderExtensions.HasDefaultSchema), stringBuilder);
+                    GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.DefaultSchema, nameof(RelationalModelBuilderExtensions.HasDefaultSchema), stringBuilder);
 
                     GenerateAnnotations(annotations, stringBuilder);
                 }
@@ -245,15 +245,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = property.GetAnnotations().ToList();
 
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnType, nameof(RelationalPropertyBuilderExtensions.HasColumnType), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.ColumnType, nameof(RelationalPropertyBuilderExtensions.HasColumnType), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations,
-                RelationalAnnotationNames.GeneratedValueSql,
+                RelationalFullAnnotationNames.Instance.GeneratedValueSql,
                 property.ValueGenerated == ValueGenerated.OnAdd
                     ? nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)
                     : nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
                 stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue, nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.DefaultValue, nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), stringBuilder);
 
             GenerateAnnotations(annotations, stringBuilder);
         }
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 var annotations = key.GetAnnotations().ToList();
 
-                GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.Name, nameof(RelationalKeyBuilderExtensions.HasName), stringBuilder);
+                GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.Name, nameof(RelationalKeyBuilderExtensions.HasName), stringBuilder);
 
                 GenerateAnnotations(annotations, stringBuilder);
             }
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 var annotations = index.GetAnnotations().ToList();
 
-                GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.Name, nameof(RelationalIndexBuilderExtensions.HasName), stringBuilder);
+                GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.Name, nameof(RelationalIndexBuilderExtensions.HasName), stringBuilder);
 
                 GenerateAnnotations(annotations, stringBuilder);
             }
@@ -359,14 +359,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var annotations = entityType.GetAnnotations().ToList();
-            var tableNameAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName);
-            var schemaAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Schema);
+            var tableNameAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalFullAnnotationNames.Instance.TableName);
+            var schemaAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalFullAnnotationNames.Instance.Schema);
 
             stringBuilder
                 .AppendLine()
                 .AppendLine()
                 .Append("b.")
-                .Append(nameof(RelationalEntityTypeBuilderAnnotations.ToTable))
+                .Append(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
                 .Append("(")
                 .Append(_code.Literal((string)tableNameAnnotation?.Value ?? entityType.DisplayName()));
             annotations.Remove(tableNameAnnotation);
@@ -381,8 +381,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder.Append(");");
 
-            var discriminatorPropertyAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DiscriminatorProperty);
-            var discriminatorValueAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.Prefix + RelationalAnnotationNames.DiscriminatorValue);
+            var discriminatorPropertyAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalFullAnnotationNames.Instance.DiscriminatorProperty);
+            var discriminatorValueAnnotation = annotations.FirstOrDefault(a => a.Name == RelationalFullAnnotationNames.Instance.DiscriminatorValue);
 
             if ((discriminatorPropertyAnnotation ?? discriminatorValueAnnotation) != null)
             {
@@ -540,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var annotations = foreignKey.GetAnnotations().ToList();
 
             GenerateFluentApiForAnnotation(ref annotations,
-                RelationalAnnotationNames.Name,
+                RelationalFullAnnotationNames.Instance.Name,
                 foreignKey.IsUnique
                     ? nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)
                     : nameof(RelationalReferenceCollectionBuilderExtensions.HasConstraintName),
@@ -568,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] string fluentApiMethodName,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
-            var annotation = annotations.FirstOrDefault(a => a.Name == RelationalAnnotationNames.Prefix + annotationName);
+            var annotation = annotations.FirstOrDefault(a => a.Name == annotationName);
 
             if (annotation?.Value != null)
             {

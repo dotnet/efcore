@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (key.SqlServer().IsClustered.HasValue)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
+                    SqlServerFullAnnotationNames.Instance.Clustered,
                     key.SqlServer().IsClustered.Value);
             }
         }
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (index.SqlServer().IsClustered.HasValue)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
+                    SqlServerFullAnnotationNames.Instance.Clustered,
                     index.SqlServer().IsClustered.Value);
             }
         }
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy,
+                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.IdentityColumn);
             }
         }
