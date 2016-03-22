@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     {
         public SqlServerConventionSetBuilder(
             [NotNull] IRelationalTypeMapper typeMapper,
-            [CanBeNull] DbContext context,
+            [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder)
-            : base(typeMapper, context, setFinder)
+            : base(typeMapper, currentContext, setFinder)
         {
         }
 

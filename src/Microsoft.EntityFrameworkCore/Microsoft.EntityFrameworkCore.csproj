@@ -182,6 +182,8 @@
     <Compile Include="Infrastructure\ModelSource.cs" />
     <Compile Include="Infrastructure\SensitiveDataLogger.cs" />
     <Compile Include="Internal\ConcurrencyDetector.cs" />
+    <Compile Include="Internal\CurrentDbContext.cs" />
+    <Compile Include="Internal\ICurrentDbContext.cs" />
     <Compile Include="Internal\InterceptingLogger.cs" />
     <Compile Include="Internal\CoreOptionsExtension.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />

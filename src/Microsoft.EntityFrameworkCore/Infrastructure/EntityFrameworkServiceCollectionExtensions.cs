@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>))
                 .AddScoped(typeof(ILogger<>), typeof(InterceptingLogger<>))
                 .AddScoped(p => GetContextServices(p).Model)
-                .AddScoped(p => GetContextServices(p).Context)
+                .AddScoped(p => GetContextServices(p).CurrentContext)
                 .AddScoped(p => GetContextServices(p).ContextOptions)
                 .AddScoped(p => GetContextServices(p).DatabaseProviderServices)
                 .AddScoped(p => GetProviderServices(p).Database)

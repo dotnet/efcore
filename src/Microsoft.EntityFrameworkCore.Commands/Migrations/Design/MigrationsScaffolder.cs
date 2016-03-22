@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private readonly string _activeProvider;
 
         public MigrationsScaffolder(
-            [NotNull] DbContext context,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IModel model,
             [NotNull] IMigrationsAssembly migrationsAssembly,
             [NotNull] IMigrationsModelDiffer modelDiffer,
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IDatabaseProviderServices providerServices)
         {
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(model, nameof(model));
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(providerServices, nameof(providerServices));
 
-            _contextType = context.GetType();
+            _contextType = currentContext.Context.GetType();
             _model = model;
             _migrationsAssembly = migrationsAssembly;
             _modelDiffer = modelDiffer;

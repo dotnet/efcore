@@ -51,14 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IDatabase database,
             [NotNull] ISensitiveDataLogger<QueryCompiler> logger,
             [NotNull] MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry,
-            [NotNull] DbContext context)
+            [NotNull] ICurrentDbContext currentContext)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
             Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
             Check.NotNull(compiledQueryCacheKeyGenerator, nameof(compiledQueryCacheKeyGenerator));
             Check.NotNull(database, nameof(database));
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(currentContext, nameof(currentContext));
 
             _queryContextFactory = queryContextFactory;
             _compiledQueryCache = compiledQueryCache;
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _database = database;
             _logger = logger;
             _methodInfoBasedNodeTypeRegistry = methodInfoBasedNodeTypeRegistry;
-            _contextType = context.GetType();
+            _contextType = currentContext.Context.GetType();
         }
 
         protected virtual IDatabase Database => _database;

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IModel model,
             [NotNull] IDatabase database,
             [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] DbContext context)
+            [NotNull] ICurrentDbContext currentContext)
         {
             _factory = factory;
             _subscriber = subscriber;
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _model = model;
             _database = database;
             _concurrencyDetector = concurrencyDetector;
-            Context = context;
+            Context = currentContext.Context;
         }
 
         public virtual bool? SingleQueryMode { get; set; }

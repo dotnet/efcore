@@ -48,15 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private MigrationsScaffolder CreateMigrationScaffolder<TContext>()
             where TContext : DbContext, new()
         {
-            var context = new TContext();
+            var currentContext = new CurrentDbContext(new TContext());
             var idGenerator = new MigrationsIdGenerator();
             var code = new CSharpHelper();
 
             return new MigrationsScaffolder(
-                context,
+                currentContext,
                 new Model(),
                 new MigrationsAssembly(
-                    context,
+                    currentContext,
                     new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
                     idGenerator),
                 new MigrationsModelDiffer(

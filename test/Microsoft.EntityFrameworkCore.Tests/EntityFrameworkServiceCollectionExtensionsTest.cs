@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             VerifyScoped<ValueGeneratorSelector>();
 
             VerifyScoped<IModel>();
-            VerifyScoped<DbContext>();
+            VerifyScoped<ICurrentDbContext>();
             VerifyScoped<IDbContextOptions>();
             VerifyScoped<IDatabaseProviderServices>();
             VerifyScoped<IDatabase>();

@@ -3387,6 +3387,629 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
+        public void Can_add_non_derived_context_with_options()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<DbContext>(b => b.UseInMemoryDatabase())
+                .BuildServiceProvider();
+
+            var singleton = new object[4];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
+                Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Fact]
+        public void Can_add_non_derived_context_with_options_and_external_services()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<DbContext>(
+                    (p, b) => b.UseInMemoryDatabase()
+                        .UseMemoryCache(p.GetService<IMemoryCache>())
+                        .UseLoggerFactory(p.GetService<ILoggerFactory>()))
+                .BuildServiceProvider();
+
+            var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
+            var memoryCache = appServiceProivder.GetService<IMemoryCache>();
+
+            IDbContextOptions options;
+            IInMemoryStore singleton;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.NotNull(options = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.Same(options, context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Fact]
+        public void Can_add_non_derived_context_controlling_internal_services_with_options()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            var singleton = new object[4];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
+                Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+                Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Fact]
+        public void Can_add_non_derived_context_controlling_internal_services_with_options_and_external_services()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<DbContext>(
+                    (p, b) => b.UseInMemoryDatabase()
+                        .UseMemoryCache(p.GetService<IMemoryCache>())
+                        .UseLoggerFactory(p.GetService<ILoggerFactory>())
+                        .UseInternalServiceProvider(p))
+                .BuildServiceProvider();
+
+            var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
+            var memoryCache = appServiceProivder.GetService<IMemoryCache>();
+
+            IDbContextOptions options;
+            IInMemoryStore singleton;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.NotNull(options = context.GetService<IDbContextOptions>());
+
+                Assert.NotNull(context.GetService<ILogger<Random>>());
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
+                Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
+                Assert.Same(options, context.GetService<IDbContextOptions>());
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_derived_context_as_singleton(bool addSingletonFirst)
+        {
+            var appServiceProivder = addSingletonFirst
+                ? new ServiceCollection()
+                    .AddSingleton<ConstructorTestContextWithOC1A>()
+                    .AddDbContext<ConstructorTestContextWithOC1A>()
+                    .BuildServiceProvider()
+                : new ServiceCollection()
+                    .AddDbContext<ConstructorTestContextWithOC1A>()
+                    .AddSingleton<ConstructorTestContextWithOC1A>()
+                    .BuildServiceProvider();
+
+            var singleton = new object[3];
+            DbContext context1;
+            DbContext context2;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+            }
+
+            Assert.NotNull(context1.Model);
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
+            }
+
+            Assert.Same(context1, context2);
+            Assert.Same(context1.Model, context2.Model);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_derived_context_as_singleton_controlling_internal_services(bool addSingletonFirst)
+        {
+            var appServiceProivder = addSingletonFirst
+                ? new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                    .AddSingleton<ConstructorTestContextWithOC1A>()
+                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                    .BuildServiceProvider()
+                : new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                    .AddSingleton<ConstructorTestContextWithOC1A>()
+                    .BuildServiceProvider();
+
+            var singleton = new object[3];
+            DbContext context1;
+            DbContext context2;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+            }
+
+            Assert.NotNull(context1.Model);
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
+            }
+
+            Assert.Same(context1, context2);
+            Assert.Same(context1.Model, context2.Model);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_derived_context_as_transient(bool addTransientFirst)
+        {
+            var appServiceProivder = addTransientFirst
+                ? new ServiceCollection()
+                    .AddTransient<ConstructorTestContextWithOC1A>()
+                    .AddDbContext<ConstructorTestContextWithOC1A>()
+                    .BuildServiceProvider()
+                : new ServiceCollection()
+                    .AddDbContext<ConstructorTestContextWithOC1A>()
+                    .AddTransient<ConstructorTestContextWithOC1A>()
+                    .BuildServiceProvider();
+
+            var singleton = new object[3];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                var context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.NotSame(context1, context2);
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+
+                context1.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context1.Model);
+                Assert.NotNull(context2.Model);
+
+                context2.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context2.Model);
+
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+
+                context.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context.Model);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_derived_context_as_transient_controlling_internal_services(bool addTransientFirst)
+        {
+            var appServiceProivder = addTransientFirst
+                ? new ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .AddTransient<ConstructorTestContextWithOC1A>()
+                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                    .BuildServiceProvider()
+                : new ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                    .AddTransient<ConstructorTestContextWithOC1A>()
+                    .BuildServiceProvider();
+
+            var singleton = new object[3];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                var context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.NotSame(context1, context2);
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+
+                context1.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context1.Model);
+                Assert.NotNull(context2.Model);
+
+                context2.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context2.Model);
+
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+
+                context.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context.Model);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_non_derived_context_as_singleton(bool addSingletonFirst)
+        {
+            var appServiceProivder = addSingletonFirst
+                ? new ServiceCollection()
+                    .AddSingleton<DbContext>()
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase())
+                    .BuildServiceProvider()
+                : new ServiceCollection()
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase())
+                    .AddSingleton<DbContext>()
+                    .BuildServiceProvider();
+
+            var singleton = new object[3];
+            DbContext context1;
+            DbContext context2;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context1 = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+            }
+
+            Assert.NotNull(context1.Model);
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
+            }
+
+            Assert.Same(context1, context2);
+            Assert.Same(context1.Model, context2.Model);
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public void Can_add_non_derived_context_as_singleton_controlling_internal_services(bool addSingletonFirst, bool addEfFirst)
+        {
+            var serviceCollection = new ServiceCollection();
+
+            if (addEfFirst)
+            {
+                serviceCollection.AddEntityFrameworkInMemoryDatabase();
+            }
+
+            if (addSingletonFirst)
+            {
+                serviceCollection
+                    .AddSingleton<DbContext>()
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p));
+            }
+            else
+            {
+                serviceCollection
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                    .AddSingleton<DbContext>();
+            }
+
+            if (!addEfFirst)
+            {
+                serviceCollection.AddEntityFrameworkInMemoryDatabase();
+            }
+
+            var appServiceProivder = serviceCollection.BuildServiceProvider();
+
+            var singleton = new object[3];
+            DbContext context1;
+            DbContext context2;
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context1 = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+            }
+
+            Assert.NotNull(context1.Model);
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
+            }
+
+            Assert.Same(context1, context2);
+            Assert.Same(context1.Model, context2.Model);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_non_derived_context_as_transient(bool addTransientFirst)
+        {
+            var appServiceProivder = addTransientFirst
+                ? new ServiceCollection()
+                    .AddTransient<DbContext>()
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase())
+                    .BuildServiceProvider()
+                : new ServiceCollection()
+                    .AddDbContext<DbContext>(b => b.UseInMemoryDatabase())
+                    .AddTransient<DbContext>()
+                    .BuildServiceProvider();
+
+            var singleton = new object[3];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context1 = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotSame(context1, context2);
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+
+                context1.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context1.Model);
+                Assert.NotNull(context2.Model);
+
+                context2.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context2.Model);
+
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+
+                context.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context.Model);
+            }
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public void Can_add_non_derived_context_as_transient_controlling_internal_services(bool addTransientFirst, bool addEfFirst)
+        {
+            var serviceCollection = new ServiceCollection();
+
+            if (addEfFirst)
+            {
+                serviceCollection.AddEntityFrameworkInMemoryDatabase();
+            }
+
+            if (addTransientFirst)
+            {
+                serviceCollection
+                    .AddTransient<DbContext>()
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p));
+            }
+            else
+            {
+                serviceCollection
+                    .AddDbContext<DbContext>((p, b) => b.UseInMemoryDatabase().UseInternalServiceProvider(p))
+                    .AddTransient<DbContext>();
+            }
+
+            if (!addEfFirst)
+            {
+                serviceCollection.AddEntityFrameworkInMemoryDatabase();
+            }
+
+            var appServiceProivder = serviceCollection.BuildServiceProvider();
+
+            var singleton = new object[3];
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context1 = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.NotSame(context1, context2);
+
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
+                Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
+
+                Assert.NotNull(context1.GetService<ILogger<Random>>());
+
+                context1.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context1.Model);
+                Assert.NotNull(context2.Model);
+
+                context2.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context2.Model);
+
+            }
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
+                Assert.Same(singleton[2], context.GetService<IMemoryCache>());
+
+                context.Dispose();
+                Assert.Throws<ObjectDisposedException>(() => context.Model);
+            }
+        }
+
+        [Fact]
         public void Throws_with_new_when_no_EF_services()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()

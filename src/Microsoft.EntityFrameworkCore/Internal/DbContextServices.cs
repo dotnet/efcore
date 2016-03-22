@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private IServiceProvider _provider;
         private IDbContextOptions _contextOptions;
-        private DbContext _context;
+        private ICurrentDbContext _currentContext;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<IDatabaseProviderServices> _providerServices;
         private bool _inOnModelCreating;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             _provider = scopedProvider;
             _contextOptions = contextOptions;
-            _context = context;
+            _currentContext = new CurrentDbContext(context);
 
             _providerServices = new LazyRef<IDatabaseProviderServices>(() =>
                 _provider.GetRequiredService<IDatabaseProviderSelector>().SelectServices());
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _inOnModelCreating = true;
 
                 return _providerServices.Value.ModelSource.GetModel(
-                    _context,
+                    _currentContext.Context,
                     _providerServices.Value.ConventionSetBuilder,
                     _providerServices.Value.ModelValidator);
             }
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        public virtual DbContext Context => _context;
+        public virtual ICurrentDbContext CurrentContext => _currentContext;
 
         public virtual IModel Model => CoreOptions?.Model ?? _modelFromSource.Value;
 

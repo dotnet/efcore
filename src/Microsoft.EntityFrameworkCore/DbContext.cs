@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -15,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -126,9 +124,9 @@ namespace Microsoft.EntityFrameworkCore
                 OnConfiguring(optionsBuilder);
 
                 var options = optionsBuilder.Options;
-                
+
                 var serviceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider
-                    ?? ServiceProviderCache.Instance.GetOrAdd(options);
+                                      ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
                 _serviceScope = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
@@ -345,6 +343,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             _disposed = true;
             _serviceScope?.Dispose();
+            _setInitializer = null;
+            _changeTracker = null;
+            _stateManager = null;
+            _changeDetector = null;
+            _graphAttacher = null;
+            _model = null;
         }
 
         /// <summary>

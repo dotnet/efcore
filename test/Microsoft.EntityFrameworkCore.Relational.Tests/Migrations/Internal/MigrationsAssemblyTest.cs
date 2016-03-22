@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 
         private IMigrationsAssembly CreateMigrationsAssembly()
             => new MigrationsAssembly(
-                new Context(),
+                new CurrentDbContext(new Context()),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
                     {

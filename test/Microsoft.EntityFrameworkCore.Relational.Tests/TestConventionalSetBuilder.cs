@@ -11,9 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
     public class TestConventionalSetBuilder : RelationalConventionSetBuilder
     {
         public TestConventionalSetBuilder(IRelationalTypeMapper typeMapper,
-            DbContext context,
+            ICurrentDbContext currentContext,
             IDbSetFinder setFinder)
-            : base(typeMapper, context, setFinder)
+            : base(typeMapper, currentContext, setFinder)
         {
         }
 

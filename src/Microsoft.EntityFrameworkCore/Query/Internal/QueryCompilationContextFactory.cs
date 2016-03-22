@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,12 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] ILogger<QueryCompilationContextFactory> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] DbContext context)
+            [NotNull] ICurrentDbContext currentContext)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(currentContext, nameof(currentContext));
 
             Model = model;
             Logger = logger;
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             EntityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             RequiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
 
-            _context = context;
+            _context = currentContext.Context;
         }
 
         protected virtual IModel Model { get; }

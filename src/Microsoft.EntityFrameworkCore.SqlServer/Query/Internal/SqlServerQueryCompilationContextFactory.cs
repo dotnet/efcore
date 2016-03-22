@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -18,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry,
-            [NotNull] DbContext context)
+            [NotNull] ICurrentDbContext currentContext)
             : base(
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
                 Check.NotNull(methodInfoBasedNodeTypeRegistry, nameof(methodInfoBasedNodeTypeRegistry)),
-                Check.NotNull(context, nameof(context)))
+                Check.NotNull(currentContext, nameof(currentContext)))
         {
         }
 

@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         protected RelationalConventionSetBuilder(
             [NotNull] IRelationalTypeMapper typeMapper,
-            [CanBeNull] DbContext context, 
+            [CanBeNull] ICurrentDbContext currentContext, 
             [CanBeNull] IDbSetFinder setFinder)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             _typeMapper = typeMapper;
-            _context = context;
+            _context = currentContext?.Context;
             _setFinder = setFinder;
         }
 

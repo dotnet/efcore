@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IDbContextOptions contextOptions,
             [NotNull] DbContext context);
 
-        DbContext Context { get; }
+        ICurrentDbContext CurrentContext { get; }
         IModel Model { get; }
         ILoggerFactory LoggerFactory { get; }
         IMemoryCache MemoryCache { get; }

@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IServiceCollection services)
             => services
                 .AddTransient<MigrationsScaffolder>()
-                .AddTransient(_ => contextServices.GetService<DbContext>())
+                .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())
                 .AddTransient(_ => contextServices.GetService<IDatabaseProviderServices>())
                 .AddTransient(_ => contextServices.GetService<IDbContextOptions>())
                 .AddTransient(_ => contextServices.GetService<IHistoryRepository>())

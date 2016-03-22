@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -16,12 +17,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IStateManager stateManager,
             [NotNull] IChangeDetector changeDetector,
             [NotNull] IEntityEntryGraphIterator graphIterator,
-            [NotNull] DbContext context)
+            [NotNull] ICurrentDbContext currentContext)
         {
             _stateManager = stateManager;
             _changeDetector = changeDetector;
             _graphIterator = graphIterator;
-            _context = context;
+            _context = currentContext.Context;
         }
 
         public virtual ChangeTracker Create()
