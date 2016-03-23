@@ -47,17 +47,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression expression)
         {
-            if (!_querySources.ContainsKey(expression.ReferencedQuerySource))
-            {
-                _querySources.Add(expression.ReferencedQuerySource, 0);
-            }
-
-            if (_model.FindEntityType(expression.Type) != null)
-            {
-                _querySources[expression.ReferencedQuerySource]++;
-            }
+            AddQuerySource(expression.ReferencedQuerySource);
 
             return base.VisitQuerySourceReference(expression);
+        }
+
+        private void AddQuerySource(IQuerySource querySource)
+        {
+            if (!_querySources.ContainsKey(querySource))
+            {
+                _querySources.Add(querySource, 0);
+            }
+
+            if (_model.FindEntityType(querySource.ItemType) != null)
+            {
+                _querySources[querySource]++;
+            }
         }
 
         protected override Expression VisitMember(MemberExpression node)
@@ -153,6 +158,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (querySourceReferenceExpression != null)
             {
                 var querySourceTracingExpressionVisitor = new QuerySourceTracingExpressionVisitor();
+
+                if (expression.QueryModel.ResultOperators.LastOrDefault() is DefaultIfEmptyResultOperator)
+                {
+                    var underlyingQuerySource = (((querySourceReferenceExpression.ReferencedQuerySource as MainFromClause)
+                        ?.FromExpression as QuerySourceReferenceExpression)
+                        ?.ReferencedQuerySource as GroupJoinClause)?.JoinClause;
+
+                    if (underlyingQuerySource != null)
+                    {
+                        AddQuerySource(underlyingQuerySource);
+                    }
+                }
 
                 var resultQuerySource
                     = querySourceTracingExpressionVisitor

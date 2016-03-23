@@ -560,8 +560,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // issue 4547
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Join_navigation_translated_to_subquery_nested()
         {
             List<Level1> levelOnes;
@@ -594,8 +593,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        // issue 4547
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Join_navigation_translated_to_subquery_deeply_nested_non_key_join()
         {
             List<Level1> levelOnes;
@@ -1985,7 +1983,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Query_source_materialization_bug_4547()
         {
             using (var context = CreateContext())
