@@ -540,9 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (_blockTaskExpressions)
             {
-                _expression
-                    = _taskBlockingExpressionVisitor
-                        .Visit(_expression);
+                _expression = _taskBlockingExpressionVisitor.Visit(_expression);
             }
         }
 

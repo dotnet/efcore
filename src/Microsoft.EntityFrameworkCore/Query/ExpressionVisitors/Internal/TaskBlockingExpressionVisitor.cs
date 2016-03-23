@@ -33,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 .GetDeclaredMethod(nameof(_Result));
 
         [UsedImplicitly]
-        private static T _Result<T>(Task<T> task) => task.Result;
+        private static T _Result<T>(Task<T> task) => task.GetAwaiter().GetResult();
     }
 }

@@ -39,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual IRelationalConnection Connection { get; }
 
+        public virtual SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1);
+
         public virtual void RegisterValueBufferCursor(
             [NotNull] IValueBufferCursor valueBufferCursor, int? queryIndex)
         {
@@ -64,12 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
-            if (_activeQueries.Count > 0
+            if (Connection.ActiveCursor != null
                 && !Connection.IsMultipleActiveResultSetsEnabled)
             {
-                await _activeQueries.Last().BufferAllAsync(cancellationToken);
+                await Connection.ActiveCursor.BufferAllAsync(cancellationToken);
             }
 
+            Connection.ActiveCursor = valueBufferCursor;
+            
             _activeQueries.Add(valueBufferCursor);
 
             if (queryIndex.HasValue
@@ -84,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (includeQueryIndex > _activeIncludeQueries.Count)
             {
                 var missingEntries = includeQueryIndex - _activeIncludeQueries.Count;
+
                 for (var i = 0; i < missingEntries; i++)
                 {
                     _activeIncludeQueries.Add(null);
@@ -97,9 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
+            Connection.ActiveCursor = null;
+
             _activeQueries.Remove(valueBufferCursor);
 
             var index = _activeIncludeQueries.IndexOf(valueBufferCursor);
+
             if (index >= 0)
             {
                 _activeIncludeQueries[index] = null;
