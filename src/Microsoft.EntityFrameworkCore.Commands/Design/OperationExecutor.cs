@@ -37,30 +37,36 @@ namespace Microsoft.EntityFrameworkCore.Design
             var rootNamespace = (string)args["rootNamespace"];
 
             var assemblyLoader = new AssemblyLoader();
-            var startupAssembly = assemblyLoader.Load(startupTargetName);
 
-            Assembly assembly;
-            try
-            {
-                assembly = assemblyLoader.Load(targetName);
-            }
-            catch (Exception ex)
-            {
-                throw new OperationException(CommandsStrings.UnreferencedAssembly(targetName, startupTargetName), ex);
-            }
-
+            // NOTE: LazyRef is used so any exceptions get passed to the resultHandler
+            var startupAssembly = new LazyRef<Assembly>(
+                () => assemblyLoader.Load(startupTargetName));
+            var assembly = new LazyRef<Assembly>(
+                () =>
+                {
+                    try
+                    {
+                        return assemblyLoader.Load(targetName);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new OperationException(
+                            CommandsStrings.UnreferencedAssembly(targetName, startupTargetName),
+                            ex);
+                    }
+                });
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
                     loggerProvider,
-                    assembly,
-                    startupAssembly,
+                    assembly.Value,
+                    startupAssembly.Value,
                     environment,
                     startupProjectDir));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     assemblyLoader,
                     loggerProvider,
-                    startupAssembly,
+                    startupAssembly.Value,
                     environment,
                     projectDir,
                     startupProjectDir,
@@ -69,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                 () => new MigrationsOperations(
                     assemblyLoader,
                     loggerProvider,
-                    assembly,
-                    startupAssembly,
+                    assembly.Value,
+                    startupAssembly.Value,
                     environment,
                     projectDir,
                     startupProjectDir,

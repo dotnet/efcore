@@ -485,6 +485,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
             }
         }
+
+        [ConditionalFact]
+        public void Assembly_load_errors_are_wrapped()
+        {
+            var targetDir = AppDomain.CurrentDomain.BaseDirectory;
+            using (var executor = new OperationExecutorWrapper(targetDir, "Unknown", targetDir, targetDir, "Unknown"))
+            {
+                Assert.Throws<WrappedOperationException>(() => executor.GetContextTypes());
+            }
+        }
     }
 }
 
