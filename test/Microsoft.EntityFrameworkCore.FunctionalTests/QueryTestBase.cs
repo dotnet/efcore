@@ -4817,6 +4817,154 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var result = q.Where(e => e.TotalOrders > 2).ToList();
 
                 Assert.Equal(15, result.Count);
+
+            }
+        }
+
+        // Set Operations
+
+        [ConditionalFact]
+        public virtual void Concat_simple()
+        {
+            using (var context = CreateContext())
+            {
+                var query1 = context.Set<Customer>()
+                    .Where(c => c.City == "México D.F.");
+
+                var query2 = context.Set<Customer>()
+                    .Where(s => s.ContactTitle == "Owner");
+
+                var query3 = query1.Concat(query2).ToList();
+
+                Assert.Equal(22, query3.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Concat_nested()
+        {
+            AssertQuery<Customer>(
+               cs => cs.Where(c => c.City == "México D.F.").Concat(cs.Where(s => s.City == "Berlin")).Concat(cs.Where(e => e.City == "London")),
+               entryCount: 12);
+        }
+
+        [ConditionalFact]
+        public virtual void Concat_non_entity()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Where(c => c.City == "México D.F.")
+                    .Select(c => c.CustomerID)
+                    .Concat(
+                        context.Set<Customer>()
+                            .Where(s => s.ContactTitle == "Owner")
+                            .Select(c => c.CustomerID))
+                    .ToList();
+
+                Assert.Equal(22, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Except_simple()
+        {
+            AssertQuery<Customer>(
+               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(c => c.City == "México D.F.")),
+               entryCount: 14);
+        }
+
+        [ConditionalFact]
+        public virtual void Except_nested()
+        {
+            AssertQuery<Customer>(
+               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
+               entryCount: 13);
+        }
+
+        [ConditionalFact]
+        public virtual void Except_non_entity()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Where(s => s.ContactTitle == "Owner")
+                    .Select(c => c.CustomerID)
+                    .Except(
+                        context.Set<Customer>()
+                            .Where(c => c.City == "México D.F.")
+                            .Select(c => c.CustomerID))
+                    .ToList();
+
+                Assert.Equal(14, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Intersect_simple()
+        {
+            AssertQuery<Customer>(
+               cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")),
+               entryCount: 3);
+        }
+
+        [ConditionalFact]
+        public virtual void Intersect_nested()
+        {
+            AssertQuery<Customer>(
+               cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")).Intersect(cs.Where(e => e.Fax != null)),
+               entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Intersect_non_entity()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Where(c => c.City == "México D.F.")
+                    .Select(c => c.CustomerID)
+                    .Intersect(
+                        context.Set<Customer>()
+                            .Where(s => s.ContactTitle == "Owner")
+                            .Select(c => c.CustomerID))
+                    .ToList();
+
+                Assert.Equal(3, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Union_simple()
+        {
+            AssertQuery<Customer>(
+               cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(c => c.City == "México D.F.")),
+               entryCount: 19);
+        }
+
+        [ConditionalFact]
+        public virtual void Union_nested()
+        {
+            AssertQuery<Customer>(
+               cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(s => s.City == "México D.F.")).Union(cs.Where(e => e.City == "London")),
+               entryCount: 25);
+        }
+
+        [ConditionalFact]
+        public virtual void Union_non_entity()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Where(s => s.ContactTitle == "Owner")
+                    .Select(c => c.CustomerID)
+                    .Union(
+                        context.Set<Customer>()
+                            .Where(c => c.City == "México D.F.")
+                            .Select(c => c.CustomerID))
+                    .ToList();
+
+                Assert.Equal(19, query.Count);
             }
         }
 

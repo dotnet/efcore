@@ -596,6 +596,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+
+        // Set operations
+        private static readonly MethodInfo _concat = GetMethod("Concat", 1);
+        private static readonly MethodInfo _except = GetMethod("Except", 1);
+        private static readonly MethodInfo _intersect = GetMethod("Intersect", 1);
+        private static readonly MethodInfo _union = GetMethod("Union", 1);
+
+        public virtual MethodInfo Concat => _concat;
+        public virtual MethodInfo Except => _except;
+        public virtual MethodInfo Intersect => _intersect;
+        public virtual MethodInfo Union => _union;
+
+
         private static MethodInfo GetMethod(string name, int parameterCount = 0)
         {
             var candidateMethods

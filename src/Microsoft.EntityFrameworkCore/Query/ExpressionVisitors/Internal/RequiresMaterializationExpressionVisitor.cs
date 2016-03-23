@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();
 
         private QueryModel _queryModel;
-        private Expression _parentSelector;
+        private Expression _selector;
 
         public RequiresMaterializationExpressionVisitor(
             [NotNull] IModel model,
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public virtual ISet<IQuerySource> FindQuerySourcesRequiringMaterialization([NotNull] QueryModel queryModel)
         {
             _queryModel = queryModel;
-            _parentSelector = queryModel.SelectClause.Selector;
+            _selector = queryModel.SelectClause.Selector;
 
             _queryModel.TransformExpressions(Visit);
 
@@ -106,14 +106,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            var oldParentSelector = _parentSelector;
+            var oldParentSelector = _selector;
 
             var leftSubQueryExpression = node.Left as SubQueryExpression;
 
             if ((leftSubQueryExpression != null)
                 && (_model.FindEntityType(leftSubQueryExpression.Type) != null))
             {
-                _parentSelector = leftSubQueryExpression.QueryModel.SelectClause.Selector;
+                _selector = leftSubQueryExpression.QueryModel.SelectClause.Selector;
 
                 leftSubQueryExpression.QueryModel.TransformExpressions(Visit);
             }
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if ((rightSubQueryExpression != null)
                 && (_model.FindEntityType(rightSubQueryExpression.Type) != null))
             {
-                _parentSelector = rightSubQueryExpression.QueryModel.SelectClause.Selector;
+                _selector = rightSubQueryExpression.QueryModel.SelectClause.Selector;
 
                 rightSubQueryExpression.QueryModel.TransformExpressions(Visit);
             }
@@ -136,20 +136,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 Visit(node.Right);
             }
 
-            _parentSelector = oldParentSelector;
+            _selector = oldParentSelector;
 
             return node;
         }
 
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            var oldParentSelector = _parentSelector;
+            var oldParentSelector = _selector;
+            var oldQueryModel = _queryModel;
 
-            _parentSelector = expression.QueryModel.SelectClause.Selector;
+            _selector = expression.QueryModel.SelectClause.Selector;
+            _queryModel = expression.QueryModel;
 
-            expression.QueryModel.TransformExpressions(Visit);
+            _queryModel.TransformExpressions(Visit);
 
-            _parentSelector = oldParentSelector;
+            _selector = oldParentSelector;
+            _queryModel = oldQueryModel;
 
             var querySourceReferenceExpression
                 = expression.QueryModel.SelectClause.Selector
@@ -174,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var resultQuerySource
                     = querySourceTracingExpressionVisitor
                         .FindResultQuerySourceReferenceExpression(
-                            _parentSelector,
+                            _selector,
                             querySourceReferenceExpression.ReferencedQuerySource);
 
                 if ((resultQuerySource == null)
@@ -182,9 +185,52 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     _querySources[querySourceReferenceExpression.ReferencedQuerySource]--;
                 }
+
+                foreach (var sourceExpression in _queryModel.ResultOperators.Select(SetResultOperationSourceExpression).Where(e => e != null))
+                {
+                    if (sourceExpression.Equals(expression))
+                    {
+                        var parentQuerySource = _selector as QuerySourceReferenceExpression;
+                        if ((parentQuerySource != null)
+                            && (_querySources[parentQuerySource.ReferencedQuerySource] > 0)
+                            && (parentQuerySource.Type == querySourceReferenceExpression.Type))
+                        {
+                            _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
+                        }
+                    }
+                }
             }
 
             return expression;
+        }
+
+        private Expression SetResultOperationSourceExpression(ResultOperatorBase resultOperator)
+        {
+            var concatOperator = resultOperator as ConcatResultOperator;
+            if (concatOperator != null)
+            {
+                return concatOperator.Source2;
+            }
+
+            var exceptOperator = resultOperator as ExceptResultOperator;
+            if (exceptOperator != null)
+            {
+                return exceptOperator.Source2;
+            }
+
+            var intersectOperator = resultOperator as IntersectResultOperator;
+            if (intersectOperator != null)
+            {
+                return intersectOperator.Source2;
+            }
+
+            var unionOperator = resultOperator as UnionResultOperator;
+            if (unionOperator != null)
+            {
+                return unionOperator.Source2;
+            }
+
+            return null;
         }
     }
 }
