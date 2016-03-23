@@ -5,6 +5,8 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -25,5 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void Close();
 
         bool IsMultipleActiveResultSetsEnabled { get; }
+
+        IValueBufferCursor ActiveCursor { get; [param: CanBeNull] set;}
     }
 }

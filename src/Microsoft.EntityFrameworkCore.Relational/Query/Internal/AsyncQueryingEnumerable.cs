@@ -53,50 +53,59 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (_buffer == null)
+                try
                 {
-                    if (_dataReader == null)
+                    await _queryingEnumerable._relationalQueryContext.Semaphore.WaitAsync(cancellationToken);
+
+                    if (_buffer == null)
                     {
-                        await _queryingEnumerable._relationalQueryContext.Connection
-                            .OpenAsync(cancellationToken);
+                        if (_dataReader == null)
+                        {
+                            await _queryingEnumerable._relationalQueryContext.Connection
+                                .OpenAsync(cancellationToken);
 
-                        var relationalCommand
-                            = _queryingEnumerable._shaperCommandContext
-                                .GetRelationalCommand(_queryingEnumerable._relationalQueryContext.ParameterValues);
+                            var relationalCommand
+                                = _queryingEnumerable._shaperCommandContext
+                                    .GetRelationalCommand(_queryingEnumerable._relationalQueryContext.ParameterValues);
 
-                        await _queryingEnumerable._relationalQueryContext
-                            .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
+                            await _queryingEnumerable._relationalQueryContext
+                                .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
 
-                        _dataReader
-                            = await relationalCommand.ExecuteReaderAsync(
-                                _queryingEnumerable._relationalQueryContext.Connection,
-                                _queryingEnumerable._relationalQueryContext.ParameterValues,
-                                manageConnection: false,
-                                cancellationToken: cancellationToken);
+                            _dataReader
+                                = await relationalCommand.ExecuteReaderAsync(
+                                    _queryingEnumerable._relationalQueryContext.Connection,
+                                    _queryingEnumerable._relationalQueryContext.ParameterValues,
+                                    manageConnection: false,
+                                    cancellationToken: cancellationToken);
 
-                        _dbDataReader = _dataReader.DbDataReader;
-                        _queryingEnumerable._shaperCommandContext.NotifyReaderCreated(_dbDataReader);
-                        _valueBufferFactory = _queryingEnumerable._shaperCommandContext.ValueBufferFactory;
+                            _dbDataReader = _dataReader.DbDataReader;
+                            _queryingEnumerable._shaperCommandContext.NotifyReaderCreated(_dbDataReader);
+                            _valueBufferFactory = _queryingEnumerable._shaperCommandContext.ValueBufferFactory;
+                        }
+
+                        var hasNext = await _dbDataReader.ReadAsync(cancellationToken);
+
+                        _current
+                            = hasNext
+                                ? _valueBufferFactory.Create(_dbDataReader)
+                                : default(ValueBuffer);
+
+                        return hasNext;
                     }
 
-                    var hasNext = await _dbDataReader.ReadAsync(cancellationToken);
+                    if (_buffer.Count > 0)
+                    {
+                        _current = _buffer.Dequeue();
 
-                    _current
-                        = hasNext
-                            ? _valueBufferFactory.Create(_dbDataReader)
-                            : default(ValueBuffer);
+                        return true;
+                    }
 
-                    return hasNext;
+                    return false;
                 }
-
-                if (_buffer.Count > 0)
+                finally
                 {
-                    _current = _buffer.Dequeue();
-
-                    return true;
+                    _queryingEnumerable._relationalQueryContext.Semaphore.Release();
                 }
-
-                return false;
             }
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
@@ -119,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     _dataReader = null;
+                    _dbDataReader = null;
                 }
             }
 
@@ -132,8 +142,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (!_disposed)
                 {
                     _dataReader?.Dispose();
-                    _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
-                    _queryingEnumerable._relationalQueryContext.Connection?.Close();
+
+                    lock (_queryingEnumerable._relationalQueryContext)
+                    {
+                        _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
+                        _queryingEnumerable._relationalQueryContext.Connection?.Close();
+                    }
 
                     _disposed = true;
                 }

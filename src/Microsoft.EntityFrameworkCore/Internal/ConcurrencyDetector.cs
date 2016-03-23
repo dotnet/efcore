@@ -4,12 +4,15 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    public class ConcurrencyDetector : IConcurrencyDetector
+    public class ConcurrencyDetector : IConcurrencyDetector, IDisposable
     {
         private readonly IDisposable _disposer;
+
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
         private int _inCriticalSection;
 
@@ -28,6 +31,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return _disposer;
         }
 
+        private void ExitCriticalSection()
+        {
+            Debug.Assert(_inCriticalSection == 1, "Expected to be in a critical section");
+
+            _inCriticalSection = 0;
+        }
+
+        public virtual async Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken)
+        {
+            await _semaphore.WaitAsync(cancellationToken);
+
+            return new AsyncDisposer(EnterCriticalSection(), _semaphore);
+        }
+
+        private struct AsyncDisposer : IDisposable
+        {
+            private readonly IDisposable _disposable;
+            private readonly SemaphoreSlim _semaphore;
+
+            public AsyncDisposer(IDisposable disposable, SemaphoreSlim semaphore)
+            {
+                _disposable = disposable;
+                _semaphore = semaphore;
+            }
+
+            public void Dispose()
+            {
+                _disposable.Dispose();
+                _semaphore.Release();
+            }
+        }
+
         private struct Disposer : IDisposable
         {
             private readonly ConcurrencyDetector _concurrencyDetector;
@@ -40,11 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             public void Dispose() => _concurrencyDetector.ExitCriticalSection();
         }
 
-        private void ExitCriticalSection()
-        {
-            Debug.Assert(_inCriticalSection == 1, "Expected to be in a critical section");
-
-            _inCriticalSection = 0;
-        }
+        public virtual void Dispose() => _semaphore.Dispose();
     }
 }

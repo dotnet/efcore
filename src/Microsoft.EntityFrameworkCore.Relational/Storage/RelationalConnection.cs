@@ -12,6 +12,7 @@ using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -279,6 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public virtual bool IsMultipleActiveResultSetsEnabled => false;
+
+        public virtual IValueBufferCursor ActiveCursor { get; set; }
 
         public virtual void Dispose()
         {

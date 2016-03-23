@@ -124,12 +124,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    using (_exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection())
+                    using (await _exceptionInterceptor._queryContext.ConcurrencyDetector
+                        .EnterCriticalSectionAsync(cancellationToken))
                     {
                         try
                         {
-                        // TODO remove this when/if bug is resolved in Ix-Async https://github.com/Reactive-Extensions/Rx.NET/issues/166
-                        cancellationToken.ThrowIfCancellationRequested();
+                            // TODO remove this when/if bug is resolved in Ix-Async https://github.com/Reactive-Extensions/Rx.NET/issues/166
+                            cancellationToken.ThrowIfCancellationRequested();
+
                             return await _innerEnumerator.MoveNext(cancellationToken);
                         }
                         catch (Exception exception)
