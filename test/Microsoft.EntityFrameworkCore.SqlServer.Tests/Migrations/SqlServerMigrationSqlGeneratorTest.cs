@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
             Generate(new EnsureSchemaOperation { Name = "dbo" });
 
             Assert.Equal(
-                ";" + EOL,
+                "",
                 Sql);
         }
 

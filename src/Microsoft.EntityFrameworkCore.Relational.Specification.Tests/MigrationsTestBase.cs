@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -42,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Collection(
                     history.GetAppliedMigrations(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
-                    x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
+                    x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
+                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
             }
         }
 
@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Collection(
                     await history.GetAppliedMigrationsAsync(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
-                    x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
+                    x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
+                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
             }
         }
 
@@ -228,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         protected virtual async Task ExecuteAsync(IServiceProvider services, Action<MigrationBuilder> buildMigration)
         {
             var generator = services.GetRequiredService<IMigrationsSqlGenerator>();
+            var executor = services.GetRequiredService<IMigrationCommandExecutor>();
             var connection = services.GetRequiredService<IRelationalConnection>();
             var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
 
@@ -235,13 +237,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             buildMigration(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 
-            var commands = generator.Generate(operations, model: null);
+            var commandList = generator.Generate(operations, model: null);
 
-            using (var transaction = await connection.BeginTransactionAsync())
-            {
-                await commands.ExecuteNonQueryAsync(connection);
-                transaction.Commit();
-            }
+            await executor.ExecuteNonQueryAsync(commandList, connection);
         }
 
         protected virtual void BuildFirstMigration(MigrationBuilder migrationBuilder)

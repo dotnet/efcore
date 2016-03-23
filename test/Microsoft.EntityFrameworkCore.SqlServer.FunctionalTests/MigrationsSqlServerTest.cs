@@ -93,6 +93,19 @@ VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 
 GO
 
+CREATE DATABASE TransactionSuppressed;
+
+GO
+
+DROP DATABASE TransactionSuppressed;
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+
+GO
+
 ",
                 Sql);
         }
@@ -146,6 +159,28 @@ END;
 
 GO
 
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
+BEGIN
+    CREATE DATABASE TransactionSuppressed;
+END;
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
+BEGIN
+    DROP DATABASE TransactionSuppressed;
+END;
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+END;
+
+GO
+
 ",
                 Sql);
         }
@@ -155,7 +190,12 @@ GO
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"EXEC sp_rename N'Table2', N'Table1';
+                @"DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000003_Migration3';
+
+GO
+
+EXEC sp_rename N'Table2', N'Table1';
 
 GO
 
@@ -182,7 +222,15 @@ GO
             base.Can_generate_idempotent_down_scripts();
 
             Assert.Equal(
-                @"IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+                @"IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000003_Migration3';
+END;
+
+GO
+
+IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
 BEGIN
     EXEC sp_rename N'Table2', N'Table1';
 END;

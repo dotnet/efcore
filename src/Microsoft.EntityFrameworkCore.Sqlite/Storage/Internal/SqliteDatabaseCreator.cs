@@ -22,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] SqliteRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
+            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IModel model,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
-            : base(model, connection, modelDiffer, migrationsSqlGenerator)
+            : base(model, connection, modelDiffer, migrationsSqlGenerator, migrationCommandExecutor)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 

@@ -69,6 +69,9 @@ ALTER TABLE ""Table1"" RENAME TO ""Table2"";
 INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
 
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('00000000000003_Migration3', '7.0.0-test');
+
 ",
                 Sql);
         }
@@ -83,7 +86,10 @@ VALUES ('00000000000002_Migration2', '7.0.0-test');
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+                @"DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = '00000000000003_Migration3';
+
+ALTER TABLE ""Table2"" RENAME TO ""Table1"";
 
 DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000002_Migration2';

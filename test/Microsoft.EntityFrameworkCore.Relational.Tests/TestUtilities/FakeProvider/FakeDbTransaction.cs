@@ -39,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             if (disposing)
             {
                 DisposeCount++;
+
+                ((FakeDbConnection)DbConnection).ActiveTransaction = null;
             }
 
             base.Dispose(disposing);

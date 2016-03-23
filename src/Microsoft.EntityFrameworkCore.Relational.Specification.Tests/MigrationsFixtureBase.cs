@@ -68,5 +68,23 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     name: "Table2",
                     newName: "Table1");
         }
+
+        [DbContext(typeof(MigrationsContext))]
+        [Migration("00000000000003_Migration3")]
+        private class Migration3 : Migration
+        {
+            protected override void Up(MigrationBuilder migrationBuilder)
+            {
+                if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+                {
+                    migrationBuilder.Sql("CREATE DATABASE TransactionSuppressed", suppressTransaction: true);
+                    migrationBuilder.Sql("DROP DATABASE TransactionSuppressed", suppressTransaction: true);
+                }
+            }
+
+            protected override void Down(MigrationBuilder migrationBuilder)
+            {
+            }
+        }
     }
 }

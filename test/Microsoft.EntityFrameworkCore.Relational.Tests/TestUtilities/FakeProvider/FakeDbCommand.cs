@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -54,22 +55,46 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         }
 
         public override int ExecuteNonQuery()
-            => _commandExecutor.ExecuteNonQuery(this);
+        {
+            AssertTransaction();
+
+            return _commandExecutor.ExecuteNonQuery(this);
+        }
 
         public override object ExecuteScalar()
-            => _commandExecutor.ExecuteScalar(this);
+        {
+            AssertTransaction();
+
+            return _commandExecutor.ExecuteScalar(this);
+        }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
-            => _commandExecutor.ExecuteReader(this, behavior);
+        {
+            AssertTransaction();
+
+            return _commandExecutor.ExecuteReader(this, behavior);
+        }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
-            => _commandExecutor.ExecuteNonQueryAsync(this, cancellationToken);
+        {
+            AssertTransaction();
+
+            return _commandExecutor.ExecuteNonQueryAsync(this, cancellationToken);
+        }
 
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
-            => _commandExecutor.ExecuteScalarAsync(this, cancellationToken);
+        {
+            AssertTransaction();
+
+            return _commandExecutor.ExecuteScalarAsync(this, cancellationToken);
+        }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-            => _commandExecutor.ExecuteReaderAsync(this, behavior, cancellationToken);
+        {
+            AssertTransaction();
+
+            return _commandExecutor.ExecuteReaderAsync(this, behavior, cancellationToken);
+        }
 
         public override bool DesignTimeVisible
         {
@@ -93,6 +118,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             }
 
             base.Dispose(disposing);
+        }
+
+        private void AssertTransaction()
+        {
+            if (Transaction == null)
+            {
+                Debug.Assert(((FakeDbConnection)DbConnection).ActiveTransaction == null);
+            }
+            else
+            {
+                var transaction = ((FakeDbTransaction)Transaction);
+
+                Debug.Assert(transaction.Connection == Connection);
+                Debug.Assert(transaction.DisposeCount == 0);
+            }
         }
     }
 }

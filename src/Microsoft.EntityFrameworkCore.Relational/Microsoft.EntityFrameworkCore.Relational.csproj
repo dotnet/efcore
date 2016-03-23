@@ -71,7 +71,9 @@
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
-    <Compile Include="Infrastructure\RelationalCommandListBuilder.cs" />
+    <Compile Include="Migrations\IMigrationCommandExecutor.cs" />
+    <Compile Include="Migrations\Internal\MigrationCommandExecutor.cs" />
+    <Compile Include="Migrations\MigrationCommandListBuilder.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\RelationalServiceCollectionExtensions.cs" />
     <Compile Include="Infrastructure\RelationalLoggingEventId.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="Migrations\Migration.cs" />
     <Compile Include="Migrations\MigrationAttribute.cs" />
     <Compile Include="Migrations\MigrationBuilder.cs" />
+    <Compile Include="Migrations\MigrationCommand.cs" />
     <Compile Include="Migrations\MigrationsAnnotationProvider.cs" />
     <Compile Include="Migrations\MigrationsAssemblyExtensions.cs" />
     <Compile Include="Migrations\MigrationsSqlGenerator.cs" />
@@ -306,7 +309,6 @@
     <Compile Include="Storage\Internal\RelationalCommand.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilder.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilderFactory.cs" />
-    <Compile Include="Storage\Internal\RelationalCommandExtensions.cs" />
     <Compile Include="Storage\Internal\RelationalParameterBuilder.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />

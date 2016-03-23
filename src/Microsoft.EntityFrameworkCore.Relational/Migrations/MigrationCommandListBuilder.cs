@@ -7,16 +7,16 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public class RelationalCommandListBuilder
+    public class MigrationCommandListBuilder
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly List<IRelationalCommand> _commands = new List<IRelationalCommand>();
+        private readonly List<MigrationCommand> _commands = new List<MigrationCommand>();
 
         private IRelationalCommandBuilder _commandBuilder;
 
-        public RelationalCommandListBuilder([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+        public MigrationCommandListBuilder([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
 
@@ -24,20 +24,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _commandBuilder = commandBuilderFactory.Create();
         }
 
-        public virtual IReadOnlyList<IRelationalCommand> GetCommands() => _commands;
+        public virtual IReadOnlyList<MigrationCommand> GetCommandList() => _commands;
 
-        public virtual RelationalCommandListBuilder EndCommand()
+        public virtual MigrationCommandListBuilder EndCommand(bool suppressTransaction = false)
         {
             if (_commandBuilder.GetLength() != 0)
             {
-                _commands.Add(_commandBuilder.Build());
+                _commands.Add(new MigrationCommand(_commandBuilder.Build(), suppressTransaction));
                 _commandBuilder = _commandBuilderFactory.Create();
             }
 
             return this;
         }
 
-        public virtual RelationalCommandListBuilder Append([NotNull] object o)
+        public virtual MigrationCommandListBuilder Append([NotNull] object o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -46,14 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return this;
         }
 
-        public virtual RelationalCommandListBuilder AppendLine()
+        public virtual MigrationCommandListBuilder AppendLine()
         {
             _commandBuilder.AppendLine();
 
             return this;
         }
 
-        public virtual RelationalCommandListBuilder AppendLine([NotNull] object o)
+        public virtual MigrationCommandListBuilder AppendLine([NotNull] object o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return this;
         }
 
-        public virtual RelationalCommandListBuilder AppendLines([NotNull] object o)
+        public virtual MigrationCommandListBuilder AppendLines([NotNull] object o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -73,14 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         public virtual IDisposable Indent() => _commandBuilder.Indent();
 
-        public virtual RelationalCommandListBuilder IncrementIndent()
+        public virtual MigrationCommandListBuilder IncrementIndent()
         {
             _commandBuilder.IncrementIndent();
 
             return this;
         }
 
-        public virtual RelationalCommandListBuilder DecrementIndent()
+        public virtual MigrationCommandListBuilder DecrementIndent()
         {
             _commandBuilder.DecrementIndent();
 

@@ -86,13 +86,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public IReadOnlyList<FakeDbTransaction> DbTransactions => _dbTransactions;
 
+        public FakeDbTransaction ActiveTransaction { get; set; }
+
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            var transaction = new FakeDbTransaction(this, isolationLevel);
+            ActiveTransaction = new FakeDbTransaction(this, isolationLevel);
 
-            _dbTransactions.Add(transaction);
+            _dbTransactions.Add(ActiveTransaction);
 
-            return transaction;
+            return ActiveTransaction;
         }
 
         public int DisposeCount { get; private set; }
