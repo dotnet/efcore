@@ -128,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             public StartupInjected(IHostingEnvironment env, IApplicationEnvironment appEnv)
             {
+                Assert.Equal(@"C:\The\Right\Path", env.ContentRootPath);
                 Assert.Equal("Injected", env.EnvironmentName);
                 Assert.Equal(@"C:\The\Right\Path", appEnv.ApplicationBasePath);
             }

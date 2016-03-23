@@ -97,7 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
         {
-            services.AddSingleton<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = _environment });
+            services.AddSingleton<IHostingEnvironment>(
+                new HostingEnvironment
+                {
+                    ContentRootPath = _startupProjectDir,
+                    EnvironmentName = _environment
+                });
 
             services.AddLogging();
             services.AddOptions();
