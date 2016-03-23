@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var builder = new IndentedStringBuilder();
 
-            if (migrationsToApply.Any(t => t.GetId() == firstMigrationId) || !(migrationsToApply.Any() || migrationsToRevert.Any()))
+            if (toMigration == Migration.InitialDatabase || string.IsNullOrEmpty(fromMigration))
             {
                 builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
                 builder.Append(_sqlGenerationHelper.BatchTerminator);
