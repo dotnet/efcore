@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                             NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
 
-                            if (IsCompositeKey(newLeft.Type))
+                            if (newLeft != null && IsCompositeKey(newLeft.Type))
                             {
                                 newRight = CreateNullCompositeKey(newLeft);
                             }
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                             NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
 
-                            if (IsCompositeKey(newRight.Type))
+                            if (newRight != null && IsCompositeKey(newRight.Type))
                             {
                                 newLeft = CreateNullCompositeKey(newRight);
                             }
@@ -307,6 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             if (node.NodeType != ExpressionType.ArrayIndex 
+                && newLeft != null && newRight != null 
                 && newLeft.Type != newRight.Type)
             {
                 if (newLeft.Type.IsNullableType() && !newRight.Type.IsNullableType())
