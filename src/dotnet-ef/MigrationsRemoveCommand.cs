@@ -21,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
+            var force = command.Option(
+                "-f|--force",
+                "Removes the last migration without checking the database. If the last migration has been applied to the database, you will need to manually reverse the changes it made.",
+                CommandOptionType.NoValue);
             command.HelpOption();
             command.VerboseOption();
 
@@ -28,13 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 () => Execute(
                     context.Value(),
                     startupProject.Value(),
-                    environment.Value()));
+                    environment.Value(),
+                    force.HasValue()));
         }
 
-        private static int Execute(string context, string startupProject, string environment)
+        private static int Execute(string context, string startupProject, string environment, bool force)
         {
             new OperationExecutor(startupProject, environment)
-                .RemoveMigration(context);
+                .RemoveMigration(context, force);
 
             return 0;
         }

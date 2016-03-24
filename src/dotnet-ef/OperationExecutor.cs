@@ -135,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             [CanBeNull] string contextType)
             => _migrationsOperations.Value.ScriptMigration(fromMigration, toMigration, idempotent, contextType);
 
-        public virtual MigrationFiles RemoveMigration([CanBeNull] string contextType)
-            => _migrationsOperations.Value.RemoveMigration(contextType);
+        public virtual MigrationFiles RemoveMigration([CanBeNull] string contextType, bool force)
+            => _migrationsOperations.Value.RemoveMigration(contextType, force);
 
         public virtual IEnumerable<Type> GetContextTypes()
             => _contextOperations.Value.GetContextTypes();

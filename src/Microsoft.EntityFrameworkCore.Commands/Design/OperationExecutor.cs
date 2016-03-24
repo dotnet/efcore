@@ -195,15 +195,16 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(args, nameof(args));
 
                 var contextType = (string)args["contextType"];
+                var force = args.Contains("force") && (bool)args["force"];
 
-                Execute(() => executor.RemoveMigrationImpl(contextType));
+                Execute(() => executor.RemoveMigrationImpl(contextType, force));
             }
         }
 
-        private IEnumerable<string> RemoveMigrationImpl([CanBeNull] string contextType)
+        private IEnumerable<string> RemoveMigrationImpl([CanBeNull] string contextType, bool force)
         {
             var files = _migrationsOperations.Value
-                .RemoveMigration(contextType);
+                .RemoveMigration(contextType, force);
 
             if (files.MigrationFile != null)
             {

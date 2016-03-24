@@ -201,9 +201,7 @@ function Update-Database {
         InvokeDotNetEf $dteProject database update $Migration @options | Out-Null
         Write-Output "Done."
     } else {
-        $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
-        $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
-        if ($frameworkName.Identifier -eq '.NETCore') {
+        if (IsUwpProject $dteProject) {
             throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.Migrate() at runtime.'
         }
 
@@ -358,26 +356,34 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER Environment
     Specifies the environment to use. If omitted, "Development" is used.
 
+.PARAMETER Force
+    Removes the last migration without checking the database. If the last migration has been applied to the database, you will need to manually reverse the changes it made.
+
 .LINK
     Add-Migration
     about_EntityFramework
 #>
 function Remove-Migration {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([string] $Context, [string] $Project, [string] $StartupProject, [string] $Environment)
+    param ([string] $Context, [string] $Project, [string] $StartupProject, [string] $Environment, [switch] $Force)
 
     $values = ProcessCommonParameters $StartupProject $Project $Context
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
     $dteStartupProject = $values.StartupProject
+    $forceRemove = $Force -or (IsUwpProject $dteProject)
 
     if (IsDotNetProject $dteProject) {
         $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+        if ($forceRemove) {
+            $options += "--force"
+        }
         InvokeDotNetEf $dteProject migrations remove @options | Out-Null
         Write-Output "Done."
     } else {
         $filesToRemove = InvokeOperation $dteStartupProject $Environment $dteProject RemoveMigration @{
             contextType = $contextTypeName
+            force = [bool]$forceRemove
         }
 
         $filesToRemove | %{
@@ -586,6 +592,12 @@ function ProcessCommonDotnetParameters($dteProject, $dteStartupProject, $Environ
 
 function IsDotNetProject($project) {
     $project.FileName -like "*.xproj"
+}
+
+function IsUwpProject($project) {
+    $targetFrameworkMoniker = GetProperty $project.Properties TargetFrameworkMoniker
+    $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
+    return $frameworkName.Identifier -eq '.NETCore'
 }
 
 function GetProject($projectName) {

@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     : @namespace;
 
         // TODO: DRY (file names)
-        public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace)
+        public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace, bool force)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
@@ -214,7 +214,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 if (!_modelDiffer.HasDifferences(model, modelSnapshot.Model))
                 {
-                    if (_historyRepository.GetAppliedMigrations().Any(
+                    if (force)
+                    {
+                        _logger.Value.LogWarning(CommandsStrings.ForceRemoveMigration(migration.GetId()));
+                    }
+                    else if (_historyRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
                     {
                         throw new InvalidOperationException(CommandsStrings.UnapplyMigration(migration.GetId()));

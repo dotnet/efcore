@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list or by using the '--targetProject' option for DNX commands. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b => b.MigrationsAssembly("{assembly}"))
+        /// Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list or by using the '--targetProject' option for DNX commands. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}"))
         /// </summary>
         public static string MigrationsAssemblyMismatch([CanBeNull] object assembly, [CanBeNull] object migrationsAssembly)
         {
@@ -314,6 +314,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string SensitiveInformationWarning
         {
             get { return GetString("SensitiveInformationWarning"); }
+        }
+
+        /// <summary>
+        /// Removing migration '{name}' without checking the database. If this migration has been applied to the database, you will need to manually reverse the changes it made.
+        /// </summary>
+        public static string ForceRemoveMigration([CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForceRemoveMigration", "name"), name);
         }
 
         private static string GetString(string name, params string[] formatterNames)

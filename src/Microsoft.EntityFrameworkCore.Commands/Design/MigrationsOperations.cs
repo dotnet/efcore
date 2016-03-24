@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         public virtual MigrationFiles RemoveMigration(
-            [CanBeNull] string contextType)
+            [CanBeNull] string contextType, bool force)
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
 
-                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace);
+                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force);
 
                 _logger.Value.LogInformation(CommandsStrings.Done);
 
