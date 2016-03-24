@@ -512,6 +512,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var navigationValue = entry[principalToDependent];
                         if (navigationValue != null)
                         {
+                            var setModified = entry.EntityState != EntityState.Unchanged;
+
                             if (principalToDependent.IsCollection())
                             {
                                 var dependents = ((IEnumerable)navigationValue).Cast<object>();
@@ -527,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                     }
                                     else
                                     {
-                                        FixupToDependent(entry, dependentEntry, foreignKey, setModified: true);
+                                        FixupToDependent(entry, dependentEntry, foreignKey, setModified);
                                     }
                                 }
                             }
@@ -543,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 }
                                 else
                                 {
-                                    FixupToDependent(entry, dependentEntry, foreignKey, setModified: true);
+                                    FixupToDependent(entry, dependentEntry, foreignKey, setModified);
                                 }
                             }
                         }
@@ -595,10 +597,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (navigationValue != null)
             {
+                var setModified = referencedEntry.EntityState != EntityState.Unchanged;
+
                 if (!navigation.IsDependentToPrincipal())
                 {
-                    var setModified = referencedEntry.EntityState != EntityState.Unchanged;
-
                     if (navigation.IsCollection())
                     {
                         if (navigation.GetCollectionAccessor().Contains(entry.Entity, referencedEntry.Entity))
@@ -613,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else if (referencedEntry.Entity == navigationValue)
                 {
-                    FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified: true);
+                    FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified);
                 }
             }
         }

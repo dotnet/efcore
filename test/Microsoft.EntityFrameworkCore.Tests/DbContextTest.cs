@@ -1018,8 +1018,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Attach(category);
 
@@ -1027,7 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1073,8 +1072,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Attach(category);
 
@@ -1082,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1136,8 +1134,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1193,8 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1248,8 +1244,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1303,8 +1298,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1366,8 +1360,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1490,8 +1483,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1552,8 +1544,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
@@ -1676,8 +1667,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                // Product ends up modified because when category is attached the FK of product is changed
-                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             }
         }
 
