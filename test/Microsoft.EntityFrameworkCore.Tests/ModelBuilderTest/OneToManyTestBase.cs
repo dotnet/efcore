@@ -1922,6 +1922,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(theta.FindNavigation("InverseNavThetas"));
                 Assert.Same(theta.FindNavigation("NavTheta").ForeignKey, theta.FindNavigation("InverseNavThetas").ForeignKey);
             }
+
+            [Fact]
+            public virtual void Shadow_property_created_for_foreign_key_is_nullable()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer).HasForeignKey("MyShadowFk");
+
+                Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).FindProperty("MyShadowFk").IsNullable);
+                Assert.Equal(typeof(int?), modelBuilder.Model.FindEntityType(typeof(Order)).FindProperty("MyShadowFk").ClrType);
+            }
         }
     }
 }

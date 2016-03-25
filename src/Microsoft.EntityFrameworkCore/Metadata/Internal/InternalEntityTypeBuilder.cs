@@ -1462,7 +1462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     else if (type != null)
                     {
                         // TODO: Log that shadow property is created by convention
-                        propertyBuilder = Property(propertyName, type, ConfigurationSource.Convention);
+                        propertyBuilder = Property(propertyName, type.MakeNullable(), ConfigurationSource.Convention);
                     }
                     else
                     {
