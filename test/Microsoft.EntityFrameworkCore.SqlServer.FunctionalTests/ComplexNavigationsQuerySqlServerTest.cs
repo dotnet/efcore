@@ -950,7 +950,7 @@ ORDER BY [e2].[Id]",
         {
             base.Query_source_materialization_bug_4547();
 
-            Assert.StartsWith(
+            Assert.Contains(
                 @"SELECT [e1].[Id]
 FROM [Level1] AS [e1]
 
