@@ -98,20 +98,15 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                     return false;
                 }
 
-                public object Set(object key, object value, MemoryCacheEntryOptions options)
+                public ICacheEntry CreateEntry(object key)
                 {
-                    return value;
+                    return null;
                 }
 
                 public void Remove(object key)
                 {
                 }
-
-                public IEntryLink CreateLinkingScope()
-                {
-                    throw new NotImplementedException();
-                }
-
+                
                 public void Dispose()
                 {
                 }
