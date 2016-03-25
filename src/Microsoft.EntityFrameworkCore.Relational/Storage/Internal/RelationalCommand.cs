@@ -125,11 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             var dbCommand = CreateCommand(connection, parameterValues);
 
-            WriteDiagnostic(
-                RelationalDiagnostics.BeforeExecuteCommand,
-                dbCommand,
-                executeMethod);
-
             object result;
 
             if (openConnection)
@@ -137,15 +132,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 connection.Open();
             }
 
-            Stopwatch stopwatch = null;
+            var startTimestamp = Stopwatch.GetTimestamp();
+            var instanceId = Guid.NewGuid();
+
+            DiagnosticSource.WriteCommandBefore(
+                dbCommand,
+                executeMethod,
+                false,
+                instanceId,
+                startTimestamp);
 
             try
             {
-                if (Logger.IsEnabled(LogLevel.Information))
-                {
-                    stopwatch = Stopwatch.StartNew();
-                }
-
                 switch (executeMethod)
                 {
                     case nameof(ExecuteNonQuery):
@@ -191,22 +189,33 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                 }
 
-                stopwatch?.Stop();
+                var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
+                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
+
+                DiagnosticSource.WriteCommandAfter(
+                    dbCommand,
+                    executeMethod,
+                    false,
+                    instanceId,
+                    startTimestamp,
+                    currentTimestamp);
             }
             catch (Exception exception)
             {
-                stopwatch?.Stop();
+                var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
+                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource
                     .WriteCommandError(
                         dbCommand,
                         executeMethod,
-                        async: false,
-                        exception: exception);
+                        false,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        exception);
 
                 if (openConnection && !closeConnection)
                 {
@@ -222,12 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     connection.Close();
                 }
             }
-
-            WriteDiagnostic(
-                RelationalDiagnostics.AfterExecuteCommand,
-                dbCommand,
-                executeMethod);
-
+            
             return result;
         }
 
@@ -243,13 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             Check.NotEmpty(executeMethod, nameof(executeMethod));
 
             var dbCommand = CreateCommand(connection, parameterValues);
-
-            WriteDiagnostic(
-                RelationalDiagnostics.BeforeExecuteCommand,
-                dbCommand,
-                executeMethod,
-                async: true);
-
+            
             object result;
 
             if (openConnection)
@@ -257,15 +255,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 await connection.OpenAsync(cancellationToken);
             }
 
-            Stopwatch stopwatch = null;
+            var startTimestamp = Stopwatch.GetTimestamp();
+            var instanceId = Guid.NewGuid();
 
+            DiagnosticSource.WriteCommandBefore(
+                dbCommand,
+                executeMethod,
+                true,
+                instanceId,
+                startTimestamp);
+            
             try
             {
-                if (Logger.IsEnabled(LogLevel.Information))
-                {
-                    stopwatch = Stopwatch.StartNew();
-                }
-
                 switch (executeMethod)
                 {
                     case nameof(ExecuteNonQuery):
@@ -311,22 +312,33 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                 }
 
-                stopwatch?.Stop();
+                var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
+                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
+
+                DiagnosticSource.WriteCommandAfter(
+                    dbCommand,
+                    executeMethod,
+                    true,
+                    instanceId,
+                    startTimestamp,
+                    currentTimestamp);
             }
             catch (Exception exception)
             {
-                stopwatch?.Stop();
+                var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
+                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource
                     .WriteCommandError(
                         dbCommand,
                         executeMethod,
-                        async: true,
-                        exception: exception);
+                        true,
+                        instanceId,
+                        startTimestamp,
+                        currentTimestamp,
+                        exception);
 
                 if (openConnection && !closeConnection)
                 {
@@ -343,25 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 }
             }
 
-            WriteDiagnostic(
-                RelationalDiagnostics.AfterExecuteCommand,
-                dbCommand,
-                executeMethod,
-                async: true);
-
             return result;
         }
-
-        private void WriteDiagnostic(
-            string name,
-            DbCommand command,
-            string executeMethod,
-            bool async = false)
-            => DiagnosticSource.WriteCommand(
-                name,
-                command,
-                executeMethod,
-                async: async);
 
         private DbCommand CreateCommand(
             IRelationalConnection connection,

@@ -77,7 +77,8 @@
     <Compile Include="Infrastructure\RelationalLoggingEventId.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
     <Compile Include="Internal\RelationalDiagnostics.cs" />
-    <Compile Include="Internal\RelationalDiagnosticSourceMessage.cs" />
+    <Compile Include="Internal\RelationalDiagnosticSourceAfterMessage.cs" />
+    <Compile Include="Internal\RelationalDiagnosticSourceBeforeMessage.cs" />
     <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder`.cs" />

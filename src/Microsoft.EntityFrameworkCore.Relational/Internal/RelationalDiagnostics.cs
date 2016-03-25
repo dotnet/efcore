@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -15,22 +16,50 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public const string AfterExecuteCommand = NamePrefix + nameof(AfterExecuteCommand);
         public const string CommandExecutionError = NamePrefix + nameof(CommandExecutionError);
 
-        public static void WriteCommand(
+        public static void WriteCommandBefore(
             this DiagnosticSource diagnosticSource,
-            string diagnosticName,
             DbCommand command,
             string executeMethod,
-            bool async)
+            bool async,
+            Guid instanceId,
+            long startTimestamp)
         {
-            if (diagnosticSource.IsEnabled(diagnosticName))
+            if (diagnosticSource.IsEnabled(BeforeExecuteCommand))
             {
                 diagnosticSource.Write(
-                    diagnosticName,
-                    new RelationalDiagnosticSourceMessage
+                    BeforeExecuteCommand,
+                    new RelationalDiagnosticSourceBeforeMessage
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,
-                        IsAsync = async
+                        IsAsync = async,
+                        InstanceId = instanceId,
+                        Timestamp = startTimestamp
+                    });
+            }
+        }
+
+        public static void WriteCommandAfter(
+            this DiagnosticSource diagnosticSource,
+            DbCommand command,
+            string executeMethod,
+            bool async,
+            Guid instanceId,
+            long startTimestamp,
+            long currentTimestamp)
+        {
+            if (diagnosticSource.IsEnabled(AfterExecuteCommand))
+            {
+                diagnosticSource.Write(
+                    AfterExecuteCommand,
+                    new RelationalDiagnosticSourceAfterMessage
+                    {
+                        Command = command,
+                        ExecuteMethod = executeMethod,
+                        IsAsync = async,
+                        InstanceId = instanceId,
+                        Timestamp = currentTimestamp,
+                        Duration = currentTimestamp - startTimestamp
                     });
             }
         }
@@ -40,17 +69,23 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DbCommand command,
             string executeMethod,
             bool async,
+            Guid instanceId,
+            long startTimestamp,
+            long currentTimestamp,
             Exception exception)
         {
             if (diagnosticSource.IsEnabled(CommandExecutionError))
             {
                 diagnosticSource.Write(
                     CommandExecutionError,
-                    new RelationalDiagnosticSourceMessage
+                    new RelationalDiagnosticSourceAfterMessage
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,
                         IsAsync = async,
+                        InstanceId = instanceId,
+                        Timestamp = currentTimestamp,
+                        Duration = currentTimestamp - startTimestamp,
                         Exception = exception
                     });
             }
