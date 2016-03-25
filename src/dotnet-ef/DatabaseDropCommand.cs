@@ -8,11 +8,11 @@ using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Commands
 {
-    public class DatabaseDeleteCommand
+    public class DatabaseDropCommand
     {
         public static void Configure([NotNull] CommandLineApplication command)
         {
-            command.Description = "Drop the database for specific enviroment";
+            command.Description = "Drop the database for specific environment";
 
             var startupProject = command.Option(
                 "-s|--startup-project <project>",
@@ -39,12 +39,18 @@ namespace Microsoft.EntityFrameworkCore.Commands
             new OperationExecutor(startupProject, environment)
                 .DropDatabase(
                     context,
-                    message =>
+                    (database, dataSource) =>
                     {
-                        Reporter.Output.WriteLine(message);
+                        if (isForced)
+                        {
+                            return true;
+                        }
+
+                        Reporter.Output.WriteLine(
+                            $"Are you sure you want to drop the database '{database}' on server '{dataSource}'? (y/N)");
                         var readedKey = Console.ReadKey().KeyChar;
 
-                        return isForced || (readedKey == 'y') || (readedKey == 'Y');
+                        return (readedKey == 'y') || (readedKey == 'Y');
                     });
 
             return 0;

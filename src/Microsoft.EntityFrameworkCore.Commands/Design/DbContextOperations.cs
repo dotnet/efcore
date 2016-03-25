@@ -47,12 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Design
             _runtimeServices = startup.ConfigureServices();
         }
 
-        public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, bool> confirmCheck)
+        public virtual void DropDatabase([CanBeNull] string contextType, [NotNull] Func<string, string, bool> confirmCheck)
         {
-            using (var context = CreateContext(contextName))
+            using (var context = CreateContext(contextType))
             {
-                if (confirmCheck(
-                    $"Are you sure you want to drop the database '{context.Database.GetDbConnection().Database}' on server '{context.Database.GetDbConnection().DataSource}'? (y/N)"))
+                var connection = context.Database.GetDbConnection();
+                if (confirmCheck(connection.Database, connection.DataSource))
                 {
                     context.Database.EnsureDeleted();
                 }
