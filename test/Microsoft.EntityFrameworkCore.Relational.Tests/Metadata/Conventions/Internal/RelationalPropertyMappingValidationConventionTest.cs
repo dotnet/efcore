@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.In
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Property", typeof(long), ConfigurationSource.Convention);
 
-            Assert.Equal(CoreStrings.PropertyNotMapped("Property", typeof(long).DisplayName(fullName: false), typeof(NonPrimitiveAsPropertyEntity).DisplayName(fullName: false)),
+            Assert.Equal(CoreStrings.PropertyNotMapped(
+                typeof(NonPrimitiveAsPropertyEntity).DisplayName(fullName: false), "Property", typeof(long).DisplayName(fullName: false)),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 
@@ -30,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.In
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Property", typeof(long), ConfigurationSource.Convention).Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
 
-            Assert.Equal(CoreStrings.PropertyNotMapped("Property", typeof(long).DisplayName(fullName: false), typeof(NonPrimitiveAsPropertyEntity).DisplayName(fullName: false)),
+            Assert.Equal(CoreStrings.PropertyNotMapped(
+                typeof(NonPrimitiveAsPropertyEntity).DisplayName(fullName: false), "Property", typeof(long).DisplayName(fullName: false)),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
 
