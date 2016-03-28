@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         internal enum PropertyFlag
         {
             TemporaryOrModified = 0,
-            Null = 1
+            Null = 1,
+            Unknown = 2
         }
 
         internal struct StateData
@@ -18,11 +19,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private const int BitsPerInt = 32;
             private const int BitsForEntityState = 3;
             private const int BitsForEntityFlags = 1;
-            private const int BitsForPropertyFlags = 2;
+            private const int BitsForPropertyFlags = 4;
             private const int BitsForAdditionalState = BitsForEntityState + BitsForEntityFlags;
             private const int EntityStateMask = 0x07;
             private const int UnusedStateMask = 0x08; // So entity state uses even number of bits
             private const int AdditionalStateMask = EntityStateMask | UnusedStateMask;
+            private const int PropertyFlagMask = 0x11111111;
 
             private readonly int[] _bits;
 
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private static int CreateMaskForRead(int i, PropertyFlag propertyFlag)
             {
-                var mask = 0x55555555 << (int)propertyFlag;
+                var mask = PropertyFlagMask << (int)propertyFlag;
                 if (i == 0)
                 {
                     mask &= ~AdditionalStateMask;
@@ -92,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (i == _bits.Length - 1)
                 {
-                    var overlay = 0x55555555 << (int)propertyFlag;
+                    var overlay = PropertyFlagMask << (int)propertyFlag;
                     var shift = (propertyCount * BitsForPropertyFlags + BitsForAdditionalState) % BitsPerInt;
                     overlay = shift != 0 ? overlay << shift : 0;
                     mask &= ~overlay;

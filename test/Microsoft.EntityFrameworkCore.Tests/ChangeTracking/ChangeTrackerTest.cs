@@ -947,6 +947,95 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             }
         }
 
+        [Fact]
+        public void Shadow_properties_are_not_included_in_update_unless_value_explicitly_set()
+        {
+            int id;
+
+            using (var context = new TheShadows())
+            {
+                var entry = context.Add(new Dark());
+
+                Assert.NotEqual(0, id = entry.Property<int>("Id").CurrentValue);
+                Assert.Equal(0, entry.Property<int>("SomeInt").CurrentValue);
+                Assert.Null(entry.Property<string>("SomeString").CurrentValue);
+
+                entry.Property<int>("SomeInt").CurrentValue = 77;
+                entry.Property<string>("SomeString").CurrentValue = "Morden";
+
+                context.SaveChanges();
+            }
+
+            AssertValuesSaved(id, 77, "Morden");
+
+            using (var context = new TheShadows())
+            {
+                var entry = context.Entry(new Dark());
+                entry.Property<int>("Id").CurrentValue = id;
+                entry.State = EntityState.Modified;
+
+                context.SaveChanges();
+            }
+
+            AssertValuesSaved(id, 77, "Morden");
+
+            using (var context = new TheShadows())
+            {
+                var entry = context.Entry(new Dark());
+                entry.Property<int>("Id").CurrentValue = id;
+                entry.Property<int>("SomeInt").CurrentValue = 78;
+                entry.Property<string>("SomeString").CurrentValue = "Mr";
+                entry.State = EntityState.Modified;
+
+                context.SaveChanges();
+            }
+
+            AssertValuesSaved(id, 78, "Mr");
+
+            using (var context = new TheShadows())
+            {
+                var entry = context.Entry(new Dark());
+                entry.Property<int>("Id").CurrentValue = id;
+                entry.State = EntityState.Modified;
+                entry.Property<int>("SomeInt").CurrentValue = 0;
+                entry.Property<string>("SomeString").CurrentValue = null;
+
+                context.SaveChanges();
+            }
+
+            AssertValuesSaved(id, 0, null);
+        }
+
+        private static void AssertValuesSaved(int id, int someInt, string someString)
+        {
+            using (var context = new TheShadows())
+            {
+                var entry = context.Entry(context.Set<Dark>().Single(e => EF.Property<int>(e, "Id") == id));
+
+                Assert.Equal(id, entry.Property<int>("Id").CurrentValue);
+                Assert.Equal(someInt, entry.Property<int>("SomeInt").CurrentValue);
+                Assert.Equal(someString, entry.Property<string>("SomeString").CurrentValue);
+            }
+        }
+
+        private class TheShadows : DbContext
+        {
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Dark>(b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd();
+                        b.Property<int>("SomeInt");
+                        b.Property<string>("SomeString");
+                    });
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+        }
+
+        private class Dark
+        {
+        }
+
         private static Product CreateSimpleGraph(int id)
             => new Product { Id = id, Category = new Category { Id = id } };
 

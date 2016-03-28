@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Entity = entity;
             _shadowValues = entityType.GetEmptyShadowValuesFactory()();
+
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
+            MarkShadowPropertiesNotSet(entityType);
         }
 
         public InternalMixedEntityEntry(

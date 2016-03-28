@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             : base(stateManager, entityType)
         {
             _propertyValues = entityType.GetEmptyShadowValuesFactory()();
+
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
+            MarkShadowPropertiesNotSet(entityType);
         }
 
         public InternalShadowEntityEntry(

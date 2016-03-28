@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.TemporaryOrModified,
-                    InternalEntityEntry.PropertyFlag.Null);
+                    InternalEntityEntry.PropertyFlag.Null,
+                    InternalEntityEntry.PropertyFlag.Unknown);
             }
         }
 
@@ -28,19 +29,35 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.Null,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified);
+                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Unknown);
+            }
+        }
+
+        [Fact]
+        public void Can_read_and_manipulate_not_set_flags()
+        {
+            for (var i = 0; i < 70; i++)
+            {
+                PropertyManipulation(
+                    i,
+                    InternalEntityEntry.PropertyFlag.Unknown,
+                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Null);
             }
         }
 
         private void PropertyManipulation(
             int propertyCount,
             InternalEntityEntry.PropertyFlag propertyFlag,
-            InternalEntityEntry.PropertyFlag unusedFlag)
+            InternalEntityEntry.PropertyFlag unusedFlag1,
+            InternalEntityEntry.PropertyFlag unusedFlag2)
         {
             var data = new InternalEntityEntry.StateData(propertyCount);
 
             Assert.False(data.AnyPropertiesFlagged(propertyFlag));
-            Assert.False(data.AnyPropertiesFlagged(unusedFlag));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag1));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag2));
 
             for (var i = 0; i < propertyCount; i++)
             {
@@ -49,11 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 for (var j = 0; j < propertyCount; j++)
                 {
                     Assert.Equal(j <= i, data.IsPropertyFlagged(j, propertyFlag));
-                    Assert.False(data.IsPropertyFlagged(j, unusedFlag));
+                    Assert.False(data.IsPropertyFlagged(j, unusedFlag1));
+                    Assert.False(data.IsPropertyFlagged(j, unusedFlag2));
                 }
 
                 Assert.True(data.AnyPropertiesFlagged(propertyFlag));
-                Assert.False(data.AnyPropertiesFlagged(unusedFlag));
+                Assert.False(data.AnyPropertiesFlagged(unusedFlag1));
+                Assert.False(data.AnyPropertiesFlagged(unusedFlag2));
             }
 
             for (var i = 0; i < propertyCount; i++)
@@ -63,39 +82,46 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 for (var j = 0; j < propertyCount; j++)
                 {
                     Assert.Equal(j > i, data.IsPropertyFlagged(j, propertyFlag));
-                    Assert.False(data.IsPropertyFlagged(j, unusedFlag));
+                    Assert.False(data.IsPropertyFlagged(j, unusedFlag1));
+                    Assert.False(data.IsPropertyFlagged(j, unusedFlag2));
                 }
 
                 Assert.Equal(i < propertyCount - 1, data.AnyPropertiesFlagged(propertyFlag));
-                Assert.False(data.AnyPropertiesFlagged(unusedFlag));
+                Assert.False(data.AnyPropertiesFlagged(unusedFlag1));
+                Assert.False(data.AnyPropertiesFlagged(unusedFlag2));
             }
 
             for (var i = 0; i < propertyCount; i++)
             {
                 Assert.False(data.IsPropertyFlagged(i, propertyFlag));
-                Assert.False(data.IsPropertyFlagged(i, unusedFlag));
+                Assert.False(data.IsPropertyFlagged(i, unusedFlag1));
+                Assert.False(data.IsPropertyFlagged(i, unusedFlag2));
             }
 
             data.FlagAllProperties(propertyCount, propertyFlag, flagged: true);
 
             Assert.Equal(propertyCount > 0, data.AnyPropertiesFlagged(propertyFlag));
-            Assert.False(data.AnyPropertiesFlagged(unusedFlag));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag1));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag2));
 
             for (var i = 0; i < propertyCount; i++)
             {
                 Assert.True(data.IsPropertyFlagged(i, propertyFlag));
-                Assert.False(data.IsPropertyFlagged(i, unusedFlag));
+                Assert.False(data.IsPropertyFlagged(i, unusedFlag1));
+                Assert.False(data.IsPropertyFlagged(i, unusedFlag2));
             }
 
             data.FlagAllProperties(propertyCount, propertyFlag, flagged: false);
 
             Assert.False(data.AnyPropertiesFlagged(propertyFlag));
-            Assert.False(data.AnyPropertiesFlagged(unusedFlag));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag1));
+            Assert.False(data.AnyPropertiesFlagged(unusedFlag2));
 
             for (var i = 0; i < propertyCount; i++)
             {
                 Assert.False(data.IsPropertyFlagged(i, propertyFlag));
-                Assert.False(data.IsPropertyFlagged(i, unusedFlag));
+                Assert.False(data.IsPropertyFlagged(i, unusedFlag1));
+                Assert.False(data.IsPropertyFlagged(i, unusedFlag2));
             }
         }
 
