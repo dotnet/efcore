@@ -4148,7 +4148,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 asserter:
                     (l2oResults, efResults) =>
                     {
-                         Assert.Equal(l2oResults.Count, efResults.Count);
+                        Assert.Equal(l2oResults.Count, efResults.Count);
                     });
         }
 
@@ -4762,17 +4762,17 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var orders
                     = (from o in context.Orders.Take(2)
-                      // ReSharper disable once UseMethodAny.0
-                      where (from od in context.OrderDetails.Take(2)
-                             where (from c in context.Set<Customer>()
-                                    where c.CustomerID == o.CustomerID
-                                    select c).First().Country
-                                   == (from o2 in context.Set<Order>()
-                                       join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
-                                       where o2.OrderID == od.OrderID
-                                       select c).First().Country
-                             select od).Count() > 0
-                      select o).ToList();
+                           // ReSharper disable once UseMethodAny.0
+                       where (from od in context.OrderDetails.Take(2)
+                              where (from c in context.Set<Customer>()
+                                     where c.CustomerID == o.CustomerID
+                                     select c).First().Country
+                                    == (from o2 in context.Set<Order>()
+                                        join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
+                                        where o2.OrderID == od.OrderID
+                                        select c).First().Country
+                              select od).Count() > 0
+                       select o).ToList();
 
                 Assert.Equal(1, orders.Count);
             }
@@ -4803,6 +4803,24 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     CoreStrings.ConcurrentMethodInvocation,
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.First()).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Does_not_change_ordering_of_projection_with_complex_projections()
+        {
+            using (var context = CreateContext())
+            {
+                var q = from c in context.Customers.Include(e => e.Orders).Where(c => c.ContactTitle == "Owner")
+                        select new
+                        {
+                            Id = c.CustomerID,
+                            TotalOrders = c.Orders.Count
+                        };
+
+                var result = q.Where(e => e.TotalOrders > 2).ToList();
+
+                Assert.Equal(15, result.Count);
             }
         }
 

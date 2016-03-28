@@ -351,11 +351,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return AddToProjection(aliasExpression);
             }
 
-            if (expression is SelectExpression)
-            {
-                ClearColumnProjections();
-            }
-
             _projection.Add(expression);
 
             if (resetProjectStar)

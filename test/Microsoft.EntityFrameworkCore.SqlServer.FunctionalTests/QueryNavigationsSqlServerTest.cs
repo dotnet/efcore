@@ -447,7 +447,7 @@ FROM [Customers] AS [c]",
     SELECT COUNT(*)
     FROM [Order Details] AS [o2]
     WHERE [o].[OrderID] = [o2].[OrderID]
-), (
+), [o].[OrderDate], (
     SELECT CASE
         WHEN EXISTS (
             SELECT 1
@@ -470,7 +470,7 @@ END, [o].[OrderID], (
     SELECT COUNT_BIG(*)
     FROM [Order Details] AS [o3]
     WHERE [o].[OrderID] = [o3].[OrderID]
-), [o].[OrderDate]
+)
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] LIKE N'A' + N'%'",
                 Sql);

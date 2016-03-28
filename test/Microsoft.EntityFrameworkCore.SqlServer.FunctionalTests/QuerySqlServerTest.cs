@@ -4723,6 +4723,24 @@ ORDER BY COALESCE([c].[Region], N'ZZ')",
                 Sql);
         }
 
+        public override void Does_not_change_ordering_of_projection_with_complex_projections()
+        {
+            base.Does_not_change_ordering_of_projection_with_complex_projections();
+
+            Assert.StartsWith(
+                @"SELECT [e].[CustomerID], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o1]
+    WHERE [e].[CustomerID] = [o1].[CustomerID]
+)
+FROM [Customers] AS [e]
+WHERE [e].[ContactTitle] = N'Owner'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
         private static string FileLineEnding = @"
 ";
 
