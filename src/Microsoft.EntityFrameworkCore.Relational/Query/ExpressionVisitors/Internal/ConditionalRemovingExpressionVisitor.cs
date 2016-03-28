@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (conditionalExpression?.Type == typeof(bool)
                     && conditionalExpression.IfTrue.NodeType == ExpressionType.Constant
                     && conditionalExpression.IfFalse.NodeType == ExpressionType.Constant
-                    && (bool)(conditionalExpression.IfTrue as ConstantExpression).Value
-                    && !(bool)(conditionalExpression.IfFalse as ConstantExpression).Value)
+                    && (bool)((ConstantExpression)conditionalExpression.IfTrue).Value
+                    && !(bool)((ConstantExpression)conditionalExpression.IfFalse).Value)
                 {
                     return Visit(conditionalExpression.Test);
                 }
