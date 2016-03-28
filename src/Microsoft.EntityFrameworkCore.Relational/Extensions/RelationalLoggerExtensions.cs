@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -20,7 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     internal static class RelationalLoggerExtensions
     {
         public static void LogCommandExecuted(
-            [NotNull] this ISensitiveDataLogger logger, [NotNull] DbCommand command, long startTimestamp, long currentTimestamp)
+            [NotNull] this ISensitiveDataLogger logger, 
+            [NotNull] DbCommand command, 
+            long startTimestamp, 
+            long currentTimestamp)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(command, nameof(command));
@@ -68,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stringValueBuilder = new StringBuilder();
             var buffer = (byte[])parameterValue;
             stringValueBuilder.Append("0x");
+
             for (var i = 0; i < buffer.Length; i++)
             {
                 if (i > 31)
@@ -77,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
                 stringValueBuilder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
             }
+
             return stringValueBuilder.ToString();
         }
 
@@ -85,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.Log(LogLevel.Information, (int)eventId, state(), null, (s, _) => formatter((TState)s));
+                logger.Log(LogLevel.Information, (int)eventId, state(), null, (s, _) => formatter(s));
             }
         }
 
@@ -103,13 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.Log(LogLevel.Debug, (int)eventId, state, null, (s, __) => formatter((TState)s));
+                logger.Log(LogLevel.Debug, (int)eventId, state, null, (s, __) => formatter(s));
             }
         }
 
-        private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
-        {
-            return (long)((currentTimestamp - startTimestamp) / TimeSpan.TicksPerMillisecond);
-        }
+        private static long DeriveTimespan(long startTimestamp, long currentTimestamp) 
+            => (currentTimestamp - startTimestamp) / TimeSpan.TicksPerMillisecond;
     }
 }

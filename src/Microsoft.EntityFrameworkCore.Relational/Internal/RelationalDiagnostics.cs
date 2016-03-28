@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -18,11 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public static void WriteCommandBefore(
             this DiagnosticSource diagnosticSource,
-            DbCommand command,
-            string executeMethod,
-            bool async,
+            DbCommand command, string executeMethod,
             Guid instanceId,
-            long startTimestamp)
+            long startTimestamp,
+            bool async)
         {
             if (diagnosticSource.IsEnabled(BeforeExecuteCommand))
             {
@@ -32,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,
-                        IsAsync = async,
                         InstanceId = instanceId,
-                        Timestamp = startTimestamp
+                        Timestamp = startTimestamp,
+                        IsAsync = async
                     });
             }
         }
@@ -43,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             this DiagnosticSource diagnosticSource,
             DbCommand command,
             string executeMethod,
-            bool async,
             Guid instanceId,
             long startTimestamp,
-            long currentTimestamp)
+            long currentTimestamp,
+            bool async = false)
         {
             if (diagnosticSource.IsEnabled(AfterExecuteCommand))
             {
@@ -56,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,
-                        IsAsync = async,
                         InstanceId = instanceId,
                         Timestamp = currentTimestamp,
-                        Duration = currentTimestamp - startTimestamp
+                        Duration = currentTimestamp - startTimestamp,
+                        IsAsync = async
                     });
             }
         }
@@ -68,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             this DiagnosticSource diagnosticSource,
             DbCommand command,
             string executeMethod,
-            bool async,
             Guid instanceId,
             long startTimestamp,
             long currentTimestamp,
-            Exception exception)
+            Exception exception,
+            bool async)
         {
             if (diagnosticSource.IsEnabled(CommandExecutionError))
             {
@@ -82,11 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,
-                        IsAsync = async,
                         InstanceId = instanceId,
                         Timestamp = currentTimestamp,
                         Duration = currentTimestamp - startTimestamp,
-                        Exception = exception
+                        Exception = exception,
+                        IsAsync = async
                     });
             }
         }
