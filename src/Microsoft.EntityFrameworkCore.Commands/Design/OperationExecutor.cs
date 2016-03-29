@@ -342,6 +342,27 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
+        public class DropDatabase : OperationBase
+        {
+            public DropDatabase(
+                [NotNull] OperationExecutor executor,
+                [NotNull] object resultHandler,
+                [NotNull] IDictionary args)
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                var contextType = (string)args["contextType"];
+                var confirmCheck = (Func<string, string, bool>)args["confirmCheck"];
+
+                Execute(() => executor.DropDatabaseImpl(contextType, confirmCheck));
+            }
+        }
+
+        private void DropDatabaseImpl(string contextType, Func<string, string, bool> confirmCheck)
+            => _contextOperations.Value.DropDatabase(contextType, confirmCheck);
+
         public abstract class OperationBase : MarshalByRefObject
         {
             private readonly IOperationResultHandler _resultHandler;

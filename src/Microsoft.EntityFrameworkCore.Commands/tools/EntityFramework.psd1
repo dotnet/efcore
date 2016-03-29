@@ -65,7 +65,8 @@
         'Script-Migration',
         'Remove-Migration',
         'Enable-Migrations',
-        'Scaffold-DbContext'
+        'Scaffold-DbContext',
+        'Drop-Database'
     )
 
     # Cmdlets to export from this module

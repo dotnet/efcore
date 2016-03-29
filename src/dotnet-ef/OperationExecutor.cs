@@ -119,6 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     rootNamespace));
         }
 
+        public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, string, bool> confirmCheck)
+            => _contextOperations.Value.DropDatabase(contextName, confirmCheck);
+
         public virtual MigrationFiles AddMigration(
             [NotNull] string name,
             [CanBeNull] string outputDir,
