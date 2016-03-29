@@ -72,81 +72,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             return this;
         }
 
-        public static async Task CreateDatabaseAsync(string name, string scriptPath = null, bool recreateIfAlreadyExists = false)
-        {
-            using (var master = new SqlConnection(CreateConnectionString("master")))
-            {
-                await master.OpenAsync();
-
-                using (var command = master.CreateCommand())
-                {
-                    var exists = DatabaseExists(name);
-                    if (exists && recreateIfAlreadyExists)
-                    {
-                        // if scriptPath is non-null assume that the script will handle dropping DB
-                        if (scriptPath == null)
-                        {
-                            command.CommandText = $@"DROP DATABASE [{name}]";
-
-                            await command.ExecuteNonQueryAsync();
-
-                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
-                            {
-                                await WaitForExistsAsync(newConnection);
-                            }
-                        }
-                    }
-
-                    if (!exists || recreateIfAlreadyExists)
-                    {
-                        if (scriptPath == null)
-                        {
-                            command.CommandText = $@"CREATE DATABASE [{name}]";
-
-                            await command.ExecuteNonQueryAsync();
-
-                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
-                            {
-                                await WaitForExistsAsync(newConnection);
-                            }
-                        }
-                        else
-                        {
-                            // HACK: Probe for script file as current dir
-                            // is different between k build and VS run.
-                            if (File.Exists(@"..\..\" + scriptPath))
-                            {
-                                //executing in VS - so path is relative to bin\<config> dir
-                                scriptPath = @"..\..\" + scriptPath;
-                            }
-                            else
-                            {
-                                var appBase = Environment.GetEnvironmentVariable("DNX_APPBASE");
-                                if (appBase != null)
-                                {
-                                    scriptPath = Path.Combine(appBase, scriptPath);
-                                }
-                            }
-
-                            var script = File.ReadAllText(scriptPath);
-
-                            foreach (var batch
-                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                                    .Split(script))
-                            {
-                                command.CommandText = batch;
-
-                                await command.ExecuteNonQueryAsync();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         public static void CreateDatabase(string name, string scriptPath = null, bool recreateIfAlreadyExists = false)
         {
-            using (var master = new SqlConnection(CreateConnectionString("master")))
+            using (var master = new SqlConnection(CreateConnectionString("master", multipleActiveResultSets: false)))
             {
                 master.Open();
 
@@ -154,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     command.CommandTimeout = CommandTimeout;
 
-                    var exists = DatabaseExists(name);
+                    var exists = DatabaseExists(name) && TablesExist(name);
                     if (exists && recreateIfAlreadyExists)
                     {
                         // if scriptPath is non-null assume that the script will handle dropping DB
@@ -344,6 +272,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             }
         }
 
+        private static bool TablesExist(string name)
+        {
+            using (var connection = new SqlConnection(CreateConnectionString(name)))
+            {
+                connection.Open();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandTimeout = CommandTimeout;
+                    command.CommandText = $@"SELECT COUNT(*) FROM information_schema.tables";
+
+                    var result = (int)command.ExecuteScalar() > 0;
+
+                    connection.Close();
+
+                    SqlConnection.ClearAllPools();
+
+                    return result;
+                }
+            }
+        }
+
         private static bool DatabaseFilesExist(string name)
         {
             var userFolder = Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME");
@@ -485,10 +435,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         }
 
         public static string CreateConnectionString(string name)
+            => CreateConnectionString(name, new Random().Next(0, 2) == 1);
+
+        private static string CreateConnectionString(string name, bool multipleActiveResultSets)
             => new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
-                //MultipleActiveResultSets = false,
-                MultipleActiveResultSets = new Random().Next(0, 2) == 1,
+                MultipleActiveResultSets = multipleActiveResultSets,
                 InitialCatalog = name
             }.ConnectionString;
     }
