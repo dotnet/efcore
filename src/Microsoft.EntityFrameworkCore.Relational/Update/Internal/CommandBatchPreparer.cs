@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         command.AddEntry(e);
                         return command;
-                    });
+                    }).Where(c => c.EntityState != EntityState.Modified || c.ColumnModifications.Any(m => m.IsWrite));
         }
 
         // To avoid violating store constraints the modification commands must be sorted

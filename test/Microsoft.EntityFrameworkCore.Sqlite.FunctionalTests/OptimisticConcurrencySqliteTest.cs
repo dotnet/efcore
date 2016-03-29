@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         // Override failing tests because SQLite does not allow store-generated row versions.
         // Row version behavior could be imitated on SQLite. See Issue #2195
         // TODO move these tests into the testing just for SqlServer since they don't apply to SQLite
+        public override Task Modifying_concurrency_token_only_is_noop() => Task.FromResult(true);
         public override Task Simple_concurrency_exception_can_be_resolved_with_store_values() => Task.FromResult(true);
         public override Task Simple_concurrency_exception_can_be_resolved_with_client_values() => Task.FromResult(true);
         public override Task Simple_concurrency_exception_can_be_resolved_with_new_values() => Task.FromResult(true);

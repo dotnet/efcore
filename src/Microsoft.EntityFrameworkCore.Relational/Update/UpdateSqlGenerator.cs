@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(writeOperations, nameof(writeOperations));
+            Check.NotEmpty(writeOperations, nameof(writeOperations));
             Check.NotNull(conditionOperations, nameof(conditionOperations));
 
             AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);

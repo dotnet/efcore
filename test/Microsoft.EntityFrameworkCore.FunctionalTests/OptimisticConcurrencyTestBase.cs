@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
@@ -125,6 +124,39 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         where TTestStore : TestStore
         where TFixture : F1FixtureBase<TTestStore>, new()
     {
+        [Fact]
+        public virtual async Task Modifying_concurrency_token_only_is_noop()
+        {
+            byte[] firstVersion;
+            using (var context = CreateF1Context())
+            {
+                var driver = context.Drivers.Single(d => d.CarNumber == 1);
+                Assert.NotEqual(1, driver.Version[0]);
+                driver.Podiums = StorePodiums;
+                firstVersion = driver.Version;
+                await context.SaveChangesAsync();
+            }
+
+            byte[] secondVersion;
+            using (var context = CreateF1Context())
+            {
+                var driver = context.Drivers.Single(d => d.CarNumber == 1);
+                Assert.NotEqual(firstVersion, driver.Version);
+                Assert.Equal(StorePodiums, driver.Podiums);
+
+                secondVersion = driver.Version;
+                driver.Version = firstVersion;
+                await context.SaveChangesAsync();
+            }
+
+            using (var validationContext = CreateF1Context())
+            {
+                var driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
+                Assert.Equal(secondVersion, driver.Version);
+                Assert.Equal(StorePodiums, driver.Podiums);
+            }
+        }
+
         #region Concurrency resolution with FK associations
 
         [Fact]

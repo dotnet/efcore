@@ -148,12 +148,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var configuration = CreateContextServices(CreateSimpleFKModel());
             var stateManager = configuration.GetRequiredService<IStateManager>();
+            var model = configuration.GetRequiredService<IModel>();
 
             var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             entry.SetEntityState(EntityState.Added);
 
             var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             relatedentry.SetEntityState(EntityState.Modified);
+            relatedentry.SetPropertyModified(relatedentry.EntityType.FindProperty(nameof(RelatedFakeEntity.RelatedId)));
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, entry }).ToArray();
 
@@ -381,6 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     b.HasOne<FakeEntity>()
                         .WithOne()
                         .HasForeignKey<RelatedFakeEntity>(c => c.Id);
+                    b.Property(c => c.RelatedId);
                 });
 
             return modelBuilder.Model;
