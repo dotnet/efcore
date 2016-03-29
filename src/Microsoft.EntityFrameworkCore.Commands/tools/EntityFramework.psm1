@@ -50,7 +50,7 @@ function Use-DbContext {
         if ($candidates.length -gt 1 -and $exactMatch -is "String") {
             $candidates = $exactMatch
         }
-        
+
         if ($candidates.length -lt 1) {
             throw "No DbContext named '$Context' was found"
         } elseif ($candidates.length -gt 1 -and !($candidates -is "String")) {
@@ -498,7 +498,7 @@ function Scaffold-DbContext {
 
         $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
         $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
-        
+
         ShowConsole
     }
 }
@@ -510,6 +510,71 @@ function Scaffold-DbContext {
 function Enable-Migrations {
     # TODO: Link to some docs on the changes to Migrations
     Write-Warning 'Enable-Migrations is obsolete. Use Add-Migration to start using Migrations.'
+}
+
+#
+# Drop-Database
+#
+
+Register-TabExpansion Drop-Database @{
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Drops the database.
+
+.DESCRIPTION
+    Drops the database.
+
+.PARAMETER Context
+    Specifies the DbContext to use. If omitted, the default DbContext is used.
+
+.PARAMETER Project
+    Specifies the project to use. If omitted, the default project is used.
+
+.PARAMETER StartupProject
+    Specifies the startup project to use. If omitted, the solution's startup project is used.
+
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, "Development" is used.
+
+.LINK
+    about_EntityFramework
+#>
+function Drop-Database {
+    [CmdletBinding(ConfirmImpact = 'High', SupportsShouldProcess = $true, PositionalBinding = $false)]
+    param (
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Environment)
+
+    $values = ProcessCommonParameters $StartupProject $Project $Context
+    $dteStartupProject = $values.StartupProject
+    $dteProject = $values.Project
+    $contextTypeName = $values.ContextTypeName
+
+    if (IsDotNetProject $dteProject) {
+        # TODO: Show database information
+        if ($PSCmdlet.ShouldProcess('the database')) {
+            $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+            $options += "--force"
+            InvokeDotNetEf $dteProject database drop @options | Out-Null
+        }
+    } else {
+        InvokeOperation $dteStartupProject $Environment $dteProject  DropDatabase @{
+            contextType = $contextTypeName
+            # TODO: Get database information then prompt before invoking DropDatabase
+            confirmCheck = [Func[string, string, bool]]{
+                param ($database, $dataSource)
+
+                return $PSCmdlet.ShouldProcess("$database on $dataSource")
+            }
+        }
+    }
 }
 
 #
@@ -535,7 +600,7 @@ function GetContextTypes($projectName, $startupProjectName, $environment) {
     $project = $values.Project
 
     if (IsDotNetProject $startupProject) {
-        $types = InvokeDotNetEf $startupProject -Json dbcontext list 
+        $types = InvokeDotNetEf $startupProject -Json dbcontext list
         return $types | %{ $_.fullName }
     } else {
         $contextTypes = InvokeOperation $startupProject $environment $project GetContextTypes -skipBuild
@@ -640,7 +705,7 @@ function InvokeDotNetEf($project, [switch] $Json) {
         $arguments += "--json"
     } else {
         # TODO better json output parsing so we don't need to suppress verbose output
-        $arguments = ,"--verbose" + $arguments 
+        $arguments = ,"--verbose" + $arguments
     }
     $command = "ef $($arguments -join ' ')"
     try {

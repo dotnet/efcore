@@ -22,6 +22,8 @@ LONG DESCRIPTION
         --------------------------  ---------------------------------------------------
         Add-Migration		        Adds a new migration.
 
+        Drop-Database               Drops the database.
+
         Remove-Migration	        Removes the last migration.
 
         Scaffold-DbContext	        Scaffolds a DbContext and entity type classes for a specified database.
@@ -34,6 +36,7 @@ LONG DESCRIPTION
 
 SEE ALSO
     Add-Migration
+    Drop-Database
     Remove-Migration
     Scaffold-DbContext
     Script-Migration
