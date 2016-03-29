@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             public InternalEntityEntry StartTrackingFromQuery(
-                IEntityType entityType,
+                IEntityType baseEntityType,
                 object entity,
                 ValueBuffer valueBuffer)
             {

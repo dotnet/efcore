@@ -5,5 +5,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
 {
     public class DerivedCollectionOnBase : BaseCollectionOnBase
     {
+        public int DerivedProperty { get; set; }
     }
 }

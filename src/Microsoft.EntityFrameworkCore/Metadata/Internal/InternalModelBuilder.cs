@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Metadata.Unignore(name);
 
-                entityType = Metadata.AddEntityType(name, configurationSource);
+                entityType = Metadata.AddEntityType(name, null, configurationSource);
             }
             else
             {

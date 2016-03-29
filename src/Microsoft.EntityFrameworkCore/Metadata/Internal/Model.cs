@@ -13,9 +13,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
-    public class Model : ConventionalAnnotatable, IMutableModel
+    public class Model : ConventionalAnnotatable, IMutableModel, ICanFindEntityType
     {
-        private readonly SortedDictionary<string, EntityType> _entityTypes = new SortedDictionary<string, EntityType>();
+        private readonly SortedDictionary<string, EntityType> _entityTypes
+            = new SortedDictionary<string, EntityType>();
+
+        private readonly IDictionary<Type, EntityType> _clrTypeMap
+            = new Dictionary<Type, EntityType>();
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredEntityTypeNames
             = new Dictionary<string, ConfigurationSource>();
@@ -38,38 +42,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<EntityType> GetEntityTypes() => _entityTypes.Values;
 
         public virtual EntityType AddEntityType(
-            [NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            [NotNull] string name, [CanBeNull] Type type = null, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotEmpty(name, nameof(name));
 
-            var entityType = AddEntityTypeWithoutConventions(name, configurationSource);
-
-            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
-        }
-
-        public virtual EntityType AddEntityType(
-            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-        {
-            Check.NotNull(type, nameof(type));
-
-            var entityType = AddEntityTypeWithoutConventions(type.DisplayName(), configurationSource);
-            entityType.ClrType = type;
-
-            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
-        }
-
-        private EntityType AddEntityTypeWithoutConventions(string name, ConfigurationSource configurationSource)
-        {
             var entityType = new EntityType(name, this, configurationSource);
+
             var previousLength = _entityTypes.Count;
             _entityTypes[name] = entityType;
-
             if (previousLength == _entityTypes.Count)
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.Name));
             }
-            return entityType;
+
+            if (type != null)
+            {
+                entityType.ClrType = type;
+                _clrTypeMap[type] = entityType;
+            }
+
+            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
         }
+
+        IMutableEntityType ICanFindEntityType.AddEntityType(string name, Type type) 
+            => AddEntityType(name, type);
+
+        public virtual EntityType AddEntityType(
+            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit) 
+            => AddEntityType(type.DisplayName(), type, configurationSource);
 
         public virtual EntityType GetOrAddEntityType([NotNull] Type type)
             => FindEntityType(type) ?? AddEntityType(type);
@@ -77,8 +77,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType GetOrAddEntityType([NotNull] string name)
             => FindEntityType(name) ?? AddEntityType(name);
 
-        public virtual EntityType FindEntityType([NotNull] Type type)
-            => (EntityType)((IMutableModel)this).FindEntityType(type);
+        public virtual EntityType FindEntityType([NotNull] Type type) 
+            => (EntityType)((ICanFindEntityType)this).FindEntityType(type);
+
+        IEntityType ICanFindEntityType.FindEntityType(Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            EntityType entityType;
+            return _clrTypeMap.TryGetValue(type, out entityType)
+                ? entityType
+                : FindEntityType(type.DisplayName());
+        }
 
         public virtual EntityType FindEntityType([NotNull] string name)
         {
@@ -127,6 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     CoreStrings.EntityTypeInUseByDerived(
                         entityType.DisplayName(),
                         derivedEntityType.DisplayName()));
+            }
+
+            if (entityType.ClrType != null)
+            {
+                _clrTypeMap.Remove(entityType.ClrType);
             }
 
             var removed = _entityTypes.Remove(entityType.Name);

@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -44,8 +45,14 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(model, nameof(model));
             Check.NotNull(type, nameof(type));
 
-            var entityType = model.AddEntityType(type.DisplayName());
+            var canFindEntityType = model as ICanFindEntityType;
+
+            var entityType = canFindEntityType != null
+                ? canFindEntityType.AddEntityType(type.DisplayName(), type) :
+                model.AddEntityType(type.DisplayName());
+
             entityType.ClrType = type;
+
             return entityType;
         }
 

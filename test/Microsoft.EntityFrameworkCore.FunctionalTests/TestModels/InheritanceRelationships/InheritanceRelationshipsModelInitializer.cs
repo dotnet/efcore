@@ -72,14 +72,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
 
             context.BaseCollectionsOnBase.AddRange(bcob11, bcob12, bcob21, bcob31, bcob32);
 
-            var dcob11 = new DerivedCollectionOnBase { Name = "DCOB11", NestedReference = nrd2, NestedCollection = new List<NestedCollectionBase> { ncd21 } };
-            var dcob12 = new DerivedCollectionOnBase { Name = "DCOB12", NestedReference = nrb3, NestedCollection = new List<NestedCollectionBase> { ncb31 } };
-            var dcob21 = new DerivedCollectionOnBase { Name = "DCOB21" };
-            var dcob31 = new DerivedCollectionOnBase { Name = "DCOB31", NestedReference = nrd3, NestedCollection = new List<NestedCollectionBase> { ncd31, ncd32 } };
-            var dcob32 = new DerivedCollectionOnBase { Name = "DCOB32" };
-            var dcob41 = new DerivedCollectionOnBase { Name = "DCOB41" };
-            var dcob51 = new DerivedCollectionOnBase { Name = "DCOB51 (dangling)", NestedReference = nrd4, NestedCollection = new List<NestedCollectionBase> { ncd41, ncd42 } };
-            var dcob52 = new DerivedCollectionOnBase { Name = "DCOB52 (dangling)" };
+            var dcob11 = new DerivedCollectionOnBase { Name = "DCOB11", NestedReference = nrd2, NestedCollection = new List<NestedCollectionBase> { ncd21 }, DerivedProperty = 1 };
+            var dcob12 = new DerivedCollectionOnBase { Name = "DCOB12", NestedReference = nrb3, NestedCollection = new List<NestedCollectionBase> { ncb31 }, DerivedProperty = 2 };
+            var dcob21 = new DerivedCollectionOnBase { Name = "DCOB21", DerivedProperty = 3 };
+            var dcob31 = new DerivedCollectionOnBase { Name = "DCOB31", NestedReference = nrd3, NestedCollection = new List<NestedCollectionBase> { ncd31, ncd32 }, DerivedProperty = 4 };
+            var dcob32 = new DerivedCollectionOnBase { Name = "DCOB32", DerivedProperty = 5 };
+            var dcob41 = new DerivedCollectionOnBase { Name = "DCOB41", DerivedProperty = 6 };
+            var dcob51 = new DerivedCollectionOnBase { Name = "DCOB51 (dangling)", NestedReference = nrd4, NestedCollection = new List<NestedCollectionBase> { ncd41, ncd42 }, DerivedProperty = 7 };
+            var dcob52 = new DerivedCollectionOnBase { Name = "DCOB52 (dangling)", DerivedProperty = 8 };
 
             context.BaseCollectionsOnBase.AddRange(dcob11, dcob12, dcob21, dcob31, dcob32, dcob41, dcob51, dcob52);
 

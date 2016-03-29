@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void BeginTrackingQuery() => SingleQueryMode = SingleQueryMode == null;
 
         public virtual InternalEntityEntry StartTrackingFromQuery(
-            IEntityType entityType,
+            IEntityType baseEntityType,
             object entity,
             ValueBuffer valueBuffer)
         {
@@ -94,11 +94,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return existingEntry;
             }
 
-            var newEntry = _factory.Create(this, entityType, entity, valueBuffer);
+            var clrType = entity.GetType();
+
+            var newEntry = _factory.Create(this,
+                baseEntityType.ClrType == clrType
+                    ? baseEntityType
+                    : _model.FindEntityType(clrType),
+                entity, valueBuffer);
 
             _subscriber.SnapshotAndSubscribe(newEntry);
 
-            foreach (var key in entityType.GetKeys())
+            foreach (var key in baseEntityType.GetKeys())
             {
                 GetOrCreateIdentityMap(key).AddOrUpdate(newEntry);
             }

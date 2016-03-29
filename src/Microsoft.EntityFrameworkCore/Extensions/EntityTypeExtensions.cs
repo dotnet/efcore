@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var derivedType in entityType.Model.GetEntityTypes())
             {
-                if ((derivedType.BaseType != null)
-                    && (derivedType != entityType)
+                if (derivedType.BaseType != null
+                    && derivedType != entityType
                     && entityType.IsAssignableFrom(derivedType))
                 {
                     yield return derivedType;
