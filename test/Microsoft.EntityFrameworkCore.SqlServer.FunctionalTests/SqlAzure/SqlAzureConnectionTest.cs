@@ -11,7 +11,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 {
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
-    public class SqlAzureConnectionTest
+    public class SqlAzureConnectionTest : IClassFixture<SqlAzureFixture>
     {
         [ConditionalTheory]
         [InlineData(true)]
@@ -30,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
                 context.Database.OpenConnection();
                 Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
             }
+        }
+
+        public SqlAzureConnectionTest(SqlAzureFixture fixture)
+        {
         }
     }
 }

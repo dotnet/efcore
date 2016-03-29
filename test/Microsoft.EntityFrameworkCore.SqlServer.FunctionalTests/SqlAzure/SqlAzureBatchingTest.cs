@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
@@ -18,10 +19,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             _fixture = fixture;
         }
-
-        // TODO #4228 
-        // [ConditionalTheory]
-        [InlineData(2)]
+        
+        [ConditionalTheory]
+        [InlineData(1)]
         [InlineData(10)]
         [InlineData(100)]
         [InlineData(1000)]
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
         {
             using (var context = _fixture.CreateContext(batchSize))
             {
-                using (var transaction = context.Database.BeginTransaction())
+                using (context.Database.BeginTransaction())
                 {
                     for (var i = 0; i < batchSize; i++)
                     {
@@ -38,13 +38,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
                         {
                             Name = uuid,
                             ProductNumber = uuid.Substring(0, 25),
-                            Weight = 0.01m,
+                            Weight = 1000,
                             SellStartDate = DateTime.Now
                         });
                     }
 
                     Assert.Equal(batchSize, context.SaveChanges());
-                    transaction.Rollback();
                 }
             }
         }
