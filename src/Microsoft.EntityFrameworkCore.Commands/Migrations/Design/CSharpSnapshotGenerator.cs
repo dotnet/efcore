@@ -247,12 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.ColumnType, nameof(RelationalPropertyBuilderExtensions.HasColumnType), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations,
-                RelationalFullAnnotationNames.Instance.GeneratedValueSql,
-                property.ValueGenerated == ValueGenerated.OnAdd
-                    ? nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)
-                    : nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
-                stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.ComputedValueSql, nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalFullAnnotationNames.Instance.DefaultValue, nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), stringBuilder);
 
             GenerateAnnotations(annotations, stringBuilder);

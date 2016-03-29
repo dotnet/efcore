@@ -89,29 +89,35 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splew"));
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasGeneratedValueSql("2"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasComputedValueSql("3"));
             Assert.Equal("Splew", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("int", propertyBuilder.Metadata.Relational().ColumnType);
             Assert.Equal(1, propertyBuilder.Metadata.Relational().DefaultValue);
-            Assert.Equal("2", propertyBuilder.Metadata.Relational().GeneratedValueSql);
+            Assert.Equal("2", propertyBuilder.Metadata.Relational().DefaultValueSql);
+            Assert.Equal("3", propertyBuilder.Metadata.Relational().ComputedValueSql);
 
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnName("Splow"));
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnType("varchar"));
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValue(0));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasGeneratedValueSql("NULL"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValueSql("NULL"));
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasComputedValueSql("runthis()"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
             Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
-            Assert.Equal("NULL", propertyBuilder.Metadata.Relational().GeneratedValueSql);
+            Assert.Equal("NULL", propertyBuilder.Metadata.Relational().DefaultValueSql);
+            Assert.Equal("runthis()", propertyBuilder.Metadata.Relational().ComputedValueSql);
 
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splod"));
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasGeneratedValueSql("2"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasComputedValueSql("3"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
             Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
-            Assert.Equal("NULL", propertyBuilder.Metadata.Relational().GeneratedValueSql);
+            Assert.Equal("NULL", propertyBuilder.Metadata.Relational().DefaultValueSql);
+            Assert.Equal("runthis()", propertyBuilder.Metadata.Relational().ComputedValueSql);
         }
 
         [Fact]

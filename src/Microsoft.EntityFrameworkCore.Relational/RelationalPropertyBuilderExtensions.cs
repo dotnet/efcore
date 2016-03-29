@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
             }
 
-            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasGeneratedValueSql(sql);
+            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasDefaultValueSql(sql);
 
             return propertyBuilder;
         }
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.SetValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
             }
 
-            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasGeneratedValueSql(sql);
+            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasComputedValueSql(sql);
 
             return propertyBuilder;
         }

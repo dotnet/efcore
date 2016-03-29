@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Builders
                 .ForSqliteHasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Builders
                 .ForSqliteHasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Builders
                 .ForSqliteHasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Builders
                 .ForSqliteHasDefaultValueSql("VanillaCoke")
                 .Metadata;
 
-            Assert.Equal("VanillaCoke", property.Sqlite().GeneratedValueSql);
+            Assert.Equal("VanillaCoke", property.Sqlite().DefaultValueSql);
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 

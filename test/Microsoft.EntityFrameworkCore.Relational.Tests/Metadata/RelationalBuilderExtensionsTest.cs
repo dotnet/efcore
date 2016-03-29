@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 

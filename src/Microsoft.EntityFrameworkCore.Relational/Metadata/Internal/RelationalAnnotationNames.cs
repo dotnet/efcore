@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public const string Prefix = "Relational:";
         public const string ColumnName = "ColumnName";
         public const string ColumnType = "ColumnType";
-        public const string GeneratedValueSql = "GeneratedValueSql";
+        public const string DefaultValueSql = "DefaultValueSql";
+        public const string ComputedValueSql = "ComputedValueSql";
         public const string DefaultValue = "DefaultValue";
         public const string DatabaseName = "DatabaseName";
         public const string TableName = "TableName";

@@ -66,21 +66,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ProviderFullAnnotationNames?.ColumnType,
                 Check.NullButNotEmpty(value, nameof(value)));
 
-        public virtual string GeneratedValueSql
+        public virtual string DefaultValueSql
         {
             get
             {
                 return (string)Annotations.GetAnnotation(
-                    RelationalFullAnnotationNames.Instance.GeneratedValueSql,
-                    ProviderFullAnnotationNames?.GeneratedValueSql);
+                    RelationalFullAnnotationNames.Instance.DefaultValueSql,
+                    ProviderFullAnnotationNames?.DefaultValueSql);
             }
-            [param: CanBeNull] set { SetGeneratedValueSql(value); }
+            [param: CanBeNull] set { SetDefaultValueSql(value); }
         }
 
-        protected virtual bool SetGeneratedValueSql([CanBeNull] string value)
+        protected virtual bool SetDefaultValueSql([CanBeNull] string value)
             => Annotations.SetAnnotation(
-                RelationalFullAnnotationNames.Instance.GeneratedValueSql,
-                ProviderFullAnnotationNames?.GeneratedValueSql,
+                RelationalFullAnnotationNames.Instance.DefaultValueSql,
+                ProviderFullAnnotationNames?.DefaultValueSql,
+                Check.NullButNotEmpty(value, nameof(value)));
+
+        public virtual string ComputedValueSql
+        {
+            get
+            {
+                return (string)Annotations.GetAnnotation(
+                    RelationalFullAnnotationNames.Instance.ComputedValueSql,
+                    ProviderFullAnnotationNames?.ComputedValueSql);
+            }
+            [param: CanBeNull]
+            set { SetComputedValueSql(value); }
+        }
+
+        protected virtual bool SetComputedValueSql([CanBeNull] string value)
+            => Annotations.SetAnnotation(
+                RelationalFullAnnotationNames.Instance.ComputedValueSql,
+                ProviderFullAnnotationNames?.ComputedValueSql,
                 Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual object DefaultValue

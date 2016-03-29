@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                         Assert.Equal(typeof(string), col3.ClrType);
                         Assert.False(col3.IsColumnNullable());
                         Assert.Null(col3.GetMaxLength());
-                        Assert.Equal("\"dev\"", col3.Relational().GeneratedValueSql);
+                        Assert.Equal("\"dev\"", col3.Relational().DefaultValueSql);
                     },
                 col4 =>
                     {

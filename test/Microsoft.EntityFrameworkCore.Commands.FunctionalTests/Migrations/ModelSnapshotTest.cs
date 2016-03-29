@@ -887,7 +887,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
         b.ToTable(""EntityWithTwoProperties"");
     });
 ",
-                o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:GeneratedValueSql"]); });
+                o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]); });
         }
 
         [ConditionalFact]
@@ -910,7 +910,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Commands.Migrations.ModelSnapshot
         b.ToTable(""EntityWithTwoProperties"");
     });
 ",
-                o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:GeneratedValueSql"]); });
+                o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedValueSql"]); });
         }
 
         [ConditionalFact]

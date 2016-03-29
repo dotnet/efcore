@@ -71,11 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             Assert.NotNull(entityType);
 
-            Assert.Equal("\"dev\"", entityType.FindProperty("occupation").Sqlite().GeneratedValueSql);
-            Assert.Equal("2", entityType.FindProperty("pay").Sqlite().GeneratedValueSql);
-            Assert.Equal("current_timestamp", entityType.FindProperty("hiredate").Sqlite().GeneratedValueSql);
-            Assert.Equal("100 + 19.4", entityType.FindProperty("iq").Sqlite().GeneratedValueSql);
-            Assert.Null(entityType.FindProperty("name").Sqlite().GeneratedValueSql);
+            Assert.Equal("\"dev\"", entityType.FindProperty("occupation").Sqlite().DefaultValueSql);
+            Assert.Equal("2", entityType.FindProperty("pay").Sqlite().DefaultValueSql);
+            Assert.Equal("current_timestamp", entityType.FindProperty("hiredate").Sqlite().DefaultValueSql);
+            Assert.Equal("100 + 19.4", entityType.FindProperty("iq").Sqlite().DefaultValueSql);
+            Assert.Null(entityType.FindProperty("name").Sqlite().DefaultValueSql);
         }
 
         [Fact]

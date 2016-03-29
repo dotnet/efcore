@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(AnEntity));
 
-            entityType.FindProperty("Guid").SqlServer().GeneratedValueSql = "newid()";
+            entityType.FindProperty("Guid").SqlServer().DefaultValueSql = "newid()";
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 

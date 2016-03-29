@@ -123,23 +123,23 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Sqlite().GeneratedValueSql);
-            Assert.Null(((IProperty)property).Sqlite().GeneratedValueSql);
+            Assert.Null(property.Sqlite().DefaultValueSql);
+            Assert.Null(((IProperty)property).Sqlite().DefaultValueSql);
 
-            property.Relational().GeneratedValueSql = "newsequentialid()";
+            property.Relational().DefaultValueSql = "newsequentialid()";
 
-            Assert.Equal("newsequentialid()", property.Sqlite().GeneratedValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Sqlite().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", property.Sqlite().DefaultValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).Sqlite().DefaultValueSql);
 
-            property.Sqlite().GeneratedValueSql = "expressyourself()";
+            property.Sqlite().DefaultValueSql = "expressyourself()";
 
-            Assert.Equal("expressyourself()", property.Sqlite().GeneratedValueSql);
-            Assert.Equal("expressyourself()", ((IProperty)property).Sqlite().GeneratedValueSql);
+            Assert.Equal("expressyourself()", property.Sqlite().DefaultValueSql);
+            Assert.Equal("expressyourself()", ((IProperty)property).Sqlite().DefaultValueSql);
 
-            property.Sqlite().GeneratedValueSql = null;
+            property.Sqlite().DefaultValueSql = null;
 
-            Assert.Equal("newsequentialid()", property.Sqlite().GeneratedValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).Sqlite().GeneratedValueSql);
+            Assert.Equal("newsequentialid()", property.Sqlite().DefaultValueSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).Sqlite().DefaultValueSql);
         }
 
         [Fact]

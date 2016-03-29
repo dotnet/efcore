@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual bool HasColumnType([CanBeNull] string value) => SetColumnType(value);
 
-        public virtual bool HasGeneratedValueSql([CanBeNull] string value) => SetGeneratedValueSql(value);
+        public virtual bool HasDefaultValueSql([CanBeNull] string value) => SetDefaultValueSql(value);
+
+        public virtual bool HasComputedValueSql([CanBeNull] string value) => SetComputedValueSql(value);
 
         public virtual bool HasDefaultValue([CanBeNull] object value) => SetDefaultValue(value);
     }

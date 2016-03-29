@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
             }
 
-            propertyBuilder.Metadata.SqlServer().GeneratedValueSql = sql;
+            propertyBuilder.Metadata.SqlServer().DefaultValueSql = sql;
 
             return propertyBuilder;
         }
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.SetValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
             }
 
-            propertyBuilder.Metadata.SqlServer().GeneratedValueSql = sql;
+            propertyBuilder.Metadata.SqlServer().ComputedValueSql = sql;
 
             return propertyBuilder;
         }

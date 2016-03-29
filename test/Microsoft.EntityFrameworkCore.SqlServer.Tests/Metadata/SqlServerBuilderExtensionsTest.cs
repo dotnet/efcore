@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .HasDefaultValueSql("CherryCoke");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().DefaultValueSql);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 
@@ -101,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .HasDefaultValueSql("CherryCoke");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().DefaultValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().DefaultValueSql);
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
@@ -125,8 +125,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .HasComputedColumnSql("CherryCoke");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().ComputedValueSql);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
@@ -150,8 +150,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .HasComputedColumnSql("CherryCoke");
 
-            Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().GeneratedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().ComputedValueSql);
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 

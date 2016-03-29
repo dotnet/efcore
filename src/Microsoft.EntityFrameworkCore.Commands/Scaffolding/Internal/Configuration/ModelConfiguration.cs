@@ -353,6 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             AddMaxLengthConfiguration(propertyConfiguration);
             AddDefaultValueConfiguration(propertyConfiguration);
             AddDefaultExpressionConfiguration(propertyConfiguration);
+            AddComputedExpressionConfiguration(propertyConfiguration);
             AddValueGeneratedConfiguration(propertyConfiguration);
         }
 
@@ -419,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                     if (_keyConvention.FindValueGeneratedOnAddProperty(
                         new List<Property> { (Property)propertyConfiguration.Property },
                         (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null
-                        && ExtensionsProvider.For(propertyConfiguration.Property).GeneratedValueSql == null)
+                        && ExtensionsProvider.For(propertyConfiguration.Property).DefaultValueSql == null)
                     {
                         propertyConfiguration.FluentApiConfigurations.Add(
                             _configurationFactory.CreateFluentApiConfiguration(
@@ -527,14 +528,30 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (ExtensionsProvider.For(propertyConfiguration.Property).GeneratedValueSql != null)
+            if (ExtensionsProvider.For(propertyConfiguration.Property).DefaultValueSql != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ false,
                         nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
                         CSharpUtilities.DelimitString(
-                            ExtensionsProvider.For(propertyConfiguration.Property).GeneratedValueSql)));
+                            ExtensionsProvider.For(propertyConfiguration.Property).DefaultValueSql)));
+            }
+        }
+
+        public virtual void AddComputedExpressionConfiguration(
+            [NotNull] PropertyConfiguration propertyConfiguration)
+        {
+            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
+
+            if (ExtensionsProvider.For(propertyConfiguration.Property).ComputedValueSql != null)
+            {
+                propertyConfiguration.FluentApiConfigurations.Add(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        /* hasAttributeEquivalent */ false,
+                        nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
+                        CSharpUtilities.DelimitString(
+                            ExtensionsProvider.For(propertyConfiguration.Property).ComputedValueSql)));
             }
         }
 

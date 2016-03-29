@@ -446,7 +446,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (isNullableChanged
                 || columnTypeChanged
-                || (sourceAnnotations.GeneratedValueSql != targetAnnotations.GeneratedValueSql)
+                || sourceAnnotations.DefaultValueSql != targetAnnotations.DefaultValueSql
+                || sourceAnnotations.ComputedValueSql != targetAnnotations.ComputedValueSql
                 || !Equals(sourceAnnotations.DefaultValue, targetAnnotations.DefaultValue)
                 || HasDifferences(MigrationsAnnotations.For(source), targetMigrationsAnnotations))
             {
@@ -463,8 +464,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     ColumnType = targetAnnotations.ColumnType,
                     IsNullable = isTargetColumnNullable,
                     DefaultValue = targetAnnotations.DefaultValue,
-                    DefaultValueSql = target.ValueGenerated == ValueGenerated.OnAdd ? targetAnnotations.GeneratedValueSql : null,
-                    ComputedColumnSql = target.ValueGenerated == ValueGenerated.OnAddOrUpdate ? targetAnnotations.GeneratedValueSql : null,
+                    DefaultValueSql = targetAnnotations.DefaultValueSql,
+                    ComputedColumnSql = targetAnnotations.ComputedValueSql,
                     IsDestructiveChange = isDestructiveChange
                 };
                 CopyAnnotations(targetMigrationsAnnotations, alterColumnOperation);
@@ -490,8 +491,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                ?? (inline || target.IsColumnNullable()
                                    ? null
                                    : GetDefaultValue(target.ClrType)),
-                DefaultValueSql = target.ValueGenerated == ValueGenerated.OnAdd ? targetAnnotations.GeneratedValueSql : null,
-                ComputedColumnSql = target.ValueGenerated == ValueGenerated.OnAddOrUpdate ? targetAnnotations.GeneratedValueSql : null
+                DefaultValueSql = targetAnnotations.DefaultValueSql,
+                ComputedColumnSql = targetAnnotations.ComputedValueSql
             };
             CopyAnnotations(MigrationsAnnotations.For(target), operation);
 
