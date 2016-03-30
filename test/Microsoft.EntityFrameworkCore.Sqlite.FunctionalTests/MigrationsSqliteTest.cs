@@ -19,6 +19,34 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
         }
 
+        public override void Can_generate_migration_from_initial_database_to_initial()
+        {
+            base.Can_generate_migration_from_initial_database_to_initial();
+
+            Assert.Equal(
+                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
+    ""ProductVersion"" TEXT NOT NULL
+);
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_no_migration_script()
+        {
+            base.Can_generate_no_migration_script();
+
+            Assert.Equal(
+                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
+    ""ProductVersion"" TEXT NOT NULL
+);
+
+",
+                Sql);
+        }
+
         public override void Can_generate_up_scripts()
         {
             base.Can_generate_up_scripts();

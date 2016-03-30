@@ -13,6 +13,16 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public abstract MigrationsContext CreateContext();
 
+        public abstract EmptyMigrationsContext CreateEmptyContext();
+
+        public class EmptyMigrationsContext : DbContext
+        {
+            public EmptyMigrationsContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
         public class MigrationsContext : DbContext
         {
             public MigrationsContext(DbContextOptions options)

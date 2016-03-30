@@ -24,5 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override MigrationsContext CreateContext()
             => new MigrationsContext(_options);
+
+        public override EmptyMigrationsContext CreateEmptyContext()
+            => new EmptyMigrationsContext(_options);
     }
 }
