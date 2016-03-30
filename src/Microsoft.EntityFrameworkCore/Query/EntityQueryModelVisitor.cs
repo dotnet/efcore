@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
             methodInfo != null
             && methodInfo.IsGenericMethod
-            // string comparison because MethodInfo.Equals is not .NET Native-safe
+                // string comparison because MethodInfo.Equals is not .NET Native-safe
             && methodInfo.Name == nameof(EF.Property)
             && methodInfo.DeclaringType?.FullName == _efTypeName;
 
@@ -408,7 +408,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     boundNavigationsList.Add(navigation);
                 }
-
             }
 
             return boundNavigationsList;
@@ -956,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!inProjection
                 && expression.Type != typeof(string)
-                    && expression.Type != typeof(byte[])
+                && expression.Type != typeof(byte[])
                 && _expression?.Type.TryGetElementType(typeof(IAsyncEnumerable<>)) != null)
             {
                 var elementType = expression.Type.TryGetElementType(typeof(IEnumerable<>));

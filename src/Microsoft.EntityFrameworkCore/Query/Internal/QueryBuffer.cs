@@ -220,9 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await relatedEntitiesLoaders[currentNavigationIndex]
-                    .Load(queryContext, keyComparer)
-                    .Select(async (eli, ct) =>
+                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex]
+                    .Load(queryContext, keyComparer), async (eli, ct) =>
                         {
                             var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
 

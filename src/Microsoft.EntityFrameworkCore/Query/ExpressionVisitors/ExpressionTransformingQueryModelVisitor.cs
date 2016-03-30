@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Utilities;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
     public class ExpressionTransformingQueryModelVisitor : QueryModelVisitorBase
     {
-        protected virtual RelinqExpressionVisitor TransformingVisitor { get; private set; }
+        protected virtual RelinqExpressionVisitor TransformingVisitor { get; }
 
         public ExpressionTransformingQueryModelVisitor([NotNull] RelinqExpressionVisitor transformingVisitor)
         {

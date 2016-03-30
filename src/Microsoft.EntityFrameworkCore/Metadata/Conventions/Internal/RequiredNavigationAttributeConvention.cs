@@ -43,10 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     return relationshipBuilder;
                 }
-                else
-                {
-                    relationshipBuilder = newRelationshipBuilder;
-                }
+                relationshipBuilder = newRelationshipBuilder;
             }
 
             return relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;

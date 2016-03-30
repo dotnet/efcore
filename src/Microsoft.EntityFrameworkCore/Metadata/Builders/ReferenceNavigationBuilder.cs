@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Gets the entity type that the reference points to.
         /// </summary>
         protected virtual EntityType RelatedEntityType { get; }
-        
+
         /// <summary>
         ///     Gets the entity type that the reference is declared on.
         /// </summary>
@@ -134,12 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
             var pointsToPrincipal = !builder.Metadata.IsSelfReferencing()
-                    && (!builder.Metadata.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
-                        || !builder.Metadata.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
-                        || (builder.Metadata.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
-                            && builder.Metadata.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
-                            && builder.Metadata.PrincipalToDependent != null
-                            && builder.Metadata.PrincipalToDependent.Name == ReferenceName));
+                                    && (!builder.Metadata.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
+                                        || !builder.Metadata.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
+                                        || (builder.Metadata.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
+                                            && builder.Metadata.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
+                                            && builder.Metadata.PrincipalToDependent != null
+                                            && builder.Metadata.PrincipalToDependent.Name == ReferenceName));
 
             return pointsToPrincipal
                 ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit)

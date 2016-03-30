@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         public virtual void SetPropertyModified(
-            [NotNull] IProperty property, 
+            [NotNull] IProperty property,
             bool changeState = true,
             bool isModified = true)
         {
@@ -202,7 +202,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return;
             }
 
-            if (changeState && isModified && property.IsKey())
+            if (changeState
+                && isModified
+                && property.IsKey())
             {
                 throw new NotSupportedException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
             }
@@ -228,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false, fromQuery: false);
                 }
             }
-            else if (changeState 
+            else if (changeState
                      && !isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
             {
@@ -297,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         [UsedImplicitly]
         private T ReadStoreGeneratedValue<T>(T currentValue, int storeGeneratedIndex)
-            => _storeGeneratedValues.GetValue<T>(currentValue, storeGeneratedIndex);
+            => _storeGeneratedValues.GetValue(currentValue, storeGeneratedIndex);
 
         internal static readonly MethodInfo GetCurrentValueMethod
             = typeof(InternalEntityEntry).GetMethods()

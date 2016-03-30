@@ -12,8 +12,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         void StateChanging([NotNull] InternalEntityEntry entry, EntityState newState);
 
         void StateChanged(
-            [NotNull] InternalEntityEntry entry, 
-            EntityState oldState, 
+            [NotNull] InternalEntityEntry entry,
+            EntityState oldState,
             bool skipInitialFixup,
             bool fromQuery);
     }

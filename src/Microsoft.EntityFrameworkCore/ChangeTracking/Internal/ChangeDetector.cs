@@ -163,7 +163,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var currentValue = entry[navigation];
             var stateManager = entry.StateManager;
 
-
             if (navigation.IsCollection())
             {
                 var snapshotCollection = (IEnumerable)snapshotValue;

@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType)
             => FindForeignKey(new[] { property }, principalKey, principalEntityType);
-        
+
         public virtual ForeignKey FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
@@ -658,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
             return FindDeclaredForeignKey(properties, principalKey, principalEntityType)
-               ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
+                   ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
         }
 
         public virtual IEnumerable<ForeignKey> GetDeclaredForeignKeys() => _foreignKeys;
@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var index = new Index(properties, this, configurationSource);
             _indexes.Add(properties, index);
-            
+
             foreach (var property in properties)
             {
                 var currentIndexes = property.Indexes;

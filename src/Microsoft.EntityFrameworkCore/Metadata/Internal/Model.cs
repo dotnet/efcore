@@ -64,11 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
         }
 
-        IMutableEntityType ICanFindEntityType.AddEntityType(string name, Type type) 
+        IMutableEntityType ICanFindEntityType.AddEntityType(string name, Type type)
             => AddEntityType(name, type);
 
         public virtual EntityType AddEntityType(
-            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit) 
+            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => AddEntityType(type.DisplayName(), type, configurationSource);
 
         public virtual EntityType GetOrAddEntityType([NotNull] Type type)
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType GetOrAddEntityType([NotNull] string name)
             => FindEntityType(name) ?? AddEntityType(name);
 
-        public virtual EntityType FindEntityType([NotNull] Type type) 
+        public virtual EntityType FindEntityType([NotNull] Type type)
             => (EntityType)((ICanFindEntityType)this).FindEntityType(type);
 
         IEntityType ICanFindEntityType.FindEntityType(Type type)

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         protected override int GetPropertyIndex(IPropertyBase propertyBase)
             => (propertyBase as IProperty)?.GetOriginalValueIndex() ?? -1;
 
-        protected override int GetPropertyCount(IEntityType entityType) 
+        protected override int GetPropertyCount(IEntityType entityType)
             => entityType.OriginalValueCount();
     }
 }

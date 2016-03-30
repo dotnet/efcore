@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 #if NET451
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Internal;
+
 #endif
 
 namespace Microsoft.EntityFrameworkCore

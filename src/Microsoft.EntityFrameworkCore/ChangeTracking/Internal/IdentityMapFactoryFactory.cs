@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         public virtual Func<IIdentityMap> Create([NotNull] IKey key)
             => (Func<IIdentityMap>)typeof(IdentityMapFactoryFactory).GetTypeInfo()
-            .GetDeclaredMethod(nameof(CreateFactory))
-            .MakeGenericMethod(GetKeyType(key))
-            .Invoke(null, new object[] { key });
+                .GetDeclaredMethod(nameof(CreateFactory))
+                .MakeGenericMethod(GetKeyType(key))
+                .Invoke(null, new object[] { key });
 
         [UsedImplicitly]
         private static Func<IIdentityMap> CreateFactory<TKey>(IKey key)

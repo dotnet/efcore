@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return index != -1 ? _values[index] : entry[property];
             }
 
-            public T GetValue<T>(InternalEntityEntry entry, IProperty property, int index) 
-                => IsEmpty 
-                ? entry.GetCurrentValue<T>(property) 
-                : _values.GetValue<T>(index);
+            public T GetValue<T>(InternalEntityEntry entry, IProperty property, int index)
+                => IsEmpty
+                    ? entry.GetCurrentValue<T>(property)
+                    : _values.GetValue<T>(index);
 
             public void SetValue(IProperty property, object value)
             {
@@ -70,14 +70,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     return;
                 }
 
-                    foreach (var property in entry.EntityType.GetProperties())
+                foreach (var property in entry.EntityType.GetProperties())
+                {
+                    var index = property.GetOriginalValueIndex();
+                    if (index >= 0)
                     {
-                        var index = property.GetOriginalValueIndex();
-                        if (index >= 0)
-                        {
-                            _values[index] = entry[property];
-                        }
+                        _values[index] = entry[property];
                     }
+                }
             }
 
             public bool IsEmpty => _values == null;

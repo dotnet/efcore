@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public T GetValue<T>(InternalEntityEntry entry, IPropertyBase propertyBase, int index)
                 => IsEmpty
-                ? entry.GetCurrentValue<T>(propertyBase)
-                : _values.GetValue<T>(index);
+                    ? entry.GetCurrentValue<T>(propertyBase)
+                    : _values.GetValue<T>(index);
 
             public void SetValue(IPropertyBase propertyBase, object value)
             {

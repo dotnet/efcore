@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _snapshots = snapshots;
         }
 
-        internal static readonly ConstructorInfo Constructor 
+        internal static readonly ConstructorInfo Constructor
             = typeof(MultiSnapshot).GetDeclaredConstructor(new[] { typeof(ISnapshot[]) });
 
-        public T GetValue<T>(int index) 
+        public T GetValue<T>(int index)
             => _snapshots[index / Snapshot.MaxGenericTypes].GetValue<T>(index % Snapshot.MaxGenericTypes);
 
         public object this[int index]

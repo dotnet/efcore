@@ -7,6 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public interface IModelCustomizer
     {
-        void Customize([NotNull]ModelBuilder modelBuilder, [NotNull] DbContext dbContext);
+        void Customize([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext dbContext);
     }
 }

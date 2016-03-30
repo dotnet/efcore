@@ -1228,7 +1228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 newRelationship = newRelationship.Navigations(
                     navigationToPrincipalName == "" ? null : navigationToPrincipalName,
-                    navigationToDependentName == "" ? null : navigationToDependentName, 
+                    navigationToDependentName == "" ? null : navigationToDependentName,
                     configurationSource);
             }
             relationship = newRelationship ?? relationship;

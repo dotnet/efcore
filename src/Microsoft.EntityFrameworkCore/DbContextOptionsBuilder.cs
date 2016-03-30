@@ -73,10 +73,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model) 
+        public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model)
             => SetOption(e => e.Model = Check.NotNull(model, nameof(model)));
 
-        public virtual DbContextOptionsBuilder UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory) 
+        public virtual DbContextOptionsBuilder UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
             => SetOption(e => e.LoggerFactory = loggerFactory);
 
         public virtual DbContextOptionsBuilder UseMemoryCache([CanBeNull] IMemoryCache memoryCache)

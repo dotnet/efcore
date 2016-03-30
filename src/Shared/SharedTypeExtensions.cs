@@ -214,6 +214,6 @@ namespace System
         public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
             => assembly.DefinedTypes.Where(
                 t => !t.IsAbstract
-                    && !t.IsGenericTypeDefinition);
+                     && !t.IsGenericTypeDefinition);
     }
 }

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static SimplePrincipalKeyValueFactory<TKey> CreateSimpleFactory<TKey>(IKey key)
         {
             var dependentFactory = new DependentKeyValueFactoryFactory();
-            var principalKeyValueFactory 
+            var principalKeyValueFactory
                 = new SimplePrincipalKeyValueFactory<TKey>(key.Properties.Single().GetPropertyAccessors());
 
             foreach (var foreignKey in key.FindReferencingForeignKeys())

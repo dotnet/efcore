@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
         {
             var oldBaseTypeBuilder = oldBaseType != null
-                && !entityTypeBuilder.ModelBuilder.IsIgnored(oldBaseType.Name, ConfigurationSource.Convention)
+                                     && !entityTypeBuilder.ModelBuilder.IsIgnored(oldBaseType.Name, ConfigurationSource.Convention)
                 ? oldBaseType.Builder
                 : null;
             if (oldBaseTypeBuilder != null)

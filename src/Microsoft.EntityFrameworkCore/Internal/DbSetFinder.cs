@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly ConcurrentDictionary<Type, IReadOnlyList<DbSetProperty>> _cache
             = new ConcurrentDictionary<Type, IReadOnlyList<DbSetProperty>>();
 
-        public virtual IReadOnlyList<DbSetProperty> FindSets(DbContext context) 
+        public virtual IReadOnlyList<DbSetProperty> FindSets(DbContext context)
             => _cache.GetOrAdd(context.GetType(), FindSets);
 
         private static DbSetProperty[] FindSets(Type contextType)

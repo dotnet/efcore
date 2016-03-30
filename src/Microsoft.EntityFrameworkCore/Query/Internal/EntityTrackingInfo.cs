@@ -36,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QuerySourceReferenceExpression = querySourceReferenceExpression;
 
             var sequenceType = querySourceReferenceExpression.Type.TryGetSequenceType();
-            
-            IsEnumerableTarget 
+
+            IsEnumerableTarget
                 = sequenceType != null
-                    && sequenceType == entityType.ClrType;
+                  && sequenceType == entityType.ClrType;
 
             _entityType = entityType;
 

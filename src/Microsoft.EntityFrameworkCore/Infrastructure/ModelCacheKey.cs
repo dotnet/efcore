@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var otherAsKey = obj as ModelCacheKey;
             return (otherAsKey != null) && Equals(otherAsKey);
-        } 
+        }
+
         public override int GetHashCode() => _dbContextType?.GetHashCode() ?? 0;
     }
 }

@@ -77,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (navigation.IsDependentToPrincipal())
             {
                 TKey keyValue;
-                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out keyValue) 
-                    ? (IIncludeKeyComparer)new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory) 
+                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out keyValue)
+                    ? (IIncludeKeyComparer)new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
                     : new NullIncludeComparer();
             }
 

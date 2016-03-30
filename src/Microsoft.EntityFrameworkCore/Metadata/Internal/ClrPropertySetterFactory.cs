@@ -11,26 +11,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override IClrPropertySetter Create(PropertyInfo property)
         {
             var types = new[] { property.DeclaringType, property.PropertyType };
-            
+
             var type = property.PropertyType.IsNullableType() && property.PropertyType.UnwrapNullableType().GetTypeInfo().IsEnum
-                    ? typeof(NullableEnumClrPropertySetter<,,>).MakeGenericType(property.DeclaringType, property.PropertyType, property.PropertyType.UnwrapNullableType())
-                    : typeof(ClrPropertySetter<,>).MakeGenericType(types);
+                ? typeof(NullableEnumClrPropertySetter<,,>).MakeGenericType(property.DeclaringType, property.PropertyType, property.PropertyType.UnwrapNullableType())
+                : typeof(ClrPropertySetter<,>).MakeGenericType(types);
 
             var setterProperty = property;
             while (setterProperty.SetMethod == null)
             {
                 setterProperty = setterProperty.DeclaringType.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if(setterProperty.SetMethod != null)
+                if (setterProperty.SetMethod != null)
                 {
                     break;
                 }
-                else
+                setterProperty = setterProperty.DeclaringType.GetTypeInfo().BaseType.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (setterProperty == null)
                 {
-                    setterProperty = setterProperty.DeclaringType.GetTypeInfo().BaseType.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if(setterProperty == null)
-                    {
-                        throw new InvalidOperationException($"Could not find setter for property {property.Name}");
-                    }
+                    throw new InvalidOperationException($"Could not find setter for property {property.Name}");
                 }
             }
 

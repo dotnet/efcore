@@ -152,9 +152,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             IDependentsMap map;
             return _dependentMaps != null
-                   && _dependentMaps.TryGetValue(foreignKey, out map) 
-                   ? map 
-                   : null;
+                   && _dependentMaps.TryGetValue(foreignKey, out map)
+                ? map
+                : null;
         }
 
         public virtual void Remove(InternalEntityEntry entry)

@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
     public class Property
         : ConventionalAnnotatable,
-        IMutableProperty,
-        IPropertyBaseAccessors,
-        IPropertyIndexesAccessor,
-        IPropertyKeyMetadata,
-        IPropertyIndexMetadata
+            IMutableProperty,
+            IPropertyBaseAccessors,
+            IPropertyIndexesAccessor,
+            IPropertyKeyMetadata,
+            IPropertyIndexMetadata
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;

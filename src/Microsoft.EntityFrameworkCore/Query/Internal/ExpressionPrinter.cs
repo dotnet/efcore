@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.Subtract, " - " },
             { ExpressionType.Multiply, " * " },
             { ExpressionType.Divide, " * " },
-            { ExpressionType.Modulo, " % " },
+            { ExpressionType.Modulo, " % " }
         };
 
         protected static Action<IndentedStringBuilder, string> Append

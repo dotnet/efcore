@@ -60,11 +60,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => Dispatch(l => l.NavigationCollectionChanged(entry, navigation, added, removed));
 
         public virtual void KeyPropertyChanged(
-            InternalEntityEntry entry, 
+            InternalEntityEntry entry,
             IProperty property,
             IReadOnlyList<IKey> keys,
             IReadOnlyList<IForeignKey> foreignKeys,
-            object oldValue, 
+            object oldValue,
             object newValue)
             => Dispatch(l => l.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue));
 
