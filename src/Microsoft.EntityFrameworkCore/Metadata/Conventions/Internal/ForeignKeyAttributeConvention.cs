@@ -78,15 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if ((fkPropertyOnDependent == null)
                     && (fkPropertyOnPrincipal == null))
                 {
-                    if (fkPropertiesOnNavigation.Any(p => foreignKey.DeclaringEntityType.FindProperty(p) == null)
-                        && fkPropertiesOnNavigation.All(p => foreignKey.PrincipalEntityType.FindProperty(p) != null))
+                    if (fkPropertiesOnPrincipalToDependent != null
+                        && foreignKey.IsUnique)
                     {
                         invertConfigurationSource = ConfigurationSource.DataAnnotation;
-                    } else if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() == null
-                               && fkPropertiesOnPrincipalToDependent == fkPropertiesOnNavigation
-                               && fkPropertiesOnNavigation.All(p => foreignKey.DeclaringEntityType.FindProperty(p) == null))
-                    {
-                        invertConfigurationSource = ConfigurationSource.Convention;
                     }
                 }
                 else
@@ -121,9 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var temp = upgradeDependentToPrincipalNavigationSource;
                     upgradeDependentToPrincipalNavigationSource = upgradePrincipalToDependentNavigationSource;
                     upgradePrincipalToDependentNavigationSource = temp;
-                } else if (invertConfigurationSource == ConfigurationSource.Convention)
-                {
-                    newRelationshipBuilder = relationshipBuilder;
                 }
             }
             if (newRelationshipBuilder != null
@@ -258,8 +250,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     throw new InvalidOperationException(CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.Name));
                 }
 
+                var navigationPropertyTargetType = navigation.DeclaringEntityType.ClrType.GetRuntimeProperties()
+                    .Single(p => p.Name == navigation.Name).PropertyType;
+
                 var otherNavigations = navigation.DeclaringEntityType.ClrType.GetRuntimeProperties()
-                    .Where(p => FindCandidateNavigationPropertyType(p) != null && p.Name != navigation.Name)
+                    .Where(p => p.PropertyType == navigationPropertyTargetType && p.Name != navigation.Name)
                     .OrderBy(p => p.Name);
                 foreach (var propertyInfo in otherNavigations)
                 {

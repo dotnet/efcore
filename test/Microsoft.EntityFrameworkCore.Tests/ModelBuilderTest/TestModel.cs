@@ -366,6 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public IList<Eta> Etas { get; set; }
             [ForeignKey("Id")]
             public IList<Theta> Thetas { get; set; }
+            [ForeignKey("Id")]
+            public IList<Kappa> Kappas { get; set; }
 
         }
 
@@ -422,13 +424,20 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected class Theta
         {
-            public int Id { get; set; }
+            public int ThetaId { get; set; }
 
             public Alpha Alpha { get; set; }
 
             public Theta NavTheta { get; set; }
             public IList<Theta> InverseNavThetas { get; set; }
             public IList<Iota> AllIotas { get; set; }
+        }
+
+        protected class Kappa
+        {
+            public int KappaId { get; set; }
+
+            public Alpha Alpha { get; set; }
         }
 
         protected class Iota

@@ -1764,11 +1764,25 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var model = modelBuilder.Model;
 
-                Assert.Null(model.FindEntityType(typeof(Epsilon)).FindNavigation("Alpha").ForeignKey.PrincipalToDependent);
-                Assert.Equal("Id", model.FindEntityType(typeof(Epsilon)).FindNavigation("Alpha").ForeignKey.Properties.First().Name);
+                var alphaFk = model.FindEntityType(typeof(Epsilon)).FindNavigation(nameof(Epsilon.Alpha)).ForeignKey;
+                Assert.Null(alphaFk.PrincipalToDependent);
+                Assert.False(alphaFk.IsUnique);
+                Assert.Equal(nameof(Epsilon.Id), alphaFk.Properties.First().Name);
 
-                Assert.Null(model.FindEntityType(typeof(Alpha)).FindNavigation("Epsilons").ForeignKey.DependentToPrincipal);
-                Assert.Equal("AlphaId1", model.FindEntityType(typeof(Alpha)).FindNavigation("Epsilons").ForeignKey.Properties.First().Name);
+                var epsilonFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Epsilons)).ForeignKey;
+                Assert.Null(epsilonFk.DependentToPrincipal);
+                Assert.False(epsilonFk.IsUnique);
+                Assert.Equal(nameof(Alpha) + nameof(Alpha.Id), epsilonFk.Properties.First().Name);
+
+                var etaFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Etas)).ForeignKey;
+                Assert.Equal(nameof(Eta.Alpha),etaFk.DependentToPrincipal.Name);
+                Assert.False(etaFk.IsUnique);
+                Assert.Equal("Id", etaFk.Properties.First().Name);
+
+                var kappaFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Kappas)).ForeignKey;
+                Assert.Equal(nameof(Kappa.Alpha),kappaFk.DependentToPrincipal.Name);
+                Assert.False(kappaFk.IsUnique);
+                Assert.Equal("Id", kappaFk.Properties.First().Name);
             }
 
             [Fact]
@@ -1789,7 +1803,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Null(etasFk.DependentToPrincipal);
                 Assert.False(etasFk.IsUnique);
                 Assert.NotSame(alphaFk, etasFk);
-
                 Assert.Equal(nameof(Alpha) + nameof(Alpha.Id), etasFk.Properties.First().Name);
             }
 
@@ -1805,7 +1818,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var thetasFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Thetas)).ForeignKey;
                 Assert.Null(thetasFk.DependentToPrincipal);
                 Assert.False(thetasFk.IsUnique);
-                Assert.Equal(nameof(Alpha.Id), thetasFk.Properties.Single().Name);
+                Assert.Equal("Id", thetasFk.Properties.Single().Name);
+                Assert.True(thetasFk.Properties.Single().IsShadowProperty);
 
                 var alphaFk = model.FindEntityType(typeof(Theta)).FindNavigation(nameof(Theta.Alpha)).ForeignKey;
                 Assert.Null(alphaFk.PrincipalToDependent);
