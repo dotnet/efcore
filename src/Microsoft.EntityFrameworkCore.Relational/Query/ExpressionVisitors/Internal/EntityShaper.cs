@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected virtual int ValueBufferOffset { get; private set; }
 
         public abstract IShaper<TDerived> Cast<TDerived>() where TDerived : class;
-        
+
         public abstract EntityShaper WithOffset(int offset);
 
         protected virtual EntityShaper SetOffset(int offset)

@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var generator = QuerySqlGeneratorFactory();
             relationalCommand = generator.GenerateSql(parameters);
 
-            if(generator.IsCacheable)
+            if (generator.IsCacheable)
             {
                 _commandCache.TryAdd(key, relationalCommand);
             }

@@ -146,7 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                         SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                         columnModification.Property);
 
-
                     parameterValues.Add(
                         columnModification.OriginalParameterName,
                         columnModification.OriginalValue);

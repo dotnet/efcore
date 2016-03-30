@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
         {
         }
-        
+
         public virtual bool HasConstraintName([CanBeNull] string value) => SetName(value);
     }
 }

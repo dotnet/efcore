@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.Log(LogLevel.Information, (int)eventId, state, null, (s, _) => formatter((TState)s));
+                logger.Log(LogLevel.Information, (int)eventId, state, null, (s, _) => formatter(s));
             }
         }
     }

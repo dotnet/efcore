@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -112,19 +111,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _disallowedMappings
                 = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                 {
-                     "binary varying",
-                     "binary",
-                     "char varying",
-                     "char",
-                     "character varying",
-                     "character",
-                     "national char varying",
-                     "national character varying",
-                     "national character",
-                     "nchar",
-                     "nvarchar",
-                     "varbinary",
-                     "varchar"
+                    "binary varying",
+                    "binary",
+                    "char varying",
+                    "char",
+                    "character varying",
+                    "character",
+                    "national char varying",
+                    "national character varying",
+                    "national character",
+                    "nchar",
+                    "nvarchar",
+                    "varbinary",
+                    "varchar"
                 };
         }
 

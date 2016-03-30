@@ -271,19 +271,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             joinExpression.Predicate
                                 = joinExpression.Predicate == null
-                                ? predicate
-                                : Expression.AndAlso(
-                                    joinExpression.Predicate,
-                                    predicate);
+                                    ? predicate
+                                    : Expression.AndAlso(
+                                        joinExpression.Predicate,
+                                        predicate);
                         }
 
                         SetProjectionConditionalExpression(
                             handlerContext,
-                                Expression.Condition(
-                                    new ExistsExpression(outterSelectExpression),
-                                    Expression.Constant(true),
-                                    Expression.Constant(false),
-                                    typeof(bool)));
+                            Expression.Condition(
+                                new ExistsExpression(outterSelectExpression),
+                                Expression.Constant(true),
+                                Expression.Constant(false),
+                                typeof(bool)));
 
                         return TransformClientExpression<bool>(handlerContext);
                     }

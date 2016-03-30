@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var property = propertyBuilder.Metadata;
 
-            name = name ?? SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName;
+            name = name ?? SqlServerModelAnnotations.DefaultHiLoSequenceName;
 
             var model = property.DeclaringEntityType.Model;
 

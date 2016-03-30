@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(property, nameof(property));
 
             var mapping = typeMapper.FindMapping(property);
-            if(mapping != null)
+            if (mapping != null)
             {
                 return mapping;
             }
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public static bool IsTypeMapped(
-            [NotNull] this IRelationalTypeMapper typeMapper, 
+            [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] Type clrType)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));

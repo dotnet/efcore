@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 : this;
         }
 
-        public override string ToString() 
+        public override string ToString()
             => Alias != null ? "(" + _expression + ") AS " + Alias : _expression.ToString();
 
         public override bool Equals(object obj)

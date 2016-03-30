@@ -84,66 +84,66 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             switch (expression.NodeType)
             {
                 case ExpressionType.Coalesce:
-                    {
-                        var left = Visit(expression.Left);
-                        var right = Visit(expression.Right);
+                {
+                    var left = Visit(expression.Left);
+                    var right = Visit(expression.Right);
 
-                        return left != null && right != null
-                            ? new AliasExpression(expression.Update(left, expression.Conversion, right))
-                            : null;
-                    }
+                    return left != null && right != null
+                        ? new AliasExpression(expression.Update(left, expression.Conversion, right))
+                        : null;
+                }
 
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
-                    {
-                        var structuralComparisonExpression
-                            = UnfoldStructuralComparison(
-                                expression.NodeType,
-                                ProcessComparisonExpression(expression));
+                {
+                    var structuralComparisonExpression
+                        = UnfoldStructuralComparison(
+                            expression.NodeType,
+                            ProcessComparisonExpression(expression));
 
-                        return structuralComparisonExpression;
-                    }
+                    return structuralComparisonExpression;
+                }
 
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
-                    {
-                        return ProcessComparisonExpression(expression);
-                    }
+                {
+                    return ProcessComparisonExpression(expression);
+                }
 
                 case ExpressionType.AndAlso:
+                {
+                    var left = Visit(expression.Left);
+                    var right = Visit(expression.Right);
+
+                    if (expression == _topLevelPredicate)
                     {
-                        var left = Visit(expression.Left);
-                        var right = Visit(expression.Right);
-
-                        if (expression == _topLevelPredicate)
+                        if (left != null
+                            && right != null)
                         {
-                            if (left != null
-                                && right != null)
-                            {
-                                return Expression.AndAlso(left, right);
-                            }
-
-                            if (left != null)
-                            {
-                                ClientEvalPredicate = expression.Right;
-                                return left;
-                            }
-
-                            if (right != null)
-                            {
-                                ClientEvalPredicate = expression.Left;
-                                return right;
-                            }
-
-                            return null;
+                            return Expression.AndAlso(left, right);
                         }
 
-                        return left != null && right != null
-                            ? Expression.AndAlso(left, right)
-                            : null;
+                        if (left != null)
+                        {
+                            ClientEvalPredicate = expression.Right;
+                            return left;
+                        }
+
+                        if (right != null)
+                        {
+                            ClientEvalPredicate = expression.Left;
+                            return right;
+                        }
+
+                        return null;
                     }
+
+                    return left != null && right != null
+                        ? Expression.AndAlso(left, right)
+                        : null;
+                }
 
                 case ExpressionType.OrElse:
                 case ExpressionType.Add:
@@ -151,20 +151,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
                 case ExpressionType.Modulo:
-                    {
-                        var leftExpression = Visit(expression.Left);
-                        var rightExpression = Visit(expression.Right);
+                {
+                    var leftExpression = Visit(expression.Left);
+                    var rightExpression = Visit(expression.Right);
 
-                        return leftExpression != null
-                               && rightExpression != null
-                            ? Expression.MakeBinary(
-                                expression.NodeType,
-                                leftExpression,
-                                rightExpression,
-                                expression.IsLiftedToNull,
-                                expression.Method)
-                            : null;
-                    }
+                    return leftExpression != null
+                           && rightExpression != null
+                        ? Expression.MakeBinary(
+                            expression.NodeType,
+                            leftExpression,
+                            rightExpression,
+                            expression.IsLiftedToNull,
+                            expression.Method)
+                        : null;
+                }
             }
 
             return null;
@@ -197,31 +197,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private Expression TryRemoveNullCheck(ConditionalExpression node)
         {
             var binaryTest = node.Test as BinaryExpression;
-            if (binaryTest == null || binaryTest.NodeType != ExpressionType.NotEqual)
+            if (binaryTest == null
+                || binaryTest.NodeType != ExpressionType.NotEqual)
             {
                 return null;
             }
 
             var rightConstant = binaryTest.Right as ConstantExpression;
-            if (rightConstant == null || rightConstant.Value != null)
+            if (rightConstant == null
+                || rightConstant.Value != null)
             {
                 return null;
             }
 
             var ifFalseConstant = node.IfFalse as ConstantExpression;
-            if (ifFalseConstant == null || ifFalseConstant.Value != null)
+            if (ifFalseConstant == null
+                || ifFalseConstant.Value != null)
             {
                 return null;
             }
 
             var ifTrueMemberExpression = node.IfTrue.RemoveConvert() as MemberExpression;
             var correctMemberExpression = ifTrueMemberExpression != null
-                 && ifTrueMemberExpression.Expression == binaryTest.Left;
+                                          && ifTrueMemberExpression.Expression == binaryTest.Left;
 
             var ifTruePropertyMethodCallExpression = node.IfTrue.RemoveConvert() as MethodCallExpression;
             var correctPropertyMethodCallExpression = ifTruePropertyMethodCallExpression != null
-                 && EntityQueryModelVisitor.IsPropertyMethod(ifTruePropertyMethodCallExpression.Method)
-                 && ifTruePropertyMethodCallExpression.Arguments[0] == binaryTest.Left;
+                                                      && EntityQueryModelVisitor.IsPropertyMethod(ifTruePropertyMethodCallExpression.Method)
+                                                      && ifTruePropertyMethodCallExpression.Arguments[0] == binaryTest.Left;
 
             return correctMemberExpression || correctPropertyMethodCallExpression ? node.IfTrue : null;
         }
@@ -282,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return null;
             }
 
-            var nullExpression 
+            var nullExpression
                 = TransformNullComparison(leftExpression, rightExpression, binaryExpression.NodeType);
 
             return nullExpression
@@ -460,25 +463,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             switch (expression.NodeType)
             {
                 case ExpressionType.Not:
+                {
+                    var operand = Visit(expression.Operand);
+                    if (operand != null)
                     {
-                        var operand = Visit(expression.Operand);
-                        if (operand != null)
-                        {
-                            return Expression.Not(operand);
-                        }
-
-                        break;
+                        return Expression.Not(operand);
                     }
+
+                    break;
+                }
                 case ExpressionType.Convert:
+                {
+                    var operand = Visit(expression.Operand);
+                    if (operand != null)
                     {
-                        var operand = Visit(expression.Operand);
-                        if (operand != null)
-                        {
-                            return Expression.Convert(operand, expression.Type);
-                        }
-
-                        break;
+                        return Expression.Convert(operand, expression.Type);
                     }
+
+                    break;
+                }
             }
 
             return null;

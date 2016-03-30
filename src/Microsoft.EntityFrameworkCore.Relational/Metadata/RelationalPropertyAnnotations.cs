@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalPropertyAnnotations : IRelationalPropertyAnnotations
@@ -91,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     RelationalFullAnnotationNames.Instance.ComputedValueSql,
                     ProviderFullAnnotationNames?.ComputedValueSql);
             }
-            [param: CanBeNull]
-            set { SetComputedValueSql(value); }
+            [param: CanBeNull] set { SetComputedValueSql(value); }
         }
 
         protected virtual bool SetComputedValueSql([CanBeNull] string value)

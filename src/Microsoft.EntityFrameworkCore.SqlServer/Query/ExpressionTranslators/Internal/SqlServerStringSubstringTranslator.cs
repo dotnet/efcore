@@ -19,16 +19,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 ? new SqlFunctionExpression(
                     "SUBSTRING",
                     methodCallExpression.Type,
-                    new[] {
+                    new[]
+                    {
                         methodCallExpression.Object,
                         // Accomidate for SQL Server assumption of 1-based string indexes
                         methodCallExpression.Arguments[0].NodeType == ExpressionType.Constant
                             ? (Expression)Expression.Constant(
-                                (int)((ConstantExpression) methodCallExpression.Arguments[0]).Value + 1)
+                                (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value + 1)
                             : Expression.Add(
                                 methodCallExpression.Arguments[0],
                                 Expression.Constant(1)),
-                        methodCallExpression.Arguments[1] })
+                        methodCallExpression.Arguments[1]
+                    })
                 : null;
     }
 }

@@ -43,6 +43,5 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 .Add(RelationalTypeMapping
                     .CreateParameter(command, Name, value, Nullable));
         }
-
     }
 }

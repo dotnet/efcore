@@ -218,8 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private Expression ApplyNullSemantics(Expression expression)
         {
             var newExpression
-                        = new NullComparisonTransformingVisitor(_parametersValues)
-                            .Visit(expression);
+                = new NullComparisonTransformingVisitor(_parametersValues)
+                    .Visit(expression);
 
             var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
             var optimizedExpression = relationalNullsOptimizedExpandingVisitor.Visit(newExpression);
@@ -346,18 +346,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         _relationalCommandBuilder.AddCompositeParameter(
                             parameterExpression.Name,
                             builder =>
-                            {
-                                for (var i = 0; i < argumentValues.Length; i++)
                                 {
-                                    var parameterName = _parameterNameGenerator.GenerateNext();
+                                    for (var i = 0; i < argumentValues.Length; i++)
+                                    {
+                                        var parameterName = _parameterNameGenerator.GenerateNext();
 
-                                    substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                                        substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
 
-                                    builder.AddParameter(
-                                        parameterName,
-                                        substitutions[i]);
-                                }
-                            });
+                                        builder.AddParameter(
+                                            parameterName,
+                                            substitutions[i]);
+                                    }
+                                });
                     }
 
                     break;

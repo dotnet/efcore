@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _model = model;
         }
 
-        public virtual bool EnsureDeleted() 
+        public virtual bool EnsureDeleted()
             => _database.Store.Clear();
 
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))

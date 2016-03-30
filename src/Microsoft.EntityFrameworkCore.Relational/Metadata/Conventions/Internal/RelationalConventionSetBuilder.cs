@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         protected RelationalConventionSetBuilder(
             [NotNull] IRelationalTypeMapper typeMapper,
-            [CanBeNull] ICurrentDbContext currentContext, 
+            [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));

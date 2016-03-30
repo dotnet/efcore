@@ -24,11 +24,11 @@ namespace System.Linq.Expressions
             Check.NotNull(expression, nameof(expression));
 
             return expression.NodeType == ExpressionType.Equal
-                || expression.NodeType == ExpressionType.NotEqual
-                || expression.NodeType == ExpressionType.LessThan
-                || expression.NodeType == ExpressionType.LessThanOrEqual
-                || expression.NodeType == ExpressionType.GreaterThan
-                || expression.NodeType == ExpressionType.GreaterThanOrEqual;
+                   || expression.NodeType == ExpressionType.NotEqual
+                   || expression.NodeType == ExpressionType.LessThan
+                   || expression.NodeType == ExpressionType.LessThanOrEqual
+                   || expression.NodeType == ExpressionType.GreaterThan
+                   || expression.NodeType == ExpressionType.GreaterThanOrEqual;
         }
 
         public static ColumnExpression TryGetColumnExpression([NotNull] this Expression expression)

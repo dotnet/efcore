@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     internal static class RelationalLoggerExtensions
     {
         public static void LogCommandExecuted(
-            [NotNull] this ISensitiveDataLogger logger, 
-            [NotNull] DbCommand command, 
-            long startTimestamp, 
+            [NotNull] this ISensitiveDataLogger logger,
+            [NotNull] DbCommand command,
+            long startTimestamp,
             long currentTimestamp)
         {
             Check.NotNull(logger, nameof(logger));
@@ -46,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             elapsedMilliseconds);
                     },
                 state =>
-                {
-                    var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
+                    {
+                        var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
 
-                    return RelationalStrings.RelationalLoggerExecutedCommand(
+                        return RelationalStrings.RelationalLoggerExecutedCommand(
                             string.Format($"{elapsedMilliseconds:N0}"),
                             state.Parameters
                                 .Select(kv => $"{kv.Key}='{FormatParameterValue(kv.Value)}'")
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private static long DeriveTimespan(long startTimestamp, long currentTimestamp) 
+        private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
             => (currentTimestamp - startTimestamp) / TimeSpan.TicksPerMillisecond;
     }
 }

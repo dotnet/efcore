@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = modelBuilder.Model;
 
-            name = name ?? SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName;
+            name = name ?? SqlServerModelAnnotations.DefaultHiLoSequenceName;
 
             var sequence =
                 model.SqlServer().FindSequence(name, schema) ??

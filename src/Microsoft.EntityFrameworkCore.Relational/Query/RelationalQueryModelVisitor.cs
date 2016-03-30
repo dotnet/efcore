@@ -584,8 +584,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if ((!subSelectExpression.OrderBy.Any()
                      || subSelectExpression.Limit != null)
-                    && (QueryCompilationContext.IsLateralJoinSupported 
-                        || !subSelectExpression.IsCorrelated() 
+                    && (QueryCompilationContext.IsLateralJoinSupported
+                        || !subSelectExpression.IsCorrelated()
                         || !(querySource is AdditionalFromClause)))
                 {
                     subSelectExpression.PushDownSubquery().QuerySource = querySource;

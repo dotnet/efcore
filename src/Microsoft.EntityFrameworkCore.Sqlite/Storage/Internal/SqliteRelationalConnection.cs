@@ -6,10 +6,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal

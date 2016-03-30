@@ -19,36 +19,36 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             switch (node.NodeType)
             {
                 case ExpressionType.OrElse:
+                {
+                    var optimized
+                        = TryOptimize(
+                            node,
+                            equalityType: ExpressionType.Equal,
+                            inExpressionFactory: (c, vs) => new InExpression(c, vs));
+
+                    if (optimized != null)
                     {
-                        var optimized
-                            = TryOptimize(
-                                node,
-                                equalityType: ExpressionType.Equal,
-                                inExpressionFactory: (c, vs) => new InExpression(c, vs));
-
-                        if (optimized != null)
-                        {
-                            return optimized;
-                        }
-
-                        break;
+                        return optimized;
                     }
+
+                    break;
+                }
 
                 case ExpressionType.AndAlso:
+                {
+                    var optimized
+                        = TryOptimize(
+                            node,
+                            equalityType: ExpressionType.NotEqual,
+                            inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
+
+                    if (optimized != null)
                     {
-                        var optimized
-                            = TryOptimize(
-                                node,
-                                equalityType: ExpressionType.NotEqual,
-                                inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
-
-                        if (optimized != null)
-                        {
-                            return optimized;
-                        }
-
-                        break;
+                        return optimized;
                     }
+
+                    break;
+                }
             }
 
             return base.VisitBinary(node);

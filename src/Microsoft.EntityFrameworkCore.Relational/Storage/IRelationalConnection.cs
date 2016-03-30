@@ -28,6 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         bool IsMultipleActiveResultSetsEnabled { get; }
 
-        IValueBufferCursor ActiveCursor { get; [param: CanBeNull] set;}
+        IValueBufferCursor ActiveCursor { get; [param: CanBeNull] set; }
     }
 }

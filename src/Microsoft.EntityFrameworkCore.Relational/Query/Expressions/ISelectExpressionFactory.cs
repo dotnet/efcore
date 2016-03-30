@@ -7,8 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     public interface ISelectExpressionFactory
     {
-        SelectExpression Create([NotNull]RelationalQueryCompilationContext queryCompilationContext);
+        SelectExpression Create([NotNull] RelationalQueryCompilationContext queryCompilationContext);
 
-        SelectExpression Create([NotNull]RelationalQueryCompilationContext queryCompilationContext, [NotNull] string alias);
+        SelectExpression Create([NotNull] RelationalQueryCompilationContext queryCompilationContext, [NotNull] string alias);
     }
 }

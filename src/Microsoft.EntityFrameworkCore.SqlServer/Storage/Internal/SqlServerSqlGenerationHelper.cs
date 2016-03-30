@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         protected override string DateTimeFormat => "yyyy-MM-ddTHH:mm:ss.fffK";
         protected override string DateTimeOffsetFormat => "yyyy-MM-ddTHH:mm:ss.fffzzz";
-        
+
         public override string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
 

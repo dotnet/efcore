@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             = new List<IExpressionFragmentTranslator>
             {
                 new StringCompareTranslator(),
-                new StringConcatTranslator(),
+                new StringConcatTranslator()
             };
 
         public virtual Expression Translate(Expression expression)

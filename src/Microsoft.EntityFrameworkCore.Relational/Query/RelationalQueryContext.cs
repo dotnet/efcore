@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IStateManager stateManager,
             [NotNull] IConcurrencyDetector concurrencyDetector)
             : base(
-                  Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),
-                  Check.NotNull(stateManager, nameof(stateManager)),
-                  Check.NotNull(concurrencyDetector, nameof(concurrencyDetector)))
+                Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),
+                Check.NotNull(stateManager, nameof(stateManager)),
+                Check.NotNull(concurrencyDetector, nameof(concurrencyDetector)))
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             Connection.ActiveCursor = valueBufferCursor;
-            
+
             _activeQueries.Add(valueBufferCursor);
 
             if (queryIndex.HasValue

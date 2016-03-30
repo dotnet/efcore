@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             if (innerValues != null)
             {
-                if(innerValues.Length < RelationalParameters.Count)
+                if (innerValues.Length < RelationalParameters.Count)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.MissingParameterValue(

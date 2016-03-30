@@ -3,10 +3,10 @@
 
 using System.IO;
 using JetBrains.Annotations;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlServer(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder, 
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [NotNull] string connectionString,
             [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
         {
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [NotNull] string connectionString,
-            [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null) 
+            [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlServer(
                 (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             Arguments = arguments;
         }
 
-        public virtual IQuerySource QuerySource { get;[NotNull] set; }
+        public virtual IQuerySource QuerySource { get; [NotNull] set; }
         public virtual QueryModel QueryModel { get; set; }
 
         public virtual string Sql { get; }

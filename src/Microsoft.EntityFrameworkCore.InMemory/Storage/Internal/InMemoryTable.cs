@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 var properties = entry.EntityType.GetProperties().ToList();
                 var valueBuffer = new object[properties.Count];
 
-                for(var index = 0; index < valueBuffer.Length; index++)
+                for (var index = 0; index < valueBuffer.Length; index++)
                 {
                     valueBuffer[index] = entry.IsModified(properties[index])
                         ? entry.GetCurrentValue(properties[index])
@@ -63,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 throw new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, new[] { entry });
             }
-
         }
 
         private TKey CreateKey(IUpdateEntry entry)

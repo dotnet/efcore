@@ -177,10 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                                 return Expression.Convert(readValueExpression, node.Type);
                             }
-                            else
-                            {
-                                return node;
-                            }
+                            return node;
                         }
                     }
                 }

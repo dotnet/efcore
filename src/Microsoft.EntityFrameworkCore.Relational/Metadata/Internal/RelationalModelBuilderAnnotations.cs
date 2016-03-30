@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource), providerFullAnnotationNames)
         {
         }
-        
+
         public virtual bool HasDatabaseName([CanBeNull] string value) => SetDatabaseName(value);
         public virtual bool HasDefaultSchema([CanBeNull] string value) => SetDefaultSchema(value);
     }

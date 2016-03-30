@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             [NotNull] IRelationalTypeMapper relationalTypeMapper,
             [NotNull] SelectExpression selectExpression)
             : base(
-                  relationalCommandBuilderFactory, 
-                  sqlGenerationHelper, 
-                  parameterNameGeneratorFactory, 
-                  relationalTypeMapper, 
-                  selectExpression)
+                relationalCommandBuilderFactory,
+                sqlGenerationHelper,
+                parameterNameGeneratorFactory,
+                relationalTypeMapper,
+                selectExpression)
         {
         }
 

@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             [NotNull] IRelationalTypeMapper relationalTypeMapper,
             [NotNull] SelectExpression selectExpression)
             : base(
-                  relationalCommandBuilderFactory,
-                  sqlGenerationHelper,
-                  parameterNameGeneratorFactory,
-                  relationalTypeMapper,
-                  selectExpression)
+                relationalCommandBuilderFactory,
+                sqlGenerationHelper,
+                parameterNameGeneratorFactory,
+                relationalTypeMapper,
+                selectExpression)
         {
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
         private class ProjectionComparisonTransformingVisitor : RelinqExpressionVisitor
         {
-            private bool _insideConditionalTest = false;
+            private bool _insideConditionalTest;
 
             protected override Expression VisitUnary(UnaryExpression node)
             {
@@ -126,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                         Expression.Constant(true, typeof(bool)));
                 }
 
-                if (!_insideConditionalTest && node.Operand is IsNullExpression)
+                if (!_insideConditionalTest
+                    && node.Operand is IsNullExpression)
                 {
                     return Expression.Condition(
                         node,
@@ -142,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                 if (!_insideConditionalTest
                     && (node.IsComparisonOperation()
                         || node.IsLogicalOperation()))
-                    {
+                {
                     return Expression.Condition(
                         node,
                         Expression.Constant(true, typeof(bool)),
@@ -151,7 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
                 return base.VisitBinary(node);
             }
-
 
             protected override Expression VisitConditional(ConditionalExpression node)
             {
@@ -179,6 +179,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                     Visit(node.IfFalse));
             }
         }
-
     }
 }
