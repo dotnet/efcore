@@ -77,7 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         }
 
         [Fact]
-
         public virtual void AddColumnOperation_with_maxLength()
         {
             Generate(
@@ -344,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                             ClrType = typeof(int),
                             IsNullable = true
                         },
-                         new AddColumnOperation
+                        new AddColumnOperation
                         {
                             Name = "SSN",
                             ClrType = typeof(string),

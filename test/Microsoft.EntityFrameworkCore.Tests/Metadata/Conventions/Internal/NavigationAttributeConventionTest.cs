@@ -672,6 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             [ForeignKey("CommonFkProperty")]
             public Principal One { get; set; }
+
             [ForeignKey("CommonFkProperty")]
             public Principal Two { get; set; }
         }

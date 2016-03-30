@@ -347,7 +347,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
-
         [Fact]
         public void Does_indexed_column_SQL_Server_binary_mapping()
         {
@@ -361,7 +360,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
-
 
         [Fact]
         public void Does_non_key_SQL_Server_rowversion_mapping()
@@ -452,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Does_default_mappings_for_null_values()
         {
-            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue((object)null).DefaultTypeName);
+            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue(null).DefaultTypeName);
             Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue(DBNull.Value).DefaultTypeName);
             Assert.Equal("NULL", RelationalTypeMapperExtensions.GetMappingForValue(null, "Itz").DefaultTypeName);
         }

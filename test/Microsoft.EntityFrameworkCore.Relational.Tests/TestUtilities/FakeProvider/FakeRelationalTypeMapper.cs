@@ -19,19 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
             = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(int), _int },
-                    { typeof(long), _long },
-                    { typeof(string), _string }
-                };
+            {
+                { typeof(int), _int },
+                { typeof(long), _long },
+                { typeof(string), _string }
+            };
 
         private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
             = new Dictionary<string, RelationalTypeMapping>
-                {
-                    { "DefaultInt", _int },
-                    { "DefaultLong", _long },
-                    { "DefaultString", _string}
-                };
+            {
+                { "DefaultInt", _int },
+                { "DefaultLong", _long },
+                { "DefaultString", _string }
+            };
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
             => _simpleMappings;

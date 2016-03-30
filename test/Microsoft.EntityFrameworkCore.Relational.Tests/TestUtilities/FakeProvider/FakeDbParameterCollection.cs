@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 {
     public class FakeDbParameterCollection : DbParameterCollection
     {
-        private List<object> _parameters = new List<object>();
+        private readonly List<object> _parameters = new List<object>();
 
         public override int Count => _parameters.Count;
 
@@ -26,38 +26,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public override IEnumerator GetEnumerator()
             => _parameters.GetEnumerator();
+
 #if NET451
 
         public override bool IsSynchronized
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
         }
 
         public override bool IsFixedSize
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
         }
 
         public override bool IsReadOnly
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
         }
 #endif
+
         public override object SyncRoot
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
         }
 
         public override void AddRange(Array values)

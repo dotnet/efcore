@@ -39,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             Assert.Equal(666, ((RelationalSizedTypeMapping)mapping).Size);
         }
 
-
         [Fact]
         public void Does_type_mapping_from_string_with_MaxLength_greater_than_unbounded_max()
         {
@@ -128,6 +127,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             return new TestRelationalTypeMapper().GetMapping(property);
         }
 
-        private static EntityType CreateEntityType() => new EntityFrameworkCore.Metadata.Internal.Model().AddEntityType("MyType");
+        private static EntityType CreateEntityType() => new Model().AddEntityType("MyType");
     }
 }

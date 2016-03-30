@@ -609,27 +609,27 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             InternalRelationshipBuilder relationshipBuilder = null;
             var convention = new Mock<IPrincipalEndConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
-            {
-                Assert.NotNull(b);
-                relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder);
-                return relationshipBuilder;
-            });
+                {
+                    Assert.NotNull(b);
+                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder);
+                    return relationshipBuilder;
+                });
             conventions.PrincipalEndSetConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IPrincipalEndConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
-            {
-                Assert.Same(relationshipBuilder, b);
-                return null;
-            });
+                {
+                    Assert.Same(relationshipBuilder, b);
+                    return null;
+                });
             conventions.PrincipalEndSetConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IPrincipalEndConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
-            {
-                Assert.False(true);
-                return null;
-            });
+                {
+                    Assert.False(true);
+                    return null;
+                });
             conventions.PrincipalEndSetConventions.Add(extraConvention.Object);
 
             var modelBuilder = new InternalModelBuilder(new Model(conventions));

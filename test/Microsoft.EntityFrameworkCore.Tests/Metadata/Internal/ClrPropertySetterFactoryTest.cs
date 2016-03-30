@@ -233,12 +233,18 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class ConcreteEntity2 : ConcreteEntity1
         {
-            public override int VirtualPrivateProperty_Override { get { return base.VirtualPrivateProperty_Override; } }
+            public override int VirtualPrivateProperty_Override
+            {
+                get { return base.VirtualPrivateProperty_Override; }
+            }
         }
 
         private class ConcreteEntity1 : BaseEntity
         {
-            public override int VirtualPrivateProperty_Override { get { return base.VirtualPrivateProperty_Override; } }
+            public override int VirtualPrivateProperty_Override
+            {
+                get { return base.VirtualPrivateProperty_Override; }
+            }
         }
 
         private class BaseEntity
@@ -248,6 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             public int PrivateProperty { get; private set; }
             public int NoSetterProperty { get; }
         }
+
         #endregion
     }
 }

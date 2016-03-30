@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void Compare_returns_0_only_for_commands_that_are_equal()
         {
-            var model = new EntityFrameworkCore.Metadata.Internal.Model();
+            var model = new Model();
             var entityType = model.AddEntityType(typeof(object));
 
             var optionsBuilder = new DbContextOptionsBuilder()

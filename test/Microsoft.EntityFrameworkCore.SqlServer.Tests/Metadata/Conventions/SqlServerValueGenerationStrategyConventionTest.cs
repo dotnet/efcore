@@ -32,12 +32,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata.Conventions
             Assert.Equal(3, annotations.Count());
 
             Assert.Equal(SqlServerFullAnnotationNames.Instance.HiLoSequenceName, annotations.ElementAt(0).Name);
-            Assert.Equal(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName, annotations.ElementAt(0).Value);
+            Assert.Equal(SqlServerModelAnnotations.DefaultHiLoSequenceName, annotations.ElementAt(0).Value);
 
             Assert.Equal(
                 SqlServerFullAnnotationNames.Instance.SequencePrefix +
                 "." +
-                SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName,
+                SqlServerModelAnnotations.DefaultHiLoSequenceName,
                 annotations.ElementAt(1).Name);
             Assert.NotNull(annotations.ElementAt(1).Value);
 

@@ -1775,12 +1775,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(Alpha) + nameof(Alpha.Id), epsilonFk.Properties.First().Name);
 
                 var etaFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Etas)).ForeignKey;
-                Assert.Equal(nameof(Eta.Alpha),etaFk.DependentToPrincipal.Name);
+                Assert.Equal(nameof(Eta.Alpha), etaFk.DependentToPrincipal.Name);
                 Assert.False(etaFk.IsUnique);
                 Assert.Equal("Id", etaFk.Properties.First().Name);
 
                 var kappaFk = model.FindEntityType(typeof(Alpha)).FindNavigation(nameof(Alpha.Kappas)).ForeignKey;
-                Assert.Equal(nameof(Kappa.Alpha),kappaFk.DependentToPrincipal.Name);
+                Assert.Equal(nameof(Kappa.Alpha), kappaFk.DependentToPrincipal.Name);
                 Assert.False(kappaFk.IsUnique);
                 Assert.Equal("Id", kappaFk.Properties.First().Name);
             }

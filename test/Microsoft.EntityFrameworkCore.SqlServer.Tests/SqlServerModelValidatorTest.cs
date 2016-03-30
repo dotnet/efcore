@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             modelBuilder.Entity<Cheese>();
 
             Assert.Equal(
-                SqlServerStrings.UnqualifiedDataType("nvarchar"), 
+                SqlServerStrings.UnqualifiedDataType("nvarchar"),
                 Assert.Throws<NotSupportedException>(() => Validate(modelBuilder.Model)).Message);
         }
 

@@ -27,22 +27,22 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
             Func<FakeDbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>> executeReaderAsync = null)
         {
             _executeNonQuery = executeNonQuery
-                ?? new Func<FakeDbCommand, int>(c => -1);
+                               ?? (c => -1);
 
             _executeScalar = executeScalar
-                ?? new Func<FakeDbCommand, object>(c => null);
+                             ?? (c => null);
 
             _executeReader = executeReader
-                ?? new Func<FakeDbCommand, CommandBehavior, DbDataReader>((c, b) => new FakeDbDataReader());
+                             ?? ((c, b) => new FakeDbDataReader());
 
             _executeNonQueryAsync = executeNonQueryAsync
-                ?? new Func<FakeDbCommand, CancellationToken, Task<int>>((c, ct) => Task.FromResult(-1));
+                                    ?? ((c, ct) => Task.FromResult(-1));
 
             _executeScalarAsync = executeScalarAsync
-                ?? new Func<FakeDbCommand, CancellationToken, Task<object>>((c, ct) => Task.FromResult<object>(null));
+                                  ?? ((c, ct) => Task.FromResult<object>(null));
 
             _executeReaderAsync = executeReaderAsync
-                ?? new Func<FakeDbCommand, CommandBehavior, CancellationToken, Task<DbDataReader>>((c, ct, b) => Task.FromResult<DbDataReader>(new FakeDbDataReader()));
+                                  ?? ((c, ct, b) => Task.FromResult<DbDataReader>(new FakeDbDataReader()));
         }
 
         public virtual int ExecuteNonQuery(FakeDbCommand command) => _executeNonQuery(command);

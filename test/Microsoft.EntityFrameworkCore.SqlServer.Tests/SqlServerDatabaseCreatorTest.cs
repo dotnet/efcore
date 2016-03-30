@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+
 // ReSharper disable UnassignedGetOnlyAutoProperty
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -178,7 +179,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
 
-            public IRelationalParameterBuilder ParameterBuilder { get { throw new NotImplementedException(); } }
+            public IRelationalParameterBuilder ParameterBuilder
+            {
+                get { throw new NotImplementedException(); }
+            }
 
             public IRelationalCommand Build() => new FakeRelationalCommand();
         }
@@ -189,7 +193,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-            public IReadOnlyDictionary<string, object> ParameterValues { get { throw new NotImplementedException(); } }
+            public IReadOnlyDictionary<string, object> ParameterValues
+            {
+                get { throw new NotImplementedException(); }
+            }
 
             public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
             {
@@ -228,9 +235,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
 #if NET451
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
-                    .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
+                .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
 #else
-            // CoreCLR internal constructor has an additional parameter
+    // CoreCLR internal constructor has an additional parameter
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 8)
                 .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
 #endif
@@ -254,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             }
 
             return (SqlException)exceptionCtors.First(c => c.GetParameters().Length == 4)
-                    .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
+                .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
         }
     }
 }

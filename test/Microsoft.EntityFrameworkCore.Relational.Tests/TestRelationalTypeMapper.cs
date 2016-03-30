@@ -24,14 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
         private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-        = new Dictionary<Type, RelationalTypeMapping>
+            = new Dictionary<Type, RelationalTypeMapping>
             {
                 { typeof(int), _defaultIntMapping },
                 { typeof(string), _string }
             };
 
         private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-        = new Dictionary<string, RelationalTypeMapping>
+            = new Dictionary<string, RelationalTypeMapping>
             {
                 { "some_int_mapping", _someIntMapping },
                 { "some_string(max)", _string },

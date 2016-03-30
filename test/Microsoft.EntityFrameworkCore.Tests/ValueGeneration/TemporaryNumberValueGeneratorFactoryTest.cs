@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             Assert.Equal((sbyte)-127, CreateAndUseFactory(entityType.FindProperty("NullableSByte")));
         }
 
-        private static object CreateAndUseFactory(IProperty property) 
+        private static object CreateAndUseFactory(IProperty property)
             => new TemporaryNumberValueGeneratorFactory().Create(property).Next();
 
         [Fact]

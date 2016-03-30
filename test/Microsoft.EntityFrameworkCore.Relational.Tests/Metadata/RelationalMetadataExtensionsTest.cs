@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -27,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             property.Relational().ColumnName = "Eman";
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Name", ((IProperty)property).Name);
             Assert.Equal("Eman", property.Relational().ColumnName);
 
             property.Relational().ColumnName = null;
@@ -49,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             entityType.Relational().TableName = "Customizer";
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
 
             entityType.Relational().TableName = null;

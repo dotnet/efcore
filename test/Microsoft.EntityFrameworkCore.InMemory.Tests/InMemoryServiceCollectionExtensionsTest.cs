@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
@@ -17,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
     public class InMemoryServiceCollectionExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
         [Fact]
-        public void Calling_AddEntityFramework_explicitly_does_not_change_services() 
+        public void Calling_AddEntityFramework_explicitly_does_not_change_services()
             => AssertServicesSame(
-                new ServiceCollection().AddEntityFrameworkInMemoryDatabase(), 
+                new ServiceCollection().AddEntityFrameworkInMemoryDatabase(),
                 new ServiceCollection().AddEntityFramework().AddEntityFrameworkInMemoryDatabase());
 
         public override void Services_wire_up_correctly()
@@ -37,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             VerifyScoped<IInMemoryDatabase>();
             VerifyScoped<InMemoryDatabaseCreator>();
             VerifyScoped<InMemoryQueryContextFactory>();
-
         }
 
         public InMemoryServiceCollectionExtensionsTest()

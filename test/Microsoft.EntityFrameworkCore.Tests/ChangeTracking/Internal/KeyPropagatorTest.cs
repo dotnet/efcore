@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             builder.Entity<OrderLine>(b =>
                 {
                     b.HasKey(e => new { e.OrderId, e.ProductId });
-                    b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId});
+                    b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
                 });
 
             return builder.Model;

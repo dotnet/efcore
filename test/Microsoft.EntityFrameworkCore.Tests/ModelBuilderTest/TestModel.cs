@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public Guid AnotherCustomerId { get; set; }
             public Customer Customer { get; set; }
 
-            public OrderCombination OrderCombination  { get; set; }
+            public OrderCombination OrderCombination { get; set; }
 
             public OrderDetails Details { get; set; }
         }
@@ -364,11 +364,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public Delta NavDelta { get; set; }
             public IList<Epsilon> Epsilons { get; set; }
             public IList<Eta> Etas { get; set; }
+
             [ForeignKey("Id")]
             public IList<Theta> Thetas { get; set; }
+
             [ForeignKey("Id")]
             public IList<Kappa> Kappas { get; set; }
-
         }
 
         protected class Beta
@@ -418,6 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             [ForeignKey("CommonFkProperty")]
             public Alpha AlphaOne { get; set; }
+
             [ForeignKey("CommonFkProperty")]
             public Alpha AlphaTwo { get; set; }
         }
@@ -455,25 +457,13 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected class EntityBase : IEntityBase
         {
-            private int _target;
-
-            int IEntityBase.Target
-            {
-                get { return _target; }
-                set { _target = value; }
-            }
+            int IEntityBase.Target { get; set; }
         }
 
         protected class EntityAnnotationBase : IEntityBase
         {
-            private int _target;
-
             [NotMapped]
-            int IEntityBase.Target
-            {
-                get { return _target; }
-                set { _target = value; }
-            }
+            int IEntityBase.Target { get; set; }
         }
 
         protected class OneToOnePrincipalEntity
@@ -483,7 +473,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public static readonly PropertyInfo NavigationMatchingProperty = typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntityId");
 
             public int Id { get; set; }
-
 
             public int NavOneToOneDependentEntityId { get; set; }
             public int OneToOneDependentEntityId { get; set; }
@@ -500,7 +489,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public int Id { get; set; }
 
-
             public int NavOneToOnePrincipalEntityId { get; set; }
             public int OneToOnePrincipalEntityId { get; set; }
 
@@ -511,7 +499,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
         protected class OneToOnePrincipalEntityWithAnnotation
         {
             public int Id { get; set; }
-
 
             public int NavOneToOneDependentEntityWithAnnotationId { get; set; }
             public int OneToOneDependentEntityWithAnnotationId { get; set; }
@@ -525,7 +512,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
         protected class OneToOneDependentEntityWithAnnotation
         {
             public int Id { get; set; }
-
 
             public int NavOneToOnePrincipalEntityWithAnnotationId { get; set; }
             public int OneToOnePrincipalEntityWithAnnotationId { get; set; }

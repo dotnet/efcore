@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var fk = dependentType.GetNavigations().Single().ForeignKey;
                 var fkProperty = (IProperty)fk.Properties.Single();
-                
+
                 Assert.True(fkProperty.IsShadowProperty);
                 Assert.Same(typeof(int?), fkProperty.ClrType);
                 Assert.Same(dependentType, fkProperty.DeclaringEntityType);

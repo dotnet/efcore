@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 
             Assert.Equal(
                 "A<int>",
-                ((IEntityType)entityType).DisplayName());
+                entityType.DisplayName());
         }
 
         private class A<T>

@@ -1679,7 +1679,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(fk1, orderType.FindForeignKeys(customerFkProperty).Single());
             Assert.Same(fk1, orderType.FindForeignKey(customerFkProperty, customerKey1, baseType));
             Assert.Same(fk1, orderType.GetForeignKeys().Single());
-            
+
             var fk2 = orderType.AddForeignKey(customerFkProperty, customerKey1, customerType);
 
             Assert.Equal(2, orderType.FindForeignKeys(customerFkProperty).Count());
@@ -1700,7 +1700,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(
                 CoreStrings.DuplicateForeignKey(
                     "{'" + Order.CustomerIdProperty.Name + "'}",
-                    typeof(Order).Name, 
+                    typeof(Order).Name,
                     typeof(Order).Name,
                     "{'" + Customer.IdProperty.Name + "'}",
                     typeof(Customer).Name),

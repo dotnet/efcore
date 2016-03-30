@@ -29,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             property.Relational().ColumnName = "Eman";
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Name", ((IProperty)property).Name);
             Assert.Equal("Eman", property.Relational().ColumnName);
             Assert.Equal("Eman", property.SqlServer().ColumnName);
             Assert.Equal("Eman", ((IProperty)property).SqlServer().ColumnName);
@@ -37,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             property.SqlServer().ColumnName = "MyNameIs";
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Name", ((IProperty)property).Name);
             Assert.Equal("Eman", property.Relational().ColumnName);
             Assert.Equal("MyNameIs", property.SqlServer().ColumnName);
             Assert.Equal("MyNameIs", ((IProperty)property).SqlServer().ColumnName);
@@ -45,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             property.SqlServer().ColumnName = null;
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("Name", ((IProperty)property).Name);
             Assert.Equal("Eman", property.Relational().ColumnName);
             Assert.Equal("Eman", property.SqlServer().ColumnName);
             Assert.Equal("Eman", ((IProperty)property).SqlServer().ColumnName);
@@ -66,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             entityType.Relational().TableName = "Customizer";
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
             Assert.Equal("Customizer", entityType.SqlServer().TableName);
             Assert.Equal("Customizer", ((IEntityType)entityType).SqlServer().TableName);
@@ -74,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             entityType.SqlServer().TableName = "Custardizer";
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
             Assert.Equal("Custardizer", entityType.SqlServer().TableName);
             Assert.Equal("Custardizer", ((IEntityType)entityType).SqlServer().TableName);
@@ -82,7 +77,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             entityType.SqlServer().TableName = null;
 
             Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customer", ((IEntityType)entityType).DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
             Assert.Equal("Customizer", entityType.SqlServer().TableName);
             Assert.Equal("Customizer", ((IEntityType)entityType).SqlServer().TableName);
@@ -233,23 +227,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().DefaultValue);
             Assert.Null(((IProperty)property).SqlServer().DefaultValue);
 
-            property.Relational().DefaultValue = new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 };
+            property.Relational().DefaultValue = new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 };
 
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
 
-            property.SqlServer().DefaultValue = new Byte[] { 69, 70, 32, 83, 79, 67, 75, 83 };
+            property.SqlServer().DefaultValue = new byte[] { 69, 70, 32, 83, 79, 67, 75, 83 };
 
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
-            Assert.Equal(new Byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
-            Assert.Equal(new Byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
 
             property.SqlServer().DefaultValue = null;
 
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
         }
 
         [Fact]
@@ -506,7 +500,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
             Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
-
 
         [Fact]
         public void Can_get_multiple_sequences()

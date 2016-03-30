@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 .HasForeignKey(new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.DataAnnotation)
                 .HasPrincipalKey(relationshipBuilder.Metadata.PrincipalKey.Properties, ConfigurationSource.Convention));
         }
-        
+
         [Fact]
         public void ForeignKey_creates_new_relationship_if_conflicting_properties_configured_with_lower_source()
         {
@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 ConfigurationSource.DataAnnotation);
             Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
         }
-        
+
         [Fact]
         public void Can_invert_one_to_many()
         {
@@ -566,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var relationshipBuilder = orderEntityBuilder
                 .Relationship(customerEntityBuilder, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.DataAnnotation);
-            
+
             relationshipBuilder = relationshipBuilder.RelatedEntityTypes(
                 relationshipBuilder.Metadata.DeclaringEntityType,
                 relationshipBuilder.Metadata.PrincipalEntityType,
@@ -676,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(newForeignKeyBuilder.Metadata, principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name).ForeignKey);
             Assert.Same(newForeignKeyBuilder.Metadata, dependentEntityBuilder.Metadata.GetForeignKeys().Single());
         }
-        
+
         [Fact]
         public void Navigation_to_principal_creates_new_relationship_if_conflicting_navigation_configured_with_lower_source()
         {

@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         }
 
         protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.Instance.CreateConventionBuilder();
+
         protected virtual MigrationsModelDiffer CreateModelDiffer()
             => new MigrationsModelDiffer(
                 new ConcreteTypeMapper(),
@@ -54,20 +55,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     ? new RelationalTypeMapping("varchar(" + property.GetMaxLength() + ")", typeof(string))
                     : base.FindCustomMapping(property);
 
-
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
-                        { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
-                    };
+                {
+                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
+                    { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
+                };
 
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
-                    {
-                        { "varchar", new RelationalTypeMapping("varchar", typeof(string)) },
-                        { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
-                    };
+                {
+                    { "varchar", new RelationalTypeMapping("varchar", typeof(string)) },
+                    { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
+                };
 
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
                 => _simpleMappings;

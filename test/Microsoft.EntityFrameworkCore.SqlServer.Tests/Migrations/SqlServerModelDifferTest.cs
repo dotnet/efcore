@@ -506,7 +506,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                         Assert.Equal("dbo", dropIndexOperation.Schema);
                         Assert.Equal("Anemone", dropIndexOperation.Table);
                         Assert.Equal("IX_Anemone_ParentId", dropIndexOperation.Name);
-
                     });
         }
 

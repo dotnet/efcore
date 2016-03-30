@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentProp = entityType.AddProperty("P", typeof(int));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
-            
+
             Assert.True(foreignKey.IsRequired);
             Assert.False(foreignKey.IsUnique);
         }
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentProp = entityType.AddProperty("P", typeof(int?));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
-            
+
             Assert.False(foreignKey.IsRequired);
             Assert.False(foreignKey.IsUnique);
         }
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
-            
+
             Assert.False(foreignKey.IsRequired);
         }
 
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var principalKey = entityType.AddKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
-            
+
             Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
 
             foreignKey.DeleteBehavior = DeleteBehavior.Cascade;

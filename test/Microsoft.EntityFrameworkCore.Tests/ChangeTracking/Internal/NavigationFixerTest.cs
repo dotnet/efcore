@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 categoryIdProperty,
                 new IKey[0],
                 productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
-                12, 
+                12,
                 11);
 
             Assert.Same(dependent.Category, principal1);

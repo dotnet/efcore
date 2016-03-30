@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.In
             Assert.Same(discriminator, baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            
+
             Assert.NotNull(entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation));
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));
             Assert.Null(baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata.Conventions.In
         public void Does_nothing_if_explicit_discriminator_is_not_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
-            
+
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
             baseTypeBuilder.Relational(ConfigurationSource.Explicit).HasDiscriminator("T", typeof(int));

@@ -3593,12 +3593,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             var appServiceProivder = addSingletonFirst
                 ? new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
+                    .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton<ConstructorTestContextWithOC1A>()
                     .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
                     .BuildServiceProvider()
                 : new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
+                    .AddEntityFrameworkInMemoryDatabase()
                     .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
                     .AddSingleton<ConstructorTestContextWithOC1A>()
                     .BuildServiceProvider();
@@ -3675,7 +3675,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 context2.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context2.Model);
-
             }
 
             using (var serviceScope = appServiceProivder
@@ -3733,7 +3732,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 context2.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context2.Model);
-
             }
 
             using (var serviceScope = appServiceProivder
@@ -3906,7 +3904,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 context2.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context2.Model);
-
             }
 
             using (var serviceScope = appServiceProivder
@@ -3981,7 +3978,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 context2.Dispose();
                 Assert.Throws<ObjectDisposedException>(() => context2.Model);
-
             }
 
             using (var serviceScope = appServiceProivder
@@ -4348,7 +4344,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public DbSet<Product> Products { get; set; }
         }
-
 
         private class ConstructorTestContextNoConfiguration : DbContext
         {

@@ -4,8 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var model = BuildModel();
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
-            model.SqlServer().GetOrAddSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName);
+            model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
 
             foreach (var property in entityType.GetProperties())
@@ -103,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
-            model.SqlServer().GetOrAddSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName);
+            model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
 
             var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
@@ -117,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             builder.Ignore<Random>();
             builder.Entity<AnEntity>();
             var model = builder.Model;
-            model.SqlServer().GetOrAddSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName);
+            model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
             var property1 = entityType.AddProperty("Random", typeof(Random));
             property1.IsShadowProperty = false;

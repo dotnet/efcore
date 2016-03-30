@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 {
     public class FakeDbCommand : DbCommand
     {
-        private FakeCommandExecutor _commandExecutor;
+        private readonly FakeCommandExecutor _commandExecutor;
 
         public FakeDbCommand()
         {
@@ -73,26 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
 
         public override bool DesignTimeVisible
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         public override UpdateRowSource UpdatedRowSource
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         public int DisposeCount { get; private set; }

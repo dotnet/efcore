@@ -789,7 +789,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             GenericNullOriginalValuesTest(model, model.FindEntityType(typeof(SomeEntity).FullName), new SomeEntity { Id = 1 });
         }
 
-
         protected void GenericNullOriginalValuesTest(IModel model, IEntityType entityType, object entity)
         {
             var nameProperty = entityType.FindProperty("Name");

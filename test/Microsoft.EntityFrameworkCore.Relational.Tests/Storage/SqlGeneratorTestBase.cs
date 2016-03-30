@@ -1,6 +1,10 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
+
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
@@ -53,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         [Fact]
         public virtual void GenerateLiteral_returns_object_literal_when_not_null()
         {
-            var literal = CreateSqlGenerationHelper().GenerateLiteral((object)42);
+            var literal = CreateSqlGenerationHelper().GenerateLiteral(42);
             Assert.Equal("42", literal);
         }
 

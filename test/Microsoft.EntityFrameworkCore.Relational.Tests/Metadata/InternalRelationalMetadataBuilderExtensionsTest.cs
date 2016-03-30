@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Metadata.Relational().DiscriminatorValue);
             Assert.Equal(6, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
                 .Metadata.Relational().DiscriminatorValue);
-            
+
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((Type)null));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);

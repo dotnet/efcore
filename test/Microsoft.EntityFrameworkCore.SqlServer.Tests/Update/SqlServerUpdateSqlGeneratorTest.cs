@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "SELECT [Computed] FROM @inserted0;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
-        
+
         protected override void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
         {
             Assert.Equal(

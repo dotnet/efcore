@@ -7,7 +7,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
@@ -467,11 +466,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
+            Assert.Equal(SqlServerModelAnnotations.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
-            Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(relationalExtensions.FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
+            Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -602,8 +601,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Null(sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
-            Assert.Null(relationalExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
-            Assert.Null(sqlServerExtensions.FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(relationalExtensions.FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(sqlServerExtensions.FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -621,10 +620,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
+            Assert.Equal(SqlServerModelAnnotations.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
-            Assert.NotNull(model.SqlServer().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.Relational().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
+            Assert.NotNull(model.SqlServer().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -815,8 +814,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
-            Assert.Null(model.SqlServer().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.Relational().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.SqlServer().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -836,8 +835,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
 
-            Assert.Null(model.Relational().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
-            Assert.Null(model.SqlServer().FindSequence(SqlServerModelBuilderAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.Relational().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
+            Assert.Null(model.SqlServer().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
         }
 
         [Fact]
@@ -941,12 +940,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServerHasSequence(typeof(int), "Snook", b =>
-                {
-                    b.IncrementsBy(11)
-                        .StartsAt(1729)
-                        .HasMin(111)
-                        .HasMax(2222);
-                });
+                    {
+                        b.IncrementsBy(11)
+                            .StartsAt(1729)
+                            .HasMin(111)
+                            .HasMax(2222);
+                    });
 
             Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook"));
             var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook");
@@ -1007,10 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence<int>("Snook", "Tasty", b =>
-                    {
-                        b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
-                    });
+                .ForSqlServerHasSequence<int>("Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
 
             Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
             var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");
@@ -1024,10 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .ForSqlServerHasSequence(typeof(int), "Snook", "Tasty", b =>
-                {
-                    b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
-                });
+                .ForSqlServerHasSequence(typeof(int), "Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
 
             Assert.Null(modelBuilder.Model.Relational().FindSequence("Snook", "Tasty"));
             var sequence = modelBuilder.Model.SqlServer().FindSequence("Snook", "Tasty");

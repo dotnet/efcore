@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<CustomerDetails>().HasOne<Order>().WithOne()
                     .HasPrincipalKey<Order>(e => e.OrderId)
                     .HasForeignKey<CustomerDetails>(c => c.Id);
-                
+
                 var foreignKeys = model.FindEntityType(typeof(CustomerDetails)).GetForeignKeys()
                     .Where(fk => fk.Properties.Single().Name == nameof(CustomerDetails.Id)).ToList();
 

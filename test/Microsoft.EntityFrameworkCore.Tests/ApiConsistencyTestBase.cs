@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 yield return type;
 
-                foreach (var nestedType in GetAllTypes(type.GetTypeInfo().DeclaredNestedTypes.Select(i=>i.AsType())))
+                foreach (var nestedType in GetAllTypes(type.GetTypeInfo().DeclaredNestedTypes.Select(i => i.AsType())))
                 {
                     yield return nestedType;
                 }

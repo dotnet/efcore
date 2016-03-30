@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -530,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            var model = new EntityFrameworkCore.Metadata.Internal.Model();
+            var model = new Model();
 
             var entityType = model.AddEntityType(typeof(T1));
 
@@ -628,14 +629,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    executeReaderAsync: (c, b, ct) =>
-                    {
-                        return Task.FromResult<DbDataReader>(dbDataReader);
-                    },
-                    executeReader: (c, b) =>
-                    {
-                        return dbDataReader;
-                    }));
+                    executeReaderAsync: (c, b, ct) => { return Task.FromResult(dbDataReader); },
+                    executeReader: (c, b) => { return dbDataReader; }));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 

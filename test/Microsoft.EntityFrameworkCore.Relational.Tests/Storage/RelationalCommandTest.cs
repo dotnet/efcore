@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         IRelationalCommand,
         IReadOnlyDictionary<string, object>,
         bool>;
-
     using CommandFunc = Func<
         IRelationalConnection,
         IRelationalCommand,
@@ -108,11 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeNonQuery: c =>
-                    {
-                        executeNonQueryCount++;
-                        disposeCount = c.DisposeCount;
-                        return 1;
-                    }));
+                        {
+                            executeNonQueryCount++;
+                            disposeCount = c.DisposeCount;
+                            return 1;
+                        }));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 
@@ -150,11 +149,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeNonQueryAsync: (c, ct) =>
-                    {
-                        executeNonQueryCount++;
-                        disposeCount = c.DisposeCount;
-                        return Task.FromResult(1);
-                    }));
+                        {
+                            executeNonQueryCount++;
+                            disposeCount = c.DisposeCount;
+                            return Task.FromResult(1);
+                        }));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 
@@ -192,11 +191,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeScalar: c =>
-                    {
-                        executeScalarCount++;
-                        disposeCount = c.DisposeCount;
-                        return "ExecuteScalar Result";
-                    }));
+                        {
+                            executeScalarCount++;
+                            disposeCount = c.DisposeCount;
+                            return "ExecuteScalar Result";
+                        }));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 
@@ -234,11 +233,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeScalarAsync: (c, ct) =>
-                    {
-                        executeScalarCount++;
-                        disposeCount = c.DisposeCount;
-                        return Task.FromResult<object>("ExecuteScalar Result");
-                    }));
+                        {
+                            executeScalarCount++;
+                            disposeCount = c.DisposeCount;
+                            return Task.FromResult<object>("ExecuteScalar Result");
+                        }));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 
@@ -278,11 +277,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeReader: (c, b) =>
-                    {
-                        executeReaderCount++;
-                        disposeCount = c.DisposeCount;
-                        return dbDataReader;
-                    }));
+                        {
+                            executeReaderCount++;
+                            disposeCount = c.DisposeCount;
+                            return dbDataReader;
+                        }));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 
@@ -315,7 +314,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
         }
 
-
         [ConditionalTheory]
         [MonoVersionCondition(Min = "4.2.0", SkipReason = "ExecuteReaderAsync is not implemented in Mono < 4.2.0")]
         [InlineData(true)]
@@ -331,11 +329,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 ConnectionString,
                 new FakeCommandExecutor(
                     executeReaderAsync: (c, b, ct) =>
-                    {
-                        executeReaderCount++;
-                        disposeCount = c.DisposeCount;
-                        return Task.FromResult<DbDataReader>(dbDataReader);
-                    }));
+                        {
+                            executeReaderCount++;
+                            disposeCount = c.DisposeCount;
+                            return Task.FromResult<DbDataReader>(dbDataReader);
+                        }));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 
@@ -370,44 +368,44 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 
         public static TheoryData CommandActions
             => new TheoryData<Delegate, string, bool>
+            {
                 {
-                    {
-                        new CommandAction((connection, command, parameterValues, manageConnection)
-                            => command.ExecuteNonQuery(connection, parameterValues, manageConnection)),
-                        "ExecuteNonQuery",
-                        false
-                    },
-                    {
-                        new CommandAction((connection, command, parameterValues, manageConnection)
-                            => command.ExecuteScalar(connection, parameterValues, manageConnection)),
-                        "ExecuteScalar",
-                        false
-                    },
-                    {
-                        new CommandAction((connection, command, parameterValues, manageConnection)
-                            => command.ExecuteReader(connection, parameterValues, manageConnection)),
-                        "ExecuteReader",
-                        false
-                    },
-                    {
-                        new CommandFunc((connection, command, parameterValues, manageConnection)
-                            => command.ExecuteNonQueryAsync(connection, parameterValues, manageConnection)),
-                        "ExecuteNonQuery",
-                        true
-                    },
-                    {
-                        new CommandFunc((connection, command, parameterValues, manageConnection)
-                            => command.ExecuteScalarAsync(connection, parameterValues, manageConnection)),
-                        "ExecuteScalar",
-                        true
-                    },
-                    {
-                        new CommandFunc((connection, command, parameterValues, manageConnection)
-                            => command.ExecuteReaderAsync(connection, parameterValues, manageConnection)),
-                        "ExecuteReader",
-                        true
-                    }
-                };
+                    new CommandAction((connection, command, parameterValues, manageConnection)
+                        => command.ExecuteNonQuery(connection, parameterValues, manageConnection)),
+                    "ExecuteNonQuery",
+                    false
+                },
+                {
+                    new CommandAction((connection, command, parameterValues, manageConnection)
+                        => command.ExecuteScalar(connection, parameterValues, manageConnection)),
+                    "ExecuteScalar",
+                    false
+                },
+                {
+                    new CommandAction((connection, command, parameterValues, manageConnection)
+                        => command.ExecuteReader(connection, parameterValues, manageConnection)),
+                    "ExecuteReader",
+                    false
+                },
+                {
+                    new CommandFunc((connection, command, parameterValues, manageConnection)
+                        => command.ExecuteNonQueryAsync(connection, parameterValues, manageConnection)),
+                    "ExecuteNonQuery",
+                    true
+                },
+                {
+                    new CommandFunc((connection, command, parameterValues, manageConnection)
+                        => command.ExecuteScalarAsync(connection, parameterValues, manageConnection)),
+                    "ExecuteScalar",
+                    true
+                },
+                {
+                    new CommandFunc((connection, command, parameterValues, manageConnection)
+                        => command.ExecuteReaderAsync(connection, parameterValues, manageConnection)),
+                    "ExecuteReader",
+                    true
+                }
+            };
 
         [Theory]
         [MemberData(nameof(CommandActions))]
@@ -422,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 parameters: new[]
                 {
                     new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
                     new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                 });
 
@@ -455,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 parameters: new[]
                 {
                     new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
                     new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                 });
 
@@ -494,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                 parameters: new[]
                 {
                     new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                    new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
                     new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                 });
 
@@ -623,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                         new[]
                         {
                             new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
                             new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                         })
                 });
@@ -688,14 +686,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                         new[]
                         {
                             new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter",new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
+                            new TypeMappedRelationalParameter("SecondInvariant", "SecondParameter", new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
                             new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                         })
                 });
 
             var parameterValues = new Dictionary<string, object>
             {
-                { "CompositeInvariant", new object[] { 17, 18L} }
+                { "CompositeInvariant", new object[] { 17, 18L } }
             };
 
             if (async)
@@ -730,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
                         "CompositeInvariant",
                         new[]
                         {
-                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
+                            new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
                         })
                 });
 

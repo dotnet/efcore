@@ -101,9 +101,9 @@ Statement3
         {
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), new RelationalTypeMapping("int", typeof(int), DbType.String) }
-                    };
+                {
+                    { typeof(int), new RelationalTypeMapping("int", typeof(int), DbType.String) }
+                };
 
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>();

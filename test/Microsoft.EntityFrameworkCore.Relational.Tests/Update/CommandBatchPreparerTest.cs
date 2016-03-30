@@ -311,7 +311,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                     () => { var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }).ToArray(); }).Message);
         }
 
-
         [Fact]
         public void Batch_command_shows_correct_cycle_when_circular_dependencies()
         {
@@ -335,11 +334,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                         model.FindEntityType(typeof(RelatedFakeEntity)).GetForeignKeys().First())),
                 Assert.Throws<InvalidOperationException>(
                     () =>
-                    {
-                        var commandBatches = CreateCommandBatchPreparer().BatchCommands(
-                    // Order is important for this test. Entry which is not part of cycle but tail should come first.
-                    new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray();
-                    }).Message);
+                        {
+                            var commandBatches = CreateCommandBatchPreparer().BatchCommands(
+                                // Order is important for this test. Entry which is not part of cycle but tail should come first.
+                                new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray();
+                        }).Message);
         }
 
         private static IServiceProvider CreateContextServices(IModel model)
@@ -421,18 +420,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
             modelBuilder.Entity<FakeEntity>(b =>
-            {
-                b.HasKey(c => c.Id);
-                b.Property(c => c.Value);
-            });
+                {
+                    b.HasKey(c => c.Id);
+                    b.Property(c => c.Value);
+                });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
-            {
-                b.HasKey(c => c.Id);
-                b.HasOne<FakeEntity>()
-                    .WithOne()
-                    .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
-            });
+                {
+                    b.HasKey(c => c.Id);
+                    b.HasOne<FakeEntity>()
+                        .WithOne()
+                        .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
+                });
 
             modelBuilder
                 .Entity<FakeEntity>()
