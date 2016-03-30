@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                 if (Key.Relational().Name != null)
                 {
                     lines.Add("." + nameof(RelationalKeyBuilderExtensions.HasName)
-                        + "(" + CSharpUtilities.Instance.DelimitString(Key.Relational().Name) + ")");
+                              + "(" + CSharpUtilities.Instance.DelimitString(Key.Relational().Name) + ")");
                 }
 
                 return lines;

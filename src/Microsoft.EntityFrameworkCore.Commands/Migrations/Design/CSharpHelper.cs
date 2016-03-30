@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append("[");
 
                 var rank = type.GetArrayRank();
-                for (int i = 1; i < rank; i++)
+                for (var i = 1; i < rank; i++)
                 {
                     builder.Append(",");
                 }
@@ -243,7 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 builder.Append(name.Substring(partStart));
             }
 
-            if (builder.Length == 0 || !IsIdentifierStartCharacter(builder[0]))
+            if (builder.Length == 0
+                || !IsIdentifierStartCharacter(builder[0]))
             {
                 builder.Insert(0, "_");
             }
@@ -300,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
 
         public virtual string Literal(DateTime value) =>
-            String.Format(
+            string.Format(
                 "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
                 value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
 
@@ -317,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal(short value) => "(short)" + value;
 
         public virtual string Literal(TimeSpan value) =>
-            String.Format(
+            string.Format(
                 "new TimeSpan({0}, {1}, {2}, {3}, {4})",
                 value.Days, value.Hours, value.Minutes, value.Seconds, value.Milliseconds);
 
@@ -369,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
 
                 return ch <= 'Z'
-                    || ch == '_';
+                       || ch == '_';
             }
             if (ch <= 'z')
             {
@@ -390,11 +391,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (ch < 'A')
                 {
                     return ch >= '0'
-                        && ch <= '9';
+                           && ch <= '9';
                 }
 
                 return ch <= 'Z'
-                    || ch == '_';
+                       || ch == '_';
             }
             if (ch <= 'z')
             {

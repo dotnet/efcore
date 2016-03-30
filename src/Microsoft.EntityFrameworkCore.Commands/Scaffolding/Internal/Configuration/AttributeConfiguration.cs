@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 
             AttributeBody =
                 attributeArguments == null || attributeArguments.Length == 0
-                ? StripAttribute(attributeName)
-                : StripAttribute(attributeName) + "(" + string.Join(", ", attributeArguments) + ")";
+                    ? StripAttribute(attributeName)
+                    : StripAttribute(attributeName) + "(" + string.Join(", ", attributeArguments) + ")";
         }
 
         public virtual string AttributeBody { get; }

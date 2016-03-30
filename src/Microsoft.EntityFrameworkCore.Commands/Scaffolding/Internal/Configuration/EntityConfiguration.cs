@@ -6,7 +6,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
@@ -29,10 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         public virtual List<IAttributeConfiguration> AttributeConfigurations { get; } = new List<IAttributeConfiguration>();
         public virtual List<IFluentApiConfiguration> FluentApiConfigurations { get; } = new List<IFluentApiConfiguration>();
         public virtual List<PropertyConfiguration> PropertyConfigurations { get; } = new List<PropertyConfiguration>();
+
         public virtual List<NavigationPropertyConfiguration> NavigationPropertyConfigurations { get; }
             = new List<NavigationPropertyConfiguration>();
+
         public virtual List<NavigationPropertyInitializerConfiguration>
             NavigationPropertyInitializerConfigurations { get; } = new List<NavigationPropertyInitializerConfiguration>();
+
         public virtual List<RelationshipConfiguration> RelationshipConfigurations { get; } = new List<RelationshipConfiguration>();
 
         public virtual PropertyConfiguration FindPropertyConfiguration([NotNull] IProperty property)

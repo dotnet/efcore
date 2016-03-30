@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     _sb.Append("optionsBuilder." + optionsBuilderConfig.FluentApiLines.First());
                     using (_sb.Indent())
                     {
-                        foreach(var line in optionsBuilderConfig.FluentApiLines.Skip(1))
+                        foreach (var line in optionsBuilderConfig.FluentApiLines.Skip(1))
                         {
                             _sb.AppendLine();
                             _sb.Append(line);
@@ -129,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     first = false;
 
                     _sb.AppendLine("modelBuilder.Entity<"
-                        + entityConfig.EntityType.Name + ">("
-                        + EntityLambdaIdentifier + " =>");
+                                   + entityConfig.EntityType.Name + ">("
+                                   + EntityLambdaIdentifier + " =>");
                     _sb.AppendLine("{");
                     using (_sb.Indent())
                     {
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _foundFirstFluentApiForEntity = true;
 
                 _sb.Append(EntityLambdaIdentifier
-                    + ".Property(e => e." + propertyConfig.Property.Name + ")");
+                           + ".Property(e => e." + propertyConfig.Property.Name + ")");
 
                 AddFluentConfigurations(fluentApiConfigurations);
             }
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public virtual void AddDbSetProperties()
         {
             var first = true;
-            foreach(var entityConfig in _model.EntityConfigurations)
+            foreach (var entityConfig in _model.EntityConfigurations)
             {
                 if (first)
                 {
@@ -283,9 +283,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
 
                 _sb.AppendLine("public virtual DbSet<"
-                    + entityConfig.EntityType.Name
-                    + "> " + entityConfig.EntityType.Name
-                    + " { get; set; }");
+                               + entityConfig.EntityType.Name
+                               + "> " + entityConfig.EntityType.Name
+                               + " { get; set; }");
             }
         }
 

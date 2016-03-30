@@ -43,18 +43,18 @@ namespace Microsoft.EntityFrameworkCore.Design
                 () => assemblyLoader.Load(startupTargetName));
             var assembly = new LazyRef<Assembly>(
                 () =>
-                {
-                    try
                     {
-                        return assemblyLoader.Load(targetName);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new OperationException(
-                            CommandsStrings.UnreferencedAssembly(targetName, startupTargetName),
-                            ex);
-                    }
-                });
+                        try
+                        {
+                            return assemblyLoader.Load(targetName);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new OperationException(
+                                CommandsStrings.UnreferencedAssembly(targetName, startupTargetName),
+                                ex);
+                        }
+                    });
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
                     loggerProvider,
@@ -287,7 +287,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                     ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
                         ? m.Name
                         : m.Id
-
                 });
         }
 
@@ -330,8 +329,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(tableFilters, nameof(tableFilters));
 
             var files = _databaseOperations.Value.ReverseEngineerAsync(
-                    provider, connectionString, outputDir, dbContextClassName,
-                    schemaFilters, tableFilters, useDataAnnotations, overwriteFiles).Result;
+                provider, connectionString, outputDir, dbContextClassName,
+                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles).Result;
 
             // NOTE: First file will be opened in VS
             yield return files.ContextFile;

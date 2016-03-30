@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -52,11 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             ScaffoldingUtilities = scaffoldingUtilities;
         }
 
-        public virtual IModel Model { get; [param: NotNull] private set; }
-        public virtual IRelationalAnnotationProvider ExtensionsProvider { get; private set; }
-        public virtual CSharpUtilities CSharpUtilities { get; [param: NotNull] private set; }
-        public virtual ScaffoldingUtilities ScaffoldingUtilities { get; [param: NotNull] private set; }
+        public virtual IModel Model { get; }
+        public virtual IRelationalAnnotationProvider ExtensionsProvider { get; }
+        public virtual CSharpUtilities CSharpUtilities { get; }
+        public virtual ScaffoldingUtilities ScaffoldingUtilities { get; }
         public virtual CustomConfiguration CustomConfiguration { get; [param: NotNull] set; }
+
         public virtual string ClassName()
         {
             var annotatedName = ExtensionsProvider.For(Model).DatabaseName;
@@ -125,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                     config.TypeIdentifier = CSharpUtilities.GetTypeName(sequence.ClrType);
                 }
 
-                if (!string.IsNullOrEmpty(sequence.Schema) && (Model as Model).Relational().DefaultSchema != sequence.Schema)
+                if (!string.IsNullOrEmpty(sequence.Schema)
+                    && (Model as Model).Relational().DefaultSchema != sequence.Schema)
                 {
                     config.SchemaNameIdentifier = CSharpUtilities.DelimitString(sequence.Schema);
                 }
@@ -205,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 
             _onConfiguringConfigurations.Add(
                 _configurationFactory.CreateOptionsBuilderConfiguration(
-                    new List<string>() {
+                    new List<string>
+                    {
                         methodName
                         + "("
                         + CSharpUtilities.GenerateVerbatimStringLiteral(CustomConfiguration.ConnectionString)
@@ -263,11 +265,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 
                     if (key.Properties.Count == 1
                         && key.Relational().Name ==
-                            RelationalKeyAnnotations
-                                .GetDefaultKeyName(
-                                    entityType.Relational().TableName,
-                                    true, /* is primary key */
-                                    key.Properties.Select(p => p.Name)))
+                        RelationalKeyAnnotations
+                            .GetDefaultKeyName(
+                                entityType.Relational().TableName,
+                                true, /* is primary key */
+                                key.Properties.Select(p => p.Name)))
                     {
                         keyFluentApi.HasAttributeEquivalent = true;
 
@@ -297,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                     CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).Schema);
                 entityConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
-                         /* hasAttributeEquivalent */ true,
+                        /* hasAttributeEquivalent */ true,
                         nameof(RelationalEntityTypeBuilderExtensions.ToTable),
                         delimitedTableName,
                         delimitedSchemaName));
@@ -314,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                     CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
                 entityConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
-                         /* hasAttributeEquivalent */ true,
+                        /* hasAttributeEquivalent */ true,
                         nameof(RelationalEntityTypeBuilderExtensions.ToTable),
                         delimitedTableName));
                 entityConfiguration.AttributeConfigurations.Add(
@@ -393,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                         ((Property)propertyConfiguration.Property).GetMaxLength().Value);
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
-                         /* hasAttributeEquivalent */ true,
+                        /* hasAttributeEquivalent */ true,
                         nameof(PropertyBuilder.HasMaxLength), maxLengthLiteral));
                 propertyConfiguration.AttributeConfigurations.Add(
                     _configurationFactory.CreateAttributeConfiguration(nameof(MaxLengthAttribute), maxLengthLiteral));
@@ -454,19 +456,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-
             var delimitedColumnName =
                 ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != null
                 && ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != propertyConfiguration.Property.Name
-                ? CSharpUtilities.DelimitString(
-                    ExtensionsProvider.For(propertyConfiguration.Property).ColumnName)
-                : null;
+                    ? CSharpUtilities.DelimitString(
+                        ExtensionsProvider.For(propertyConfiguration.Property).ColumnName)
+                    : null;
 
             var delimitedColumnTypeName =
                 ExtensionsProvider.For(propertyConfiguration.Property).ColumnType != null
-                ? CSharpUtilities.DelimitString(
+                    ? CSharpUtilities.DelimitString(
                         ExtensionsProvider.For(propertyConfiguration.Property).ColumnType)
-                : null;
+                    : null;
 
             if (delimitedColumnName != null)
             {
@@ -490,11 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                             delimitedColumnTypeName));
                     propertyConfiguration.AttributeConfigurations.Add(
                         _configurationFactory.CreateAttributeConfiguration(
-                            nameof(ColumnAttribute),
-                            new[] {
-                                delimitedColumnName,
-                                nameof(ColumnAttribute.TypeName) + " = " + delimitedColumnTypeName
-                            }));
+                            nameof(ColumnAttribute), delimitedColumnName, nameof(ColumnAttribute.TypeName) + " = " + delimitedColumnTypeName));
                 }
             }
             else if (delimitedColumnTypeName != null)
@@ -578,10 +575,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                     if (foreignKey.PrincipalKey.IsPrimaryKey())
                     {
                         navPropConfiguration.AttributeConfigurations.Add(
-                        _configurationFactory.CreateAttributeConfiguration(
-                            nameof(InversePropertyAttribute),
-                            CSharpUtilities.DelimitString(
-                                foreignKey.Scaffolding().DependentEndNavigation)));
+                            _configurationFactory.CreateAttributeConfiguration(
+                                nameof(InversePropertyAttribute),
+                                CSharpUtilities.DelimitString(
+                                    foreignKey.Scaffolding().DependentEndNavigation)));
                     }
 
                     entityConfiguration.NavigationPropertyConfigurations.Add(navPropConfiguration);

@@ -66,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var dbContextClassName =
                 string.IsNullOrWhiteSpace(customConfiguration.ContextClassName)
-                ? modelConfiguration.ClassName()
-                : customConfiguration.ContextClassName;
+                    ? modelConfiguration.ClassName()
+                    : customConfiguration.ContextClassName;
 
             CheckOutputFiles(outputPathsAndNamespace.CanonicalizedFullOutputPath,
                 dbContextClassName, metadataModel, configuration.OverwriteFiles);
@@ -129,18 +129,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private static char[] directorySeparatorChars = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private static readonly char[] directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
-        /// Construct canonicalized paths from the project path and output path and a namespace
-        /// based om the root namespace for the project.
+        ///     Construct canonicalized paths from the project path and output path and a namespace
+        ///     based om the root namespace for the project.
         /// </summary>
         /// <param name="rootNamespace"> the root namespace for the project, must not be empty </param>
         /// <param name="projectPath"> path to the project, must not be empty, can be absolute or relative </param>
         /// <param name="outputPath"> path to output directory, can be null or empty, can be absolute or relative (to the project path) </param>
         /// <returns>
-        ///  an <see cref="NamespaceAndOutputPaths" /> object containing the canonicalized paths
-        ///  and the namespace
+        ///     an <see cref="NamespaceAndOutputPaths" /> object containing the canonicalized paths
+        ///     and the namespace
         /// </returns>
         internal static NamespaceAndOutputPaths ConstructNamespaceAndCanonicalizedPaths(
             [NotNull] string rootNamespace,
@@ -169,11 +169,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var canonicalizedRelativeOutputPath =
                 canonicalizedFullOutputPath == canonicalizedFullProjectPath
-                ? string.Empty
-                : canonicalizedFullOutputPath.StartsWith(canonicalizedFullProjectPath)
-                    ? canonicalizedFullOutputPath
-                        .Substring(canonicalizedFullProjectPath.Count() + 1)
-                    : null;
+                    ? string.Empty
+                    : canonicalizedFullOutputPath.StartsWith(canonicalizedFullProjectPath)
+                        ? canonicalizedFullOutputPath
+                            .Substring(canonicalizedFullProjectPath.Count() + 1)
+                        : null;
 
             var @namespace = rootNamespace;
             if (!string.IsNullOrEmpty(canonicalizedRelativeOutputPath))

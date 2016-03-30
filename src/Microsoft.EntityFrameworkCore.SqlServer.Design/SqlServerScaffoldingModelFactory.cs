@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         private static readonly ISet<string> _stringAndByteArrayTypesForbiddingMaxLength =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "image", "ntext", "text", "rowversion", "timestamp" };
+
         private static readonly ISet<string> _dataTypesAllowingMaxLengthMax =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "varchar", "nvarchar", "varbinary" };
 
@@ -173,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             var typeMapping = TypeMapper.FindMapping(unqualifiedTypeName);
             if (typeMapping != null
                 && (typeof(string) == typeMapping.ClrType
-                || typeof(byte[]) == typeMapping.ClrType)
+                    || typeof(byte[]) == typeMapping.ClrType)
                 && !_stringAndByteArrayTypesForbiddingMaxLength.Contains(unqualifiedTypeName))
             {
                 if (typeMapping.DefaultTypeName == "nvarchar"
@@ -185,25 +186,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     // Similarly for varbinary and byte[] properties.
                     return new Tuple<string, int?>(null, maxLength);
                 }
-                else
+                if (_dataTypesAllowingMaxLengthMax.Contains(typeMapping.DefaultTypeName))
                 {
-                    if (_dataTypesAllowingMaxLengthMax.Contains(typeMapping.DefaultTypeName))
-                    {
-                        return new Tuple<string, int?>(
-                            unqualifiedTypeName
-                                + "("
-                                + (maxLength?.ToString() ?? "max")
-                                + ")",
-                            null);
-                    }
-                    else
-                    {
-                        return new Tuple<string, int?>(
-                            unqualifiedTypeName
-                                + (maxLength == null ? string.Empty : "(" + maxLength.ToString() + ")"),
-                            null);
-                    }
+                    return new Tuple<string, int?>(
+                        unqualifiedTypeName
+                        + "("
+                        + (maxLength?.ToString() ?? "max")
+                        + ")",
+                        null);
                 }
+                return new Tuple<string, int?>(
+                    unqualifiedTypeName
+                    + (maxLength == null ? string.Empty : "(" + maxLength + ")"),
+                    null);
             }
 
             return null;

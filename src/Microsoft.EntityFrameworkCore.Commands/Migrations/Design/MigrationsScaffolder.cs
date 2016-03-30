@@ -377,13 +377,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 
         private bool ContainsForeignMigrations(string migrationsNamespace)
-            => Enumerable.Any(
-                from t in _migrationsAssembly.Assembly.GetConstructibleTypes()
+            => (from t in _migrationsAssembly.Assembly.GetConstructibleTypes()
                 where t.Namespace == migrationsNamespace
-                    && t.IsSubclassOf(typeof(Migration))
+                      && t.IsSubclassOf(typeof(Migration))
                 let contextTypeAttribute = t.GetCustomAttribute<DbContextAttribute>()
                 where contextTypeAttribute != null
-                    && contextTypeAttribute.ContextType != _contextType
-                select t);
+                      && contextTypeAttribute.ContextType != _contextType
+                select t).Any();
     }
 }

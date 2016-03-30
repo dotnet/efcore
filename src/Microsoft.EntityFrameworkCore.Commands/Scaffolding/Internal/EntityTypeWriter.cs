@@ -107,15 +107,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             foreach (var property in _entity.EntityType.GetProperties().OrderBy(p => p.Scaffolding().ColumnOrdinal))
             {
-                PropertyConfiguration propertyConfiguration = _entity.FindPropertyConfiguration(property);
+                var propertyConfiguration = _entity.FindPropertyConfiguration(property);
                 if (propertyConfiguration != null)
                 {
                     AddAttributes(propertyConfiguration.AttributeConfigurations);
                 }
 
                 _sb.AppendLine("public "
-                    + CSharpUtilities.GetTypeName(property.ClrType)
-                    + " " + property.Name + " { get; set; }");
+                               + CSharpUtilities.GetTypeName(property.ClrType)
+                               + " " + property.Name + " { get; set; }");
             }
         }
 
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     {
                         AddAttributes(navProp.AttributeConfigurations);
                         _sb.AppendLine("public virtual " + navProp.Type
-                            + " " + navProp.Name + " { get; set; }");
+                                       + " " + navProp.Name + " { get; set; }");
                     }
                 }
             }

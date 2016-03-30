@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var manufacturedContexts =
                     from i in factory.ImplementedInterfaces
                     where i.GetTypeInfo().IsGenericType
-                        && i.GetGenericTypeDefinition() == typeof(IDbContextFactory<>)
+                          && i.GetGenericTypeDefinition() == typeof(IDbContextFactory<>)
                     select i.GenericTypeArguments[0];
                 foreach (var context in manufacturedContexts)
                 {

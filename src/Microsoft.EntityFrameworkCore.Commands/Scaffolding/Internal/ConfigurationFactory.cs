@@ -25,13 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ScaffoldingUtilities = scaffoldingUtilities;
         }
 
-        protected virtual IRelationalAnnotationProvider ExtensionsProvider { get;[param: NotNull] private set; }
-        protected virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] private set; }
-        protected virtual ScaffoldingUtilities ScaffoldingUtilities { get;[param: NotNull] private set; }
+        protected virtual IRelationalAnnotationProvider ExtensionsProvider { get; }
+        protected virtual CSharpUtilities CSharpUtilities { get; }
+        protected virtual ScaffoldingUtilities ScaffoldingUtilities { get; }
 
         public virtual ModelConfiguration CreateModelConfiguration(
             [NotNull] IModel model,
-            [NotNull] CustomConfiguration customConfiguration) 
+            [NotNull] CustomConfiguration customConfiguration)
             => new ModelConfiguration(this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ScaffoldingUtilities);
 
         public virtual CustomConfiguration CreateCustomConfiguration(

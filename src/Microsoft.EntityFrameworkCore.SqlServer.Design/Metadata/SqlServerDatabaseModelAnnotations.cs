@@ -20,12 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 
         public virtual Dictionary<string, string> TypeAliases
         {
-            get
-            {
-                return _databaseModel[SqlServerDatabaseModelAnnotationNames.TypeAliases] as Dictionary<string, string>;
-            }
-            [param: NotNull]
-            set { _databaseModel[SqlServerDatabaseModelAnnotationNames.TypeAliases] = value; }
+            get { return _databaseModel[SqlServerDatabaseModelAnnotationNames.TypeAliases] as Dictionary<string, string>; }
+            [param: NotNull] set { _databaseModel[SqlServerDatabaseModelAnnotationNames.TypeAliases] = value; }
         }
     }
 }

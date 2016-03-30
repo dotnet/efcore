@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 && allForeignKeysBetweenDependentAndPrincipal.Count() > 1)
             {
                 return foreignKey.DeclaringEntityType.DisplayName()
-                    + dependentEndNavigationPropertyName;
+                       + dependentEndNavigationPropertyName;
             }
 
             return foreignKey.DeclaringEntityType.DisplayName();

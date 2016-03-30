@@ -18,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 
         public virtual bool HasAttributeEquivalent { get; } = false;
 
-        public virtual ICollection<string> FluentApiLines { get;[param: NotNull] set; }
+        public virtual ICollection<string> FluentApiLines { get; [param: NotNull] set; }
     }
 }

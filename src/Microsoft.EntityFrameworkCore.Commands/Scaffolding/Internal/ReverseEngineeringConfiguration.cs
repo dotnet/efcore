@@ -9,13 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineeringConfiguration
     {
-        public virtual string ConnectionString { get;[param: NotNull] set; }
-        public virtual string ContextClassName { get;[param: CanBeNull] set; }
-        public virtual string CustomTemplatePath { get;[param: NotNull] set; }
-        public virtual string ProjectPath { get;[param: NotNull] set; }
-        public virtual string ProjectRootNamespace { get;[param: NotNull] set; }
-        public virtual string OutputPath { get;[param: CanBeNull] set; }
-        public virtual TableSelectionSet TableSelectionSet { get;[param: CanBeNull] set; }
+        public virtual string ConnectionString { get; [param: NotNull] set; }
+        public virtual string ContextClassName { get; [param: CanBeNull] set; }
+        public virtual string CustomTemplatePath { get; [param: NotNull] set; }
+        public virtual string ProjectPath { get; [param: NotNull] set; }
+        public virtual string ProjectRootNamespace { get; [param: NotNull] set; }
+        public virtual string OutputPath { get; [param: CanBeNull] set; }
+        public virtual TableSelectionSet TableSelectionSet { get; [param: CanBeNull] set; }
         public virtual bool UseFluentApiOnly { get; set; }
         public virtual bool OverwriteFiles { get; set; }
 

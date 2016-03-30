@@ -397,7 +397,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(">(")
                         .Append(_code.UnknownLiteral(discriminatorPropertyAnnotation?.Value))
                         .Append(")");
-                } else
+                }
+                else
                 {
                     stringBuilder
                         .Append("()");

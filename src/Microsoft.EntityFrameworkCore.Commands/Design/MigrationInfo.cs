@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public class MigrationInfo
     {
-        public virtual string Id { get;[param: NotNull] set; }
-        public virtual string Name { get;[param: NotNull] set; }
+        public virtual string Id { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
     }
 }

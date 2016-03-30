@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineerFiles
     {
-        public virtual string ContextFile { get;[param: NotNull] set; }
+        public virtual string ContextFile { get; [param: NotNull] set; }
         public virtual IList<string> EntityTypeFiles { get; } = new List<string>();
     }
 }

@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
-    public partial class DesignTimeServicesBuilder
+    public class DesignTimeServicesBuilder
     {
         private readonly AssemblyLoader _assemblyLoader;
         private readonly StartupInvoker _startup;
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 designTimeProviderAssembly = _assemblyLoader.Load(providerServicesAttribute.AssemblyName);
             }
             catch (Exception ex)
-            when (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException)
+                when (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException)
             {
                 if (!throwOnError)
                 {

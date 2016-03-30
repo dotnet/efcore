@@ -136,10 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var foreignKey = rc.ForeignKey as ForeignKey;
                 if (foreignKey != null
                     && foreignKey.Relational().Name !=
-                            RelationalForeignKeyAnnotations.GetDefaultForeignKeyName(
-                                foreignKey.DeclaringEntityType.Relational().TableName,
-                                foreignKey.PrincipalEntityType.Relational().TableName,
-                                foreignKey.Properties.Select(p => p.Name)))
+                    RelationalForeignKeyAnnotations.GetDefaultForeignKeyName(
+                        foreignKey.DeclaringEntityType.Relational().TableName,
+                        foreignKey.PrincipalEntityType.Relational().TableName,
+                        foreignKey.Properties.Select(p => p.Name)))
                 {
                     sb.AppendLine();
                     var hasConstraintMethodName = foreignKey.IsUnique

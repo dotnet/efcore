@@ -33,12 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             {
                 var lines = new List<string>();
                 lines.Add(nameof(EntityTypeBuilder<EntityType>.HasIndex) + "(" + LambdaIdentifier + " => "
-                    + new ScaffoldingUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier) + ")");
+                          + new ScaffoldingUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier) + ")");
 
                 if (!string.IsNullOrEmpty(Index.Relational().Name))
                 {
                     lines.Add("." + nameof(RelationalIndexBuilderExtensions.HasName) + "("
-                        + CSharpUtilities.Instance.DelimitString(Index.Relational().Name) + ")");
+                              + CSharpUtilities.Instance.DelimitString(Index.Relational().Name) + ")");
                 }
 
                 if (Index.IsUnique)

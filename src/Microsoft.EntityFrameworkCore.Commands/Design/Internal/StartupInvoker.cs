@@ -45,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var services = ConfigureHostServices(new ServiceCollection());
 
             return Invoke(
-                    _startupType,
-                    new[] { "ConfigureServices", "Configure" + _environment + "Services" },
-                    services) as IServiceProvider
-                ?? services.BuildServiceProvider();
+                _startupType,
+                new[] { "ConfigureServices", "Configure" + _environment + "Services" },
+                services) as IServiceProvider
+                   ?? services.BuildServiceProvider();
         }
 
         public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection services)
@@ -65,14 +65,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             MethodInfo method = null;
-            for (int i = 0; i < methodNames.Length; i++)
+            for (var i = 0; i < methodNames.Length; i++)
             {
                 method = type.GetTypeInfo().GetDeclaredMethod(methodNames[i]);
                 if (method != null)
                 {
                     break;
                 }
-                else if (i == methodNames.Length - 1)
+                if (i == methodNames.Length - 1)
                 {
                     return null;
                 }
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var parameters = method.GetParameters();
             var arguments = new object[parameters.Length];
-            for (int i = 0; i < parameters.Length; i++)
+            for (var i = 0; i < parameters.Length; i++)
             {
                 var parameterType = parameters[i].ParameterType;
                 arguments[i] = parameterType == typeof(IServiceCollection)

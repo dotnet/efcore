@@ -35,10 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 
         public virtual ICollection<string> FluentApiLines
         {
-            get
-            {
-                return new List<string>() { MethodBody };
-            }
+            get { return new List<string> { MethodBody }; }
         }
     }
 }

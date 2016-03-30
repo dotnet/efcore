@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
 
         /// <summary>
-        /// Returns a list of the files which would be output by this class where
-        /// the file already exists.
+        ///     Returns a list of the files which would be output by this class where
+        ///     the file already exists.
         /// </summary>
         /// <param name="outputPath"> directory where the files are to be output </param>
         /// <param name="dbContextClassName"> name of the <see cref="DbContext" /> class </param>
@@ -70,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        /// Returns a list of the files which would be output by this class but
-        /// which currently exist and would not be able to be overwritten due to
-        /// being read-only.
+        ///     Returns a list of the files which would be output by this class but
+        ///     which currently exist and would not be able to be overwritten due to
+        ///     being read-only.
         /// </summary>
         /// <param name="outputPath"> directory where the files are to be output </param>
         /// <param name="dbContextClassName"> name of the <see cref="DbContext" /> class </param>

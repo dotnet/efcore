@@ -7,8 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class MigrationFiles
     {
-        public virtual string MigrationFile { get;[param: CanBeNull] set; }
-        public virtual string MetadataFile { get;[param: CanBeNull] set; }
-        public virtual string SnapshotFile { get;[param: CanBeNull] set; }
+        public virtual string MigrationFile { get; [param: CanBeNull] set; }
+        public virtual string MetadataFile { get; [param: CanBeNull] set; }
+        public virtual string SnapshotFile { get; [param: CanBeNull] set; }
     }
 }
