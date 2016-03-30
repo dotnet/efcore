@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -168,21 +167,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
             public IRelationalCommandBuilder Create() => new FakeRelationalCommandBuilder();
+
+            public IRelationalCommandBuilder CreateDefinition()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
         {
             public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
 
-            public void AddParameter(IRelationalParameter relationalParameter)
-            {
-                throw new NotImplementedException();
-            }
-
-            public IRelationalParameter CreateParameter(string name, object value, Func<IRelationalTypeMapper, RelationalTypeMapping> mapType, bool? nullable, string invariantName)
-            {
-                throw new NotImplementedException();
-            }
+            public IRelationalParameterBuilder ParameterBuilder { get { throw new NotImplementedException(); } }
 
             public IRelationalCommand Build() => new FakeRelationalCommand();
         }
@@ -193,30 +189,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-            public int ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
+            public IReadOnlyDictionary<string, object> ParameterValues { get { throw new NotImplementedException(); } }
+
+            public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
             {
                 return 0;
             }
 
-            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
                 => Task.FromResult(0);
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
+            public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteScalar(IRelationalConnection connection, bool manageConnection = true)
+            public object ExecuteScalar(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues = null, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }
@@ -228,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                 .GetTypeInfo()
                 .DeclaredConstructors;
 
-#if DNX451
+#if NET451
             var error = (SqlError)errorCtors.First(c => c.GetParameters().Length == 7)
                     .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
 #else

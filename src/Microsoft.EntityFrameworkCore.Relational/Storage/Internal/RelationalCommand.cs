@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -43,75 +43,86 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual int ExecuteNonQuery(
             IRelationalConnection connection,
+            IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true)
             => (int)Execute(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteNonQuery),
+                parameterValues,
                 openConnection: manageConnection,
                 closeConnection: manageConnection);
 
         public virtual Task<int> ExecuteNonQueryAsync(
             IRelationalConnection connection,
+            IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true,
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteNonQuery),
+                parameterValues,
                 openConnection: manageConnection,
                 closeConnection: manageConnection,
                 cancellationToken: cancellationToken).Cast<object, int>();
 
         public virtual object ExecuteScalar(
             IRelationalConnection connection,
+            IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true)
             => Execute(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteScalar),
+                parameterValues,
                 openConnection: manageConnection,
                 closeConnection: manageConnection);
 
         public virtual Task<object> ExecuteScalarAsync(
             IRelationalConnection connection,
+            IReadOnlyDictionary<string, object> parameterValues = null,
             bool manageConnection = true,
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteScalar),
+                parameterValues,
                 openConnection: manageConnection,
                 closeConnection: manageConnection,
                 cancellationToken: cancellationToken);
 
         public virtual RelationalDataReader ExecuteReader(
             IRelationalConnection connection,
-            bool manageConnection = true,
-            IReadOnlyDictionary<string, object> parameterValues = null)
+            IReadOnlyDictionary<string, object> parameterValues = null,
+            bool manageConnection = true)
             => (RelationalDataReader)Execute(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteReader),
+                parameterValues,
                 openConnection: manageConnection,
-                closeConnection: false,
-                parameterValues: parameterValues);
+                closeConnection: false);
 
         public virtual Task<RelationalDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
-            bool manageConnection = true,
             IReadOnlyDictionary<string, object> parameterValues = null,
+            bool manageConnection = true,
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                     Check.NotNull(connection, nameof(connection)),
                     nameof(ExecuteReader),
+                    parameterValues,
                     openConnection: manageConnection,
                     closeConnection: false,
-                    cancellationToken: cancellationToken,
-                    parameterValues: parameterValues).Cast<object, RelationalDataReader>();
+                    cancellationToken: cancellationToken).Cast<object, RelationalDataReader>();
 
         protected virtual object Execute(
             [NotNull] IRelationalConnection connection,
             [NotNull] string executeMethod,
+            [NotNull] IReadOnlyDictionary<string, object> parameterValues,
             bool openConnection,
-            bool closeConnection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null)
+            bool closeConnection)
         {
+            Check.NotNull(connection, nameof(connection));
+            Check.NotEmpty(executeMethod, nameof(executeMethod));
+
             var dbCommand = CreateCommand(connection, parameterValues);
 
             WriteDiagnostic(
@@ -223,11 +234,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected virtual async Task<object> ExecuteAsync(
             [NotNull] IRelationalConnection connection,
             [NotNull] string executeMethod,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
             bool openConnection,
             bool closeConnection,
-            CancellationToken cancellationToken = default(CancellationToken),
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(connection, nameof(connection));
+            Check.NotEmpty(executeMethod, nameof(executeMethod));
+
             var dbCommand = CreateCommand(connection, parameterValues);
 
             WriteDiagnostic(
@@ -367,13 +381,28 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 command.CommandTimeout = (int)connection.CommandTimeout;
             }
 
-            foreach (var parameter in Parameters)
+            if (Parameters.Count > 0)
             {
-                parameter.AddDbParameter(
-                    command,
-                    parameterValues?.Count > 0
-                        ? parameterValues[parameter.InvariantName]
-                        : null);
+                if(parameterValues == null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.MissingParameterValue(
+                            Parameters[0].InvariantName));
+                }
+
+                foreach (var parameter in Parameters)
+                {
+                    object parameterValue;
+
+                    if (parameterValues.TryGetValue(parameter.InvariantName, out parameterValue))
+                    {
+                        parameter.AddDbParameter(command, parameterValue);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(RelationalStrings.MissingParameterValue(parameter.InvariantName));
+                    }
+                }
             }
 
             return command;

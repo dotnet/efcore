@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -12,12 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public abstract class RelationalConventionSetBuilder : IConventionSetBuilder
     {
         private readonly IRelationalTypeMapper _typeMapper;
+        private readonly DbContext _context;
+        private readonly IDbSetFinder _setFinder;
 
-        protected RelationalConventionSetBuilder([NotNull] IRelationalTypeMapper typeMapper)
+        protected RelationalConventionSetBuilder(
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [CanBeNull] ICurrentDbContext currentContext, 
+            [CanBeNull] IDbSetFinder setFinder)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             _typeMapper = typeMapper;
+            _context = currentContext?.Context;
+            _setFinder = setFinder;
         }
 
         public virtual ConventionSet AddConventions(ConventionSet conventionSet)
@@ -32,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (ForeignKeyAttributeConvention)new RelationalForeignKeyAttributeConvention(_typeMapper));
 
+            ReplaceConvention(conventionSet.NavigationAddedConventions, relationshipDiscoveryConvention);
+
             ReplaceConvention(conventionSet.NavigationRemovedConventions, relationshipDiscoveryConvention);
 
             ReplaceConvention(conventionSet.ModelBuiltConventions, (PropertyMappingValidationConvention)new RelationalPropertyMappingValidationConvention(_typeMapper));
@@ -41,6 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
 
             conventionSet.BaseEntityTypeSetConventions.Add(new DiscriminatorConvention());
+
+            conventionSet.BaseEntityTypeSetConventions.Add(new TableNameFromDbSetConvention(_context, _setFinder));
 
             return conventionSet;
         }

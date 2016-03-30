@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata
+namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata
 {
     public class SqliteMetadataExtensionsTest
     {

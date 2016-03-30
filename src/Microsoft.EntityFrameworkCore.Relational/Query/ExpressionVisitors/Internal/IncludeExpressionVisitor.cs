@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
+// ReSharper disable ImplicitlyCapturedClosure
+
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class IncludeExpressionVisitor : ExpressionVisitorBase
@@ -67,59 +69,106 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(node, nameof(node));
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (node.Method.MethodIsClosedFormOf(
+            if (methodCallExpression.Method.MethodIsClosedFormOf(
                 _queryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
             {
-                var entityShaper
-                    = ((ConstantExpression)node.Arguments[2]).Value
+                var shaper
+                    = ((ConstantExpression)methodCallExpression.Arguments[2]).Value
                         as Shaper;
 
-                if (entityShaper != null
-                    && entityShaper.IsShaperForQuerySource(_querySource))
+                if (shaper != null
+                    && shaper.IsShaperForQuerySource(_querySource))
                 {
-                    var resultType = node.Method.GetGenericArguments()[0];
-
-                    var memberExpression
-                        = _queryCompilationContext.QuerySourceMapping
-                            .GetExpression(_querySource) as MemberExpression;
-
-                    var entityAccessor
-                        = memberExpression == null
-                            ? (Expression)
-                                Expression
-                                    .Default(typeof(Func<,>)
-                                        .MakeGenericType(resultType, typeof(object)))
-                            : Expression
-                                .Lambda(
-                                    memberExpression,
-                                    memberExpression.GetRootExpression<ParameterExpression>());
+                    var resultType = methodCallExpression.Method.GetGenericArguments()[0];
+                    var entityAccessor = shaper.GetAccessorExpression(_querySource);
 
                     return
                         Expression.Call(
-                            _queryCompilationContext.QueryMethodProvider.IncludeMethod
-                                .MakeGenericMethod(resultType),
-                            Expression.Convert(node.Arguments[0], typeof(RelationalQueryContext)),
-                            node,
+                            _queryCompilationContext.QueryMethodProvider.IncludeMethod.MakeGenericMethod(resultType),
+                            Expression.Convert(methodCallExpression.Arguments[0], typeof(RelationalQueryContext)),
+                            methodCallExpression,
                             entityAccessor,
                             Expression.Constant(_navigationPath),
-                            Expression.NewArrayInit(
-                                _queryCompilationContext.QueryMethodProvider.IncludeRelatedValuesFactoryType,
-                                CreateIncludeRelatedValuesStrategyFactories(_querySource, _navigationPath)),
+                            Expression.Constant(
+                                _createRelatedEntitiesLoadersMethodInfo
+                                    .MakeGenericMethod(_queryCompilationContext.QueryMethodProvider.RelatedEntitiesLoaderType)
+                                    .Invoke(this, new object[] { _querySource, _navigationPath })),
                             Expression.Constant(_querySourceRequiresTracking));
                 }
             }
+            else if (methodCallExpression.Method.MethodIsClosedFormOf(
+                _queryCompilationContext.QueryMethodProvider.GroupJoinMethod))
+            {
+                var newMethodCallExpression = TryMatchGroupJoinShaper(methodCallExpression, 2);
 
-            return base.VisitMethodCall(node);
+                if (!ReferenceEquals(methodCallExpression, newMethodCallExpression))
+                {
+                    return newMethodCallExpression;
+                }
+
+                newMethodCallExpression = TryMatchGroupJoinShaper(methodCallExpression, 3);
+
+                if (!ReferenceEquals(methodCallExpression, newMethodCallExpression))
+                {
+                    return newMethodCallExpression;
+                }
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
         }
 
-        private IEnumerable<Expression> CreateIncludeRelatedValuesStrategyFactories(
-            IQuerySource querySource,
-            IEnumerable<INavigation> navigationPath)
+        private Expression TryMatchGroupJoinShaper(MethodCallExpression methodCallExpression, int shaperArgumentIndex)
         {
+            var shaper
+                = ((ConstantExpression)methodCallExpression.Arguments[shaperArgumentIndex]).Value
+                    as Shaper;
+
+            if (shaper != null
+                && shaper.IsShaperForQuerySource(_querySource))
+            {
+                var groupJoinIncludeArgumentIndex = shaperArgumentIndex + 4;
+
+                var groupJoinInclude
+                    = _queryCompilationContext.QueryMethodProvider
+                        .CreateGroupJoinInclude(
+                            _navigationPath,
+                            _querySourceRequiresTracking,
+                            (methodCallExpression.Arguments[groupJoinIncludeArgumentIndex] as ConstantExpression)?.Value,
+                            _createRelatedEntitiesLoadersMethodInfo
+                                .MakeGenericMethod(_queryCompilationContext.QueryMethodProvider.RelatedEntitiesLoaderType)
+                                .Invoke(this, new object[]
+                                {
+                                    _querySource,
+                                    _navigationPath
+                                }));
+
+                if (groupJoinInclude != null)
+                {
+                    var newArguments = methodCallExpression.Arguments.ToList();
+
+                    newArguments[groupJoinIncludeArgumentIndex] = Expression.Constant(groupJoinInclude);
+
+                    return methodCallExpression.Update(methodCallExpression.Object, newArguments);
+                }
+            }
+
+            return methodCallExpression;
+        }
+
+        private static readonly MethodInfo _createRelatedEntitiesLoadersMethodInfo
+            = typeof(IncludeExpressionVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(CreateRelatedEntitiesLoaders));
+
+        [UsedImplicitly]
+        private IReadOnlyList<Func<QueryContext, TRelatedEntitiesLoader>> CreateRelatedEntitiesLoaders<TRelatedEntitiesLoader>(
+            IQuerySource querySource, IEnumerable<INavigation> navigationPath)
+        {
+            var relatedEntitiesLoaders = new List<Func<QueryContext, TRelatedEntitiesLoader>>();
+
             var selectExpression
                 = _queryCompilationContext.FindSelectExpression(querySource);
 
@@ -139,7 +188,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var targetEntityType = navigation.GetTargetType();
                 var targetTableName = _relationalAnnotationProvider.For(targetEntityType).TableName;
-                var targetTableAlias = _queryCompilationContext.CreateUniqueTableAlias(targetTableName[0].ToString().ToLower());
+                var targetTableAlias
+                    = _queryCompilationContext
+                        .CreateUniqueTableAlias(targetTableName[0].ToString().ToLower());
 
                 if (!navigation.IsCollection())
                 {
@@ -153,9 +204,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     var valueBufferOffset = selectExpression.Projection.Count;
 
                     canProduceInnerJoin
-                        = canProduceInnerJoin 
-                            && navigation.ForeignKey.IsRequired 
-                            && navigation.IsDependentToPrincipal();
+                        = canProduceInnerJoin
+                          && navigation.ForeignKey.IsRequired
+                          && navigation.IsDependentToPrincipal();
 
                     var joinExpression
                         = canProduceInnerJoin
@@ -200,25 +251,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     targetTableExpression = joinedTableExpression;
 
-                    yield return
-                        Expression.Lambda(
-                            Expression.Call(
-                                _queryCompilationContext.QueryMethodProvider
-                                    .CreateReferenceIncludeRelatedValuesStrategyMethod,
-                                Expression.Convert(
-                                    EntityQueryModelVisitor.QueryContextParameter,
-                                    typeof(RelationalQueryContext)),
-                                Expression.Constant(valueBufferOffset),
-                                Expression.Constant(queryIndex),
-                                materializer));
+                    relatedEntitiesLoaders.Add(qc =>
+                        (TRelatedEntitiesLoader)_queryCompilationContext.QueryMethodProvider
+                            .CreateReferenceRelatedEntitiesLoaderMethod
+                            .Invoke(
+                                null,
+                                new object[]
+                                {
+                                    valueBufferOffset,
+                                    queryIndex,
+                                    materializer.Compile() // TODO: Used cached materializer?
+                                }));
                 }
                 else
                 {
                     var principalTable
-                        = (selectExpression.Tables.Count == 1)
-                            && selectExpression.Tables
-                                .OfType<SelectExpression>()
-                                .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
+                        = selectExpression.Tables.Count == 1
+                          && selectExpression.Tables
+                              .OfType<SelectExpression>()
+                              .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
                             // true when select is wrapped e.g. when RowNumber paging is enabled
                             ? selectExpression.Tables[0]
                             : selectExpression.Tables.Last(t => t.QuerySource == querySource);
@@ -283,22 +334,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     selectExpression = targetSelectExpression;
 
-                    yield return
-                        Expression.Lambda(
-                            Expression.Call(
-                                _queryCompilationContext.QueryMethodProvider
-                                    .CreateCollectionIncludeRelatedValuesStrategyMethod,
-                                Expression.Call(
-                                    _queryCompilationContext.QueryMethodProvider.QueryMethod,
-                                    EntityQueryModelVisitor.QueryContextParameter,
-                                    Expression.Constant(
-                                        _shaperCommandContextFactory.Create(
-                                            () => _querySqlGeneratorFactory
-                                                .CreateDefault(targetSelectExpression))),
-                                    Expression.Constant(queryIndex, typeof(int?))),
-                                materializer));
+                    relatedEntitiesLoaders.Add(qc =>
+                        (TRelatedEntitiesLoader)_queryCompilationContext.QueryMethodProvider
+                            .CreateCollectionRelatedEntitiesLoaderMethod
+                            .Invoke(
+                                null,
+                                new object[]
+                                {
+                                    qc,
+                                    _shaperCommandContextFactory.Create(() =>
+                                        _querySqlGeneratorFactory.CreateDefault(targetSelectExpression)),
+                                    queryIndex,
+                                    materializer.Compile() // TODO: Used cached materializer?
+                                }));
                 }
             }
+
+            return relatedEntitiesLoaders;
         }
 
         private JoinExpressionBase AdjustJoinExpression(
@@ -310,10 +362,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             subquery.IsProjectStar = true;
             subquery.Predicate = selectExpression.Predicate;
 
-            var newJoinExpression 
+            var newJoinExpression
                 = joinExpression is LeftOuterJoinExpression
-                ? (JoinExpressionBase)new LeftOuterJoinExpression(subquery)
-                : new InnerJoinExpression(subquery);
+                    ? (JoinExpressionBase)new LeftOuterJoinExpression(subquery)
+                    : new InnerJoinExpression(subquery);
 
             newJoinExpression.QuerySource = joinExpression.QuerySource;
             newJoinExpression.Alias = joinExpression.Alias;

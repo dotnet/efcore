@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -21,12 +20,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         public override bool IsMappedPrimitiveProperty(Type clrType) => _typeMapper.IsTypeMapped(clrType);
-
-        public override Type FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper.IsTypeMapped);
-        }
     }
 }

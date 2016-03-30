@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -350,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-#if DNX451
+#if NET451
         [Fact]
         public void Throws_when_using_with_IListSource()
         {
@@ -383,19 +384,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class EarlyLearningCenter : DbContext
         {
-            public EarlyLearningCenter()
-                : base(TestHelpers.Instance.CreateServiceProvider())
-            {
-            }
-
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
         }
     }
 }

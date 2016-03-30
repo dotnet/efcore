@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var unmappedProperty = entityType.GetProperties().FirstOrDefault(p => !IsMappedPrimitiveProperty(p.ClrType));
                 if (unmappedProperty != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.PropertyNotMapped(unmappedProperty.Name, entityType.Name));
+                    throw new InvalidOperationException(CoreStrings.PropertyNotMapped(
+                        unmappedProperty.Name, unmappedProperty.ClrType.DisplayName(fullName: false), entityType.DisplayName()));
                 }
 
                 if (entityType.HasClrType())
@@ -46,17 +47,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         foreach (var clrProperty in clrProperties)
                         {
                             var actualProperty = entityType.ClrType.GetRuntimeProperties().First(p => p.Name == clrProperty);
+                            var propertyType = actualProperty.PropertyType;
+                            var targetSequenceType = propertyType.TryGetSequenceType();
                             var targetType = FindCandidateNavigationPropertyType(actualProperty);
                             if (targetType != null)
                             {
                                 if (!modelBuilder.IsIgnored(targetType.DisplayName(), ConfigurationSource.Convention))
                                 {
-                                    throw new InvalidOperationException(CoreStrings.NavigationNotAdded(actualProperty.Name, entityType.Name));
+                                    throw new InvalidOperationException(CoreStrings.NavigationNotAdded(
+                                        actualProperty.Name, propertyType.DisplayName(fullName: false), entityType.DisplayName()));
                                 }
+                            }
+                            else if (propertyType.IsPrimitive())
+                            {
+                                throw new InvalidOperationException(CoreStrings.PropertyNotMapped(
+                                    actualProperty.Name, propertyType.DisplayName(fullName: false), entityType.DisplayName()));
+                            }
+                            else if (propertyType.GetTypeInfo().IsInterface
+                                     || (targetSequenceType != null && targetSequenceType.GetTypeInfo().IsInterface))
+                            {
+                                throw new InvalidOperationException(CoreStrings.InterfacePropertyNotAdded(
+                                    actualProperty.Name, propertyType.DisplayName(fullName: false), entityType.DisplayName()));
                             }
                             else
                             {
-                                throw new InvalidOperationException(CoreStrings.PropertyNotAdded(actualProperty.Name, entityType.Name));
+                                throw new InvalidOperationException(CoreStrings.PropertyNotAdded(
+                                    actualProperty.Name, propertyType.DisplayName(fullName: false), entityType.DisplayName()));
                             }
                         }
                     }

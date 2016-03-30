@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -220,17 +221,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var serviceCollection = new ServiceCollection();
-                serviceCollection
-                    .AddEntityFramework()
-                    .AddSqlServer();
+                var serviceProvider = new ServiceCollection()
+                    .AddEntityFrameworkSqlServer()
+                    .BuildServiceProvider();
 
-                var serviceProvider = serviceCollection.BuildServiceProvider();
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(serviceProvider)
+                    .UseSqlServer(testDatabase.ConnectionString);
 
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testDatabase.ConnectionString);
-
-                using (var context = new BloggingContext(serviceProvider, optionsBuilder.Options))
+                using (var context = new BloggingContext(optionsBuilder.Options))
                 {
                     var creator = (RelationalDatabaseCreator)context.GetService<IDatabaseCreator>();
 
@@ -250,12 +249,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                     var tables = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
                     Assert.Equal(1, tables.Count());
-                    Assert.Equal("Blog", tables.Single());
+                    Assert.Equal("Blogs", tables.Single());
 
-                    var columns = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME + '.' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Blog'");
+                    var columns = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME + '.' + COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Blogs'");
                     Assert.Equal(2, columns.Count());
-                    Assert.True(columns.Any(c => c == "Blog.Id"));
-                    Assert.True(columns.Any(c => c == "Blog.Name"));
+                    Assert.True(columns.Any(c => c == "Blogs.Id"));
+                    Assert.True(columns.Any(c => c == "Blogs.Name"));
                 }
             }
         }
@@ -366,30 +365,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         private static IServiceProvider CreateContextServices(SqlServerTestStore testStore)
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer();
-
-            serviceCollection.AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>();
-
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.ConnectionString);
-
-            return ((IInfrastructure<IServiceProvider>)new BloggingContext(
-                serviceCollection.BuildServiceProvider(),
-                optionsBuilder.Options))
+            => ((IInfrastructure<IServiceProvider>)new BloggingContext(
+                new DbContextOptionsBuilder()
+                    .UseSqlServer(testStore.ConnectionString)
+                    .UseInternalServiceProvider(new ServiceCollection()
+                        .AddEntityFrameworkSqlServer()
+                        .AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>().BuildServiceProvider()).Options))
                 .Instance;
-        }
 
         private static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
             => CreateContextServices(testStore).GetRequiredService<IRelationalDatabaseCreator>();
 
         private class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public BloggingContext(DbContextOptions options)
+                : base(options)
             {
             }
 

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var fkPropertiesOnNavigation = fkPropertiesOnDependentToPrincipal ?? fkPropertiesOnPrincipalToDependent;
             var upgradePrincipalToDependentNavigationSource = fkPropertiesOnPrincipalToDependent != null;
             var upgradeDependentToPrincipalNavigationSource = fkPropertiesOnDependentToPrincipal != null;
-            var invert = false;
+            ConfigurationSource? invertConfigurationSource = null;
             IReadOnlyList<string> fkPropertiesToSet;
 
             if ((fkPropertiesOnNavigation == null)
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
                 else
                 {
-                    invert = true;
+                    invertConfigurationSource = ConfigurationSource.DataAnnotation;
                     fkPropertiesToSet = new List<string> { fkPropertyOnPrincipal };
                     upgradeDependentToPrincipalNavigationSource = true;
                 }
@@ -78,8 +78,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if ((fkPropertyOnDependent == null)
                     && (fkPropertyOnPrincipal == null))
                 {
-                    invert = fkPropertiesOnNavigation.Any(p => foreignKey.DeclaringEntityType.FindProperty(p) == null)
-                        && fkPropertiesOnNavigation.All(p => foreignKey.PrincipalEntityType.FindProperty(p) != null);
+                    if (fkPropertiesOnNavigation.Any(p => foreignKey.DeclaringEntityType.FindProperty(p) == null)
+                        && fkPropertiesOnNavigation.All(p => foreignKey.PrincipalEntityType.FindProperty(p) != null))
+                    {
+                        invertConfigurationSource = ConfigurationSource.DataAnnotation;
+                    } else if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() == null
+                               && fkPropertiesOnPrincipalToDependent == fkPropertiesOnNavigation
+                               && fkPropertiesOnNavigation.All(p => foreignKey.DeclaringEntityType.FindProperty(p) == null))
+                    {
+                        invertConfigurationSource = ConfigurationSource.Convention;
+                    }
                 }
                 else
                 {
@@ -98,24 +106,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                     else
                     {
-                        invert = true;
+                        invertConfigurationSource = ConfigurationSource.DataAnnotation;
                     }
                 }
             }
 
             var newRelationshipBuilder = relationshipBuilder;
-            if (invert)
+            if (invertConfigurationSource != null)
             {
                 newRelationshipBuilder = newRelationshipBuilder.RelatedEntityTypes(
-                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.DataAnnotation);
+                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, invertConfigurationSource.Value);
+                if (newRelationshipBuilder != null)
+                {
+                    var temp = upgradeDependentToPrincipalNavigationSource;
+                    upgradeDependentToPrincipalNavigationSource = upgradePrincipalToDependentNavigationSource;
+                    upgradePrincipalToDependentNavigationSource = temp;
+                } else if (invertConfigurationSource == ConfigurationSource.Convention)
+                {
+                    newRelationshipBuilder = relationshipBuilder;
+                }
             }
-            if (upgradeDependentToPrincipalNavigationSource)
+            if (newRelationshipBuilder != null
+                && upgradeDependentToPrincipalNavigationSource)
             {
-                newRelationshipBuilder = newRelationshipBuilder?.DependentToPrincipal(newRelationshipBuilder.Metadata.DependentToPrincipal.Name, ConfigurationSource.DataAnnotation);
+                newRelationshipBuilder = newRelationshipBuilder.DependentToPrincipal(
+                    newRelationshipBuilder.Metadata.DependentToPrincipal.Name, ConfigurationSource.DataAnnotation);
             }
-            if (upgradePrincipalToDependentNavigationSource)
+            if (newRelationshipBuilder != null
+                && upgradePrincipalToDependentNavigationSource)
             {
-                newRelationshipBuilder = newRelationshipBuilder?.PrincipalToDependent(newRelationshipBuilder.Metadata.PrincipalToDependent.Name, ConfigurationSource.DataAnnotation);
+                newRelationshipBuilder = newRelationshipBuilder.PrincipalToDependent(
+                    newRelationshipBuilder.Metadata.PrincipalToDependent.Name, ConfigurationSource.DataAnnotation);
             }
 
             return newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
@@ -141,13 +162,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var dependentEntityTypebuilder = foreignKey.DeclaringEntityType.Builder;
             var principalEntityTypeBuilder = foreignKey.PrincipalEntityType.Builder;
 
-            dependentEntityTypebuilder.Relationship(principalEntityTypeBuilder, ConfigurationSource.DataAnnotation)
-                .PrincipalToDependent(null, ConfigurationSource.DataAnnotation)
-                .DependentToPrincipal(dependentToPrincipalNavigationName, ConfigurationSource.DataAnnotation);
+            dependentEntityTypebuilder.Relationship(
+                principalEntityTypeBuilder,
+                dependentToPrincipalNavigationName,
+                null,
+                ConfigurationSource.DataAnnotation);
 
-            principalEntityTypeBuilder.Relationship(dependentEntityTypebuilder, ConfigurationSource.DataAnnotation)
-                .PrincipalToDependent(null, ConfigurationSource.DataAnnotation)
-                .DependentToPrincipal(principalToDepedentNavigationName, ConfigurationSource.DataAnnotation);
+            principalEntityTypeBuilder.Relationship(
+                dependentEntityTypebuilder,
+                principalToDepedentNavigationName,
+                null,
+                ConfigurationSource.DataAnnotation);
         }
 
         private static InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)

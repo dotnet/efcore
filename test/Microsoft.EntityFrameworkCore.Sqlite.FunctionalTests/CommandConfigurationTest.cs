@@ -25,9 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             private SqliteTestStore _store;
 
             public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             public virtual void CreateDatabase()
@@ -42,10 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     });
             }
 
-            public void Dispose()
-            {
-                _store.Dispose();
-            }
+            public void Dispose() => _store.Dispose();
         }
 
         [Fact]
@@ -59,17 +54,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         private class ChipsContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public ChipsContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<KettleChips> Chips { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName));
-            }
+                => optionsBuilder
+                    .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         private class KettleChips

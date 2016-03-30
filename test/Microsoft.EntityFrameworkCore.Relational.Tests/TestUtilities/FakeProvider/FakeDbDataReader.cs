@@ -9,7 +9,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
     public class FakeDbDataReader : DbDataReader
     {
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public int CloseCount { get; private set; }
 
-#if DNX451
+#if NET451
         public override void Close()
         {
             CloseCount++;
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             {
                 DisposeCount++;
 
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                 CloseCount++;
 #endif
                 base.Dispose(true);
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             throw new NotImplementedException();
         }
 
-#if DNX451
+#if NET451
         public override DataTable GetSchemaTable()
         {
             throw new NotImplementedException();

@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     and EF is maintaining its own service provider internally. This allows database providers (and other extensions) to register their
         ///     required services when EF is creating an service provider.
         /// </summary>
-        /// <param name="builder"> The builder to add services to. </param>
-        void ApplyServices([NotNull] EntityFrameworkServicesBuilder builder);
+        /// <param name="services"> The collection to add services to. </param>
+        void ApplyServices([NotNull] IServiceCollection services);
     }
 }

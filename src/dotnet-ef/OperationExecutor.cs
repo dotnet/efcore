@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.Extensions.PlatformAbstractions;
 using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Commands
@@ -26,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
         private readonly LazyRef<DbContextOperations> _contextOperations;
         private readonly LazyRef<DatabaseOperations> _databaseOperations;
         private readonly LazyRef<MigrationsOperations> _migrationsOperations;
+
+        private const string DataDirEnvName = "ADONET_DATA_DIR";
+        private const string DefaultConfiguration = "Debug";
 
         public OperationExecutor([CanBeNull] string startupProject, [CanBeNull] string environment)
         {
@@ -57,10 +61,18 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
             Reporter.Verbose.WriteLine("Build succeeded.".Bold().Black());
 
+            var runtimeOutputPath = startupProjectContext.GetOutputPaths(DefaultConfiguration)?.RuntimeOutputPath;
+            if (!string.IsNullOrEmpty(runtimeOutputPath))
+            {
+                // TODO set data directory in AppDomain when/if this supports desktop .NET
+                Environment.SetEnvironmentVariable(DataDirEnvName, runtimeOutputPath);
+            }
+
             var projectFile = ProjectReader.GetProject(project);
             var startupAssemblyName = new AssemblyName(startupProjectContext.ProjectFile.Name);
             var assemblyName = new AssemblyName(projectFile.Name);
             var projectDir = projectFile.ProjectDirectory;
+            var startupProjectDir = startupProjectContext.ProjectFile.ProjectDirectory;
             var rootNamespace = projectFile.Name;
             var assemblyLoadContext = startupProjectContext.CreateLoadContext();
             var assemblyLoader = new AssemblyLoader(assemblyLoadContext.LoadFromAssemblyName);
@@ -84,7 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
                     assembly,
                     startupAssembly,
-                    environment));
+                    environment,
+                    startupProjectDir));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     assemblyLoader,
@@ -92,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     startupAssembly,
                     environment,
                     projectDir,
+                    startupProjectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
@@ -101,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     startupAssembly,
                     environment,
                     projectDir,
+                    startupProjectDir,
                     rootNamespace));
         }
 
@@ -156,8 +171,13 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var frameworks = projectFile.GetTargetFrameworks().Select(f => f.FrameworkName);
             var framework = NuGetFrameworkUtility.GetNearest(
                 frameworks,
-                FrameworkConstants.CommonFrameworks.DnxCore50,
-                f => new NuGetFramework(f));
+                FrameworkConstants.CommonFrameworks.NetStandardApp15,
+                f => new NuGetFramework(f))
+                // TODO: Remove with dnxcore50
+                ?? NuGetFrameworkUtility.GetNearest(
+                    frameworks,
+                    FrameworkConstants.CommonFrameworks.DnxCore50,
+                    f => new NuGetFramework(f));
             if (framework == null)
             {
                 throw new OperationException(
@@ -172,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             return new ProjectContextBuilder()
                 .WithProject(projectFile)
                 .WithTargetFramework(framework)
+                .WithRuntimeIdentifiers(PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers())
                 .Build();
         }
     }

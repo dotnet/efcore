@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 for (var i = 0; i < obj.Length; i++)
                 {
-                    hashCode = (hashCode * 397) ^ obj[i].GetHashCode();
+                    hashCode = (hashCode * 397) ^ (obj[i] != null ? obj[i].GetHashCode() : 0);
                 }
 
                 return hashCode;

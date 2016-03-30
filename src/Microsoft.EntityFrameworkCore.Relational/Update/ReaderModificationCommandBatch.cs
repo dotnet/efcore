@@ -117,43 +117,58 @@ namespace Microsoft.EntityFrameworkCore.Update
             LastCachedCommandIndex = commandPosition;
         }
 
-        protected virtual IRelationalCommand CreateStoreCommand()
+        protected virtual RawSqlCommand CreateStoreCommand()
         {
             var commandBuilder = _commandBuilderFactory
                 .Create()
                 .Append(GetCommandText());
+
+            var parameterValues = new Dictionary<string, object>();
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
                 if (columnModification.ParameterName != null)
                 {
                     commandBuilder.AddParameter(
+                        columnModification.ParameterName,
                         SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
-                        columnModification.Value,
                         columnModification.Property);
+
+                    parameterValues.Add(
+                        columnModification.ParameterName,
+                        columnModification.Value);
                 }
 
                 if (columnModification.OriginalParameterName != null)
                 {
                     commandBuilder.AddParameter(
+                        columnModification.OriginalParameterName,
                         SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
-                        columnModification.OriginalValue,
                         columnModification.Property);
+
+
+                    parameterValues.Add(
+                        columnModification.OriginalParameterName,
+                        columnModification.OriginalValue);
                 }
             }
 
-            return commandBuilder.Build();
+            return new RawSqlCommand(
+                commandBuilder.Build(),
+                parameterValues);
         }
 
         public override void Execute(IRelationalConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 
-            var command = CreateStoreCommand();
+            var storeCommand = CreateStoreCommand();
 
             try
             {
-                using (var dataReader = command.ExecuteReader(connection))
+                using (var dataReader = storeCommand.RelationalCommand.ExecuteReader(
+                    connection,
+                    parameterValues: storeCommand.ParameterValues))
                 {
                     Consume(dataReader.DbDataReader);
                 }
@@ -174,11 +189,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             Check.NotNull(connection, nameof(connection));
 
-            var command = CreateStoreCommand();
+            var storeCommand = CreateStoreCommand();
 
             try
             {
-                using (var dataReader = await command.ExecuteReaderAsync(connection, cancellationToken: cancellationToken))
+                using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
+                    connection,
+                    parameterValues: storeCommand.ParameterValues,
+                    cancellationToken: cancellationToken))
                 {
                     await ConsumeAsync(dataReader.DbDataReader, cancellationToken);
                 }

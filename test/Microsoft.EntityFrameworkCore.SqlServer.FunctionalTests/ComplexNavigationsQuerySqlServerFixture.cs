@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -23,9 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public ComplexNavigationsQuerySqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
@@ -35,10 +33,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlServer(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlServer(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new ComplexNavigationsContext(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -55,10 +54,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override ComplexNavigationsContext CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlServer(testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options);
+            var context = new ComplexNavigationsContext(optionsBuilder.Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

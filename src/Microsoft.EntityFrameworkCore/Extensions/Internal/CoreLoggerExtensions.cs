@@ -5,7 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Extensions.Internal
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     internal static class CoreLoggerExtensions
     {

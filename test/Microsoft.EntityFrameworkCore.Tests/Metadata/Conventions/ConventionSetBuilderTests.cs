@@ -3,10 +3,12 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Tests
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
 {
     public class ConventionSetBuilderTests
     {

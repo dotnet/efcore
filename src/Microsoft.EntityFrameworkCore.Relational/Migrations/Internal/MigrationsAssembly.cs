@@ -19,15 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly LazyRef<ModelSnapshot> _modelSnapshot;
 
         public MigrationsAssembly(
-            [NotNull] DbContext context,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsIdGenerator idGenerator)
         {
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(options, nameof(options));
             Check.NotNull(idGenerator, nameof(idGenerator));
 
-            var contextType = context.GetType();
+            var contextType = currentContext.Context.GetType();
 
             var assemblyName = RelationalOptionsExtension.Extract(options)?.MigrationsAssembly;
             Assembly = assemblyName == null

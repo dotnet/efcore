@@ -35,9 +35,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .GetInfrastructure()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -124,9 +122,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -166,9 +162,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .GetInfrastructure()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -181,11 +175,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Exception ex;
                 if (async)
                 {
-                    ex = await Assert.ThrowsAsync<NotSupportedException>(() => context.SaveChangesAsync());
+                    ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
                 }
                 else
                 {
-                    ex = Assert.Throws<NotSupportedException>(() => context.SaveChanges());
+                    ex = Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
                 }
 
                 Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
@@ -194,9 +188,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public BloggingContext(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Blog> Blogs { get; set; }
@@ -220,13 +216,13 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 public string Name { get; set; }
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog>().HasKey(b => b.Url);
-            }
+            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+                => modelBuilder.Entity<Blog>().HasKey(b => b.Url);
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         private class TestLoggerFactory : ILoggerFactory

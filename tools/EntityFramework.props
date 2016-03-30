@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
+    <CustomAfterMicrosoftCommonTargets>$(MSBuildThisFileDirectory)EntityFramework.targets</CustomAfterMicrosoftCommonTargets>
+    <NuGetPackagesDirectory Condition=" '$(NuGetPackagesDirectory)' == '' ">$(NUGET_PACKAGES)</NuGetPackagesDirectory>
+    <NuGetPackagesDirectory Condition=" '$(NuGetPackagesDirectory)' == '' ">$(USERPROFILE)\.nuget\packages</NuGetPackagesDirectory>
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+</Project>

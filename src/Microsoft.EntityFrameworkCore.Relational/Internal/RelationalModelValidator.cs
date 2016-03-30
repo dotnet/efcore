@@ -70,15 +70,47 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         protected virtual void EnsureDistinctColumnNames([NotNull] IModel model)
         {
+            var groupedEntityTypes = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                var columns = new HashSet<string>();
-                foreach (var property in entityType.GetProperties())
+                var annotations = _relationalExtensions.For(entityType);
+                var tableName = annotations.Schema + "." + annotations.TableName;
+                if (!groupedEntityTypes.ContainsKey(tableName))
                 {
-                    var name = _relationalExtensions.For(property).ColumnName;
-                    if (!columns.Add(name))
+                    groupedEntityTypes[tableName] = new List<IEntityType>();
+                }
+                groupedEntityTypes[tableName].Add(entityType);
+            }
+
+            foreach (var table in groupedEntityTypes.Keys)
+            {
+                var properties = groupedEntityTypes[table].SelectMany(et => et.GetDeclaredProperties());
+                var propertyTypeMappings = new Dictionary<string, IProperty>();
+
+                foreach (var property in properties)
+                {
+                    var columnName = _relationalExtensions.For(property).ColumnName;
+                    IProperty duplicateProperty;
+                    if (propertyTypeMappings.TryGetValue(columnName, out duplicateProperty))
                     {
-                        ShowError(RelationalStrings.DuplicateColumnName(name, entityType.Name, property.Name));
+                        var currentTypeString = _relationalExtensions.For(property).ColumnType ?? _typeMapper.GetMapping(property).DefaultTypeName;
+                        var previousTypeString = _relationalExtensions.For(duplicateProperty).ColumnType ?? _typeMapper.GetMapping(duplicateProperty).DefaultTypeName;
+                        if (!(currentTypeString).Equals(previousTypeString, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ShowError(RelationalStrings.DuplicateColumnName(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                table,
+                                previousTypeString,
+                                currentTypeString));
+                        }
+                    }
+                    else
+                    {
+                        propertyTypeMappings[columnName] = property;
                     }
                 }
             }

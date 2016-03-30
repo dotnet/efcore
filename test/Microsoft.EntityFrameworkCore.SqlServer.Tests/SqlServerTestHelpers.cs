@@ -3,9 +3,10 @@
 
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
     public class SqlServerTestHelpers : RelationalTestHelpers
     {
@@ -15,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         public new static SqlServerTestHelpers Instance { get; } = new SqlServerTestHelpers();
 
-        public override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
-            => builder.AddSqlServer();
+        public override IServiceCollection AddProviderServices(IServiceCollection services)
+            => services.AddEntityFrameworkSqlServer();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));

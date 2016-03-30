@@ -187,10 +187,10 @@
     <value>The database providers {storeNames}are configured. A context can only be configured to use a single database provider.</value>
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
-    <value>A database has not been configured for this context. If you are not using dependency injection, override the OnConfiguring method in your context class to configure the database. If you are using dependency injection, use the AddDbContext method to register your context as a service and configure the database. In ASP.NET Core this is done in the ConfigureServices method of your Startup class. Also ensure that you are resolving the context from services and are not directly creating instances of it.</value>
+    <value>No database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions object in its constructor.</value>
   </data>
-  <data name="NoProviderServices" xml:space="preserve">
-    <value>No database providers are available. Ensure that database provider services are added inside the call to AddEntityFramework on your ServiceCollection.</value>
+  <data name="NoEfServices" xml:space="preserve">
+    <value>Entity Framework services have not been added to the internal service provider. Either remove the call to UseInternalServiceProvider so that EF will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. AddEntityFrameworkSqlServer).</value>
   </data>
   <data name="MultipleProvidersAvailable" xml:space="preserve">
     <value>The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
@@ -283,7 +283,7 @@
     <value>The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.</value>
   </data>
   <data name="DuplicateForeignKey" xml:space="preserve">
-    <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
+    <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {key} on '{principalType}'.</value>
   </data>
   <data name="DuplicateIndex" xml:space="preserve">
     <value>The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.</value>
@@ -343,7 +343,10 @@
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
-    <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties} and it is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'."</value>
+    <value>The key {key} contains properties in shadow state and is referenced by a relationship from '{referencingEntityTypeWithNavigation}' to '{referencedEntityTypeWithNavigation}'. Configure a non-shadow principal key for this relationship.</value>
+  </data>
+  <data name="ReferencedShadowKeyWithoutNavigations" xml:space="preserve">
+    <value>The key {key} on entity type '{entityType}' contains properties in shadow state and is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'. Configure a non-shadow principal key for this relationship.</value>
   </data>
   <data name="ShadowKey" xml:space="preserve">
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>
@@ -463,13 +466,16 @@
     <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.</value>
   </data>
   <data name="NavigationNotAdded" xml:space="preserve">
-    <value>The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.</value>
+    <value>Unable to determine the relationship represented by navigation property '{entityType}.{navigation} of type '{propertyType}'. Either manually configure the relationship, or ignore this property from the model.</value>
   </data>
   <data name="PropertyNotAdded" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' has not been added to the model or ignored.</value>
+    <value>The property '{entityType}.{property}' could not be mapped, because it is of type '{propertyType}' which is not a supported primitive type or a valid entity type. Either explicitly map this property, or ignore it.</value>
   </data>
   <data name="PropertyNotMapped" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.</value>
+    <value>The property '{entityType}.{property}' is of type '{propertyType}' which is not supported by current database provider. Either change the property CLR type or manually configure the database type for it.</value>
+  </data>
+  <data name="InterfacePropertyNotAdded" xml:space="preserve">
+    <value>The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property from the model.</value>
   </data>
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
@@ -493,7 +499,7 @@
     <value>Unhandled node type: {nodeType}</value>
   </data>
   <data name="InvalidKeyValue" xml:space="preserve">
-    <value>Unable to create or track an entity of type '{entityType}' because it has an null primary or alternate key value.</value>
+    <value>Unable to create or track an entity of type '{entityType}' because it has a null primary or alternate key value.</value>
   </data>
   <data name="SensitiveDataLoggingEnabled" xml:space="preserve">
     <value>Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.</value>
@@ -533,5 +539,8 @@
   </data>
   <data name="AmbiguousOneToOneRelationship" xml:space="preserve">
     <value>The child/dependent side could not be determined for the one-to-one relationship that was detected between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+  </data>
+  <data name="InvalidComplexPropertyExpression" xml:space="preserve">
+    <value>The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
 </root>

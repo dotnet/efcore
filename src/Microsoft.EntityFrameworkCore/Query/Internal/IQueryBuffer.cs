@@ -9,12 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public delegate IEnumerable<EntityLoadInfo> RelatedEntitiesLoader(
-        IIncludeKeyComparer keyComparer);
-
-    public delegate IAsyncEnumerable<EntityLoadInfo> AsyncRelatedEntitiesLoader(
-        IIncludeKeyComparer keyComparer);
-
     public interface IQueryBuffer
     {
         object GetEntity(
@@ -32,16 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] EntityTrackingInfo entityTrackingInfo);
 
         void Include(
+            [NotNull] QueryContext queryContext,
             [CanBeNull] object entity,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
+            [NotNull] IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool queryStateManager);
 
         Task IncludeAsync(
+            [NotNull] QueryContext queryContext,
             [CanBeNull] object entity,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
-            CancellationToken cancellationToken,
-            bool queryStateManager);
+            [NotNull] IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
+            bool queryStateManager,
+            CancellationToken cancellationToken);
     }
 }

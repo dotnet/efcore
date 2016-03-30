@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
         {
             if (cold)
             {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                 throw new NotSupportedException("ColdStartSandbox can not be used on CoreCLR.");
 #else
                 using (var sandbox = new ColdStartSandbox())
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
             }
         }
 
-#if DNX451
+#if NET451
         private partial class ColdStartEnabledTests : MarshalByRefObject
         {
         }

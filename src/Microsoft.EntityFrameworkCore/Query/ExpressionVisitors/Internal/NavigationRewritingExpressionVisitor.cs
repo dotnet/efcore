@@ -350,6 +350,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                             if (navigations.Any())
                             {
+                                var outerQuerySourceReferenceExpression = new QuerySourceReferenceExpression(qs);
+
+                                if (_navigationRewritingQueryModelVisitor.AdditionalFromClauseBeingProcessed != null 
+                                    && navigations.Last().IsCollection())
+                                {
+                                    return RewriteSelectManyNavigationsIntoJoins(
+                                        outerQuerySourceReferenceExpression,
+                                        navigations,
+                                        _navigationRewritingQueryModelVisitor.AdditionalFromClauseBeingProcessed);
+                                }
+
                                 if ((navigations.Count == 1)
                                     && navigations[0].IsDependentToPrincipal())
                                 {
@@ -360,7 +371,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     }
                                 }
 
-                                var outerQuerySourceReferenceExpression = new QuerySourceReferenceExpression(qs);
 
                                 if (_navigationRewritingQueryModelVisitor.InsideInnerKeySelector)
                                 {
@@ -536,51 +546,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (navigationJoin == null)
                 {
-                    var outerKeySelector =
-                        CreateKeyAccessExpression(
-                            querySourceReferenceExpression,
-                            navigation.IsDependentToPrincipal()
-                                ? navigation.ForeignKey.Properties
-                                : navigation.ForeignKey.PrincipalKey.Properties,
-                                addNullCheck: optionalNavigationInChain);
-
-                    var joinClause
-                        = new JoinClause(
-                            $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}",
-                            targetEntityType.ClrType,
-                            CreateEntityQueryable(targetEntityType),
-                            outerKeySelector,
-                            Expression.Constant(null));
-
-                    var innerQuerySourceReferenceExpression
-                        = new QuerySourceReferenceExpression(joinClause);
-
-                    var innerKeySelector
-                        = CreateKeyAccessExpression(
-                            innerQuerySourceReferenceExpression,
-                            navigation.IsDependentToPrincipal()
-                                ? navigation.ForeignKey.PrincipalKey.Properties
-                                : navigation.ForeignKey.Properties);
-
-                    if (innerKeySelector.Type != joinClause.OuterKeySelector.Type)
-                    {
-                        if (innerKeySelector.Type.IsNullableType())
-                        {
-                            joinClause.OuterKeySelector
-                                = Expression.Convert(
-                                    joinClause.OuterKeySelector,
-                                    innerKeySelector.Type);
-                        }
-                        else
-                        {
-                            innerKeySelector
-                                = Expression.Convert(
-                                    innerKeySelector,
-                                    joinClause.OuterKeySelector.Type);
-                        }
-                    }
-
-                    joinClause.InnerKeySelector = innerKeySelector;
+                    QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
+                    var joinClause = BuildJoinFromNavigation(
+                        querySourceReferenceExpression,
+                        navigation,
+                        targetEntityType,
+                        optionalNavigationInChain,
+                        out innerQuerySourceReferenceExpression);
 
                     var additionalBodyClauses = new List<IBodyClause>();
                     if (optionalNavigationInChain || !navigation.ForeignKey.IsRequired)
@@ -664,6 +636,126 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 return Expression.MakeMemberAccess(querySourceReferenceExpression, member);
             }
+        }
+
+        private Expression RewriteSelectManyNavigationsIntoJoins(
+            QuerySourceReferenceExpression outerQuerySourceReferenceExpression,
+            IEnumerable<INavigation> navigations,
+            AdditionalFromClause additionalFromClauseBeingProcessed)
+        {
+            var querySourceReferenceExpression = outerQuerySourceReferenceExpression;
+            var additionalJoinIndex = _queryModel.BodyClauses.IndexOf(additionalFromClauseBeingProcessed);
+            var joinClauses = new List<JoinClause>();
+
+            foreach (var navigation in navigations)
+            {
+                var targetEntityType = navigation.GetTargetType();
+
+                QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
+                var joinClause = BuildJoinFromNavigation(
+                    querySourceReferenceExpression,
+                    navigation,
+                    targetEntityType,
+                    false,
+                    out innerQuerySourceReferenceExpression);
+
+                joinClauses.Add(joinClause);
+
+                querySourceReferenceExpression = innerQuerySourceReferenceExpression;
+            }
+
+            _queryModel.BodyClauses.RemoveAt(additionalJoinIndex);
+            for (int i = 0; i < joinClauses.Count; i++)
+            {
+                _queryModel.BodyClauses.Insert(additionalJoinIndex + i, joinClauses[i]);
+            }
+
+            var querySourceReplacingVisitor = new QuerySourceReplacingExpressionVisitor(
+                additionalFromClauseBeingProcessed, querySourceReferenceExpression);
+
+            var queryModelVisitor = new ExpressionTransformingQueryModelVisitor(querySourceReplacingVisitor);
+            queryModelVisitor.VisitQueryModel(_queryModel);
+
+            return querySourceReferenceExpression;
+        }
+
+        private class QuerySourceReplacingExpressionVisitor : RelinqExpressionVisitor
+        {
+            private IQuerySource _querySourceToReplace;
+            private QuerySourceReferenceExpression _targetQuerySourceReferenceExpression;
+
+            public QuerySourceReplacingExpressionVisitor(
+                IQuerySource querySourceToReplace, 
+                QuerySourceReferenceExpression targetQuerySourceReferenceExpression)
+            {
+                _querySourceToReplace = querySourceToReplace;
+                _targetQuerySourceReferenceExpression = targetQuerySourceReferenceExpression;
+            }
+
+            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+            {
+                if (expression.ReferencedQuerySource == _querySourceToReplace)
+                {
+                    return _targetQuerySourceReferenceExpression;
+                }
+
+                return base.VisitQuerySourceReference(expression);
+            }
+        }
+
+        private JoinClause BuildJoinFromNavigation(
+            QuerySourceReferenceExpression querySourceReferenceExpression,
+            INavigation navigation,
+            IEntityType targetEntityType,
+            bool addNullCheckToOuterKeySelector,
+            out QuerySourceReferenceExpression innerQuerySourceReferenceExpression)
+        {
+            var outerKeySelector =
+                CreateKeyAccessExpression(
+                    querySourceReferenceExpression,
+                    navigation.IsDependentToPrincipal()
+                        ? navigation.ForeignKey.Properties
+                        : navigation.ForeignKey.PrincipalKey.Properties,
+                        addNullCheck: addNullCheckToOuterKeySelector);
+
+            var joinClause
+                = new JoinClause(
+                    $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}",
+                    targetEntityType.ClrType,
+                    CreateEntityQueryable(targetEntityType),
+                    outerKeySelector,
+                    Expression.Constant(null));
+
+            innerQuerySourceReferenceExpression = new QuerySourceReferenceExpression(joinClause);
+
+            var innerKeySelector
+                = CreateKeyAccessExpression(
+                    innerQuerySourceReferenceExpression,
+                    navigation.IsDependentToPrincipal()
+                        ? navigation.ForeignKey.PrincipalKey.Properties
+                        : navigation.ForeignKey.Properties);
+
+            if (innerKeySelector.Type != joinClause.OuterKeySelector.Type)
+            {
+                if (innerKeySelector.Type.IsNullableType())
+                {
+                    joinClause.OuterKeySelector
+                        = Expression.Convert(
+                            joinClause.OuterKeySelector,
+                            innerKeySelector.Type);
+                }
+                else
+                {
+                    innerKeySelector
+                        = Expression.Convert(
+                            innerKeySelector,
+                            joinClause.OuterKeySelector.Type);
+                }
+            }
+
+            joinClause.InnerKeySelector = innerKeySelector;
+
+            return joinClause;
         }
 
         private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties, bool addNullCheck = false)
@@ -759,24 +851,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
             => new EntityQueryable<TResult>(entityQueryProvider);
 
-        private class NavigationRewritingQueryModelVisitor : QueryModelVisitorBase
+        private class NavigationRewritingQueryModelVisitor : ExpressionTransformingQueryModelVisitor
         {
-            private readonly NavigationRewritingExpressionVisitor _parentVisitor;
             private readonly SubqueryInjector _subqueryInjector;
 
             public bool InsideInnerKeySelector { get; private set; }
 
-            public NavigationRewritingQueryModelVisitor(NavigationRewritingExpressionVisitor parentVisitor, EntityQueryModelVisitor queryModelVisitor)
+            public AdditionalFromClause AdditionalFromClauseBeingProcessed { get; private set; }
+
+            public NavigationRewritingQueryModelVisitor(NavigationRewritingExpressionVisitor transformingVisitor, EntityQueryModelVisitor queryModelVisitor)
+                : base(transformingVisitor)
             {
-                _parentVisitor = parentVisitor;
                 _subqueryInjector = new SubqueryInjector(queryModelVisitor);
             }
 
-            public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
-                => fromClause.TransformExpressions(_parentVisitor.Visit);
-
             public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
-                => fromClause.TransformExpressions(_parentVisitor.Visit);
+            {
+                var oldAdditionalFromClause = AdditionalFromClauseBeingProcessed;
+                AdditionalFromClauseBeingProcessed = fromClause;
+                fromClause.TransformExpressions(TransformingVisitor.Visit);
+                AdditionalFromClauseBeingProcessed = oldAdditionalFromClause;
+            }
 
             public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
                 => VisitJoinClauseInternal(joinClause);
@@ -786,12 +881,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             private void VisitJoinClauseInternal(JoinClause joinClause)
             {
-                joinClause.InnerSequence = _parentVisitor.Visit(joinClause.InnerSequence);
-                joinClause.OuterKeySelector = _parentVisitor.Visit(joinClause.OuterKeySelector);
+                joinClause.InnerSequence = TransformingVisitor.Visit(joinClause.InnerSequence);
+                joinClause.OuterKeySelector = TransformingVisitor.Visit(joinClause.OuterKeySelector);
 
                 var oldInsideInnerKeySelector = InsideInnerKeySelector;
                 InsideInnerKeySelector = true;
-                joinClause.InnerKeySelector = _parentVisitor.Visit(joinClause.InnerKeySelector);
+                joinClause.InnerKeySelector = TransformingVisitor.Visit(joinClause.InnerKeySelector);
 
                 if (joinClause.OuterKeySelector.Type.IsNullableType() && !joinClause.InnerKeySelector.Type.IsNullableType())
                 {
@@ -806,26 +901,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 InsideInnerKeySelector = oldInsideInnerKeySelector;
             }
 
-            public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
-                => whereClause.TransformExpressions(_parentVisitor.Visit);
-
-            public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
-                => orderByClause.TransformExpressions(_parentVisitor.Visit);
-
-            public override void VisitOrdering(Ordering ordering, QueryModel queryModel, OrderByClause orderByClause, int index)
-                => ordering.TransformExpressions(_parentVisitor.Visit);
-
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
             {
                 var newSelector = _subqueryInjector.Visit(selectClause.Selector);
 
                 selectClause.Selector = newSelector;
 
-                selectClause.TransformExpressions(_parentVisitor.Visit);
+                selectClause.TransformExpressions(TransformingVisitor.Visit);
             }
-
-            public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
-                => resultOperator.TransformExpressions(_parentVisitor.Visit);
 
             private class SubqueryInjector : RelinqExpressionVisitor
             {

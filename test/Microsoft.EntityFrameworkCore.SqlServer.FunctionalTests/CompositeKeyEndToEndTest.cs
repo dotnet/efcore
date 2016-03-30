@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -17,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -62,9 +61,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public async Task Can_use_generated_values_in_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             long id1;
@@ -123,9 +120,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniquness()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             var ids = new int[3];
@@ -181,11 +176,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class BronieContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly string _databaseName;
 
             public BronieContext(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _databaseName = databaseName;
             }
 
@@ -194,26 +190,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public DbSet<EarthPony> EarthPonies { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Pegasus>().HasKey(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<Pegasus>(b =>
+                    {
+                        b.ToTable("Pegasus");
+                        b.HasKey(e => new { e.Id1, e.Id2 });
+                    });
 
                 modelBuilder.Entity<Unicorn>(b =>
                     {
+                        b.ToTable("Unicorn");
                         b.HasKey(e => new { e.Id1, e.Id2, e.Id3 });
                         b.Property(e => e.Id1).UseSqlServerIdentityColumn();
                         b.Property(e => e.Id3).ValueGeneratedOnAdd();
                     });
 
                 modelBuilder.Entity<EarthPony>(b =>
-                {
-                    b.HasKey(e => new { e.Id1, e.Id2});
-                    b.Property(e => e.Id1).UseSqlServerIdentityColumn();
-                });
+                    {
+                        b.ToTable("EarthPony");
+                        b.HasKey(e => new { e.Id1, e.Id2 });
+                        b.Property(e => e.Id1).UseSqlServerIdentityColumn();
+                    });
             }
         }
 

@@ -42,6 +42,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override string ToString() => DeclaringEntityType + "." + Name;
 
         public static bool IsCompatible(
+            [NotNull] string navigationName,
+            bool pointsToPrincipal,
+            [NotNull] EntityType dependentType,
+            [NotNull] EntityType principalType,
+            bool shouldThrow,
+            out bool? shouldBeUnique)
+        {
+            shouldBeUnique = null;
+            if (!pointsToPrincipal)
+            {
+                var canBeUnique = IsCompatible(navigationName, principalType, dependentType, shouldBeCollection: false, shouldThrow: false);
+                var canBeNonUnique = IsCompatible(navigationName, principalType, dependentType, shouldBeCollection: true, shouldThrow: false);
+
+                if (canBeUnique != canBeNonUnique)
+                {
+                    shouldBeUnique = canBeUnique;
+                }
+                else if (!canBeUnique)
+                {
+                    if (shouldThrow)
+                    {
+                        IsCompatible(navigationName, principalType, dependentType, shouldBeCollection: false, shouldThrow: true);
+                    }
+
+                    return false;
+                }
+            }
+            else if (!IsCompatible(navigationName, dependentType, principalType, shouldBeCollection: false, shouldThrow: shouldThrow))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool IsCompatible(
             [NotNull] string navigationPropertyName,
             [NotNull] EntityType sourceType,
             [NotNull] EntityType targetType,

@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Update;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 {
     public abstract class UpdateSqlGeneratorTestBase
     {

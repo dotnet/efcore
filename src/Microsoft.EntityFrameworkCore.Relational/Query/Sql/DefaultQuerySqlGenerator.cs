@@ -66,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             SelectExpression = selectExpression;
         }
 
+        public virtual bool IsCacheable { get; private set; }
+
         protected virtual SelectExpression SelectExpression { get; }
 
         protected virtual ISqlGenerationHelper SqlGenerator => _sqlGenerationHelper;
@@ -80,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
 
             _parametersValues = parameterValues;
+            IsCacheable = true;
 
             Visit(SelectExpression);
 
@@ -340,28 +343,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         substitutions = new string[argumentValues.Length];
 
-                        for (var i = 0; i < argumentValues.Length; i++)
-                        {
-                            var parameterName = _parameterNameGenerator.GenerateNext();
+                        _relationalCommandBuilder.AddCompositeParameter(
+                            parameterExpression.Name,
+                            builder =>
+                            {
+                                for (var i = 0; i < argumentValues.Length; i++)
+                                {
+                                    var parameterName = _parameterNameGenerator.GenerateNext();
 
-                            substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+                                    substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
 
-                            var value = argumentValues[i];
-
-                            relationalParameters[i]
-                                = _relationalCommandBuilder
-                                    .CreateParameter(
-                                        substitutions[i],
-                                        value,
-                                        t => t.GetMappingForValue(value),
-                                        value?.GetType().IsNullableType(),
-                                        parameterName);
-                        }
-
-                        _relationalCommandBuilder.AddParameter(
-                            new CompositeRelationalParameter(
-                                parameterExpression.Name,
-                                relationalParameters));
+                                    builder.AddParameter(
+                                        parameterName,
+                                        substitutions[i]);
+                                }
+                            });
                     }
 
                     break;
@@ -405,14 +401,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             {
                                 var parameter = (ParameterExpression)expression;
 
-                                object value;
-                                if (_parametersValues.TryGetValue(parameter.Name, out value))
+                                if (_parametersValues.ContainsKey(parameter.Name))
                                 {
-                                    var parameterName = _sqlGenerationHelper.GenerateParameterName(parameter.Name);
+                                    substitutions[i] = _sqlGenerationHelper.GenerateParameterName(parameter.Name);
 
-                                    substitutions[i] = parameterName;
-
-                                    _relationalCommandBuilder.AddParameter(parameterName, value, parameter.Name);
+                                    _relationalCommandBuilder.AddParameter(
+                                        parameter.Name,
+                                        substitutions[i]);
                                 }
 
                                 break;
@@ -644,6 +639,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
                         {
                             AddInExpressionValues(parameterValue, inConstants, inParameter);
+
+                            IsCacheable = false;
                         }
                     }
                     else
@@ -1125,13 +1122,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(expression, nameof(expression));
 
-            object value;
-            if (_parametersValues.TryGetValue(expression.Name, out value))
-            {
-                var name = _sqlGenerationHelper.GenerateParameterName(expression.Name);
+            var name = _sqlGenerationHelper.GenerateParameterName(expression.Name);
 
-                _relationalCommandBuilder.AppendParameter(name, value, expression.Type, expression.Name);
+            if (_relationalCommandBuilder.ParameterBuilder.Parameters.All(p => p.InvariantName != expression.Name))
+            {
+                _relationalCommandBuilder.AddParameter(
+                    expression.Name,
+                    name,
+                    expression.Type);
             }
+
+            _relationalCommandBuilder.Append(name);
 
             return expression;
         }

@@ -5,20 +5,24 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
+#if NETSTANDARDAPP1_5
+using System.Reflection;
+using Microsoft.CodeAnalysis;
+#endif
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class SqlServerE2ETests : E2ETestBase, IClassFixture<SqlServerE2EFixture>
     {
         protected override string ProviderName => "Microsoft.EntityFrameworkCore.SqlServer.Design";
@@ -57,36 +61,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         {
         }
 
-        protected override E2ECompiler GetCompiler() => new E2ECompiler
-        {
-            NamedReferences =
-            {
-                "Microsoft.EntityFrameworkCore",
-                "Microsoft.EntityFrameworkCore.Relational",
-                // ReSharper disable once RedundantCommaInInitializer
-                "Microsoft.EntityFrameworkCore.SqlServer",
-#if DNXCORE50
-                        "System.Data.Common",
-                        "System.Linq.Expressions",
-                        "System.Reflection",
-                        "System.ComponentModel.Annotations",
-#else
-            },
-            References =
-            {
-                MetadataReference.CreateFromFile(
-                    Assembly.Load(new AssemblyName(
-                        "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
-                MetadataReference.CreateFromFile(
-                    Assembly.Load(new AssemblyName(
-                        "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location)
-#endif
-            }
-        };
-
-        // weird extenstion method call because the compiler can't disambiguate without adding a project reference
-        // ApplyConfiguration swaps out the Server if this tests are configured to run against something different that localdb.
-        // ReSharper disable once InvokeAsExtensionMethod
         private readonly string _connectionString =
             new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
@@ -112,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "UnmappablePKColumn.expected"
         };
 
-        [Fact]
+        [ConditionalFact]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
@@ -150,10 +124,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex"),
+                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
                     SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
+                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
                     RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn")
                 }
             });
@@ -161,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             AssertCompile(actualFileSet);
         }
 
-        [Fact]
+        [ConditionalFact]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
@@ -198,10 +172,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
-                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex"),
+                    RelationalDesignStrings.UnableToScaffoldIndexMissingProperty("IX_UnscaffoldableIndex", "sql_variantColumn,hierarchyidColumn"),
                     SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID", "tinyint"),
                     RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
+                    RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn", "TableWithUnmappablePrimaryKeyColumnID"),
                     RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn")
                 }
             });
@@ -279,5 +253,27 @@ CREATE SEQUENCE NumericSequence
                 AssertCompile(actualFileSet);
             }
         }
+
+        protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
+        {
+#if NETSTANDARDAPP1_5
+            BuildReference.ByName("System.Collections"),
+            BuildReference.ByName("System.Data.Common"),
+            BuildReference.ByName("System.Linq.Expressions"),
+            BuildReference.ByName("System.Reflection"),
+            BuildReference.ByName("System.ComponentModel.Annotations"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", depContextAssembly: typeof(SqlServerE2ETests).GetTypeInfo().Assembly),
+#else
+            BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+            BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
+#endif
+            BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+            BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions"),
+            BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions")
+        };
     }
 }

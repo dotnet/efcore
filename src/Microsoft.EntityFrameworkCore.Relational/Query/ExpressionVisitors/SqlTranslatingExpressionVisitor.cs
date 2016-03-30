@@ -88,7 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         var left = Visit(expression.Left);
                         var right = Visit(expression.Right);
 
-                        return new AliasExpression(expression.Update(left, expression.Conversion, right));
+                        return left != null && right != null
+                            ? new AliasExpression(expression.Update(left, expression.Conversion, right))
+                            : null;
                     }
 
                 case ExpressionType.Equal:
@@ -547,7 +549,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             var aliasExpression = (AliasExpression)VisitMember(memberItem);
 
-                            return new InExpression(aliasExpression, new[] { fromExpression });
+                            return aliasExpression != null
+                                ? new InExpression(aliasExpression, new[] { fromExpression })
+                                : null;
                         }
 
                         var methodCallItem = contains.Item as MethodCallExpression;

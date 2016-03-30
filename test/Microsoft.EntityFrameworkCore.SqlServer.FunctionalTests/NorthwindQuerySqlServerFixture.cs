@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -24,9 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             _serviceProvider
                 = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .ServiceCollection()
+                    .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
                     .BuildServiceProvider();
@@ -35,27 +34,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         protected DbContextOptions BuildOptions()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-
-            var sqlServerDbContextOptionsBuilder
-                = optionsBuilder
-                    .EnableSensitiveDataLogging()
-                    .UseSqlServer(_testStore.ConnectionString);
-
-            ConfigureOptions(sqlServerDbContextOptionsBuilder);
-
-            sqlServerDbContextOptionsBuilder.ApplyConfiguration();
-
-            return optionsBuilder.Options;
-        }
+            => new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseSqlServer(
+                    _testStore.ConnectionString,
+                    b =>
+                        {
+                            ConfigureOptions(b);
+                            b.ApplyConfiguration();
+                        }).Options;
 
         protected virtual void ConfigureOptions(SqlServerDbContextOptionsBuilder sqlServerDbContextOptionsBuilder)
         {
         }
 
         public override NorthwindContext CreateContext() 
-            => new SqlServerNorthwindContext(_serviceProvider, _options);
+            => new SqlServerNorthwindContext(_options);
 
         public void Dispose() => _testStore.Dispose();
 

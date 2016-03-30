@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.ModelConventions
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 {
     public class ModelCleanupConventionTest
     {

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
 
-            var attributes = navigation.DeclaringEntityType?.ClrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == navigation.Name)?.GetCustomAttributes<TAttribute>(true);
+            var attributes = GetAttributes<TAttribute>(navigation.DeclaringEntityType, navigation.Name);
 
             if (attributes != null)
             {
@@ -35,5 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         public abstract InternalRelationshipBuilder Apply([NotNull] InternalRelationshipBuilder relationshipBuilder, [NotNull] Navigation navigation, [NotNull] TAttribute attribute);
+
+        protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>([NotNull] EntityType entityType, [NotNull] string propertyName)
+            where TCustomAttribute : Attribute
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(propertyName, nameof(propertyName));
+
+            return entityType.ClrType?.GetRuntimeProperties().FirstOrDefault(p => p.Name == propertyName)
+                ?.GetCustomAttributes<TCustomAttribute>(true);
+        }
     }
 }

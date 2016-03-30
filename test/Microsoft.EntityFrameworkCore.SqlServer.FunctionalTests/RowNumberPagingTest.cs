@@ -100,7 +100,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
 
 SELECT [t].[c0], [t].[OrderID]
 FROM (
-    SELECT ([c].[ContactName] + ' ') + [c].[ContactTitle] AS [c0], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    SELECT ([c].[ContactName] + N' ') + [c].[ContactTitle] AS [c0], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]
@@ -163,11 +163,11 @@ SELECT DISTINCT [t0].*
 FROM (
     SELECT [t1].*
     FROM (
-        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY COALESCE([t].[Region], 'ZZ')) AS [__RowNumber__]
+        SELECT [t].*, ROW_NUMBER() OVER(ORDER BY COALESCE([t].[Region], N'ZZ')) AS [__RowNumber__]
         FROM (
             SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
-            ORDER BY COALESCE([c].[Region], 'ZZ')
+            ORDER BY COALESCE([c].[Region], N'ZZ')
         ) AS [t]
     ) AS [t1]
     WHERE [t1].[__RowNumber__] > @__p_1
@@ -186,7 +186,7 @@ SELECT [t0].*
 FROM (
     SELECT [t].*, ROW_NUMBER() OVER(ORDER BY [Coalesce]) AS [__RowNumber__]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], 'ZZ') AS [Coalesce]
+        SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Coalesce]
         FROM [Customers] AS [c]
         ORDER BY [Coalesce]
     ) AS [t]

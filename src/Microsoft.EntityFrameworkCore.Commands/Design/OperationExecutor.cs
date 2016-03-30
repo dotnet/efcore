@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var startupTargetName = (string)args["startupTargetName"];
             var environment = (string)args["environment"];
             var projectDir = (string)args["projectDir"];
+            var startupProjectDir = (string)args["startupProjectDir"];
             var rootNamespace = (string)args["rootNamespace"];
 
             var assemblyLoader = new AssemblyLoader();
@@ -53,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                     loggerProvider,
                     assembly,
                     startupAssembly,
-                    environment));
+                    environment,
+                    startupProjectDir));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     assemblyLoader,
@@ -61,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     startupAssembly,
                     environment,
                     projectDir,
+                    startupProjectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
@@ -70,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     startupAssembly,
                     environment,
                     projectDir,
+                    startupProjectDir,
                     rootNamespace));
         }
 

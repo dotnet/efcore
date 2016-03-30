@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -14,42 +13,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
-            if (!foreignKey.Properties.All(fk => fk.IsShadowProperty))
+            var foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true);
+            if (foreignKeyProperties == null)
             {
-                return relationshipBuilder;
-            }
-
-            var foreignKeyProperties = FindCandidateForeignKeyProperties(
-                foreignKey, onDependent: true);
-
-            if (foreignKey.IsUnique
-                && !foreignKey.IsSelfPrimaryKeyReferencing())
-            {
-                var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(
-                    foreignKey, onDependent: false);
-
-                if (candidatePropertiesOnPrincipal != null)
+                // Try to invert if one to one or can be converted to one to one
+                if (foreignKey.IsUnique
+                    || (foreignKey.PrincipalToDependent == null))
                 {
-                    if ((foreignKeyProperties == null)
-                        && relationshipBuilder.CanInvert(candidatePropertiesOnPrincipal, ConfigurationSource.Convention))
+                    var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
+                    if (candidatePropertiesOnPrincipal != null
+                        && !foreignKey.PrincipalEntityType.FindForeignKeysInHierarchy(candidatePropertiesOnPrincipal).Any())
                     {
-                        // Invert only if principal side has matching property & dependent does not have
-                        relationshipBuilder = relationshipBuilder
-                            .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention)
-                            .HasForeignKey(candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
+                        var invertedRelationshipBuilder = relationshipBuilder
+                            .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
 
-                        Debug.Assert(relationshipBuilder != null);
-                        return relationshipBuilder;
+                        return invertedRelationshipBuilder ?? relationshipBuilder;
                     }
-
-                    // Return if both sides have matching property
-                    return relationshipBuilder;
                 }
 
-                // Only match with PK if the principal end is set
-                if ((!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                     || !ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalKeyConfigurationSource()))
-                    && (foreignKeyProperties == null))
+                // Try to use PK properties if principal end is not ambiguous
+                if (foreignKey.IsUnique
+                    && !foreignKey.IsSelfReferencing()
+                    && !ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
                     foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
                         foreignKey.DeclaringEntityType,
@@ -57,34 +42,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         foreignKey.PrincipalKey.Properties);
                 }
             }
-            else if ((foreignKey.DependentToPrincipal != null)
-                     && !foreignKey.DependentToPrincipal.IsCollection()
-                     && (foreignKey.PrincipalToDependent == null))
-            {
-                // Single reference navigation which can be converted to one to one
-                var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(
-                    foreignKey, onDependent: false);
-
-                if (candidatePropertiesOnPrincipal != null)
-                {
-                    if ((foreignKeyProperties == null)
-                        && relationshipBuilder.CanInvert(candidatePropertiesOnPrincipal, ConfigurationSource.Convention))
-                    {
-                        // Invert and set one to one if principal side has matching property & dependent side does not have
-                        relationshipBuilder = relationshipBuilder
-                            .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention)
-                            .HasForeignKey(candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
-
-                        Debug.Assert(relationshipBuilder != null);
-                        return relationshipBuilder;
-                    }
-                }
-            }
 
             if ((foreignKeyProperties == null)
-                || (foreignKey.DeclaringEntityType.FindForeignKey(foreignKeyProperties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType) != null))
+                || foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties).Any())
             {
                 return relationshipBuilder;
+            }
+
+            if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
+                && !foreignKey.IsSelfReferencing())
+            {
+                var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
+                if (candidatePropertiesOnPrincipal != null
+                    && !foreignKey.PrincipalEntityType.FindForeignKeysInHierarchy(candidatePropertiesOnPrincipal).Any())
+                {
+                    // Ambiguous principal end
+                    if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() == ConfigurationSource.Convention)
+                    {
+                        relationshipBuilder.Metadata.SetPrincipalEndConfigurationSource(null);
+                    }
+                    return relationshipBuilder;
+                }
             }
 
             var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
@@ -226,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var property in entityType.GetProperties())
             {
                 if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
-                    && (!property.IsShadowProperty || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource())) 
+                    && (!property.IsShadowProperty || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
                     && (property.ClrType.UnwrapNullableType() == type))
                 {
                     return property;

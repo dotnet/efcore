@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -15,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public TransactionSqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
@@ -47,19 +46,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         public override DbContext CreateContext(SqlServerTestStore testStore)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.ConnectionString);
-
-            return new DbContext(_serviceProvider, optionsBuilder.Options);
-        }
+            => new DbContext(new DbContextOptionsBuilder()
+                .UseSqlServer(testStore.ConnectionString)
+                .UseInternalServiceProvider(_serviceProvider).Options);
 
         public override DbContext CreateContext(DbConnection connection)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(connection);
-
-            return new DbContext(_serviceProvider, optionsBuilder.Options);
-        }
+            => new DbContext(new DbContextOptionsBuilder()
+                .UseSqlServer(connection)
+                .UseInternalServiceProvider(_serviceProvider).Options);
     }
 }

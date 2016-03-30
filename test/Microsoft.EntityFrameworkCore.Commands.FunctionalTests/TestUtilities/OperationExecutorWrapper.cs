@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if DNX451
+#if NET451
 
 using System;
 using System.Collections;
@@ -20,7 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
         private readonly AppDomain _domain;
         private readonly object _executor;
 
-        public OperationExecutorWrapper(string targetDir, string targetName, string projectDir, string rootNamespace)
+        public OperationExecutorWrapper(
+            string targetDir,
+            string targetName,
+            string projectDir,
+            string startupProjectDir,
+            string rootNamespace)
         {
             _targetDir = targetDir;
             _domain = AppDomain.CreateDomain(
@@ -47,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                                 { "targetName", targetName },
                                 { "startupTargetName", targetName },
                                 { "projectDir", projectDir },
+                                { "startupProjectDir", startupProjectDir },
                                 { "rootNamespace", rootNamespace }
                             }
                     },
@@ -66,13 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                 new Hashtable { { "name", name }, { "outputDir", outputDir }, { "contextType", contextType } });
         }
 
-        public void UpdateDatabase(string targetMigration, string contextType)
-        {
-            InvokeOperation(
-                "UpdateDatabase",
-                new Hashtable { { "targetMigration", targetMigration }, { "contextType", contextType } });
-        }
-
         public string ScriptMigration(
             string fromMigration,
             string toMigration,
@@ -90,9 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                     });
         }
 
-        public string RemoveMigration(string contextType)
-            => InvokeOperation<string>("RemoveMigration", new Hashtable { { "contextType", contextType } });
-
         public IEnumerable<IDictionary> GetContextTypes()
         {
             return InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
@@ -104,24 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                 "GetMigrations",
                 new Hashtable { { "contextType", contextType } });
         }
-
-        public IEnumerable<string> ReverseEngineer(
-            string connectionString,
-            string provider,
-            string relativeOutputDir,
-            bool useFluentApiOnly)
-            => InvokeOperation<IEnumerable<string>>(
-                "ReverseEngineer",
-                new Hashtable
-                {
-                    { "connectionString", connectionString },
-                    { "provider", provider },
-                    { "relativeOutputDir", relativeOutputDir },
-                    { "useFluentApiOnly", useFluentApiOnly }
-                });
-
-        public IEnumerable<string> ScaffoldRuntimeDirectives()
-            => InvokeOperation<IEnumerable<string>>("ScaffoldRuntimeDirectives", new Hashtable());
 
         public void Dispose()
         {

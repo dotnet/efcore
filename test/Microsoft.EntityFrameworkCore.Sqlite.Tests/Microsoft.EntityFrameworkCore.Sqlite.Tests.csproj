@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7E436D99-82A6-496C-A725-0819CBED056D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite.Tests</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="DbSetAsTableNameSqliteTest.cs" />
+    <Compile Include="Infrastructure\SqliteServiceCollectionExtensionsTest.cs" />
+    <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\Conventions\SqliteConventionSetBuilderTests.cs" />
+    <Compile Include="Metadata\Internal\SqliteInternalMetadataBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqliteMetadataExtensionsTest.cs" />
+    <Compile Include="Migrations\SqliteHistoryRepositoryTest.cs" />
+    <Compile Include="Migrations\SqliteMigrationAnnotationProviderTest.cs" />
+    <Compile Include="Migrations\SqliteMigrationSqlGeneratorTest.cs" />
+    <Compile Include="SqliteDbContextOptionsBuilderExtensionsTest.cs" />
+    <Compile Include="SqliteModelValidatorTest.cs" />
+    <Compile Include="Storage\SqliteSqlGeneratorTest.cs" />
+    <Compile Include="Storage\SqliteTypeMappingTest.cs" />
+    <Compile Include="Update\SqliteUpdateSqlGeneratorTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+      <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite\Microsoft.EntityFrameworkCore.Sqlite.csproj">
+      <Project>{a257c01b-bb91-44ba-831c-1e04f7800ac8}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
+      <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
+      <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.FunctionalTests.csproj">
+      <Project>{47c167c3-abb0-442d-b528-7666e1fbf19a}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Tests\Microsoft.EntityFrameworkCore.Relational.Tests.csproj">
+      <Project>{1a884122-dc9e-42b1-8821-e43340f954d1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests\Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.csproj">
+      <Project>{7bb7d051-56d7-4a40-a29e-3801f5c19239}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Tests\Microsoft.EntityFrameworkCore.Tests.csproj">
+      <Project>{313f46fe-9962-4a15-805f-fcbdf5a6181e}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Tests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

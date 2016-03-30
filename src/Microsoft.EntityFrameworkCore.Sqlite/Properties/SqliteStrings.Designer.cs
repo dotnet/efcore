@@ -2,13 +2,15 @@
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     using System.Diagnostics;
+    using System.Globalization;
     using System.Reflection;
     using System.Resources;
+    using JetBrains.Annotations;
 
     public static class SqliteStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.SqliteStrings", typeof(SqliteStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// SQLite does not support this migration operation. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.

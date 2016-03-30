@@ -20,23 +20,24 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public MappingQuerySqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlite()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
             _testDatabase = SqliteNorthwindContext.GetSharedStore();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
-            optionsBuilder.UseSqlite(_testDatabase.ConnectionString)
-                .SuppressForeignKeyEnforcement();
-            _options = optionsBuilder.Options;
+            _options = new DbContextOptionsBuilder()
+                .UseModel(CreateModel())
+                .UseSqlite(
+                    _testDatabase.ConnectionString,
+                    b => b.SuppressForeignKeyEnforcement())
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
         }
 
         public DbContext CreateContext()
         {
-            var context = new DbContext(_serviceProvider, _options);
+            var context = new DbContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

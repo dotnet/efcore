@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -10,34 +11,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class DependentsMap<TKey> : IDependentsMap
     {
-        private readonly IEntityType _entityType;
+        private readonly IForeignKey _foreignKey;
         private readonly IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
         private readonly IDependentKeyValueFactory<TKey> _dependentKeyValueFactory;
-        private readonly Dictionary<TKey, List<InternalEntityEntry>> _map;
+        private readonly Dictionary<TKey, HashSet<InternalEntityEntry>> _map;
 
         public DependentsMap(
             [NotNull] IForeignKey foreignKey,
             [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
             [NotNull] IDependentKeyValueFactory<TKey> dependentKeyValueFactory)
         {
-            _entityType = foreignKey.DeclaringEntityType;
+            _foreignKey = foreignKey;
             _principalKeyValueFactory = principalKeyValueFactory;
             _dependentKeyValueFactory = dependentKeyValueFactory;
-            _map = new Dictionary<TKey, List<InternalEntityEntry>>(principalKeyValueFactory.EqualityComparer);
+            _map = new Dictionary<TKey, HashSet<InternalEntityEntry>>(principalKeyValueFactory.EqualityComparer);
         }
 
         public virtual void Add(InternalEntityEntry entry)
         {
             TKey key;
-            if (_entityType.IsAssignableFrom(entry.EntityType)
-                && _dependentKeyValueFactory.TryCreateFromCurrentValues(entry, out key))
+            if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
+                && TryCreateFromCurrentValues(entry, out key))
             {
-                List<InternalEntityEntry> dependents;
+                HashSet<InternalEntityEntry> dependents;
                 if (!_map.TryGetValue(key, out dependents))
                 {
-                    dependents = new List<InternalEntityEntry>();
+                    dependents = new HashSet<InternalEntityEntry>();
                     _map[key] = dependents;
                 }
+
                 dependents.Add(entry);
             }
         }
@@ -45,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void Remove(InternalEntityEntry entry)
         {
             TKey key;
-            if (_entityType.IsAssignableFrom(entry.EntityType)
-                && _dependentKeyValueFactory.TryCreateFromCurrentValues(entry, out key))
+            if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
+                && TryCreateFromCurrentValues(entry, out key))
             {
-                List<InternalEntityEntry> dependents;
+                HashSet<InternalEntityEntry> dependents;
                 if (_map.TryGetValue(key, out dependents))
                 {
                     dependents.Remove(entry);
@@ -58,31 +60,47 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual void Update(InternalEntityEntry entry)
         {
-            if (_entityType.IsAssignableFrom(entry.EntityType))
+            if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType))
             {
                 TKey key;
-                List<InternalEntityEntry> dependents;
+                HashSet<InternalEntityEntry> dependents;
                 if (_dependentKeyValueFactory.TryCreateFromRelationshipSnapshot(entry, out key)
                     && _map.TryGetValue(key, out dependents))
                 {
                     dependents.Remove(entry);
                 }
 
-                if (_dependentKeyValueFactory.TryCreateFromCurrentValues(entry, out key))
+                if (TryCreateFromCurrentValues(entry, out key))
                 {
                     if (!_map.TryGetValue(key, out dependents))
                     {
-                        dependents = new List<InternalEntityEntry>();
+                        dependents = new HashSet<InternalEntityEntry>();
                         _map[key] = dependents;
                     }
+
                     dependents.Add(entry);
                 }
             }
         }
 
+        private bool TryCreateFromCurrentValues(InternalEntityEntry entry, out TKey key)
+        {
+            // TODO: Move into delegate
+            foreach (var property in _foreignKey.Properties)
+            {
+                if (entry.IsConceptualNull(property))
+                {
+                    key = default(TKey);
+                    return false;
+                }
+            }
+
+            return _dependentKeyValueFactory.TryCreateFromCurrentValues(entry, out key);
+        }
+
         public virtual IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry)
         {
-            List<InternalEntityEntry> dependents;
+            HashSet<InternalEntityEntry> dependents;
             return _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry), out dependents)
                 ? dependents
                 : Enumerable.Empty<InternalEntityEntry>();
@@ -90,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(InternalEntityEntry principalEntry)
         {
-            List<InternalEntityEntry> dependents;
+            HashSet<InternalEntityEntry> dependents;
             return _map.TryGetValue(_principalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), out dependents)
                 ? dependents
                 : Enumerable.Empty<InternalEntityEntry>();

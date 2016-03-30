@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _entityMaterializerSource = entityMaterializerSource;
         }
 
-        public virtual Expression CreateMaterializer(IEntityType entityType)
+        public virtual Expression<Func<IEntityType, ValueBuffer, object>> CreateMaterializer(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 

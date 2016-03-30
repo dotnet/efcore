@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IPropertyCountsAccessor,
         ISnapshotFactorySource
     {
-        private readonly SortedDictionary<IReadOnlyList<IProperty>, ForeignKey> _foreignKeys
-            = new SortedDictionary<IReadOnlyList<IProperty>, ForeignKey>(PropertyListComparer.Instance);
+        private readonly SortedSet<ForeignKey> _foreignKeys
+            = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance);
 
         private readonly SortedDictionary<string, Navigation> _navigations
             = new SortedDictionary<string, Navigation>(StringComparer.Ordinal);
@@ -564,7 +564,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var duplicateForeignKey = FindForeignKeysInHierarchy(properties, principalKey, principalEntityType).FirstOrDefault();
             if (duplicateForeignKey != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateForeignKey(Property.Format(properties), this.DisplayName(), duplicateForeignKey.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateForeignKey(
+                    Property.Format(properties),
+                    this.DisplayName(),
+                    duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                    Property.Format(principalKey.Properties),
+                    principalEntityType.DisplayName()));
             }
 
             var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType, configurationSource ?? ConfigurationSource.Convention);
@@ -581,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new ArgumentException(CoreStrings.EntityTypeModelMismatch(this, principalEntityType));
             }
 
-            _foreignKeys.Add(properties, foreignKey);
+            _foreignKeys.Add(foreignKey);
 
             foreach (var property in properties)
             {
@@ -603,7 +608,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (runConventions)
             {
                 var builder = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder);
-                if (builder != null)
+                if (builder != null
+                    && configurationSource.HasValue)
                 {
                     builder = Model.ConventionDispatcher.OnPrincipalEndSet(builder);
                 }
@@ -631,26 +637,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
 
-            var declaredForeignKeys = FindDeclaredForeignKeys(properties);
-            return _baseType == null
-                ? declaredForeignKeys
-                : declaredForeignKeys.Concat(_baseType.FindForeignKeys(properties));
+            return _baseType?.FindForeignKeys(properties)?.Concat(FindDeclaredForeignKeys(properties))
+                   ?? FindDeclaredForeignKeys(properties);
         }
 
         public virtual ForeignKey FindForeignKey(
-            [NotNull] IProperty property, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType)
+            [NotNull] IProperty property,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType)
             => FindForeignKey(new[] { property }, principalKey, principalEntityType);
-
+        
         public virtual ForeignKey FindForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType)
         {
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
+            Check.NotNull(principalKey, nameof(principalKey));
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            return FindForeignKeys(properties).SingleOrDefault();
+            return FindDeclaredForeignKey(properties, principalKey, principalEntityType)
+               ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
         }
 
-        public virtual IEnumerable<ForeignKey> GetDeclaredForeignKeys() => _foreignKeys.Values;
+        public virtual IEnumerable<ForeignKey> GetDeclaredForeignKeys() => _foreignKeys;
 
         public virtual IEnumerable<ForeignKey> GetDerivedForeignKeys()
             => GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
@@ -659,18 +670,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(properties, nameof(properties));
 
-            ForeignKey foreignKey;
-            return _foreignKeys.TryGetValue(properties, out foreignKey)
-                ? new[] { foreignKey }
-                : new ForeignKey[0];
+            return _foreignKeys.Where(fk => PropertyListComparer.Instance.Equals(fk.Properties, properties));
         }
 
         public virtual ForeignKey FindDeclaredForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType)
         {
             Check.NotEmpty(properties, nameof(properties));
+            Check.NotNull(principalKey, nameof(principalKey));
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            return FindDeclaredForeignKeys(properties).SingleOrDefault();
+            return FindDeclaredForeignKeys(properties).SingleOrDefault(fk =>
+                PropertyListComparer.Instance.Equals(fk.PrincipalKey.Properties, principalKey.Properties) &&
+                StringComparer.Ordinal.Equals(fk.PrincipalEntityType.Name, principalEntityType.Name));
         }
 
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
@@ -678,7 +692,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => GetDerivedTypes().SelectMany(et => et.FindDeclaredForeignKeys(properties));
 
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
-            [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType)
             => GetDerivedTypes().Select(et => et.FindDeclaredForeignKey(properties, principalKey, principalEntityType))
                 .Where(fk => fk != null);
 
@@ -687,7 +703,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
 
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
-            [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType)
             => ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
                 .Concat(FindDerivedForeignKeys(properties, principalKey, principalEntityType));
 
@@ -717,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.PrincipalEntityType.RemoveNavigation(foreignKey.PrincipalToDependent.Name);
             }
 
-            var removed = _foreignKeys.Remove(foreignKey.Properties);
+            var removed = _foreignKeys.Remove(foreignKey);
             foreignKey.Builder = null;
 
             foreach (var property in foreignKey.Properties)
@@ -766,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => ((IEntityType)this).GetDeclaredReferencingForeignKeys().Cast<ForeignKey>();
 
         public virtual IEnumerable<ForeignKey> GetForeignKeys()
-            => _baseType?.GetForeignKeys().Concat(_foreignKeys.Values) ?? _foreignKeys.Values;
+            => _baseType?.GetForeignKeys().Concat(_foreignKeys) ?? _foreignKeys;
 
         #endregion
 

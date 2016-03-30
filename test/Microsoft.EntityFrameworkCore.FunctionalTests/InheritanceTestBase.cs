@@ -256,6 +256,49 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void Discriminator_used_when_projection_over_derived_type()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwis
+                    = context.Set<Kiwi>()
+                        .Select(k => k.FoundOn)
+                        .ToArray();
+
+                Assert.Equal(1, kiwis.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void Discriminator_used_when_projection_over_derived_type2()
+        {
+            using (var context = CreateContext())
+            {
+                var birds
+                    = context.Set<Bird>()
+                        .Select(b => new { b.IsFlightless, Discriminator = EF.Property<string>(b, "Discriminator") })
+                        .ToArray();
+
+                Assert.Equal(2, birds.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void Discriminator_used_when_projection_over_of_type()
+        {
+            using (var context = CreateContext())
+            {
+                var birds
+                    = context.Set<Animal>()
+                        .OfType<Kiwi>()
+                        .Select(k => k.FoundOn)
+                        .ToArray();
+
+                Assert.Equal(1, birds.Length);
+            }
+        }
+
+        [Fact]
         public virtual void Can_insert_update_delete()
         {
             using (var context = CreateContext())
@@ -303,10 +346,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        protected InheritanceContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected InheritanceContext CreateContext() => Fixture.CreateContext();
 
         protected TFixture Fixture { get; }
 

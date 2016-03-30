@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -70,9 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
             protected void AssertEqual(
                 IEnumerable<IForeignKey> expectedForeignKeys,
                 IEnumerable<IForeignKey> actualForeignKeys,
-                ForeignKeyComparer foreignKeyComparer = null)
+                ForeignKeyStrictComparer foreignKeyComparer = null)
             {
-                foreignKeyComparer = foreignKeyComparer ?? new ForeignKeyComparer();
+                foreignKeyComparer = foreignKeyComparer ?? new ForeignKeyStrictComparer();
                 Assert.Equal(
                     new SortedSet<IForeignKey>(expectedForeignKeys, foreignKeyComparer),
                     new SortedSet<IForeignKey>(actualForeignKeys, foreignKeyComparer),

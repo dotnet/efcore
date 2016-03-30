@@ -3,9 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 
-[assembly: TestFramework("ConditionalTestFramework", "Microsoft.EntityFrameworkCore.FunctionalTests")]
+[assembly: TestFramework("Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit.ConditionalTestFramework", "Microsoft.EntityFrameworkCore.FunctionalTests")]
 
 // Skip the entire assembly if not on Windows and no external SQL Server is configured
 [assembly: SqlServerConfiguredCondition]

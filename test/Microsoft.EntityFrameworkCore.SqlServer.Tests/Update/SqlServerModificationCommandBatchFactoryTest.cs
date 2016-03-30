@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
         public void Uses_MaxBatchSize_specified_in_SqlServerOptionsExtension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer("Database=Crunchie").MaxBatchSize(1);
+            optionsBuilder.UseSqlServer("Database=Crunchie", b => b.MaxBatchSize(1));
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(

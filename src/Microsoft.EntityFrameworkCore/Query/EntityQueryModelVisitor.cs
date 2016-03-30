@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -31,14 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static readonly ParameterExpression QueryContextParameter
             = Expression.Parameter(typeof(QueryContext), "queryContext");
 
-        private static readonly string EFTypeName = typeof(EF).FullName;
+        private static readonly string _efTypeName = typeof(EF).FullName;
 
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
             methodInfo != null
             && methodInfo.IsGenericMethod
             // string comparison because MethodInfo.Equals is not .NET Native-safe
             && methodInfo.Name == nameof(EF.Property)
-            && methodInfo.DeclaringType.FullName == EFTypeName;
+            && methodInfo.DeclaringType?.FullName == _efTypeName;
 
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
@@ -236,8 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this)
-                .Rewrite(queryModel);
+            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
@@ -364,6 +362,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 queryModel.SelectClause.Selector,
                                 Expression.Parameter(queryModel.SelectClause.Selector.Type, "result"));
 
+                    var sequenceType = resultQuerySourceReferenceExpression.Type.TryGetSequenceType();
+
+                    if (sequenceType != null
+                        && QueryCompilationContext.Model.FindEntityType(sequenceType) != null)
+                    {
+                        includeSpecification.IsEnumerableTarget = true;
+                    }
+
                     QueryCompilationContext.Logger
                         .LogDebug(
                             CoreLoggingEventId.IncludingNavigation,
@@ -418,8 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             throw new NotImplementedException(CoreStrings.IncludeNotImplemented);
         }
 
-        protected virtual void TrackEntitiesInResults<TResult>(
-            [NotNull] QueryModel queryModel)
+        protected virtual void TrackEntitiesInResults<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
@@ -1167,7 +1172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
             Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
-            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+            if (IsPropertyMethod(methodCallExpression.Method))
             {
                 var querySourceReferenceExpression
                     = methodCallExpression.Arguments[0].GetRootExpression<QuerySourceReferenceExpression>();
@@ -1191,6 +1196,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 property,
                                 querySourceReferenceExpression?.ReferencedQuerySource);
                         }
+
+                        throw new InvalidOperationException(
+                            CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));
                     }
                 }
             }

@@ -47,18 +47,17 @@ namespace Microsoft.EntityFrameworkCore
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
 
-            try
+            using (concurrencyDetector.EnterCriticalSection())
             {
-                concurrencyDetector.EnterCriticalSection();
-
-                return databaseFacade
+                var rawSqlCommand = databaseFacade
                     .GetService<IRawSqlCommandBuilder>()
-                    .Build(sql, parameters)
-                    .ExecuteNonQuery(GetRelationalConnection(databaseFacade));
-            }
-            finally
-            {
-                concurrencyDetector.ExitCriticalSection();
+                    .Build(sql, parameters);
+
+                return rawSqlCommand
+                    .RelationalCommand
+                    .ExecuteNonQuery(
+                        GetRelationalConnection(databaseFacade),
+                        parameterValues: rawSqlCommand.ParameterValues);
             }
         }
 
@@ -72,18 +71,18 @@ namespace Microsoft.EntityFrameworkCore
 
             var concurrencyDetector = databaseFacade.GetService<IConcurrencyDetector>();
 
-            try
+            using (concurrencyDetector.EnterCriticalSection())
             {
-                concurrencyDetector.EnterCriticalSection();
-
-                return await databaseFacade
+                var rawSqlCommand = databaseFacade
                     .GetService<IRawSqlCommandBuilder>()
-                    .Build(sql, parameters)
-                    .ExecuteNonQueryAsync(GetRelationalConnection(databaseFacade), cancellationToken: cancellationToken);
-            }
-            finally
-            {
-                concurrencyDetector.ExitCriticalSection();
+                    .Build(sql, parameters);
+
+                return await rawSqlCommand
+                    .RelationalCommand
+                    .ExecuteNonQueryAsync(
+                        GetRelationalConnection(databaseFacade),
+                        parameterValues: rawSqlCommand.ParameterValues,
+                        cancellationToken: cancellationToken);
             }
         }
 

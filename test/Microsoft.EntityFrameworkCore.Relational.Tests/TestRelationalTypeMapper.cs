@@ -7,7 +7,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests
 {
     public class TestRelationalTypeMapper : RelationalTypeMapper
     {

@@ -1,10 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -18,11 +16,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(attribute, nameof(attribute));
 
-            if (!navigation.IsDependentToPrincipal()
-                || (navigation.DeclaringEntityType.ClrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == navigation.Name)?.PropertyType.TryGetSequenceType() != null))
+            if (!navigation.IsDependentToPrincipal())
             {
-                return relationshipBuilder;
+                if (!navigation.ForeignKey.IsUnique
+                    || (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null))
+                {
+                    return relationshipBuilder;
+                }
+
+                var inverse = navigation.FindInverse();
+                if (inverse != null)
+                {
+                    var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse.Name);
+                    if (attributes.Any())
+                    {
+                        return relationshipBuilder;
+                    }
+                }
+
+                var newRelationshipBuilder = relationshipBuilder.RelatedEntityTypes(
+                    relationshipBuilder.Metadata.DeclaringEntityType,
+                    relationshipBuilder.Metadata.PrincipalEntityType,
+                    ConfigurationSource.Convention);
+
+                if (newRelationshipBuilder == null)
+                {
+                    return relationshipBuilder;
+                }
+                else
+                {
+                    relationshipBuilder = newRelationshipBuilder;
+                }
             }
+
             return relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
         }
     }

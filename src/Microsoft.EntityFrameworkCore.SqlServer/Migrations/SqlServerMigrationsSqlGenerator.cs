@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             builder
-                .Append("IF SCHEMA_ID(N")
+                .Append("IF SCHEMA_ID(")
                 .Append(SqlGenerationHelper.GenerateLiteral(operation.Name))
                 .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
@@ -414,9 +414,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("EXEC sp_rename N")
+                .Append("EXEC sp_rename ")
                 .Append(SqlGenerationHelper.GenerateLiteral(name))
-                .Append(", N")
+                .Append(", ")
                 .Append(SqlGenerationHelper.GenerateLiteral(newName));
 
             if (type != null)

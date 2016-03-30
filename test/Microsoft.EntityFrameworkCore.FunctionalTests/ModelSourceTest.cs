@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
@@ -21,14 +20,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public void Can_replace_ModelSource_without_access_to_internals()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .AddDbContext<JustSomeContext>()
-                .ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<InMemoryModelSource, MyModelSource>()
                 .BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
+            using (var context = new JustSomeContext(serviceProvider))
             {
                 var model = context.Model;
 
@@ -42,14 +38,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public void Can_customize_ModelBuilder()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .AddDbContext<JustSomeContext>()
-                .ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<IModelCustomizer, MyModelCustomizer>()
                 .BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
+            using (var context = new JustSomeContext(serviceProvider))
             {
                 var model = context.Model;
                 Assert.Equal("Us!", model["AllYourModelAreBelongTo"]);
@@ -86,20 +79,22 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         private class JustSomeContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public JustSomeContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Peak> Peaks { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Base>().HasAnnotation("AllYourBaseAreBelongTo", "Us!");
-            }
+                => modelBuilder.Entity<Base>().HasAnnotation("AllYourBaseAreBelongTo", "Us!");
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         private class Base

@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -15,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public RelationalCompiledQueryCacheKeyGenerator(
             [NotNull] IModel model,
-            [NotNull] DbContext context,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDbContextOptions contextOptions)
-            : base(model, context)
+            : base(model, currentContext)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
 

@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{15033D6B-D415-4932-9462-F2A5AE0B75E8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\TestAssemblyConditions.cs" />
+    <Compile Include="ReverseEngineering\SqlServerE2EFixture.cs" />
+    <Compile Include="ReverseEngineering\SqlServerE2ETests.cs" />
+    <Compile Include="SqlServerDatabaseModelFactoryTest.cs" />
+    <Compile Include="SqlServerDatabaseModelFixture.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+    <None Include="ReverseEngineering\Expected\AllFluentApi\AllDataTypes.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\MultipleFKsDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\MultipleFKsPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToManyDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToManyPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneFKToUniqueKeyDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneFKToUniqueKeyPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOnePrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneSeparateFKDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneSeparateFKPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\PropertyConfiguration.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\SelfReferencing.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\SqlServerReverseEngineerTestE2EContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\Test_Spaces_Keywords_Table.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\UnmappablePKColumn.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\AllDataTypes.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\AttributesContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\MultipleFKsDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\MultipleFKsPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToManyDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToManyPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOneDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOneFKToUniqueKeyDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOneFKToUniqueKeyPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOnePrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOneSeparateFKDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOneSeparateFKPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\PropertyConfiguration.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\SelfReferencing.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\Test_Spaces_Keywords_Table.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\UnmappablePKColumn.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\SequenceContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Commands\Microsoft.EntityFrameworkCore.Commands.csproj">
+      <Project>{1731bb70-07e9-4a96-85fc-e731276ef4bc}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj">
+      <Project>{1942c281-c12b-4818-8cc8-c42842871ff5}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+      <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.SqlServer.Design\Microsoft.EntityFrameworkCore.SqlServer.Design.csproj">
+      <Project>{da30fc85-8d88-4bb2-98ce-b8a5845bb3ea}</Project>
+      <Name>Microsoft.EntityFrameworkCore.SqlServer.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.SqlServer\Microsoft.EntityFrameworkCore.SqlServer.csproj">
+      <Project>{99595b81-d47c-40ba-8c61-5328a5a0e4ab}</Project>
+      <Name>Microsoft.EntityFrameworkCore.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
+      <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
+      <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.csproj">
+      <Project>{d21b92b9-3684-40f2-9643-8d84e89784b4}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.FunctionalTests.csproj">
+      <Project>{47c167c3-abb0-442d-b528-7666e1fbf19a}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests\Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.csproj">
+      <Project>{87ab43b7-767b-467b-9aa9-47badf850d6a}</Project>
+      <Name>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReverseEngineering\E2E.sql" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

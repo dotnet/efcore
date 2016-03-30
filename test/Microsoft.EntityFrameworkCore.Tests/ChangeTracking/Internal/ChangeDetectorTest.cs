@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -204,16 +205,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(77, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(77, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -236,20 +236,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("PrincipalId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(77, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(78, testListener.KeyChange.Item5);
+            Assert.Equal(77, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -271,20 +268,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(78, entry.GetRelationshipSnapshotValue(property));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(property, testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(77, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(property, testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(77, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -303,20 +297,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(78, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("Id")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(-1, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -338,20 +329,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(78, entry.GetRelationshipSnapshotValue(property));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(-1, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -370,16 +358,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("PrincipalId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -401,16 +384,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(property));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -429,21 +407,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(78, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("DependentId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(77, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(78, testListener.ForeignKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+            Assert.Equal(0, testListener.KeyChange.Item3.Count);
+            Assert.Equal(1, testListener.KeyChange.Item4.Count);
+            Assert.Equal(77, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -466,21 +440,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("DependentId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(78, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(77, testListener.ForeignKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+            Assert.Equal(0, testListener.KeyChange.Item3.Count);
+            Assert.Equal(1, testListener.KeyChange.Item4.Count);
+            Assert.Equal(78, testListener.KeyChange.Item5);
+            Assert.Equal(77, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -501,21 +471,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(78, entry.GetRelationshipSnapshotValue(property));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(property, testListener.ForeignKeyChange.Item2);
-            Assert.Equal(77, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(78, testListener.ForeignKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(property, testListener.KeyChange.Item2);
+            Assert.Equal(0, testListener.KeyChange.Item3.Count);
+            Assert.Equal(1, testListener.KeyChange.Item4.Count);
+            Assert.Equal(77, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -534,17 +500,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("DependentId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -565,17 +525,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(property));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -596,9 +550,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
@@ -606,15 +557,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(1, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(2, testListener.ForeignKeyChange.Item4);
-
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
+            Assert.Null(testListener.KeyChange);
         }
 
         [Fact]
@@ -635,12 +579,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
+            entry.SetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category"), newCategory);
+
             product.Category = originalCategory;
 
             changeDetector.DetectChanges(entry);
-
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(originalCategory, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -649,15 +592,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(2, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(1, testListener.ForeignKeyChange.Item4);
-
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -677,17 +613,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(category, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.ReferenceChange);
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
+            Assert.Null(testListener.KeyChange);
         }
 
         [Fact]
@@ -710,11 +640,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(
-                new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Products")))
-                    .Cast<Product>()
-                    .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -723,11 +648,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
-            Assert.Null(testListener.ForeignKeyChange);
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -748,13 +670,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(
-                new[] { product2 },
-                ((ICollection<object>)entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Products")))
-                    .Cast<Product>()
-                    .OrderBy(e => e.DependentId));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
@@ -762,15 +677,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Empty(testListener.CollectionChange.Item3);
             Assert.Equal(new[] { product1 }, testListener.CollectionChange.Item4);
 
-            Assert.Same(product1, testListener.ForeignKeyChange.Item1.Entity);
-            Assert.Same(testListener.ForeignKeyChange.Item1.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(77, testListener.ForeignKeyChange.Item3);
-            Assert.Null(testListener.ForeignKeyChange.Item4);
-
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -792,21 +700,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(
-                new[] { product1, product2 },
-                ((ICollection<object>)entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Products")))
-                    .Cast<Product>()
-                    .OrderBy(e => e.DependentId));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.ForeignKeyChange);
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -825,16 +723,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("Id")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -853,16 +746,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("DependentId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -882,17 +770,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(category, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.ReferenceChange);
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
+            Assert.Null(testListener.KeyChange);
         }
 
         [Fact]
@@ -919,12 +801,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             // TODO: DetectChanges is actually used here until INotifyCollectionChanged is supported (Issue #445)
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(
-                new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Products")))
-                    .Cast<ProductWithChanged>()
-                    .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -933,11 +809,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
-            Assert.Null(testListener.ForeignKeyChange);
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -963,12 +836,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(
-                new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Products")))
-                    .Cast<ProductWithChanged>()
-                    .OrderBy(e => e.DependentId));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
+
+            Assert.Same(product3, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -977,17 +848,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
-            Assert.Null(testListener.ForeignKeyChange);
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
         public void Brings_in_single_new_entity_set_on_reference_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1002,27 +870,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(newCategory.PrincipalId, product.DependentId);
-            Assert.Same(newCategory, product.Category);
-            Assert.Equal(new[] { product }, newCategory.Products.ToArray());
-            Assert.Empty(originalCategory.Products);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory).EntityState);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
-
-            changeDetector.DetectChanges(stateManager);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
+            Assert.Same(newCategory, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1036,21 +893,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(tag, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Tag")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(category.TagId, 77);
-            Assert.Equal(tag.CategoryId, 77);
-            Assert.Same(tag, category.Tag);
-            Assert.Same(category, tag.Category);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(tag).EntityState);
+            Assert.Same(tag, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1064,21 +916,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(category, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(category.TagId, 77);
-            Assert.Equal(tag.CategoryId, 77);
-            Assert.Same(tag, category.Tag);
-            Assert.Same(category, tag.Category);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(category).EntityState);
+            Assert.Same(category, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_single_new_entity_set_on_collection_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1094,25 +941,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(category.PrincipalId, product3.DependentId);
-            Assert.Same(category, product3.Category);
-            Assert.Equal(new[] { product1, product2, product3 }.OrderBy(e => e.Id), category.Products.OrderBy(e => e.Id).ToArray());
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3).EntityState);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
-
-            changeDetector.DetectChanges(stateManager);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
+            Assert.Same(product3, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1126,23 +964,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(husband, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Husband")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.NotEqual(0, husband.Id);
-            Assert.NotEqual(0, wife.Id);
-            Assert.NotEqual(wife.Id, husband.Id);
-            Assert.Equal(husband.Id, wife.HusbandId);
-            Assert.Same(husband, wife.Husband);
-            Assert.Same(wife, husband.Wife);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(husband).EntityState);
+            Assert.Same(husband, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
+            var contextServices = CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1156,17 +987,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(wife, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Wife")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.NotEqual(0, husband.Id);
-            Assert.NotEqual(0, wife.Id);
-            Assert.NotEqual(wife.Id, husband.Id);
-            Assert.Equal(husband.Id, wife.HusbandId);
-            Assert.Same(wife, husband.Wife);
-            Assert.Same(husband, wife.Husband);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(wife).EntityState);
+            Assert.Same(wife, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
@@ -1185,16 +1009,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(77, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(77, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1202,7 +1025,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
@@ -1212,20 +1034,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             category.PrincipalId = 78;
             category.PrincipalId = 77;
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("PrincipalId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(77, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(78, testListener.KeyChange.Item5);
+            Assert.Equal(77, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1233,7 +1052,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = -1, TagId = 777, PrincipalId = 778 };
@@ -1242,20 +1060,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             category.Id = 78;
 
-            Assert.Equal(78, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("Id")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.PrincipalKeyChange.Item2);
-            Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
-            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.KeyChange.Item2);
+            Assert.Equal(1, testListener.KeyChange.Item3.Count);
+            Assert.Equal(0, testListener.KeyChange.Item4.Count);
+            Assert.Equal(-1, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1263,7 +1078,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
@@ -1272,16 +1086,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             category.PrincipalId = 77;
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("PrincipalId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1289,7 +1098,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
@@ -1298,21 +1106,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             product.DependentId = 78;
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(78, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("DependentId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(77, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(78, testListener.ForeignKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+            Assert.Equal(0, testListener.KeyChange.Item3.Count);
+            Assert.Equal(1, testListener.KeyChange.Item4.Count);
+            Assert.Equal(77, testListener.KeyChange.Item5);
+            Assert.Equal(78, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1320,7 +1124,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
@@ -1330,21 +1133,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             product.DependentId = 78;
             product.DependentId = 77;
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("DependentId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(78, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(77, testListener.ForeignKeyChange.Item4);
+            Assert.Same(entry, testListener.KeyChange.Item1);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+            Assert.Equal(0, testListener.KeyChange.Item3.Count);
+            Assert.Equal(1, testListener.KeyChange.Item4.Count);
+            Assert.Equal(78, testListener.KeyChange.Item5);
+            Assert.Equal(77, testListener.KeyChange.Item6);
 
-            Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1352,7 +1151,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
@@ -1361,17 +1159,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             product.DependentId = 77;
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("DependentId")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1379,7 +1171,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new NotifyingCategory { Id = 66, PrincipalId = 1 };
@@ -1390,9 +1181,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var newCategory = new NotifyingCategory { Id = 67, PrincipalId = 2 };
             product.Category = newCategory;
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
@@ -1400,15 +1188,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(1, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(2, testListener.ForeignKeyChange.Item4);
-
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
+            Assert.Null(testListener.KeyChange);
         }
 
         [Fact]
@@ -1416,7 +1198,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var originalCategory = new NotifyingCategory { Id = 77, PrincipalId = 1, TagId = 777 };
@@ -1427,10 +1208,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var newCategory = new NotifyingCategory { Id = 78, PrincipalId = 2, TagId = 778 };
 
             product.Category = newCategory;
+            entry.SetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category"), newCategory);
             product.Category = originalCategory;
-
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(originalCategory, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1439,15 +1218,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
-            Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(2, testListener.ForeignKeyChange.Item3);
-            Assert.Equal(1, testListener.ForeignKeyChange.Item4);
-
+            Assert.Null(testListener.KeyChange);
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
         [Fact]
@@ -1455,7 +1227,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = CreateContextServices(BuildNotifyingModel());
 
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var category = new NotifyingCategory { Id = 77, PrincipalId = 1 };
@@ -1465,17 +1236,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             product.Category = category;
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(category, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.ReferenceChange);
-            Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.CollectionChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
+            Assert.Null(testListener.KeyChange);
         }
 
         [Fact]
@@ -1498,13 +1263,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(
-                new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Products")))
-                    .Cast<NotifyingProduct>()
-                    .OrderBy(e => e.DependentId));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
@@ -1513,10 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Empty(testListener.CollectionChange.Item4);
 
             Assert.Null(testListener.ReferenceChange);
-            Assert.Null(testListener.ForeignKeyChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
+            Assert.Null(testListener.KeyChange);
         }
 
         [Fact]
@@ -1541,13 +1296,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(
-                new[] { product2 },
-                ((ICollection<object>)entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Products")))
-                    .Cast<NotifyingProduct>()
-                    .OrderBy(e => e.DependentId));
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
@@ -1555,21 +1303,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Empty(testListener.CollectionChange.Item3);
             Assert.Equal(new[] { product1 }, testListener.CollectionChange.Item4);
 
-            Assert.Same(product1, testListener.ForeignKeyChange.Item1.Entity);
-            Assert.Same(testListener.ForeignKeyChange.Item1.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
-            Assert.Equal(77, testListener.ForeignKeyChange.Item3);
-            Assert.Null(testListener.ForeignKeyChange.Item4);
-
             Assert.Null(testListener.ReferenceChange);
-            Assert.Null(testListener.PrincipalKeyChange);
-
-            AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
+            Assert.Null(testListener.KeyChange);
         }
 
         [Fact]
         public void Brings_in_single_new_entity_on_notification_of_set_on_reference_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
@@ -1581,22 +1322,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var newCategory = new NotifyingCategory { PrincipalId = 2, Tag = new NotifyingCategoryTag() };
             product.Category = newCategory;
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(newCategory.PrincipalId, product.DependentId);
-            Assert.Same(newCategory, product.Category);
-            Assert.Equal(new[] { product }, newCategory.Products.ToArray());
-            Assert.Empty(originalCategory.Products);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory).EntityState);
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
+            Assert.Same(newCategory, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
@@ -1607,21 +1342,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var tag = new NotifyingCategoryTag { Id = 2 };
             category.Tag = tag;
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(tag, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Tag")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(category.TagId, 77);
-            Assert.Equal(tag.CategoryId, 77);
-            Assert.Same(tag, category.Tag);
-            Assert.Same(category, tag.Category);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(tag).EntityState);
+            Assert.Same(tag, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
@@ -1632,21 +1362,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var category = new NotifyingCategory { PrincipalId = 777, TagId = 77 };
             tag.Category = category;
 
-            Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(category, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Category")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(category.TagId, 77);
-            Assert.Equal(tag.CategoryId, 77);
-            Assert.Same(tag, category.Tag);
-            Assert.Same(category, tag.Category);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(category).EntityState);
+            Assert.Same(category, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_single_new_entity_on_notification_of_set_on_collection_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -1663,20 +1388,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.Equal(category.PrincipalId, product3.DependentId);
-            Assert.Same(category, product3.Category);
-            Assert.Equal(new[] { product1, product2, product3 }.OrderBy(e => e.Id), category.Products.OrderBy(e => e.Id).ToArray());
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3).EntityState);
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
+            Assert.Same(product3, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
@@ -1687,23 +1408,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var husband = new NotifyingPerson();
             wife.Husband = husband;
 
-            Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(husband, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Husband")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.NotEqual(0, husband.Id);
-            Assert.NotEqual(0, wife.Id);
-            Assert.NotEqual(wife.Id, husband.Id);
-            Assert.Equal(husband.Id, wife.HusbandId);
-            Assert.Same(husband, wife.Husband);
-            Assert.Same(wife, husband.Wife);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(husband).EntityState);
+            Assert.Same(husband, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
@@ -1714,17 +1428,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var wife = new NotifyingPerson();
             husband.Wife = wife;
 
-            Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(wife, entry.GetRelationshipSnapshotValue(entry.EntityType.FindNavigation("Wife")));
+            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
-            Assert.NotEqual(0, husband.Id);
-            Assert.NotEqual(0, wife.Id);
-            Assert.NotEqual(wife.Id, husband.Id);
-            Assert.Equal(husband.Id, wife.HusbandId);
-            Assert.Same(wife, husband.Wife);
-            Assert.Same(husband, wife.Husband);
-
-            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(wife).EntityState);
+            Assert.Same(wife, testAttacher.Attached.Item1.Entity);
+            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
         }
 
         private class Category
@@ -2118,44 +1825,32 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 contextServices.GetRequiredService<IModel>().FindEntityType(typeof(TEntity)),
                 entity ?? new TEntity());
 
-        private static void AssertDetectChangesNoOp(
-            IChangeDetector changeDetector, IStateManager stateManager, TestRelationshipListener testListener)
-        {
-            testListener.PrincipalKeyChange = null;
-            testListener.ForeignKeyChange = null;
-            testListener.ReferenceChange = null;
-            testListener.CollectionChange = null;
-
-            changeDetector.DetectChanges(stateManager);
-
-            Assert.Null(testListener.PrincipalKeyChange);
-            Assert.Null(testListener.ForeignKeyChange);
-            Assert.Null(testListener.ReferenceChange);
-            Assert.Null(testListener.CollectionChange);
-        }
-
         private static IServiceProvider CreateContextServices(IModel model = null)
         {
             return TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection()
                     .AddScoped<TestRelationshipListener>()
-                    .AddScoped<IForeignKeyListener>(p => p.GetRequiredService<TestRelationshipListener>())
+                    .AddScoped<IEntityGraphAttacher, TestAttacher>()
                     .AddScoped<INavigationListener>(p => p.GetRequiredService<TestRelationshipListener>())
                     .AddScoped<IKeyListener>(p => p.GetRequiredService<TestRelationshipListener>()),
                 model ?? BuildModel());
         }
 
-        private class TestRelationshipListener : IForeignKeyListener, INavigationListener, IKeyListener
+        private class TestAttacher : IEntityGraphAttacher
         {
-            public Tuple<InternalEntityEntry, IProperty, object, object> ForeignKeyChange { get; set; }
-            public Tuple<InternalEntityEntry, IProperty, object, object> PrincipalKeyChange { get; set; }
+            public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
+
+            public void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState)
+            {
+                Attached = Tuple.Create(rootEntry, entityState);
+            }
+        }
+
+        private class TestRelationshipListener : INavigationListener, IKeyListener
+        {
+            public Tuple<InternalEntityEntry, IProperty, IReadOnlyList<IKey>, IReadOnlyList<IForeignKey>, object, object> KeyChange { get; set; }
             public Tuple<InternalEntityEntry, INavigation, object, object> ReferenceChange { get; set; }
             public Tuple<InternalEntityEntry, INavigation, ISet<object>, ISet<object>> CollectionChange { get; set; }
-
-            public void ForeignKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
-            {
-                ForeignKeyChange = Tuple.Create(entry, property, oldValue, newValue);
-            }
 
             public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
             {
@@ -2167,9 +1862,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);
             }
 
-            public void KeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
+            public void KeyPropertyChanged(
+                InternalEntityEntry entry,
+                IProperty property,
+                IReadOnlyList<IKey> containingPrincipalKeys,
+                IReadOnlyList<IForeignKey> containingForeignKeys,
+                object oldValue,
+                object newValue)
             {
-                PrincipalKeyChange = Tuple.Create(entry, property, oldValue, newValue);
+                KeyChange = Tuple.Create(entry, property, containingPrincipalKeys, containingForeignKeys, oldValue, newValue);
             }
         }
     }

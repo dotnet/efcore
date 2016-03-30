@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -212,13 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
         private class FreezerContext : DbContext
         {
-            public FreezerContext()
-                : base(TestHelpers.Instance.CreateServiceProvider())
-            {
-            }
-
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInMemoryDatabase()
+                    .UseInternalServiceProvider(TestHelpers.Instance.CreateServiceProvider());
 
             public DbSet<Chunky> Icecream { get; set; }
         }

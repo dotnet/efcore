@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -20,9 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public F1SqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
@@ -32,10 +31,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlServer(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlServer(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new F1Context(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new F1Context(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -51,10 +51,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override F1Context CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlServer(testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new F1Context(_serviceProvider, optionsBuilder.Options);
+            var context = new F1Context(optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);
             return context;
         }

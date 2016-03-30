@@ -3,8 +3,9 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
     public class FakeRelationalOptionsExtension : RelationalOptionsExtension
     {
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         {
         }
 
-        public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+        public override void ApplyServices(IServiceCollection bservices)
         {
             throw new NotImplementedException();
         }

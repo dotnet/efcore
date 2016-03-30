@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -253,13 +254,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             stateManager.StopTracking(entry);
 
             var entry2 = stateManager.GetOrCreateEntry(category);
-            Assert.Same(entry, entry2);
+            Assert.NotSame(entry, entry2);
 
             stateManager.StartTracking(entry2);
         }
 
         [Fact]
-        public void StopTracking_keeps_track_of_detached_entity_using_weak_reference()
+        public void StopTracking_releases_reference_to_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
             var category = new Category { Id = 1, PrincipalId = 777 };
@@ -271,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entry2 = stateManager.GetOrCreateEntry(category);
             stateManager.StartTracking(entry2);
 
-            Assert.Same(entry, entry2);
+            Assert.NotSame(entry, entry2);
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
 
@@ -388,10 +389,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             foreach (var listener in listeners)
             {
                 listener.Verify(m => m.StateChanging(entry, It.IsAny<EntityState>()), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false), Times.Once);
+                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false, false), Times.Once);
 
                 listener.Verify(m => m.StateChanging(entry, EntityState.Added), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false), Times.Once);
+                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false, false), Times.Once);
             }
 
             entry.SetEntityState(EntityState.Modified);
@@ -399,10 +400,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             foreach (var listener in listeners)
             {
                 listener.Verify(m => m.StateChanging(entry, It.IsAny<EntityState>()), Times.Exactly(2));
-                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false), Times.Exactly(2));
+                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false, false), Times.Exactly(2));
 
                 listener.Verify(m => m.StateChanging(entry, EntityState.Modified), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false), Times.Once);
+                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false, false), Times.Once);
             }
         }
 
@@ -419,9 +420,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, Name = "Foods", PrincipalId = 778 });
             var entry3 = stateManager.GetOrCreateEntry(new Category { Id = 79, Name = "Stuff", PrincipalId = 779 });
 
-            stateManager.StartTracking(entry1);
-            stateManager.StartTracking(entry2);
-            stateManager.StartTracking(entry3);
+            entry1.SetEntityState(EntityState.Unchanged);
+            entry2.SetEntityState(EntityState.Unchanged);
+            entry3.SetEntityState(EntityState.Unchanged);
 
             var changeDetector = (ChangeDetectorProxy)contextServices.GetRequiredService<IChangeDetector>();
 
@@ -438,11 +439,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         internal class ChangeDetectorProxy : ChangeDetector
         {
-            public ChangeDetectorProxy(IEntityGraphAttacher attacher)
-                : base(attacher)
-            {
-            }
-
             public List<InternalEntityEntry> Entries { get; } = new List<InternalEntityEntry>();
 
             public override void DetectChanges(InternalEntityEntry entry)
@@ -451,134 +447,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
                 base.DetectChanges(entry);
             }
-        }
-
-        [Fact]
-        public void SaveChanges_processes_all_tracked_entities()
-        {
-            var stateManager = CreateStateManager(BuildModel());
-
-            var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-            var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
-
-            var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-            var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-            var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-            var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2 });
-
-            entry1.SetEntityState(EntityState.Added);
-            entry2.SetEntityState(EntityState.Modified);
-            entry3.SetEntityState(EntityState.Unchanged);
-            entry4.SetEntityState(EntityState.Deleted);
-
-            var processedEntities = stateManager.SaveChanges(acceptAllChangesOnSuccess: true);
-
-            Assert.Equal(3, processedEntities);
-            Assert.Equal(3, stateManager.Entries.Count());
-            Assert.Contains(entry1, stateManager.Entries);
-            Assert.Contains(entry2, stateManager.Entries);
-            Assert.Contains(entry3, stateManager.Entries);
-
-            Assert.Equal(EntityState.Unchanged, entry1.EntityState);
-            Assert.Equal(EntityState.Unchanged, entry2.EntityState);
-            Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-        }
-
-        [Fact]
-        public void SaveChanges_false_processes_all_tracked_entities_without_calling_AcceptAllChanges()
-        {
-            var stateManager = CreateStateManager(BuildModel());
-
-            var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-            var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
-
-            var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-            var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-            var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-            var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2 });
-
-            entry1.SetEntityState(EntityState.Added);
-            entry2.SetEntityState(EntityState.Modified);
-            entry3.SetEntityState(EntityState.Unchanged);
-            entry4.SetEntityState(EntityState.Deleted);
-
-            var processedEntities = stateManager.SaveChanges(acceptAllChangesOnSuccess: false);
-
-            Assert.Equal(3, processedEntities);
-            Assert.Equal(4, stateManager.Entries.Count());
-            Assert.Contains(entry1, stateManager.Entries);
-            Assert.Contains(entry2, stateManager.Entries);
-            Assert.Contains(entry3, stateManager.Entries);
-            Assert.Contains(entry4, stateManager.Entries);
-
-            Assert.Equal(EntityState.Added, entry1.EntityState);
-            Assert.Equal(EntityState.Modified, entry2.EntityState);
-            Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-            Assert.Equal(EntityState.Deleted, entry4.EntityState);
-        }
-
-        [Fact]
-        public async void SaveChangesAsync_processes_all_tracked_entities()
-        {
-            var stateManager = CreateStateManager(BuildModel());
-
-            var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-            var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
-
-            var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-            var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-            var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-            var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2 });
-
-            entry1.SetEntityState(EntityState.Added);
-            entry2.SetEntityState(EntityState.Modified);
-            entry3.SetEntityState(EntityState.Unchanged);
-            entry4.SetEntityState(EntityState.Deleted);
-
-            var processedEntities = await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess: true);
-
-            Assert.Equal(3, processedEntities);
-            Assert.Equal(3, stateManager.Entries.Count());
-            Assert.Contains(entry1, stateManager.Entries);
-            Assert.Contains(entry2, stateManager.Entries);
-            Assert.Contains(entry3, stateManager.Entries);
-
-            Assert.Equal(EntityState.Unchanged, entry1.EntityState);
-            Assert.Equal(EntityState.Unchanged, entry2.EntityState);
-            Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-        }
-
-        [Fact]
-        public async void SaveChangesAsync_false_processes_all_tracked_entities_without_calling_AcceptAllChanges()
-        {
-            var stateManager = CreateStateManager(BuildModel());
-
-            var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
-            var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
-
-            var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, PrincipalId = 777 });
-            var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, PrincipalId = 778 });
-            var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
-            var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2 });
-
-            entry1.SetEntityState(EntityState.Added);
-            entry2.SetEntityState(EntityState.Modified);
-            entry3.SetEntityState(EntityState.Unchanged);
-            entry4.SetEntityState(EntityState.Deleted);
-
-            var processedEntities = await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess: false);
-
-            Assert.Equal(3, processedEntities);
-            Assert.Equal(4, stateManager.Entries.Count());
-            Assert.Contains(entry1, stateManager.Entries);
-            Assert.Contains(entry2, stateManager.Entries);
-            Assert.Contains(entry3, stateManager.Entries);
-            Assert.Contains(entry4, stateManager.Entries);
-
-            Assert.Equal(EntityState.Added, entry1.EntityState);
-            Assert.Equal(EntityState.Modified, entry2.EntityState);
-            Assert.Equal(EntityState.Unchanged, entry3.EntityState);
-            Assert.Equal(EntityState.Deleted, entry4.EntityState);
         }
 
         [Fact]

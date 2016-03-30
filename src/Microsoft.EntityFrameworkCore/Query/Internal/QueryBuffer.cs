@@ -126,16 +126,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         public virtual void Include(
+            QueryContext queryContext,
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool queryStateManager)
-            => Include(entity, navigationPath, relatedEntitiesLoaders, 0, queryStateManager);
+            => Include(
+                queryContext,
+                entity,
+                navigationPath,
+                relatedEntitiesLoaders,
+                currentNavigationIndex: 0,
+                queryStateManager: queryStateManager);
 
         private void Include(
+            QueryContext queryContext,
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
+            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
             int currentNavigationIndex,
             bool queryStateManager)
         {
@@ -153,12 +161,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                relatedEntitiesLoaders[currentNavigationIndex](keyComparer)
+                relatedEntitiesLoaders[currentNavigationIndex]
+                    .Load(queryContext, keyComparer)
                     .Select(eli =>
                         {
                             var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
 
                             Include(
+                                queryContext,
                                 targetEntity,
                                 navigationPath,
                                 relatedEntitiesLoaders,
@@ -172,20 +182,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         public virtual Task IncludeAsync(
+            QueryContext queryContext,
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
-            CancellationToken cancellationToken,
-            bool queryStateManager)
-            => IncludeAsync(entity, navigationPath, relatedEntitiesLoaders, cancellationToken, 0, queryStateManager);
+            IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
+            bool queryStateManager,
+            CancellationToken cancellationToken)
+            => IncludeAsync(
+                queryContext,
+                entity,
+                navigationPath,
+                relatedEntitiesLoaders,
+                currentNavigationIndex: 0,
+                queryStateManager: queryStateManager,
+                cancellationToken: cancellationToken);
 
         private async Task IncludeAsync(
+            QueryContext queryContext,
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
-            CancellationToken cancellationToken,
+            IReadOnlyList<IAsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
             int currentNavigationIndex,
-            bool queryStateManager)
+            bool queryStateManager,
+            CancellationToken cancellationToken)
         {
             if (entity == null
                 || currentNavigationIndex == navigationPath.Count)
@@ -201,20 +220,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](keyComparer), async (eli, ct) =>
-                    {
-                        var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
+                await relatedEntitiesLoaders[currentNavigationIndex]
+                    .Load(queryContext, keyComparer)
+                    .Select(async (eli, ct) =>
+                        {
+                            var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
 
-                        await IncludeAsync(
-                            targetEntity,
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            ct,
-                            currentNavigationIndex + 1,
-                            queryStateManager);
+                            await IncludeAsync(
+                                queryContext,
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                currentNavigationIndex + 1,
+                                queryStateManager,
+                                ct);
 
-                        return targetEntity;
-                    })
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken));
         }

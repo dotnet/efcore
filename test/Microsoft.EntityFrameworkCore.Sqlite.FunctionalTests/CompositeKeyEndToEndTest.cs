@@ -16,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -61,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             var ids = new int[3];
@@ -119,11 +115,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         private class BronieContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly string _databaseName;
 
             public BronieContext(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _databaseName = databaseName;
             }
 
@@ -131,16 +128,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             public DbSet<EarthPony> EarthPonies { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString(_databaseName));
-            }
+                => optionsBuilder
+                    .UseSqlite(SqliteTestStore.CreateConnectionString(_databaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Pegasus>().HasKey(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<Pegasus>(b =>
+                    {
+                        b.ToTable("Pegasus");
+                        b.HasKey(e => new { e.Id1, e.Id2 });
+                    });
 
                 modelBuilder.Entity<EarthPony>(b =>
                     {
+                        b.ToTable("EarthPony");
                         b.HasKey(e => new { e.Id1, e.Id2 });
                         b.Property(e => e.Id1);
                     });

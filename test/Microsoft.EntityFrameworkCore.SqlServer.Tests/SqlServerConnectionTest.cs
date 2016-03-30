@@ -37,8 +37,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         public void Master_connection_string_none_default_command_timeout()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;")
-                .CommandTimeout(55);
+            optionsBuilder.UseSqlServer(
+                @"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;",
+                b => b.CommandTimeout(55));
 
             using (var connection = new SqlServerConnection(optionsBuilder.Options, new Logger<SqlServerConnection>(new LoggerFactory())))
             {

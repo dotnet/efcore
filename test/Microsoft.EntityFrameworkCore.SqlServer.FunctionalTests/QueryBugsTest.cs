@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -51,6 +52,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(_connectionString);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+                => modelBuilder.Entity<ZeroKey>().ToTable("ZeroKey");
 
             public DbSet<ZeroKey> ZeroKeys { get; set; }
 
@@ -109,15 +113,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class MyContext603 : DbContext
         {
-            public MyContext603(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext603(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Product> Products { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"))
+                    .UseInternalServiceProvider(_serviceProvider);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Product>().ToTable("Product");
         }
 
         [Fact]
@@ -127,9 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -166,9 +175,7 @@ ORDER BY [c0].[FirstName], [c0].[LastName]";
 
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer().
-                ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -232,9 +239,11 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
 
         public class MyContext925 : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public MyContext925(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer> Customers { get; set; }
@@ -243,15 +252,19 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Customer>(m =>
                     {
+                        m.ToTable("Customer");
                         m.HasKey(c => new { c.FirstName, c.LastName });
                         m.HasMany(c => c.Orders).WithOne(o => o.Customer);
                     });
+
+                modelBuilder.Entity<Order>().ToTable("Order");
             }
         }
 
@@ -307,8 +320,8 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
             using (var ctx = new MyContext963(_fixture.ServiceProvider))
             {
                 (from t in ctx.Targaryens
-                    join d in ctx.Dragons on t.Id equals d.MotherId
-                    select d).ToList();
+                 join d in ctx.Dragons on t.Id equals d.MotherId
+                 select d).ToList();
             }
         }
 
@@ -327,10 +340,10 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
 
                         var aerys = new Targaryen { Name = "Aerys II" };
                         var details = new Details
-                            {
-                                FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen, 
+                        {
+                            FullName = @"Daenerys Stormborn of the House Targaryen, the First of Her Name, the Unburnt, Queen of Meereen, 
 Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Grass Sea, Breaker of Chains, and Mother of Dragons"
-                            };
+                        };
 
                         var daenerys = new Targaryen { Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion } };
                         context.Targaryens.AddRange(daenerys, aerys);
@@ -369,9 +382,11 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
         // TODO: replace with GearsOfWar context when it's refactored properly
         public class MyContext963 : DbContext
         {
-            public MyContext963(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext963(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Targaryen> Targaryens { get; set; }
@@ -380,16 +395,21 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             public DbSet<Dragon> Dragons { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Targaryen>(m =>
                     {
+                        m.ToTable("Targaryen");
                         m.HasKey(t => t.Id);
                         m.HasMany(t => t.Dragons).WithOne(d => d.Mother).HasForeignKey(d => d.MotherId);
                         m.HasOne(t => t.Details).WithOne(d => d.Targaryen).HasForeignKey<Details>(d => d.TargaryenId);
                     });
+
+                modelBuilder.Entity<Dragon>().ToTable("Dragon");
             }
         }
 
@@ -403,9 +423,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -447,9 +465,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -488,23 +504,34 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
         public class MyContext3758 : DbContext
         {
-            public MyContext3758(IServiceProvider provider)
-                : base(provider)
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext3758(IServiceProvider serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer3758> Customers { get; set; }
             public DbSet<Order3758> Orders { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3758"));
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3758"))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders1).WithOne();
-                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders2).WithOne();
-                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders3).WithOne();
-                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders4).WithOne();
+                modelBuilder.Entity<Customer3758>(b =>
+                    {
+                        b.ToTable("Customer3758");
+
+                        b.HasMany(e => e.Orders1).WithOne();
+                        b.HasMany(e => e.Orders2).WithOne();
+                        b.HasMany(e => e.Orders3).WithOne();
+                        b.HasMany(e => e.Orders4).WithOne();
+                    });
+
+                modelBuilder.Entity<Order3758>().ToTable("Order3758");
             }
         }
 
@@ -547,54 +574,54 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 _fixture.ServiceProvider,
                 (sp, co) => new MyContext3758(sp),
                 context =>
-                {
-                    var o111 = new Order3758 { Name = "O111" };
-                    var o112 = new Order3758 { Name = "O112" };
-                    var o121 = new Order3758 { Name = "O121" };
-                    var o122 = new Order3758 { Name = "O122" };
-                    var o131 = new Order3758 { Name = "O131" };
-                    var o132 = new Order3758 { Name = "O132" };
-                    var o141 = new Order3758 { Name = "O141" };
-
-                    var o211 = new Order3758 { Name = "O211" };
-                    var o212 = new Order3758 { Name = "O212" };
-                    var o221 = new Order3758 { Name = "O221" };
-                    var o222 = new Order3758 { Name = "O222" };
-                    var o231 = new Order3758 { Name = "O231" };
-                    var o232 = new Order3758 { Name = "O232" };
-                    var o241 = new Order3758 { Name = "O241" };
-
-                    var c1 = new Customer3758
                     {
-                        Name = "C1",
-                        Orders1 = new List<Order3758> { o111, o112 },
-                        Orders2 = new MyGenericCollection3758<Order3758>(),
-                        Orders3 = new MyNonGenericCollection3758(),
-                        Orders4 = new MyInvalidCollection3758<Order3758>(42),
-                    };
+                        var o111 = new Order3758 { Name = "O111" };
+                        var o112 = new Order3758 { Name = "O112" };
+                        var o121 = new Order3758 { Name = "O121" };
+                        var o122 = new Order3758 { Name = "O122" };
+                        var o131 = new Order3758 { Name = "O131" };
+                        var o132 = new Order3758 { Name = "O132" };
+                        var o141 = new Order3758 { Name = "O141" };
 
-                    c1.Orders2.AddRange(new[] { o121, o122 });
-                    c1.Orders3.AddRange(new[] { o131, o132 });
-                    c1.Orders4.Add(o141);
+                        var o211 = new Order3758 { Name = "O211" };
+                        var o212 = new Order3758 { Name = "O212" };
+                        var o221 = new Order3758 { Name = "O221" };
+                        var o222 = new Order3758 { Name = "O222" };
+                        var o231 = new Order3758 { Name = "O231" };
+                        var o232 = new Order3758 { Name = "O232" };
+                        var o241 = new Order3758 { Name = "O241" };
 
-                    var c2 = new Customer3758
-                    {
-                        Name = "C2",
-                        Orders1 = new List<Order3758> { o211, o212 },
-                        Orders2 = new MyGenericCollection3758<Order3758>(),
-                        Orders3 = new MyNonGenericCollection3758(),
-                        Orders4 = new MyInvalidCollection3758<Order3758>(42),
-                    };
+                        var c1 = new Customer3758
+                        {
+                            Name = "C1",
+                            Orders1 = new List<Order3758> { o111, o112 },
+                            Orders2 = new MyGenericCollection3758<Order3758>(),
+                            Orders3 = new MyNonGenericCollection3758(),
+                            Orders4 = new MyInvalidCollection3758<Order3758>(42)
+                        };
 
-                    c2.Orders2.AddRange(new[] { o221, o222 });
-                    c2.Orders3.AddRange(new[] { o231, o232 });
-                    c2.Orders4.Add(o241);
+                        c1.Orders2.AddRange(new[] { o121, o122 });
+                        c1.Orders3.AddRange(new[] { o131, o132 });
+                        c1.Orders4.Add(o141);
 
-                    context.Customers.AddRange(c1, c2);
-                    context.Orders.AddRange(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
+                        var c2 = new Customer3758
+                        {
+                            Name = "C2",
+                            Orders1 = new List<Order3758> { o211, o212 },
+                            Orders2 = new MyGenericCollection3758<Order3758>(),
+                            Orders3 = new MyNonGenericCollection3758(),
+                            Orders4 = new MyInvalidCollection3758<Order3758>(42)
+                        };
 
-                    context.SaveChanges();
-                });
+                        c2.Orders2.AddRange(new[] { o221, o222 });
+                        c2.Orders3.AddRange(new[] { o231, o232 });
+                        c2.Orders4.Add(o241);
+
+                        context.Customers.AddRange(c1, c2);
+                        context.Orders.AddRange(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
+
+                        context.SaveChanges();
+                    });
         }
 
         private static void CreateTestStore<TContext>(

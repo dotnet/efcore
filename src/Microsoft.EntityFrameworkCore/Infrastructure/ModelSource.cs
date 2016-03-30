@@ -110,10 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var setInfo in SetFinder.FindSets(context))
             {
-                modelBuilder.Entity(setInfo.EntityType);
+                modelBuilder.Entity(setInfo.ClrType);
             }
         }
-
     }
 }
-

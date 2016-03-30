@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -105,9 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 _serviceProvider
                     = new ServiceCollection()
-                        .AddEntityFramework()
-                        .AddSqlServer()
-                        .ServiceCollection()
+                        .AddEntityFrameworkSqlServer()
                         .BuildServiceProvider();
             }
 
@@ -121,43 +120,43 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                     testStore.ExecuteNonQuery(@"
 CREATE TRIGGER TRG_InsertProduct
-ON Product
+ON Products
 AFTER INSERT AS
 BEGIN
 	if @@ROWCOUNT = 0
 		return
 	set nocount on;
 
-    INSERT INTO ProductBackup
+    INSERT INTO ProductBackups
     SELECT * FROM INSERTED;
 END");
 
                     testStore.ExecuteNonQuery(@"
 CREATE TRIGGER TRG_UpdateProduct
-ON Product
+ON Products
 AFTER UPDATE AS
 BEGIN
 	if @@ROWCOUNT = 0
 		return
 	set nocount on;
 
-    DELETE FROM ProductBackup
+    DELETE FROM ProductBackups
     WHERE Id IN(SELECT DELETED.Id FROM DELETED);
 
-    INSERT INTO ProductBackup
+    INSERT INTO ProductBackups
     SELECT * FROM INSERTED;
 END");
 
                     testStore.ExecuteNonQuery(@"
 CREATE TRIGGER TRG_DeleteProduct
-ON Product
+ON Products
 AFTER DELETE AS
 BEGIN
 	if @@ROWCOUNT = 0
 		return
 	set nocount on;
 
-    DELETE FROM ProductBackup
+    DELETE FROM ProductBackups
     WHERE Id IN(SELECT DELETED.Id FROM DELETED);
 END");
                 }
@@ -166,20 +165,16 @@ END");
             }
 
             public TriggersContext CreateContext(SqlServerTestStore testStore)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder
+                => new TriggersContext(new DbContextOptionsBuilder()
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(testStore.Connection);
-
-                return new TriggersContext(_serviceProvider, optionsBuilder.Options);
-            }
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .UseSqlServer(testStore.Connection).Options);
         }
 
         public class TriggersContext : DbContext
         {
-            public TriggersContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public TriggersContext(DbContextOptions options)
+                : base(options)
             {
             }
 

@@ -14,7 +14,7 @@ using Xunit;
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable StringStartsWithIsCultureSpecific
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Tests
 {
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Mono < 4.2.0 does not implement reflection APIs used in this test")]
     public abstract class ApiConsistencyTestBase

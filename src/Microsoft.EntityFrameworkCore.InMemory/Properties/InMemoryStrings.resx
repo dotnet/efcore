@@ -123,4 +123,7 @@
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>Transactions are not supported by the in-memory store. To suppress this Exception call IgnoreTransactions() when overriding DbContext.OnConfiguring.</value>
   </data>
+  <data name="UpdateConcurrencyException" xml:space="preserve">
+    <value>Attempted to update or delete an entity that does not exist in the store.</value>
+  </data>
 </root>

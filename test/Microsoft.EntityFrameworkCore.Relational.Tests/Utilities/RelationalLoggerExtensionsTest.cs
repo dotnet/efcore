@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Utilities
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Utilities
 {
     public class RelationalLoggerExtensionsTest
     {

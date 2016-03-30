@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -22,18 +23,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             _testStore = SqlServerTestStore.CreateScratch();
 
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(_testStore.Connection);
+            _options = new DbContextOptionsBuilder()
+                .UseSqlServer(_testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
 
-            _options = optionsBuilder.Options;
-
-            using (var context = new DbContext(_serviceProvider, _options))
+            using (var context = new DbContext(_options))
             {
                 context.Database.EnsureCreated();
             }
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override DbContext CreateContext()
         {
-            var context = new DbContext(_serviceProvider, _options);
+            var context = new DbContext(_options);
             context.Database.UseTransaction(_testStore.Transaction);
             return context;
         }
@@ -309,13 +308,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
-        // See Issue #4478
-        //public string Text { get; set; }
-        //public string Ntext { get; set; }
+        public string Text { get; set; }
+        public string Ntext { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
-        // See Issue #4478
-        //public byte[] Image { get; set; }
+        public byte[] Image { get; set; }
         public decimal Decimal { get; set; }
         public decimal Dec { get; set; }
         public decimal Numeric { get; set; }
@@ -391,13 +388,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public string NvarcharMax { get; set; }
         public string National_char_varyingMax { get; set; }
         public string National_character_varyingMax { get; set; }
-        // See Issue #4478
-        //public string Text { get; set; }
-        //public string Ntext { get; set; }
+        public string Text { get; set; }
+        public string Ntext { get; set; }
         public byte[] VarbinaryMax { get; set; }
         public byte[] Binary_varyingMax { get; set; }
-        // See Issue #4478
-        //public byte[] Image { get; set; }
+        public byte[] Image { get; set; }
         public decimal? Decimal { get; set; }
         public decimal? Dec { get; set; }
         public decimal? Numeric { get; set; }

@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
     public class FakeDbParameterCollection : DbParameterCollection
     {
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override IEnumerator GetEnumerator()
             => _parameters.GetEnumerator();
-#if DNX451
+#if NET451
 
         public override bool IsSynchronized
         {

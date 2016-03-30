@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -14,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IModel _model;
         private readonly DbContext _context;
 
-        public CompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] DbContext context)
+        public CompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] ICurrentDbContext currentContext)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(currentContext, nameof(currentContext));
 
             _model = model;
-            _context = context;
+            _context = currentContext.Context;
         }
 
         public virtual object GenerateCacheKey(Expression query, bool async)

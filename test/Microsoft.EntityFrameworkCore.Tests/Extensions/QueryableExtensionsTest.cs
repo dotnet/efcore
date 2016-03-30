@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Tests.Extensions
 {
     public class QueryableExtensionsTest
     {

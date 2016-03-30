@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -19,22 +20,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public MappingQuerySqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
             _testDatabase = SqlServerNorthwindContext.GetSharedStore();
 
-            var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
-            optionsBuilder.UseSqlServer(_testDatabase.ConnectionString);
-            _options = optionsBuilder.Options;
+            _options = new DbContextOptionsBuilder()
+                .UseModel(CreateModel())
+                .UseSqlServer(_testDatabase.ConnectionString)
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
         }
 
         public DbContext CreateContext()
         {
-            var context = new DbContext(_serviceProvider, _options);
+            var context = new DbContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

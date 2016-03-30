@@ -4,14 +4,13 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Internal.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
@@ -24,13 +23,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             modelBuilder.Entity<Product>();
             modelBuilder.Entity<Product>().Property(b => b.Name).ForSqlServerHasColumnName("Id");
 
-            VerifyError(RelationalStrings.DuplicateColumnName("Id", typeof(Product).FullName, "Name"), modelBuilder.Model);
+            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Product).Name, "Id", typeof(Product).Name, "Name", "Id", ".Product", "int", "nvarchar(max)"), modelBuilder.Model);
         }
 
-        private class Product
+        public override void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Dog>();
+
+            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "nvarchar(max)", "int"), modelBuilder.Model);
         }
 
         public virtual void Throws_for_unsupported_data_types()

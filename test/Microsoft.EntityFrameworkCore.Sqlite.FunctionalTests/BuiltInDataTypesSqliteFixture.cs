@@ -19,18 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             _testStore = SqliteTestStore.CreateScratch();
 
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlite()
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(_testStore.Connection);
+            _options = new DbContextOptionsBuilder()
+                .UseSqlite(_testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider)
+                .Options;
 
-            _options = optionsBuilder.Options;
-
-            using (var context = new DbContext(_serviceProvider, _options))
+            using (var context = new DbContext(_options))
             {
                 context.Database.EnsureCreated();
             }
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public override DbContext CreateContext()
         {
-            var context = new DbContext(_serviceProvider, _options);
+            var context = new DbContext(_options);
             context.Database.UseTransaction(_testStore.Transaction);
             return context;
         }

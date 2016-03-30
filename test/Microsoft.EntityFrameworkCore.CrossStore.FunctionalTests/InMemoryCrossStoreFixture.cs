@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.InMemory.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 {
     public class InMemoryCrossStoreFixture : CrossStoreFixture
     {
@@ -17,10 +18,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             _sharedCrossStoreFixture = new SharedCrossStoreFixture(
                 new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .AddSqlServer()
-                    .ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
+                    .AddEntityFrameworkSqlServer()
                     .BuildServiceProvider());
         }
 

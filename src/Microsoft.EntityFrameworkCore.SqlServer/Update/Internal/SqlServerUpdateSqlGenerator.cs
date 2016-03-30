@@ -16,8 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
         private readonly IRelationalTypeMapper _typeMapper;
-        private readonly string _tableId = "_t";
-        private readonly string _joinTableId = "_j";
 
         public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMapper typeMapper)
@@ -136,44 +134,34 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     i.ToString());
             }
             commandStringBuilder
-                .Append(SqlGenerationHelper.StatementTerminator)
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             var insertedTableName = "@inserted" + commandPosition;
-            AppendDeclareTable(commandStringBuilder, insertedTableName, modificationCommands[0].ColumnModifications);
-
-            AppendInsertCommandHeader(commandStringBuilder, modificationCommands[0].TableName, modificationCommands[0].Schema, writeOperations);
-            AppendOutputClause(commandStringBuilder, modificationCommands[0].ColumnModifications, insertedTableName);
-            AppendSelectCommand(commandStringBuilder, writeOperations, toInsertTableName);
-
-            var keyOperations = GetKeyOperations(writeOperations, modificationCommands[0].Entries.Select(e => e.EntityType)) != null
-                ? null
-                : GetKeyOperations(modificationCommands[0].ColumnModifications, modificationCommands[0].Entries.Select(e => e.EntityType));
-
-            AppendSelectJoinCommand(
+            AppendDeclareTable(
                 commandStringBuilder,
-                readOperations,
                 insertedTableName,
+                modificationCommands[0].ColumnModifications,
+                SqlGenerationHelper.DelimitIdentifier(positionColumnName) + " [int]");
+
+            var toInsertTableAlias = "i";
+            AppendMergeCommandHeader(
+                commandStringBuilder,
+                modificationCommands[0].TableName,
+                modificationCommands[0].Schema,
                 toInsertTableName,
-                writeOperations,
-                positionColumnName,
-                keyOperations);
+                toInsertTableAlias,
+                writeOperations);
+            AppendOutputClause(
+                commandStringBuilder,
+                modificationCommands[0].ColumnModifications,
+                insertedTableName,
+                toInsertTableAlias + "." + positionColumnName);
+            commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+
+            AppendSelectCommand(commandStringBuilder, readOperations, insertedTableName, positionColumnName);
 
             return ResultSetMapping.NotLastInResultSet;
-        }
-
-        private IReadOnlyList<ColumnModification> GetKeyOperations(
-            IReadOnlyList<ColumnModification> operations,
-            IEnumerable<IEntityType> entityTypes)
-        {
-            var properties = operations.Select(o => o.Property);
-            var key = entityTypes
-                .SelectMany(e => e.GetKeys())
-                .FirstOrDefault(k => k.Properties.All(p => properties.Contains(p)));
-
-            return key == null
-                ? null
-                : operations.Where(o => key.Properties.Contains(o.Property)).ToList();
         }
 
         private ResultSetMapping AppendBulkInsertWithServerValuesOnly(
@@ -236,6 +224,40 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
         }
 
+        protected virtual void AppendMergeCommandHeader(
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [NotNull] string toInsertTableName,
+            [NotNull] string toInsertTableAlias,
+            [NotNull] IReadOnlyList<ColumnModification> operations)
+        {
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(operations, nameof(operations));
+
+            commandStringBuilder
+                .Append("MERGE ")
+                .Append(SqlGenerationHelper.DelimitIdentifier(name, schema));
+
+            commandStringBuilder
+                .Append(" USING ")
+                .Append(toInsertTableName)
+                .AppendLine(" AS " + toInsertTableAlias + " ON 1=0")
+                .AppendLine("WHEN NOT MATCHED THEN");
+
+            commandStringBuilder
+                .Append("INSERT ")
+                .Append("(")
+                .AppendJoin(operations.Select(o => SqlGenerationHelper.DelimitIdentifier(o.ColumnName)))
+                .Append(")");
+            AppendValuesHeader(commandStringBuilder, operations);
+            commandStringBuilder
+                .Append("(")
+                .AppendJoin(operations.Select(o => toInsertTableAlias + "." + SqlGenerationHelper.DelimitIdentifier(o.ColumnName)))
+                .Append(")");
+        }
+
         private void AppendValues(
             StringBuilder commandStringBuilder,
             IReadOnlyList<ColumnModification> operations,
@@ -290,112 +312,51 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private void AppendOutputClause(
             StringBuilder commandStringBuilder,
             IReadOnlyList<ColumnModification> operations,
-            string tableName)
+            string tableName,
+            string additionalColumns = null)
         {
             commandStringBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(operations.Select(c => "INSERTED." + SqlGenerationHelper.DelimitIdentifier(c.ColumnName)))
-                .AppendLine()
-                .Append("INTO " + tableName);
+                .AppendJoin(operations.Select(c => "INSERTED." + SqlGenerationHelper.DelimitIdentifier(c.ColumnName)));
+
+            if (additionalColumns != null)
+            {
+                commandStringBuilder
+                    .Append(", ")
+                    .Append(additionalColumns);
+            }
+
+            commandStringBuilder.AppendLine()
+                .Append("INTO ")
+                .Append(tableName);
         }
 
         private ResultSetMapping AppendSelectCommand(
-            StringBuilder commandStringBuilder, IReadOnlyList<ColumnModification> readOperations, string tableName)
+            StringBuilder commandStringBuilder,
+            IReadOnlyList<ColumnModification> readOperations,
+            string tableName,
+            string orderColumn = null)
         {
             commandStringBuilder
                 .AppendLine()
                 .Append("SELECT ")
                 .AppendJoin(readOperations.Select(c => SqlGenerationHelper.DelimitIdentifier(c.ColumnName)))
-                .Append(" FROM " + tableName)
+                .Append(" FROM " + tableName);
+
+            if (orderColumn != null)
+            {
+                commandStringBuilder
+                    .AppendLine()
+                    .Append("ORDER BY ")
+                    .Append(orderColumn);
+            }
+
+            commandStringBuilder
                 .Append(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
-        }
-
-        private void AppendSelectJoinCommand(
-            StringBuilder commandStringBuilder,
-            IReadOnlyList<ColumnModification> readOperations,
-            string tableName,
-            string joinTableName,
-            IReadOnlyList<ColumnModification> joinOperations,
-            string positionColumnName,
-            IReadOnlyList<ColumnModification> keyOperations)
-        {
-            commandStringBuilder
-                .Append("SELECT ")
-                .AppendJoin(readOperations.Select(c => SqlGenerationHelper.DelimitIdentifier(c.ColumnName)))
-                .AppendLine();
-
-            var rowNumberColumnName1 = SqlGenerationHelper.DelimitIdentifier("_RowNumber1");
-            var rowNumberColumnName2 = SqlGenerationHelper.DelimitIdentifier("_RowNumber2");
-            if (keyOperations != null)
-            {
-                var keyColumns = string.Join(", ", keyOperations.Select(c => SqlGenerationHelper.DelimitIdentifier(c.ColumnName, _tableId)));
-                commandStringBuilder
-                    .Append("FROM (SELECT ")
-                    .AppendJoin(readOperations.Select(c => SqlGenerationHelper.DelimitIdentifier(c.ColumnName)))
-                    .Append(", " + SqlGenerationHelper.DelimitIdentifier(positionColumnName) + ",")
-                    .AppendLine()
-                    .AppendFormat("ROW_NUMBER() OVER (PARTITION BY {0} ORDER BY {1}) AS {2},",
-                        keyColumns,
-                        SqlGenerationHelper.DelimitIdentifier(positionColumnName, _joinTableId),
-                        rowNumberColumnName1)
-                    .AppendLine()
-                    .AppendFormat("ROW_NUMBER() OVER (PARTITION BY {0} ORDER BY {1}) AS {2}",
-                        SqlGenerationHelper.DelimitIdentifier(positionColumnName, _joinTableId),
-                        keyColumns,
-                        rowNumberColumnName2)
-                    .AppendLine();
-            }
-
-            commandStringBuilder
-                .Append("FROM " + tableName + " " + SqlGenerationHelper.DelimitIdentifier(_tableId))
-                .AppendLine()
-                .Append("INNER JOIN " + joinTableName + " " + SqlGenerationHelper.DelimitIdentifier(_joinTableId))
-                .Append(" ON ")
-                .AppendJoin(joinOperations, GetColumnCondition, " AND ");
-
-            if (keyOperations != null)
-            {
-                commandStringBuilder
-                    .Append(") [_p]")
-                    .AppendLine()
-                    .Append("WHERE ")
-                    .Append(rowNumberColumnName1 + " = " + rowNumberColumnName2);
-            }
-
-            commandStringBuilder
-                .AppendLine()
-                .Append("ORDER BY " + SqlGenerationHelper.DelimitIdentifier(positionColumnName))
-                .Append(SqlGenerationHelper.StatementTerminator)
-                .AppendLine();
-        }
-
-        private void GetColumnCondition(StringBuilder stringBuilder, ColumnModification columnModification)
-        {
-            var column1 = SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName, _tableId);
-            var column2 = SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName, _joinTableId);
-
-            stringBuilder
-                .Append("(")
-                .Append(column1)
-                .Append(" = ")
-                .Append(column2);
-
-            if (columnModification.Property.IsNullable)
-            {
-                stringBuilder
-                    .Append(" OR (")
-                    .Append(column1)
-                    .Append(" is NULL AND ")
-                    .Append(column2)
-                    .Append(" is NULL)");
-            }
-
-            stringBuilder
-                .Append(")");
         }
 
         protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)

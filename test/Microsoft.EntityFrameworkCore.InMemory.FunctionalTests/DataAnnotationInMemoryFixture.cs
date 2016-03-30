@@ -16,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public DataAnnotationInMemoryFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
@@ -27,10 +25,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseInMemoryDatabase();
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseInMemoryDatabase()
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new DataAnnotationContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new DataAnnotationContext(optionsBuilder.Options))
                     {
                         context.Database.EnsureDeleted();
                         if (context.Database.EnsureCreated())
@@ -42,13 +41,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         }
 
         public override DataAnnotationContext CreateContext(InMemoryTestStore testStore)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
-
-            var context = new DataAnnotationContext(_serviceProvider, optionsBuilder.Options);
-
-            return context;
-        }
+            => new DataAnnotationContext(new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(_serviceProvider).Options);
     }
 }

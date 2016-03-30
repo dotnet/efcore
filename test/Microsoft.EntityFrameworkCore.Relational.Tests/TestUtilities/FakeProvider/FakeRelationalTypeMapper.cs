@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Tests;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
     public class FakeRelationalTypeMapper : RelationalTypeMapper
     {

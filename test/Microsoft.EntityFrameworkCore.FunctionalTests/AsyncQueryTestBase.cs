@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 // ReSharper disable AccessToDisposedClosure
@@ -24,6 +23,41 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
     public abstract class AsyncQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        [ConditionalFact]
+        public virtual async Task ToListAsync_can_be_canceled()
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                // without fix, this usually throws within 2 or three iterations
+
+                using (var context = Fixture.CreateContext())
+                {
+                    var tokenSource = new CancellationTokenSource();
+                    var query = context.Employees.AsNoTracking().ToListAsync(tokenSource.Token);
+                    tokenSource.Cancel();
+                    List<Employee> result = null;
+                    Exception exception = null;
+                    try
+                    {
+                        result = await query;
+                    }
+                    catch (Exception e)
+                    {
+                        exception = e;
+                    }
+
+                    if (exception != null)
+                    {
+                        Assert.Null(result);
+                    }
+                    else
+                    {
+                        Assert.Equal(9, result.Count);
+                    }
+                }
+            }
+        }
+
         public virtual async Task Single_Predicate_Cancellation(CancellationToken cancellationToken)
         {
             await AssertQuery<Customer>(
@@ -2935,6 +2969,36 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 from o in orders.DefaultIfEmpty()
                 select o);
         }
+        
+        [ConditionalFact]
+        public virtual async Task GroupJoin_tracking_groups()
+        {
+            await AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select orders,
+                entryCount: 830,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                         Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual async Task GroupJoin_tracking_groups2()
+        {
+            await AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select new { c, orders },
+                entryCount: 921,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
 
         [ConditionalFact]
         public virtual async Task SelectMany_Joined()
@@ -3318,6 +3382,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         private async Task AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             bool assertOrder = false,
+            int? entryCount = null,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem1 : class
             where TItem2 : class
@@ -3329,6 +3394,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     await query(context.Set<TItem1>(), context.Set<TItem2>()).ToArrayAsync(),
                     assertOrder,
                     asserter);
+
+                if (entryCount != null)
+                {
+                    Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+                }
             }
         }
 

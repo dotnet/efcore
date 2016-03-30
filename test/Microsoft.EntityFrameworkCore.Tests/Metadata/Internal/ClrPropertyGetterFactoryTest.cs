@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class ClrPropertyGetterFactoryTest
     {

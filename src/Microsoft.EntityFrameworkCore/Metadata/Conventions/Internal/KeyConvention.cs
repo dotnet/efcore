@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         public virtual Property FindValueGeneratedOnAddProperty(
-             [NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
+            [NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
         {
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(entityType, nameof(entityType));
@@ -103,38 +103,70 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            var messages = GetShadowKeyExceptionMessage(
+                modelBuilder.Metadata,
+                key => key.Properties.Any(p => p.IsShadowProperty
+                                               && ConfigurationSource.Convention.Overrides(((Property)p).GetConfigurationSource())));
+            if (messages != null
+                && messages.Any())
+            {
+                throw new InvalidOperationException(messages.First());
+            }
+
+            return modelBuilder;
+        }
+
+        public static List<string> GetShadowKeyExceptionMessage([NotNull] IModel model, [NotNull] Func<IKey, bool> keyPredicate)
+        {
+            List<string> messages = null;
+            foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var key in entityType.GetDeclaredKeys())
                 {
-                    if (key.Properties.Any(p => p.IsShadowProperty
-                                                && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())))
+                    if (keyPredicate(key))
                     {
                         string message;
                         var referencingFk = key.FindReferencingForeignKeys().FirstOrDefault();
                         if (referencingFk != null)
                         {
-                            message = CoreStrings.ReferencedShadowKey(
-                                Property.Format(key.Properties),
-                                entityType.Name,
-                                Property.Format(key.Properties),
-                                Property.Format(referencingFk.Properties),
-                                referencingFk.DeclaringEntityType.Name);
+                            if (referencingFk.DependentToPrincipal == null
+                                && referencingFk.PrincipalToDependent == null)
+                            {
+                                message = CoreStrings.ReferencedShadowKeyWithoutNavigations(
+                                    Property.Format(key.Properties),
+                                    entityType.DisplayName(),
+                                    Property.Format(referencingFk.Properties),
+                                    referencingFk.DeclaringEntityType.DisplayName());
+                            }
+                            else
+                            {
+                                message = CoreStrings.ReferencedShadowKey(
+                                    Property.Format(key.Properties),
+                                    entityType.DisplayName() +
+                                    (referencingFk.PrincipalToDependent == null
+                                        ? ""
+                                        : "." + referencingFk.PrincipalToDependent.Name),
+                                    referencingFk.DeclaringEntityType.DisplayName() +
+                                    (referencingFk.DependentToPrincipal == null
+                                        ? ""
+                                        : "." + referencingFk.DependentToPrincipal.Name));
+                            }
                         }
                         else
                         {
                             message = CoreStrings.ShadowKey(
                                 Property.Format(key.Properties),
-                                entityType.Name,
+                                entityType.DisplayName(),
                                 Property.Format(key.Properties));
                         }
 
-                        throw new InvalidOperationException(message);
+                        messages = messages ?? new List<string>();
+                        messages.Add(message);
                     }
                 }
             }
 
-            return modelBuilder;
+            return messages;
         }
     }
 }

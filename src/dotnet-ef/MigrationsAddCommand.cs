@@ -1,8 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Commands
@@ -27,6 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
+            var json = command.JsonOption();
+
             command.HelpOption();
             command.VerboseOption();
 
@@ -46,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Commands
                         outputDir.Value(),
                         context.Value(),
                         startupProject.Value(),
-                        environment.Value());
+                        environment.Value(),
+                        json.HasValue()
+                            ? (Action<MigrationFiles>)ReportJson
+                            : null);
                 });
         }
 
@@ -55,14 +62,30 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string outputDir,
             string context,
             string startupProject,
-            string environment)
+            string environment,
+            Action<MigrationFiles> reporter)
         {
-            new OperationExecutor(startupProject, environment)
+            var files = new OperationExecutor(startupProject, environment)
                 .AddMigration(name, outputDir, context);
+
+            reporter?.Invoke(files);
 
             Reporter.Error.WriteLine("Done. To undo this action, use 'ef migrations remove'");
 
             return 0;
         }
+
+        private static void ReportJson(MigrationFiles files)
+        {
+            // TODO use a real json serializer
+            Reporter.Output.WriteLine("{");
+            Reporter.Output.WriteLine("   \"MigrationFile\": \""+ SerializePath(files.MigrationFile) + "\",");
+            Reporter.Output.WriteLine("   \"MetadataFile\": \"" + SerializePath(files.MetadataFile) + "\",");
+            Reporter.Output.WriteLine("   \"SnapshotFile\": \"" + SerializePath(files.SnapshotFile) + "\"");
+            Reporter.Output.WriteLine("}");
+        }
+
+        private static string SerializePath(string path)
+            => path.Replace("\\", "\\\\");
     }
 }

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 {
     public class ForeignKeyPropertyDiscoveryConventionTest
     {
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         {
             DependentType.PrimaryKey(new[] { DependentEntity.PrincipalEntityPeEKaYProperty }, ConfigurationSource.Explicit);
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
@@ -350,7 +350,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             var fkProperty = DependentType.Metadata.FindPrimaryKey().Properties.Single();
 
             var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
-                .PrincipalEntityType(PrincipalType, ConfigurationSource.DataAnnotation)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
                 .IsRequired(false, ConfigurationSource.DataAnnotation);
 
@@ -367,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         [Fact]
         public void Does_not_match_dependent_PK_for_self_ref()
         {
-            var relationshipBuilder = PrincipalType.Relationship(PrincipalType, ConfigurationSource.Convention)
+            var relationshipBuilder = PrincipalType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
                 .IsUnique(true, ConfigurationSource.DataAnnotation);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
@@ -470,8 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             var fkProperty1 = DependentTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties[0];
             DependentTypeWithCompositeKey.PrimaryKey(new[] { fkProperty1.Name }, ConfigurationSource.Explicit);
 
-            var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
-                PrincipalTypeWithCompositeKey, ConfigurationSource.Convention)
+            var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(PrincipalTypeWithCompositeKey, ConfigurationSource.Convention)
                 .HasPrincipalKey(PrincipalTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties, ConfigurationSource.DataAnnotation)
                 .IsUnique(true, ConfigurationSource.DataAnnotation);
 
@@ -564,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         {
             var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
@@ -586,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
         {
             var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
@@ -609,8 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
             PrincipalType.Property(PrincipalEntity.DependentEntityKayPeeProperty, ConfigurationSource.Convention);
 
-            var relationshipBuilder = DependentType.Relationship(
-                PrincipalType, ConfigurationSource.Convention)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
@@ -630,8 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
             var fkProperty = PrincipalType.Property(PrincipalEntity.DependentEntityKayPeeProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationshipBuilder = DependentType.Relationship(
-                PrincipalType, ConfigurationSource.Convention)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
                 .IsUnique(true, ConfigurationSource.Convention)
                 .IsRequired(false, ConfigurationSource.DataAnnotation);
 
@@ -705,6 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
 
             var property = DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);
 
+            Assert.Same(property, new ForeignKeyPropertyDiscoveryConvention().Apply(property));
             Assert.Same(property, new ForeignKeyPropertyDiscoveryConvention().Apply(property));
 
             var newFk = DependentType.Metadata.GetForeignKeys().Single();

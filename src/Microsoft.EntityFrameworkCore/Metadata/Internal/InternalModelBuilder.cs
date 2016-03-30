@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityTypeBuilder = entityType.Builder;
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
             {
-                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource, runConventions: false);
+                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 

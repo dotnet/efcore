@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 {
     public class KeyConventionTest
     {
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
             entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.Convention);
 
-            Assert.Equal(CoreStrings.ShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}"),
+            Assert.Equal(CoreStrings.ShadowKey("{'Foo'}", typeof(SampleEntity).Name, "{'Foo'}"),
                 Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
         }
 
@@ -448,7 +448,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
-            Assert.Equal(CoreStrings.ReferencedShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}", "{'Foo'}", typeof(ReferencedEntity).FullName),
+            Assert.Equal(CoreStrings.ReferencedShadowKeyWithoutNavigations(
+                "{'Foo'}",
+                typeof(SampleEntity).Name,
+                "{'Foo'}",
+                typeof(ReferencedEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
         }
 

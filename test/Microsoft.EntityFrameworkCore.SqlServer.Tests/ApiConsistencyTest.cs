@@ -4,6 +4,7 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Tests;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {

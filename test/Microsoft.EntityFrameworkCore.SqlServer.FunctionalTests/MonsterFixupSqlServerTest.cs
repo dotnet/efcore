@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -23,9 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
             var serviceCollection = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection();
+                .AddEntityFrameworkSqlServer();
 
             if (throwingStateManager)
             {

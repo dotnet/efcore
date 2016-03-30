@@ -3,7 +3,9 @@
   "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk",
-    "nowarn": [ "CS1591" ],
+    "nowarn": [
+      "CS1591"
+    ],
     "xmlDoc": true
   },
   "dependencies": {
@@ -12,49 +14,53 @@
     "xunit": "2.1.0"
   },
   "testRunner": "xunit",
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
-    "net451": {
-      "frameworkAssemblies": {
-        "System.Collections": { "type": "build" },
-        "System.Diagnostics.Debug": { "type": "build" },
-        "System.Globalization": { "type": "build" },
-        "System.Linq": { "type": "build" },
-        "System.ObjectModel": { "type": "build" },
-        "System.Reflection": { "type": "build" },
-        "System.Reflection.Extensions": { "type": "build" },
-        "System.Runtime": { "type": "build" },
-        "System.Runtime.Extensions": { "type": "build" },
-        "System.Text.RegularExpressions": { "type": "build" },
-        "System.Threading.Tasks": { "type": "build" }
-      }
-    },
-    "dnx451": {
-      "frameworkAssemblies": {
-        "System.Collections": "",
-        "System.Diagnostics.Debug": "",
-        "System.Globalization": "",
-        "System.Linq": "",
-        "System.ObjectModel": "",
-        "System.Reflection": "",
-        "System.Reflection.Extensions": "",
-        "System.Runtime": "",
-        "System.Runtime.Extensions": "",
-        "System.Text.RegularExpressions": "",
-        "System.Threading.Tasks": ""
-      },
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
-    },
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.CSharp": "4.0.1-*",
         "Microsoft.NETCore.Platforms": "1.0.1-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "dotnet-test-xunit": "1.0.0-dev-*"
+      }
+    },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Collections": {
+          "type": "build"
+        },
+        "System.Diagnostics.Debug": {
+          "type": "build"
+        },
+        "System.Globalization": {
+          "type": "build"
+        },
+        "System.Linq": {
+          "type": "build"
+        },
+        "System.ObjectModel": {
+          "type": "build"
+        },
+        "System.Reflection": {
+          "type": "build"
+        },
+        "System.Reflection.Extensions": {
+          "type": "build"
+        },
+        "System.Runtime": {
+          "type": "build"
+        },
+        "System.Runtime.Extensions": {
+          "type": "build"
+        },
+        "System.Text.RegularExpressions": {
+          "type": "build"
+        },
+        "System.Threading.Tasks": {
+          "type": "build"
+        }
       }
     }
   }

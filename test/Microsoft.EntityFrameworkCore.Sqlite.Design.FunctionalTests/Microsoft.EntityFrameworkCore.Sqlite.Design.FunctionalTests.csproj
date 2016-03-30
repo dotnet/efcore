@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2A62F6C9-B7F3-443B-A253-931D38879A9C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ReverseEngineering\SqliteAllFluentApiE2ETest.cs" />
+    <Compile Include="ReverseEngineering\SqliteAttributesInsteadOfFluentApiE2ETest.cs" />
+    <Compile Include="ReverseEngineering\SqliteE2ETestBase.cs" />
+    <Compile Include="SqliteDatabaseModelFactoryTest.cs" />
+    <Compile Include="SqliteScaffoldingModelFactoryTest.cs" />
+    <Compile Include="TestLogger.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+    <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\Comment.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\FkToAltKeyContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\User.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Groups.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\ManyToManyFluentApiContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users_Groups.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\Dependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\NoPrincipalPkFluentApiContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToMany\OneToManyDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToMany\OneToManyFluentApiContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToMany\OneToManyPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOne\Dependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOne\OneToOneFluentApiContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOne\Principal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\SelfRef\SelfRef.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\SelfRef\SelfRefFluentApiContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\FkToAltKey\Comment.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\FkToAltKey\FkToAltKeyContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\FkToAltKey\User.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\Groups.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\ManyToManyAttributesContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\Users.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\Users_Groups.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\NoPrincipalPk\Dependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\NoPrincipalPk\NoPrincipalPkAttributesContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToMany\OneToManyAttributesContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToMany\OneToManyDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToMany\OneToManyPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOne\Dependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOne\OneToOneAttributesContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\OneToOne\Principal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\SelfRef\SelfRef.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Attributes\SelfRef\SelfRefAttributesContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Commands\Microsoft.EntityFrameworkCore.Commands.csproj">
+      <Project>{1731bb70-07e9-4a96-85fc-e731276ef4bc}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj">
+      <Project>{1942c281-c12b-4818-8cc8-c42842871ff5}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+      <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite.Design\Microsoft.EntityFrameworkCore.Sqlite.Design.csproj">
+      <Project>{d94396a3-391f-4015-9b61-89a9e08d6618}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Sqlite.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite\Microsoft.EntityFrameworkCore.Sqlite.csproj">
+      <Project>{a257c01b-bb91-44ba-831c-1e04f7800ac8}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
+      <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
+      <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.csproj">
+      <Project>{d21b92b9-3684-40f2-9643-8d84e89784b4}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.FunctionalTests.csproj">
+      <Project>{47c167c3-abb0-442d-b528-7666e1fbf19a}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests\Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.csproj">
+      <Project>{7bb7d051-56d7-4a40-a29e-3801f5c19239}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

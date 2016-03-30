@@ -3,10 +3,11 @@
 
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Tests
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 {
     public class EntityTypeExtensionsTest
     {

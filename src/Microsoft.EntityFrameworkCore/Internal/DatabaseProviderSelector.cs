@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _providers = providers?.ToArray() ?? new IDatabaseProvider[0];
         }
 
-        public virtual IDatabaseProviderServices SelectServices(ServiceProviderSource providerSource)
+        public virtual IDatabaseProviderServices SelectServices()
         {
             var configured = _providers.Where(f => f.IsConfigured(_contextOptions)).ToArray();
 
@@ -38,15 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (configured.Length > 1)
             {
                 throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(configured)));
-            }
-
-            if (_providers.Length == 0)
-            {
-                if (providerSource == ServiceProviderSource.Implicit)
-                {
-                    throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
-                }
-                throw new InvalidOperationException(CoreStrings.NoProviderServices);
             }
 
             if (_providers.Length > 1)

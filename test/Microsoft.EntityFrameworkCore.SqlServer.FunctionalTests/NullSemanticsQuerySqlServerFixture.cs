@@ -4,8 +4,8 @@
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -22,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public NullSemanticsQuerySqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
@@ -34,10 +32,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(_connectionString);
-
-                using (var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options))
+                using (var context = new NullSemanticsContext(new DbContextOptionsBuilder()
+                    .UseSqlServer(_connectionString)
+                    .UseInternalServiceProvider(_serviceProvider).Options))
                 {
                     // TODO: Delete DB if model changed
 
@@ -53,19 +50,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override NullSemanticsContext CreateContext(SqlServerTestStore testStore, bool useRelationalNulls)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-
-            var sqlServerOptions
-                = optionsBuilder
-                    .EnableSensitiveDataLogging()
-                    .UseSqlServer(testStore.Connection);
-
-            if (useRelationalNulls)
-            {
-                sqlServerOptions.UseRelationalNulls();
-            }
-
-            var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
+            var context = new NullSemanticsContext(new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseSqlServer(
+                    testStore.Connection,
+                    b =>
+                        {
+                            if (useRelationalNulls)
+                            {
+                                b.UseRelationalNulls();
+                            }
+                        }).Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

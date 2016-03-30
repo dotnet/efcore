@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);CSPROJ</DefineConstants>
+    <DefineConstants Condition=" '$(TargetFrameworkMoniker)' == '.NETFramework,Version=v4.5.1' ">$(DefineConstants);NET451</DefineConstants>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <NuGetTarget Condition=" '$(NuGetTarget)' == '' ">$(TargetFrameworkMoniker)/win7-x86</NuGetTarget>
+    <ProjectLockTargetsFile>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)project.lock.targets</ProjectLockTargetsFile>
+  </PropertyGroup>
+  <UsingTask TaskName="GenerateProjectLockTargets"
+             TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <NuGetPackagesDirectory />
+      <NuGetTarget />
+      <ProjectLockFile />
+      <ProjectLockTargetsFile />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Web.Extensions" />
+      <Reference Include="Microsoft.CSharp" />
+      <Using Namespace="System.Web.Script.Serialization" />
+      <Code Language="cs">
+        <![CDATA[
+        Directory.CreateDirectory(Path.GetDirectoryName(ProjectLockTargetsFile));
+        using (var writer = File.CreateText(ProjectLockTargetsFile))
+        {
+            dynamic lockFile = new JavaScriptSerializer().DeserializeObject(File.ReadAllText(ProjectLockFile));
+            var targets = lockFile["targets"];
+            var target = targets[NuGetTarget];
+
+            writer.WriteLine("<?xml version='1.0' encoding='utf-8' ?>");
+            writer.WriteLine("<Project ToolsVersion='14.0' xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>");
+            writer.WriteLine("  <ItemGroup>");
+
+            var frameworkAssemblies = new List<string>();
+
+            foreach (var dependencyKey in target.Keys)
+            {
+                var dependency = target[dependencyKey];
+
+                if (dependency["type"] != "package")
+                {
+                    continue;
+                }
+
+                if (dependency.ContainsKey("frameworkAssemblies"))
+                {
+                    foreach (var frameworkAssembly in dependency["frameworkAssemblies"])
+                    {
+                        if (!frameworkAssemblies.Contains(frameworkAssembly))
+                        {
+                            frameworkAssemblies.Add(frameworkAssembly);
+                        }
+                    }
+                }
+
+                if (dependency.ContainsKey("compile"))
+                {
+                    foreach (var reference in dependency["compile"].Keys)
+                    {
+                        if (Path.GetFileName(reference) == "_._")
+                        {
+                            continue;
+                        }
+
+                        writer.Write("    <Reference Include='");
+                        writer.Write(Path.GetFileNameWithoutExtension(reference));
+                        writer.WriteLine("'>");
+                        writer.Write(@"      <HintPath>");
+                        writer.Write(Path.Combine(NuGetPackagesDirectory, dependencyKey, reference).Replace('/', '\\'));
+                        writer.WriteLine("</HintPath>");
+                        writer.WriteLine("    </Reference>");
+                    }
+                }
+                
+                var contents = new List<string>();
+
+                if (dependency.ContainsKey("runtime"))
+                {
+                    contents.AddRange(dependency["runtime"].Keys);
+                }
+                
+                if (dependency.ContainsKey("native"))
+                {
+                    contents.AddRange(dependency["native"].Keys);
+                }
+                
+                foreach (var content in contents)
+                {
+                    writer.Write(@"    <Content Include='");
+                    writer.Write(Path.Combine(NuGetPackagesDirectory, dependencyKey, content).Replace('/', '\\'));
+                    writer.WriteLine("'>");
+                    writer.WriteLine("      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>");
+                    writer.WriteLine("      <Visible>False</Visible>");
+                    writer.WriteLine("    </Content>");
+                }
+            }
+
+            foreach (var frameworkAssembly in frameworkAssemblies)
+            {
+                writer.Write("    <Reference Include='");
+                writer.Write(frameworkAssembly);
+                writer.WriteLine("' />");
+            }
+
+            writer.WriteLine("  </ItemGroup>");
+            writer.WriteLine("</Project>");
+        }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="GenerateProjectLockTargets">
+    <GenerateProjectLockTargets NuGetPackagesDirectory="$(NuGetPackagesDirectory)"
+                                NuGetTarget="$(NuGetTarget)"
+                                ProjectLockFile="$(ProjectLockFile)"
+                                ProjectLockTargetsFile="$(ProjectLockTargetsFile)" />
+  </Target>
+  <Import Condition="Exists('$(ProjectLockTargetsFile)')"
+          Project="$(ProjectLockTargetsFile)" />
+</Project>

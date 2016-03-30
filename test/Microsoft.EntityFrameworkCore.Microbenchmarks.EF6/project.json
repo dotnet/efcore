@@ -1,18 +1,11 @@
 {
   "dependencies": {
     "EntityFramework": "6.1.2",
-    "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
-  "content": "config.json",
+  "contentFiles": "config.json",
   "testRunner": "xunit",
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
-    }
+    "net451": { }
   }
 }

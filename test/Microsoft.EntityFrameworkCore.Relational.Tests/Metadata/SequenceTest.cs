@@ -3,10 +3,11 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 {
     public class SequenceTest
     {

@@ -30,18 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] ILoggerProvider loggerProvider,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
-            [CanBeNull] string environment)
+            [CanBeNull] string environment,
+            [NotNull] string startupProjectDir)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
+            Check.NotEmpty(startupProjectDir, nameof(startupProjectDir));
 
             _loggerProvider = loggerProvider;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
-            var startup = new StartupInvoker(startupAssembly, environment);
+            var startup = new StartupInvoker(startupAssembly, environment, startupProjectDir);
             _runtimeServices = startup.ConfigureServices();
         }
 

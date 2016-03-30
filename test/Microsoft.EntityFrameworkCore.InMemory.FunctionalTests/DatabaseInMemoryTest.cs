@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -19,19 +18,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             var model = CreateModel();
 
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestFileLogger.Factory)
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase();
+            var options = new DbContextOptionsBuilder()
+                .UseModel(model)
+                .UseInternalServiceProvider(serviceProvider)
+                .UseInMemoryDatabase()
+                .Options;
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
-            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(options))
             {
                 context.Add(customer);
 
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 customer.Name = "Changed!";
             }
 
-            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal("Theon", customerFromStore.Name);
             }
 
-            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(options))
             {
                 customer.Name = "Theon Greyjoy";
                 context.Update(customer);
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -64,14 +63,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
             }
 
-            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(options))
             {
                 context.Remove(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(serviceProvider, optionsBuilder.Options))
+            using (var context = new DbContext(options))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }

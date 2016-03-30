@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DA30FC85-8D88-4BB2-98CE-B8A5845BB3EA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.Design</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
+      <Link>AsyncEnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>LoggingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PropertyInfoExtensions.cs">
+      <Link>PropertyInfoExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Metadata\SqlServerColumnModelAnnotations.cs" />
+    <Compile Include="Metadata\SqlServerDatabaseModelAnnotationNames.cs" />
+    <Compile Include="Metadata\SqlServerDatabaseModelAnnotations.cs" />
+    <Compile Include="Metadata\SqlServerDatabaseModelExtensions.cs" />
+    <Compile Include="Metadata\SqlServerIndexModelAnnotations.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\SqlServerDesignStrings.Designer.cs">
+      <DependentUpon>SqlServerDesignStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="SqlDataReaderExtension.cs" />
+    <Compile Include="SqlServerDatabaseModelFactory.cs" />
+    <Compile Include="SqlServerDesignTimeServices.cs" />
+    <Compile Include="SqlServerScaffoldingModelFactory.cs" />
+    <Compile Include="SqlServerTableSelectionSetExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\SqlServerDesignStrings.resx">
+      <LogicalName>Microsoft.EntityFrameworkCore.SqlServer.Design.Properties.SqlServerDesignStrings.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Design\Microsoft.EntityFrameworkCore.Relational.Design.csproj">
+      <Project>{1942c281-c12b-4818-8cc8-c42842871ff5}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+      <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.SqlServer\Microsoft.EntityFrameworkCore.SqlServer.csproj">
+      <Project>{99595b81-d47c-40ba-8c61-5328a5a0e4ab}</Project>
+      <Name>Microsoft.EntityFrameworkCore.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+      <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
+      <Name>Microsoft.EntityFrameworkCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

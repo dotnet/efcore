@@ -59,11 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
+        // Needed for a workaround before reference counting is implemented
+        // Issue #214
+        public virtual void SetConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = configurationSource;
+
         public virtual Type ClrType
         {
             get { return _clrType ?? DefaultClrType; }
-            [param: NotNull]
-            set { HasClrType(value, ConfigurationSource.Explicit); }
+            [param: NotNull] set { HasClrType(value, ConfigurationSource.Explicit); }
         }
 
         public virtual void HasClrType([NotNull] Type type, ConfigurationSource configurationSource)
@@ -193,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get
             {
                 bool value;
-                return TryGetFlag(PropertyFlags.IsReadOnlyAfterSave, out value) ? value  : DefaultIsReadOnlyAfterSave;
+                return TryGetFlag(PropertyFlags.IsReadOnlyAfterSave, out value) ? value : DefaultIsReadOnlyAfterSave;
             }
             set { SetIsReadOnlyAfterSave(value, ConfigurationSource.Explicit); }
         }
@@ -434,8 +438,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         public virtual IKey PrimaryKey { get; [param: CanBeNull] set; }
-        public virtual IReadOnlyList<IKey> Keys { get;[param: CanBeNull] set; }
-        public virtual IReadOnlyList<IForeignKey> ForeignKeys { get;[param: CanBeNull] set; }
+        public virtual IReadOnlyList<IKey> Keys { get; [param: CanBeNull] set; }
+        public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
 
         private PropertyIndexes CalculateIndexes() => DeclaringEntityType.CalculateIndexes(this);
     }

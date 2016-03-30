@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 {
     public class ConventionDispatcherTest
     {
@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions
             {
                 Assert.Null(
                     dependentEntityBuilder
-                        .Relationship(entityBuilder, ConfigurationSource.Convention)
+                        .Relationship(entityBuilder, ConfigurationSource.Convention, setPrincipalEnd: false)
                         .HasPrincipalKey(entityBuilder.Metadata.FindPrimaryKey().Properties, ConfigurationSource.Convention));
             }
             else

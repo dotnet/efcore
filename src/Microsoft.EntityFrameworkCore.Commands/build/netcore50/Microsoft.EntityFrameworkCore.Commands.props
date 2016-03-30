@@ -3,6 +3,5 @@
   <PropertyGroup>
     <!-- TODO: Consider alternate solutions for working with project.json -->
     <CopyNuGetImplementations>true</CopyNuGetImplementations>
-    <_EfCommandsReferenced>true</_EfCommandsReferenced>
   </PropertyGroup>
 </Project>

@@ -8,9 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class SubQueryMemberPushDownExpressionVisitor : ExpressionVisitorBase, ISubQueryMemberPushDownExpressionVisitor
     {
-        protected override Expression VisitMember(MemberExpression node)
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var newExpression = Visit(node.Expression);
+            var newExpression = Visit(memberExpression.Expression);
 
             var subQueryExpression = newExpression as SubQueryExpression;
             var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector;
@@ -20,20 +20,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var subQueryModel = subQueryExpression.QueryModel;
 
-                subQueryModel.SelectClause.Selector = VisitMember(node.Update(subSelector));
+                subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subSelector));
                 subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
 
                 return new SubQueryExpression(subQueryModel);
             }
 
-            return node.Update(newExpression);
+            return memberExpression.Update(newExpression);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            var newMethodCallExpression = (MethodCallExpression)base.VisitMethodCall(node);
+            var newMethodCallExpression = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
 
-            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
             {
                 var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
                 var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
@@ -43,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     var subQueryModel = subQueryExpression.QueryModel;
 
                     subQueryModel.SelectClause.Selector
-                        = node
+                        = methodCallExpression
                             .Update(
                                 null,
                                 new[]
                                 {
                                     subSelector,
-                                    node.Arguments[1]
+                                    methodCallExpression.Arguments[1]
                                 });
 
                     subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
@@ -59,6 +59,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return newMethodCallExpression;
+        }
+
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        {
+            subQueryExpression.QueryModel.TransformExpressions(Visit);
+
+            return subQueryExpression;
         }
     }
 }

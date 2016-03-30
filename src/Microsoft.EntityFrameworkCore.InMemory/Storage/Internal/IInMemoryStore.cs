@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -22,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         IReadOnlyList<InMemoryTableSnapshot> GetTables([NotNull] IEntityType entityType);
 
-        int ExecuteTransaction([NotNull] IEnumerable<IUpdateEntry> entries);
+        int ExecuteTransaction([NotNull] IEnumerable<IUpdateEntry> entries, [NotNull] ILogger<InMemoryDatabase> logger);
     }
 }

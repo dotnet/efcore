@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class BloggingContext : DbContext
         {
             public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+                : base(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options)
             {
             }
 
@@ -124,9 +125,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             _testStore = SqlServerTestStore.CreateScratch();
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
         }
 

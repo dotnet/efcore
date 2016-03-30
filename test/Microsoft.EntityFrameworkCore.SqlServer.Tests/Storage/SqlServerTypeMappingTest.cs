@@ -4,8 +4,9 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Relational.Tests.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Storage
 {
     public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {

@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -21,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public InheritanceRelationshipsQuerySqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
@@ -33,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
             {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(_connectionString);
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseSqlServer(_connectionString)
+                    .UseInternalServiceProvider(_serviceProvider);
 
-                using (var context = new InheritanceRelationshipsContext(_serviceProvider, optionsBuilder.Options))
+                using (var context = new InheritanceRelationshipsContext(optionsBuilder.Options))
                 {
                     // TODO: Delete DB if model changed
                     context.Database.EnsureDeleted();
@@ -52,10 +52,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         public override InheritanceRelationshipsContext CreateContext(SqlServerTestStore testStore)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlServer(testStore.Connection)
+                .UseInternalServiceProvider(_serviceProvider);
 
-            var context = new InheritanceRelationshipsContext(_serviceProvider, optionsBuilder.Options);
+            var context = new InheritanceRelationshipsContext(optionsBuilder.Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

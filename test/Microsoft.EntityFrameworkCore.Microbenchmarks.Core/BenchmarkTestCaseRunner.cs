@@ -9,7 +9,6 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.PlatformAbstractions;
-using XunitDiagnosticMessage = Xunit.DiagnosticMessage;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
@@ -79,12 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 
             if (runSummary.Failed != 0)
             {
-                _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage($"No valid results for {TestCase.DisplayName}. {runSummary.Failed} of {TestCase.Iterations + TestCase.WarmupIterations} iterations failed."));
+                _diagnosticMessageSink.OnMessage(new DiagnosticMessage($"No valid results for {TestCase.DisplayName}. {runSummary.Failed} of {TestCase.Iterations + TestCase.WarmupIterations} iterations failed."));
             }
             else
             {
                 runSummary.PopulateMetrics();
-                _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage(runSummary.ToString()));
+                _diagnosticMessageSink.OnMessage(new DiagnosticMessage(runSummary.ToString()));
 
                 foreach (var database in BenchmarkConfig.Instance.ResultDatabases)
                 {
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                     }
                     catch (Exception ex)
                     {
-                        _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage($"Failed to save results to {database}{Environment.NewLine} {ex}"));
+                        _diagnosticMessageSink.OnMessage(new DiagnosticMessage($"Failed to save results to {database}{Environment.NewLine} {ex}"));
                         throw;
                     }
                 }
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 
         private static string GetMachineName()
         {
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
             var config = new ConfigurationBuilder()
                 .SetBasePath(".")
                 .AddEnvironmentVariables()

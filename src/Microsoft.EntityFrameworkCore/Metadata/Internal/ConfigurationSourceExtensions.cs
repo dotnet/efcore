@@ -35,15 +35,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        public static ConfigurationSource Max(this ConfigurationSource left, ConfigurationSource? right)
+        public static ConfigurationSource? Max(this ConfigurationSource? left, ConfigurationSource? right)
         {
             if (!right.HasValue
-                || left.Overrides(right.Value))
+                || (left.HasValue
+                    && left.Value.Overrides(right.Value)))
             {
                 return left;
             }
 
             return right.Value;
         }
+
+        public static ConfigurationSource Max(this ConfigurationSource left, ConfigurationSource? right)
+            => Max((ConfigurationSource?)left, right).Value;
     }
 }

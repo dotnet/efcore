@@ -3,10 +3,10 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Tests;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 {
     public class RelationalTypeMapperTest
     {

@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests
@@ -88,14 +89,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             public string Something { get; set; }
 
-            public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public virtual void ApplyServices(IServiceCollection services)
             {
             }
         }
 
         private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
         {
-            public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public virtual void ApplyServices(IServiceCollection services)
             {
             }
         }

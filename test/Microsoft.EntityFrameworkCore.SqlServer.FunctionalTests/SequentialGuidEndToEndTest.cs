@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -17,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public async Task Can_use_sequential_GUID_end_to_end_async()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "GooieBronies"))
@@ -50,9 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public async Task Can_use_explicit_values()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             var guids = new List<Guid>();
@@ -84,20 +81,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class BronieContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly string _databaseName;
 
             public BronieContext(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _databaseName = databaseName;
             }
 
             public DbSet<Pegasus> Pegasuses { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
         }
 
         private class Pegasus

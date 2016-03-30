@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
@@ -30,10 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
         {
             var navigationPropertyPath
-                = (MemberExpression)Source.Resolve(
+                = Source.Resolve(
                     _navigationPropertyPathLambda.Parameters[0],
                     _navigationPropertyPathLambda.Body,
-                    clauseGenerationContext);
+                    clauseGenerationContext) as MemberExpression;
+
+            if (navigationPropertyPath == null)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidComplexPropertyExpression(_navigationPropertyPathLambda));
+            }
 
             var includeResultOperator = new IncludeResultOperator(navigationPropertyPath);
 

@@ -5,19 +5,22 @@ using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class CodeCompilationTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Migrations_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -97,13 +100,13 @@ namespace MyNamespace
             {
                 References =
                 {
-                    BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
                     BuildReference.ByName("System.Text.RegularExpressions"),
 #else
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands.FunctionalTests", depContextAssembly: GetType().GetTypeInfo().Assembly),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
@@ -127,7 +130,7 @@ namespace MyNamespace
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Snapshots_compile()
         {
             var codeHelper = new CSharpHelper();
@@ -167,13 +170,14 @@ namespace MyNamespace
             {
                 References =
                 {
-                    BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
-#if DNXCORE50
+#if NETSTANDARDAPP1_5
+                    BuildReference.ByName("System.Runtime"),
                     BuildReference.ByName("System.Text.RegularExpressions"),
 #else
                     BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Commands.FunctionalTests", depContextAssembly: GetType().GetTypeInfo().Assembly),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },

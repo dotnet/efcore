@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class RelationalDesignStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Relational.Design.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Relational.Design.Properties.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.
@@ -45,19 +45,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not scaffold the foreign key '{foreignKeyName}'.  Some columns in the foreign key could not be scaffolded.
+        /// Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.
         /// </summary>
-        public static string ForeignKeyScaffoldErrorPropertyNotFound([CanBeNull] object foreignKeyName)
+        public static string ForeignKeyScaffoldErrorPropertyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnNames)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldErrorPropertyNotFound", "foreignKeyName"), foreignKeyName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldErrorPropertyNotFound", "foreignKeyName", "columnNames"), foreignKeyName, columnNames);
         }
 
         /// <summary>
-        /// Could not scaffold the primary key for '{tableName}'. Some columns in the primary key could not be scaffolded.
+        /// Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.
         /// </summary>
-        public static string PrimaryKeyErrorPropertyNotFound([CanBeNull] object tableName)
+        public static string PrimaryKeyErrorPropertyNotFound([CanBeNull] object tableName, [CanBeNull] object columnNames)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PrimaryKeyErrorPropertyNotFound", "tableName"), tableName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("PrimaryKeyErrorPropertyNotFound", "tableName", "columnNames"), tableName, columnNames);
         }
 
         /// <summary>
@@ -93,11 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Unable to scaffold the index '{indexName}' because at least one of the properties it contains could not be scaffolded.
+        /// Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.
         /// </summary>
-        public static string UnableToScaffoldIndexMissingProperty([CanBeNull] object indexName)
+        public static string UnableToScaffoldIndexMissingProperty([CanBeNull] object indexName, [CanBeNull] object columnNames)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToScaffoldIndexMissingProperty", "indexName"), indexName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToScaffoldIndexMissingProperty", "indexName", "columnNames"), indexName, columnNames);
         }
 
         /// <summary>

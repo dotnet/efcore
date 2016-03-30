@@ -721,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 entityType.AddKey(shadowProperty);
 
                 Assert.Equal(
-                    CoreStrings.ShadowKey("{'ShadowProperty'}", typeof(SelfRef).FullName, "{'ShadowProperty'}"),
+                    CoreStrings.ShadowKey("{'ShadowProperty'}", typeof(SelfRef).Name, "{'ShadowProperty'}"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
         }

@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             set { _rowNumberPaging = value; }
         }
 
-        public override void ApplyServices(EntityFrameworkServicesBuilder builder)
-            => Check.NotNull(builder, nameof(builder)).AddSqlServer();
+        public override void ApplyServices(IServiceCollection services)
+            => Check.NotNull(services, nameof(services)).AddEntityFrameworkSqlServer();
     }
 }

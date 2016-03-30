@@ -28,12 +28,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private static async Task Can_use_an_existing_closed_connection_test(bool openConnection)
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .BuildServiceProvider();
 
             using (var store = SqlServerNorthwindContext.GetSharedStore())
             {
@@ -59,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                                 closeCount++;
                             }
                         };
-#if DNX451
+#if NET451
                     connection.Disposed += (_, __) => disposeCount++;
 #endif
 
@@ -88,29 +85,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class NorthwindContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly SqlConnection _connection;
 
             public NorthwindContext(IServiceProvider serviceProvider, SqlConnection connection)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _connection = connection;
             }
 
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_connection);
-            }
+                => optionsBuilder
+                    .UseSqlServer(_connection)
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(b =>
+                => modelBuilder.Entity<Customer>(b =>
                     {
                         b.HasKey(c => c.CustomerID);
                         b.ForSqlServerToTable("Customers");
                     });
-            }
         }
 
         private class Customer

@@ -1,39 +1,24 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ChangeDetector : IChangeDetector
     {
-        private readonly IEntityGraphAttacher _attacher;
         private bool _suspended;
 
-        public ChangeDetector([NotNull] IEntityGraphAttacher attacher)
-        {
-            _attacher = attacher;
-        }
+        public virtual void Suspend() => _suspended = true;
 
-        public virtual void Suspend()
-        {
-            _suspended = true;
-        }
+        public virtual void Resume() => _suspended = false;
 
-        public virtual void Resume()
-        {
-            _suspended = false;
-        }
-
-        public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
+        public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase, bool setModified)
         {
             if (_suspended)
             {
@@ -43,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var property = propertyBase as IProperty;
             if (property != null)
             {
-                entry.SetPropertyModified(property);
+                entry.SetPropertyModified(property, setModified);
 
                 if (property.GetRelationshipIndex() != -1)
                 {
@@ -80,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual void DetectChanges(IStateManager stateManager)
         {
-            foreach (var entry in stateManager.Entries.ToList())
+            foreach (var entry in stateManager.Entries.Where(e => e.EntityState != EntityState.Detached).ToList())
             {
                 DetectChanges(entry);
             }
@@ -103,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var property in entityType.GetProperties())
             {
-                if ((property.GetOriginalValueIndex() >= 0)
+                if (property.GetOriginalValueIndex() >= 0
                     && !Equals(entry[property], entry.GetOriginalValue(property)))
                 {
                     entry.SetPropertyModified(property);
@@ -155,11 +140,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static void DetectKeyChange(InternalEntityEntry entry, IProperty property)
         {
-            var keys = property.FindContainingKeys().ToList();
-            var foreignKeys = property.FindContainingForeignKeys().ToList();
-
-            if ((keys.Count > 0)
-                || (foreignKeys.Count > 0))
+            if (property.GetRelationshipIndex() >= 0)
             {
                 var snapshotValue = entry.GetRelationshipSnapshotValue(property);
                 var currentValue = entry[property];
@@ -168,29 +149,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    var stateManager = entry.StateManager;
+                    var keys = property.FindContainingKeys().ToList();
+                    var foreignKeys = property.FindContainingForeignKeys().ToList();
 
-                    if (foreignKeys.Count > 0)
-                    {
-                        stateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
-
-                        foreach (var foreignKey in foreignKeys)
-                        {
-                            stateManager.UpdateDependentMap(entry, foreignKey);
-                        }
-                    }
-
-                    if (keys.Count > 0)
-                    {
-                        foreach (var key in keys)
-                        {
-                            stateManager.UpdateIdentityMap(entry, key);
-                        }
-
-                        stateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
-                    }
-
-                    entry.SetRelationshipSnapshotValue(property, currentValue);
+                    entry.StateManager.Notify.KeyPropertyChanged(entry, property, keys, foreignKeys, snapshotValue, currentValue);
                 }
             }
         }
@@ -201,7 +163,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var currentValue = entry[navigation];
             var stateManager = entry.StateManager;
 
-            var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
             if (navigation.IsCollection())
             {
@@ -216,6 +177,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         removed.Add(entity);
                     }
                 }
+
+                var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
                 if (currentCollection != null)
                 {
@@ -232,37 +195,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     || removed.Any())
                 {
                     stateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
-
-                    foreach (var addedEntity in added)
-                    {
-                        entry.AddToCollectionSnapshot(navigation, addedEntity);
-                    }
-
-                    foreach (var removedEntity in removed)
-                    {
-                        entry.RemoveFromCollectionSnapshot(navigation, removedEntity);
-                    }
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue))
             {
                 stateManager.Notify.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
-
-                if (currentValue != null)
-                {
-                    added.Add(currentValue);
-                }
-
-                entry.SetRelationshipSnapshotValue(navigation, currentValue);
-            }
-
-            foreach (var addedEntity in added)
-            {
-                var addedEntry = stateManager.GetOrCreateEntry(addedEntity);
-                if (addedEntry.EntityState == EntityState.Detached)
-                {
-                    _attacher.AttachGraph(addedEntry, EntityState.Added);
-                }
             }
         }
     }

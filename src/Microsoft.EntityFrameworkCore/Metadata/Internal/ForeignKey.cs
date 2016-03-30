@@ -95,6 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual ConfigurationSource? GetPrincipalEndConfigurationSource() => _principalEndConfigurationSource;
 
+        public virtual void SetPrincipalEndConfigurationSource(ConfigurationSource? configurationSource)
+            => _principalEndConfigurationSource = configurationSource;
+
         public virtual void UpdatePrincipalEndConfigurationSource(ConfigurationSource configurationSource)
             => _principalEndConfigurationSource = configurationSource.Max(_principalEndConfigurationSource);
 
@@ -257,7 +260,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual ConfigurationSource? GetIsRequiredConfigurationSource() => _isRequiredConfigurationSource;
 
-        private void UpdateIsRequiredConfigurationSource(ConfigurationSource configurationSource)
+        public virtual void SetIsRequiredConfigurationSource(ConfigurationSource? configurationSource)
+            => _isRequiredConfigurationSource = configurationSource;
+
+        public virtual void UpdateIsRequiredConfigurationSource(ConfigurationSource configurationSource)
             => _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
 
         public virtual DeleteBehavior DeleteBehavior

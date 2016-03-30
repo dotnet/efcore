@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             IModel model,
             IDatabase database,
             IConcurrencyDetector concurrencyDetector,
-            DbContext context)
-            : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, context)
+            ICurrentDbContext currentContext)
+            : base(factory, subscriber, notifier, valueGeneration, model, database, concurrencyDetector, currentContext)
         {
         }
 

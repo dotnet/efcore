@@ -11,13 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         void StateChanging([NotNull] InternalEntityEntry entry, EntityState newState);
 
-        void StateChanged([NotNull] InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup);
-
-        void ForeignKeyPropertyChanged(
-            [NotNull] InternalEntityEntry entry,
-            [NotNull] IProperty property,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue);
+        void StateChanged([NotNull] InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup, bool fromQuery);
 
         void NavigationReferenceChanged(
             [NotNull] InternalEntityEntry entry,
@@ -31,13 +25,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] ISet<object> added,
             [NotNull] ISet<object> removed);
 
-        void PrincipalKeyPropertyChanged(
+        void KeyPropertyChanged(
             [NotNull] InternalEntityEntry entry,
             [NotNull] IProperty property,
+            [NotNull] IReadOnlyList<IKey> keys,
+            [NotNull] IReadOnlyList<IForeignKey> foreignKeys,
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue);
 
-        void PropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase property);
+        void PropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase property, bool setModified);
 
         void PropertyChanging([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase property);
     }

@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 {
     public class MigrationsAssemblyTest
     {
@@ -37,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private IMigrationsAssembly CreateMigrationsAssembly()
             => new MigrationsAssembly(
-                new Context(),
+                new CurrentDbContext(new Context()),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
                     {
@@ -69,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private class ConcreteOptionsExtension : RelationalOptionsExtension
         {
-            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public override void ApplyServices(IServiceCollection services)
             {
             }
         }

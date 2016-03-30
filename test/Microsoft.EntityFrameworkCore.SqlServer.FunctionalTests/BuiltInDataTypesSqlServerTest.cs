@@ -673,13 +673,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Equal("don't", entity.NvarcharMax);
             Assert.Equal("help", entity.National_char_varyingMax);
             Assert.Equal("anyone!", entity.National_character_varyingMax);
-            // See Issue #4478
-            //Assert.Equal("Gumball Rules!", entity.Text);
-            //Assert.Equal("Gumball Rules OK!", entity.Ntext);
+            Assert.Equal("Gumball Rules!", entity.Text);
+            Assert.Equal("Gumball Rules OK!", entity.Ntext);
             Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
             Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
-            // See Issue #4478
-            //Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
+            Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
             Assert.Equal(101m, entity.Decimal);
             Assert.Equal(102m, entity.Dec);
             Assert.Equal(103m, entity.Numeric);
@@ -710,13 +708,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 NvarcharMax = "don't",
                 National_char_varyingMax = "help",
                 National_character_varyingMax = "anyone!",
-                // See Issue #4478
-                //Text = "Gumball Rules!",
-                //Ntext = "Gumball Rules OK!",
+                Text = "Gumball Rules!",
+                Ntext = "Gumball Rules OK!",
                 VarbinaryMax = new byte[] { 89, 90, 91, 92 },
                 Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
-                // See Issue #4478
-                //Image = new byte[] { 97, 98, 99, 100 },
+                Image = new byte[] { 97, 98, 99, 100 },
                 Decimal = 101.1m,
                 Dec = 102.2m,
                 Numeric = 103.3m
@@ -762,13 +758,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Equal("don't", entity.NvarcharMax);
             Assert.Equal("help", entity.National_char_varyingMax);
             Assert.Equal("anyone!", entity.National_character_varyingMax);
-            // See Issue #4478
-            //Assert.Equal("Gumball Rules!", entity.Text);
-            //Assert.Equal("Gumball Rules OK!", entity.Ntext);
+            Assert.Equal("Gumball Rules!", entity.Text);
+            Assert.Equal("Gumball Rules OK!", entity.Ntext);
             Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.VarbinaryMax);
             Assert.Equal(new byte[] { 93, 94, 95, 96 }, entity.Binary_varyingMax);
-            // See Issue #4478
-            //Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
+            Assert.Equal(new byte[] { 97, 98, 99, 100 }, entity.Image);
             Assert.Equal(101m, entity.Decimal);
             Assert.Equal(102m, entity.Dec);
             Assert.Equal(103m, entity.Numeric);
@@ -799,13 +793,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 NvarcharMax = "don't",
                 National_char_varyingMax = "help",
                 National_character_varyingMax = "anyone!",
-                // See Issue #4478
-                //Text = "Gumball Rules!",
-                //Ntext = "Gumball Rules OK!",
+                Text = "Gumball Rules!",
+                Ntext = "Gumball Rules OK!",
                 VarbinaryMax = new byte[] { 89, 90, 91, 92 },
                 Binary_varyingMax = new byte[] { 93, 94, 95, 96 },
-                // See Issue #4478
-                //Image = new byte[] { 97, 98, 99, 100 },
+                Image = new byte[] { 97, 98, 99, 100 },
                 Decimal = 101.1m,
                 Dec = 102.2m,
                 Numeric = 103.3m
@@ -851,13 +843,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Null(entity.NvarcharMax);
             Assert.Null(entity.National_char_varyingMax);
             Assert.Null(entity.National_character_varyingMax);
-            // See Issue #4478
-            //Assert.Null(entity.Text);
-            //Assert.Null(entity.Ntext);
+            Assert.Null(entity.Text);
+            Assert.Null(entity.Ntext);
             Assert.Null(entity.VarbinaryMax);
             Assert.Null(entity.Binary_varyingMax);
-            // See Issue #4478
-            //Assert.Null(entity.Image);
+            Assert.Null(entity.Image);
             Assert.Null(entity.Decimal);
             Assert.Null(entity.Dec);
             Assert.Null(entity.Numeric);
@@ -1493,16 +1483,19 @@ MappedDataTypesWithIdentity.Decimal ---> [decimal] [Precision = 18 Scale = 0]
 MappedDataTypesWithIdentity.Double_precision ---> [float] [Precision = 53]
 MappedDataTypesWithIdentity.Float ---> [float] [Precision = 53]
 MappedDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
+MappedDataTypesWithIdentity.Image ---> [nullable image] [MaxLength = 2147483647]
 MappedDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
 MappedDataTypesWithIdentity.Money ---> [money] [Precision = 19 Scale = 4]
 MappedDataTypesWithIdentity.National_char_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.National_character_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.Ntext ---> [nullable ntext] [MaxLength = 1073741823]
 MappedDataTypesWithIdentity.Numeric ---> [numeric] [Precision = 18 Scale = 0]
 MappedDataTypesWithIdentity.NvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.Real ---> [real] [Precision = 24]
 MappedDataTypesWithIdentity.Smalldatetime ---> [smalldatetime] [Precision = 0]
 MappedDataTypesWithIdentity.Smallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypesWithIdentity.Smallmoney ---> [smallmoney] [Precision = 10 Scale = 4]
+MappedDataTypesWithIdentity.Text ---> [nullable text] [MaxLength = 2147483647]
 MappedDataTypesWithIdentity.Time ---> [time] [Precision = 7]
 MappedDataTypesWithIdentity.Tinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypesWithIdentity.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
@@ -1551,16 +1544,19 @@ MappedNullableDataTypesWithIdentity.Decimal ---> [nullable decimal] [Precision =
 MappedNullableDataTypesWithIdentity.Double_precision ---> [nullable float] [Precision = 53]
 MappedNullableDataTypesWithIdentity.Float ---> [nullable float] [Precision = 53]
 MappedNullableDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
+MappedNullableDataTypesWithIdentity.Image ---> [nullable image] [MaxLength = 2147483647]
 MappedNullableDataTypesWithIdentity.Int ---> [nullable int] [Precision = 10 Scale = 0]
 MappedNullableDataTypesWithIdentity.Money ---> [nullable money] [Precision = 19 Scale = 4]
 MappedNullableDataTypesWithIdentity.National_char_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.National_character_varyingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.Ntext ---> [nullable ntext] [MaxLength = 1073741823]
 MappedNullableDataTypesWithIdentity.Numeric ---> [nullable numeric] [Precision = 18 Scale = 0]
 MappedNullableDataTypesWithIdentity.NvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.Real ---> [nullable real] [Precision = 24]
 MappedNullableDataTypesWithIdentity.Smalldatetime ---> [nullable smalldatetime] [Precision = 0]
 MappedNullableDataTypesWithIdentity.Smallint ---> [nullable smallint] [Precision = 5 Scale = 0]
 MappedNullableDataTypesWithIdentity.Smallmoney ---> [nullable smallmoney] [Precision = 10 Scale = 4]
+MappedNullableDataTypesWithIdentity.Text ---> [nullable text] [MaxLength = 2147483647]
 MappedNullableDataTypesWithIdentity.Time ---> [nullable time] [Precision = 7]
 MappedNullableDataTypesWithIdentity.Tinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
 MappedNullableDataTypesWithIdentity.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]

@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public static class DbContextOptionsBuilderExtensions
     {

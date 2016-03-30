@@ -1,12 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering;
+using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
@@ -16,6 +19,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public abstract class SqliteE2ETestBase : E2ETestBase
     {
         public const string TestProjectPath = "testout";
@@ -26,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEng
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public async void One_to_one()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix).AsTransient())
@@ -73,7 +77,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async void One_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix).AsTransient())
@@ -127,15 +131,15 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async void Many_to_many()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany" + DbSuffix).AsTransient())
             {
                 testStore.ExecuteNonQuery(@"
-CREATE TABLE Users ( Id PRIMARY KEY);
-CREATE TABLE Groups (Id PRIMARY KEY);
-CREATE TABLE Users_Groups (
+CREATE TABLE IF NOT EXISTS Users ( Id PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS Groups (Id PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS Users_Groups (
     Id PRIMARY KEY,
     UserId,
     GroupId,
@@ -176,12 +180,12 @@ CREATE TABLE Users_Groups (
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async void Self_referencing()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef" + DbSuffix).AsTransient())
             {
-                testStore.ExecuteNonQuery(@"CREATE TABLE SelfRef (
+                testStore.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS SelfRef (
     Id INTEGER PRIMARY KEY,
     SelfForeignKey INTEGER,
     FOREIGN KEY (SelfForeignKey) REFERENCES SelfRef (Id)
@@ -216,7 +220,7 @@ CREATE TABLE Users_Groups (
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async void Missing_primary_key()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
@@ -245,17 +249,17 @@ CREATE TABLE Users_Groups (
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async void Principal_missing_primary_key()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix).AsTransient())
             {
-                testStore.ExecuteNonQuery(@"CREATE TABLE Dependent (
+                testStore.ExecuteNonQuery(@"CREATE TABLE IF NOT EXISTS Dependent (
     Id PRIMARY KEY,
     PrincipalId INT,
     FOREIGN KEY (PrincipalId) REFERENCES Principal(Id)
 );
-CREATE TABLE Principal ( Id INT);");
+CREATE TABLE IF NOT EXISTS Principal ( Id INT);");
                 testStore.Transaction.Commit();
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
@@ -295,23 +299,23 @@ CREATE TABLE Principal ( Id INT);");
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async void It_handles_unsafe_names()
         {
             using (var testStore = SqliteTestStore.CreateScratch())
             {
                 testStore.ExecuteNonQuery(@"
-CREATE TABLE 'Named with space' ( Id PRIMARY KEY );
-CREATE TABLE '123 Invalid Class Name' ( Id PRIMARY KEY);
-CREATE TABLE 'Bad characters `~!@#$%^&*()+=-[];''"",.<>/?|\ ' ( Id PRIMARY KEY);
-CREATE TABLE ' Bad columns ' (
+CREATE TABLE IF NOT EXISTS 'Named with space' ( Id PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS '123 Invalid Class Name' ( Id PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS 'Bad characters `~!@#$%^&*()+=-[];''"",.<>/?|\ ' ( Id PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS ' Bad columns ' (
     'Space jam' PRIMARY KEY,
     '123 Go`',
     'Bad to the bone. `~!@#$%^&*()+=-[];''"",.<>/?|\ ',
     'Next one is all bad',
     '@#$%^&*()'
 );
-CREATE TABLE Keywords (
+CREATE TABLE IF NOT EXISTS Keywords (
     namespace PRIMARY KEY,
     virtual,
     public,
@@ -319,7 +323,7 @@ CREATE TABLE Keywords (
     string,
     FOREIGN KEY (class) REFERENCES string (string)
 );
-CREATE TABLE String (
+CREATE TABLE IF NOT EXISTS String (
     string PRIMARY KEY,
     FOREIGN KEY (string) REFERENCES String (string)
 );
@@ -344,17 +348,17 @@ CREATE TABLE String (
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual async void Foreign_key_to_unique_index()
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix).AsTransient())
             {
                 testStore.ExecuteNonQuery(@"
-CREATE TABLE User (
+CREATE TABLE IF NOT EXISTS User (
     Id INTEGER PRIMARY KEY,
     AltId INTEGER NOT NULL UNIQUE
 );
-CREATE TABLE Comment (
+CREATE TABLE IF NOT EXISTS Comment (
     Id INTEGER PRIMARY KEY,
     UserAltId INTEGER NOT NULL,
     Contents TEXT,
@@ -392,33 +396,27 @@ CREATE TABLE Comment (
             }
         }
 
-        protected override E2ECompiler GetCompiler() => new E2ECompiler
-        {
-            NamedReferences =
+        protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
             {
-                "Microsoft.EntityFrameworkCore",
-                "Microsoft.EntityFrameworkCore.Relational",
-                "Microsoft.EntityFrameworkCore.Sqlite",
-                // ReSharper disable once RedundantCommaInInitializer
-                "Microsoft.Data.Sqlite",
-#if DNXCORE50
-                        "System.Data.Common",
-                        "System.Linq.Expressions",
-                        "System.Reflection",
-                        "System.ComponentModel.Annotations",
+#if NETSTANDARDAPP1_5
+                BuildReference.ByName("System.Collections"),
+                BuildReference.ByName("System.Data.Common"),
+                BuildReference.ByName("System.Linq.Expressions"),
+                BuildReference.ByName("System.Reflection"),
+                BuildReference.ByName("System.ComponentModel.Annotations"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite", depContextAssembly: typeof(SqliteE2ETestBase).GetTypeInfo().Assembly),
 #else
-            },
-            References =
-            {
-                MetadataReference.CreateFromFile(
-                    Assembly.Load(new AssemblyName(
-                        "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
-                MetadataReference.CreateFromFile(
-                    Assembly.Load(new AssemblyName(
-                        "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location)
+                BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+                BuildReference.ByName("System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+                BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+                BuildReference.ByName("System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite"),
 #endif
-            }
-        };
+                BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+                BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions"),
+                BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions")
+            };
 
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere
         protected abstract string ExpectedResultsParentDir { get; }

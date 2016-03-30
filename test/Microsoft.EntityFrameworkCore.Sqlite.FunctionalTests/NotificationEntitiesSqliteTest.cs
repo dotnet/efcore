@@ -24,21 +24,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             public NotificationEntitiesSqliteFixture()
             {
                 _serviceProvider = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlite()
-                    .ServiceCollection()
+                    .AddEntityFrameworkSqlite()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlite(SqliteTestStore.CreateConnectionString("NotificationEntities"));
-                _options = optionsBuilder.Options;
+                _options = new DbContextOptionsBuilder()
+                    .UseSqlite(SqliteTestStore.CreateConnectionString("NotificationEntities"))
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .Options;
 
                 EnsureCreated();
             }
 
             public override DbContext CreateContext()
-                => new DbContext(_serviceProvider, _options);
+                => new DbContext(_options);
         }
     }
 }

@@ -3,12 +3,13 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests.Update;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Update
+namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Update
 {
     public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {

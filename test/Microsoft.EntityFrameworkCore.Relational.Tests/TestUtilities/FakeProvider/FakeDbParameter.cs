@@ -5,7 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider
 {
     public class FakeDbParameter : DbParameter
     {
@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override ParameterDirection Direction { get; set; }
 
-        public override bool IsNullable { get; set; }
+        public static bool DefaultIsNullable = false;
+        public override bool IsNullable { get; set; } = DefaultIsNullable;
 
         public static DbType DefaultDbType = DbType.AnsiString;
         public override DbType DbType { get; set; } = DefaultDbType;
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                 throw new NotImplementedException();
             }
         }
-#if DNX451
+#if NET451
         public override DataRowVersion SourceVersion
         {
             get

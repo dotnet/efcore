@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             set { _ignoreTransactions = value; }
         }
 
-        public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
+        public virtual void ApplyServices(IServiceCollection services)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(services, nameof(services));
 
-            builder.AddInMemoryDatabase();
+            services.AddEntityFrameworkInMemoryDatabase();
         }
     }
 }

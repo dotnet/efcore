@@ -13,14 +13,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private readonly IEntityStateListener[] _entityStateListeners;
         private readonly IPropertyListener[] _propertyListeners;
-        private readonly IForeignKeyListener[] _fkListeners;
         private readonly INavigationListener[] _navigationListeners;
         private readonly IKeyListener[] _keyListeners;
 
         public InternalEntityEntryNotifier(
             [CanBeNull] IEnumerable<IEntityStateListener> entityStateListeners,
             [CanBeNull] IEnumerable<IPropertyListener> propertyListeners,
-            [CanBeNull] IEnumerable<IForeignKeyListener> fkListeners,
             [CanBeNull] IEnumerable<INavigationListener> navigationListeners,
             [CanBeNull] IEnumerable<IKeyListener> keyListeners)
         {
@@ -34,12 +32,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var listeners = propertyListeners.ToArray();
                 _propertyListeners = listeners.Length == 0 ? null : listeners;
-            }
-
-            if (fkListeners != null)
-            {
-                var listeners = fkListeners.ToArray();
-                _fkListeners = listeners.Length == 0 ? null : listeners;
             }
 
             if (navigationListeners != null)
@@ -58,11 +50,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
             => Dispatch(l => l.StateChanging(entry, newState));
 
-        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup)
-            => Dispatch(l => l.StateChanged(entry, oldState, skipInitialFixup));
-
-        public virtual void ForeignKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
-            => Dispatch(l => l.ForeignKeyPropertyChanged(entry, property, oldValue, newValue));
+        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup, bool fromQuery)
+            => Dispatch(l => l.StateChanged(entry, oldState, skipInitialFixup, fromQuery));
 
         public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
             => Dispatch(l => l.NavigationReferenceChanged(entry, navigation, oldValue, newValue));
@@ -70,11 +59,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
             => Dispatch(l => l.NavigationCollectionChanged(entry, navigation, added, removed));
 
-        public virtual void PrincipalKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
-            => Dispatch(l => l.KeyPropertyChanged(entry, property, oldValue, newValue));
+        public virtual void KeyPropertyChanged(
+            InternalEntityEntry entry, 
+            IProperty property,
+            IReadOnlyList<IKey> keys,
+            IReadOnlyList<IForeignKey> foreignKeys,
+            object oldValue, 
+            object newValue)
+            => Dispatch(l => l.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue));
 
-        public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase property)
-            => Dispatch(l => l.PropertyChanged(entry, property));
+        public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
+            => Dispatch(l => l.PropertyChanged(entry, property, setModified));
 
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
             => Dispatch(l => l.PropertyChanging(entry, property));
@@ -100,19 +95,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             foreach (var listener in _propertyListeners)
-            {
-                action(listener);
-            }
-        }
-
-        private void Dispatch(Action<IForeignKeyListener> action)
-        {
-            if (_fkListeners == null)
-            {
-                return;
-            }
-
-            foreach (var listener in _fkListeners)
             {
                 action(listener);
             }

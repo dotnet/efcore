@@ -5,10 +5,11 @@ using System;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests
 {
     public class RelationalOptionsExtensionTest
     {
@@ -95,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private class TestRelationalOptionsExtension : RelationalOptionsExtension
         {
-            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public override void ApplyServices(IServiceCollection services)
             {
                 throw new NotImplementedException();
             }

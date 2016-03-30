@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -26,9 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public class CommandConfigurationTestFixture : IDisposable
         {
             public IServiceProvider ServiceProvider { get; } = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             public virtual void CreateDatabase()
@@ -71,9 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             var loggerFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -109,17 +106,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class ChipsContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public ChipsContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<KettleChips> Chips { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName));
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -145,11 +144,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer("Database=" + DatabaseName).CommandTimeout(77);
-
-                base.OnConfiguring(optionsBuilder);
-            }
+                => base.OnConfiguring(
+                    optionsBuilder.UseSqlServer("Database=" + DatabaseName, b => b.CommandTimeout(77)));
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

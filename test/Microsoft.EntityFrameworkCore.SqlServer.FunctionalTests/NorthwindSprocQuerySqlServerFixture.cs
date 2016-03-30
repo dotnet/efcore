@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class NorthwindSprocQuerySqlServerFixture : NorthwindSprocQueryRelationalFixture, IDisposable
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testStore;
 
@@ -22,28 +22,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             _testStore = SqlServerNorthwindContext.GetSharedStore();
 
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-
-            optionsBuilder
+            _options = new DbContextOptionsBuilder()
                 .EnableSensitiveDataLogging()
-                .UseSqlServer(_testStore.ConnectionString);
+                .UseInternalServiceProvider(serviceProvider)
+                .UseSqlServer(_testStore.ConnectionString).Options;
 
-            _options = optionsBuilder.Options;
-
-            _serviceProvider.GetRequiredService<ILoggerFactory>();
+            serviceProvider.GetRequiredService<ILoggerFactory>();
         }
 
         public override NorthwindContext CreateContext()
         {
-            var context = new SqlServerNorthwindContext(_serviceProvider, _options);
+            var context = new SqlServerNorthwindContext(_options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

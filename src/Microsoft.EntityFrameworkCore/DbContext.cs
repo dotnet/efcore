@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -46,10 +44,8 @@ namespace Microsoft.EntityFrameworkCore
     /// </remarks>
     public class DbContext : IDisposable, IInfrastructure<IServiceProvider>
     {
-        private static readonly ConcurrentDictionary<Type, Type> _optionsTypes = new ConcurrentDictionary<Type, Type>();
+        private readonly DbContextOptions _options;
 
-        private IServiceProvider _globalServiceProvider;
-        private DbContextOptions _options;
         private IDbContextServices _contextServices;
         private IDbSetInitializer _setInitializer;
         private ChangeTracker _changeTracker;
@@ -64,127 +60,43 @@ namespace Microsoft.EntityFrameworkCore
         private bool _disposed;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContext" /> class. The
-        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" />
-        ///     method will be called to configure the database (and other options) to be used for this context.
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="DbContext" /> class. The
+        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />
+        ///         method will be called to configure the database (and other options) to be used for this context.
+        ///     </para>
         /// </summary>
         protected DbContext()
+            : this(new DbContextOptions<DbContext>())
         {
-            var serviceProvider = DbContextActivator.ServiceProvider;
-
-            Initialize(serviceProvider, GetOptions(serviceProvider));
         }
 
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="DbContext" /> class using an <see cref="IServiceProvider" />.
+        ///         Initializes a new instance of the <see cref="DbContext" /> class using the specified options.
+        ///         The <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
+        ///         configuration of the options.
         ///     </para>
-        ///     <para>
-        ///         The service provider must contain all the services required by Entity Framework (and the database being
-        ///         used). The Entity Framework services can be registered using the
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
-        ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
-        ///         services required. For example, the Microsoft SQL Server provider includes an AddSqlServer() method
-        ///         to add the required services.
-        ///     </para>
-        ///     <para>
-        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
-        ///         <see cref="DbContextOptions{TContext}" /> registered, then this will be used as the options for
-        ///         this context instance. The <see cref="OnConfiguring" /> method
-        ///         will still be called to allow further configuration of the options.
-        ///     </para>
-        /// </summary>
-        /// <param name="serviceProvider">The service provider to be used.</param>
-        public DbContext([NotNull] IServiceProvider serviceProvider)
-        {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-
-            Initialize(serviceProvider, GetOptions(serviceProvider));
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContext" /> with the specified options. The
-        ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
-        ///     configuration of the options.
         /// </summary>
         /// <param name="options">The options for this context.</param>
         public DbContext([NotNull] DbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
 
-            Initialize(DbContextActivator.ServiceProvider, options);
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContext" /> class using an <see cref="IServiceProvider" />
-        ///     and the specified options.
-        ///     <para>
-        ///         The <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
-        ///         configuration of the options.
-        ///     </para>
-        ///     <para>
-        ///         The service provider must contain all the services required by Entity Framework (and the database being
-        ///         used). The Entity Framework services can be registered using the
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
-        ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
-        ///         services required. For example, the Microsoft SQL Server provider includes an AddSqlServer() method
-        ///         to add the required services.
-        ///     </para>
-        ///     <para>
-        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
-        ///         <see cref="DbContextOptions{TContext}" />
-        ///         registered, then this will be used as the options for this context instance. The
-        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />
-        ///         method will still be called to allow further configuration of the options.
-        ///     </para>
-        /// </summary>
-        /// <param name="serviceProvider">The service provider to be used.</param>
-        /// <param name="options">The options for this context.</param>
-        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] DbContextOptions options)
-        {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-            Check.NotNull(options, nameof(options));
-
-            Initialize(serviceProvider, options);
-        }
-
-        private void Initialize(IServiceProvider serviceProvider, DbContextOptions options)
-        {
-            _globalServiceProvider = serviceProvider;
             _options = options;
-            InitializeSets(serviceProvider, options);
-        }
 
-        private DbContextOptions GetOptions(IServiceProvider serviceProvider)
-        {
-            if (serviceProvider == null)
-            {
-                return new DbContextOptions<DbContext>();
-            }
-
-            var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
-
-            var options = (DbContextOptions)serviceProvider.GetService(genericOptions)
-                          ?? serviceProvider.GetService<DbContextOptions>();
-
-            if ((options != null)
-                && (options.GetType() != genericOptions))
-            {
-                throw new InvalidOperationException(CoreStrings.NonGenericOptions);
-            }
-
-            return options ?? new DbContextOptions<DbContext>();
+            InitializeSets(ServiceProviderCache.Instance.GetOrAdd(options));
         }
 
         private IChangeDetector ChangeDetector
             => _changeDetector
-               ?? (_changeDetector = ServiceProvider.GetRequiredService<IChangeDetector>());
+               ?? (_changeDetector = InternalServiceProvider.GetRequiredService<IChangeDetector>());
 
         private IStateManager StateManager
             => _stateManager
-               ?? (_stateManager = ServiceProvider.GetRequiredService<IStateManager>());
+               ?? (_stateManager = InternalServiceProvider.GetRequiredService<IStateManager>());
 
-        private IServiceProvider ServiceProvider
+        private IServiceProvider InternalServiceProvider
         {
             get
             {
@@ -192,11 +104,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     throw new ObjectDisposedException(GetType().Name);
                 }
-                return (_contextServices ?? (_contextServices = InitializeServices(_globalServiceProvider, _options))).ServiceProvider;
+                return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
             }
         }
 
-        private IDbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
+        private IDbContextServices InitializeServices()
         {
             if (_initializing)
             {
@@ -207,15 +119,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 _initializing = true;
 
-                var optionsBuilder = new DbContextOptionsBuilder(options);
+                var optionsBuilder = new DbContextOptionsBuilder(_options);
 
                 OnConfiguring(optionsBuilder);
 
-                var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
+                var options = optionsBuilder.Options;
 
-                serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
-
-                _logger = serviceProvider.GetRequiredService<ILogger<DbContext>>();
+                var serviceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider
+                                      ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
                 _serviceScope = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
@@ -223,9 +134,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 var scopedServiceProvider = _serviceScope.ServiceProvider;
 
-                return scopedServiceProvider
-                    .GetRequiredService<IDbContextServices>()
-                    .Initialize(scopedServiceProvider, optionsBuilder.Options, this, providerSource);
+                var contextServices = scopedServiceProvider.GetService<IDbContextServices>();
+
+                if (contextServices == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.NoEfServices);
+                }
+
+                contextServices.Initialize(scopedServiceProvider, options, this);
+
+                _logger = scopedServiceProvider.GetRequiredService<ILogger<DbContext>>();
+
+                return contextServices;
             }
             finally
             {
@@ -233,9 +153,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private void InitializeSets(IServiceProvider serviceProvider, DbContextOptions options)
-            => (serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options))
-                .GetRequiredService<IDbSetInitializer>().InitializeSets(this);
+        private void InitializeSets(IServiceProvider internalServicesProvider)
+            => internalServicesProvider.GetRequiredService<IDbSetInitializer>().InitializeSets(this);
 
         /// <summary>
         ///     <para>
@@ -246,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IInfrastructure<IServiceProvider>.Instance => ServiceProvider;
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
 
         /// <summary>
         ///     <para>
@@ -424,6 +343,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             _disposed = true;
             _serviceScope?.Dispose();
+            _setInitializer = null;
+            _changeTracker = null;
+            _stateManager = null;
+            _changeDetector = null;
+            _graphAttacher = null;
+            _model = null;
         }
 
         /// <summary>
@@ -475,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore
             if (entry.EntityState == EntityState.Detached)
             {
                 (_graphAttacher
-                 ?? (_graphAttacher = ServiceProvider.GetRequiredService<IEntityGraphAttacher>()))
+                 ?? (_graphAttacher = InternalServiceProvider.GetRequiredService<IEntityGraphAttacher>()))
                     .AttachGraph(entry, entityState);
             }
             else
@@ -565,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore
             var initialState = entry.State;
             if (initialState == EntityState.Detached)
             {
-                Attach(entity);
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
             }
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
@@ -665,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore
             var initialState = entry.State;
             if (initialState == EntityState.Detached)
             {
-                Attach(entity);
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
             }
 
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
@@ -817,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore
                 var initialState = entry.EntityState;
                 if (initialState == EntityState.Detached)
                 {
-                    Attach(entity);
+                    SetEntityState(entry, EntityState.Unchanged);
                 }
 
                 entry.SetEntityState(initialState == EntityState.Added
@@ -836,14 +761,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual ChangeTracker ChangeTracker
             => _changeTracker
-               ?? (_changeTracker = ServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
+               ?? (_changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create());
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
         /// </summary>
         public virtual IModel Model
             => _model
-               ?? (_model = ServiceProvider.GetRequiredService<IModel>());
+               ?? (_model = InternalServiceProvider.GetRequiredService<IModel>());
 
         /// <summary>
         ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
@@ -858,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return (_setInitializer
-                ?? (_setInitializer = ServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
+                    ?? (_setInitializer = InternalServiceProvider.GetRequiredService<IDbSetInitializer>())).CreateSet<TEntity>(this);
         }
     }
 }

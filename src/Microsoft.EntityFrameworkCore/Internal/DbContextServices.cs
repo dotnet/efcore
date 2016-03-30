@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private IServiceProvider _provider;
         private IDbContextOptions _contextOptions;
-        private DbContext _context;
+        private ICurrentDbContext _currentContext;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<IDatabaseProviderServices> _providerServices;
         private bool _inOnModelCreating;
@@ -23,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual IDbContextServices Initialize(
             IServiceProvider scopedProvider,
             IDbContextOptions contextOptions,
-            DbContext context,
-            ServiceProviderSource serviceProviderSource)
+            DbContext context)
         {
             Check.NotNull(scopedProvider, nameof(scopedProvider));
             Check.NotNull(contextOptions, nameof(contextOptions));
@@ -32,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             _provider = scopedProvider;
             _contextOptions = contextOptions;
-            _context = context;
+            _currentContext = new CurrentDbContext(context);
 
             _providerServices = new LazyRef<IDatabaseProviderServices>(() =>
-                _provider.GetRequiredService<IDatabaseProviderSelector>().SelectServices(serviceProviderSource));
+                _provider.GetRequiredService<IDatabaseProviderSelector>().SelectServices());
 
             _modelFromSource = new LazyRef<IModel>(CreateModel);
 
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _inOnModelCreating = true;
 
                 return _providerServices.Value.ModelSource.GetModel(
-                    _context,
+                    _currentContext.Context,
                     _providerServices.Value.ConventionSetBuilder,
                     _providerServices.Value.ModelValidator);
             }
@@ -64,9 +65,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        public virtual DbContext Context => _context;
+        public virtual ICurrentDbContext CurrentContext => _currentContext;
 
-        public virtual IModel Model => _contextOptions.FindExtension<CoreOptionsExtension>()?.Model ?? _modelFromSource.Value;
+        public virtual IModel Model => CoreOptions?.Model ?? _modelFromSource.Value;
+
+        public virtual ILoggerFactory LoggerFactory => CoreOptions?.LoggerFactory ?? _provider.GetRequiredService<ILoggerFactory>();
+
+        public virtual IMemoryCache MemoryCache => CoreOptions?.MemoryCache ?? _provider.GetRequiredService<IMemoryCache>();
+
+        private CoreOptionsExtension CoreOptions => _contextOptions.FindExtension<CoreOptionsExtension>();
 
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 
@@ -82,6 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        public virtual IServiceProvider ServiceProvider => _provider;
+        public virtual IServiceProvider InternalServiceProvider => _provider;
     }
 }

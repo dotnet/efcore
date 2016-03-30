@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var property = TryGetPropertyBase(entityType, e.PropertyName);
                         if (property != null)
                         {
-                            _notifier.PropertyChanged(entry, property);
+                            _notifier.PropertyChanged(entry, property, setModified: true);
                         }
                     };
             }

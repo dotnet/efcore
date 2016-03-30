@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
@@ -121,6 +122,18 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal("An error occurred while updating the entries. See the inner exception for details.",
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void RequiredAttribute_does_nothing_when_specified_on_nav_to_dependent_per_convention()
+        {
+            using (var context = CreateContext())
+            {
+                var relationship = context.Model.FindEntityType(typeof(AdditionalBookDetail))
+                    .FindNavigation(nameof(AdditionalBookDetail.BookDetail)).ForeignKey;
+                Assert.Equal(typeof(AdditionalBookDetail), relationship.PrincipalEntityType.ClrType);
+                Assert.False(relationship.IsRequired);
             }
         }
 

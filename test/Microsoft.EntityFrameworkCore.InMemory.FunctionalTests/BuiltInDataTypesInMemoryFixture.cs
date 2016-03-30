@@ -10,31 +10,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 {
     public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
         private readonly InMemoryTestStore _testStore;
 
         public BuiltInDataTypesInMemoryFixture()
         {
             _testStore = new InMemoryTestStore();
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .ServiceCollection()
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase();
-            _options = optionsBuilder.Options;
+            _options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(serviceProvider)
+                .Options;
         }
 
-        public override DbContext CreateContext() => new DbContext(_serviceProvider, _options);
+        public override DbContext CreateContext() => new DbContext(_options);
 
-        public override void Dispose()
-        {
-            _testStore.Dispose();
-        }
+        public override void Dispose() => _testStore.Dispose();
 
         public override bool SupportsBinaryKeys => false;
 

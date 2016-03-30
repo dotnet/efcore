@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics;
 using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 using System.Threading.Tasks;

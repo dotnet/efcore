@@ -35,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return stringBuilder.ToString();
         }
 
+        protected override string GenerateLiteralValue(string value)
+            => $"N'{EscapeLiteral(Check.NotNull(value, nameof(value)))}'";
+
         protected override string GenerateLiteralValue(DateTime value)
             => $"'{value.ToString(DateTimeFormat, CultureInfo.InvariantCulture)}'";
 

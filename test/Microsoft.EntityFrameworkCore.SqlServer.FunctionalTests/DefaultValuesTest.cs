@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -12,9 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     public class DefaultValuesTest : IDisposable
     {
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-            .AddEntityFramework()
-            .AddSqlServer()
-            .ServiceCollection()
+            .AddEntityFrameworkSqlServer()
             .BuildServiceProvider();
 
         [Fact]
@@ -51,28 +50,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class ChipsContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly string _databaseName;
 
             public ChipsContext(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _databaseName = databaseName;
             }
 
             public DbSet<KettleChips> Chips { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<KettleChips>()
+                => modelBuilder.Entity<KettleChips>()
                     .Property(e => e.BestBuyDate)
                     .ValueGeneratedOnAdd()
                     .HasDefaultValue(new DateTime(2035, 9, 25));
-            }
         }
 
         private class KettleChips

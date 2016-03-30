@@ -12,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -46,15 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private MigrationsScaffolder CreateMigrationScaffolder<TContext>()
             where TContext : DbContext, new()
         {
-            var context = new TContext();
+            var currentContext = new CurrentDbContext(new TContext());
             var idGenerator = new MigrationsIdGenerator();
             var code = new CSharpHelper();
 
             return new MigrationsScaffolder(
-                context,
+                currentContext,
                 new Model(),
                 new MigrationsAssembly(
-                    context,
+                    currentContext,
                     new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
                     idGenerator),
                 new MigrationsModelDiffer(
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private class MockRelationalOptionsExtension : RelationalOptionsExtension
         {
-            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
+            public override void ApplyServices(IServiceCollection services)
             {
             }
         }

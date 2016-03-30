@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -21,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public GearsOfWarQuerySqlServerFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
@@ -33,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlServer(_connectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlServer(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options))
+                    using (var context = new GearsOfWarContext(optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
@@ -56,9 +56,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             optionsBuilder
                 .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider(_serviceProvider)
                 .UseSqlServer(testStore.Connection);
 
-            var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options);
+            var context = new GearsOfWarContext(optionsBuilder.Options);
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 

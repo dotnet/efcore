@@ -1,11 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource targetQuerySource)
         {
             _targetQuerySource = targetQuerySource;
+
             _originQuerySourceReferenceExpression = null;
             _reachable = false;
 
@@ -62,7 +63,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     if (groupJoinClause != null)
                     {
-                        Visit(groupJoinClause.JoinClause.InnerSequence);
+                        if (groupJoinClause.JoinClause.Equals(_targetQuerySource))
+                        {
+                            _reachable = true;
+                        }
+                        else
+                        {
+                            Visit(groupJoinClause.JoinClause.InnerSequence);
+                        }
                     }
                 }
 
@@ -95,14 +103,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitLambda<T>(Expression<T> node) => node;
 
         protected override Expression VisitInvocation(InvocationExpression node) => node;
+
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var referenceSource = node.Arguments.FirstOrDefault() as QuerySourceReferenceExpression;
+
             if (EntityQueryModelVisitor.IsPropertyMethod(node.Method)
                 && referenceSource?.ReferencedQuerySource.Equals(_targetQuerySource) == true)
             {
                 return node;
             }
+
             return base.VisitMethodCall(node);
         }
     }

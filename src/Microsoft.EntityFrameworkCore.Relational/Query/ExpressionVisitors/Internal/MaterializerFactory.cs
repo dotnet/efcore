@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _relationalAnnotationProvider = relationalAnnotationProvider;
         }
 
-        public virtual LambdaExpression CreateMaterializer(
+        public virtual Expression<Func<ValueBuffer, object>> CreateMaterializer(
             IEntityType entityType,
             SelectExpression selectExpression,
             Func<IProperty, SelectExpression, int> projectionAdder,
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     .CreateMaterializeExpression(
                         concreteEntityTypes[0], valueBufferParameter, indexMap);
 
-            if ((concreteEntityTypes.Length == 1)
-                && (concreteEntityTypes[0].RootType() == concreteEntityTypes[0]))
+            if (concreteEntityTypes.Length == 1
+                && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
                 return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
             }

@@ -39,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     app.ShowHelp();
                 });
 
-
             int result;
             try
             {

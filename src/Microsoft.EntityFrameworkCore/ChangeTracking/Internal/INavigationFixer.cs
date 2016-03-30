@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    public interface INavigationFixer : IEntityStateListener, IForeignKeyListener, INavigationListener, IKeyListener
+    public interface INavigationFixer : IEntityStateListener, INavigationListener, IKeyListener
     {
     }
 }

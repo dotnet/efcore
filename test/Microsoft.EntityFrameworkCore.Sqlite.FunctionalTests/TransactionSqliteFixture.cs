@@ -15,9 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         public TransactionSqliteFixture()
         {
             _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlite()
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
         }
@@ -35,19 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         public override DbContext CreateContext(SqliteTestStore testStore)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.ConnectionString);
-
-            return new DbContext(_serviceProvider, optionsBuilder.Options);
-        }
+            => new DbContext(new DbContextOptionsBuilder()
+                .UseSqlite(testStore.ConnectionString)
+                .UseInternalServiceProvider(_serviceProvider).Options);
 
         public override DbContext CreateContext(DbConnection connection)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(connection);
-
-            return new DbContext(_serviceProvider, optionsBuilder.Options);
-        }
+            => new DbContext(new DbContextOptionsBuilder()
+                .UseSqlite(connection)
+                .UseInternalServiceProvider(_serviceProvider).Options);
     }
 }

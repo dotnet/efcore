@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -38,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         public void Snapshots_are_not_created_for_full_notification_entities()
         {
             var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(BuildModel());
+            entry.SetEntityState(EntityState.Unchanged);
 
             // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
             Assert.True(entry.HasRelationshipSnapshot);
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var entity = new FullNotificationEntity();
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.Null(testListener.Changing);
             Assert.Null(testListener.Changed);
@@ -99,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var entity = new FullNotificationEntity();
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.Null(testListener.Changing);
             Assert.Null(testListener.Changed);
@@ -136,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public IPropertyBase Changing { get; set; }
             public IPropertyBase Changed { get; set; }
 
-            public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property)
+            public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
             {
                 Changed = property;
             }

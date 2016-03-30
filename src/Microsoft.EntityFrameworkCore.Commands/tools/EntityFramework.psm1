@@ -43,7 +43,24 @@ function Use-DbContext {
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
-    $contextTypeName = InvokeOperation $dteStartupProject $Environment $dteProject GetContextType @{ name = $Context }
+    if (IsDotNetProject $dteProject) {
+        $contextTypes = GetContextTypes $Project $StartupProject $Environment
+        $candidates = $contextTypes | ? { $_ -ilike "*$Context" }
+        $exactMatch = $contextTypes | ? { $_ -eq $Context }
+        if ($candidates.length -gt 1 -and $exactMatch -is "String") {
+            $candidates = $exactMatch
+        }
+        
+        if ($candidates.length -lt 1) {
+            throw "No DbContext named '$Context' was found"
+        } elseif ($candidates.length -gt 1 -and !($candidates -is "String")) {
+            throw "More than one DbContext named '$Context' was found. Specify which one to use by providing its fully qualified name."
+        }
+
+        $contextTypeName=$candidates
+    } else {
+        $contextTypeName = InvokeOperation $dteStartupProject $Environment $dteProject GetContextType @{ name = $Context }
+    }
 
     $EFDefaultParameterValues.ContextTypeName = $contextTypeName
     $EFDefaultParameterValues.ProjectName = $dteProject.ProjectName
@@ -105,15 +122,24 @@ function Add-Migration {
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject AddMigration @{
-        name = $Name
-        outputDir = $OutputDir
-        contextType = $contextTypeName
-    }
+    if (IsDotNetProject $dteProject) {
+        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+        if($OutputDir) {
+            $options += "--output-dir", (NormalizePath $OutputDir)
+        }
+        $files = InvokeDotNetEf $dteProject -Json migrations add $Name @options
+        $DTE.ItemOperations.OpenFile($files.MigrationFile) | Out-Null
+    } else {
+        $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject AddMigration @{
+            name = $Name
+            outputDir = $OutputDir
+            contextType = $contextTypeName
+        }
 
-    $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
-    $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
-    ShowConsole
+        $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+        $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
+        ShowConsole
+    }
 
     Write-Output 'To undo this action, use Remove-Migration.'
 }
@@ -170,15 +196,21 @@ function Update-Database {
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
-    $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
-    if ($frameworkName.Identifier -eq '.NETCore') {
-        throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.Migrate() at runtime.'
-    }
+    if (IsDotNetProject $dteProject) {
+        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+        InvokeDotNetEf $dteProject database update $Migration @options | Out-Null
+        Write-Output "Done."
+    } else {
+        $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
+        $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
+        if ($frameworkName.Identifier -eq '.NETCore') {
+            throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.Migrate() at runtime.'
+        }
 
-    InvokeOperation $dteStartupProject $Environment $dteProject UpdateDatabase @{
-        targetMigration = $Migration
-        contextType = $contextTypeName
+        InvokeOperation $dteStartupProject $Environment $dteProject UpdateDatabase @{
+            targetMigration = $Migration
+            contextType = $contextTypeName
+        }
     }
 }
 
@@ -254,29 +286,44 @@ function Script-Migration {
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $script = InvokeOperation $dteStartupProject $Environment $dteProject ScriptMigration @{
-        fromMigration = $From
-        toMigration = $To
-        idempotent = [bool]$Idempotent
-        contextType = $contextTypeName
-    }
+    $fullPath = GetProperty $dteProject.Properties FullPath
+    $intermediatePath = if (IsDotNetProject $dteProject) { "obj\Debug\" }
+        else { GetProperty $dteProject.ConfigurationManager.ActiveConfiguration.Properties IntermediatePath }
+    $fullIntermediatePath = Join-Path $fullPath $intermediatePath
+    $fileName = [IO.Path]::GetRandomFileName()
+    $fileName = [IO.Path]::ChangeExtension($fileName, '.sql')
+    $scriptFile = Join-Path $fullIntermediatePath $fileName
 
-    try {
-        # NOTE: Certain SKUs cannot create new SQL files
-        $window = $DTE.ItemOperations.NewFile('General\Sql File')
-        $textDocument = $window.Document.Object('TextDocument')
-        $editPoint = $textDocument.StartPoint.CreateEditPoint()
-        $editPoint.Insert($script)
-    }
-    catch {
-        $fullPath = GetProperty $dteProject.Properties FullPath
-        $intermediatePath = GetProperty $dteProject.ConfigurationManager.ActiveConfiguration.Properties IntermediatePath
-        $fullIntermediatePath = Join-Path $fullPath $intermediatePath
-        $fileName = [IO.Path]::GetRandomFileName()
-        $fileName = [IO.Path]::ChangeExtension($fileName, '.sql')
-        $scriptFile = Join-Path $fullIntermediatePath $fileName
-        $script | Out-File $scriptFile
+    if (IsDotNetProject $dteProject) {
+        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+
+        $options += "--output",$scriptFile
+        if ($Idempotent) {
+            $options+="--idempotent"
+        }
+
+        InvokeDotNetEf $dteProject migrations script $From $To @options | Out-Null
+
         $DTE.ItemOperations.OpenFile($scriptFile) | Out-Null
+
+    } else {
+        $script = InvokeOperation $dteStartupProject $Environment $dteProject ScriptMigration @{
+            fromMigration = $From
+            toMigration = $To
+            idempotent = [bool]$Idempotent
+            contextType = $contextTypeName
+        }
+        try {
+            # NOTE: Certain SKUs cannot create new SQL files, including xproj
+            $window = $DTE.ItemOperations.NewFile('General\Sql File')
+            $textDocument = $window.Document.Object('TextDocument')
+            $editPoint = $textDocument.StartPoint.CreateEditPoint()
+            $editPoint.Insert($script)
+        }
+        catch {
+            $script | Out-File $scriptFile -Encoding utf8
+            $DTE.ItemOperations.OpenFile($scriptFile) | Out-Null
+        }
     }
 
     ShowConsole
@@ -324,14 +371,20 @@ function Remove-Migration {
     $contextTypeName = $values.ContextTypeName
     $dteStartupProject = $values.StartupProject
 
-    $filesToRemove = InvokeOperation $dteStartupProject $Environment $dteProject RemoveMigration @{
-        contextType = $contextTypeName
-    }
+    if (IsDotNetProject $dteProject) {
+        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+        InvokeDotNetEf $dteProject migrations remove @options | Out-Null
+        Write-Output "Done."
+    } else {
+        $filesToRemove = InvokeOperation $dteStartupProject $Environment $dteProject RemoveMigration @{
+            contextType = $contextTypeName
+        }
 
-    $filesToRemove | %{
-        $projectItem = GetProjectItem $dteProject $_
-        if ($projectItem) {
-            $projectItem.Remove()
+        $filesToRemove | %{
+            $projectItem = GetProjectItem $dteProject $_
+            if ($projectItem) {
+                $projectItem.Remove()
+            }
         }
     }
 }
@@ -394,7 +447,7 @@ function Scaffold-DbContext {
     param (
         [Parameter(Position = 0, Mandatory = $true)]
         [string] $Connection,
-        [Parameter(Position = 1, Mandatory = $true)]
+        [Parameter(Position = 1, Mandatory =  $true)]
         [string] $Provider,
         [string] $OutputDir,
         [string] $Context,
@@ -410,20 +463,38 @@ function Scaffold-DbContext {
     $dteStartupProject = $values.StartupProject
     $dteProject = $values.Project
 
-    $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject ReverseEngineer @{
-        connectionString = $Connection
-        provider = $Provider
-        outputDir = $OutputDir
-        dbContextClassName = $Context
-        schemaFilters = $Schemas
-        tableFilters = $Tables
-        useDataAnnotations = [bool]$DataAnnotations
-        overwriteFiles = [bool]$Force
-    }
+    if (IsDotNetProject $dteProject) {
+        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $Context
+        if ($OutputDir) {
+            $options += "--output-dir",(NormalizePath $OutputDir)
+        }
+        if ($DataAnnotations) {
+            $options += "--data-annotations"
+        }
+        if ($Force) {
+            $options += "--force"
+        }
+        $options += $Schemas | % { "--schema", $_ }
+        $options += $Tables | % { "--table", $_ }
 
-    $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
-    $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
-    ShowConsole
+        InvokeDotNetEf $dteProject dbcontext scaffold $Connection $Provider @options | Out-Null
+    } else {
+        $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject ReverseEngineer @{
+            connectionString = $Connection
+            provider = $Provider
+            outputDir = $OutputDir
+            dbContextClassName = $Context
+            schemaFilters = $Schemas
+            tableFilters = $Tables
+            useDataAnnotations = [bool]$DataAnnotations
+            overwriteFiles = [bool]$Force
+        }
+
+        $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+        $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
+        
+        ShowConsole
+    }
 }
 
 #
@@ -457,9 +528,13 @@ function GetContextTypes($projectName, $startupProjectName, $environment) {
     $startupProject = $values.StartupProject
     $project = $values.Project
 
-    $contextTypes = InvokeOperation $startupProject $environment $project GetContextTypes -skipBuild
-
-    return $contextTypes | %{ $_.SafeName }
+    if (IsDotNetProject $startupProject) {
+        $types = InvokeDotNetEf $startupProject -Json dbcontext list 
+        return $types | %{ $_.fullName }
+    } else {
+        $contextTypes = InvokeOperation $startupProject $environment $project GetContextTypes -skipBuild
+        return $contextTypes | %{ $_.SafeName }
+    }
 }
 
 function GetMigrations($contextTypeName, $projectName, $startupProjectName, $environment) {
@@ -489,6 +564,30 @@ function ProcessCommonParameters($startupProjectName, $projectName, $contextType
     }
 }
 
+function NormalizePath($path) {
+    $pathInfo = Resolve-Path -LiteralPath $path
+    return $pathInfo.Path.TrimEnd([IO.Path]::DirectorySeparatorChar)
+}
+
+function ProcessCommonDotnetParameters($dteProject, $dteStartupProject, $Environment, $contextTypeName) {
+    $options=@()
+    if ($dteStartupProject.Name -ne $dteProject.Name) {
+        $startupProjectPath = GetProperty $dteStartupProject.Properties FullPath
+        $options += "--startup-project",(NormalizePath $startupProjectPath)
+    }
+    if($Environment) {
+        $options += "--environment",$Environment
+    }
+    if ($contextTypeName) {
+        $options += "--context",$contextTypeName
+    }
+    return $options
+}
+
+function IsDotNetProject($project) {
+    $project.FileName -like "*.xproj"
+}
+
 function GetProject($projectName) {
     if ($projectName) {
         return Get-Project $projectName
@@ -501,6 +600,69 @@ function ShowConsole {
     $componentModel = Get-VSComponentModel
     $powerConsoleWindow = $componentModel.GetService([NuGetConsole.IPowerConsoleWindow])
     $powerConsoleWindow.Show()
+}
+
+function InvokeDotNetEf($project, [switch] $Json) {
+    $dotnet = (Get-Command dotnet).Source
+    Write-Debug "Found $dotnet"
+    $fullPath = GetProperty $project.Properties FullPath
+    $projectJson = Join-Path $fullPath project.json
+    try {
+        Write-Debug "Reading $projectJson"
+        $projectDef = Get-Content $projectJson -Raw | ConvertFrom-Json
+    } catch {
+        Write-Verbose $_.Exception.Message
+        throw "Invalid JSON file in $projectJson"
+    }
+    if ($projectDef.tools) {
+        $t=$projectDef.tools | Get-Member dotnet-ef
+    }
+    if (!$t) {
+        $projectName = $project.ProjectName
+        throw "Cannot execute this command because 'dotnet-ef' is not installed in project '$projectName'. Add 'dotnet-ef' to the 'tools' section in project.json."
+    }
+
+    $output=$null
+    $arguments = $args | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
+    if ($Json) {
+        $arguments += "--json"
+    } else {
+        # TODO better json output parsing so we don't need to suppress verbose output
+        $arguments = ,"--verbose" + $arguments 
+    }
+    $command = "ef $($arguments -join ' ')"
+    try {
+        Write-Verbose "Working directory: $fullPath"
+        Push-Location $fullPath
+        $ErrorActionPreference='SilentlyContinue'
+        Write-Verbose "Executing command: dotnet $command"
+        $output = Invoke-Expression "& '$dotnet' $command" -ErrorVariable verboseOutput
+        if ($LASTEXITCODE -ne 0) {
+            if (!($verboseOutput) -and $output) {
+                # most often occurs when dotnet-ef didn't install
+                throw $output
+            }
+            throw $verboseOutput
+        }
+        $output = $output -join [Environment]::NewLine
+
+        Write-Debug $output
+        if ($Json) {
+            $output = $output | ConvertFrom-Json
+        } else {
+            Write-Verbose $output
+        }
+
+        # dotnet commands log verbose output to stderr
+        Write-Verbose $($verboseOutput -join [Environment]::NewLine)
+    } catch {
+        Write-Debug $_.Exception.Message
+    }
+    finally {
+        $ErrorActionPreference='Stop'
+        Pop-Location
+    }
+    return $output
 }
 
 function InvokeOperation($startupProject, $environment, $project, $operation, $arguments = @{}, [switch] $skipBuild) {
@@ -604,6 +766,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
                     targetName = $targetAssemblyName
                     environment = $environment
                     projectDir = $fullPath
+                    startupProjectDir = $startupFullPath
                     rootNamespace = $rootNamespace
                 }
             ),

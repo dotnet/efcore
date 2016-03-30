@@ -4,12 +4,14 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Relational.Tests.Migrations;
+using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Migrations
+namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
 {
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
@@ -352,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.Name', N'FullName', 'COLUMN';" + EOL,
+                "EXEC sp_rename N'dbo.People.Name', N'FullName', N'COLUMN';" + EOL,
                 Sql);
         }
 
@@ -369,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', 'INDEX';" + EOL,
+                "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
         }
 

@@ -6,22 +6,19 @@
     "xunit": "2.1.0"
   },
   "testRunner": "xunit",
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
   "frameworks": {
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*",
-        "System.Data.SqlClient": "4.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "System.Data.SqlClient": "4.1.0-*",
+        "dotnet-test-xunit": "1.0.0-dev-*"
       }
     },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      },
+    "net451": {
       "frameworkAssemblies": {
         "System.Collections": "",
         "System.Data": "",

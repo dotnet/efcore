@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -14,13 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         IDbContextServices Initialize(
             [NotNull] IServiceProvider scopedProvider,
             [NotNull] IDbContextOptions contextOptions,
-            [NotNull] DbContext context,
-            ServiceProviderSource serviceProviderSource);
+            [NotNull] DbContext context);
 
-        DbContext Context { get; }
+        ICurrentDbContext CurrentContext { get; }
         IModel Model { get; }
+        ILoggerFactory LoggerFactory { get; }
+        IMemoryCache MemoryCache { get; }
         IDbContextOptions ContextOptions { get; }
         IDatabaseProviderServices DatabaseProviderServices { get; }
-        IServiceProvider ServiceProvider { get; }
+        IServiceProvider InternalServiceProvider { get; }
     }
 }

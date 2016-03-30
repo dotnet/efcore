@@ -17,13 +17,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_specify_connection_string_in_OnConfiguring()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<StringInOnConfiguringContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddDbContext<StringInOnConfiguringContext>()
+                    .BuildServiceProvider();
 
             using (SqlServerNorthwindContext.GetSharedStore())
             {
@@ -49,22 +46,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class StringInOnConfiguringContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
-            }
+                => optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
         }
 
         [Fact]
         public void Can_specify_connection_in_OnConfiguring()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<ConnectionInOnConfiguringContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
+                    .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider();
 
             using (SqlServerNorthwindContext.GetSharedStore())
             {
@@ -97,9 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_connection);
-            }
+                => optionsBuilder.UseSqlServer(_connection);
 
             public override void Dispose()
             {
@@ -111,21 +100,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         private class StringInConfigContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer("Database=Crunchie");
-            }
+                => optionsBuilder.UseSqlServer("Database=Crunchie");
         }
 
         [Fact]
         public void Throws_if_no_connection_found_in_config_without_UseSqlServer()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<NoUseSqlServerContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddDbContext<NoUseSqlServerContext>().BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
             {
@@ -138,13 +121,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Throws_if_no_config_without_UseSqlServer()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<NoUseSqlServerContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddDbContext<NoUseSqlServerContext>().BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
             {
@@ -161,15 +140,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_select_appropriate_provider_when_multiple_registered()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddScoped<SomeService>()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddInMemoryDatabase()
-                .AddDbContext<MultipleProvidersContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddScoped<SomeService>()
+                    .AddDbContext<MultipleProvidersContext>()
+                    .BuildServiceProvider();
 
             using (SqlServerNorthwindContext.GetSharedStore())
             {
@@ -266,14 +241,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_depend_on_DbContextOptions()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<OptionsContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
+                    .AddDbContext<OptionsContext>()
+                    .BuildServiceProvider();
 
             using (SqlServerNorthwindContext.GetSharedStore())
             {
@@ -329,15 +301,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_register_multiple_context_types()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddInMemoryDatabase()
+            var serviceProvider = new ServiceCollection()
                 .AddDbContext<MultipleContext1>()
-                .AddDbContext<MultipleContext2>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+                .AddDbContext<MultipleContext2>()
+                .BuildServiceProvider();
 
             using (SqlServerNorthwindContext.GetSharedStore())
             {
@@ -413,14 +380,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         [Fact]
         public void Can_depend_on_non_generic_options_when_only_one_context()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddInMemoryDatabase()
-                .AddDbContext<NonGenericOptionsContext>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddDbContext<NonGenericOptionsContext>()
+                    .BuildServiceProvider();
 
             using (SqlServerNorthwindContext.GetSharedStore())
             {

@@ -24,5 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual IQuerySource QuerySource { get; }
         public virtual IReadOnlyList<INavigation> NavigationPath { get; }
+
+        public virtual bool IsEnumerableTarget { get; set; }
     }
 }

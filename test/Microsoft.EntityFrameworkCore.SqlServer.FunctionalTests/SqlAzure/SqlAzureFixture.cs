@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,20 +18,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 
         public SqlAzureFixture()
         {
-            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql", recreateIfAlreadyExists: false);
+            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql");
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.EnableSensitiveDataLogging()
-                .UseSqlServer(SqlServerTestStore.CreateConnectionString("adventureworks"));
-            Options = optionsBuilder.Options;
+            Services = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory()).BuildServiceProvider();
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework()
-                .AddSqlServer();
-            serviceCollection.AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
-            Services = serviceCollection.BuildServiceProvider();
+            Options = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(Services)
+                .EnableSensitiveDataLogging()
+                .UseSqlServer(SqlServerTestStore.CreateConnectionString("adventureworks")).Options;
         }
 
-        public virtual AdventureWorksContext CreateContext() => new AdventureWorksContext(Services, Options);
+        public virtual AdventureWorksContext CreateContext() => new AdventureWorksContext(Options);
     }
 }

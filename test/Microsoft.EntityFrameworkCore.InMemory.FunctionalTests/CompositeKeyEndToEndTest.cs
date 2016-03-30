@@ -18,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .GetInfrastructure()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -61,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public async Task Can_use_generated_values_in_composite_key_end_to_end()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             long id1;
@@ -118,9 +114,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniquness()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryDatabase()
-                .ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
             var ids = new int[3];
@@ -174,9 +168,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private class BronieContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public BronieContext(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Pegasus> Pegasuses { get; set; }
@@ -184,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<EarthPony> EarthPonies { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

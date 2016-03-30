@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -198,7 +199,7 @@ FROM ""Customers""")
                 Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
             }
         }
-        
+
         [Fact]
         public virtual void From_sql_queryable_with_parameters_inline()
         {
@@ -398,6 +399,56 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             }
         }
 
+        [Fact]
+        public virtual void From_sql_with_dbParameter()
+        {
+            using (var context = CreateContext())
+            {
+                var parameter = CreateDbParameter("@city", "London");
+
+                var actual = context.Customers
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = @city", parameter)
+                    .ToArray();
+
+                Assert.Equal(6, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_with_dbParameter_mixed()
+        {
+            using (var context = CreateContext())
+            {
+                var city = "London";
+                var title = "Sales Representative";
+
+                var titleParameter = CreateDbParameter("@title", title);
+
+                var actual = context.Customers
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
+                        city,
+                        titleParameter)
+                    .ToArray();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+
+                var cityParameter = CreateDbParameter("@city", city);
+
+                actual = context.Customers
+                        .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
+                            cityParameter,
+                            title)
+                        .ToArray();
+
+                Assert.Equal(3, actual.Length);
+                Assert.True(actual.All(c => c.City == "London"));
+                Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected FromSqlQueryTestBase(TFixture fixture)
@@ -406,5 +457,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
         }
 
         protected TFixture Fixture { get; }
+
+        protected abstract DbParameter CreateDbParameter(string name, object value);
     }
 }

@@ -10,6 +10,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public interface IEntityStateListener
     {
         void StateChanging([NotNull] InternalEntityEntry entry, EntityState newState);
-        void StateChanged([NotNull] InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup);
+
+        void StateChanged(
+            [NotNull] InternalEntityEntry entry, 
+            EntityState oldState, 
+            bool skipInitialFixup,
+            bool fromQuery);
     }
 }

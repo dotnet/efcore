@@ -3,8 +3,9 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Tests;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.Relational.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

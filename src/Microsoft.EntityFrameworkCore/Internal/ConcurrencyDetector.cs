@@ -3,28 +3,48 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class ConcurrencyDetector : IConcurrencyDetector
     {
-        private bool _isInCriticalSection;
+        private readonly IDisposable _disposer;
 
-        public virtual void EnterCriticalSection()
+        private int _inCriticalSection;
+
+        public ConcurrencyDetector()
         {
-            if(_isInCriticalSection)
-            {
-                throw new NotSupportedException(CoreStrings.ConcurrentMethodInvocation);
-            }
-
-            _isInCriticalSection = true;
+            _disposer = new Disposer(this);
         }
 
-        public virtual void ExitCriticalSection()
+        public virtual IDisposable EnterCriticalSection()
         {
-            Debug.Assert(_isInCriticalSection, "Expected to be in a critical section");
+            if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
+            {
+                throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
+            }
 
-            _isInCriticalSection = false;
+            return _disposer;
+        }
+
+        private struct Disposer : IDisposable
+        {
+            private readonly ConcurrencyDetector _concurrencyDetector;
+
+            public Disposer(ConcurrencyDetector concurrencyDetector)
+            {
+                _concurrencyDetector = concurrencyDetector;
+            }
+
+            public void Dispose() => _concurrencyDetector.ExitCriticalSection();
+        }
+
+        private void ExitCriticalSection()
+        {
+            Debug.Assert(_inCriticalSection == 1, "Expected to be in a critical section");
+
+            _inCriticalSection = 0;
         }
     }
 }

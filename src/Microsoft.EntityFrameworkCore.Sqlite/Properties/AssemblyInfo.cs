@@ -11,3 +11,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
     typeName: "Microsoft.EntityFrameworkCore.Scaffolding.SqliteDesignTimeServices",
     assemblyName: "Microsoft.EntityFrameworkCore.Sqlite.Design, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
     packageName: "Microsoft.EntityFrameworkCore.Sqlite.Design")]
+[assembly: AssemblyCompany("Microsoft Corporation.")]
+[assembly: AssemblyCopyright("© Microsoft Corporation. All rights reserved.")]
+[assembly: AssemblyProduct("Microsoft EntityFramework Core")]

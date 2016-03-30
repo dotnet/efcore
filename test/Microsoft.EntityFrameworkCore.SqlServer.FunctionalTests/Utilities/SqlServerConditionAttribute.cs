@@ -6,10 +6,10 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    [TraitDiscoverer("Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlServerConditionTraitDiscoverer", "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests")]
+    [TraitDiscoverer("Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities.SqlServerConditionTraitDiscoverer", "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests")]
     public class SqlServerConditionAttribute : Attribute, ITestCondition, ITraitAttribute
     {
         public SqlServerCondition Conditions { get; set; }

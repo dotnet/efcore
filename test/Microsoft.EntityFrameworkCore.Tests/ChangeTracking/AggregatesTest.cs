@@ -238,17 +238,28 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             using (var context = new AggregateContext())
             {
-                var reminders = new[] { new Reminder { Id = 11 }, new Reminder { Id = 12 } };
+                var reminders = new[] { new Reminder { Id = 11, AuthorId = 22 }, new Reminder { Id = 12, AuthorId = 22 } };
                 var author = new Author { Id = 22, Reminders = reminders.ToList() };
 
-                var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
-                var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
+                var comments0 = new[]
+                {
+                    new Comment { Id = 33, AuthorId = 22, PostId = 55, Author = author },
+                    new Comment { Id = 34, AuthorId = 22, PostId = 55, Author = author }
+                };
+
+                var comments1 = new[]
+                {
+                    new Comment { Id = 44, AuthorId = 22, PostId = 56, Author = author },
+                    new Comment { Id = 45, AuthorId = 22, PostId = 56, Author = author }
+                };
+
                 var posts = new[]
                 {
-                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                    new Post { Id = 55, AuthorId = 22, BlogId = 66, Author = author, Comments = comments0.ToList() },
+                    new Post { Id = 56, AuthorId = 22, BlogId = 66, Author = author, Comments = comments1.ToList() }
                 };
-                var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
+
+                var blog = new Blog { Id = 66, AuthorId = 22, Author = author, Posts = posts.ToList() };
 
                 context.Attach(blog);
 

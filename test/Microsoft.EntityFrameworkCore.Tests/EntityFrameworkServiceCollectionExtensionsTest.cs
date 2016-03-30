@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -37,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
         {
             // Listeners
             VerifyScoped<IEntityStateListener>(isExistingReplaced: true);
-            VerifyScoped<IForeignKeyListener>(isExistingReplaced: true);
             VerifyScoped<INavigationListener>(isExistingReplaced: true);
             VerifyScoped<IKeyListener>(isExistingReplaced: true);
             VerifyScoped<IPropertyListener>(isExistingReplaced: true);
@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             VerifySingleton<IFieldMatcher>();
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<ICoreConventionSetBuilder>();
-            VerifySingleton<LoggingModelValidator>();
 
+            VerifyScoped<LoggingModelValidator>();
             VerifyScoped<IKeyPropagator>();
             VerifyScoped<INavigationFixer>();
             VerifyScoped<IStateManager>();
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             VerifyScoped<ValueGeneratorSelector>();
 
             VerifyScoped<IModel>();
-            VerifyScoped<DbContext>();
+            VerifyScoped<ICurrentDbContext>();
             VerifyScoped<IDbContextOptions>();
             VerifyScoped<IDatabaseProviderServices>();
             VerifyScoped<IDatabase>();
@@ -82,14 +82,34 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             // Query
             VerifySingleton<IMemoryCache>();
-            VerifySingleton<ICompiledQueryCache>();
 
+            VerifyScoped<ICompiledQueryCache>();
             VerifyScoped<IAsyncQueryProvider>();
             VerifyScoped<IQueryContextFactory>();
             VerifyScoped<IQueryCompiler>();
             VerifyScoped<IQueryCompilationContextFactory>();
             VerifyScoped<ICompiledQueryCacheKeyGenerator>();
             VerifyScoped<CompiledQueryCacheKeyGenerator>();
+        }
+
+        protected virtual void AssertServicesSame(IServiceCollection services1, IServiceCollection services2)
+        {
+            var sortedServices1 = services1
+                .OrderBy(s => s.ServiceType.GetHashCode())
+                .ToList();
+
+            var sortedServices2 = services2
+                .OrderBy(s => s.ServiceType.GetHashCode())
+                .ToList();
+
+            Assert.Equal(sortedServices1.Count, sortedServices2.Count);
+
+            for (int i = 0; i < sortedServices1.Count; i++)
+            {
+                Assert.Equal(sortedServices1[i].ServiceType, sortedServices2[i].ServiceType);
+                Assert.Equal(sortedServices1[i].ImplementationType, sortedServices2[i].ImplementationType);
+                Assert.Equal(sortedServices1[i].Lifetime, sortedServices2[i].Lifetime);
+            }
         }
 
         private readonly TestHelpers _testHelpers;
@@ -105,10 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             _secondContext = _testHelpers.CreateContext(serviceProvider);
         }
 
-        private IServiceCollection AddServices(IServiceCollection serviceCollection)
-        {
-            return _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework()).GetInfrastructure();
-        }
+        private IServiceCollection AddServices(IServiceCollection serviceCollection) 
+            => _testHelpers.AddProviderServices(serviceCollection);
 
         public void Dispose()
         {

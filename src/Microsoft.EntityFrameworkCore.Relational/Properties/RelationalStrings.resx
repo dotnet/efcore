@@ -244,11 +244,17 @@
   <data name="ClientEvalWarning" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
   </data>
+  <data name="MissingParameterValue" xml:space="preserve">
+    <value>No value provided for required parameter '{parameter}'.</value>
+  </data>
+  <data name="ParameterNotObjectArray" xml:space="preserve">
+    <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
+  </data>
   <data name="RelationalLoggerExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
   </data>
   <data name="DuplicateColumnName" xml:space="preserve">
-    <value>Cannot use column name '{columnName}' in entity '{entityType}' for property '{property}' since it is being used for another property.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different data types ('{dataType1}' and '{dataType2}').</value>
   </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>

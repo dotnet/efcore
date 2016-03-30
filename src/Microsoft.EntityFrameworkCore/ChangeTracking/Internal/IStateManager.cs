@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         void StopTracking([NotNull] InternalEntityEntry entry);
 
-        void RecordDanglingDependent([NotNull] IForeignKey foreignKey, [NotNull] InternalEntityEntry entry);
+        void RecordReferencedUntrackedEntity([NotNull] object referencedEntity, [NotNull] INavigation navigation, [NotNull] InternalEntityEntry referencedFromEntry);
 
-        IEnumerable<InternalEntityEntry> GetDanglingDependents([NotNull] IForeignKey foreignKey, [NotNull] InternalEntityEntry entry);
+        IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers([NotNull] object referencedEntity);
 
         InternalEntityEntry GetPrincipal([NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey);
 

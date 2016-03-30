@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 // ReSharper disable ReplaceWithSingleCallToCount
@@ -1271,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         [ConditionalFact]
         public virtual void Where_subquery_expression()
-        { 
+        {
             AssertQuery<Order, Order>((o1, o2) =>
                 {
                     var firstOrder = o1.First();
@@ -1279,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     return o1.Where(x => o2.Where(expr).Any());
                 });
         }
-        
+
         [ConditionalFact]
         public virtual void Where_subquery_expression_same_parametername()
         {
@@ -4139,6 +4138,36 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void GroupJoin_tracking_groups()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select orders,
+                entryCount: 830,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                         Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void GroupJoin_tracking_groups2()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                select new { c, orders },
+                entryCount: 921,
+                asserter:
+                    (l2oResults, efResults) =>
+                    {
+                        Assert.Equal(l2oResults.Count, efResults.Count);
+                    });
+        }
+
+        [ConditionalFact]
         public virtual void GroupJoin_simple2()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -4285,6 +4314,26 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)));
         }
+
+        [ConditionalFact]
+        public virtual void Contains_with_subquery_and_local_array_closure()
+        {
+            var ids = new[] { "London", "Buenos Aires" };
+
+            AssertQuery<Customer>(cs =>
+                cs.Where(c =>
+                    cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+                    entryCount: 9);
+
+
+            ids = new[] { "London" };
+
+            AssertQuery<Customer>(cs =>
+                cs.Where(c =>
+                    cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+                    entryCount: 6);
+        }
+
 
         [ConditionalFact]
         public virtual void Contains_with_local_int_array_closure()
@@ -4707,6 +4756,29 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Select_Where_Subquery_Equality()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = (from o in context.Orders.Take(2)
+                      // ReSharper disable once UseMethodAny.0
+                      where (from od in context.OrderDetails.Take(2)
+                             where (from c in context.Set<Customer>()
+                                    where c.CustomerID == o.CustomerID
+                                    select c).First().Country
+                                   == (from o2 in context.Set<Order>()
+                                       join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
+                                       where o2.OrderID == od.OrderID
+                                       select c).First().Country
+                             select od).Count() > 0
+                      select o).ToList();
+
+                Assert.Equal(1, orders.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Throws_on_concurrent_query_list()
         {
             using (var context = CreateContext())
@@ -4715,7 +4787,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<NotSupportedException>(
+                    Assert.Throws<InvalidOperationException>(
                     () => context.Customers.ToList()).Message);
             }
         }
@@ -4729,7 +4801,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<NotSupportedException>(
+                    Assert.Throws<InvalidOperationException>(
                         () => context.Customers.First()).Message);
             }
         }
@@ -4867,6 +4939,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         private void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             bool assertOrder = false,
+            int? entryCount = null,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem1 : class
             where TItem2 : class
@@ -4878,6 +4951,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     query(context.Set<TItem1>(), context.Set<TItem2>()).ToArray(),
                     assertOrder,
                     asserter);
+
+                if (entryCount != null)
+                {
+                    Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+                }
             }
         }
 

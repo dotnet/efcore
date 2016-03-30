@@ -228,10 +228,65 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
             else
             {
+                DiscriminateProjectionQuery(entityType, selectExpression, _querySource);
+
                 shaper = new ValueBufferShaper(_querySource);
             }
 
             return shaper;
+        }
+
+        private void DiscriminateProjectionQuery(
+            IEntityType entityType, SelectExpression selectExpression, IQuerySource querySource)
+        {
+            var concreteEntityTypes
+                = entityType.GetConcreteTypesInHierarchy().ToArray();
+
+            if (concreteEntityTypes.Length == 1
+                && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
+            {
+                return;
+            }
+
+            var discriminatorProperty
+                = _relationalAnnotationProvider
+                    .For(concreteEntityTypes[0]).DiscriminatorProperty;
+
+            var discriminatorColumn
+                = new ColumnExpression(
+                    _relationalAnnotationProvider.For(discriminatorProperty).ColumnName,
+                    discriminatorProperty,
+                    selectExpression.GetTableForQuerySource(querySource));
+
+            var firstDiscriminatorValue
+                = Expression.Constant(
+                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue);
+
+            var discriminatorPredicate
+                = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
+
+            if (concreteEntityTypes.Length == 1)
+            {
+                selectExpression.Predicate
+                    = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
+
+                return;
+            }
+
+            discriminatorPredicate
+                = concreteEntityTypes
+                    .Skip(1)
+                    .Select(concreteEntityType
+                        => Expression.Constant(
+                            _relationalAnnotationProvider
+                                .For(concreteEntityType).DiscriminatorValue))
+                    .Aggregate(discriminatorPredicate, (current, discriminatorValue) =>
+                        Expression.OrElse(
+                            Expression.Equal(discriminatorColumn, discriminatorValue),
+                            current));
+
+            selectExpression.Predicate
+                = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
         }
 
         private static readonly MethodInfo _createEntityShaperMethodInfo

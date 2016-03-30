@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.AddKey(keyProperty);
 
-            VerifyWarning(CoreStrings.ShadowKey("{'Key'}", typeof(A).FullName, "{'Key'}"), model);
+            VerifyWarning(CoreStrings.ShadowKey("{'Key'}", typeof(A).Name, "{'Key'}"), model);
         }
 
         [Fact]

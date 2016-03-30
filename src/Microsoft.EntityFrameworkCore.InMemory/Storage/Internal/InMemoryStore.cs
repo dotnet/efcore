@@ -4,12 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -22,18 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class InMemoryStore : IInMemoryStore
     {
         private readonly IInMemoryTableFactory _tableFactory;
-        private readonly ILogger _logger;
 
         private readonly object _lock = new object();
 
         private Lazy<Dictionary<IEntityType, IInMemoryTable>> _tables = CreateTables();
 
-        public InMemoryStore(
-            [NotNull] IInMemoryTableFactory tableFactory,
-            [NotNull] ILogger<InMemoryStore> logger)
+        public InMemoryStore([NotNull] IInMemoryTableFactory tableFactory)
         {
             _tableFactory = tableFactory;
-            _logger = logger;
         }
 
         /// <summary>
@@ -97,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return data;
         }
 
-        public virtual int ExecuteTransaction(IEnumerable<IUpdateEntry> entries)
+        public virtual int ExecuteTransaction(IEnumerable<IUpdateEntry> entries, ILogger<InMemoryDatabase> logger)
         {
             var rowsAffected = 0;
 
@@ -132,13 +124,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 }
             }
 
-            _logger.LogInformation<object>(
+            logger.LogInformation<object>(
                 InMemoryLoggingEventId.SavedChanges,
                 rowsAffected,
                 InMemoryStrings.LogSavedChanges);
 
             return rowsAffected;
         }
-
     }
 }

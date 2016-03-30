@@ -130,10 +130,10 @@
     <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.</value>
   </data>
   <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'.  Some columns in the foreign key could not be scaffolded.</value>
+    <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
   </data>
   <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the primary key for '{tableName}'. Some columns in the primary key could not be scaffolded.</value>
+    <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
   </data>
   <data name="MissingPrimaryKey" xml:space="preserve">
     <value>Unable to identify the primary key for table '{tableName}'.</value>
@@ -148,7 +148,7 @@
     <value>Unable to generate entity type for table '{tableName}'.</value>
   </data>
   <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
-    <value>Unable to scaffold the index '{indexName}' because at least one of the properties it contains could not be scaffolded.</value>
+    <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
   </data>
   <data name="MissingUseProviderMethodNameAnnotation" xml:space="preserve">
     <value>Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.</value>

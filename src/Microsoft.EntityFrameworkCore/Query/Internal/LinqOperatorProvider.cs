@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -108,25 +107,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public bool MoveNext()
                 {
-                    try
+                    using (_exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection())
                     {
-                        _exceptionInterceptor._queryContext.ConcurrencyDetector.EnterCriticalSection();
-                        return _innerEnumerator.MoveNext();
-                    }
-                    catch (Exception exception)
-                    {
-                        _exceptionInterceptor._logger
-                            .LogError(
-                                CoreLoggingEventId.DatabaseError,
-                                () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
-                                exception,
-                                e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
+                        try
+                        {
+                            return _innerEnumerator.MoveNext();
+                        }
+                        catch (Exception exception)
+                        {
+                            _exceptionInterceptor._logger
+                                .LogError(
+                                    CoreLoggingEventId.DatabaseError,
+                                    () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
+                                    exception,
+                                    e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
 
-                        throw;
-                    }
-                    finally
-                    {
-                        _exceptionInterceptor._queryContext.ConcurrencyDetector.ExitCriticalSection();
+                            throw;
+                        }
                     }
                 }
 
@@ -155,11 +152,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     for (var i = 0; i < entityTrackingInfos.Count; i++)
                     {
-                        var entity = entityAccessors[i](result as TIn);
+                        var entityOrCollection = entityAccessors[i](result as TIn);
 
-                        if (entity != null)
+                        if (entityOrCollection != null)
                         {
-                            queryContext.StartTracking(entity, entityTrackingInfos[i]);
+                            var entityTrackingInfo = entityTrackingInfos[i];
+
+                            if (entityTrackingInfo.IsEnumerableTarget)
+                            {
+                                foreach (var entity in (IEnumerable)entityOrCollection)
+                                {
+                                    queryContext.StartTracking(entity, entityTrackingInfos[i]);
+                                }
+                            }
+                            else
+                            {
+                                queryContext.StartTracking(entityOrCollection, entityTrackingInfos[i]);
+                            }
                         }
                     }
                 }

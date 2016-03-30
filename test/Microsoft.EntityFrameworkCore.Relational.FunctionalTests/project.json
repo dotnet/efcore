@@ -3,7 +3,9 @@
   "description": "Reusable Microsoft.EntityFrameworkCore.Relational functional tests for provider writers.",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk",
-    "nowarn": [ "CS1591" ],
+    "nowarn": [
+      "CS1591"
+    ],
     "xmlDoc": true
   },
   "dependencies": {
@@ -11,13 +13,15 @@
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {},
-    "dnx451": {},
-    "dnxcore50": {
-      "imports": "portable-net452+win81",
+    "netstandardapp1.5": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*"
       }
-    }
+    },
+    "net451": {}
   }
 }

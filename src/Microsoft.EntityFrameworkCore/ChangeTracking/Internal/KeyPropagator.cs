@@ -103,8 +103,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             // TODO: Perf
-            foreach (var principalEntry in stateManager.Entries
-                .Where(e => navigation.ForeignKey.PrincipalEntityType.IsAssignableFrom(e.EntityType)))
+            foreach (var principalEntry in stateManager.Entries.Where(
+                e => e.EntityState != EntityState.Detached
+                && navigation.ForeignKey.PrincipalEntityType.IsAssignableFrom(e.EntityType)))
             {
                 if (navigation.IsCollection())
                 {

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class InMemoryStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.InMemoryStrings", typeof(InMemoryStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// Saved {count} entities to in-memory store.
@@ -26,6 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string TransactionsNotSupported
         {
             get { return GetString("TransactionsNotSupported"); }
+        }
+
+        /// <summary>
+        /// Attempted to update or delete an entity that does not exist in the store.
+        /// </summary>
+        public static string UpdateConcurrencyException
+        {
+            get { return GetString("UpdateConcurrencyException"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

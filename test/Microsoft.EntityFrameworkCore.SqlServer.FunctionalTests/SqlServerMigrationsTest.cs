@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -32,21 +33,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             var serviceProvider =
                 new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .ServiceCollection()
+                    .AddEntityFrameworkSqlServer()
                     .BuildServiceProvider();
 
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.ConnectionString);
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseSqlServer(testStore.ConnectionString)
+                .UseInternalServiceProvider(serviceProvider);
 
-            return new BloggingContext(serviceProvider, optionsBuilder.Options);
+            return new BloggingContext(optionsBuilder.Options);
         }
 
         private class BloggingContext : DbContext
         {
-            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
-                : base(serviceProvider, options)
+            public BloggingContext(DbContextOptions options)
+                : base(options)
             {
             }
 

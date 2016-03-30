@@ -8,12 +8,14 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ImplicitlyCapturedClosure
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class EntityTypeTest
     {
@@ -877,7 +879,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialOrderType.HasBaseType(orderType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(SpecialOrder).Name, typeof(Order).Name),
+                CoreStrings.DuplicateForeignKey(
+                    Property.Format(new[] { foreignKeyProperty }),
+                    typeof(SpecialOrder).Name,
+                    typeof(Order).Name,
+                    Property.Format(customerKey.Properties),
+                    typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() =>
                     specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
@@ -901,7 +908,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             verySpecialOrderType.HasBaseType(specialOrderType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(VerySpecialOrder).Name, typeof(Order).Name),
+                CoreStrings.DuplicateForeignKey(
+                    Property.Format(new[] { foreignKeyProperty }),
+                    typeof(VerySpecialOrder).Name,
+                    typeof(Order).Name,
+                    Property.Format(customerKey.Properties),
+                    typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() =>
                     verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
@@ -922,7 +934,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(Order).Name, typeof(SpecialOrder).Name),
+                CoreStrings.DuplicateForeignKey(
+                    Property.Format(new[] { foreignKeyProperty }),
+                    typeof(Order).Name,
+                    typeof(SpecialOrder).Name,
+                    Property.Format(customerKey.Properties),
+                    typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() =>
                     orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
@@ -946,7 +963,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey(Property.Format(new[] { foreignKeyProperty }), typeof(Order).Name, typeof(VerySpecialOrder).Name),
+                CoreStrings.DuplicateForeignKey(
+                    Property.Format(new[] { foreignKeyProperty }),
+                    typeof(Order).Name,
+                    typeof(VerySpecialOrder).Name,
+                    Property.Format(customerKey.Properties),
+                    typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() =>
                     orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
@@ -1199,9 +1221,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Name_is_prettified_CLR_full_name()
         {
-            Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest", new Model().AddEntityType(typeof(EntityTypeTest)).Name);
-            Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest+Customer", new Model().AddEntityType(typeof(Customer)).Name);
-            Assert.Equal("System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest+Customer>", new Model().AddEntityType(typeof(List<Customer>)).Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Metadata.Internal.EntityTypeTest", new Model().AddEntityType(typeof(EntityTypeTest)).Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Tests.Metadata.Internal.EntityTypeTest+Customer", new Model().AddEntityType(typeof(Customer)).Name);
+            Assert.Equal("System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Tests.Metadata.Internal.EntityTypeTest+Customer>", new Model().AddEntityType(typeof(List<Customer>)).Name);
         }
 
         [Fact]
@@ -1609,6 +1631,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Can_add_a_foreign_key_targetting_different_key()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey1 = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+            var orderType = model.AddEntityType(typeof(Order));
+            var customerFkProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+
+            var fk1 = orderType.AddForeignKey(customerFkProperty, customerKey1, customerType);
+
+            Assert.NotNull(fk1);
+            Assert.Same(fk1, orderType.FindForeignKeys(customerFkProperty).Single());
+            Assert.Same(fk1, orderType.FindForeignKey(customerFkProperty, customerKey1, customerType));
+            Assert.Same(fk1, orderType.GetForeignKeys().Single());
+
+            var altKeyProperty = customerType.AddProperty(nameof(Customer.AlternateId), typeof(int));
+            altKeyProperty.IsShadowProperty = false;
+            var customerKey2 = customerType.AddKey(altKeyProperty);
+            var fk2 = orderType.AddForeignKey(customerFkProperty, customerKey2, customerType);
+
+            Assert.Equal(2, orderType.FindForeignKeys(customerFkProperty).Count());
+            Assert.Same(fk2, orderType.FindForeignKey(customerFkProperty, customerKey2, customerType));
+            Assert.Equal(new[] { fk2, fk1 }, orderType.GetForeignKeys().ToArray());
+        }
+
+        [Fact]
+        public void Can_add_a_foreign_key_targetting_different_entity_type()
+        {
+            var model = new Model();
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var customerType = model.AddEntityType(typeof(Customer));
+            customerType.HasBaseType(baseType);
+            var customerKey1 = baseType.GetOrAddKey(baseType.GetOrAddProperty(Customer.IdProperty));
+            var orderType = model.AddEntityType(typeof(Order));
+            var customerFkProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+
+            var fk1 = orderType.AddForeignKey(customerFkProperty, customerKey1, baseType);
+
+            Assert.NotNull(fk1);
+            Assert.Same(fk1, orderType.FindForeignKeys(customerFkProperty).Single());
+            Assert.Same(fk1, orderType.FindForeignKey(customerFkProperty, customerKey1, baseType));
+            Assert.Same(fk1, orderType.GetForeignKeys().Single());
+            
+            var fk2 = orderType.AddForeignKey(customerFkProperty, customerKey1, customerType);
+
+            Assert.Equal(2, orderType.FindForeignKeys(customerFkProperty).Count());
+            Assert.Same(fk2, orderType.FindForeignKey(customerFkProperty, customerKey1, customerType));
+            Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
+        }
+
+        [Fact]
         public void Adding_a_foreign_key_throws_if_duplicate()
         {
             var model = new Model();
@@ -1619,7 +1692,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             orderType.AddForeignKey(customerFk1, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.DuplicateForeignKey("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Order).Name, typeof(Order).Name),
+                CoreStrings.DuplicateForeignKey(
+                    "{'" + Order.CustomerIdProperty.Name + "'}",
+                    typeof(Order).Name, 
+                    typeof(Order).Name,
+                    "{'" + Customer.IdProperty.Name + "'}",
+                    typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(customerFk1, customerKey, customerType)).Message);
         }
 
@@ -2743,9 +2821,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class Customer : BaseType
         {
-            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+            public static readonly PropertyInfo IdProperty = typeof(BaseType).GetProperty("Id");
             public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
 
+            public int AlternateId { get; set; }
             public Guid Unique { get; set; }
             public string Name { get; set; }
             public string Mane { get; set; }

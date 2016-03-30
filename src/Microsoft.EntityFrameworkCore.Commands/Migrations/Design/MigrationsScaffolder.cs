@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private readonly string _activeProvider;
 
         public MigrationsScaffolder(
-            [NotNull] DbContext context,
+            [NotNull] ICurrentDbContext currentContext,
             [NotNull] IModel model,
             [NotNull] IMigrationsAssembly migrationsAssembly,
             [NotNull] IMigrationsModelDiffer modelDiffer,
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IDatabaseProviderServices providerServices)
         {
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(model, nameof(model));
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(providerServices, nameof(providerServices));
 
-            _contextType = context.GetType();
+            _contextType = currentContext.Context.GetType();
             _model = model;
             _migrationsAssembly = migrationsAssembly;
             _modelDiffer = modelDiffer;
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
 
                 _logger.Value.LogInformation(CommandsStrings.RevertingSnapshot);
-                File.WriteAllText(modelSnapshotFile, modelSnapshotCode);
+                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
             }
 
             return files;
@@ -310,12 +310,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             _logger.Value.LogDebug(CommandsStrings.WritingMigration(migrationFile));
             Directory.CreateDirectory(migrationDirectory);
-            File.WriteAllText(migrationFile, migration.MigrationCode);
-            File.WriteAllText(migrationMetadataFile, migration.MetadataCode);
+            File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
+            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
 
             _logger.Value.LogDebug(CommandsStrings.WritingSnapshot(modelSnapshotFile));
             Directory.CreateDirectory(modelSnapshotDirectory);
-            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode);
+            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
 
             return new MigrationFiles
             {

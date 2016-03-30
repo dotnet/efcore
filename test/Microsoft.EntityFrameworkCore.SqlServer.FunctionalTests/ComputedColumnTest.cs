@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -14,9 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_computed_columns()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
@@ -37,9 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public void Can_use_computed_columns_with_null_values()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new Context(serviceProvider, "ComputedColumns"))
@@ -58,20 +55,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class Context : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly string _databaseName;
 
             public Context(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
                 _databaseName = databaseName;
             }
 
             public DbSet<Entity> Entities { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -113,36 +111,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         private class NullableContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
             private readonly string _databaseName;
 
             public NullableContext(IServiceProvider serviceProvider, string databaseName)
-                : base(serviceProvider)
+                : base()
             {
+                _serviceProvider = serviceProvider;
                 _databaseName = databaseName;
             }
 
             public DbSet<EnumItem> EnumItems { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
-            }
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName))
+                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<EnumItem>()
+                => modelBuilder.Entity<EnumItem>()
                     .Property(entity => entity.CalculatedFlagEnum)
                     .ForSqlServerHasComputedColumnSql("FlagEnum | OptionalFlagEnum");
-            }
         }
 
         [Fact]
         public void Can_use_computed_columns_with_nullable_enum()
         {
             var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
+                .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
             using (var context = new NullableContext(serviceProvider, "NullableEnumComputedColumns"))

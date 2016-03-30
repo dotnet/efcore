@@ -15,9 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
             ServiceProvider
                 = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddInMemoryDatabase()
-                    .ServiceCollection()
+                    .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider();
         }
     }

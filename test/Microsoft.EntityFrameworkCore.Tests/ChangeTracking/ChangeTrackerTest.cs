@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -248,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                         }
                     });
 
-                Assert.Equal(5, context.ChangeTracker.Entries().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries().Count(e => e.State != EntityState.Detached));
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0]).State);
@@ -282,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
                 context.ChangeTracker.TrackGraph(details, e => { });
 
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Equal(0, context.ChangeTracker.Entries().Count(e => e.State != EntityState.Detached));
             }
         }
 
@@ -951,11 +952,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
         private class ChangeDetectorProxy : ChangeDetector
         {
-            public ChangeDetectorProxy(IEntityGraphAttacher attacher)
-                : base(attacher)
-            {
-            }
-
             public bool DetectChangesCalled { get; set; }
 
             public override void DetectChanges(InternalEntityEntry entry)
@@ -1039,14 +1035,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
         private class EarlyLearningCenter : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
             public EarlyLearningCenter()
-                : this(TestHelpers.Instance.CreateServiceProvider())
             {
+                _serviceProvider = TestHelpers.Instance.CreateServiceProvider();
             }
 
             public EarlyLearningCenter(IServiceProvider serviceProvider)
-                : base(serviceProvider)
             {
+                _serviceProvider = serviceProvider;
             }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1075,7 +1073,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase();
+                => optionsBuilder
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .UseInMemoryDatabase();
         }
 
         public class KeyValueEntityTracker

@@ -7,16 +7,23 @@
             "dotnet-ef": { },
             "Microsoft.EntityFrameworkCore.Commands": { },
             "Microsoft.EntityFrameworkCore": { },
-            "Microsoft.EntityFrameworkCore.FunctionalTests": { },
             "Microsoft.EntityFrameworkCore.InMemory": { },
             "Microsoft.EntityFrameworkCore.SqlServer": { },
             "Microsoft.EntityFrameworkCore.SqlServer.Design": { },
             "Microsoft.EntityFrameworkCore.Relational": { },
             "Microsoft.EntityFrameworkCore.Relational.Design": { },
-            "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": { },
-            "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": { },
             "Microsoft.EntityFrameworkCore.Sqlite": { },
             "Microsoft.EntityFrameworkCore.Sqlite.Design": { }
+        }
+    },
+    "adx-nonshipping": {
+        "rules": [
+            // don't run any rules for packages the ADX team creates but doesn't ship
+        ],
+        "packages": {
+            "Microsoft.EntityFrameworkCore.FunctionalTests": {},
+            "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": {},
+            "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": {}
         }
     },
     "Default": { // Rules to run for packages not listed in any other set.

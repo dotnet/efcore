@@ -8,13 +8,12 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tests
+namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public class TestHelpers
     {
@@ -24,17 +23,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         public static TestHelpers Instance { get; } = new TestHelpers();
 
-        public DbContextOptions CreateOptions(IModel model)
+        public DbContextOptions CreateOptions(IModel model, IServiceProvider serviceProvider = null)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(serviceProvider);
+
             UseProviderOptions(optionsBuilder.UseModel(model));
 
             return optionsBuilder.Options;
         }
 
-        public DbContextOptions CreateOptions()
+        public DbContextOptions CreateOptions(IServiceProvider serviceProvider = null)
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(serviceProvider);
+
             UseProviderOptions(optionsBuilder);
 
             return optionsBuilder.Options;
@@ -45,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private IServiceProvider CreateServiceProvider(
             IServiceCollection customServices,
-            Func<EntityFrameworkServicesBuilder, EntityFrameworkServicesBuilder> addProviderServices)
+            Func<IServiceCollection, IServiceCollection> addProviderServices)
         {
             var services = new ServiceCollection();
-            addProviderServices(services.AddEntityFramework());
+            addProviderServices(services);
 
             if (customServices != null)
             {
@@ -61,32 +64,36 @@ namespace Microsoft.EntityFrameworkCore.Tests
             return services.BuildServiceProvider();
         }
 
-        public virtual EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) => builder.AddInMemoryDatabase();
+        public virtual IServiceCollection AddProviderServices(IServiceCollection services) => services.AddEntityFrameworkInMemoryDatabase();
 
         protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
-            => new DbContext(serviceProvider, CreateOptions(model));
+            => new DbContext(CreateOptions(model, serviceProvider));
 
         public DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
-            => new DbContext(serviceProvider, options);
+            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options);
 
-        public DbContext CreateContext(IServiceProvider serviceProvider) => new DbContext(serviceProvider, CreateOptions());
+        public DbContext CreateContext(IServiceProvider serviceProvider) 
+            => new DbContext(CreateOptions(serviceProvider));
 
-        public DbContext CreateContext(IModel model) => new DbContext(CreateServiceProvider(), CreateOptions(model));
+        public DbContext CreateContext(IModel model) 
+            => new DbContext(CreateOptions(model, CreateServiceProvider()));
 
-        public DbContext CreateContext(DbContextOptions options) => new DbContext(CreateServiceProvider(), options);
+        public DbContext CreateContext(DbContextOptions options) 
+            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider()).Options);
 
-        public DbContext CreateContext() => new DbContext(CreateServiceProvider(), CreateOptions());
+        public DbContext CreateContext() 
+            => new DbContext(CreateOptions(CreateServiceProvider()));
 
         public DbContext CreateContext(IServiceCollection customServices, IModel model)
-            => new DbContext(CreateServiceProvider(customServices), CreateOptions(model));
+            => new DbContext(CreateOptions(model, CreateServiceProvider(customServices)));
 
         public DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
-            => new DbContext(CreateServiceProvider(customServices), options);
+            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider(customServices)).Options);
 
         public DbContext CreateContext(IServiceCollection customServices)
-            => new DbContext(CreateServiceProvider(customServices), CreateOptions());
+            => new DbContext(CreateOptions(CreateServiceProvider(customServices)));
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
             => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider, model)).Instance;

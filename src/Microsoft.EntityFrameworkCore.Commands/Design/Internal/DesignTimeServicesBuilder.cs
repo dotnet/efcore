@@ -64,12 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         protected virtual void ConfigureServices([NotNull] IServiceCollection services)
             => services
-                .AddLogging()
                 .AddSingleton<CSharpHelper>()
                 .AddSingleton<CSharpMigrationOperationGenerator>()
                 .AddSingleton<CSharpSnapshotGenerator>()
                 .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
-                .AddScaffolding();
+                .AddScaffolding()
+                .AddLogging();
 
         private void ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
             => _startup.ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IServiceCollection services)
             => services
                 .AddTransient<MigrationsScaffolder>()
-                .AddTransient(_ => contextServices.GetService<DbContext>())
+                .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())
                 .AddTransient(_ => contextServices.GetService<IDatabaseProviderServices>())
                 .AddTransient(_ => contextServices.GetService<IDbContextOptions>())
                 .AddTransient(_ => contextServices.GetService<IHistoryRepository>())
