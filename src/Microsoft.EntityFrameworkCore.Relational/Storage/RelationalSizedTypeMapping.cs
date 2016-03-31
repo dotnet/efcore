@@ -14,14 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalSizedTypeMapping([NotNull] string defaultTypeName,
             [NotNull] Type clrType,
             DbType? storeType,
+            bool unicode,
             int size)
-            : base(defaultTypeName, clrType, storeType)
+            : base(defaultTypeName, clrType, storeType, unicode)
         {
             Size = size;
         }
 
-        public RelationalSizedTypeMapping([NotNull] string defaultTypeName, [CanBeNull] Type clrType, int size)
-            : this(defaultTypeName, clrType, null, size)
+        public RelationalSizedTypeMapping([NotNull] string defaultTypeName, [CanBeNull] Type clrType, bool unicode, int size)
+            : this(defaultTypeName, clrType, null, unicode, size)
         {
         }
 

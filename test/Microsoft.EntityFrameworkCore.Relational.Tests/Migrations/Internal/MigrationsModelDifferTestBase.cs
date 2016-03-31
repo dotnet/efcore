@@ -45,29 +45,29 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         {
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-            public override RelationalTypeMapping FindMapping([NotNull] Type clrType)
+            public override RelationalTypeMapping FindMapping([NotNull] Type clrType, bool unicode = true)
                 => clrType == typeof(string)
-                    ? new RelationalTypeMapping("varchar(4000)", typeof(string))
+                    ? new RelationalTypeMapping("varchar(4000)", typeof(string), unicode: false)
                     : base.FindMapping(clrType);
 
-            protected override RelationalTypeMapping FindCustomMapping([NotNull] IProperty property)
+            protected override RelationalTypeMapping FindCustomMapping([NotNull] IProperty property, bool unicode = true)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping("varchar(" + property.GetMaxLength() + ")", typeof(string))
+                    ? new RelationalTypeMapping((unicode ? "nvarchar(" : "varchar(") + property.GetMaxLength() + ")", typeof(string), unicode: false)
                     : base.FindCustomMapping(property);
 
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
-                    { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
-                };
+                    {
+                        { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
+                        { typeof(bool), new RelationalTypeMapping("boolean", typeof(bool)) }
+                    };
 
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
-                {
-                    { "varchar", new RelationalTypeMapping("varchar", typeof(string)) },
-                    { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
-                };
+                    {
+                        { "varchar", new RelationalTypeMapping("varchar", typeof(string), unicode: false) },
+                        { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
+                    };
 
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
                 => _simpleMappings;

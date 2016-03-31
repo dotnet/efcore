@@ -12,8 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private readonly int _maxSpecificSize;
 
-        public SqlServerMaxLengthMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, DbType? storeType = null)
-            : base(defaultTypeName, clrType, storeType)
+        public SqlServerMaxLengthMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, DbType? storeType = null, bool unicode = true)
+            : base(defaultTypeName, clrType, storeType, unicode)
         {
             _maxSpecificSize =
                 (storeType == DbType.AnsiString)

@@ -13,18 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         public static readonly RelationalTypeMapping NullMapping = new RelationalTypeMapping("NULL");
 
-        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, [CanBeNull] DbType? storeType)
-            : this(defaultTypeName, clrType)
+        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, [CanBeNull] DbType? storeType, bool unicode = true)
+            : this(defaultTypeName, clrType, unicode)
         {
             StoreType = storeType;
         }
 
-        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType)
+        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, bool unicode = true)
             : this(defaultTypeName)
         {
             Check.NotNull(clrType, nameof(clrType));
 
             ClrType = clrType;
+            IsUnicode = unicode;
         }
 
         private RelationalTypeMapping([NotNull] string defaultTypeName)
@@ -39,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual DbType? StoreType { get; }
 
         public virtual Type ClrType { get; }
+
+        public virtual bool IsUnicode { get; }
 
         public virtual DbParameter CreateParameter(
             [NotNull] DbCommand command,

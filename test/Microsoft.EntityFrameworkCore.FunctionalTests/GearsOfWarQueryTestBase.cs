@@ -739,8 +739,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var cogTags
                     = (from o in context.Set<CogTag>()
-                        where o.Gear != null && o.Gear.IsMarcus
-                        select o).ToList();
+                       where o.Gear != null && o.Gear.IsMarcus
+                       select o).ToList();
 
                 Assert.Equal(1, cogTags.Count);
             }
@@ -900,6 +900,128 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var result = query.ToList();
 
                 Assert.NotNull(result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_unicode_string_literal_is_used_for_non_unicode_column()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from c in context.Cities
+                             where c.Location == "Unknown"
+                             select c);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_unicode_string_literal_is_used_for_non_unicode_column_right()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from c in context.Cities
+                             where "Unknown" == c.Location
+                             select c);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_unicode_parameter_is_used_for_non_unicode_column()
+        {
+            using (var context = CreateContext())
+            {
+                var value = "Unknown";
+                var query = (from c in context.Cities
+                             where c.Location == value
+                             select c);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_unicode_string_literals_in_contains_is_used_for_non_unicode_column()
+        {
+            using (var context = CreateContext())
+            {
+                var cities = new List<string> { "Unknown", "Jacinto's location", "Ephyra's location" };
+                var query = (from c in context.Cities
+                             where cities.Contains(c.Location)
+                             select c);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from c in context.Cities
+                             where (c.Location == "Unknown") && (c.BornGears.Count(g => g.Nickname == "Paduk") == 1)
+                             select c);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_in_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from g in context.Gears
+                             where g.Nickname == "Marcus" && g.CityOfBirth.Location == "Jacinto's location"
+                             select g);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from c in context.Cities
+                             where c.Location.Contains("Jacinto")
+                             select c);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        //[ConditionalFact]
+        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from c in context.Cities
+                             where (c.Location + "Added").Contains("Add")
+                             select c);
+
+                var result = query.ToList();
+
+                Assert.Equal(4, result.Count);
             }
         }
 

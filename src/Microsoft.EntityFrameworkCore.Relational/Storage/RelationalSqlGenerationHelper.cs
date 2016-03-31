@@ -36,10 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual string GenerateParameterName(string name)
             => "@" + name;
 
-        public virtual string GenerateLiteral(object value)
-            => value != null
-                ? GenerateLiteralValue((dynamic)value)
-                : "NULL";
+        public virtual string GenerateLiteral(object value, bool unicode = true)
+        {
+            if (value != null)
+            {
+                var s = value as string;
+                return s != null ? GenerateLiteralValue(s, unicode) : GenerateLiteralValue((dynamic)value);
+            }
+            return "NULL";
+        }
 
         public virtual string EscapeLiteral(string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
@@ -83,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual string GenerateLiteralValue(char value)
             => $"'{value}'";
 
-        protected virtual string GenerateLiteralValue([NotNull] string value)
+        protected virtual string GenerateLiteralValue([NotNull] string value, bool unicode = true)
             => $"'{EscapeLiteral(Check.NotNull(value, nameof(value)))}'";
 
         protected virtual string GenerateLiteralValue([NotNull] object value)

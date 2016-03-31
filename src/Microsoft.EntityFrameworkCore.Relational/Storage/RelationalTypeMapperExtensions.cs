@@ -38,12 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
-            [NotNull] Type clrType)
+            [NotNull] Type clrType,
+            bool unicode = true)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(clrType, nameof(clrType));
 
-            var mapping = typeMapper.FindMapping(clrType);
+            var mapping = typeMapper.FindMapping(clrType, unicode);
             if (mapping != null)
             {
                 return mapping;

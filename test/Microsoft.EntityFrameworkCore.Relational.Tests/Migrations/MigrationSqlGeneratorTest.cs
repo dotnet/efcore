@@ -323,14 +323,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-            public override RelationalTypeMapping FindMapping([NotNull] Type clrType)
+            public override RelationalTypeMapping FindMapping([NotNull] Type clrType, bool unicode = true)
                 => clrType == typeof(string)
-                    ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
+                    ? (unicode
+                        ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
+                        : new RelationalTypeMapping("varchar(max)", typeof(string), unicode: false))
                     : base.FindMapping(clrType);
 
-            protected override RelationalTypeMapping FindCustomMapping([NotNull] IProperty property)
+            protected override RelationalTypeMapping FindCustomMapping([NotNull] IProperty property, bool unicode = true)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string))
+                    ? new RelationalTypeMapping((unicode ? "nvarchar(" : "varchar(") + property.GetMaxLength() + ")", typeof(string))
                     : base.FindCustomMapping(property);
         }
 

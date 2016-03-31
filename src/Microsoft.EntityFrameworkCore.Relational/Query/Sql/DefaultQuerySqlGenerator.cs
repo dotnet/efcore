@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, IQuerySqlGenerator
     {
+        private const bool _defaultUnicodeBehaviour = true;
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private IRelationalCommandBuilder _relationalCommandBuilder;
         private IReadOnlyDictionary<string, object> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
+        private bool _isUnicode;
 
         private static readonly Dictionary<ExpressionType, string> _binaryOperatorMap = new Dictionary<ExpressionType, string>
         {
@@ -64,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalTypeMapper = relationalTypeMapper;
 
             SelectExpression = selectExpression;
+            _isUnicode = _defaultUnicodeBehaviour;
         }
 
         public virtual bool IsCacheable { get; private set; }
@@ -371,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     for (var i = 0; i < argumentValues.Length; i++)
                     {
-                        substitutions[i] = SqlGenerator.GenerateLiteral(argumentValues[i]);
+                        substitutions[i] = SqlGenerator.GenerateLiteral(argumentValues[i], _isUnicode);
                     }
 
                     break;
@@ -393,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             {
                                 substitutions[i]
                                     = SqlGenerator
-                                        .GenerateLiteral(((ConstantExpression)expression).Value);
+                                        .GenerateLiteral(((ConstantExpression)expression).Value, _isUnicode);
 
                                 break;
                             }
@@ -545,6 +548,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 if (inValuesNotNull.Count > 0)
                 {
+                    var parentIsUnicode = _isUnicode;
+                    _isUnicode = InferUnicodeFromColumn(inExpression.Operand) ?? _isUnicode;
+
                     Visit(inExpression.Operand);
 
                     _relationalCommandBuilder.Append(" IN (");
@@ -552,6 +558,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     VisitJoin(inValuesNotNull);
 
                     _relationalCommandBuilder.Append(")");
+
+                    _isUnicode = parentIsUnicode;
                 }
                 else
                 {
@@ -560,11 +568,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
             else
             {
+                var parentIsUnicode = _isUnicode;
+                _isUnicode = InferUnicodeFromColumn(inExpression.Operand) ?? _isUnicode;
+
                 Visit(inExpression.Operand);
 
                 _relationalCommandBuilder.Append(" IN ");
 
                 Visit(inExpression.SubQuery);
+
+                _isUnicode = parentIsUnicode;
             }
 
             return inExpression;
@@ -868,6 +881,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
             else
             {
+                var parentUnicodeBehaviour = _isUnicode;
+
+                if (expression.IsComparisonOperation() || (expression.NodeType == ExpressionType.Add))
+                {
+                    _isUnicode = InferUnicodeFromColumn(expression.Left) ?? InferUnicodeFromColumn(expression.Right) ?? _isUnicode;
+                }
+
                 var needParens = expression.Left is BinaryExpression;
 
                 if (needParens)
@@ -928,6 +948,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _relationalCommandBuilder.Append(" = ");
                     _relationalCommandBuilder.Append(TrueLiteral);
                 }
+
+                _isUnicode = parentUnicodeBehaviour;
             }
 
             return expression;
@@ -992,11 +1014,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(likeExpression, nameof(likeExpression));
 
+            var parentIsUnicode = _isUnicode;
+            _isUnicode = InferUnicodeFromColumn(likeExpression.Match) ?? _isUnicode;
+
             Visit(likeExpression.Match);
 
             _relationalCommandBuilder.Append(" LIKE ");
 
             Visit(likeExpression.Pattern);
+
+            _isUnicode = parentIsUnicode;
 
             return likeExpression;
         }
@@ -1005,7 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(literalExpression, nameof(literalExpression));
 
-            _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateLiteral(literalExpression.Literal));
+            _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateLiteral(literalExpression.Literal, _isUnicode));
 
             return literalExpression;
         }
@@ -1076,9 +1103,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     }
 
                     if (!(expression.Operand is ColumnExpression
-                          || expression.Operand is ParameterExpression
-                          || expression.Operand.IsAliasWithColumnExpression()
-                          || expression.Operand is SelectExpression))
+                            || expression.Operand is ParameterExpression
+                            || expression.Operand.IsAliasWithColumnExpression()
+                            || expression.Operand is SelectExpression))
                     {
                         _relationalCommandBuilder.Append("NOT (");
 
@@ -1113,7 +1140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.Append(expression.Value == null
                 ? "NULL"
-                : _sqlGenerationHelper.GenerateLiteral(expression.Value));
+                : _sqlGenerationHelper.GenerateLiteral(expression.Value, _isUnicode));
 
             return expression;
         }
@@ -1129,12 +1156,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AddParameter(
                     expression.Name,
                     name,
-                    expression.Type);
+                    expression.Type,
+                    unicode: _isUnicode);
             }
 
             _relationalCommandBuilder.Append(name);
 
             return expression;
+        }
+
+        protected virtual bool? InferUnicodeFromColumn([NotNull] Expression expression)
+        {
+            var column = expression.TryGetColumnExpression();
+            if (column?.Property != null)
+            {
+                var typeMapping = _relationalTypeMapper.FindMapping(column.Property);
+                return typeMapping.IsUnicode;
+            }
+
+            return null;
         }
 
         protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result)

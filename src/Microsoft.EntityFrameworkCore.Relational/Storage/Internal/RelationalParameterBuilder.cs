@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual void AddParameter(
             [NotNull] string invariantName,
             [NotNull] string name,
-            [NotNull] Type type)
+            [NotNull] Type type,
+            bool unicode)
         {
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new TypeMappedRelationalParameter(
                     invariantName,
                     name,
-                    TypeMapper.GetMapping(type),
+                    TypeMapper.GetMapping(type, unicode),
                     type.IsNullableType()));
         }
 

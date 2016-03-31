@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IRelationalTypeMapper
     {
         RelationalTypeMapping FindMapping([NotNull] IProperty property);
-        RelationalTypeMapping FindMapping([NotNull] Type clrType);
+        RelationalTypeMapping FindMapping([NotNull] Type clrType, bool unicode = true);
+
         RelationalTypeMapping FindMapping([NotNull] string typeName);
         void ValidateTypeName([NotNull] string typeName);
     }

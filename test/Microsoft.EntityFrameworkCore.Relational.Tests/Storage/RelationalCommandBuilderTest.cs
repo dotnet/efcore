@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             commandBuilder.ParameterBuilder.AddParameter(
                 "InvariantName",
                 "Name",
-                typeof(string));
+                typeof(string),
+                unicode: true);
 
             var command = commandBuilder.Build();
 

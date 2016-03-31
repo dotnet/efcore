@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameterBuilder.AddParameter(
                 "InvariantName",
                 "Name",
-                type);
+                type,
+                unicode: true);
 
             Assert.Equal(1, parameterBuilder.Parameters.Count);
 
@@ -101,12 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         builder.AddParameter(
                             "FirstInvariant",
                             "FirstName",
-                            typeof(int));
+                            typeof(int),
+                            unicode: true);
 
                         builder.AddParameter(
                             "SecondInvariant",
                             "SecondName",
-                            typeof(string));
+                            typeof(string),
+                            unicode: true);
                     });
 
             Assert.Equal(1, parameterBuilder.Parameters.Count);

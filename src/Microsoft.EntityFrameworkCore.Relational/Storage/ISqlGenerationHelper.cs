@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         string GenerateParameterName([NotNull] string name);
 
-        string GenerateLiteral([CanBeNull] object value);
+        string GenerateLiteral([CanBeNull] object value, bool unicode = true);
 
         string EscapeLiteral([NotNull] string literal);
 

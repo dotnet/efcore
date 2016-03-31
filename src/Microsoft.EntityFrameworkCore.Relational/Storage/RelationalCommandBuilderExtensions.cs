@@ -97,14 +97,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] this IRelationalCommandBuilder commandBuilder,
             [NotNull] string invariantName,
             [NotNull] string name,
-            [NotNull] Type type)
+            [NotNull] Type type,
+            bool unicode)
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
 
-            commandBuilder.ParameterBuilder.AddParameter(invariantName, name, type);
+            commandBuilder.ParameterBuilder.AddParameter(invariantName, name, type, unicode);
 
             return commandBuilder;
         }
