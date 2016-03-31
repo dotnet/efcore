@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
         [Required]
         [MaxLength(400)]
         public string Description { get; set; }
+
         public DateTime ModifiedDate { get; set; }
         public Guid rowguid { get; set; }
 

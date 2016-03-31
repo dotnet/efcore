@@ -268,8 +268,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = from e1 in context.Entities1
-                    join e2 in context.Entities2 on e1.NullableIntA equals e2.NullableIntB
-                    select new { Id1 = e1.Id, Id2 = e2.Id, e1.NullableIntA, e2.NullableIntB };
+                            join e2 in context.Entities2 on e1.NullableIntA equals e2.NullableIntB
+                            select new { Id1 = e1.Id, Id2 = e2.Id, e1.NullableIntA, e2.NullableIntB };
 
                 query.ToList();
             }

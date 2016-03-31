@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -115,7 +114,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             private readonly string _databaseName;
 
             public NullableContext(IServiceProvider serviceProvider, string databaseName)
-                : base()
             {
                 _serviceProvider = serviceProvider;
                 _databaseName = databaseName;

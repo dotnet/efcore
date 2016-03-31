@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query

@@ -20,14 +20,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             Assert.Contains(
                 @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name]
-FROM [Engines] AS [e]", 
+FROM [Engines] AS [e]",
                 Sql);
 
             Assert.Contains(
                 @"SET NOCOUNT ON;
 UPDATE [Engines] SET [Name] = @p2
 WHERE [Id] = @p0 AND [EngineSupplierId] = @p1 AND [Name] = @p3;
-SELECT @@ROWCOUNT;", 
+SELECT @@ROWCOUNT;",
                 Sql);
         }
 

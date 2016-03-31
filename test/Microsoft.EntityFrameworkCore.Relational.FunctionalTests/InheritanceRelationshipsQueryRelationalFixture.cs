@@ -8,4 +8,3 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
     {
     }
 }
-

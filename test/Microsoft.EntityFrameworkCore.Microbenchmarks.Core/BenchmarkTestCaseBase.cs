@@ -7,7 +7,6 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 
             return reasons.Count > 0 ? string.Join(Environment.NewLine, reasons) : null;
         }
-        
+
         protected override string GetUniqueID()
         {
             return $"{TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name}{TestMethod.TestClass.Class.Name}{TestMethod.Method.Name}{Variation}";

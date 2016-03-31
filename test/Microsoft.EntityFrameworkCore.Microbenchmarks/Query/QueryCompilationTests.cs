@@ -1,15 +1,17 @@
-using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
-using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
 {
-    class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
+    internal class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
     {
         private readonly QueryCompilationFixture _fixture;
 
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                 public void Remove(object key)
                 {
                 }
-                
+
                 public void Dispose()
                 {
                 }

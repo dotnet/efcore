@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -31,21 +30,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-            {
-                using (var context = new NullSemanticsContext(new DbContextOptionsBuilder()
-                    .UseSqlServer(_connectionString)
-                    .UseInternalServiceProvider(_serviceProvider).Options))
                 {
-                    // TODO: Delete DB if model changed
-
-                    if (context.Database.EnsureCreated())
+                    using (var context = new NullSemanticsContext(new DbContextOptionsBuilder()
+                        .UseSqlServer(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider).Options))
                     {
-                        NullSemanticsModelInitializer.Seed(context);
-                    }
+                        // TODO: Delete DB if model changed
 
-                    TestSqlLoggerFactory.SqlStatements.Clear();
-                }
-            });
+                        if (context.Database.EnsureCreated())
+                        {
+                            NullSemanticsModelInitializer.Seed(context);
+                        }
+
+                        TestSqlLoggerFactory.SqlStatements.Clear();
+                    }
+                });
         }
 
         public override NullSemanticsContext CreateContext(SqlServerTestStore testStore, bool useRelationalNulls)

@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
-    public class GraphUpdatesSqliteTest 
+    public class GraphUpdatesSqliteTest
         : GraphUpdatesTestBase<SqliteTestStore, GraphUpdatesSqliteTest.GraphUpdatesSqliteFixture>
     {
         public GraphUpdatesSqliteTest(GraphUpdatesSqliteFixture fixture)

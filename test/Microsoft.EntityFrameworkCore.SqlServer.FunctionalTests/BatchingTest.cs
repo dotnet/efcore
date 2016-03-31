@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -58,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     context.Blogs.Add(blog);
                     expectedBlogs.Add(blog);
                 }
-                
+
                 context.SaveChanges();
             }
 
@@ -72,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     : expectedBlogs.OrderBy(b => b.Id).ToList();
                 Assert.Equal(expectedBlogs.Count, actualBlogs.Count);
 
-                for (int i = 0; i < actualBlogs.Count; i++)
+                for (var i = 0; i < actualBlogs.Count; i++)
                 {
                     var expected = expectedBlogs[i];
                     var actual = actualBlogs[i];

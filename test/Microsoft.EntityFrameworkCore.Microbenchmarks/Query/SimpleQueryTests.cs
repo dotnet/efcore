@@ -4,7 +4,6 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
@@ -252,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
         {
             public SimpleQueryFixture()
                 : base("Perf_Query_Simple", 1000, 1000, 2, 2)
-            { }
+            {
+            }
         }
     }
 }

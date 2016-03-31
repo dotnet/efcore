@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(_connectionString);
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<ZeroKey>().ToTable("ZeroKey");
 
             public DbSet<ZeroKey> ZeroKeys { get; set; }

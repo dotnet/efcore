@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6
         public static IQueryable<TEntity> DisableQueryCache<TEntity>(this IQueryable<TEntity> query)
             where TEntity : class
         {
-
             var internalQuery = typeof(DbQuery<TEntity>)
                 .GetProperty("System.Data.Entity.Internal.Linq.IInternalQueryAdapter.InternalQuery", BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetMethod

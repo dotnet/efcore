@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -46,17 +46,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                             .UseSqlite(SqliteTestStore.CreateConnectionString(nameof(InheritanceRelationshipsQuerySqliteTest)))
                             .UseInternalServiceProvider(_serviceProvider);
 
-                    using (var context = new InheritanceRelationshipsContext(optionsBuilder.Options))
-                    {
-                        // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
+                        using (var context = new InheritanceRelationshipsContext(optionsBuilder.Options))
                         {
-                            InheritanceRelationshipsModelInitializer.Seed(context);
-                        }
+                            // TODO: Delete DB if model changed
+                            context.Database.EnsureDeleted();
+                            if (context.Database.EnsureCreated())
+                            {
+                                InheritanceRelationshipsModelInitializer.Seed(context);
+                            }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
-                    }
-                });
+                            TestSqlLoggerFactory.SqlStatements.Clear();
+                        }
+                    });
     }
 }

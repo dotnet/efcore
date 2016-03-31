@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -31,23 +30,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(_connectionString)
-                    .UseInternalServiceProvider(_serviceProvider);
-
-                using (var context = new InheritanceRelationshipsContext(optionsBuilder.Options))
                 {
-                    // TODO: Delete DB if model changed
-                    context.Database.EnsureDeleted();
-                    if (context.Database.EnsureCreated())
-                    {
-                        InheritanceRelationshipsModelInitializer.Seed(context);
-                    }
+                    var optionsBuilder = new DbContextOptionsBuilder()
+                        .UseSqlServer(_connectionString)
+                        .UseInternalServiceProvider(_serviceProvider);
 
-                    TestSqlLoggerFactory.SqlStatements.Clear();
-                }
-            });
+                    using (var context = new InheritanceRelationshipsContext(optionsBuilder.Options))
+                    {
+                        // TODO: Delete DB if model changed
+                        context.Database.EnsureDeleted();
+                        if (context.Database.EnsureCreated())
+                        {
+                            InheritanceRelationshipsModelInitializer.Seed(context);
+                        }
+
+                        TestSqlLoggerFactory.SqlStatements.Clear();
+                    }
+                });
         }
 
         public override InheritanceRelationshipsContext CreateContext(SqlServerTestStore testStore)

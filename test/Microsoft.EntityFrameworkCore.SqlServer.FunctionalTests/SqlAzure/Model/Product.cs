@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 
         [MaxLength(15)]
         public string Color { get; set; }
+
         public DateTime? DiscontinuedDate { get; set; }
         public decimal ListPrice { get; set; }
         public DateTime ModifiedDate { get; set; }
@@ -32,16 +33,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
         [Required]
         [MaxLength(25)]
         public string ProductNumber { get; set; }
+
         public DateTime? SellEndDate { get; set; }
         public DateTime SellStartDate { get; set; }
 
         [MaxLength(5)]
         public string Size { get; set; }
+
         public decimal StandardCost { get; set; }
         public byte[] ThumbNailPhoto { get; set; }
 
         [MaxLength(50)]
         public string ThumbnailPhotoFileName { get; set; }
+
         public decimal? Weight { get; set; }
         public Guid rowguid { get; set; }
 

@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNavigationsModel;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
@@ -29,12 +28,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public override InMemoryTestStore CreateTestStore()
         {
             return InMemoryTestStore.GetOrCreateShared(DatabaseName, () =>
-            {
-                using (var context = new ComplexNavigationsContext(_options))
                 {
-                    ComplexNavigationsModelInitializer.Seed(context);
-                }
-            });
+                    using (var context = new ComplexNavigationsContext(_options))
+                    {
+                        ComplexNavigationsModelInitializer.Seed(context);
+                    }
+                });
         }
 
         public override ComplexNavigationsContext CreateContext(InMemoryTestStore _)

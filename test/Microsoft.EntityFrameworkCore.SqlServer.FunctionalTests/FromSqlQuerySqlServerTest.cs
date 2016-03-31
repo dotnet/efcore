@@ -141,7 +141,7 @@ WHERE [c].[City] = N'London'",
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
         }
- 		 
+
         public override void From_sql_queryable_with_parameters_inline()
         {
             base.From_sql_queryable_with_parameters_inline();
@@ -153,7 +153,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
         }
-        
+
         public override void From_sql_queryable_with_null_parameter()
         {
             base.From_sql_queryable_with_null_parameter();

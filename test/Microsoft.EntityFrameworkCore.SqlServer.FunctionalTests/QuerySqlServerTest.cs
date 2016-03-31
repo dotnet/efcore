@@ -3098,7 +3098,7 @@ WHERE (CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID]) = [c].[CompanyName]",
             base.Where_concat_string_int_comparison3();
 
             Assert.Equal(
-    @"@__i_0: 10
+                @"@__i_0: 10
 @__j_1: 21
 
 SELECT [c].[CustomerID]
@@ -3801,7 +3801,7 @@ WHERE FLOOR([od].[UnitPrice]) > 10.0",
             base.Where_query_composition4();
 
             Assert.StartsWith(
-                 @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+                @"SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
 
 SELECT 1
@@ -3810,7 +3810,7 @@ ORDER BY [c].[CustomerID]
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Customers] AS [c0]",
-                 Sql);
+                Sql);
         }
 
         public override void Where_math_power()
@@ -4741,7 +4741,7 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-        private static string FileLineEnding = @"
+        private static readonly string FileLineEnding = @"
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);

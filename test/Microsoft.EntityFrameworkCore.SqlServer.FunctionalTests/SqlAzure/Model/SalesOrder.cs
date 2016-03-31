@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 
         [MaxLength(15)]
         public string CreditCardApprovalCode { get; set; }
+
         public int CustomerID { get; set; }
 
         public DateTime DueDate { get; set; }
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 
         [Column("OnlineOrderFlag")]
         public bool IsOnlineOrder { get; set; }
+
         public DateTime OrderDate { get; set; }
         public string PurchaseOrderNumber { get; set; }
         public byte RevisionNumber { get; set; }
@@ -38,11 +40,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
         [Required]
         [MaxLength(25)]
         public string SalesOrderNumber { get; set; }
+
         public DateTime? ShipDate { get; set; }
 
         [Required]
         [MaxLength(50)]
         public string ShipMethod { get; set; }
+
         public int? ShipToAddressID { get; set; }
         public byte Status { get; set; }
         public decimal SubTotal { get; set; }

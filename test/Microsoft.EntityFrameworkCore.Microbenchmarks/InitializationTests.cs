@@ -3,14 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
         {
             RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
         }
-        
+
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
         {
             RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
         }
-        
+
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
@@ -44,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
         public void BuildModel_AdventureWorks(IMetricCollector collector)
         {
             collector.StartCollection();
-            
+
             var builder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
             AdventureWorksContext.ConfigureModel(builder);
 

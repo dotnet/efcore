@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private SqlServerTestStore CreateShared(Action initializeDatabase)
         {
             CreateShared(typeof(SqlServerTestStore).Name + _name, initializeDatabase);
-            
+
             _connectionString = CreateConnectionString(_name);
             _connection = new SqlConnection(_connectionString);
 

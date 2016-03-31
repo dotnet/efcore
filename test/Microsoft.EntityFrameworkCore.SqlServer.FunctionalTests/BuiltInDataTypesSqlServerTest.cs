@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 context.Set<MappedNullableDataTypes>().Add(
                     new MappedNullableDataTypes
                     {
-                        Int = 911,
+                        Int = 911
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -1056,7 +1056,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-
         [Fact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_in_batch()
         {
@@ -1096,7 +1095,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 AssertMappedSizedDataTypes(context.Set<MappedSizedDataTypes>().Single(e => e.Id == 179), 179);
             }
         }
-
 
         [Fact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_in_batch()
@@ -1330,16 +1328,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     while (reader.Read())
                     {
                         var columnInfo = new ColumnInfo
-                            {
-                                TableName = reader.GetString(0),
-                                ColumnName = reader.GetString(1),
-                                DataType = reader.GetString(2),
-                                IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
-                                MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                                NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
-                                NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
-                                DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
-                            };
+                        {
+                            TableName = reader.GetString(0),
+                            ColumnName = reader.GetString(1),
+                            DataType = reader.GetString(2),
+                            IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
+                            MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
+                            NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
+                            NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
+                            DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
+                        };
 
                         columns.Add(columnInfo);
                     }

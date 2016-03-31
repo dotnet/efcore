@@ -4,7 +4,6 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;

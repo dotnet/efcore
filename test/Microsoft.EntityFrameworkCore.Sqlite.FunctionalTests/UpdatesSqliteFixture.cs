@@ -27,21 +27,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             SqliteTestStore.GetOrCreateShared(
                 DatabaseName,
                 () =>
-                {
-                    using (var context = new UpdatesContext(new DbContextOptionsBuilder()
-                        .UseSqlite(_connectionString)
-                        .UseInternalServiceProvider(_serviceProvider).Options))
                     {
-                        // TODO: Delete DB if model changed
-                        context.Database.EnsureDeleted();
-                        if (context.Database.EnsureCreated())
+                        using (var context = new UpdatesContext(new DbContextOptionsBuilder()
+                            .UseSqlite(_connectionString)
+                            .UseInternalServiceProvider(_serviceProvider).Options))
                         {
-                            UpdatesModelInitializer.Seed(context);
-                        }
+                            // TODO: Delete DB if model changed
+                            context.Database.EnsureDeleted();
+                            if (context.Database.EnsureCreated())
+                            {
+                                UpdatesModelInitializer.Seed(context);
+                            }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
-                    }
-                });
+                            TestSqlLoggerFactory.SqlStatements.Clear();
+                        }
+                    });
 
         public override UpdatesContext CreateContext(SqliteTestStore testStore)
         {

@@ -5,8 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -101,15 +99,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             MapSizedColumnTypes<MappedScaledDataTypes>(modelBuilder);
             MapPreciseColumnTypes<MappedPrecisionAndScaledDataTypes>(modelBuilder);
 
-            modelBuilder.Entity<MappedDataTypesWithIdentity>(b =>
-            {
-                b.HasKey(e => e.Id);
-            });
+            modelBuilder.Entity<MappedDataTypesWithIdentity>(b => { b.HasKey(e => e.Id); });
 
-            modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b =>
-            {
-                b.HasKey(e => e.Id);
-            });
+            modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b => { b.HasKey(e => e.Id); });
 
             modelBuilder.Entity<MappedSizedDataTypesWithIdentity>()
                 .Property(e => e.Id);

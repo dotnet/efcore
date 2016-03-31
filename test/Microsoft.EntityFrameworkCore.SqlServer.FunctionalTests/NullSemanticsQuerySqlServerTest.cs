@@ -1006,4 +1006,3 @@ WHERE [c].[StringA] = [c].[StringB]",
         private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }
-

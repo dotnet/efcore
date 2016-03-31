@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             }
         }
 
-        public override InheritanceContext CreateContext() 
+        public override InheritanceContext CreateContext()
             => new InheritanceContext(_optionsBuilder.Options);
     }
 }

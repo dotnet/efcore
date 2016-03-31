@@ -6,12 +6,12 @@ using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
-	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-	public class SqlServerRequiredAttribute : Attribute, ITestCondition
-	{
-		public bool IsMet => PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase)
-			|| !BenchmarkConfig.Instance.BenchmarkDatabaseInstance.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);
-			
-		public string SkipReason => "Must configured an external SQL Server to run the tests on this platform";
-	}
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
+    public class SqlServerRequiredAttribute : Attribute, ITestCondition
+    {
+        public bool IsMet => PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase)
+                             || !BenchmarkConfig.Instance.BenchmarkDatabaseInstance.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);
+
+        public string SkipReason => "Must configured an external SQL Server to run the tests on this platform";
+    }
 }

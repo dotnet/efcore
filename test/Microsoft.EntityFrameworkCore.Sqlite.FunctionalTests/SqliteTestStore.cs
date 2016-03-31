@@ -5,8 +5,8 @@ using System;
 using System.Data.Common;
 using System.IO;
 using System.Threading;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.FunctionalTests;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
             new SqliteTestStore(name).CreateShared(initializeDatabase);
-            
+
 #if NETSTANDARDAPP1_5
         private static string BaseDirectory => AppContext.BaseDirectory;
-#else 
+#else
         private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             {
                 name = "scratch-" + Interlocked.Increment(ref _scratchCount);
             }
-            while (File.Exists(name + ".db") || File.Exists(Path.Combine(BaseDirectory, name + ".db")));
+            while (File.Exists(name + ".db")
+                   || File.Exists(Path.Combine(BaseDirectory, name + ".db")));
 
             return new SqliteTestStore(name).CreateTransient(sharedCache);
         }
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             _name = name;
         }
-        
+
         public override string ConnectionString => Connection.ConnectionString;
 
         private SqliteTestStore CreateShared(Action initializeDatabase)

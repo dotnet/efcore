@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {

@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             public class BlogContext : ContextBase
             {
-                protected override void OnModelCreating(ModelBuilder modelBuilder) 
+                protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => modelBuilder.ForSqlServerUseSequenceHiLo();
             }
         }

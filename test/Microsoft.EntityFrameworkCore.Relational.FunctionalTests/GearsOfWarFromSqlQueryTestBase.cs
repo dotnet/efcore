@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         where TFixture : GearsOfWarQueryRelationalFixture<TTestStore>, new()
         where TTestStore : TestStore
     {
-
         [Fact]
         public virtual void From_sql_queryable_simple_columns_out_of_order()
         {
@@ -30,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal("Baird's Gnasher", first.Name);
             }
         }
-
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 

@@ -5,10 +5,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.PlatformAbstractions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {

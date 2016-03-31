@@ -75,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var actual
                     = await (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers""")
-                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders""")
-                       where c.CustomerID == o.CustomerID
-                       select new { c, o })
+                             from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders""")
+                             where c.CustomerID == o.CustomerID
+                             select new { c, o })
                         .ToArrayAsync();
 
                 Assert.Equal(830, actual.Length);
@@ -94,11 +94,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var actual
                     = await (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers""")
-                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
-                        startDate,
-                        endDate)
-                       where c.CustomerID == o.CustomerID
-                       select new { c, o })
+                             from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                                 startDate,
+                                 endDate)
+                             where c.CustomerID == o.CustomerID
+                             select new { c, o })
                         .ToArrayAsync();
 
                 Assert.Equal(411, actual.Length);
@@ -117,11 +117,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var actual
                     = await (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                         city)
-                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
-                        startDate,
-                        endDate)
-                       where c.CustomerID == o.CustomerID
-                       select new { c, o })
+                             from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                                 startDate,
+                                 endDate)
+                             where c.CustomerID == o.CustomerID
+                             select new { c, o })
                         .ToArrayAsync();
 
                 Assert.Equal(25, actual.Length);

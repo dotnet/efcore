@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Models.Orders
         }
 
         protected virtual void OnDatabaseCreated(OrdersContext context)
-        { }
+        {
+        }
 
         private void EnsureDatabaseCreated()
         {

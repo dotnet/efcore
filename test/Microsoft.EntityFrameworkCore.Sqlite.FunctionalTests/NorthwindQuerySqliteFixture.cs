@@ -42,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                     b => ConfigureOptions(b).SuppressForeignKeyEnforcement())
                 .Options;
 
-        protected virtual SqliteDbContextOptionsBuilder ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder) 
+        protected virtual SqliteDbContextOptionsBuilder ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
             => sqliteDbContextOptionsBuilder;
 
-        public override NorthwindContext CreateContext() 
+        public override NorthwindContext CreateContext()
             => new SqliteNorthwindContext(_options);
 
         public void Dispose() => _testStore.Dispose();

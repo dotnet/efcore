@@ -10,7 +10,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -139,18 +138,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                     db.Entry(toDelete).State = EntityState.Deleted;
 
                     var toAdd = db.Add(new Blog
-                        {
-                            Name = "Blog to Insert",
-                            George = true,
-                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                            ToEat = 64,
-                            OrNothing = 0.123456789,
-                            Fuse = 777,
-                            WayRound = 9876543210,
-                            Away = 0.12345f,
-                            AndChew = new byte[16]
-                        }).Entity;
+                    {
+                        Name = "Blog to Insert",
+                        George = true,
+                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                        ToEat = 64,
+                        OrNothing = 0.123456789,
+                        Fuse = 777,
+                        WayRound = 9876543210,
+                        Away = 0.12345f,
+                        AndChew = new byte[16]
+                    }).Entity;
 
                     await db.SaveChangesAsync();
 
@@ -187,7 +186,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
                     Assert.Equal(1, rows);
                 }
-
             }
         }
 
@@ -317,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public DbSet<Jack> Jacks { get; set; }
             public DbSet<Black> Blacks { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(Connection).UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -561,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
 
             public DbSet<TBlog> Blogs { get; set; }
@@ -833,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanged != null)
                 {
@@ -841,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 }
             }
 
-            private void NotifyChanging([CallerMemberName] String propertyName = "")
+            private void NotifyChanging([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanging != null)
                 {
@@ -1079,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanged != null)
                 {

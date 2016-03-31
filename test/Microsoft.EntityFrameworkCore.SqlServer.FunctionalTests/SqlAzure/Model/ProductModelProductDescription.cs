@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
 
         [MaxLength(6)]
         public string Culture { get; set; }
+
         public DateTime ModifiedDate { get; set; }
         public Guid rowguid { get; set; }
 

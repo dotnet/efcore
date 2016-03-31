@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
         }
 
-        public override NorthwindContext CreateContext() 
+        public override NorthwindContext CreateContext()
             => new SqlServerNorthwindContext(_options);
 
         public void Dispose() => _testStore.Dispose();

@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks;
-using Microsoft.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
 {
@@ -91,10 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks
         public virtual DbSet<WorkOrder> WorkOrder { get; set; }
         public virtual DbSet<WorkOrderRouting> WorkOrderRouting { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options) 
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlServer(_connectionString).UseInternalServiceProvider(_serviceProvider);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
             => ConfigureModel(modelBuilder);
 
         public static void ConfigureModel(ModelBuilder modelBuilder)

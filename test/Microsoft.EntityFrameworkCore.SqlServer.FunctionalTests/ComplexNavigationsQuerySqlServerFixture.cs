@@ -10,14 +10,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class ComplexNavigationsQuerySqlServerFixture 
+    public class ComplexNavigationsQuerySqlServerFixture
         : ComplexNavigationsQueryRelationalFixture<SqlServerTestStore>
     {
         public static readonly string DatabaseName = "ComplexNavigations";
 
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly string _connectionString 
+        private readonly string _connectionString
             = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
         public ComplexNavigationsQuerySqlServerFixture()

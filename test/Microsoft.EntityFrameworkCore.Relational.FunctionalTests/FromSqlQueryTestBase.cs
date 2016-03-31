@@ -438,10 +438,10 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 var cityParameter = CreateDbParameter("@city", city);
 
                 actual = context.Customers
-                        .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
-                            cityParameter,
-                            title)
-                        .ToArray();
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
+                        cityParameter,
+                        title)
+                    .ToArray();
 
                 Assert.Equal(3, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));

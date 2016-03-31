@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 EnsureCreated();
             }
 
-            public override DbContext CreateContext() 
+            public override DbContext CreateContext()
                 => new DbContext(_options);
         }
     }

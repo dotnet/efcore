@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInternalServiceProvider(_serviceProvider).UseInMemoryDatabase();
         }
 
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase().UseInternalServiceProvider(_serviceProvider);
         }
 

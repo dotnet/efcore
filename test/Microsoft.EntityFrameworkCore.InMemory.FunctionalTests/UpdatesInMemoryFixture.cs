@@ -28,18 +28,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public override InMemoryTestStore CreateTestStore()
             => InMemoryTestStore.CreateScratch(
                 () =>
-                {
-                    using (var context = new UpdatesContext(_optionsBuilder.Options))
                     {
-                        UpdatesModelInitializer.Seed(context);
-                    }
-                },
-                () =>
-                {
-                    _serviceProvider.GetRequiredService<IInMemoryStore>().Clear();
-                });
+                        using (var context = new UpdatesContext(_optionsBuilder.Options))
+                        {
+                            UpdatesModelInitializer.Seed(context);
+                        }
+                    },
+                () => { _serviceProvider.GetRequiredService<IInMemoryStore>().Clear(); });
 
-        public override UpdatesContext CreateContext(InMemoryTestStore testStore) 
+        public override UpdatesContext CreateContext(InMemoryTestStore testStore)
             => new UpdatesContext(_optionsBuilder.Options);
     }
 }

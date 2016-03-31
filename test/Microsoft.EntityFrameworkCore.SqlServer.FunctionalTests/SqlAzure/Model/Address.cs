@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
         [Required]
         [MaxLength(30)]
         public string City { get; set; }
+
         public DateTime ModifiedDate { get; set; }
         public string CountryRegion { get; set; }
         public string StateProvince { get; set; }
@@ -35,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model
         [Required]
         [MaxLength(15)]
         public string PostalCode { get; set; }
+
         public Guid rowguid { get; set; }
 
         [InverseProperty("Address")]
