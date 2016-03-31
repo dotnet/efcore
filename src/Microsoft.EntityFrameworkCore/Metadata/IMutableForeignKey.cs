@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -16,24 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IForeignKey" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableForeignKey : IForeignKey, IMutableAnnotatable
+    public interface IMutableForeignKey : IForeignKey, IMutableAnnotatable, IMutableMetadataElement, IMutableMetadataProperties
     {
-        /// <summary>
-        ///     Gets the foreign key properties in the dependent entity.
-        /// </summary>
-        new IReadOnlyList<IMutableProperty> Properties { get; }
-
         /// <summary>
         ///     Gets the primary or alternate key that the relationship targets.
         /// </summary>
         new IMutableKey PrincipalKey { get; }
-
-        /// <summary>
-        ///     Gets the dependent entity type. This may be different from the type that <see cref="Properties" />
-        ///     are defined on when the relationship is defined a derived type in an inheritance hierarchy (since the properties
-        ///     may be defined on a base type).
-        /// </summary>
-        new IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the principal entity type that this relationship targets. This may be different from the type that

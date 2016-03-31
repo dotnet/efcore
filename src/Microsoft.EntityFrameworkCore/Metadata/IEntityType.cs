@@ -11,17 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents an entity in an <see cref="IModel" />.
     /// </summary>
-    public interface IEntityType : IAnnotatable
+    public interface IEntityType : IAnnotatable, IMetadataNamed
     {
         /// <summary>
         ///     Gets the model this entity belongs to.
         /// </summary>
         IModel Model { get; }
-
-        /// <summary>
-        ///     Gets the name of the entity.
-        /// </summary>
-        string Name { get; }
 
         /// <summary>
         ///     Gets the base type of the entity. Returns null if this is not a derived type in an inheritance hierarchy.

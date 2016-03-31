@@ -391,8 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         internal static string Format(IEnumerable<IProperty> properties)
             => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
-        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
+        IEntityType IMetadataElement.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableMetadataElement.DeclaringEntityType => DeclaringEntityType;
 
         private enum PropertyFlags
         {

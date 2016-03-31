@@ -65,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (IPrincipalKeyValueFactory<TKey>)LazyInitializer.EnsureInitialized(
                 ref _principalKeyValueFactory, () => new KeyValueFactoryFactory().Create<TKey>(this));
 
-        IReadOnlyList<IProperty> IKey.Properties => Properties;
-        IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
-        IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
+        IReadOnlyList<IProperty> IMetadataProperties.Properties => Properties;
+        IReadOnlyList<IMutableProperty> IMutableMetadataProperties.Properties => Properties;
+        IEntityType IMetadataElement.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableMetadataElement.DeclaringEntityType => DeclaringEntityType;
 
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);
