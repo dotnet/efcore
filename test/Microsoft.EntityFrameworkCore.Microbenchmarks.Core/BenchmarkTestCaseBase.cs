@@ -7,6 +7,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
