@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             {
                 using (var master = connection.CreateMasterConnection())
                 {
-                    Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True", master.ConnectionString);
+                    Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
                     Assert.Equal(SqlServerConnection.DefaultMasterConnectionCommandTimeout, master.CommandTimeout);
                 }
             }
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(
-                @"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;",
+                @"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest",
                 b => b.CommandTimeout(55));
 
             using (var connection = new SqlServerConnection(optionsBuilder.Options, new Logger<SqlServerConnection>(new LoggerFactory())))
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         public static IDbContextOptions CreateOptions()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest");
 
             return optionsBuilder.Options;
         }
