@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -54,16 +54,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => ((IKey)this).FindReferencingForeignKeys().Cast<ForeignKey>();
 
         public virtual Func<IIdentityMap> IdentityMapFactory
-            => LazyInitializer.EnsureInitialized(
-                ref _identityMapFactory, () => new IdentityMapFactoryFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _identityMapFactory, this, k => new IdentityMapFactoryFactory().Create(k));
 
         public virtual Func<IWeakReferenceIdentityMap> WeakReferenceIdentityMapFactory
-            => LazyInitializer.EnsureInitialized(
-                ref _weakReferenceIdentityMap, () => new WeakReferenceIdentityMapFactoryFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _weakReferenceIdentityMap, this, k => new WeakReferenceIdentityMapFactoryFactory().Create(k));
 
         public virtual IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
-            => (IPrincipalKeyValueFactory<TKey>)LazyInitializer.EnsureInitialized(
-                ref _principalKeyValueFactory, () => new KeyValueFactoryFactory().Create<TKey>(this));
+            => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
+                ref _principalKeyValueFactory, this, k => new KeyValueFactoryFactory().Create<TKey>(k));
 
         IReadOnlyList<IProperty> IKey.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;

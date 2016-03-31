@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -1145,33 +1144,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _counts = null;
         }
 
-        public virtual PropertyCounts Counts => LazyInitializer.EnsureInitialized(ref _counts, CalculateCounts);
+        public virtual PropertyCounts Counts 
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, CalculateCounts);
 
-        private PropertyCounts CalculateCounts() => EntityTypeExtensions.CalculateCounts(this);
+        private static PropertyCounts CalculateCounts(EntityType entityType) 
+            => entityType.CalculateCounts();
 
         public virtual Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory
-            => LazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, CreateRelationshipSnapshotFactory);
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, this, CreateRelationshipSnapshotFactory);
 
-        private Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory()
-            => new RelationshipSnapshotFactoryFactory().Create(this);
+        private static Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory(EntityType entityType)
+            => new RelationshipSnapshotFactoryFactory().Create(entityType);
 
         public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
-            => LazyInitializer.EnsureInitialized(ref _originalValuesFactory, CreateOriginalValuesFactory);
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _originalValuesFactory, this, CreateOriginalValuesFactory);
 
-        private Func<InternalEntityEntry, ISnapshot> CreateOriginalValuesFactory()
-            => new OriginalValuesFactoryFactory().Create(this);
+        private static Func<InternalEntityEntry, ISnapshot> CreateOriginalValuesFactory(EntityType entityType)
+            => new OriginalValuesFactoryFactory().Create(entityType);
 
         public virtual Func<ValueBuffer, ISnapshot> ShadowValuesFactory
-            => LazyInitializer.EnsureInitialized(ref _shadowValuesFactory, CreateShadowValuesFactory);
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _shadowValuesFactory, this, CreateShadowValuesFactory);
 
-        private Func<ValueBuffer, ISnapshot> CreateShadowValuesFactory()
-            => new ShadowValuesFactoryFactory().Create(this);
+        private static Func<ValueBuffer, ISnapshot> CreateShadowValuesFactory(EntityType entityType)
+            => new ShadowValuesFactoryFactory().Create(entityType);
 
         public virtual Func<ISnapshot> EmptyShadowValuesFactory
-            => LazyInitializer.EnsureInitialized(ref _emptyShadowValuesFactory, CreateEmptyShadowValuesFactory);
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _emptyShadowValuesFactory, this, CreateEmptyShadowValuesFactory);
 
-        private Func<ISnapshot> CreateEmptyShadowValuesFactory()
-            => new EmptyShadowValuesFactoryFactory().CreateEmpty(this);
+        private static Func<ISnapshot> CreateEmptyShadowValuesFactory(EntityType entityType)
+            => new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType);
 
         #endregion
 

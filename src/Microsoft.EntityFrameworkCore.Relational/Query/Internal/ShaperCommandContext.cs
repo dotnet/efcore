@@ -6,8 +6,8 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -99,10 +99,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)
-            => LazyInitializer
+            => NonCapturingLazyInitializer
                 .EnsureInitialized(
                     ref _valueBufferFactory,
-                    () => QuerySqlGeneratorFactory()
-                        .CreateValueBufferFactory(_valueBufferFactoryFactory, dataReader));
+                    new FactoryAndReader(_valueBufferFactoryFactory, dataReader),
+                    s => QuerySqlGeneratorFactory()
+                        .CreateValueBufferFactory(s.Factory, s.Reader));
+
+        private struct FactoryAndReader
+        {
+            public readonly IRelationalValueBufferFactoryFactory Factory;
+            public readonly DbDataReader Reader;
+
+            public FactoryAndReader(IRelationalValueBufferFactoryFactory factory, DbDataReader reader)
+            {
+                Factory = factory;
+                Reader = reader;
+            }
+        }
     }
 }

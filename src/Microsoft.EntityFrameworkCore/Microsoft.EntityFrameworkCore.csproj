@@ -208,6 +208,7 @@
     <Compile Include="Internal\LoggingModelValidator.cs" />
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\Multigraph.cs" />
+    <Compile Include="Internal\NonCapturingLazyInitializer.cs" />
     <Compile Include="Internal\ProductInfo.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />

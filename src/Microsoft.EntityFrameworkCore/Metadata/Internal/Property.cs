@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -418,17 +417,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         public virtual IClrPropertyGetter Getter
-            => LazyInitializer.EnsureInitialized(ref _getter, () => new ClrPropertyGetterFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
 
         public virtual IClrPropertySetter Setter
-            => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
 
         public virtual PropertyAccessors Accessors
-            => LazyInitializer.EnsureInitialized(ref _accessors, () => new PropertyAccessorsFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
 
         public virtual PropertyIndexes PropertyIndexes
         {
-            get { return LazyInitializer.EnsureInitialized(ref _indexes, CalculateIndexes); }
+            get { return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this, CalculateIndexes); }
 
             set
             {
@@ -440,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    LazyInitializer.EnsureInitialized(ref _indexes, () => value);
+                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
                 }
             }
         }
@@ -450,6 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
 
-        private PropertyIndexes CalculateIndexes() => DeclaringEntityType.CalculateIndexes(this);
+        private static PropertyIndexes CalculateIndexes(Property property) 
+            => property.DeclaringEntityType.CalculateIndexes(property);
     }
 }

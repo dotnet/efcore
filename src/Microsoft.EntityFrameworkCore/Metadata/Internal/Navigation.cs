@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -188,20 +187,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (EntityType)((INavigation)this).GetTargetType();
 
         public virtual IClrPropertyGetter Getter
-            => LazyInitializer.EnsureInitialized(ref _getter, () => new ClrPropertyGetterFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, n => new ClrPropertyGetterFactory().Create(n));
 
         public virtual IClrPropertySetter Setter
-            => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, n => new ClrPropertySetterFactory().Create(n));
 
         public virtual IClrCollectionAccessor CollectionAccessor
-            => LazyInitializer.EnsureInitialized(ref _collectionAccessor, () => new ClrCollectionAccessorFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _collectionAccessor, this, n => new ClrCollectionAccessorFactory().Create(n));
 
         public virtual PropertyAccessors Accessors
-            => LazyInitializer.EnsureInitialized(ref _accessors, () => new PropertyAccessorsFactory().Create(this));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, n => new PropertyAccessorsFactory().Create(n));
 
         public virtual PropertyIndexes PropertyIndexes
         {
-            get { return LazyInitializer.EnsureInitialized(ref _indexes, () => DeclaringEntityType.CalculateIndexes(this)); }
+            get { return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this, n => DeclaringEntityType.CalculateIndexes(n)); }
 
             set
             {
@@ -213,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    LazyInitializer.EnsureInitialized(ref _indexes, () => value);
+                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this, n => value);
                 }
             }
         }
