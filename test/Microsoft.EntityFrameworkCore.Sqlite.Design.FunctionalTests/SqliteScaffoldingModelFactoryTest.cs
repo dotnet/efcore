@@ -25,12 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         public SqliteScaffoldingModelFactoryTest()
         {
             _testStore = SqliteTestStore.CreateScratch();
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
-            serviceCollection.AddSingleton<IFileService, FileSystemFileService>();
 
-            var serviceProvider = serviceCollection
+            var serviceProvider = new SqliteDesignTimeServices()
+                .ConfigureDesignTimeServices(
+                    new ServiceCollection().AddLogging())
+                .AddSingleton<IFileService, FileSystemFileService>()
                 .BuildServiceProvider();
 
             _logger = new TestLogger();

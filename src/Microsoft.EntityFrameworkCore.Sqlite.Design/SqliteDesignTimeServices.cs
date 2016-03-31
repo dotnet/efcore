@@ -12,13 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqliteDesignTimeServices
     {
-        public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
-        {
-            serviceCollection
+        public virtual IServiceCollection ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
+            => serviceCollection
                 .AddSingleton<IScaffoldingModelFactory, SqliteScaffoldingModelFactory>()
                 .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
                 .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>();
-        }
     }
 }

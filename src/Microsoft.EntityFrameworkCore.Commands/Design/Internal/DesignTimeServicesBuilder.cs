@@ -35,11 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             Check.NotNull(context, nameof(context));
 
-            var services = new ServiceCollection();
-            ConfigureServices(services);
+            var services = ConfigureServices(new ServiceCollection());
 
             var contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
-            ConfigureContextServices(contextServices, services);
+            ConfigureContextServices(((IInfrastructure<IServiceProvider>)context).Instance, services);
 
             var databaseProviderServices = contextServices.GetRequiredService<IDatabaseProviderServices>();
             var provider = databaseProviderServices.InvariantName;
@@ -51,18 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         public virtual IServiceProvider Build([NotNull] string provider)
-        {
-            Check.NotEmpty(provider, nameof(provider));
+            => ConfigureUserServices(
+                ConfigureProviderServices(
+                    Check.NotEmpty(provider, nameof(provider)),
+                    ConfigureServices(new ServiceCollection()), throwOnError: true))
+                .BuildServiceProvider();
 
-            var services = new ServiceCollection();
-            ConfigureServices(services);
-            ConfigureProviderServices(provider, services, throwOnError: true);
-            ConfigureUserServices(services);
-
-            return services.BuildServiceProvider();
-        }
-
-        protected virtual void ConfigureServices([NotNull] IServiceCollection services)
+        protected virtual IServiceCollection ConfigureServices([NotNull] IServiceCollection services)
             => services
                 .AddSingleton<CSharpHelper>()
                 .AddSingleton<CSharpMigrationOperationGenerator>()
@@ -71,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddScaffolding()
                 .AddLogging();
 
-        private void ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
+        private IServiceCollection ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
             => _startup.ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);
 
-        protected virtual void ConfigureContextServices(
+        protected virtual IServiceCollection ConfigureContextServices(
             [NotNull] IServiceProvider contextServices,
             [NotNull] IServiceCollection services)
             => services
@@ -90,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddTransient(_ => contextServices.GetService<IMigrator>())
                 .AddTransient(_ => contextServices.GetService<IModel>());
 
-        private void ConfigureUserServices(IServiceCollection services)
+        private IServiceCollection ConfigureUserServices(IServiceCollection services)
             => _startup.ConfigureDesignTimeServices(services);
 
         private Type GetProviderDesignTimeServices(string provider, bool throwOnError)

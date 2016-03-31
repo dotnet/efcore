@@ -1905,7 +1905,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Can_start_with_custom_services_by_passing_in_base_service_provider()
         {
             var factory = Mock.Of<INavigationFixer>();
-            var serviceCollection = new ServiceCollection()
+
+            var provider = new ServiceCollection()
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
                 .AddSingleton<IEntityMaterializerSource, EntityMaterializerSource>()
@@ -1914,11 +1915,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddSingleton<DatabaseProviderSelector>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
-                .AddSingleton(factory);
-
-            serviceCollection.AddLogging();
-
-            var provider = serviceCollection.BuildServiceProvider();
+                .AddSingleton(factory)
+                .AddLogging().BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -2192,10 +2190,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_external_services()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2251,10 +2249,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_options_and_external_services()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2324,10 +2322,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2398,10 +2396,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2468,10 +2466,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_derived_context_with_options_and_external_services_no_OnConfiguring()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2548,10 +2546,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2618,10 +2616,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Can_use_non_derived_context_with_options_and_external_services()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
@@ -2698,10 +2696,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            serviceCollection.AddMemoryCache();
-            var appServiceProivder = serviceCollection.BuildServiceProvider();
+            var appServiceProivder = new ServiceCollection()
+                .AddLogging()
+                .AddMemoryCache()
+                .BuildServiceProvider();
 
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();

@@ -11,13 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqlServerDesignTimeServices
     {
-        public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
-        {
-            serviceCollection
+        public virtual IServiceCollection ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
+            => serviceCollection
                 .AddSingleton<IScaffoldingModelFactory, SqlServerScaffoldingModelFactory>()
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
                 .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
-        }
     }
 }

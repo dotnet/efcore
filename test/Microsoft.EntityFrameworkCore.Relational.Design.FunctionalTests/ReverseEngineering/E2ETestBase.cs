@@ -27,16 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Revers
         {
             _output = output;
 
-            var serviceCollection = new ServiceCollection()
-                .AddScaffolding();
-
-            serviceCollection.AddLogging();
-
-            ConfigureDesignTimeServices(serviceCollection);
-
-            serviceCollection.AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService());
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = ConfigureDesignTimeServices(
+                new ServiceCollection()
+                    .AddScaffolding()
+                    .AddLogging())
+                .AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService()).BuildServiceProvider();
 
             _logger = new InMemoryCommandLogger("E2ETest", _output);
             serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
@@ -48,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Revers
         protected abstract ICollection<BuildReference> References { get; }
         protected abstract string ProviderName { get; }
 
-        protected abstract void ConfigureDesignTimeServices(IServiceCollection services);
+        protected abstract IServiceCollection ConfigureDesignTimeServices(IServiceCollection services);
 
         protected virtual void AssertEqualFileContents(FileSet expected, FileSet actual)
         {

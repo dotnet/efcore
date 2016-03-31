@@ -127,10 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddMemoryCache();
-
-            return serviceCollection
+            => serviceCollection
+                .AddMemoryCache()
                 .AddSingleton(_ => MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly())
                 .AddScoped<ICompiledQueryCache, CompiledQueryCache>()
                 .AddScoped<IAsyncQueryProvider, EntityQueryProvider>()
@@ -159,7 +157,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddScoped(p => GetProviderServices(p).ExpressionPrinter)
                 .AddScoped(p => GetProviderServices(p).ResultOperatorHandler)
                 .AddScoped(p => GetProviderServices(p).ProjectionExpressionVisitorFactory);
-        }
 
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)
             => serviceProvider.GetRequiredService<IDbContextServices>();

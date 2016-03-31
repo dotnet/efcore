@@ -51,11 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                    ?? services.BuildServiceProvider();
         }
 
-        public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection services)
+        public virtual IServiceCollection ConfigureDesignTimeServices([NotNull] IServiceCollection services)
             => ConfigureDesignTimeServices(_startupType, services);
 
-        public virtual void ConfigureDesignTimeServices([CanBeNull] Type type, [NotNull] IServiceCollection services)
-            => Invoke(type, new[] { "ConfigureDesignTimeServices" }, services);
+        public virtual IServiceCollection ConfigureDesignTimeServices([CanBeNull] Type type, [NotNull] IServiceCollection services)
+        {
+            Invoke(type, new[] { "ConfigureDesignTimeServices" }, services);
+            return services;
+        }
 
         private object Invoke(Type type, string[] methodNames, IServiceCollection services)
         {

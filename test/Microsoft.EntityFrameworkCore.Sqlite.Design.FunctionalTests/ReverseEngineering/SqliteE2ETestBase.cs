@@ -424,7 +424,7 @@ CREATE TABLE IF NOT EXISTS Comment (
         protected abstract string ExpectedResultsParentDir { get; }
         protected abstract bool UseFluentApiOnly { get; }
 
-        protected override void ConfigureDesignTimeServices(IServiceCollection services)
+        protected override IServiceCollection ConfigureDesignTimeServices(IServiceCollection services)
             => new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
     }
 }
