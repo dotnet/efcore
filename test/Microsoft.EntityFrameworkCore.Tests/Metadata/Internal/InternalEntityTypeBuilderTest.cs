@@ -34,6 +34,77 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Can_add_relationship_if_principal_entity_has_no_PK()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder=dependentEntityBuilder.Relationship(
+                principalEntityBuilder,
+                null,
+                Customer.OrdersProperty.Name,
+                ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(relationshipBuilder);
+            var pkProperty = relationshipBuilder.Metadata.PrincipalKey.Properties.Single();
+            Assert.Equal("TempId", pkProperty.Name);
+            Assert.True(pkProperty.IsShadowProperty);
+            var fkProperty = relationshipBuilder.Metadata.Properties.Single();
+            Assert.Equal(nameof(Customer) + pkProperty.Name, fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+        }
+
+        [Fact]
+        public void Can_add_relationship_if_principal_entity_PK_name_contains_principal_entity_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            principalEntityBuilder.Property("CustomerId", ConfigurationSource.Explicit);
+            principalEntityBuilder.PrimaryKey(new [] { "CustomerId"}, ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.Relationship(
+                principalEntityBuilder,
+                (string)null,
+                null,
+                ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(relationshipBuilder);
+            var pkProperty = relationshipBuilder.Metadata.PrincipalKey.Properties.Single();
+            Assert.Equal("CustomerId", pkProperty.Name);
+            Assert.True(pkProperty.IsShadowProperty);
+            var fkProperty = relationshipBuilder.Metadata.Properties.Single();
+            Assert.Equal("CustomerId1", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+        }
+
+        [Fact]
+        public void Can_add_relationship_if_principal_entity_PK_name_contains_principal_navigation_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            principalEntityBuilder.Property("CustomerId", ConfigurationSource.Explicit);
+            principalEntityBuilder.PrimaryKey(new[] { "CustomerId" }, ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            dependentEntityBuilder.Ignore("CustomerId", ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.Relationship(
+                principalEntityBuilder,
+                nameof(Order.Customer),
+                null,
+                ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(relationshipBuilder);
+            var pkProperty = relationshipBuilder.Metadata.PrincipalKey.Properties.Single();
+            Assert.Equal("CustomerId", pkProperty.Name);
+            Assert.True(pkProperty.IsShadowProperty);
+            var fkProperty = relationshipBuilder.Metadata.Properties.Single();
+            Assert.Equal("CustomerId1", fkProperty.Name);
+            Assert.True(fkProperty.IsShadowProperty);
+        }
+
+        [Fact]
         public void Can_add_relationship_if_navigation_to_dependent_ignored_at_lower_source()
         {
             var modelBuilder = CreateModelBuilder();

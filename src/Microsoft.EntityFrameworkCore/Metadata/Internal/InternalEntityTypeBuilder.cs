@@ -1388,8 +1388,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 for (var i = 0; i < principalKey.Properties.Count; i++)
                 {
                     IProperty keyProperty = principalKey.Properties[i];
+                    var propertyName = (keyProperty.Name.StartsWith(baseName, StringComparison.OrdinalIgnoreCase) ? "" : baseName)
+                                       + keyProperty.Name;
                     fkProperties[i] = CreateUniqueProperty(
-                        baseName + keyProperty.Name,
+                        propertyName,
                         isRequired ?? false ? keyProperty.ClrType : keyProperty.ClrType.MakeNullable(),
                         this,
                         isRequired);
