@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
-            configuration.ContextClassName = "volatile";  // cannot be C# keyword
+            configuration.ContextClassName = "volatile"; // cannot be C# keyword
             Assert.Equal(CommandsStrings.ContextClassNotValidCSharpIdentifier("volatile"),
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);

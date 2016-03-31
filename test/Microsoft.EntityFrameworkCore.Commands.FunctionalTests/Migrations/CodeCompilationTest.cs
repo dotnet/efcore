@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
             var migrationCode = generator.GenerateMigration(
                 "MyNamespace",
                 "MyMigration",
-                new[] {
+                new[]
+                {
                     new SqlOperation
                     {
                         Sql = "-- TEST",

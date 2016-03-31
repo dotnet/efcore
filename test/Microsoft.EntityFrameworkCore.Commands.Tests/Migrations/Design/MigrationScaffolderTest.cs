@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Tests;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -103,8 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             public bool Exists() => false;
             public Task<bool> ExistsAsync(CancellationToken cancellationToken) => Task.FromResult(false);
             public IReadOnlyList<HistoryRow> GetAppliedMigrations() => null;
+
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
                 => Task.FromResult<IReadOnlyList<HistoryRow>>(null);
+
             public string GetDeleteScript(string migrationId) => null;
             public string GetInsertScript(HistoryRow row) => null;
         }

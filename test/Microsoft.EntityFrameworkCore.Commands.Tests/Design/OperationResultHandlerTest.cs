@@ -54,4 +54,5 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
     }
 }
+
 #endif

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
+
 #if NETSTANDARDAPP1_5
 using System.Reflection;
 using Microsoft.CodeAnalysis;

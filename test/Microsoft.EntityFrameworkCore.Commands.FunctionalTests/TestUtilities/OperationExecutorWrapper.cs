@@ -44,18 +44,18 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                 0,
                 null,
                 new object[]
+                {
+                    // TODO: Pass this in
+                    new OperationLogHandler(),
+                    new Hashtable
                     {
-                        // TODO: Pass this in
-                        new OperationLogHandler(),
-                        new Hashtable
-                            {
-                                { "targetName", targetName },
-                                { "startupTargetName", targetName },
-                                { "projectDir", projectDir },
-                                { "startupProjectDir", startupProjectDir },
-                                { "rootNamespace", rootNamespace }
-                            }
-                    },
+                        { "targetName", targetName },
+                        { "startupTargetName", targetName },
+                        { "projectDir", projectDir },
+                        { "startupProjectDir", startupProjectDir },
+                        { "rootNamespace", rootNamespace }
+                    }
+                },
                 null,
                 null);
         }
@@ -81,12 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
             return InvokeOperation<string>(
                 "ScriptMigration",
                 new Hashtable
-                    {
-                        { "fromMigration", fromMigration },
-                        { "toMigration", toMigration },
-                        { "idempotent", idempotent },
-                        { "contextType", contextType }
-                    });
+                {
+                    { "fromMigration", fromMigration },
+                    { "toMigration", toMigration },
+                    { "idempotent", idempotent },
+                    { "contextType", contextType }
+                });
         }
 
         public IEnumerable<IDictionary> GetContextTypes()

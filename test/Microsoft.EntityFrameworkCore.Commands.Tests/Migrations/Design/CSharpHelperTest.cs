@@ -2,15 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Globalization;
-using System.Threading;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
-    public class CSharpHelperTest 
+    public class CSharpHelperTest
     {
         [Theory]
         [InlineData(
@@ -35,19 +33,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             4.2,
             "4.2")]
         [InlineData(
-             -1.7976931348623157E+308, // Double MinValue
+            -1.7976931348623157E+308, // Double MinValue
             "-1.7976931348623157E+308")]
         [InlineData(
-             1.7976931348623157E+308, // Double MaxValue
+            1.7976931348623157E+308, // Double MaxValue
             "1.7976931348623157E+308")]
         [InlineData(
             4.2f,
             "4.2f")]
         [InlineData(
-             -3.402823E+38f, // Single MinValue
+            -3.402823E+38f, // Single MinValue
             "-3.402823E+38f")]
         [InlineData(
-             3.402823E+38f, // Single MaxValue
+            3.402823E+38f, // Single MaxValue
             "3.402823E+38f")]
         [InlineData(
             42,
@@ -56,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             42L,
             "42L")]
         [InlineData(
-             9000000000000000000L, // Ensure not printed as exponent
+            9000000000000000000L, // Ensure not printed as exponent
             "9000000000000000000L")]
         [InlineData(
             (sbyte)42,
@@ -71,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             42ul,
             "42ul")]
         [InlineData(
-             18000000000000000000ul, // Ensure not printed as exponent
+            18000000000000000000ul, // Ensure not printed as exponent
             "18000000000000000000ul")]
         [InlineData(
             (ushort)42,
@@ -135,13 +133,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [Fact]
         public void Literal_works_when_decimal_max_value() =>
             Literal_works(
-                 79228162514264337593543950335m, // Decimal MaxValue
+                79228162514264337593543950335m, // Decimal MaxValue
                 "79228162514264337593543950335m");
 
         [Fact]
         public void Literal_works_when_decimal_min_value() =>
             Literal_works(
-                 -79228162514264337593543950335m, // Decimal MinValue
+                -79228162514264337593543950335m, // Decimal MinValue
                 "-79228162514264337593543950335m");
 
         [Fact]

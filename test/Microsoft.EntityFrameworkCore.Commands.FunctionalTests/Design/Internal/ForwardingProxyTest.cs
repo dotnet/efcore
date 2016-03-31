@@ -4,8 +4,8 @@
 #if NET451
 
 using System;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
 using Xunit;
 

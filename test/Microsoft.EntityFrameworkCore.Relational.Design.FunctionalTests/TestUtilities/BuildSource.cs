@@ -14,13 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUt
     public class BuildSource
     {
         public ICollection<BuildReference> References { get; } = new List<BuildReference>
-            {
+        {
 #if NET451
-                BuildReference.ByName("mscorlib")
+            BuildReference.ByName("mscorlib")
 #else
                 BuildReference.ByName("System.Runtime")
 #endif
-            };
+        };
 
         public string TargetDir { get; set; }
         public ICollection<string> Sources { get; set; } = new List<string>();
