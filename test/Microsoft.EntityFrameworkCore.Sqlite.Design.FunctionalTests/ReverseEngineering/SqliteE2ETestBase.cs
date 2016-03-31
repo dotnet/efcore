@@ -4,9 +4,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-#if NETSTANDARDAPP1_5
-using System.Reflection;
-#endif
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering;
@@ -17,6 +14,10 @@ using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
+
+#if NETSTANDARDAPP1_5
+using System.Reflection;
+#endif
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {

@@ -7,13 +7,16 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+
+#if NETSTANDARDAPP1_5
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
+#endif
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
     public abstract class BenchmarkTestCaseBase : XunitTestCase
     {
-        public BenchmarkTestCaseBase(
+        protected BenchmarkTestCaseBase(
             string variation,
             IMessageSink diagnosticMessageSink,
             ITestMethod testMethod,
@@ -69,9 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
             return reasons.Count > 0 ? string.Join(Environment.NewLine, reasons) : null;
         }
 
-        protected override string GetUniqueID()
-        {
-            return $"{TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name}{TestMethod.TestClass.Class.Name}{TestMethod.Method.Name}{Variation}";
-        }
+        protected override string GetUniqueID() 
+            => $"{TestMethod.TestClass.TestCollection.TestAssembly.Assembly.Name}{TestMethod.TestClass.Class.Name}{TestMethod.Method.Name}{Variation}";
     }
 }

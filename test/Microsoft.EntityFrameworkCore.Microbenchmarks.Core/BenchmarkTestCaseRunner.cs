@@ -5,12 +5,13 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#if NETSTANDARDAPP1_5
-using Microsoft.Extensions.Configuration;
-#endif
 using Microsoft.Extensions.PlatformAbstractions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+
+#if NETSTANDARDAPP1_5
+using Microsoft.Extensions.Configuration;
+#endif
 
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
