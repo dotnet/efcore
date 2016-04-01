@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             base.Validate(model);
 
             EnsureDistinctTableNames(model);
-            EnsureDistinctColumnNames(model);
+            EnsureSharedColumnsCompatibility(model);
             ValidateInheritanceMapping(model);
             EnsureDataTypes(model);
         }
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        protected virtual void EnsureDistinctColumnNames([NotNull] IModel model)
+        protected virtual void EnsureSharedColumnsCompatibility([NotNull] IModel model)
         {
             var groupedEntityTypes = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
@@ -89,12 +89,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 foreach (var property in properties)
                 {
-                    var columnName = _relationalExtensions.For(property).ColumnName;
+                    var propertyAnnotations = _relationalExtensions.For(property);
+                    var columnName = propertyAnnotations.ColumnName;
                     IProperty duplicateProperty;
                     if (propertyTypeMappings.TryGetValue(columnName, out duplicateProperty))
                     {
-                        var currentTypeString = _relationalExtensions.For(property).ColumnType ?? _typeMapper.GetMapping(property).DefaultTypeName;
-                        var previousTypeString = _relationalExtensions.For(duplicateProperty).ColumnType ?? _typeMapper.GetMapping(duplicateProperty).DefaultTypeName;
+                        var previousAnnotations = _relationalExtensions.For(duplicateProperty);
+                        var currentTypeString = propertyAnnotations.ColumnType
+                                                ?? _typeMapper.GetMapping(property).DefaultTypeName;
+                        var previousTypeString = previousAnnotations.ColumnType
+                                                 ?? _typeMapper.GetMapping(duplicateProperty).DefaultTypeName;
                         if (!currentTypeString.Equals(previousTypeString, StringComparison.OrdinalIgnoreCase))
                         {
                             ShowError(RelationalStrings.DuplicateColumnName(
@@ -106,6 +110,62 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 table,
                                 previousTypeString,
                                 currentTypeString));
+                        }
+
+                        if (property.IsColumnNullable() != duplicateProperty.IsColumnNullable())
+                        {
+                            ShowError(RelationalStrings.DuplicateColumnNameNullabilityMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                table));
+                        }
+
+                        var currentComputedValueSql = propertyAnnotations.ComputedValueSql ?? "";
+                        var previousComputedValueSql = previousAnnotations.ComputedValueSql ?? "";
+                        if (!currentComputedValueSql.Equals(previousComputedValueSql, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ShowError(RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                table,
+                                previousComputedValueSql,
+                                currentComputedValueSql));
+                        }
+
+                        var currentDefaultValue = propertyAnnotations.DefaultValue;
+                        var previousDefaultValue = previousAnnotations.DefaultValue;
+                        if (currentDefaultValue != previousDefaultValue)
+                        {
+                            ShowError(RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                table,
+                                previousDefaultValue ?? "NULL",
+                                currentDefaultValue ?? "NULL"));
+                        }
+
+                        var currentDefaultValueSql = propertyAnnotations.DefaultValueSql ?? "";
+                        var previousDefaultValueSql = previousAnnotations.DefaultValueSql ?? "";
+                        if (!currentDefaultValueSql.Equals(previousDefaultValueSql, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ShowError(RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                table,
+                                previousDefaultValueSql,
+                                currentDefaultValueSql));
                         }
                     }
                     else

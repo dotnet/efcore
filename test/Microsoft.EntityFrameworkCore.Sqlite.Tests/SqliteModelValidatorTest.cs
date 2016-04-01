@@ -33,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
             VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "TEXT", "INTEGER"), modelBuilder.Model);
         }
 
+        public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
+        {
+        }
+
         protected override ModelValidator CreateModelValidator()
             => new RelationalModelValidator(
                 new Logger<RelationalModelValidator>(

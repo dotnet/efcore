@@ -78,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Product>();
             modelBuilder.Entity<Product>().Property(b => b.Name).HasColumnName("Id");
 
-            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Product).Name, "Id", typeof(Product).Name, "Name", "Id", ".Product", "default_int_mapping", "just_string(2000)"), modelBuilder.Model);
+            VerifyError(RelationalStrings.DuplicateColumnName(
+                nameof(Product), "Id", nameof(Product), "Name", "Id", ".Product", "default_int_mapping", "just_string(2000)"), modelBuilder.Model);
         }
 
         [Fact]
@@ -89,7 +90,68 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             modelBuilder.Entity<Cat>();
             modelBuilder.Entity<Dog>();
 
-            VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "just_string(2000)", "default_int_mapping"), modelBuilder.Model);
+            VerifyError(RelationalStrings.DuplicateColumnName(
+                nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), ".Animal", "just_string(2000)", "default_int_mapping"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).HasMaxLength(30);
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).HasMaxLength(15);
+
+            VerifyError(RelationalStrings.DuplicateColumnName(
+                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), ".Animal", "just_string(30)", "just_string(15)"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_ComputedColumnSql()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).HasComputedColumnSql("1");
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type);
+
+            VerifyError(RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
+                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), ".Animal", "1", ""), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValue()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).HasDefaultValueSql("1");
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(c => c.Breed).HasDefaultValue("1");
+
+            VerifyError(RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), ".Animal", "NULL", "1"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValueSql()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).HasDefaultValueSql("1");
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type);
+
+            VerifyError(RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), ".Animal", "1", ""), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_nullability()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type);
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Type).HasColumnName("Id");
+
+            VerifyError(RelationalStrings.DuplicateColumnNameNullabilityMismatch(
+                nameof(Animal), nameof(Animal.Id), nameof(Dog), nameof(Dog.Type), nameof(Animal.Id), ".Animal"), modelBuilder.Model);
         }
 
         [Fact]
@@ -97,8 +159,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().Ignore(e => e.Type);
-            modelBuilder.Entity<Dog>().Ignore(e => e.Type);
+            modelBuilder.Entity<Cat>(eb =>
+                {
+                    eb.Ignore(e => e.Type);
+                    eb.Property(c => c.Breed).HasMaxLength(25);
+                    eb.Property(c => c.Breed).HasColumnName("BreedName");
+                    eb.Property(c => c.Breed).HasDefaultValue("None");
+                });
+            modelBuilder.Entity<Dog>(eb =>
+                {
+                    eb.Ignore(e => e.Type);
+                    eb.Property(c => c.Breed).HasMaxLength(25);
+                    eb.Property(c => c.Breed).HasColumnName("BreedName");
+                    eb.Property(c => c.Breed).HasDefaultValue("None");
+                });
 
             Validate(modelBuilder.Model);
         }

@@ -412,6 +412,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateDiscriminatorValue", "entityType1", "discriminatorValue", "entityType2"), entityType1, discriminatorValue, entityType2);
         }
 
+        /// <summary>
+        /// '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different nullability.
+        /// </summary>
+        public static string DuplicateColumnNameNullabilityMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnNameNullabilityMismatch", "entityType1", "property1", "entityType2", "property2", "columnName", "table"), entityType1, property1, entityType2, property2, columnName, table);
+        }
+
+        /// <summary>
+        /// '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different computed values ('{value1}' and '{value2}').
+        /// </summary>
+        public static string DuplicateColumnNameComputedSqlMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object value1, [CanBeNull] object value2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnNameComputedSqlMismatch", "entityType1", "property1", "entityType2", "property2", "columnName", "table", "value1", "value2"), entityType1, property1, entityType2, property2, columnName, table, value1, value2);
+        }
+
+        /// <summary>
+        /// '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured to use different default values ('{value1}' and '{value2}').
+        /// </summary>
+        public static string DuplicateColumnNameDefaultSqlMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table, [CanBeNull] object value1, [CanBeNull] object value2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnNameDefaultSqlMismatch", "entityType1", "property1", "entityType2", "property2", "columnName", "table", "value1", "value2"), entityType1, property1, entityType2, property2, columnName, table, value1, value2);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

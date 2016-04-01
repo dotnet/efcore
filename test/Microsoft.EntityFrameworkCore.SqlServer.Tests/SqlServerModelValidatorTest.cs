@@ -34,6 +34,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             VerifyError(RelationalStrings.DuplicateColumnName(typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", ".Animal", "nvarchar(max)", "int"), modelBuilder.Model);
         }
+        
+        public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).HasMaxLength(30);
+            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).HasMaxLength(15);
+
+            VerifyError(RelationalStrings.DuplicateColumnName(
+                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), ".Animal", "nvarchar(30)", "nvarchar(15)"), modelBuilder.Model);
+        }
 
         public virtual void Throws_for_unsupported_data_types()
         {
