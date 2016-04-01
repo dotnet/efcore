@@ -88,6 +88,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
                 baseClrType = baseClrType.GetTypeInfo().BaseType;
             }
+
+            if (entityType.ClrType?.IsInstantiable() == false
+                && !entityType.GetDerivedTypes().Any())
+            {
+                ShowError(CoreStrings.AbstractLeafEntityType(entityType.DisplayName()));
+            }
+
             validEntityTypes.Add(entityType);
         }
 

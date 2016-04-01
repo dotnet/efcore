@@ -68,16 +68,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return RemoveDiscriminator();
             }
 
-            return (DiscriminatorProperty != null)
-                   && (DiscriminatorProperty.ClrType == discriminatorType)
+            return DiscriminatorProperty != null
+                   && DiscriminatorProperty.ClrType == discriminatorType
                 ? DiscriminatorBuilder(null, null)
                 : DiscriminatorBuilder(null, discriminatorType);
         }
 
         public virtual DiscriminatorBuilder HasDiscriminator([NotNull] string name, [NotNull] Type discriminatorType)
-            => (DiscriminatorProperty != null)
-               && (DiscriminatorProperty.Name == name)
-               && (DiscriminatorProperty.ClrType == discriminatorType)
+            => DiscriminatorProperty != null
+               && DiscriminatorProperty.Name == name
+               && DiscriminatorProperty.ClrType == discriminatorType
                 ? DiscriminatorBuilder(null, null)
                 : DiscriminatorBuilder(b => b.Property(name, discriminatorType, Annotations.ConfigurationSource), null);
 

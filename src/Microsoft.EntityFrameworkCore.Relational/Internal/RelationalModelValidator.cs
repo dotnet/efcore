@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         var currentTypeString = _relationalExtensions.For(property).ColumnType ?? _typeMapper.GetMapping(property).DefaultTypeName;
                         var previousTypeString = _relationalExtensions.For(duplicateProperty).ColumnType ?? _typeMapper.GetMapping(duplicateProperty).DefaultTypeName;
-                        if (!(currentTypeString).Equals(previousTypeString, StringComparison.OrdinalIgnoreCase))
+                        if (!currentTypeString.Equals(previousTypeString, StringComparison.OrdinalIgnoreCase))
                         {
                             ShowError(RelationalStrings.DuplicateColumnName(
                                 duplicateProperty.DeclaringEntityType.DisplayName(),
@@ -118,33 +118,67 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         protected virtual void ValidateInheritanceMapping([NotNull] IModel model)
         {
-            var roots = new HashSet<IEntityType>();
+            var hierarchies = new Dictionary<IEntityType, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.BaseType != null))
             {
-                ValidateDiscriminator(entityType);
-
-                roots.Add(entityType.RootType());
+                var root = entityType.RootType();
+                if (root != entityType)
+                {
+                    List<IEntityType> derivedTypes;
+                    if (!hierarchies.TryGetValue(root, out derivedTypes))
+                    {
+                        derivedTypes = new List<IEntityType>();
+                        hierarchies[root] = derivedTypes;
+                    }
+                    derivedTypes.Add(entityType);
+                }
             }
 
-            foreach (var entityType in roots)
+            foreach (var rootEntityType in hierarchies.Keys)
             {
-                ValidateDiscriminator(entityType);
+                ValidateDiscriminatorValues(rootEntityType, hierarchies[rootEntityType]);
             }
         }
 
         private void ValidateDiscriminator(IEntityType entityType)
         {
-            if (entityType.ClrType?.IsInstantiable() ?? false)
+            var annotations = _relationalExtensions.For(entityType);
+            if (annotations.DiscriminatorProperty == null)
             {
-                var annotations = _relationalExtensions.For(entityType);
-                if (annotations.DiscriminatorProperty == null)
+                ShowError(RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
+            }
+            if (annotations.DiscriminatorValue == null)
+            {
+                ShowError(RelationalStrings.NoDiscriminatorValue(entityType.DisplayName()));
+            }
+        }
+
+        private void ValidateDiscriminatorValues(IEntityType rootEntityType, IReadOnlyList<IEntityType> derivedTypes)
+        {
+            var discriminatorValues = new Dictionary<object, IEntityType>();
+            if (rootEntityType.ClrType?.IsInstantiable() == true)
+            {
+                ValidateDiscriminator(rootEntityType);
+                discriminatorValues[_relationalExtensions.For(rootEntityType).DiscriminatorValue] = rootEntityType;
+            }
+
+            foreach (var derivedType in derivedTypes)
+            {
+                if (derivedType.ClrType?.IsInstantiable() != true)
                 {
-                    ShowError(RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
+                    continue;
                 }
-                if (annotations.DiscriminatorValue == null)
+
+                ValidateDiscriminator(derivedType);
+
+                var discriminatorValue = _relationalExtensions.For(derivedType).DiscriminatorValue;
+                IEntityType duplicateEntityType;
+                if (discriminatorValues.TryGetValue(discriminatorValue, out duplicateEntityType))
                 {
-                    ShowError(RelationalStrings.NoDiscriminatorValue(entityType.DisplayName()));
+                    ShowError(RelationalStrings.DuplicateDiscriminatorValue(
+                        derivedType.DisplayName(), discriminatorValue, duplicateEntityType.DisplayName()));
                 }
+                discriminatorValues[discriminatorValue] = derivedType;
             }
         }
     }

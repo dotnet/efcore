@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -51,9 +52,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            discriminator?.HasValue(entityTypeBuilder.Metadata.Name, entityTypeBuilder.Metadata.DisplayName());
+            if (discriminator != null)
+            {
+                discriminator.HasValue(entityTypeBuilder.Metadata.Name, entityTypeBuilder.Metadata.DisplayName());
+                SetDefaultDiscriminatorValues(derivedEntityTypes, discriminator);
+            }
 
             return true;
+        }
+
+        private void SetDefaultDiscriminatorValues(IReadOnlyList<EntityType> entityTypes, DiscriminatorBuilder discriminator)
+        {
+            foreach (var entityType in entityTypes)
+            {
+                discriminator.HasValue(entityType.Name, entityType.DisplayName());
+            }
         }
     }
 }

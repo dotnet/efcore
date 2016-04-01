@@ -114,18 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         [Fact]
-        public virtual void Does_not_detect_non_instantiable_types()
-        {
-            var model = new Model();
-            var entityAbstract = model.AddEntityType(typeof(Abstract));
-            SetPrimaryKey(entityAbstract);
-            var entityGeneric = model.AddEntityType(typeof(Generic<>));
-            entityGeneric.HasBaseType(entityAbstract);
-
-            Validate(model);
-        }
-
-        [Fact]
         public virtual void Detects_missing_discriminator_property()
         {
             var model = new Model();
@@ -134,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             var entityC = model.AddEntityType(typeof(C));
             entityC.HasBaseType(entityA);
 
-            VerifyError(RelationalStrings.NoDiscriminatorProperty(entityC.DisplayName()), model);
+            VerifyError(RelationalStrings.NoDiscriminatorProperty(entityA.DisplayName()), model);
         }
 
         [Fact]
@@ -143,12 +131,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
-            var entityAbstract = model.AddEntityType(typeof(Abstract));
-            entityAbstract.HasBaseType(entityA);
+            var entityC = model.AddEntityType(typeof(C));
+            entityC.HasBaseType(entityA);
 
             var discriminatorProperty = entityA.AddProperty("D", typeof(int));
             entityA.Relational().DiscriminatorProperty = discriminatorProperty;
-            entityAbstract.Relational().DiscriminatorValue = 1;
+            entityC.Relational().DiscriminatorValue = 1;
 
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityA.DisplayName()), model);
         }
@@ -169,6 +157,46 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             VerifyError(RelationalStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
         }
 
+        [Fact]
+        public virtual void Detects_missing_non_string_discriminator_values()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<C>();
+            modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
+                .HasValue<A>(0)
+                .HasValue<D>(1);
+
+            var model = modelBuilder.Model;
+            VerifyError(RelationalStrings.NoDiscriminatorValue(typeof(C).Name), model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_discriminator_values()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
+                .HasValue<A>(1)
+                .HasValue<C>(1)
+                .HasValue<D>(2);
+
+            var model = modelBuilder.Model;
+            VerifyError(RelationalStrings.DuplicateDiscriminatorValue(typeof(C).Name, 1, typeof(A).Name), model);
+        }
+
+        [Fact]
+        public virtual void Does_not_detect_missing_discriminator_value_for_abstract_class()
+        {
+            var modelBuilder = new ModelBuilder(TestConventionalSetBuilder.Build());
+            modelBuilder.Entity<Abstract>();
+            modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
+                .HasValue<A>(0)
+                .HasValue<C>(1)
+                .HasValue<D>(2)
+                .HasValue<Generic<string>>(3);
+
+            Validate(modelBuilder.Model);
+        }
+
         protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
         {
             base.SetBaseType(entityType, baseEntityType);
@@ -180,14 +208,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         }
 
         protected class C : A
-        {
-        }
-
-        protected abstract class Abstract : A
-        {
-        }
-
-        protected class Generic<T> : Abstract
         {
         }
 

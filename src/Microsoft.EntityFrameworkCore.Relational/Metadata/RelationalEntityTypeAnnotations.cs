@@ -116,6 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             }
 
+            foreach (var derivedType in EntityType.GetDerivedTypes())
+            {
+                new RelationalAnnotations(derivedType).SetAnnotation(
+                    RelationalFullAnnotationNames.Instance.DiscriminatorValue,
+                    ProviderFullAnnotationNames?.DiscriminatorValue,
+                    null);
+            }
+
             return Annotations.SetAnnotation(
                 RelationalFullAnnotationNames.Instance.DiscriminatorProperty,
                 ProviderFullAnnotationNames?.DiscriminatorProperty,

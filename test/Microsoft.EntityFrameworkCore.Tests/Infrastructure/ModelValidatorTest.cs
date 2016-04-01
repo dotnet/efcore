@@ -155,8 +155,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             Validate(model);
         }
 
-        protected virtual void SetBaseType(EntityType entityType, EntityType baseEntityType) => entityType.HasBaseType(baseEntityType);
-
         [Fact]
         public virtual void Detects_base_type_not_set()
         {
@@ -168,6 +166,32 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
 
             VerifyError(CoreStrings.InconsistentInheritance(entityD.DisplayName(), entityA.DisplayName()), model);
         }
+
+        [Fact]
+        public virtual void Detects_abstract_leaf_type()
+        {
+            var model = new Model();
+            var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
+            var entityAbstract = model.AddEntityType(typeof(Abstract));
+            SetBaseType(entityAbstract, entityA);
+
+            VerifyError(CoreStrings.AbstractLeafEntityType(entityAbstract.DisplayName()), model);
+        }
+
+        [Fact]
+        public virtual void Detects_generic_leaf_type()
+        {
+            var model = new Model();
+            var entityAbstract = model.AddEntityType(typeof(Abstract));
+            SetPrimaryKey(entityAbstract);
+            var entityGeneric = model.AddEntityType(typeof(Generic<>));
+            entityGeneric.HasBaseType(entityAbstract);
+
+            VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), model);
+        }
+
+        protected virtual void SetBaseType(EntityType entityType, EntityType baseEntityType) => entityType.HasBaseType(baseEntityType);
 
         protected Key CreateKey(EntityType entityType, int startingPropertyIndex = -1, int propertyCount = 1)
         {
@@ -231,6 +255,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
         }
 
         protected class D : A
+        {
+        }
+
+        protected abstract class Abstract : A
+        {
+        }
+
+        protected class Generic<T> : Abstract
         {
         }
 

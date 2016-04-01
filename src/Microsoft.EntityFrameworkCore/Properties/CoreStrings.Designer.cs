@@ -1148,6 +1148,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidComplexPropertyExpression", "propertyAccessExpression"), propertyAccessExpression);
         }
 
+        /// <summary>
+        /// The corresponding CLR type for entity type '{entityType}' is abstract and there is no derived entity type in the model that corresponds to a concrete CLR type.
+        /// </summary>
+        public static string AbstractLeafEntityType([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("AbstractLeafEntityType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.
+        /// </summary>
+        public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateDiscriminatorValue", "entityType1", "discriminatorValue", "entityType2"), entityType1, discriminatorValue, entityType2);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

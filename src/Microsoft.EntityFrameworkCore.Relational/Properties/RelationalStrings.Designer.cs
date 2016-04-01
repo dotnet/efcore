@@ -404,6 +404,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("IncorrectDefaultValueType", "value", "valueType", "property", "propertyType", "entityType"), value, valueType, property, propertyType, entityType);
         }
 
+        /// <summary>
+        /// The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.
+        /// </summary>
+        public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateDiscriminatorValue", "entityType1", "discriminatorValue", "entityType2"), entityType1, discriminatorValue, entityType2);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
