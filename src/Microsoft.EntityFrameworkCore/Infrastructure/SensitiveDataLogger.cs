@@ -51,6 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         bool ILogger.IsEnabled(LogLevel logLevel) => _logger.IsEnabled(logLevel);
 
-        IDisposable ILogger.BeginScopeImpl(object state) => _logger.BeginScopeImpl(state);
+        IDisposable ILogger.BeginScope<TState>(TState state) => _logger.BeginScopeImpl(state);
     }
 }

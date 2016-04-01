@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
             public bool IsEnabled(LogLevel logLevel) => true;
 
-            public IDisposable BeginScopeImpl(object state) => SqlLoggerData._log.Indent();
+            public IDisposable BeginScope<TState>(TState state) => SqlLoggerData._log.Indent();
 
             // ReSharper disable once MemberCanBeMadeStatic.Local
             public void ResetLoggerData()

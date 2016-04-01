@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        public virtual IDisposable BeginScopeImpl(object state) => null;
+        public virtual IDisposable BeginScope<TState>(TState state) => null;
 
         protected abstract void WriteError([NotNull] string message);
         protected abstract void WriteWarning([NotNull] string message);

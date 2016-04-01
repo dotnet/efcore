@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual bool IsEnabled(LogLevel logLevel)
             => _logger.IsEnabled(logLevel);
 
-        public virtual IDisposable BeginScopeImpl(object state)
-            => _logger.BeginScopeImpl(state);
+        public virtual IDisposable BeginScope<TState>(TState state)
+            => _logger.BeginScope(state);
     }
 }

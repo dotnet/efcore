@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
     public class TestLogger : ILogger
     {
-        public IDisposable BeginScopeImpl(object state) => new NullScope();
+        public IDisposable BeginScope<TState>(TState state) => new NullScope();
         public string FullLog => _sb.ToString();
         private readonly StringBuilder _sb = new StringBuilder();
 

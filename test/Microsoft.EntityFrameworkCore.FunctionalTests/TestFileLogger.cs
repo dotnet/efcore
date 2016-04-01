@@ -58,12 +58,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public bool IsEnabled(LogLevel logLevel) => true;
 
-        public IDisposable BeginScope(object state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable BeginScopeImpl(object state) => NullScope.Instance;
+        public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
     }
 
     public class NullScope : IDisposable

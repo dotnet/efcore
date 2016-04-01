@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 {
     public class NullLogger : ILogger
     {
-        public virtual IDisposable BeginScopeImpl(object state) => null;
+        public virtual IDisposable BeginScope<TState>(TState state) => null;
 
         public bool IsEnabled(LogLevel logLevel) => false;
 

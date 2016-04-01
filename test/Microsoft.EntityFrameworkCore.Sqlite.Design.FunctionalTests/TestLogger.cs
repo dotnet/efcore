@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
     public class TestLogger : ILogger
     {
-        public IDisposable BeginScopeImpl(object state) => NullScope.Instance;
+        public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
         public string FullLog => _sb.ToString();
         private readonly StringBuilder _sb = new StringBuilder();
 

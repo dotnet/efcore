@@ -23,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
             throw new NotImplementedException();
         }
 
-        public IDisposable BeginScopeImpl(object state) => null;
+        public IDisposable BeginScope<TState>(TState state) => null;
     }
 }
