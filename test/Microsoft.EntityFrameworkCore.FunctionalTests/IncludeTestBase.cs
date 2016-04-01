@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+#if NETSTANDARDAPP1_5
+using System.Reflection;
+#endif
+
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class IncludeTestBase<TFixture> : IClassFixture<TFixture>
