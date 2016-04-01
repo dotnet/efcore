@@ -9,6 +9,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
     {
         private int _current = int.MinValue + 1000;
 
-        public override decimal Next() => (Interlocked.Increment(ref _current));
+        public override decimal Next() => Interlocked.Increment(ref _current);
     }
 }

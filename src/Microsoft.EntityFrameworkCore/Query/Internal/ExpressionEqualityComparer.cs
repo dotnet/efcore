@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         var parameterExpression = (ParameterExpression)obj;
 
-                        hashCode += (hashCode * 397);
+                        hashCode += hashCode * 397;
                         if (parameterExpression.Name != null)
                         {
                             hashCode ^= parameterExpression.Name.GetHashCode();

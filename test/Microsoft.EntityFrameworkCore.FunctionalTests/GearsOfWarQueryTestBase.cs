@@ -909,9 +909,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = (from c in context.Cities
-                             where c.Location == "Unknown"
-                             select c);
+                var query = from c in context.Cities
+                            where c.Location == "Unknown"
+                            select c;
 
                 var result = query.ToList();
 
@@ -924,9 +924,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = (from c in context.Cities
-                             where "Unknown" == c.Location
-                             select c);
+                var query = from c in context.Cities
+                            where "Unknown" == c.Location
+                            select c;
 
                 var result = query.ToList();
 
@@ -940,9 +940,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var value = "Unknown";
-                var query = (from c in context.Cities
-                             where c.Location == value
-                             select c);
+                var query = from c in context.Cities
+                            where c.Location == value
+                            select c;
 
                 var result = query.ToList();
 
@@ -956,9 +956,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var cities = new List<string> { "Unknown", "Jacinto's location", "Ephyra's location" };
-                var query = (from c in context.Cities
-                             where cities.Contains(c.Location)
-                             select c);
+                var query = from c in context.Cities
+                            where cities.Contains(c.Location)
+                            select c;
 
                 var result = query.ToList();
 
@@ -971,9 +971,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = (from c in context.Cities
-                             where (c.Location == "Unknown") && (c.BornGears.Count(g => g.Nickname == "Paduk") == 1)
-                             select c);
+                var query = from c in context.Cities
+                            where (c.Location == "Unknown") && (c.BornGears.Count(g => g.Nickname == "Paduk") == 1)
+                            select c;
 
                 var result = query.ToList();
 
@@ -986,9 +986,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = (from g in context.Gears
-                             where g.Nickname == "Marcus" && g.CityOfBirth.Location == "Jacinto's location"
-                             select g);
+                var query = from g in context.Gears
+                            where g.Nickname == "Marcus" && g.CityOfBirth.Location == "Jacinto's location"
+                            select g;
 
                 var result = query.ToList();
 
@@ -1001,9 +1001,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = (from c in context.Cities
-                             where c.Location.Contains("Jacinto")
-                             select c);
+                var query = from c in context.Cities
+                            where c.Location.Contains("Jacinto")
+                            select c;
 
                 var result = query.ToList();
 
@@ -1016,9 +1016,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = (from c in context.Cities
-                             where (c.Location + "Added").Contains("Add")
-                             select c);
+                var query = from c in context.Cities
+                            where (c.Location + "Added").Contains("Add")
+                            select c;
 
                 var result = query.ToList();
 

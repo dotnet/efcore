@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var longBinary = new byte[9000];
             for (var i = 0; i < longBinary.Length; i++)
             {
-                longBinary[i] = (byte)(i);
+                longBinary[i] = (byte)i;
             }
 
             using (var context = CreateContext())
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 short? param1 = null;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.TestNullableInt16 == param1));
-                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && ((long?)((int?)(e.TestNullableInt16))) == param1));
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && (long?)(int?)(e.TestNullableInt16) == param1));
 
                 int? param2 = null;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.TestNullableInt32 == param2));
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var longBinary = new byte[9000];
             for (var i = 0; i < longBinary.Length; i++)
             {
-                longBinary[i] = (byte)(i);
+                longBinary[i] = (byte)i;
             }
 
             using (var context = CreateContext())

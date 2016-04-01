@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append('.');
                 }
             }
-            return (@namespace.Length > 0) ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
+            return @namespace.Length > 0 ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
         }
 
         public virtual string Literal([NotNull] string value) =>

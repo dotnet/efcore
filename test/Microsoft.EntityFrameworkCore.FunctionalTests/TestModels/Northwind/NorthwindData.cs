@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
         private class ShadowStateAccessRewriter : ExpressionVisitorBase
         {
             protected override Expression VisitMethodCall(MethodCallExpression expression)
-                => (EntityQueryModelVisitor.IsPropertyMethod(expression.Method))
+                => EntityQueryModelVisitor.IsPropertyMethod(expression.Method)
                     ? Expression.Property(
                         expression.Arguments[0],
                         (string)((ConstantExpression)expression.Arguments[1]).Value)

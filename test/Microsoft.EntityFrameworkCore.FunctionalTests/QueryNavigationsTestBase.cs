@@ -126,9 +126,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = (from e in context.Set<Employee>()
-                             where null == e.Manager
-                             select e);
+                var query = from e in context.Set<Employee>()
+                            where null == e.Manager
+                            select e;
 
                 var result = query.ToList();
 

@@ -1076,7 +1076,7 @@ Logged Command",
             {
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     async ()
-                        => await (((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, true)));
+                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, true));
             }
             else
             {

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             var newOperand = visitor.Visit(Operand);
 
-            return (newOperand != Operand)
+            return newOperand != Operand
                 ? new ExplicitCastExpression(newOperand, _type)
                 : this;
         }

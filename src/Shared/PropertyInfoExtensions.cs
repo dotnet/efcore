@@ -15,7 +15,7 @@ namespace System.Reflection
 
         public static bool IsCandidateProperty(this PropertyInfo propertyInfo, bool needsWrite = true)
             => !propertyInfo.IsStatic()
-               && (propertyInfo.GetIndexParameters().Length == 0)
+               && propertyInfo.GetIndexParameters().Length == 0
                && propertyInfo.CanRead
                && (!needsWrite || propertyInfo.CanWrite)
                && (propertyInfo.GetMethod != null && propertyInfo.GetMethod.IsPublic);

@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             string prm = null;
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.NullableStringA == prm)));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA == prm));
         }
 
         [Fact]
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             var prm = "Foo";
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.NullableStringA == prm)));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA == prm));
         }
 
         [ConditionalFact]
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual void Where_equal_with_conditional()
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
-                ((e.NullableStringA == e.NullableStringB)
+                (e.NullableStringA == e.NullableStringB
                     ? e.NullableStringA
                     : e.NullableStringB) == e.NullableStringC));
         }
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual void Where_not_equal_with_conditional()
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
-                e.NullableStringC != ((e.NullableStringA == e.NullableStringB)
+                e.NullableStringC != (e.NullableStringA == e.NullableStringB
                     ? e.NullableStringA
                     : e.NullableStringB)));
         }
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual void Where_equal_with_conditional_non_nullable()
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
-                e.NullableStringC != ((e.NullableStringA == e.NullableStringB)
+                e.NullableStringC != (e.NullableStringA == e.NullableStringB
                     ? e.StringA
                     : e.StringB)));
         }

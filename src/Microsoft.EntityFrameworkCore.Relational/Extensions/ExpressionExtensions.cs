@@ -32,7 +32,7 @@ namespace System.Linq.Expressions
         }
 
         public static ColumnExpression TryGetColumnExpression([NotNull] this Expression expression)
-            => (expression as ColumnExpression) ?? (expression as AliasExpression)?.TryGetColumnExpression();
+            => expression as ColumnExpression ?? (expression as AliasExpression)?.TryGetColumnExpression();
 
         public static bool IsAliasWithColumnExpression([NotNull] this Expression expression)
             => (expression as AliasExpression)?.Expression is ColumnExpression;

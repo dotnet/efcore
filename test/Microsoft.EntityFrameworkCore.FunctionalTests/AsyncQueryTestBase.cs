@@ -950,8 +950,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             await AssertQuery<Customer, Employee>((cs, es) =>
                 from c in cs
                 from e in es
-                where (c.City == "London" && c.Country == "UK")
-                      && (e.City == "London" && e.Country == "UK")
+                where c.City == "London" && c.Country == "UK"
+                      && e.City == "London" && e.Country == "UK"
                 select new { c, e });
         }
 
@@ -1035,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual async Task Where_bool_member_compared_to_binary_expression()
         {
-            await AssertQuery<Product>(ps => ps.Where(p => p.Discontinued == (p.ProductID > 50)), entryCount: 44);
+            await AssertQuery<Product>(ps => ps.Where(p => p.Discontinued == p.ProductID > 50), entryCount: 44);
         }
 
         [ConditionalFact]
@@ -1374,11 +1374,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                         {
                             var l2oObjects
                                 = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+                                    .SelectMany(q1 => (IEnumerable<int>)q1);
 
                             var efObjects
                                 = efResults
-                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+                                    .SelectMany(q1 => (IEnumerable<int>)q1);
 
                             Assert.Equal(l2oObjects, efObjects);
                         });
@@ -1396,12 +1396,12 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                         {
                             var l2oObjects
                                 = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                    .SelectMany(q1 => (IEnumerable<Order>)q1)
                                     .OrderBy(o => o.OrderID);
 
                             var efObjects
                                 = efResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                    .SelectMany(q1 => (IEnumerable<Order>)q1)
                                     .OrderBy(o => o.OrderID);
 
                             Assert.Equal(l2oObjects, efObjects);
@@ -1420,12 +1420,12 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                         {
                             var l2oObjects
                                 = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                    .SelectMany(q1 => (IEnumerable<Order>)q1)
                                     .OrderBy(o => o.OrderID);
 
                             var efObjects
                                 = efResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1))
+                                    .SelectMany(q1 => (IEnumerable<Order>)q1)
                                     .OrderBy(o => o.OrderID);
 
                             Assert.Equal(l2oObjects, efObjects);
@@ -2339,11 +2339,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                         {
                             var l2oObjects
                                 = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+                                    .SelectMany(q1 => (IEnumerable<int>)q1);
 
                             var efObjects
                                 = efResults
-                                    .SelectMany(q1 => ((IEnumerable<int>)q1));
+                                    .SelectMany(q1 => (IEnumerable<int>)q1);
 
                             Assert.Equal(l2oObjects, efObjects);
                         });
@@ -2361,11 +2361,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                         {
                             var l2oObjects
                                 = l2oResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1));
+                                    .SelectMany(q1 => (IEnumerable<Order>)q1);
 
                             var efObjects
                                 = efResults
-                                    .SelectMany(q1 => ((IEnumerable<Order>)q1));
+                                    .SelectMany(q1 => (IEnumerable<Order>)q1);
 
                             Assert.Equal(l2oObjects, efObjects);
                         });
