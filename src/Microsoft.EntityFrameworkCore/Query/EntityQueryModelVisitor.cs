@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            using (QueryCompilationContext.Logger.BeginScopeImpl(this))
+            using (QueryCompilationContext.Logger.BeginScope(this))
             {
                 QueryCompilationContext.Logger
                     .LogDebug(
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            using (QueryCompilationContext.Logger.BeginScopeImpl(this))
+            using (QueryCompilationContext.Logger.BeginScope(this))
             {
                 QueryCompilationContext.Logger
                     .LogDebug(
