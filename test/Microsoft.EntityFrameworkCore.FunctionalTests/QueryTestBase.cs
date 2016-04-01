@@ -4702,6 +4702,27 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Select_Property_when_shaow_unconstrained_generic_method()
+        {
+            AssertQuery<Employee>(es =>
+                ShadowPropertySelect<Employee, string>(es, "Title"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Property_when_shaow_unconstrained_generic_method()
+        {
+            AssertQuery<Employee>(es =>
+                ShadowPropertyWhere(es, "Title", "Sales Representative"),
+                entryCount: 6);
+        }
+
+        protected IQueryable<TOut> ShadowPropertySelect<TIn, TOut>(IQueryable<TIn> source, object column)
+            => source.Select(e => EF.Property<TOut>(e, (string)column));
+
+        protected IQueryable<T> ShadowPropertyWhere<T>(IQueryable<T> source, object column, string value)
+            => source.Where(e => EF.Property<string>(e, (string)column) == value);
+
+        [ConditionalFact]
         public virtual void Where_Property_shadow_closure()
         {
             var propertyName = "Title";

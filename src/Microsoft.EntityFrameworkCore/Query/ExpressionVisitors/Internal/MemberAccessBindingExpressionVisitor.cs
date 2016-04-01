@@ -154,7 +154,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
             {
                 var newArguments
-                    = VisitAndConvert(node.Arguments, "VisitMethodCall");
+                    = VisitAndConvert(
+                        new List<Expression>
+                        {
+                            node.Arguments[0].RemoveConvert(),
+                            node.Arguments[1]
+                        }.AsReadOnly(),
+                        "VisitMethodCall");
 
                 if (newArguments[0].Type == typeof(ValueBuffer))
                 {

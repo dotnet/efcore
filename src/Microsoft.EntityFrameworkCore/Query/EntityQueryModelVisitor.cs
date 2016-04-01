@@ -1186,9 +1186,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || querySource == null
                     || querySource == querySourceReferenceExpression.ReferencedQuerySource)
                 {
+                    var entityExpression = methodCallExpression.Arguments[0];
+
+                    if ((entityExpression.NodeType == ExpressionType.Convert
+                        || entityExpression.NodeType == ExpressionType.ConvertChecked)
+                            && ((UnaryExpression)entityExpression).Type == typeof(object))
+                    {
+                        entityExpression = ((UnaryExpression)entityExpression).Operand;
+                    }
+
                     var entityType
                         = QueryCompilationContext.Model
-                            .FindEntityType(methodCallExpression.Arguments[0].Type);
+                            .FindEntityType(entityExpression.Type);
 
                     if (entityType != null)
                     {

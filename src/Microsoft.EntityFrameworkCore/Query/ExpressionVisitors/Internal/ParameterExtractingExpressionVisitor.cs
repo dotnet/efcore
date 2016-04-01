@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
                     {
-                        var parameter = newArgument as ParameterExpression;
+                        var parameter = newArgument.RemoveConvert() as ParameterExpression;
 
                         if (parameter != null)
                         {

@@ -296,6 +296,21 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void Discriminator_with_cast_in_shadow_property()
+        {
+            using (var context = CreateContext())
+            {
+                var preditors
+                    = context.Set<Animal>()
+                        .Where(b => "Kiwi" == EF.Property<string>(b, "Discriminator"))
+                        .Select(k => new { Preditor = EF.Property<string>((Bird)k, "EagleId") })
+                        .ToArray();
+
+                Assert.Equal(1, preditors.Length);
+            }
+        }
+
+        [Fact]
         public virtual void Discriminator_used_when_projection_over_of_type()
         {
             using (var context = CreateContext())
