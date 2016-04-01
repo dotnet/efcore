@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _runtimeServices = startup.ConfigureServices();
         }
 
+        public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, bool> confirmCheck)
         public virtual DbContext CreateContext([CanBeNull] string contextType)
             => CreateContext(FindContextType(contextType).Value);
 
