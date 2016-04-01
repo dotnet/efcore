@@ -64,14 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         protected virtual List<IConstantPrinter> GetConstantPrinters()
-        {
-            return new List<IConstantPrinter>
+            => new List<IConstantPrinter>
             {
                 new CollectionConstantPrinter(),
                 new MetadataPropertyPrinter(),
                 new DefaultConstantPrinter()
             };
-        }
 
         public virtual bool TrackedQuery { get; private set; }
 
@@ -199,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var variable in node.Variables)
             {
-                var variableName = "";
+                string variableName;
                 if (_parametersInScope.ContainsKey(variable))
                 {
                     variableName = _parametersInScope[variable];
@@ -511,11 +509,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return processedPlan;
         }
 
-        private void UnhandledExpressionType(ExpressionType expressionType)
-        {
-            ////throw new NotSupportedException(CoreStrings.UnhandledExpressionType(expressionType));
-            _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
-        }
+        //throw new NotSupportedException(CoreStrings.UnhandledExpressionType(expressionType));
+        private void UnhandledExpressionType(ExpressionType expressionType) 
+            => _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
 
         protected interface IConstantPrinter
         {

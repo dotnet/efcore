@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
     public class AdditionalBookDetail
     {
         public int Id { get; set; }
-        
+
         [Required]
         public virtual BookDetail BookDetail { get; set; }
     }
@@ -117,14 +116,12 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual Book Book { get; set; }
     }
 
-
     public class DataAnnotationModelInitializer
     {
         public static void Seed(DataAnnotationContext context)
         {
             context.Ones.Add(new One { RequiredColumn = "First", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
             context.Ones.Add(new One { RequiredColumn = "Second", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
-
 
             context.Twos.Add(new Two { Data = "First" });
             context.Twos.Add(new Two { Data = "Second" });

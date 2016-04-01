@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                         property, 2000,
                         l => new RelationalSizedTypeMapping("just_binary(" + l + ")", typeof(string), unicode: true, size: l),
                         _unboundedBinary, _binary, _binaryKey, _rowversion)
-                    : base.FindCustomMapping(property);
+                    : base.FindCustomMapping(property, unicode);
         }
     }
 }

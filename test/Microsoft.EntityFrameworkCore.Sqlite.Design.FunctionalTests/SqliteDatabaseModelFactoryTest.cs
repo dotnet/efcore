@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
     {
         private readonly SqliteTestStore _testStore;
         private readonly SqliteDatabaseModelFactory _factory;
-        private readonly TestLogger _logger;
 
         public SqliteDatabaseModelFactoryTest()
         {
@@ -28,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
                 .ConfigureDesignTimeServices(new ServiceCollection().AddLogging())
                 .BuildServiceProvider();
 
-            _logger = new TestLogger();
-            serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
+            var logger = new TestLogger();
+            serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(logger));
 
             _factory = serviceProvider
                 .GetService<IDatabaseModelFactory>() as SqliteDatabaseModelFactory;

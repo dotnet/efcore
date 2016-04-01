@@ -30,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static readonly MethodInfo _resultMethodInfo
             = typeof(TaskBlockingExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_Result));
+                .GetDeclaredMethod(nameof(Result));
 
         [UsedImplicitly]
-        private static T _Result<T>(Task<T> task) => task.GetAwaiter().GetResult();
+        private static T Result<T>(Task<T> task) => task.GetAwaiter().GetResult();
     }
 }

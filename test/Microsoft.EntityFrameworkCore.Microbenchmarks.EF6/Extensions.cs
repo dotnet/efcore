@@ -32,19 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6
         }
 
         public static IQueryable<TEntity> ApplyTracking<TEntity>(this IQueryable<TEntity> query, bool tracking)
-            where TEntity : class
-        {
-            return tracking
+            where TEntity : class => tracking
                 ? query
                 : query.AsNoTracking();
-        }
 
         public static DbSqlQuery<TEntity> ApplyTracking<TEntity>(this DbSqlQuery<TEntity> query, bool tracking)
-            where TEntity : class
-        {
-            return tracking
+            where TEntity : class => tracking
                 ? query
                 : query.AsNoTracking();
-        }
     }
 }

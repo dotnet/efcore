@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,13 +10,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class MappingQuerySqliteFixture : MappingQueryFixtureBase
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testDatabase;
 
         public MappingQuerySqliteFixture()
         {
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
@@ -29,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                 .UseSqlite(
                     _testDatabase.ConnectionString,
                     b => b.SuppressForeignKeyEnforcement())
-                .UseInternalServiceProvider(_serviceProvider)
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
         }
 

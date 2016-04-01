@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests

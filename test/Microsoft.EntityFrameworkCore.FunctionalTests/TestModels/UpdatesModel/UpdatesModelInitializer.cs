@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.UpdatesModel
             var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
             context.Add(new Category { Id = 78, PrincipalId = 778 });
-            context.Add(new Product { Id = productId1, Name = "Apple Cider", Price = 1.49M});
+            context.Add(new Product { Id = productId1, Name = "Apple Cider", Price = 1.49M });
             context.Add(new Product { Id = productId2, Name = "Apple Cobler", Price = 2.49M });
 
             context.SaveChanges();

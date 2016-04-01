@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNaviga
 
             context.SaveChanges();
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 var language = new ComplexNavigationLanguage { Name = "Language" + i, CultureString = "Foo" + i };
 
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNaviga
 
             context.SaveChanges();
 
-            int ii = 0;
+            var ii = 0;
             foreach (var l in context.Languages)
             {
                 var globalization = new ComplexNavigationGlobalization { Text = "Globalization" + ii, Language = l };
@@ -296,15 +296,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNaviga
             var mls3 = new ComplexNavigationString { DefaultText = "MLS3", Globalizations = globalizations.Skip(6).Take(3).ToList() };
             var mls4 = new ComplexNavigationString { DefaultText = "MLS4", Globalizations = globalizations.Skip(9).ToList() };
 
-            context.MultilingualStrings.AddRange(new[] { mls1, mls2, mls3, mls4 });
+            context.MultilingualStrings.AddRange(mls1, mls2, mls3, mls4);
             context.SaveChanges();
 
             var field1 = new ComplexNavigationField { Name = "Field1", Label = mls1, Placeholder = null };
             var field2 = new ComplexNavigationField { Name = "Field2", Label = mls3, Placeholder = mls4 };
 
-            context.Fields.AddRange(new[] { field1, field2 });
+            context.Fields.AddRange(field1, field2);
             context.SaveChanges();
         }
     }
 }
-

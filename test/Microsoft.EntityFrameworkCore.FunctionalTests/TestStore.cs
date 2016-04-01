@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         private static readonly ConcurrentDictionary<string, object> _creationLocks
             = new ConcurrentDictionary<string, object>();
 
-        private static object _hashSetLock = new object();
+        private static readonly object _hashSetLock = new object();
 
         protected virtual void CreateShared(string name, Action initializeDatabase)
         {

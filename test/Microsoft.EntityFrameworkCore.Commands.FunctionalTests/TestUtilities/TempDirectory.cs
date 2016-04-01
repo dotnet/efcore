@@ -17,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 
         public string Path { get; }
 
-        public void Dispose()
-        {
-            Directory.Delete(Path, recursive: true);
-        }
+        public void Dispose() 
+            => Directory.Delete(Path, recursive: true);
     }
 }

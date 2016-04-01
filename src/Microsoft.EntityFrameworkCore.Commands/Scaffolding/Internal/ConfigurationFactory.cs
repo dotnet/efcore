@@ -37,10 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public virtual CustomConfiguration CreateCustomConfiguration(
             [NotNull] string connectionString, [CanBeNull] string contextClassName,
             [NotNull] string @namespace, bool useFluentApiOnly)
-        {
-            return new CustomConfiguration(connectionString,
+            => new CustomConfiguration(connectionString,
                 contextClassName, @namespace, useFluentApiOnly);
-        }
 
         public virtual OptionsBuilderConfiguration CreateOptionsBuilderConfiguration(
             [NotNull] ICollection<string> methodBodyLines)

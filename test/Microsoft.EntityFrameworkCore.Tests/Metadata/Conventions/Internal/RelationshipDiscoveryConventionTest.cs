@@ -881,12 +881,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             public OneToManyDependent WriteOnly
             {
+                // ReSharper disable once ValueParameterNotUsed
                 set { }
             }
 
             public OneToManyDependent this[int index]
             {
                 get { return null; }
+                // ReSharper disable once ValueParameterNotUsed
                 set { }
             }
 

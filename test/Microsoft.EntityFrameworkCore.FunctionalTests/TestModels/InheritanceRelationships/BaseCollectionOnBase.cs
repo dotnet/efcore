@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
     {
         [NotMapped]
         public int Id { get; set; }
+
         public string Name { get; set; }
 
         public int? BaseParentId { get; set; }
@@ -17,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
 
         [NotMapped]
         public NestedReferenceBase NestedReference { get; set; }
+
         [NotMapped]
         public List<NestedCollectionBase> NestedCollection { get; set; }
     }

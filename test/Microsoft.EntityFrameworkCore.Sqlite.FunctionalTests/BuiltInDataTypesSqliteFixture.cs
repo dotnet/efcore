@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testStore;
 
@@ -17,14 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
                 .UseSqlite(_testStore.Connection)
-                .UseInternalServiceProvider(_serviceProvider)
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new DbContext(_options))

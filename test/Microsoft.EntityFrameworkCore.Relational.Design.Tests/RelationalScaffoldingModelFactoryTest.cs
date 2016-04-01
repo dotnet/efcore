@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     {
                         Assert.Equal("E F", ef1.Relational().TableName);
                         Assert.Equal("E_F", ef1.Name);
-                        Assert.Collection(ef1.GetProperties().OfType<Property>(),
+                        Assert.Collection(ef1.GetProperties(),
                             id => { Assert.Equal("Id", id.Name); },
                             s1 =>
                                 {
@@ -733,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     {
                         Assert.Equal("E_F", ef2.Relational().TableName);
                         Assert.Equal("E_F1", ef2.Name);
-                        var id = Assert.Single(ef2.GetProperties().OfType<Property>());
+                        var id = Assert.Single(ef2.GetProperties());
                         Assert.Equal("Id", id.Name);
                         Assert.Equal("Id", id.Relational().ColumnName);
                     });
@@ -780,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
 
     public class FakeDatabaseModelFactory : IDatabaseModelFactory
     {
-        public virtual DatabaseModel Create([NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
         {
             throw new NotImplementedException();
         }

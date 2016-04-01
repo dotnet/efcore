@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
             get
             {
                 var value = _index[SqlServerDatabaseModelAnnotationNames.IsClustered];
-                return value is bool ? (bool)value : false;
+                return value is bool && (bool)value;
             }
             [param: NotNull] set { _index[SqlServerDatabaseModelAnnotationNames.IsClustered] = value; }
         }

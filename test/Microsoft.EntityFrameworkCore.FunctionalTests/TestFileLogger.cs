@@ -14,10 +14,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         private class TestFileLoggerFactory : ILoggerFactory
         {
-            public ILogger CreateLogger(string name)
-            {
-                return Instance;
-            }
+            public ILogger CreateLogger(string name) => Instance;
 
             public void AddProvider(ILoggerProvider provider)
             {
@@ -48,34 +45,25 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public void Log<TState>(
             LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (formatter != null)
-            {
-                var message = formatter(state, exception);
+            var message = formatter?.Invoke(state, exception);
 
-                if (!string.IsNullOrWhiteSpace(message))
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                lock (_logFilePath)
                 {
-                    lock (_logFilePath)
-                    {
-                        File.AppendAllText(_logFilePath, message + Environment.NewLine);
-                    }
+                    File.AppendAllText(_logFilePath, message + Environment.NewLine);
                 }
             }
         }
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return true;
-        }
+        public bool IsEnabled(LogLevel logLevel) => true;
 
         public IDisposable BeginScope(object state)
         {
             throw new NotImplementedException();
         }
 
-        public IDisposable BeginScopeImpl(object state)
-        {
-            return NullScope.Instance;
-        }
+        public IDisposable BeginScopeImpl(object state) => NullScope.Instance;
     }
 
     public class NullScope : IDisposable

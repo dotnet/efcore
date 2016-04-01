@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         public override Task<ReverseEngineerFiles> WriteCodeAsync(
-            [NotNull] ModelConfiguration modelConfiguration,
-            [NotNull] string outputPath,
-            [NotNull] string dbContextClassName,
+            ModelConfiguration modelConfiguration, 
+            string outputPath, 
+            string dbContextClassName,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(modelConfiguration, nameof(modelConfiguration));

@@ -137,10 +137,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected AsyncFromSqlSprocQueryTestBase(TFixture fixture)
         {

@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
     {
         [NotMapped]
         public int Id { get; set; }
+
         public string Name { get; set; }
 
         [NotMapped]
@@ -17,15 +18,19 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
 
         [NotMapped]
         public BaseReferenceOnBase BaseReferenceOnBase { get; set; }
+
         [NotMapped]
         public DerivedReferenceOnBase DerivedReferenceOnBase { get; set; }
+
         [NotMapped]
         public ReferenceOnBase ReferenceOnBase { get; set; }
 
         [NotMapped]
         public List<BaseCollectionOnBase> BaseCollectionOnBase { get; set; }
+
         [NotMapped]
         public List<DerivedCollectionOnBase> DerivedCollectionOnBase { get; set; }
+
         [NotMapped]
         public List<CollectionOnBase> CollectionOnBase { get; set; }
     }

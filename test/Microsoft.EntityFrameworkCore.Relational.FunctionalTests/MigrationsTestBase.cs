@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
     {
         private readonly TFixture _fixture;
 
-        public MigrationsTestBase(TFixture fixture)
+        protected MigrationsTestBase(TFixture fixture)
         {
             _fixture = fixture;
         }

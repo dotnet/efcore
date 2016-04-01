@@ -13,17 +13,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class NavigationFixer : INavigationFixer
     {
-        private readonly IModel _model;
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
         private bool _inFixup;
 
         public NavigationFixer(
-            [NotNull] IModel model,
             [NotNull] IChangeDetector changeDetector,
             [NotNull] IEntityGraphAttacher attacher)
         {
-            _model = model;
             _changeDetector = changeDetector;
             _attacher = attacher;
         }

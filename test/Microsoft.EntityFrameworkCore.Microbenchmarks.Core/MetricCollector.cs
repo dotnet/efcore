@@ -76,10 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 _collector = collector;
             }
 
-            public void Dispose()
-            {
-                _collector.StopCollection();
-            }
+            public void Dispose() => _collector.StopCollection();
         }
     }
 }

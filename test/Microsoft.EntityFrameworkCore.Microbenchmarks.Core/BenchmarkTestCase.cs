@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
             object[] constructorArguments,
             ExceptionAggregator aggregator,
             CancellationTokenSource cancellationTokenSource)
-        {
-            return new BenchmarkTestCaseRunner(
+            => new BenchmarkTestCaseRunner(
                 this,
                 DisplayName,
                 SkipReason,
@@ -45,6 +44,5 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 aggregator,
                 cancellationTokenSource,
                 DiagnosticMessageSink).RunAsync();
-        }
     }
 }

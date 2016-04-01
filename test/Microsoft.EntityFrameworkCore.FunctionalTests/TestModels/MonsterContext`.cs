@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
 {
@@ -54,160 +52,67 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
             _onModelCreating = onModelCreating;
         }
 
-        public override IQueryable<ICustomer> Customers
-        {
-            get { return Set<TCustomer>(); }
-        }
+        public override IQueryable<ICustomer> Customers => Set<TCustomer>();
 
-        public override IQueryable<IBarcode> Barcodes
-        {
-            get { return Set<TBarcode>(); }
-        }
+        public override IQueryable<IBarcode> Barcodes => Set<TBarcode>();
 
-        public override IQueryable<IIncorrectScan> IncorrectScans
-        {
-            get { return Set<TIncorrectScan>(); }
-        }
+        public override IQueryable<IIncorrectScan> IncorrectScans => Set<TIncorrectScan>();
 
-        public override IQueryable<IBarcodeDetail> BarcodeDetails
-        {
-            get { return Set<TBarcodeDetail>(); }
-        }
+        public override IQueryable<IBarcodeDetail> BarcodeDetails => Set<TBarcodeDetail>();
 
-        public override IQueryable<IComplaint> Complaints
-        {
-            get { return Set<TComplaint>(); }
-        }
+        public override IQueryable<IComplaint> Complaints => Set<TComplaint>();
 
-        public override IQueryable<IResolution> Resolutions
-        {
-            get { return Set<TResolution>(); }
-        }
+        public override IQueryable<IResolution> Resolutions => Set<TResolution>();
 
-        public override IQueryable<ILogin> Logins
-        {
-            get { return Set<TLogin>(); }
-        }
+        public override IQueryable<ILogin> Logins => Set<TLogin>();
 
-        public override IQueryable<ISuspiciousActivity> SuspiciousActivities
-        {
-            get { return Set<TSuspiciousActivity>(); }
-        }
+        public override IQueryable<ISuspiciousActivity> SuspiciousActivities => Set<TSuspiciousActivity>();
 
-        public override IQueryable<ISmartCard> SmartCards
-        {
-            get { return Set<TSmartCard>(); }
-        }
+        public override IQueryable<ISmartCard> SmartCards => Set<TSmartCard>();
 
-        public override IQueryable<IRsaToken> RsaTokens
-        {
-            get { return Set<TRsaToken>(); }
-        }
+        public override IQueryable<IRsaToken> RsaTokens => Set<TRsaToken>();
 
-        public override IQueryable<IPasswordReset> PasswordResets
-        {
-            get { return Set<TPasswordReset>(); }
-        }
+        public override IQueryable<IPasswordReset> PasswordResets => Set<TPasswordReset>();
 
-        public override IQueryable<IPageView> PageViews
-        {
-            get { return Set<TPageView>(); }
-        }
+        public override IQueryable<IPageView> PageViews => Set<TPageView>();
 
-        public override IQueryable<ILastLogin> LastLogins
-        {
-            get { return Set<TLastLogin>(); }
-        }
+        public override IQueryable<ILastLogin> LastLogins => Set<TLastLogin>();
 
-        public override IQueryable<IMessage> Messages
-        {
-            get { return Set<TMessage>(); }
-        }
+        public override IQueryable<IMessage> Messages => Set<TMessage>();
 
-        public override IQueryable<IAnOrder> Orders
-        {
-            get { return Set<TAnOrder>(); }
-        }
+        public override IQueryable<IAnOrder> Orders => Set<TAnOrder>();
 
-        public override IQueryable<IOrderNote> OrderNotes
-        {
-            get { return Set<TOrderNote>(); }
-        }
+        public override IQueryable<IOrderNote> OrderNotes => Set<TOrderNote>();
 
-        public override IQueryable<IOrderQualityCheck> OrderQualityChecks
-        {
-            get { return Set<TOrderQualityCheck>(); }
-        }
+        public override IQueryable<IOrderQualityCheck> OrderQualityChecks => Set<TOrderQualityCheck>();
 
-        public override IQueryable<IOrderLine> OrderLines
-        {
-            get { return Set<TOrderLine>(); }
-        }
+        public override IQueryable<IOrderLine> OrderLines => Set<TOrderLine>();
 
-        public override IQueryable<IProduct> Products
-        {
-            get { return Set<TProduct>(); }
-        }
+        public override IQueryable<IProduct> Products => Set<TProduct>();
 
-        public override IQueryable<IProductDetail> ProductDetails
-        {
-            get { return Set<TProductDetail>(); }
-        }
+        public override IQueryable<IProductDetail> ProductDetails => Set<TProductDetail>();
 
-        public override IQueryable<IProductReview> ProductReviews
-        {
-            get { return Set<TProductReview>(); }
-        }
+        public override IQueryable<IProductReview> ProductReviews => Set<TProductReview>();
 
-        public override IQueryable<IProductPhoto> ProductPhotos
-        {
-            get { return Set<TProductPhoto>(); }
-        }
+        public override IQueryable<IProductPhoto> ProductPhotos => Set<TProductPhoto>();
 
-        public override IQueryable<IProductWebFeature> ProductWebFeatures
-        {
-            get { return Set<TProductWebFeature>(); }
-        }
+        public override IQueryable<IProductWebFeature> ProductWebFeatures => Set<TProductWebFeature>();
 
-        public override IQueryable<ISupplier> Suppliers
-        {
-            get { return Set<TSupplier>(); }
-        }
+        public override IQueryable<ISupplier> Suppliers => Set<TSupplier>();
 
-        public override IQueryable<ISupplierLogo> SupplierLogos
-        {
-            get { return Set<TSupplierLogo>(); }
-        }
+        public override IQueryable<ISupplierLogo> SupplierLogos => Set<TSupplierLogo>();
 
-        public override IQueryable<ISupplierInfo> SupplierInformation
-        {
-            get { return Set<TSupplierInfo>(); }
-        }
+        public override IQueryable<ISupplierInfo> SupplierInformation => Set<TSupplierInfo>();
 
-        public override IQueryable<ICustomerInfo> CustomerInformation
-        {
-            get { return Set<TCustomerInfo>(); }
-        }
+        public override IQueryable<ICustomerInfo> CustomerInformation => Set<TCustomerInfo>();
 
-        public override IQueryable<IComputer> Computers
-        {
-            get { return Set<TComputer>(); }
-        }
+        public override IQueryable<IComputer> Computers => Set<TComputer>();
 
-        public override IQueryable<IComputerDetail> ComputerDetails
-        {
-            get { return Set<TComputerDetail>(); }
-        }
+        public override IQueryable<IComputerDetail> ComputerDetails => Set<TComputerDetail>();
 
-        public override IQueryable<IDriver> Drivers
-        {
-            get { return Set<TDriver>(); }
-        }
+        public override IQueryable<IDriver> Drivers => Set<TDriver>();
 
-        public override IQueryable<ILicense> Licenses
-        {
-            get { return Set<TLicense>(); }
-        }
+        public override IQueryable<ILicense> Licenses => Set<TLicense>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

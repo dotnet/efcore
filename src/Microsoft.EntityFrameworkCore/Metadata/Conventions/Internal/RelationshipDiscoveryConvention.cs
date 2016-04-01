@@ -299,15 +299,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 : null;
             if (oldBaseTypeBuilder != null)
             {
-                ApplyOnRelatedEntityTypes(entityTypeBuilder.ModelBuilder, oldBaseTypeBuilder.Metadata);
+                ApplyOnRelatedEntityTypes(oldBaseTypeBuilder.Metadata);
                 Apply(oldBaseTypeBuilder);
             }
 
-            ApplyOnRelatedEntityTypes(entityTypeBuilder.ModelBuilder, entityTypeBuilder.Metadata);
+            ApplyOnRelatedEntityTypes(entityTypeBuilder.Metadata);
             return Apply(entityTypeBuilder) != null;
         }
 
-        private void ApplyOnRelatedEntityTypes(InternalModelBuilder modelBuilder, EntityType entityType)
+        private void ApplyOnRelatedEntityTypes(EntityType entityType)
         {
             var relatedEntityTypes = entityType.GetReferencingForeignKeys().Select(fk => fk.DeclaringEntityType)
                 .Concat(entityType.GetForeignKeys().Select(fk => fk.PrincipalEntityType))

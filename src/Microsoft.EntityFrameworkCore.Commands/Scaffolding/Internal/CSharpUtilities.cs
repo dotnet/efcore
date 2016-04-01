@@ -130,56 +130,36 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         public virtual string GenerateLiteral(bool value)
-        {
-            return value ? "true" : "false";
-        }
+            => value ? "true" : "false";
 
         public virtual string GenerateLiteral(int value)
-        {
-            return value.ToString(CultureInfo.InvariantCulture);
-        }
+            => value.ToString(CultureInfo.InvariantCulture);
 
         public virtual string GenerateLiteral(long value)
-        {
-            return value.ToString(CultureInfo.InvariantCulture) + "L";
-        }
+            => value.ToString(CultureInfo.InvariantCulture) + "L";
 
         public virtual string GenerateLiteral(decimal value)
-        {
-            return value.ToString(CultureInfo.InvariantCulture) + "m";
-        }
+            => value.ToString(CultureInfo.InvariantCulture) + "m";
 
         public virtual string GenerateLiteral(float value)
-        {
-            return value.ToString(CultureInfo.InvariantCulture) + "f";
-        }
+            => value.ToString(CultureInfo.InvariantCulture) + "f";
 
         public virtual string GenerateLiteral(double value)
-        {
-            return value.ToString(CultureInfo.InvariantCulture) + "D";
-        }
+            => value.ToString(CultureInfo.InvariantCulture) + "D";
 
         public virtual string GenerateLiteral(TimeSpan value)
-        {
-            return "new TimeSpan(" + value.Ticks + ")";
-        }
+            => "new TimeSpan(" + value.Ticks + ")";
 
         public virtual string GenerateLiteral(DateTime value)
-        {
-            return "new DateTime(" + value.Ticks + ", DateTimeKind."
-                   + Enum.GetName(typeof(DateTimeKind), value.Kind) + ")";
-        }
+            => "new DateTime(" + value.Ticks + ", DateTimeKind."
+               + Enum.GetName(typeof(DateTimeKind), value.Kind) + ")";
 
         public virtual string GenerateLiteral(DateTimeOffset value)
-        {
-            return "new DateTimeOffset(" + value.Ticks + ", "
-                   + GenerateLiteral(value.Offset) + ")";
-        }
+            => "new DateTimeOffset(" + value.Ticks + ", "
+               + GenerateLiteral(value.Offset) + ")";
 
         public virtual string GenerateLiteral(Guid value)
-        {
-            return "new Guid(" + GenerateLiteral(value.ToString()) + ")";
-        }
+            => "new Guid(" + GenerateLiteral(value.ToString()) + ")";
 
         public virtual string GenerateLiteral([NotNull] string value)
         {
@@ -208,15 +188,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         public virtual bool IsCSharpKeyword([NotNull] string identifier)
-        {
-            return _cSharpKeywords.Contains(identifier);
-        }
+            => _cSharpKeywords.Contains(identifier);
 
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
-        {
-            return GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
-        }
+            => GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
 
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers,

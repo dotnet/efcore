@@ -88,10 +88,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Equal(expected, CountSqlLinesContaining("SELECT NEXT VALUE FOR"));
         }
 
-        public int CountSqlLinesContaining(string searchTerm)
-        {
-            return CountLinesContaining(Sql, searchTerm);
-        }
+        public int CountSqlLinesContaining(string searchTerm) 
+            => CountLinesContaining(Sql, searchTerm);
 
         public int CountLinesContaining(string source, string searchTerm)
         {

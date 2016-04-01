@@ -124,8 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Query
             }
 
             protected override void OnDatabaseCreated(OrdersContext context)
-            {
-                context.Database.ExecuteSqlCommand(
+                => context.Database.ExecuteSqlCommand(
                     @"CREATE PROCEDURE dbo.SearchProducts
                         @minPrice decimal(18, 2),
                         @maxPrice decimal(18, 2)
@@ -133,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Query
                     BEGIN
                         SELECT * FROM dbo.Products WHERE CurrentPrice >= @minPrice AND CurrentPrice <= @maxPrice
                     END");
-            }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEng
         public const string TestProjectPath = "testout";
         public static readonly string TestProjectFullPath = Path.GetFullPath(TestProjectPath);
 
-        public SqliteE2ETestBase(ITestOutputHelper output)
+        protected SqliteE2ETestBase(ITestOutputHelper output)
             : base(output)
         {
         }

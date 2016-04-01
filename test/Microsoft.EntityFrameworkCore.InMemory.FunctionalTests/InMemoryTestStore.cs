@@ -10,10 +10,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
     {
         private Action _deleteDatabase;
 
-        public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase)
-        {
-            return new InMemoryTestStore().CreateShared(name, initializeDatabase);
-        }
+        public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase) 
+            => new InMemoryTestStore().CreateShared(name, initializeDatabase);
 
         private new InMemoryTestStore CreateShared(string name, Action initializeDatabase)
         {

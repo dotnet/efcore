@@ -19,9 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 
         public object[] Data { get; }
 
-        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-        {
-            return new[] { Data };
-        }
+        public override IEnumerable<object[]> GetData(MethodInfo testMethod) => new[] { Data };
     }
 }

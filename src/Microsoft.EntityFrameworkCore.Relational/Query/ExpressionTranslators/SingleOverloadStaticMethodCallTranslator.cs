@@ -16,22 +16,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         private readonly string _clrMethodName;
         private readonly string _sqlFunctionName;
 
-        protected SingleOverloadStaticMethodCallTranslator([NotNull] Type declaringType, [NotNull] string clrMethodName, [NotNull] string sqlFunctionName)
+        protected SingleOverloadStaticMethodCallTranslator(
+            [NotNull] Type declaringType, 
+            [NotNull] string clrMethodName, 
+            [NotNull] string sqlFunctionName)
         {
             _declaringType = declaringType;
             _clrMethodName = clrMethodName;
             _sqlFunctionName = sqlFunctionName;
         }
 
-        public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             var methodInfo = _declaringType.GetTypeInfo().GetDeclaredMethods(_clrMethodName).SingleOrDefault();
-            if (methodInfo == methodCallExpression.Method)
-            {
-                return new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments);
-            }
-
-            return null;
+            return methodInfo == methodCallExpression.Method 
+                ? new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments) 
+                : null;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        public override string GetName([NotNull] T item)
+        public override string GetName(T item)
         {
             if (NameCache.ContainsKey(item))
             {

@@ -30,9 +30,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
             return _sharedCrossStoreFixture.CreateTestStore(testStoreType);
         }
 
-        public override CrossStoreContext CreateContext(TestStore testStore)
-        {
-            return _sharedCrossStoreFixture.CreateContext(testStore);
-        }
+        public override CrossStoreContext CreateContext(TestStore testStore) 
+            => _sharedCrossStoreFixture.CreateContext(testStore);
     }
 }

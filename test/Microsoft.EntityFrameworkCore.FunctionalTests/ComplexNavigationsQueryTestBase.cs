@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
-using System.Collections.Generic;
+
 // ReSharper disable MergeConditionalExpression
 // ReSharper disable ReplaceWithSingleCallToSingle
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
@@ -186,10 +187,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = context.Fields
-                   .Include(x => x.Label.Globalizations)
-                   .ThenInclude(x => x.Language)
-                   .Include(x => x.Placeholder.Globalizations)
-                   .ThenInclude(x => x.Language);
+                    .Include(x => x.Label.Globalizations)
+                    .ThenInclude(x => x.Language)
+                    .Include(x => x.Placeholder.Globalizations)
+                    .ThenInclude(x => x.Language);
 
                 var result = query.ToList();
 
@@ -649,9 +650,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var query = context.LevelOne
                     .Include(e => e.OneToOne_Optional_FK)
-                        .ThenInclude(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional)
                     .Include(e => e.OneToMany_Optional)
-                        .ThenInclude(e => e.OneToOne_Optional_FK);
+                    .ThenInclude(e => e.OneToOne_Optional_FK);
 
                 var result = query.ToList();
 
@@ -690,9 +691,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var query = context.LevelOne
                     .Include(e => e.OneToOne_Optional_Self)
-                        .ThenInclude(e => e.OneToMany_Optional_Self)
+                    .ThenInclude(e => e.OneToMany_Optional_Self)
                     .Include(e => e.OneToMany_Optional_Self)
-                        .ThenInclude(e => e.OneToOne_Optional_Self);
+                    .ThenInclude(e => e.OneToOne_Optional_Self);
 
                 var result = query.ToList();
 
@@ -730,10 +731,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var query = context.LevelOne
                     .Select(e => e)
                     .Include(e => e.OneToOne_Optional_FK)
-                        .ThenInclude(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional)
                     .Select(e => e)
                     .Include(e => e.OneToMany_Optional)
-                        .ThenInclude(e => e.OneToOne_Optional_FK);
+                    .ThenInclude(e => e.OneToOne_Optional_FK);
 
                 var result = query.ToList();
 
@@ -1350,7 +1351,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 expected = context.LevelOne
                     .Include(e => e.OneToOne_Optional_FK.OneToOne_Required_FK)
                     .ToList()
-                    .Select(e => (int?)e.OneToOne_Optional_FK?.OneToOne_Required_FK?.Id).ToList();
+                    .Select(e => e.OneToOne_Optional_FK?.OneToOne_Required_FK?.Id).ToList();
             }
 
             ClearLog();
@@ -1576,9 +1577,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 expected = (from l1 in context.LevelOne
-                                .Include(e => e.OneToOne_Optional_FK)
-                                .Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK)
-                                .ToList()
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK)
+                    .ToList()
                             where l1.OneToOne_Optional_FK?.Name != "L2 05" || l1.OneToOne_Required_FK.OneToOne_Optional_FK?.Name == "L3 05"
                             select l1?.Id).ToList();
             }
@@ -1615,10 +1616,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                         e.OneToOne_Required_FK.OneToOne_Required_FK.Id == e.OneToOne_Required_FK.OneToOne_Optional_FK?.Id
                         && e.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id != 7)
                     .Select(e => new KeyValuePair<string, int?>
-                    (
+                        (
                         e.Name,
                         e.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id
-                    )).ToList();
+                        )).ToList();
             }
 
             ClearLog();
@@ -1626,11 +1627,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = context.LevelOne.Where(e =>
-                        e.OneToOne_Required_FK.OneToOne_Required_FK == e.OneToOne_Required_FK.OneToOne_Optional_FK
-                        && e.OneToOne_Required_FK.OneToOne_Optional_FK.Id != 7)
+                    e.OneToOne_Required_FK.OneToOne_Required_FK == e.OneToOne_Required_FK.OneToOne_Optional_FK
+                    && e.OneToOne_Required_FK.OneToOne_Optional_FK.Id != 7)
                     .Select(e => new
                     {
-                        Name = e.Name,
+                        e.Name,
                         Id = (int?)e.OneToOne_Required_FK.OneToOne_Optional_FK.Id
                     });
 
@@ -1863,8 +1864,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 expected = (from l1 in context.LevelOne
-                                .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
-                                .ThenInclude(e => e.OneToOne_Required_FK).ToList()
+                    .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
+                    .ThenInclude(e => e.OneToOne_Required_FK).ToList()
                             where l1.OneToOne_Optional_FK?.Name != "L2 09"
                             select l1).ToList();
             }
@@ -1874,8 +1875,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = from l1 in context.LevelOne
-                                .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
-                                .ThenInclude(e => e.OneToOne_Required_FK)
+                    .Include(e => e.OneToOne_Optional_FK.OneToMany_Required)
+                    .ThenInclude(e => e.OneToOne_Required_FK)
                             where l1.OneToOne_Optional_FK.Name != "L2 09"
                             select l1;
 
@@ -1910,13 +1911,13 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 expected = (from l1 in context.LevelOne
-                                .Include(e => e.OneToMany_Optional)
-                                .ThenInclude(e => e.OneToOne_Optional_FK)
-                                .ToList()
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToOne_Optional_FK)
+                    .ToList()
                             join l2 in context.LevelTwo
                                 .Include(e => e.OneToOne_Required_PK)
                                 .ToList()
-                            on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
+                                on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
                             where l1.Name != "L1 03" || l1.Name == null
                             select new KeyValuePair<Level1, IEnumerable<Level2>>(l1, grouping)).ToList();
             }
@@ -1926,10 +1927,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = (from l1 in context.LevelOne
-                                 .Include(e => e.OneToMany_Optional)
-                                 .ThenInclude(e => e.OneToOne_Optional_FK)
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToOne_Optional_FK)
                              join l2 in context.LevelTwo.Include(e => e.OneToOne_Required_PK)
-                             on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
+                                 on (int?)l1.Id equals (l2 != null ? l2.Level1_Optional_Id : null) into grouping
                              where l1.Name != "L1 03"
                              select new { l1, grouping }).Skip(1).Take(5);
 
@@ -1946,7 +1947,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     Assert.Equal(expectedOneToManyOptional?.Count, actualOneToManyOptional?.Count);
                     if (expectedOneToManyOptional != null)
                     {
-                        for (int j = 0; j < expectedOneToManyOptional.Count; j++)
+                        for (var j = 0; j < expectedOneToManyOptional.Count; j++)
                         {
                             Assert.Equal(expectedOneToManyOptional[j].OneToOne_Optional_FK.Id, actualOneToManyOptional[j].OneToOne_Optional_FK.Id);
                         }
@@ -1957,7 +1958,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     Assert.Equal(expectedGrouping?.Count(), result[i].grouping?.Count());
                     if (expectedGrouping != null)
                     {
-                        for (int j = 0; j < expectedGrouping.Count(); j++)
+                        for (var j = 0; j < expectedGrouping.Count(); j++)
                         {
                             Assert.Equal(expectedGrouping[j].Id, actualGrouping[j].Id);
                             Assert.Equal(expectedGrouping[j].OneToOne_Required_PK.Id, actualGrouping[j].OneToOne_Required_PK.Id);
@@ -1990,21 +1991,21 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var query = from e3 in context.LevelThree
                             join e1 in context.LevelOne
-                            on
+                                on
                                 (int?)e3.Id
-                            equals
+                                equals
                                 (
                                     from subQuery2 in context.LevelTwo
                                     join subQuery3 in context.LevelThree
-                                    on
+                                        on
                                         subQuery2 != null ? (int?)subQuery2.Id : null
-                                    equals
+                                        equals
                                         subQuery3.Level2_Optional_Id
-                                    into
+                                        into
                                         grouping
                                     from subQuery3 in grouping.DefaultIfEmpty()
                                     select subQuery3 != null ? (int?)subQuery3.Id : null
-                                ).FirstOrDefault()
+                                    ).FirstOrDefault()
                             select e1.Id;
 
                 var result = query.ToList();
@@ -2014,7 +2015,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void SelectMany_navigation_property()
         {
-            var expected = new List<int>();
+            List<int> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne
@@ -2043,7 +2044,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void SelectMany_navigation_property_and_projection()
         {
-            var expected = new List<string>();
+            List<string> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne
@@ -2072,7 +2073,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void SelectMany_navigation_property_and_filter_before()
         {
-            var expected = new List<int>();
+            List<int> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne
@@ -2104,7 +2105,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void SelectMany_navigation_property_and_filter_after()
         {
-            var expected = new List<int>();
+            List<int> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne
@@ -2136,7 +2137,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void SelectMany_nested_navigation_property_required()
         {
-            var expected = new List<int>();
+            List<int> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne
@@ -2165,7 +2166,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void SelectMany_nested_navigation_property_optional_and_projection()
         {
-            var expected = new List<string>();
+            List<string> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne
@@ -2195,7 +2196,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void Multiple_SelectMany_calls()
         {
-            var expected = new List<string>();
+            List<string> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne
@@ -2225,7 +2226,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void SelectMany_navigation_property_with_another_navigation_in_subquery()
         {
-            var expected = new List<string>();
+            List<string> expected;
             using (var context = CreateContext())
             {
                 expected = context.LevelOne

@@ -161,8 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         // Failed to break the cycle
                         var currentCycleVertex = predecessorCounts.First().Key;
-                        var cycle = new List<TVertex>();
-                        cycle.Add(currentCycleVertex);
+                        var cycle = new List<TVertex> { currentCycleVertex };
                         var finished = false;
                         while (!finished)
                         {
@@ -271,8 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 // TODO: Support cycle-breaking?
 
                 var currentCycleVertex = predecessorCounts.First(p => p.Value != 0).Key;
-                var cyclicWalk = new List<TVertex>();
-                cyclicWalk.Add(currentCycleVertex);
+                var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)
                 {
@@ -334,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public override IEnumerable<TVertex> Vertices => _vertices;
 
-        public override IEnumerable<TVertex> GetOutgoingNeighbours([NotNull] TVertex from)
+        public override IEnumerable<TVertex> GetOutgoingNeighbours(TVertex from)
         {
             Dictionary<TVertex, List<TEdge>> successorSet;
 
@@ -343,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 : Enumerable.Empty<TVertex>();
         }
 
-        public override IEnumerable<TVertex> GetIncomingNeighbours([NotNull] TVertex to)
+        public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)
             => _successorMap.Where(kvp => kvp.Value.ContainsKey(to)).Select(kvp => kvp.Key);
     }
 }

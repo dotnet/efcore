@@ -87,10 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                     .BuildServiceProvider();
             }
 
-            public override OrdersContext CreateContext()
-            {
-                return new OrdersContext(_noQueryCacheServiceProvider, ConnectionString);
-            }
+            public override OrdersContext CreateContext() 
+                => new OrdersContext(_noQueryCacheServiceProvider, ConnectionString);
 
             private class NonCachingMemoryCache : IMemoryCache
             {
@@ -100,10 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                     return false;
                 }
 
-                public ICacheEntry CreateEntry(object key)
-                {
-                    return null;
-                }
+                public ICacheEntry CreateEntry(object key) => null;
 
                 public void Remove(object key)
                 {

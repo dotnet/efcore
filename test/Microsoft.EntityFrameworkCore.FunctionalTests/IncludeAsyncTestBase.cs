@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal(455 + 466, context.ChangeTracker.Entries().Count());
             }
         }
-        
+
         [Fact]
         public virtual async Task Include_collection_on_additional_from_clause_no_tracking()
         {
@@ -196,8 +196,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var customers
                     = await (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                       from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
-                       select c2)
+                             from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
+                             select c2)
                         .ToListAsync();
 
                 Assert.Equal(455, customers.Count);
@@ -291,9 +291,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var customers
                     = await (from c in context.Set<Customer>().Include(c => c.Orders)
-                       join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
+                             join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
+                             where c.CustomerID == "ALFKI"
+                             select new { c, g })
                         .ToListAsync();
 
                 Assert.Equal(1, customers.Count);
@@ -311,10 +311,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var customers
                     = await (from c in context.Set<Customer>()
-                       join o in context.Set<Order>().Include(o => o.OrderDetails) 
-                        on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
+                             join o in context.Set<Order>().Include(o => o.OrderDetails)
+                                 on c.CustomerID equals o.CustomerID into g
+                             where c.CustomerID == "ALFKI"
+                             select new { c, g })
                         .ToListAsync();
 
                 Assert.Equal(1, customers.Count);
@@ -332,8 +332,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var customers
                     = await (from c in context.Set<Customer>().Include(c => c.Orders)
-                       where c.CustomerID == "ALFKI"
-                       group c by c.City)
+                             where c.CustomerID == "ALFKI"
+                             group c by c.City)
                         .ToListAsync();
 
                 Assert.Equal(1, customers.Count);

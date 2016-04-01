@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         private readonly DbContext _firstContext;
         private readonly DbContext _secondContext;
 
-        public EntityFrameworkServiceCollectionExtensionsTest(TestHelpers testHelpers)
+        protected EntityFrameworkServiceCollectionExtensionsTest(TestHelpers testHelpers)
         {
             _testHelpers = testHelpers;
 

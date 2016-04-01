@@ -27,10 +27,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        protected F1Context CreateF1Context()
-        {
-            return Fixture.CreateContext(TestStore);
-        }
+        protected F1Context CreateF1Context() => Fixture.CreateContext(TestStore);
 
         protected PropertyEntryTestBase(TFixture fixture)
         {
@@ -43,9 +40,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         protected TTestStore TestStore { get; }
 
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
+        public void Dispose() => TestStore.Dispose();
     }
 }

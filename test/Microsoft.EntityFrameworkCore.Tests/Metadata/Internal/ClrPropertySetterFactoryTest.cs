@@ -195,14 +195,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(ConcreteEntity1));
             var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.NoSetterProperty)));
-            var entity = new ConcreteEntity1();
+            // ReSharper disable once NotAccessedVariable
+            var _ = new ConcreteEntity1();
 
             Assert.Throws<InvalidOperationException>(() =>
                 new ClrPropertySetterFactory().Create(property));
 
             entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
             property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.NoSetterProperty)));
-            entity = new ConcreteEntity2();
+            // ReSharper disable once RedundantAssignment
+            _ = new ConcreteEntity2();
 
             Assert.Throws<InvalidOperationException>(() =>
                 new ClrPropertySetterFactory().Create(property));
@@ -233,18 +235,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class ConcreteEntity2 : ConcreteEntity1
         {
-            public override int VirtualPrivateProperty_Override
-            {
-                get { return base.VirtualPrivateProperty_Override; }
-            }
+            // ReSharper disable once RedundantOverridenMember
+            public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
         }
 
         private class ConcreteEntity1 : BaseEntity
         {
-            public override int VirtualPrivateProperty_Override
-            {
-                get { return base.VirtualPrivateProperty_Override; }
-            }
+            // ReSharper disable once RedundantOverridenMember
+            public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
         }
 
         private class BaseEntity

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     It uses the same heuristics from
         ///     <see href="https://www.sqlite.org/datatype3.html">"2.1 Determination of Column Affinity"</see>
         /// </summary>
-        public override RelationalTypeMapping FindMapping([NotNull] string typeName)
+        public override RelationalTypeMapping FindMapping(string typeName)
         {
             Check.NotNull(typeName, nameof(typeName));
 
@@ -68,10 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 return _default;
             }
 
-            RelationalTypeMapping mapping;
             foreach (var rules in _typeRules)
             {
-                mapping = rules(typeName);
+                var mapping = rules(typeName);
                 if (mapping != null)
                 {
                     return mapping;

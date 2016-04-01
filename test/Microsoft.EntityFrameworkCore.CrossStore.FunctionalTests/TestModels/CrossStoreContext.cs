@@ -26,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels
                     });
         }
 
-        public static void RemoveAllEntities(CrossStoreContext context)
-        {
-            context.SimpleEntities.RemoveRange(context.SimpleEntities);
-        }
+        public static void RemoveAllEntities(CrossStoreContext context) 
+            => context.SimpleEntities.RemoveRange(context.SimpleEntities);
     }
 }

@@ -56,9 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 Materializer)
                 .SetOffset(offset);
 
-        public override string ToString()
-        {
-            return "UnbufferedEntityShaper<" + typeof(TEntity).Name + ">";
-        }
+        public override string ToString() => "UnbufferedEntityShaper<" + typeof(TEntity).Name + ">";
     }
 }

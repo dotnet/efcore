@@ -30,17 +30,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual string Name { get; }
 
-        public virtual void AddDbParameter(
-            [NotNull] DbCommand command,
-            [CanBeNull] object value)
+        public virtual void AddDbParameter(DbCommand command, object value)
         {
             Check.NotNull(command, nameof(command));
 
             if (value == null)
             {
                 command.Parameters
-                    .Add(_typeMapper.GetMappingForValue(value)
-                        .CreateParameter(command, Name, value, null));
+                    .Add(_typeMapper.GetMappingForValue(null)
+                        .CreateParameter(command, Name, null));
 
                 return;
             }

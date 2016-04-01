@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,19 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 
         public class NotificationEntitiesSqliteFixture : NotificationEntitiesFixtureBase
         {
-            private readonly IServiceProvider _serviceProvider;
             private readonly DbContextOptions _options;
 
             public NotificationEntitiesSqliteFixture()
             {
-                _serviceProvider = new ServiceCollection()
+                var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlite()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
                 _options = new DbContextOptionsBuilder()
                     .UseSqlite(SqliteTestStore.CreateConnectionString("NotificationEntities"))
-                    .UseInternalServiceProvider(_serviceProvider)
+                    .UseInternalServiceProvider(serviceProvider)
                     .Options;
 
                 EnsureCreated();

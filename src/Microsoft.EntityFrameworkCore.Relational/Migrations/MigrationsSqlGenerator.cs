@@ -494,10 +494,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void SequenceOptions(
             [CanBeNull] string schema,
             [NotNull] string name,
-            [NotNull] int increment,
+            int increment,
             long? minimumValue,
             long? maximumValue,
-            [NotNull] bool cycle,
+            bool cycle,
             [CanBeNull] IModel model,
             [NotNull] RelationalCommandListBuilder builder)
         {

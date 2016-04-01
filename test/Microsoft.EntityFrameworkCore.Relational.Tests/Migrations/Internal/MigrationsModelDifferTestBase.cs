@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -45,15 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         {
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-            public override RelationalTypeMapping FindMapping([NotNull] Type clrType, bool unicode = true)
+            public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
                 => clrType == typeof(string)
                     ? new RelationalTypeMapping("varchar(4000)", typeof(string), unicode: false)
-                    : base.FindMapping(clrType);
+                    : base.FindMapping(clrType, unicode);
 
-            protected override RelationalTypeMapping FindCustomMapping([NotNull] IProperty property, bool unicode = true)
+            protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
                     ? new RelationalTypeMapping((unicode ? "nvarchar(" : "varchar(") + property.GetMaxLength() + ")", typeof(string), unicode: false)
-                    : base.FindCustomMapping(property);
+                    : base.FindCustomMapping(property, unicode);
 
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>

@@ -111,10 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
-        public virtual void ClearTables()
-        {
-            _tables.Clear();
-        }
+        public virtual void ClearTables() => _tables.Clear();
 
         public virtual bool IsCorrelated() => new CorrelationFindingExpressionVisitor().IsCorrelated(this);
 

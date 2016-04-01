@@ -166,13 +166,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             public virtual int VertrauenII { get; protected set; }
             public virtual int TalkToMe { protected get; set; }
 
-            public virtual int NoMoreAffairs
-            {
-                get { return 1995; }
-            }
+            public virtual int NoMoreAffairs => 1995;
 
             public virtual int Singing
             {
+                // ReSharper disable once ValueParameterNotUsed
                 set { }
             }
 
@@ -190,10 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             private int MySister { get; set; }
             protected override int TinyTears { get; set; }
 
-            public override int SnowyInFSharpMinor
-            {
-                get { return 1995; }
-            }
+            public override int SnowyInFSharpMinor => 1995;
 
             public override int Seaweed
             {
@@ -203,10 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             public override int VertrauenII { get; protected set; }
             public override int TalkToMe { protected get; set; }
 
-            public override int NoMoreAffairs
-            {
-                get { return 1995; }
-            }
+            public override int NoMoreAffairs => 1995;
 
             public override int Singing
             {
@@ -226,10 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             private int MySister { get; set; }
             protected override int TinyTears { get; set; }
 
-            public override int SnowyInFSharpMinor
-            {
-                get { return 1995; }
-            }
+            public override int SnowyInFSharpMinor => 1995;
 
             public override int Seaweed
             {
@@ -239,10 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             public override int VertrauenII { get; protected set; }
             public override int TalkToMe { protected get; set; }
 
-            public override int NoMoreAffairs
-            {
-                get { return 1995; }
-            }
+            public override int NoMoreAffairs => 1995;
 
             public override int Singing
             {

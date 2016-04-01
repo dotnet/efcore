@@ -11,23 +11,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     public class OneToOneQuerySqliteFixture : OneToOneQueryFixtureBase, IDisposable
     {
         private readonly DbContextOptions _options;
-        private readonly IServiceProvider _serviceProvider;
         private readonly SqliteTestStore _testStore;
 
         public OneToOneQuerySqliteFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkSqlite()
-                    .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
-                    .BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlite()
+                .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .BuildServiceProvider();
 
             _testStore = SqliteTestStore.CreateScratch();
 
             _options = new DbContextOptionsBuilder()
                 .UseSqlite(_testStore.ConnectionString)
-                .UseInternalServiceProvider(_serviceProvider)
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new DbContext(_options))

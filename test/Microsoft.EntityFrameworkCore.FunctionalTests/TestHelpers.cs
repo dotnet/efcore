@@ -74,16 +74,16 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
             => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options);
 
-        public DbContext CreateContext(IServiceProvider serviceProvider) 
+        public DbContext CreateContext(IServiceProvider serviceProvider)
             => new DbContext(CreateOptions(serviceProvider));
 
-        public DbContext CreateContext(IModel model) 
+        public DbContext CreateContext(IModel model)
             => new DbContext(CreateOptions(model, CreateServiceProvider()));
 
-        public DbContext CreateContext(DbContextOptions options) 
+        public DbContext CreateContext(DbContextOptions options)
             => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider()).Options);
 
-        public DbContext CreateContext() 
+        public DbContext CreateContext()
             => new DbContext(CreateOptions(CreateServiceProvider()));
 
         public DbContext CreateContext(IServiceCollection customServices, IModel model)

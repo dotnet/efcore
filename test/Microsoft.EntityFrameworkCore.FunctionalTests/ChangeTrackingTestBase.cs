@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;

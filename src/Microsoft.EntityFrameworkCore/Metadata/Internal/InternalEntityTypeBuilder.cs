@@ -1001,8 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var newRelationship = Relationship(principalEntityTypeBuilder, principalKey, configurationSource);
             var relationship = newRelationship.HasForeignKey(dependentProperties, configurationSource);
-            if (relationship == null
-                && newRelationship != null
+            if (relationship == null 
                 && newRelationship.Metadata.Builder != null)
             {
                 RemoveForeignKey(newRelationship.Metadata, configurationSource);

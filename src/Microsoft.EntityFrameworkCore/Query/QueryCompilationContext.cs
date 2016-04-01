@@ -90,15 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public virtual bool IsIncludeQuery
-        {
-            get
-            {
-                return QueryAnnotations
-                    .OfType<IncludeResultOperator>()
-                    .Any();
-            }
-        }
+        public virtual bool IsIncludeQuery => QueryAnnotations.OfType<IncludeResultOperator>().Any();
 
         public virtual bool IsQueryBufferRequired { get; private set; }
 

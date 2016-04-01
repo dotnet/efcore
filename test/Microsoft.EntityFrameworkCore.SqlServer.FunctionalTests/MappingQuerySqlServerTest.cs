@@ -55,14 +55,8 @@ FROM [dbo].[Orders] AS [o]",
             _fixture = fixture;
         }
 
-        protected override DbContext CreateContext()
-        {
-            return _fixture.CreateContext();
-        }
+        protected override DbContext CreateContext() => _fixture.CreateContext();
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.Sql; }
-        }
+        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

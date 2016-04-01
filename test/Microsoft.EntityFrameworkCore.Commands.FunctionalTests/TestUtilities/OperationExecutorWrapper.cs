@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
         private const string AssemblyName = "Microsoft.EntityFrameworkCore.Commands";
         private const string TypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
 
-        private readonly string _targetDir;
         private readonly AppDomain _domain;
         private readonly object _executor;
 
@@ -27,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
             string startupProjectDir,
             string rootNamespace)
         {
-            _targetDir = targetDir;
             _domain = AppDomain.CreateDomain(
                 "ExecutorWrapper",
                 null,
@@ -61,24 +59,19 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
         }
 
         public string GetContextType(string name)
-        {
-            return InvokeOperation<string>("GetContextType", new Hashtable { { "name", name } });
-        }
+            => InvokeOperation<string>("GetContextType", new Hashtable { { "name", name } });
 
         public IEnumerable<string> AddMigration(string name, string outputDir, string contextType)
-        {
-            return InvokeOperation<IEnumerable<string>>(
+            => InvokeOperation<IEnumerable<string>>(
                 "AddMigration",
                 new Hashtable { { "name", name }, { "outputDir", outputDir }, { "contextType", contextType } });
-        }
 
         public string ScriptMigration(
             string fromMigration,
             string toMigration,
             bool idempotent,
             string contextType)
-        {
-            return InvokeOperation<string>(
+            => InvokeOperation<string>(
                 "ScriptMigration",
                 new Hashtable
                 {
@@ -87,39 +80,26 @@ namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
                     { "idempotent", idempotent },
                     { "contextType", contextType }
                 });
-        }
 
         public IEnumerable<IDictionary> GetContextTypes()
-        {
-            return InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
-        }
+            => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
         public IEnumerable<IDictionary> GetMigrations(string contextType)
-        {
-            return InvokeOperation<IEnumerable<IDictionary>>(
+            => InvokeOperation<IEnumerable<IDictionary>>(
                 "GetMigrations",
                 new Hashtable { { "contextType", contextType } });
-        }
 
         public void Dispose()
-        {
-            AppDomain.Unload(_domain);
-        }
+            => AppDomain.Unload(_domain);
 
         private TResult InvokeOperation<TResult>(string operation)
-        {
-            return InvokeOperation<TResult>(operation, new Hashtable());
-        }
+            => InvokeOperation<TResult>(operation, new Hashtable());
 
         private TResult InvokeOperation<TResult>(string operation, Hashtable arguments)
-        {
-            return (TResult)InvokeOperationImpl(operation, arguments);
-        }
+            => (TResult)InvokeOperationImpl(operation, arguments);
 
         private void InvokeOperation(string operation, Hashtable arguments)
-        {
-            InvokeOperationImpl(operation, arguments, isVoid: true);
-        }
+            => InvokeOperationImpl(operation, arguments, isVoid: true);
 
         private object InvokeOperationImpl(string operation, Hashtable arguments, bool isVoid = false)
         {

@@ -24,12 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             }
 
             protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
-            {
-                commandStringBuilder
+                => commandStringBuilder
                     .Append(SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName))
                     .Append(" = ")
                     .Append("provider_specific_identity()");
-            }
 
             protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
             {
@@ -40,10 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             }
 
             protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
-            {
-                commandStringBuilder
+                => commandStringBuilder
                     .Append("provider_specific_rowcount() = " + expectedRowsAffected);
-            }
         }
     }
 }

@@ -150,7 +150,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
                 BaseReferenceOnBase = drob2,
                 ReferenceOnBase = rob2,
                 CollectionOnBase = new List<CollectionOnBase> { cob21 }
-
             };
 
             var baseEntity3 = new BaseInheritanceRelationshipEntity
@@ -158,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
                 Name = "Base3",
                 DerivedReferenceOnBase = drob2,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { dcob21 },
-                DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob21 },
+                DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob21 }
             };
 
             context.BaseEntities.AddRange(baseEntity1, baseEntity2, baseEntity3);
@@ -173,13 +172,12 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { dcob11, dcob12 },
                 DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob31, dcob32 },
                 CollectionOnBase = new List<CollectionOnBase> { cob31, cob32 },
-
                 BaseReferenceOnDerived = brod1,
                 DerivedReferenceOnDerived = drod1,
                 ReferenceOnDerived = rod1,
                 BaseCollectionOnDerived = new List<BaseCollectionOnDerived> { bcod11 },
                 DerivedCollectionOnDerived = new List<DerivedCollectionOnDerived> { dcod11, dcod12 },
-                CollectionOnDerived = new List<CollectionOnDerived> { cod11 },
+                CollectionOnDerived = new List<CollectionOnDerived> { cod11 }
             };
 
             var derivedEntity2 = new DerivedInheritanceRelationshipEntity
@@ -189,10 +187,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
                 ReferenceOnBase = rob4,
                 BaseReferenceOnBase = brob2,
                 CollectionOnBase = new List<CollectionOnBase> { cob41 },
-
                 BaseReferenceOnDerived = drod2,
                 ReferenceOnDerived = rod2,
-                CollectionOnDerived = new List<CollectionOnDerived> { cod21, cod22 },
+                CollectionOnDerived = new List<CollectionOnDerived> { cod21, cod22 }
             };
 
             var derivedEntity3 = new DerivedInheritanceRelationshipEntity
@@ -202,10 +199,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
                 DerivedReferenceOnBase = drob4,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { bcob21 },
                 DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob41 },
-
                 DerivedReferenceOnDerived = drod2,
                 BaseCollectionOnDerived = new List<BaseCollectionOnDerived> { dcod11, dcod12 },
-                DerivedCollectionOnDerived = new List<DerivedCollectionOnDerived> { dcod21 },
+                DerivedCollectionOnDerived = new List<DerivedCollectionOnDerived> { dcod21 }
             };
 
             context.BaseEntities.AddRange(derivedEntity1, derivedEntity2, derivedEntity3);
@@ -214,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
             baseEntity2.DerivedSefReferenceOnBase = derivedEntity2;
             baseEntity3.DerivedSefReferenceOnBase = derivedEntity3;
 
-            var principalEntity1 = new PrincipalEntity { Name = "PE1"};
+            var principalEntity1 = new PrincipalEntity { Name = "PE1" };
             var principalEntity2 = new PrincipalEntity { Name = "PE2" };
 
             context.PrincipalEntities.AddRange(principalEntity1, principalEntity2);

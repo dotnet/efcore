@@ -127,10 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     Executor = new OperationExecutorWrapper(TargetDir, build.TargetName, TargetDir, TargetDir, "SimpleProject");
                 }
 
-                public string TargetDir
-                {
-                    get { return _directory.Path; }
-                }
+                public string TargetDir => _directory.Path;
 
                 public OperationExecutorWrapper Executor { get; }
 

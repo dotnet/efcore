@@ -924,10 +924,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     _queryModelVisitor = queryModelVisitor;
                 }
 
-                protected override Expression VisitSubQuery(SubQueryExpression expression)
-                {
-                    return expression;
-                }
+                protected override Expression VisitSubQuery(SubQueryExpression expression) 
+                    => expression;
 
                 protected override Expression VisitMember(MemberExpression node)
                 {
@@ -939,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             (properties, querySource) =>
                                 {
                                     var navigations = properties.OfType<INavigation>().ToList();
-                                    var collectionNavigation = navigations.Where(n => n.IsCollection()).SingleOrDefault();
+                                    var collectionNavigation = navigations.SingleOrDefault(n => n.IsCollection());
 
                                     return collectionNavigation != null
                                         ? InjectSubquery(node, collectionNavigation)

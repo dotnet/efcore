@@ -2,12 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Query;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using System.Threading;
+using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel
 {
@@ -24,22 +20,22 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics
         public void Initialize()
         {
             var nullableBoolValues = new bool?[] { false, true, null };
-            var nullableStringValues = new string[] { "Foo", "Bar", null };
+            var nullableStringValues = new[] { "Foo", "Bar", null };
             var nullableIntValues = new int?[] { 0, 1, null };
 
-            var boolValues = new bool[] { false, true, true };
-            var stringValues = new string[] { "Foo", "Bar", "Bar" };
-            var intValues = new int[] { 0, 1, 2 };
+            var boolValues = new[] { false, true, true };
+            var stringValues = new[] { "Foo", "Bar", "Bar" };
+            var intValues = new[] { 0, 1, 2 };
 
             var entities1 = new List<NullSemanticsEntity1>();
             var entities2 = new List<NullSemanticsEntity2>();
 
-            int id = 0;
-            for (int i = 0; i < 3; i++)
+            var id = 0;
+            for (var i = 0; i < 3; i++)
             {
-                for (int j = 0; j < 3; j++)
+                for (var j = 0; j < 3; j++)
                 {
-                    for (int k = 0; k < 3; k++)
+                    for (var k = 0; k < 3; k++)
                     {
                         id++;
 
@@ -52,20 +48,18 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics
                             NullableBoolA = nullableBoolValues[i],
                             NullableBoolB = nullableBoolValues[j],
                             NullableBoolC = nullableBoolValues[k],
-
                             StringA = stringValues[i],
                             StringB = stringValues[j],
                             StringC = stringValues[k],
                             NullableStringA = nullableStringValues[i],
                             NullableStringB = nullableStringValues[j],
                             NullableStringC = nullableStringValues[k],
-
                             IntA = intValues[i],
                             IntB = intValues[j],
                             IntC = intValues[k],
                             NullableIntA = nullableIntValues[i],
                             NullableIntB = nullableIntValues[j],
-                            NullableIntC = nullableIntValues[k],
+                            NullableIntC = nullableIntValues[k]
                         };
 
                         var entity2 = new NullSemanticsEntity2
@@ -77,20 +71,18 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemantics
                             NullableBoolA = nullableBoolValues[i],
                             NullableBoolB = nullableBoolValues[j],
                             NullableBoolC = nullableBoolValues[k],
-
                             StringA = stringValues[i],
                             StringB = stringValues[j],
                             StringC = stringValues[k],
                             NullableStringA = nullableStringValues[i],
                             NullableStringB = nullableStringValues[j],
                             NullableStringC = nullableStringValues[k],
-
                             IntA = intValues[i],
                             IntB = intValues[j],
                             IntC = intValues[k],
                             NullableIntA = nullableIntValues[i],
                             NullableIntB = nullableIntValues[j],
-                            NullableIntC = nullableIntValues[k],
+                            NullableIntC = nullableIntValues[k]
                         };
 
                         entities1.Add(entity1);

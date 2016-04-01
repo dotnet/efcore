@@ -12,58 +12,40 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
     public class FieldMatcherTest
     {
         [Fact]
-        public void Camel_case_matching_field_is_used_as_first_preference()
-        {
-            FieldMatchTest("Breathe", "breathe");
-        }
+        public void Camel_case_matching_field_is_used_as_first_preference() 
+            => FieldMatchTest("Breathe", "breathe");
 
         [Fact]
-        public void Camel_case_matching_field_is_not_used_if_type_is_not_compatible()
-        {
-            FieldMatchTest("OnTheRun", "_onTheRun");
-        }
+        public void Camel_case_matching_field_is_not_used_if_type_is_not_compatible() 
+            => FieldMatchTest("OnTheRun", "_onTheRun");
 
         [Fact]
-        public void Underscore_camel_case_matching_field_is_used_as_second_preference()
-        {
-            FieldMatchTest("Time", "_time");
-        }
+        public void Underscore_camel_case_matching_field_is_used_as_second_preference() 
+            => FieldMatchTest("Time", "_time");
 
         [Fact]
-        public void Underscpre_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
-        {
-            FieldMatchTest("TheGreatGigInTheSky", "_TheGreatGigInTheSky");
-        }
+        public void Underscpre_camel_case_matching_field_is_not_used_if_type_is_not_compatible() 
+            => FieldMatchTest("TheGreatGigInTheSky", "_TheGreatGigInTheSky");
 
         [Fact]
-        public void Underscpre_matching_field_is_used_as_third_preference()
-        {
-            FieldMatchTest("Money", "_Money");
-        }
+        public void Underscpre_matching_field_is_used_as_third_preference() 
+            => FieldMatchTest("Money", "_Money");
 
         [Fact]
-        public void Underscore_matching_field_is_not_used_if_type_is_not_compatible()
-        {
-            FieldMatchTest("UsAndThem", "m_usAndThem");
-        }
+        public void Underscore_matching_field_is_not_used_if_type_is_not_compatible() 
+            => FieldMatchTest("UsAndThem", "m_usAndThem");
 
         [Fact]
-        public void M_underscpre_camel_case_matching_field_is_used_as_fourth_preference()
-        {
-            FieldMatchTest("AnyColourYouLike", "m_anyColourYouLike");
-        }
+        public void M_underscpre_camel_case_matching_field_is_used_as_fourth_preference() 
+            => FieldMatchTest("AnyColourYouLike", "m_anyColourYouLike");
 
         [Fact]
-        public void M_underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
-        {
-            FieldMatchTest("BrainDamage", "m_BrainDamage");
-        }
+        public void M_underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible() 
+            => FieldMatchTest("BrainDamage", "m_BrainDamage");
 
         [Fact]
-        public void M_underscpre_matching_field_is_used_as_fifth_preference()
-        {
-            FieldMatchTest("Eclipse", "m_Eclipse");
-        }
+        public void M_underscpre_matching_field_is_used_as_fifth_preference() 
+            => FieldMatchTest("Eclipse", "m_Eclipse");
 
         private static void FieldMatchTest(string propertyName, string fieldName)
         {

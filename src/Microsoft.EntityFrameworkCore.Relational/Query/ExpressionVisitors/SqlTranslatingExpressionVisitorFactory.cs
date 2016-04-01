@@ -35,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
 
         public virtual SqlTranslatingExpressionVisitor Create(
-            [NotNull] RelationalQueryModelVisitor queryModelVisitor,
-            [CanBeNull] SelectExpression targetSelectExpression = null,
-            [CanBeNull] Expression topLevelPredicate = null,
+            RelationalQueryModelVisitor queryModelVisitor,
+            SelectExpression targetSelectExpression = null,
+            Expression topLevelPredicate = null,
             bool bindParentQueries = false,
             bool inProjection = false)
             => new SqlTranslatingExpressionVisitor(

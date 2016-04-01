@@ -1693,7 +1693,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
             else
             {
-                var dependents = getDependents == null ? null : getDependents(expectedPrincipal).ToArray();
+                var dependents = getDependents?.Invoke(expectedPrincipal).ToArray();
                 var principalKey = getPrincipalKey(expectedPrincipal);
 
                 if (getDependents != null)

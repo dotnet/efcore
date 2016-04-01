@@ -27,10 +27,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
 
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
 
-        protected bool Equals(Order other)
-        {
-            return OrderID == other.OrderID;
-        }
+        protected bool Equals(Order other) => OrderID == other.OrderID;
 
         public override bool Equals(object obj)
         {
@@ -47,14 +44,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
                    && Equals((Order)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return OrderID.GetHashCode();
-        }
+        public override int GetHashCode() => OrderID.GetHashCode();
 
-        public override string ToString()
-        {
-            return "Order " + OrderID;
-        }
+        public override string ToString() => "Order " + OrderID;
     }
 }

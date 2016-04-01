@@ -24,20 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         protected virtual IRelationalTypeMapper TypeMapper { get; }
 
-        public virtual void AddParameter(
-            [NotNull] string invariantName,
-            [NotNull] string name)
+        public virtual void AddParameter(string invariantName, string name)
             => _parameters.Add(
                 new DynamicRelationalParameter(
                     Check.NotEmpty(invariantName, nameof(invariantName)),
                     Check.NotEmpty(name, nameof(name)),
                     TypeMapper));
 
-        public virtual void AddParameter(
-            [NotNull] string invariantName,
-            [NotNull] string name,
-            [NotNull] Type type,
-            bool unicode)
+        public virtual void AddParameter(string invariantName, string name, Type type, bool unicode)
         {
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));
@@ -51,10 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     type.IsNullableType()));
         }
 
-        public virtual void AddParameter(
-            [NotNull] string invariantName,
-            [NotNull] string name,
-            [NotNull] IProperty property)
+        public virtual void AddParameter(string invariantName, string name, IProperty property)
         {
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));
@@ -68,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     property.IsNullable));
         }
 
-        public virtual void AddCompositeParameter(
-            [NotNull] string invariantName,
-            [NotNull] Action<IRelationalParameterBuilder> buildAction)
+        public virtual void AddCompositeParameter(string invariantName, Action<IRelationalParameterBuilder> buildAction)
         {
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotNull(buildAction, nameof(buildAction));

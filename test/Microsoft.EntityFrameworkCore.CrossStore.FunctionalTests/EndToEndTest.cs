@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
         [ConditionalFact]
         public virtual void Can_save_changes_and_query()
         {
-            var secondId = -1;
+            int secondId;
             using (var context = CreateContext())
             {
                 var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
@@ -84,15 +84,9 @@ namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 
         protected TTestStore TestStore { get; }
 
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
+        public void Dispose() => TestStore.Dispose();
 
-        protected CrossStoreContext CreateContext()
-        {
-            return Fixture.CreateContext(TestStore);
-        }
+        protected CrossStoreContext CreateContext() => Fixture.CreateContext(TestStore);
     }
 
     public class InMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, InMemoryCrossStoreFixture>, IClassFixture<InMemoryCrossStoreFixture>

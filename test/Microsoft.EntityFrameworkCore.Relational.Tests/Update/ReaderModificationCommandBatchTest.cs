@@ -629,8 +629,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    executeReaderAsync: (c, b, ct) => { return Task.FromResult(dbDataReader); },
-                    executeReader: (c, b) => { return dbDataReader; }));
+                    executeReaderAsync: (c, b, ct) => Task.FromResult(dbDataReader),
+                    executeReader: (c, b) => dbDataReader));
 
             var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
 

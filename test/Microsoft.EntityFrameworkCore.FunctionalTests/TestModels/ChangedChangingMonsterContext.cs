@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
 {
@@ -33,21 +32,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
             public event PropertyChangedEventHandler PropertyChanged;
             public event PropertyChangingEventHandler PropertyChanging;
 
-            private void NotifyChanged(string propertyName)
-            {
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-                }
-            }
+            private void NotifyChanged(string propertyName) 
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            private void NotifyChanging(string propertyName)
-            {
-                if (PropertyChanging != null)
-                {
-                    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
-                }
-            }
+            private void NotifyChanging(string propertyName) 
+                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
 
             protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
             {

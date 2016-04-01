@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Inheritance;
 using Xunit;
+
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringEndsWithIsCultureSpecific
 
@@ -323,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
 
                 kiwi.EagleId = "Aquila chrysaetos canadensis";
-                
+
                 context.SaveChanges();
             }
 

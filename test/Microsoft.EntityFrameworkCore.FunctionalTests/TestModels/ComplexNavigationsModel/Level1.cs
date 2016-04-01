@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNaviga
 
         public ICollection<Level2> OneToMany_Required { get; set; }
         public ICollection<Level2> OneToMany_Optional { get; set; }
-        
+
         public Level1 OneToOne_Optional_Self { get; set; }
 
         public ICollection<Level1> OneToMany_Required_Self { get; set; }

@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Dog");
                         }),
-                operations => Assert.Empty(operations));
+                Assert.Empty);
         }
 
         [Fact]
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                             x.HasKey("Id");
                             x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
                         }),
-                operations => Assert.Empty(operations));
+                Assert.Empty);
         }
 
         [Fact]

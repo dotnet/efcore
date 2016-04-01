@@ -31,10 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.Revers
             return filesMap.TryGetValue(fileName, out _);
         }
 
-        public virtual bool IsFileReadOnly(string outputDirectoryName, string outputFileName)
-        {
-            return false;
-        }
+        public virtual bool IsFileReadOnly(string outputDirectoryName, string outputFileName) => false;
 
         public virtual string RetrieveFileContents(string directoryName, string fileName)
         {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Xunit;
 
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged(string propertyName) 
+            private void NotifyChanged(string propertyName)
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
             protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")

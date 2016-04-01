@@ -41,9 +41,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
 
             protected override void Down(MigrationBuilder migrationBuilder)
-            {
-                migrationBuilder.DropTable("Table1");
-            }
+                => migrationBuilder.DropTable("Table1");
         }
 
         [DbContext(typeof(MigrationsContext))]
@@ -51,18 +49,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         private class Migration2 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
-            {
-                migrationBuilder.RenameTable(
+                => migrationBuilder.RenameTable(
                     name: "Table1",
                     newName: "Table2");
-            }
 
             protected override void Down(MigrationBuilder migrationBuilder)
-            {
-                migrationBuilder.RenameTable(
+                => migrationBuilder.RenameTable(
                     name: "Table2",
                     newName: "Table1");
-            }
         }
     }
 }

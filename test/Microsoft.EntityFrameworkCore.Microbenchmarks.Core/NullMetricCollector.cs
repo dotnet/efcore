@@ -23,10 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
             _scope = new Scope();
         }
 
-        public IDisposable StartCollection()
-        {
-            return _scope;
-        }
+        public IDisposable StartCollection() => _scope;
 
         public void StopCollection()
         {

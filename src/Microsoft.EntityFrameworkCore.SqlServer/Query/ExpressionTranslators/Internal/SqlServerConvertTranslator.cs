@@ -7,7 +7,6 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     .Where(m => (m.GetParameters().Count() == 1)
                                 && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
 
-        public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
             => _supportedMethods.Contains(methodCallExpression.Method)
                 ? new SqlFunctionExpression(
                     "CONVERT",

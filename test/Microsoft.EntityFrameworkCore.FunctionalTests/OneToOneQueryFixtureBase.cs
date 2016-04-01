@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var address3 = new Address { Street = "House of Black and White", City = "Braavos" };
 
             context.Set<Person>().AddRange(
-                new Person { Name = "Daenerys Targaryen", Address = address1 }, 
-                new Person { Name = "John Snow", Address = address2 }, 
-                new Person { Name = "Arya Stark", Address = address3 }, 
+                new Person { Name = "Daenerys Targaryen", Address = address1 },
+                new Person { Name = "John Snow", Address = address2 },
+                new Person { Name = "Arya Stark", Address = address3 },
                 new Person { Name = "Harry Strickland" });
 
             context.Set<Address>().AddRange(address1, address2, address3);
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             var address23 = new Address2 { Id = "3", Street = "House of Black and White", City = "Braavos" };
 
             context.Set<Person2>().AddRange(
-                new Person2 { Name = "Daenerys Targaryen", Address = address21 }, 
-                new Person2 { Name = "John Snow", Address = address22 }, 
+                new Person2 { Name = "Daenerys Targaryen", Address = address21 },
+                new Person2 { Name = "John Snow", Address = address22 },
                 new Person2 { Name = "Arya Stark", Address = address23 });
 
             context.Set<Address2>().AddRange(address21, address22, address23);

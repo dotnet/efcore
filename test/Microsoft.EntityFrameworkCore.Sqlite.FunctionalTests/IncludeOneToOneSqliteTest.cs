@@ -60,14 +60,8 @@ LEFT JOIN ""Address2"" AS ""a"" ON ""a"".""PersonId"" = ""p"".""Id""",
             _fixture = fixture;
         }
 
-        protected override DbContext CreateContext()
-        {
-            return _fixture.CreateContext();
-        }
+        protected override DbContext CreateContext() => _fixture.CreateContext();
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.SqlStatements.Last(); }
-        }
+        private static string Sql => TestSqlLoggerFactory.SqlStatements.Last();
     }
 }

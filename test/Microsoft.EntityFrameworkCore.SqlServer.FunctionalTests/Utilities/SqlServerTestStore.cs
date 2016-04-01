@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandTimeout = CommandTimeout;
-                    command.CommandText = $@"SELECT COUNT(*) FROM information_schema.tables";
+                    command.CommandText = @"SELECT COUNT(*) FROM information_schema.tables";
 
                     var result = (int)command.ExecuteScalar() > 0;
 

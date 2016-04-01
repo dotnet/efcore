@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     Intercepts method invocations on the object represented by the current instance
         ///     and forwards them to the target to finish processing.
         /// </summary>
-        public override IMessage Invoke([NotNull] IMessage msg)
+        public override IMessage Invoke(IMessage msg)
         {
             Check.NotNull(msg, nameof(msg));
 

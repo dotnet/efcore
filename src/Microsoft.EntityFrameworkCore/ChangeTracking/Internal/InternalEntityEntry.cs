@@ -570,11 +570,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private bool MayGetStoreValue([CanBeNull] IProperty property, IEntityType entityType)
-            => (property != null)
-               && ((property.ValueGenerated != ValueGenerated.Never)
-                   || StateManager.ValueGeneration.MayGetTemporaryValue(property, entityType));
-
         public virtual void DiscardStoreGeneratedValues() => _storeGeneratedValues = new StoreGeneratedValues();
 
         public virtual bool IsStoreGenerated(IProperty property)

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -30,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             Assert.Throws<InvalidOperationException>(
                 () =>
-                {
-                    using (var context = CreateContext())
                     {
-                        return context.Set<Order>()
-                            .Include(o => o.Customer.CustomerID)
-                            .ToList();
-                    }
-                });
+                        using (var context = CreateContext())
+                        {
+                            return context.Set<Order>()
+                                .Include(o => o.Customer.CustomerID)
+                                .ToList();
+                        }
+                    });
         }
 
         [Fact]
@@ -61,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
                 Assert.Throws<ArgumentException>(
                     () =>
-                    {
-                        using (var context = CreateContext())
                         {
-                            var query = context.Set<Order>()
-                                .Include(o => new { o.Customer, o.OrderDetails })
-                                .ToList();
-                        }
-                    }).Message);
+                            using (var context = CreateContext())
+                            {
+                                var query = context.Set<Order>()
+                                    .Include(o => new { o.Customer, o.OrderDetails })
+                                    .ToList();
+                            }
+                        }).Message);
         }
 
         [Fact]
@@ -92,15 +91,15 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
                 Assert.Throws<ArgumentException>(
                     () =>
-                    {
-                        using (var context = CreateContext())
                         {
-                            var query = context.Set<Customer>()
-                                .Include(o => o.Orders)
-                                .ThenInclude(o => new { o.Customer, o.OrderDetails })
-                                .ToList();
-                        }
-                    }).Message);
+                            using (var context = CreateContext())
+                            {
+                                var query = context.Set<Customer>()
+                                    .Include(o => o.Orders)
+                                    .ThenInclude(o => new { o.Customer, o.OrderDetails })
+                                    .ToList();
+                            }
+                        }).Message);
         }
 
         [Fact]
@@ -420,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var customers
                     = (from c in context.Set<Customer>()
                        join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
-                        on c.CustomerID equals o.CustomerID into g
+                           on c.CustomerID equals o.CustomerID into g
                        where c.CustomerID == "ALFKI"
                        select new { c, g })
                         .ToList();

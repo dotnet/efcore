@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -11,8 +10,8 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
     public abstract class InheritanceRelationshipsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-    where TTestStore : TestStore
-    where TFixture : InheritanceRelationshipsQueryFixtureBase<TTestStore>, new()
+        where TTestStore : TestStore
+        where TFixture : InheritanceRelationshipsQueryFixtureBase<TTestStore>, new()
     {
         [Fact]
         public virtual void Changes_in_derived_related_entities_are_detected()
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.IsType<DerivedCollectionOnBase>(entry.Entity);
 
                 Assert.Equal(
-                    "Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships.DerivedCollectionOnBase", 
+                    "Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships.DerivedCollectionOnBase",
                     entry.Metadata.Name);
 
                 firstRelatedEntity.DerivedProperty = originalValue + 1;
@@ -630,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase.NestedCollection); 
+                var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase.NestedCollection);
                 var result = query.ToList();
 
                 Assert.Equal(6, result.Count);

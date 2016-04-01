@@ -34,10 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
         {
         }
 
-        public static BenchmarkConfig Instance
-        {
-            get { return _instance.Value; }
-        }
+        public static BenchmarkConfig Instance => _instance.Value;
 
         public bool RunIterations { get; private set; }
         public IEnumerable<string> ResultDatabases { get; private set; }

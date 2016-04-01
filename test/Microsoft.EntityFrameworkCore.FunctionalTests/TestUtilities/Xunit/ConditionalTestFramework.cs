@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
     public class ConditionalTestFramework : XunitTestFramework

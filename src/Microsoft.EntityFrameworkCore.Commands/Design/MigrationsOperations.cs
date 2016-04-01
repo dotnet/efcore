@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     public class MigrationsOperations
     {
-        private readonly ILoggerProvider _loggerProvider;
         private readonly LazyRef<ILogger> _logger;
         private readonly Assembly _assembly;
         private readonly string _projectDir;
@@ -50,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddProvider(loggerProvider);
 
-            _loggerProvider = loggerProvider;
             _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
             _assembly = assembly;
             _projectDir = projectDir;

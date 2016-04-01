@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
@@ -23,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             { ExpressionType.NotEqual, ExpressionType.NotEqual }
         };
 
-        private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo().GetDeclaredMethods(nameof(string.Compare))
-            .Where(m => m.GetParameters().Count() == 2)
-            .Single();
+        private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
+            .GetDeclaredMethods(nameof(string.Compare))
+            .Single(m => m.GetParameters().Count() == 2);
 
-        public virtual Expression Translate([NotNull] Expression expression)
+        public virtual Expression Translate(Expression expression)
         {
             var binaryExpression = expression as BinaryExpression;
             if (binaryExpression != null)
@@ -48,10 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                 var leftConstant = binaryExpression.Left as ConstantExpression;
                 var rightMethodCall = binaryExpression.Right as MethodCallExpression;
                 var translatedReverse = TranslateInternal(t => _operatorMap[t], expression.NodeType, rightMethodCall, leftConstant);
-                if (translatedReverse != null)
-                {
-                    return translatedReverse;
-                }
+
+                return translatedReverse;
             }
 
             return null;

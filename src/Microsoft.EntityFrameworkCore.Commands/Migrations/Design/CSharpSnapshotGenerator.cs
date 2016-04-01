@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("<")
                         .Append(_code.Reference(propertyClrType.UnwrapEnumType()))
                         .Append(">(")
-                        .Append(_code.UnknownLiteral(discriminatorPropertyAnnotation?.Value))
+                        .Append(_code.UnknownLiteral(discriminatorPropertyAnnotation.Value))
                         .Append(")");
                 }
                 else
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(".")
                         .Append(nameof(DiscriminatorBuilder.HasValue))
                         .Append("(")
-                        .Append(_code.UnknownLiteral(discriminatorValueAnnotation?.Value))
+                        .Append(_code.UnknownLiteral(discriminatorValueAnnotation.Value))
                         .Append(")");
                 }
 

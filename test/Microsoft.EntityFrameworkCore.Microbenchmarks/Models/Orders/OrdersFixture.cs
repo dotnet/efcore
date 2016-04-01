@@ -31,10 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders
 
         public string ConnectionString { get; }
 
-        public virtual OrdersContext CreateContext()
-        {
-            return new OrdersContext(ConnectionString);
-        }
+        public virtual OrdersContext CreateContext() => new OrdersContext(ConnectionString);
 
         protected virtual void OnDatabaseCreated(OrdersContext context)
         {

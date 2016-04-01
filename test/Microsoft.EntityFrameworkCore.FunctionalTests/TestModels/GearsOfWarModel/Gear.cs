@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarMod
         // TODO: temporary workaround, remove once #1704 is fixed
         [NotMapped]
         public virtual CogTag Tag { get; set; }
+
         public virtual Squad Squad { get; set; }
 
         // TODO: make this many to many - not supported at the moment

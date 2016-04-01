@@ -20,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 
         [Fact]
         public virtual void AddColumnOperation_with_defaultValue()
-        {
-            Generate(
+            => Generate(
                 new AddColumnOperation
                 {
                     Table = "People",
@@ -32,12 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     IsNullable = false,
                     DefaultValue = "John Doe"
                 });
-        }
 
         [Fact]
         public virtual void AddColumnOperation_with_defaultValueSql()
-        {
-            Generate(
+            => Generate(
                 new AddColumnOperation
                 {
                     Table = "People",
@@ -47,12 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     IsNullable = true,
                     DefaultValueSql = "CURRENT_TIMESTAMP"
                 });
-        }
 
         [Fact]
         public virtual void AddColumnOperation_with_computed_column_SQL()
-        {
-            Generate(
+            => Generate(
                 new AddColumnOperation
                 {
                     Table = "People",
@@ -62,24 +57,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     IsNullable = true,
                     ComputedColumnSql = "CURRENT_TIMESTAMP"
                 });
-        }
 
         [Fact]
         public virtual void AddColumnOperation_without_column_type()
-        {
-            Generate(
+            => Generate(
                 new AddColumnOperation
                 {
                     Table = "People",
                     Name = "Alias",
                     ClrType = typeof(string)
                 });
-        }
 
         [Fact]
         public virtual void AddColumnOperation_with_maxLength()
-        {
-            Generate(
+            => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
                 new AddColumnOperation
                 {
@@ -88,12 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     ClrType = typeof(string),
                     IsNullable = true
                 });
-        }
 
         [Fact]
         public virtual void AddForeignKeyOperation_with_name()
-        {
-            Generate(
+            => Generate(
                 new AddForeignKeyOperation
                 {
                     Table = "People",
@@ -105,12 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     PrincipalColumns = new[] { "Id1", "Id2" },
                     OnDelete = ReferentialAction.Cascade
                 });
-        }
 
         [Fact]
         public virtual void AddForeignKeyOperation_without_name()
-        {
-            Generate(
+            => Generate(
                 new AddForeignKeyOperation
                 {
                     Table = "People",
@@ -118,24 +105,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     PrincipalTable = "People",
                     PrincipalColumns = new[] { "Id" }
                 });
-        }
 
         [Fact]
         public virtual void AddForeignKeyOperation_without_principal_columns()
-        {
-            Generate(
+            => Generate(
                 new AddForeignKeyOperation
                 {
                     Table = "People",
                     Columns = new[] { "SpouseId" },
                     PrincipalTable = "People"
                 });
-        }
 
         [Fact]
         public virtual void AddPrimaryKeyOperation_with_name()
-        {
-            Generate(
+            => Generate(
                 new AddPrimaryKeyOperation
                 {
                     Table = "People",
@@ -143,23 +126,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Name = "PK_People",
                     Columns = new[] { "Id1", "Id2" }
                 });
-        }
 
         [Fact]
         public virtual void AddPrimaryKeyOperation_without_name()
-        {
-            Generate(
+            => Generate(
                 new AddPrimaryKeyOperation
                 {
                     Table = "People",
                     Columns = new[] { "Id" }
                 });
-        }
 
         [Fact]
         public virtual void AddUniqueConstraintOperation_with_name()
-        {
-            Generate(
+            => Generate(
                 new AddUniqueConstraintOperation
                 {
                     Table = "People",
@@ -167,23 +146,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Name = "AK_People_DriverLicense",
                     Columns = new[] { "DriverLicense_State", "DriverLicense_Number" }
                 });
-        }
 
         [Fact]
         public virtual void AddUniqueConstraintOperation_without_name()
-        {
-            Generate(
+            => Generate(
                 new AddUniqueConstraintOperation
                 {
                     Table = "People",
                     Columns = new[] { "SSN" }
                 });
-        }
 
         [Fact]
         public virtual void AlterColumnOperation()
-        {
-            Generate(
+            => Generate(
                 new AlterColumnOperation
                 {
                     Table = "People",
@@ -194,24 +169,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     IsNullable = false,
                     DefaultValue = 7
                 });
-        }
 
         [Fact]
         public virtual void AlterColumnOperation_without_column_type()
-        {
-            Generate(
+            => Generate(
                 new AlterColumnOperation
                 {
                     Table = "People",
                     Name = "LuckyNumber",
                     ClrType = typeof(int)
                 });
-        }
 
         [Fact]
         public virtual void AlterSequenceOperation_with_minValue_and_maxValue()
-        {
-            Generate(
+            => Generate(
                 new AlterSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -221,23 +192,19 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     MaxValue = 816,
                     IsCyclic = true
                 });
-        }
 
         [Fact]
         public virtual void AlterSequenceOperation_without_minValue_and_maxValue()
-        {
-            Generate(
+            => Generate(
                 new AlterSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
                     IncrementBy = 1
                 });
-        }
 
         [Fact]
         public virtual void RenameTableOperation_within_schema()
-        {
-            Generate(
+            => Generate(
                 new RenameTableOperation
                 {
                     Name = "People",
@@ -245,12 +212,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     NewName = "Personas",
                     NewSchema = "dbo"
                 });
-        }
 
         [Fact]
         public virtual void CreateIndexOperation_unique()
-        {
-            Generate(
+            => Generate(
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -259,12 +224,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Columns = new[] { "FirstName", "LastName" },
                     IsUnique = true
                 });
-        }
 
         [Fact]
         public virtual void CreateIndexOperation_nonunique()
-        {
-            Generate(
+            => Generate(
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -272,12 +235,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Columns = new[] { "Name" },
                     IsUnique = false
                 });
-        }
 
         [Fact]
         public virtual void CreateSequenceOperation_with_minValue_and_maxValue()
-        {
-            Generate(
+            => Generate(
                 new CreateSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -289,12 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     ClrType = typeof(long),
                     IsCyclic = true
                 });
-        }
 
         [Fact]
         public virtual void CreateSequenceOperation_with_minValue_and_maxValue_not_long()
-        {
-            Generate(
+            => Generate(
                 new CreateSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -306,12 +265,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     ClrType = typeof(int),
                     IsCyclic = true
                 });
-        }
 
         [Fact]
         public virtual void CreateSequenceOperation_without_minValue_and_maxValue()
-        {
-            Generate(
+            => Generate(
                 new CreateSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -319,12 +276,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     StartValue = 3,
                     IncrementBy = 1
                 });
-        }
 
         [Fact]
         public virtual void CreateTableOperation()
-        {
-            Generate(
+            => Generate(
                 new CreateTableOperation
                 {
                     Name = "People",
@@ -372,99 +327,82 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                         }
                     }
                 });
-        }
 
         [Fact]
         public virtual void DropColumnOperation()
-        {
-            Generate(
+            => Generate(
                 new DropColumnOperation
                 {
                     Table = "People",
                     Schema = "dbo",
                     Name = "LuckyNumber"
                 });
-        }
 
         [Fact]
         public virtual void DropForeignKeyOperation()
-        {
-            Generate(
+            => Generate(
                 new DropForeignKeyOperation
                 {
                     Table = "People",
                     Schema = "dbo",
                     Name = "FK_People_Companies"
                 });
-        }
 
         [Fact]
         public virtual void DropIndexOperation()
-        {
-            Generate(
+            => Generate(
                 new DropIndexOperation
                 {
                     Name = "IX_People_Name",
                     Table = "People",
                     Schema = "dbo"
                 });
-        }
 
         [Fact]
         public virtual void DropPrimaryKeyOperation()
-        {
-            Generate(
+            => Generate(
                 new DropPrimaryKeyOperation
                 {
                     Table = "People",
                     Schema = "dbo",
                     Name = "PK_People"
                 });
-        }
 
         [Fact]
         public virtual void DropSequenceOperation()
-        {
-            Generate(
+            => Generate(
                 new DropSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo"
                 });
-        }
 
         [Fact]
         public virtual void DropTableOperation()
-        {
-            Generate(
+            => Generate(
                 new DropTableOperation
                 {
                     Name = "People",
                     Schema = "dbo"
                 });
-        }
 
         [Fact]
         public virtual void DropUniqueConstraintOperation()
-        {
-            Generate(
+            => Generate(
                 new DropUniqueConstraintOperation
                 {
                     Table = "People",
                     Schema = "dbo",
                     Name = "AK_People_SSN"
                 });
-        }
 
         [Fact]
         public virtual void SqlOperation()
-        {
-            Generate(
+            => Generate(
                 new SqlOperation
                 {
                     Sql = "-- I <3 DDL"
                 });
-        }
 
         protected virtual void Generate(params MigrationOperation[] operation)
             => Generate(_ => { }, operation);

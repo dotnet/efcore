@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
     {
         [NotMapped]
         public int Id { get; set; }
+
         public string Name { get; set; }
 
         public int? ParentReferenceId { get; set; }

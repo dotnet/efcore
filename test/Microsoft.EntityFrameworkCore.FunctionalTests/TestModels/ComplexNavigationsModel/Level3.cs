@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNaviga
 
         public Level2 OneToMany_Required_Inverse { get; set; }
         public Level2 OneToMany_Optional_Inverse { get; set; }
-        
+
         public Level3 OneToOne_Optional_Self { get; set; }
 
         public ICollection<Level3> OneToMany_Required_Self { get; set; }

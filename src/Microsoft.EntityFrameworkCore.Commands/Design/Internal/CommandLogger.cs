@@ -21,14 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             typeof(Migrator).FullName
         };
 
-        private readonly string _name;
         private readonly bool _enabledByName;
 
         protected CommandLogger([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            _name = name;
             _enabledByName = _includedNames.Contains(name);
         }
 

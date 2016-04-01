@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testStore;
 
@@ -20,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             _testStore = SqlServerTestStore.CreateScratch();
 
-            _serviceProvider = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
                 .UseSqlServer(_testStore.Connection)
-                .UseInternalServiceProvider(_serviceProvider)
+                .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
             using (var context = new DbContext(_options))

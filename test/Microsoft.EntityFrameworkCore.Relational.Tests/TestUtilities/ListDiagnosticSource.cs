@@ -16,10 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities
 
         public List<Tuple<string, object>> DiagnosticList { get; }
 
-        public override void Write(string diagnosticName, object parameters)
-        {
-            DiagnosticList?.Add(new Tuple<string, object>(diagnosticName, parameters));
-        }
+        public override void Write(string diagnosticName, object parameters) 
+            => DiagnosticList?.Add(new Tuple<string, object>(diagnosticName, parameters));
 
         public override bool IsEnabled(string diagnosticName) => true;
     }

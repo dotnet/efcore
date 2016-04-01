@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { property });
         }
 
-        // ReSharper disable once UnusedMember.Local
+        [UsedImplicitly]
         private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
             where TEntity : class
             where TCollection : class, ICollection<TElement>
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property.Name, getterDelegate, setterDelegate, createAndSetDelegate, createDelegate);
         }
 
-        // ReSharper disable once UnusedMember.Local
+        [UsedImplicitly]
         private static TCollection CreateAndSet<TEntity, TCollection, TConcreteCollection>(
             TEntity entity,
             Action<TEntity, TCollection> setterDelegate)
@@ -105,12 +105,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return collection;
         }
 
-        // ReSharper disable once UnusedMember.Local
+        [UsedImplicitly]
         private static TCollection CreateCollection<TCollection, TConcreteCollection>()
             where TCollection : class
-            where TConcreteCollection : TCollection, new()
-        {
-            return new TConcreteCollection();
-        }
+            where TConcreteCollection : TCollection, new() 
+            => new TConcreteCollection();
     }
 }

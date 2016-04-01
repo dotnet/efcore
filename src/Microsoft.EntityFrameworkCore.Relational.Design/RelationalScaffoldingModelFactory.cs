@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             _databaseModelFactory = databaseModelFactory;
         }
 
-        public virtual IModel Create([NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
+        public virtual IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
 

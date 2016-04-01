@@ -36,13 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             internal static int And { private get; set; }
             internal static int Chocolate { get; private set; }
 
-            protected internal static int With
-            {
-                get { return 0; }
-            }
+            protected internal static int With => 0;
 
             public static int No
             {
+                // ReSharper disable once ValueParameterNotUsed
                 set { }
             }
 
@@ -51,13 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             internal int May { private get; set; }
             protected internal int Contain { get; private set; }
 
-            public int TreeNuts
-            {
-                get { return 0; }
-            }
+            public int TreeNuts => 0;
 
             public int Just
             {
+                // ReSharper disable once ValueParameterNotUsed
                 set { }
             }
 

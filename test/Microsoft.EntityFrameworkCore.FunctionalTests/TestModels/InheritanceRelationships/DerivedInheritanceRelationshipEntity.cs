@@ -17,6 +17,5 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRe
         public List<BaseCollectionOnDerived> BaseCollectionOnDerived { get; set; }
         public List<DerivedCollectionOnDerived> DerivedCollectionOnDerived { get; set; }
         public List<CollectionOnDerived> CollectionOnDerived { get; set; }
-
     }
 }

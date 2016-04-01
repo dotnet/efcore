@@ -6,7 +6,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class FrameworkSkipConditionAttribute : Attribute, ITestCondition
     {
         private readonly RuntimeFrameworks _excludedFrameworks;
@@ -27,19 +27,22 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
                 return true;
             }
 
-            if (excludedFrameworks.HasFlag(RuntimeFrameworks.Mono) &&
+            if (excludedFrameworks.HasFlag(RuntimeFrameworks.Mono)
+                &&
                 TestPlatformHelper.IsMono)
             {
                 return false;
             }
 
-            if (excludedFrameworks.HasFlag(RuntimeFrameworks.CLR) &&
+            if (excludedFrameworks.HasFlag(RuntimeFrameworks.CLR)
+                &&
                 PlatformServices.Default.Runtime.RuntimeType.Equals("CLR", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
-            if (excludedFrameworks.HasFlag(RuntimeFrameworks.CoreCLR) &&
+            if (excludedFrameworks.HasFlag(RuntimeFrameworks.CoreCLR)
+                &&
                 PlatformServices.Default.Runtime.RuntimeType.Equals("CoreCLR", StringComparison.OrdinalIgnoreCase))
             {
                 return false;

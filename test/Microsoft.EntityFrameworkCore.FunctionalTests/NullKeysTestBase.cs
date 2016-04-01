@@ -248,12 +248,12 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     });
 
                 modelBuilder.Entity<WithAllNullableIntKey>(b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.HasMany(e => e.Dependents)
-                        .WithOne(e => e.Principal)
-                        .HasForeignKey(e => e.Fk);
-                });
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.HasMany(e => e.Dependents)
+                            .WithOne(e => e.Principal)
+                            .HasForeignKey(e => e.Fk);
+                    });
 
                 modelBuilder.Entity<WithIntFk>()
                     .Property(e => e.Id).ValueGeneratedNever();

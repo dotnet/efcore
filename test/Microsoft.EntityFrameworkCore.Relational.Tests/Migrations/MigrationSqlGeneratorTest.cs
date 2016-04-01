@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -323,17 +322,17 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-            public override RelationalTypeMapping FindMapping([NotNull] Type clrType, bool unicode = true)
+            public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
                 => clrType == typeof(string)
                     ? (unicode
                         ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
                         : new RelationalTypeMapping("varchar(max)", typeof(string), unicode: false))
-                    : base.FindMapping(clrType);
+                    : base.FindMapping(clrType, unicode);
 
-            protected override RelationalTypeMapping FindCustomMapping([NotNull] IProperty property, bool unicode = true)
+            protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
                     ? new RelationalTypeMapping((unicode ? "nvarchar(" : "varchar(") + property.GetMaxLength() + ")", typeof(string))
-                    : base.FindCustomMapping(property);
+                    : base.FindCustomMapping(property, unicode);
         }
 
         private class ConcreteMigrationSqlGenerator : MigrationsSqlGenerator

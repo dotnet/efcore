@@ -33,9 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public virtual bool? Nullable { get; }
 
-        public virtual void AddDbParameter(
-            [NotNull] DbCommand command,
-            [CanBeNull] object value)
+        public virtual void AddDbParameter(DbCommand command, object value)
         {
             Check.NotNull(command, nameof(command));
 

@@ -34,10 +34,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             public IEntityType EntityType { get; }
 
-            private bool Equals(CacheKey other)
-            {
-                return Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
-            }
+            private bool Equals(CacheKey other) 
+                => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
 
             public override bool Equals(object obj)
             {

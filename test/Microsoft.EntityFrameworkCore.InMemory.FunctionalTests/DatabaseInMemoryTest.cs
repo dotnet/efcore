@@ -134,14 +134,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             public DbSet<Artist> Artists { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+                => optionsBuilder.UseInMemoryDatabase();
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Artist>().HasKey(a => a.ArtistId);
-            }
+            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+                => modelBuilder.Entity<Artist>().HasKey(a => a.ArtistId);
 
             public class Artist : ArtistBase<string>
             {

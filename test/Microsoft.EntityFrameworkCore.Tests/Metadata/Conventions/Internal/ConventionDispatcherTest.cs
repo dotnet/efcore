@@ -740,14 +740,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
                 });
             conventions.ModelBuiltConventions.Add(extraConvention.Object);
 
-            if (useBuilder)
-            {
-                Assert.Null(new InternalModelBuilder(new Model(conventions)).Validate());
-            }
-            else
-            {
-                Assert.Null(new Model(conventions).Validate());
-            }
+            Assert.Null(useBuilder 
+                ? new InternalModelBuilder(new Model(conventions)).Validate() 
+                : new Model(conventions).Validate());
 
             Assert.True(nullConventionCalled);
             Assert.NotNull(modelBuilder);

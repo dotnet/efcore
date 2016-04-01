@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 public string Name { get; set; }
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder) 
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Blog>().HasKey(b => b.Url);
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

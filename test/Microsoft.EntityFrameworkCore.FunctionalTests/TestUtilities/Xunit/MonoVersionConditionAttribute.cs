@@ -6,15 +6,30 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class MonoVersionConditionAttribute : Attribute, ITestCondition
     {
         private Version _min;
         private Version _max;
         private Version _skip;
-        public string Min { get { return _min.ToString(); } set { _min = new Version(value); } }
-        public string Max { get { return _max.ToString(); } set { _max = new Version(value); } }
-        public string Skip { get { return _skip.ToString(); } set { _skip = new Version(value); } }
+
+        public string Min
+        {
+            get { return _min.ToString(); }
+            set { _min = new Version(value); }
+        }
+
+        public string Max
+        {
+            get { return _max.ToString(); }
+            set { _max = new Version(value); }
+        }
+
+        public string Skip
+        {
+            get { return _skip.ToString(); }
+            set { _skip = new Version(value); }
+        }
 
         private Version Current
         {
@@ -44,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
                     return false;
                 }
 
-                if (_min == null && _max == null)
+                if (_min == null
+                    && _max == null)
                 {
                     return true;
                 }
@@ -71,8 +87,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
             get
             {
                 return _skipReason ??
-                        $"Test only runs for Mono versions >= { Min ?? "Any"} and <= { Max ?? "Any" }"
-                        + (Skip == null ? "" : "and skipping on " + Skip);
+                       $"Test only runs for Mono versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
+                       + (Skip == null ? "" : "and skipping on " + Skip);
             }
         }
     }

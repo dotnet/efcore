@@ -760,10 +760,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             public DbSet<Gumball> Gumballs { get; set; }
         }
 
-        protected StoreGeneratedContext CreateContext() 
+        protected StoreGeneratedContext CreateContext()
             => (StoreGeneratedContext)Fixture.CreateContext(TestStore);
 
-        public void Dispose() 
+        public void Dispose()
             => TestStore.Dispose();
 
         protected TFixture Fixture { get; }

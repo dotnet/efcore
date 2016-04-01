@@ -110,10 +110,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             public DbSet<Fraggle> Fraggles { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase();
-            }
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
         }
 
         private class Fraggle

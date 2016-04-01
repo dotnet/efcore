@@ -158,7 +158,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public class GraphUpdatesInMemoryFixture : GraphUpdatesFixtureBase
         {
             private readonly IServiceProvider _serviceProvider;
-            private readonly DbContextOptionsBuilder _optionsBuilder;
 
             public GraphUpdatesInMemoryFixture()
             {
@@ -167,8 +166,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
 
-                _optionsBuilder = new DbContextOptionsBuilder();
-                _optionsBuilder.UseInMemoryDatabase();
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseInMemoryDatabase();
             }
 
             public override InMemoryTestStore CreateTestStore()

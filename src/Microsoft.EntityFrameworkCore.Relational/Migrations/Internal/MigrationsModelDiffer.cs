@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IRelationalAnnotationProvider Annotations { get; }
         protected virtual IMigrationsAnnotationProvider MigrationsAnnotations { get; }
 
-        public virtual bool HasDifferences(IModel source, [CanBeNull] IModel target)
+        public virtual bool HasDifferences(IModel source, IModel target)
             => Diff(source, target, new DiffContext()).Any();
 
         public virtual IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target)

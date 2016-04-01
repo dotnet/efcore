@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     public class AutoincrementTest : IDisposable
     {
         private readonly DbContextOptions _options;
-        private readonly IServiceProvider _provider;
         private readonly SqliteTestStore _testStore;
 
         [Fact]
@@ -50,12 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
 
-            _provider = new ServiceCollection()
+            var provider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(_provider)
+                .UseInternalServiceProvider(provider)
                 .UseSqlite(_testStore.Connection)
                 .Options;
         }

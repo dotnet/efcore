@@ -2937,21 +2937,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] string propertyName = "")
-            {
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-                }
-            }
+            private void NotifyChanged([CallerMemberName] string propertyName = "") 
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            private void NotifyChanging([CallerMemberName] string propertyName = "")
-            {
-                if (PropertyChanging != null)
-                {
-                    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
-                }
-            }
+            private void NotifyChanging([CallerMemberName] string propertyName = "") 
+                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
         private class ChangedOnlyEntity : INotifyPropertyChanged
@@ -2987,13 +2977,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] string propertyName = "")
-            {
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-                }
-            }
+            private void NotifyChanged([CallerMemberName] string propertyName = "") 
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private class SelfRef

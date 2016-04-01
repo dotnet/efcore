@@ -3,48 +3,28 @@
 
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class FileSystemFileService : IFileService
     {
-        public virtual bool DirectoryExists([NotNull] string directoryName)
-        {
-            return Directory.Exists(directoryName);
-        }
+        public virtual bool DirectoryExists(string directoryName)
+            => Directory.Exists(directoryName);
 
-        public virtual bool FileExists([NotNull] string directoryName, [NotNull] string fileName)
-        {
-            return File.Exists(Path.Combine(directoryName, fileName));
-        }
+        public virtual bool FileExists(string directoryName, string fileName)
+            => File.Exists(Path.Combine(directoryName, fileName));
 
-        public virtual bool IsFileReadOnly([NotNull] string directoryName, [NotNull] string fileName)
+        public virtual bool IsFileReadOnly(string directoryName, string fileName)
         {
             var fullFileName = Path.Combine(directoryName, fileName);
-            if (!File.Exists(fullFileName))
-            {
-                return false;
-            }
-
-            var attributes = File.GetAttributes(fullFileName);
-            if (attributes.HasFlag(FileAttributes.ReadOnly))
-            {
-                return true;
-            }
-
-            return false;
+            return File.Exists(fullFileName)
+                   && File.GetAttributes(fullFileName).HasFlag(FileAttributes.ReadOnly);
         }
 
-        public virtual string RetrieveFileContents([NotNull] string directoryName,
-            [NotNull] string fileName)
-        {
-            var fullFileName = Path.Combine(directoryName, fileName);
-            return File.ReadAllText(fullFileName);
-        }
+        public virtual string RetrieveFileContents(string directoryName, string fileName)
+            => File.ReadAllText(Path.Combine(directoryName, fileName));
 
-        public virtual string OutputFile([NotNull] string directoryName,
-            [NotNull] string fileName, [NotNull] string contents)
+        public virtual string OutputFile(string directoryName, string fileName, string contents)
         {
             Directory.CreateDirectory(directoryName);
             var fullFileName = Path.Combine(directoryName, fileName);

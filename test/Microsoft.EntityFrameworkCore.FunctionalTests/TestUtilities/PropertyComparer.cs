@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
                    && x.ValueGenerated == y.ValueGenerated
                    && x.IsReadOnlyBeforeSave == y.IsReadOnlyBeforeSave
                    && x.IsReadOnlyAfterSave == y.IsReadOnlyAfterSave
-                   && (!_compareAnnotations ||x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
+                   && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IProperty obj) => obj.Name.GetHashCode();

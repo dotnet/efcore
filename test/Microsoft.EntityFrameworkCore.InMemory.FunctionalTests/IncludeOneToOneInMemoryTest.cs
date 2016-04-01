@@ -15,9 +15,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             _fixture = fixture;
         }
 
-        protected override DbContext CreateContext()
-        {
-            return _fixture.CreateContext();
-        }
+        protected override DbContext CreateContext() => _fixture.CreateContext();
     }
 }

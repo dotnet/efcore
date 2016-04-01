@@ -23,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             _sqlFunctionName = sqlFunctionName;
         }
 
-        public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            var methodInfo = _declaringType.GetTypeInfo().GetDeclaredMethods(_clrMethodName)
-                .Where(m => m.GetParameters().Count() == 0).SingleOrDefault();
+            var methodInfo = _declaringType.GetTypeInfo()
+                .GetDeclaredMethods(_clrMethodName).SingleOrDefault(m => !m.GetParameters().Any());
 
             if (methodInfo == methodCallExpression.Method)
             {

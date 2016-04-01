@@ -218,6 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             private List<MyOtherEntity> _asList;
             private MyCollection _myCollection;
             private ICollection<MyOtherEntity> _withNoSetter;
+            // ReSharper disable once NotAccessedField.Local
             private ICollection<MyOtherEntity> _withNoGetter;
             private IEnumerable<MyOtherEntity> _enumerable;
             private MyOtherEntity[] _array;
@@ -264,10 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 set { _myCollection = value; }
             }
 
-            internal ICollection<MyOtherEntity> WithNoSetter
-            {
-                get { return _withNoSetter; }
-            }
+            internal ICollection<MyOtherEntity> WithNoSetter => _withNoSetter;
 
             internal ICollection<MyOtherEntity> WithNoGetter
             {

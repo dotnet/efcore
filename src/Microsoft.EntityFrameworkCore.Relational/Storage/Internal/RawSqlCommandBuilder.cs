@@ -27,15 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
-        public virtual IRelationalCommand Build([NotNull] string sql)
+        public virtual IRelationalCommand Build(string sql)
             => _relationalCommandBuilderFactory
                 .Create()
                 .Append(Check.NotEmpty(sql, nameof(sql)))
                 .Build();
 
-        public virtual RawSqlCommand Build(
-            [NotNull] string sql,
-            [NotNull] IReadOnlyList<object> parameters)
+        public virtual RawSqlCommand Build(string sql, IReadOnlyList<object> parameters)
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _entityTrackingInfoFactory = entityTrackingInfoFactory;
         }
 
-        public virtual EntityResultFindingExpressionVisitor Create([NotNull] QueryCompilationContext queryCompilationContext)
+        public virtual EntityResultFindingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
             => new EntityResultFindingExpressionVisitor(
                 _model,
                 _entityTrackingInfoFactory,

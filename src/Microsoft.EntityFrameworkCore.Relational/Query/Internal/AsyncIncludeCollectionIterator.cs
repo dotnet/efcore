@@ -87,9 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        public virtual void Dispose()
-        {
-            _relatedValuesEnumerator.Dispose();
-        }
+        public virtual void Dispose() => _relatedValuesEnumerator.Dispose();
     }
 }

@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual OperationBuilder<AlterSequenceOperation> AlterSequence(
             [NotNull] string name,
             [CanBeNull] string schema = null,
-            [CanBeNull] int incrementBy = 1,
+            int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
             bool cyclic = false)
@@ -280,8 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence(
             [NotNull] string name,
             [CanBeNull] string schema = null,
-            [CanBeNull] long startValue = 1L,
-            [CanBeNull] int incrementBy = 1,
+            long startValue = 1L,
+            int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
             bool cyclic = false)
@@ -290,8 +290,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence<T>(
             [NotNull] string name,
             [CanBeNull] string schema = null,
-            [CanBeNull] long startValue = 1L,
-            [CanBeNull] int incrementBy = 1,
+            long startValue = 1L,
+            int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
             bool cyclic = false)
@@ -343,10 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             var builder = new CreateTableBuilder<TColumns>(createTableOperation, columnMap);
-            if (constraints != null)
-            {
-                constraints(builder);
-            }
+            constraints?.Invoke(builder);
 
             Operations.Add(createTableOperation);
 

@@ -158,20 +158,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             public int OnTheRun { get; set; }
 
-            public int Time
-            {
-                get { return 0; }
-            }
+            public int Time => 0;
 
-            public override int Money
-            {
-                get { return 0; }
-            }
+            public override int Money => 0;
 
-            public override int UsAndThem
-            {
-                get { return 0; }
-            }
+            public override int UsAndThem => 0;
         }
 
         private class OfTheMoon

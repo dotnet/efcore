@@ -122,10 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
             {
             }
 
-            public OrdersContext CreateContext(bool disableBatching)
-            {
-                return new OrdersContext(ConnectionString, disableBatching);
-            }
+            public OrdersContext CreateContext(bool disableBatching) => new OrdersContext(ConnectionString, disableBatching);
         }
     }
 }

@@ -19,10 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
             Dispose(false);
         }
 
-        public T CreateInstance<T>(params object[] args)
-        {
-            return (T)CreateInstance(typeof(T), args);
-        }
+        public T CreateInstance<T>(params object[] args) 
+            => (T)CreateInstance(typeof(T), args);
 
         public object CreateInstance(Type type, params object[] args)
         {

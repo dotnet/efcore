@@ -39,10 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public DbSet<You> Yous { get; set; }
             protected DbSet<Better> Betters { get; set; }
 
-            internal DbSet<Stop> Stops
-            {
-                get { return null; }
-            }
+            internal DbSet<Stop> Stops => null;
         }
 
         public class The : Streets

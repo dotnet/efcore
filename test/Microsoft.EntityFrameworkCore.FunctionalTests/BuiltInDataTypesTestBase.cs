@@ -116,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 var param6 = Fixture.DefaultDateTime;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestDateTime == param6));
 
-                if (entityType.FindProperty("TestDateTimeOffset") != null) {
+                if (entityType.FindProperty("TestDateTimeOffset") != null)
+                {
                     var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
                     Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestDateTimeOffset == param7));
                 }
@@ -135,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
                 if (entityType.FindProperty("TestByte") != null)
                 {
-                    var param11 = (byte) 255;
+                    var param11 = (byte)255;
                     Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestByte == param11));
                 }
 
@@ -262,7 +263,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 bool? param10 = true;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableBoolean == param10));
 
-                if (entityType.FindProperty("TestNullableByte") != null) {
+                if (entityType.FindProperty("TestNullableByte") != null)
+                {
                     byte? param11 = 255;
                     Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableByte == param11));
                 }
@@ -322,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 context.Set<BuiltInNullableDataTypes>().Add(
                     new BuiltInNullableDataTypes
                     {
-                        Id = 711,
+                        Id = 711
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -418,30 +420,30 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<BuiltInDataTypes>().Add(
                     new BuiltInDataTypes
-                        {
-                            Id = 1,
-                            PartitionId = 1,
-                            TestInt16 = -1234,
-                            TestInt32 = -123456789,
-                            TestInt64 = -1234567890123456789L,
-                            TestDouble = -1.23456789,
-                            TestDecimal = -1234567890.01M,
-                            TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
-                            TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-                            TestSingle = -1.234F,
-                            TestBoolean = true,
-                            TestByte = 255,
-                            TestUnsignedInt16 = 1234,
-                            TestUnsignedInt32 = 1234565789U,
-                            TestUnsignedInt64 = 1234567890123456789UL,
-                            TestCharacter = 'a',
-                            TestSignedByte = -128,
-                            Enum64 = Enum64.SomeValue,
-                            Enum32 = Enum32.SomeValue,
-                            Enum16 = Enum16.SomeValue,
-                            Enum8 = Enum8.SomeValue
-                        });
+                    {
+                        Id = 1,
+                        PartitionId = 1,
+                        TestInt16 = -1234,
+                        TestInt32 = -123456789,
+                        TestInt64 = -1234567890123456789L,
+                        TestDouble = -1.23456789,
+                        TestDecimal = -1234567890.01M,
+                        TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                        TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                        TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                        TestSingle = -1.234F,
+                        TestBoolean = true,
+                        TestByte = 255,
+                        TestUnsignedInt16 = 1234,
+                        TestUnsignedInt32 = 1234565789U,
+                        TestUnsignedInt64 = 1234567890123456789UL,
+                        TestCharacter = 'a',
+                        TestSignedByte = -128,
+                        Enum64 = Enum64.SomeValue,
+                        Enum32 = Enum32.SomeValue,
+                        Enum16 = Enum16.SomeValue,
+                        Enum8 = Enum8.SomeValue
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -491,13 +493,13 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<MaxLengthDataTypes>().Add(
                     new MaxLengthDataTypes
-                        {
-                            Id = 79,
-                            String3 = shortString,
-                            ByteArray5 = shortBinary,
-                            String9000 = longString,
-                            ByteArray9000 = longBinary
-                        });
+                    {
+                        Id = 79,
+                        String3 = shortString,
+                        ByteArray5 = shortBinary,
+                        String9000 = longString,
+                        ByteArray9000 = longBinary
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -525,16 +527,16 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<BinaryKeyDataType>().Add(
                     new BinaryKeyDataType
-                        {
-                            Id = new byte[] { 1, 2, 3 }
-                        });
+                    {
+                        Id = new byte[] { 1, 2, 3 }
+                    });
 
                 context.Set<BinaryForeignKeyDataType>().Add(
                     new BinaryForeignKeyDataType
-                        {
-                            Id = 77,
-                            BinaryKeyDataTypeId = new byte[] { 1, 2, 3 }
-                        });
+                    {
+                        Id = 77,
+                        BinaryKeyDataTypeId = new byte[] { 1, 2, 3 }
+                    });
 
                 Assert.Equal(2, context.SaveChanges());
             }
@@ -558,9 +560,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<BinaryForeignKeyDataType>().Add(
                     new BinaryForeignKeyDataType
-                        {
-                            Id = 78
-                        });
+                    {
+                        Id = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -580,16 +582,16 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<StringKeyDataType>().Add(
                     new StringKeyDataType
-                        {
-                            Id = "Gumball!"
-                        });
+                    {
+                        Id = "Gumball!"
+                    });
 
                 context.Set<StringForeignKeyDataType>().Add(
                     new StringForeignKeyDataType
-                        {
-                            Id = 77,
-                            StringKeyDataTypeId = "Gumball!"
-                        });
+                    {
+                        Id = 77,
+                        StringKeyDataTypeId = "Gumball!"
+                    });
 
                 Assert.Equal(2, context.SaveChanges());
             }
@@ -613,9 +615,9 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<StringForeignKeyDataType>().Add(
                     new StringForeignKeyDataType
-                        {
-                            Id = 78
-                        });
+                    {
+                        Id = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -643,10 +645,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<BuiltInNullableDataTypes>().Add(
                     new BuiltInNullableDataTypes
-                        {
-                            Id = 100,
-                            PartitionId = 100
-                        });
+                    {
+                        Id = 100,
+                        PartitionId = 100
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -687,31 +689,31 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 context.Set<BuiltInNullableDataTypes>().Add(
                     new BuiltInNullableDataTypes
-                        {
-                            Id = 101,
-                            PartitionId = 101,
-                            TestString = "TestString",
-                            TestByteArray = new byte[] { 10, 9, 8, 7, 6 },
-                            TestNullableInt16 = -1234,
-                            TestNullableInt32 = -123456789,
-                            TestNullableInt64 = -1234567890123456789L,
-                            TestNullableDouble = -1.23456789,
-                            TestNullableDecimal = -1234567890.01M,
-                            TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                            TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
-                            TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
-                            TestNullableSingle = -1.234F,
-                            TestNullableBoolean = false,
-                            TestNullableByte = 255,
-                            TestNullableUnsignedInt16 = 1234,
-                            TestNullableUnsignedInt32 = 1234565789U,
-                            TestNullableUnsignedInt64 = 1234567890123456789UL,
-                            TestNullableCharacter = 'a',
-                            TestNullableSignedByte = -128,
-                            Enum64 = Enum64.SomeValue,
-                            Enum32 = Enum32.SomeValue,
-                            Enum16 = Enum16.SomeValue,
-                            Enum8 = Enum8.SomeValue
+                    {
+                        Id = 101,
+                        PartitionId = 101,
+                        TestString = "TestString",
+                        TestByteArray = new byte[] { 10, 9, 8, 7, 6 },
+                        TestNullableInt16 = -1234,
+                        TestNullableInt32 = -123456789,
+                        TestNullableInt64 = -1234567890123456789L,
+                        TestNullableDouble = -1.23456789,
+                        TestNullableDecimal = -1234567890.01M,
+                        TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                        TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                        TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                        TestNullableSingle = -1.234F,
+                        TestNullableBoolean = false,
+                        TestNullableByte = 255,
+                        TestNullableUnsignedInt16 = 1234,
+                        TestNullableUnsignedInt32 = 1234565789U,
+                        TestNullableUnsignedInt64 = 1234567890123456789UL,
+                        TestNullableCharacter = 'a',
+                        TestNullableSignedByte = -128,
+                        Enum64 = Enum64.SomeValue,
+                        Enum32 = Enum32.SomeValue,
+                        Enum16 = Enum16.SomeValue,
+                        Enum8 = Enum8.SomeValue
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -746,6 +748,5 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 AssertEqualIfMapped(entityType, (sbyte)-128, () => dt.TestNullableSignedByte);
             }
         }
-
     }
 }

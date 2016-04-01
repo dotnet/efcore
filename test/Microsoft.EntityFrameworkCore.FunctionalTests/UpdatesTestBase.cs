@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.Equal(
                     UpdateConcurrencyMessage,
                     Assert.Throws<DbUpdateConcurrencyException>(
-                    () => context.SaveChanges()).Message);
+                        () => context.SaveChanges()).Message);
             }
         }
 

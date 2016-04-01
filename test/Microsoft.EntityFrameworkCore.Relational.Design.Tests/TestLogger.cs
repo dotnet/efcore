@@ -43,11 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         public bool IsEnabled(LogLevel logLevel) => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            _sb.Append(logLevel)
+            => _sb.Append(logLevel)
                 .Append(": ")
                 .Append(formatter(state, exception));
-        }
 
         public class NullScope : IDisposable
         {

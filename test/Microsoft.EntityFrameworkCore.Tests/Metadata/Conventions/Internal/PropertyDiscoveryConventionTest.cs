@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             public int WriteOnly
             {
+                // ReSharper disable once ValueParameterNotUsed
                 set { }
             }
 
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             public int this[int index]
             {
                 get { return 0; }
+                // ReSharper disable once ValueParameterNotUsed
                 set { }
             }
         }

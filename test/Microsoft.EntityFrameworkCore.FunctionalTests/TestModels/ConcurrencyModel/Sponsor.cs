@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyMo
         public string Name { get; set; }
 
         [NotMapped]
-        public virtual ICollection<Team> Teams
-        {
-            get { return _teams; }
-        }
+        public virtual ICollection<Team> Teams => _teams;
     }
 }

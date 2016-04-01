@@ -79,10 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Query
         {
             public int FirstLevelProperty { get; } = 11;
 
-            public int SecondLevelProperty
-            {
-                get { return FirstLevelProperty; }
-            }
+            public int SecondLevelProperty => FirstLevelProperty;
         }
 
         public class FuncletizationFixture : OrdersFixture

@@ -15,10 +15,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
         public virtual Order Order { get; set; }
 
         protected bool Equals(OrderDetail other)
-        {
-            return OrderID == other.OrderID
-                   && ProductID == other.ProductID;
-        }
+            => OrderID == other.OrderID
+               && ProductID == other.ProductID;
 
         public override bool Equals(object obj)
         {

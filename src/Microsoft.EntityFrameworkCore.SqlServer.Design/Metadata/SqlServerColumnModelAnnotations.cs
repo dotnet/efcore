@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
             get
             {
                 var value = _column[SqlServerDatabaseModelAnnotationNames.IsIdentity];
-                return value is bool ? (bool)value : false;
+                return value is bool && (bool)value;
             }
             [param: NotNull] set { _column[SqlServerDatabaseModelAnnotationNames.IsIdentity] = value; }
         }

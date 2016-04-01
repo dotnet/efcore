@@ -24,18 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         public virtual bool HasAttributeEquivalent { get; set; }
 
         public virtual string MethodBody
-        {
-            get
-            {
-                return MethodArguments == null
-                    ? MethodName + "()"
-                    : MethodName + "(" + string.Join(", ", MethodArguments) + ")";
-            }
-        }
+            => MethodArguments == null
+                ? MethodName + "()"
+                : MethodName + "(" + string.Join(", ", MethodArguments) + ")";
 
         public virtual ICollection<string> FluentApiLines
-        {
-            get { return new List<string> { MethodBody }; }
-        }
+            => new List<string> { MethodBody };
     }
 }

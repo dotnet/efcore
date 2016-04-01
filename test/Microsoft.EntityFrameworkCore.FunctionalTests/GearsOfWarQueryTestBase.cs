@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
+
 // ReSharper disable ReplaceWithSingleCallToSingle
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
@@ -124,11 +125,11 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         [ConditionalFact]
         public virtual void Include_multiple_include_then_include()
         {
-            var gearAssignedCities = new Dictionary<string, string>();
-            var gearCitiesOfBirth = new Dictionary<string, string>();
-            var gearTagNotes = new Dictionary<string, string>();
-            var cityStationedGears = new Dictionary<string, List<string>>();
-            var cityBornGears = new Dictionary<string, List<string>>();
+            Dictionary<string, string> gearAssignedCities;
+            Dictionary<string, string> gearCitiesOfBirth;
+            Dictionary<string, string> gearTagNotes;
+            Dictionary<string, List<string>> cityStationedGears;
+            Dictionary<string, List<string>> cityBornGears;
 
             using (var context = CreateContext())
             {
@@ -552,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType })
                     .ToList();
 
-                Assert.True(cartridgeWeapons.All(t => t.Cartidge == true));
+                Assert.True(cartridgeWeapons.All(t => t.Cartidge));
             }
 
             ammunitionType = null;
@@ -563,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     .Select(w => new { w.Id, Cartidge = w.AmmunitionType == ammunitionType })
                     .ToList();
 
-                Assert.True(cartridgeWeapons.All(t => t.Cartidge == true));
+                Assert.True(cartridgeWeapons.All(t => t.Cartidge));
             }
         }
 
@@ -878,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var query = (from t in context.Tags
                              join g in context.Gears.OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName }
-                                equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
+                                 equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
                              select g).Include(g => g.Tag);
 
                 var result = query.ToList();
@@ -894,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var query = (from g in context.Gears.OfType<Officer>()
                              join t in context.Tags on new { id1 = (int?)g.SquadId, id2 = g.Nickname }
-                                equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
+                                 equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
                              select g).Include(g => g.Tag);
 
                 var result = query.ToList();

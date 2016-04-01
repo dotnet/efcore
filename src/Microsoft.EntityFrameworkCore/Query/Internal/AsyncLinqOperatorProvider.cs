@@ -34,16 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         internal class EnumerableAdapter<TResult> : IAsyncEnumerable<TResult>, IEnumerable<TResult>
         {
-            protected readonly IAsyncEnumerable<TResult> _results;
+            protected readonly IAsyncEnumerable<TResult> Results;
 
             public EnumerableAdapter(IAsyncEnumerable<TResult> results)
             {
-                _results = results;
+                Results = results;
             }
 
-            IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator() => _results.GetEnumerator();
+            IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator() => Results.GetEnumerator();
 
-            IEnumerator<TResult> IEnumerable<TResult>.GetEnumerator() => _results.ToEnumerable().GetEnumerator();
+            IEnumerator<TResult> IEnumerable<TResult>.GetEnumerator() => Results.ToEnumerable().GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TResult>)this).GetEnumerator();
         }
@@ -69,14 +69,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IOrderedAsyncEnumerable<TResult> IOrderedAsyncEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
                 => !descending
-                    ? _results.OrderBy(keySelector, comparer)
-                    : _results.OrderByDescending(keySelector, comparer);
+                    ? Results.OrderBy(keySelector, comparer)
+                    : Results.OrderByDescending(keySelector, comparer);
 
             IOrderedEnumerable<TResult> IOrderedEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
                 => !descending
-                    ? _results.ToEnumerable().OrderBy(keySelector, comparer)
-                    : _results.ToEnumerable().OrderByDescending(keySelector, comparer);
+                    ? Results.ToEnumerable().OrderBy(keySelector, comparer)
+                    : Results.ToEnumerable().OrderByDescending(keySelector, comparer);
         }
 
         private static readonly MethodInfo _interceptExceptions
