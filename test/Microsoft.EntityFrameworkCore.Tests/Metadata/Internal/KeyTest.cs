@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var property2 = entityType2.GetOrAddProperty(Order.NameProperty);
 
             Assert.Equal(CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
-                Assert.Throws<ArgumentException>(
+                Assert.Throws<InvalidOperationException>(
                     () => entityType1.AddKey(new[] { property1, property2 })).Message);
         }
 

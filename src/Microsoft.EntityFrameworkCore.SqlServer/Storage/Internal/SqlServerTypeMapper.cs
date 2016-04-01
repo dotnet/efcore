@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             if (_disallowedMappings.Contains(typeName))
             {
-                throw new NotSupportedException(SqlServerStrings.UnqualifiedDataType(typeName));
+                throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(typeName));
             }
         }
 

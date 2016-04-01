@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 
             if (navigationPropertyPath == null)
             {
-                throw new ArgumentException(
+                throw new InvalidOperationException(
                     CoreStrings.InvalidComplexPropertyExpression(_navigationPropertyPathLambda));
             }
 

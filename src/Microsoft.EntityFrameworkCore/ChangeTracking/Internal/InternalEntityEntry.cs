@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && isModified
                 && property.IsKey())
             {
-                throw new NotSupportedException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
             }
 
             if (changeState)

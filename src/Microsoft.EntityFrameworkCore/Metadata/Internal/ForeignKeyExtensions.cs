@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if ((foreignKey.DeclaringEntityType != entityType)
                 && (foreignKey.PrincipalEntityType != entityType))
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationshipStrict(
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationshipStrict(
                     entityType.DisplayName(),
                     foreignKey.DeclaringEntityType.DisplayName(),
                     foreignKey.PrincipalEntityType.DisplayName()));
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.DisplayName(),
                     foreignKey.DeclaringEntityType.DisplayName(),
                     foreignKey.PrincipalEntityType.DisplayName()));
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if ((foreignKey.DeclaringEntityType != entityType)
                 && (foreignKey.PrincipalEntityType != entityType))
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationshipStrict(
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationshipStrict(
                     entityType.DisplayName(),
                     foreignKey.DeclaringEntityType.DisplayName(),
                     foreignKey.PrincipalEntityType.DisplayName()));
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.DisplayName(), foreignKey.DeclaringEntityType.DisplayName(), foreignKey.PrincipalEntityType.DisplayName()));
             }
 
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if ((foreignKey.DeclaringEntityType != entityType)
                 && (foreignKey.PrincipalEntityType != entityType))
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationshipStrict(
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationshipStrict(
                     entityType.DisplayName(),
                     foreignKey.DeclaringEntityType.DisplayName(),
                     foreignKey.PrincipalEntityType.DisplayName()));
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.DisplayName(),
                     foreignKey.DeclaringEntityType.DisplayName(),
                     foreignKey.PrincipalEntityType.DisplayName()));
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.DisplayName(),
                     foreignKey.DeclaringEntityType.DisplayName(),
                     foreignKey.PrincipalEntityType.DisplayName()));

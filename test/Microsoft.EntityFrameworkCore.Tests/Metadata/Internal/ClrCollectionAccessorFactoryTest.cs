@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationNoGetter("WithNoGetter", typeof(MyEntity).FullName),
-                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
+                Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(
                 CoreStrings.NavigationBadType(
                     "AsIEnumerable", typeof(MyEntity).FullName, typeof(IEnumerable<MyOtherEntity>).FullName, typeof(MyOtherEntity).FullName),
-                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
+                Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationArray("AsArray", typeof(MyEntity).FullName, typeof(MyOtherEntity[]).FullName),
-                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
+                Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
         }
 
         [Fact]

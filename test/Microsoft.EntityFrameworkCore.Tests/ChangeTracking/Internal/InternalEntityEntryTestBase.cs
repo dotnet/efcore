@@ -203,14 +203,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 CoreStrings.KeyReadOnly("Id", entityType.DisplayName()),
-                Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(keyProperty)).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.SetPropertyModified(keyProperty)).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsModified(keyProperty));
 
             Assert.Equal(
                 CoreStrings.KeyReadOnly("Id", entityType.DisplayName()),
-                Assert.Throws<NotSupportedException>(() => entry[keyProperty] = 2).Message);
+                Assert.Throws<InvalidOperationException>(() => entry[keyProperty] = 2).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsModified(keyProperty));

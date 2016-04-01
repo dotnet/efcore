@@ -458,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Throws_for_unrecognized_types()
         {
-            var ex = Assert.Throws<NotSupportedException>(() => new SqlServerTypeMapper().GetMapping("magic"));
+            var ex = Assert.Throws<InvalidOperationException>(() => new SqlServerTypeMapper().GetMapping("magic"));
             Assert.Equal(RelationalStrings.UnsupportedType("magic"), ex.Message);
         }
 

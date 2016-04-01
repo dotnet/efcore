@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal(
                 RelationalStrings.ModificationFunctionInvalidEntityState(EntityState.Unchanged),
-                Assert.Throws<NotSupportedException>(() => command.AddEntry(entry)).Message);
+                Assert.Throws<ArgumentException>(() => command.AddEntry(entry)).Message);
         }
 
         [Fact]
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal(
                 RelationalStrings.ModificationFunctionInvalidEntityState(EntityState.Detached),
-                Assert.Throws<NotSupportedException>(() => command.AddEntry(entry)).Message);
+                Assert.Throws<ArgumentException>(() => command.AddEntry(entry)).Message);
         }
 
         [Fact]

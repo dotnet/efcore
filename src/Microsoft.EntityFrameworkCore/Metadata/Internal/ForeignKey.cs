@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (!principalEntityType.GetKeys().Contains(principalKey))
             {
-                throw new ArgumentException(
+                throw new InvalidOperationException(
                     CoreStrings.ForeignKeyReferencedEntityKeyMismatch(
                         Property.Format(principalKey.Properties),
                         principalEntityType));

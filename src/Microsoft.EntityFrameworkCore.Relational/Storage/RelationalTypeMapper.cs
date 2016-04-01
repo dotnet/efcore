@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
-            throw new NotSupportedException(RelationalStrings.UnsupportedType(property.ClrType.Name));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(property.ClrType.Name));
         }
 
         protected virtual RelationalTypeMapping FindCustomMapping([NotNull] IProperty property, bool unicode = true) => null;

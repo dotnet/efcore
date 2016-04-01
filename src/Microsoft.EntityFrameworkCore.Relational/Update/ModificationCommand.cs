@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 && (entry.EntityState != EntityState.Modified)
                 && (entry.EntityState != EntityState.Deleted))
             {
-                throw new NotSupportedException(RelationalStrings.ModificationFunctionInvalidEntityState(entry.EntityState));
+                throw new ArgumentException(RelationalStrings.ModificationFunctionInvalidEntityState(entry.EntityState));
             }
 
             var firstEntry = _entries.FirstOrDefault();

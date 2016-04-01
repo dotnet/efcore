@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!readOnlyAfterSave
                 && Keys != null)
             {
-                throw new NotSupportedException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
+                throw new InvalidOperationException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
             }
             SetFlag(readOnlyAfterSave, PropertyFlags.IsReadOnlyAfterSave);
             UpdateIsReadOnlyAfterSaveConfigurationSource(configurationSource);

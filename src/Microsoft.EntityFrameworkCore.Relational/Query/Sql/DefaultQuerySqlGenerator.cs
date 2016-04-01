@@ -1061,7 +1061,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (typeMapping == null)
             {
-                throw new NotSupportedException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.Name));
+                throw new InvalidOperationException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.Name));
             }
 
             _relationalCommandBuilder.Append(typeMapping.DefaultTypeName);

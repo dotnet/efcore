@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private static Lazy<Dictionary<IEntityType, IInMemoryTable>> CreateTables()
         {
             return new Lazy<Dictionary<IEntityType, IInMemoryTable>>(
-                () => new Dictionary<IEntityType, IInMemoryTable>(new EntityTypeNameEqualityComparer()),
+                () => new Dictionary<IEntityType, IInMemoryTable>(),
                 LazyThreadSafetyMode.PublicationOnly);
         }
 

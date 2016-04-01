@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'Fk'}", "R"),
-                Assert.Throws<ArgumentException>(() => dependentEntityType.AddForeignKey(new[] { fk }, principalKey, principalEntityType)).Message);
+                Assert.Throws<InvalidOperationException>(() => dependentEntityType.AddForeignKey(new[] { fk }, principalKey, principalEntityType)).Message);
         }
 
         [Fact]
@@ -610,22 +610,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(derivedDependent.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveOtherEntityType(derivedDependent)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityType(derivedDependent)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(derivedPrincipal.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveOtherEntityType(derivedPrincipal)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityType(derivedPrincipal)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(derivedPrincipal.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsFrom(derivedPrincipal)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsFrom(derivedPrincipal)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(derivedDependent.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsFrom(derivedDependent)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsFrom(derivedDependent)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(derivedPrincipal.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsTo(derivedPrincipal)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(derivedPrincipal)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(derivedDependent.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsTo(derivedDependent)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(derivedDependent)).Message);
 
             Assert.Same(fk.DeclaringEntityType, fk.ResolveEntityTypeInHierarchy(derivedDependent));
             Assert.Same(fk.PrincipalEntityType, fk.ResolveEntityTypeInHierarchy(derivedPrincipal));
@@ -708,52 +708,52 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveOtherEntityType(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityType(unrelatedType)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveOtherEntityType(unrelatedType)).Message);
-
-            Assert.Equal(
-                CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsFrom(unrelatedType)).Message);
-            Assert.Equal(
-                CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsFrom(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityType(unrelatedType)).Message);
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsTo(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsFrom(unrelatedType)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsTo(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsFrom(unrelatedType)).Message);
+
+            Assert.Equal(
+                CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(unrelatedType)).Message);
+            Assert.Equal(
+                CoreStrings.EntityTypeNotInRelationshipStrict(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(unrelatedType)).Message);
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveEntityTypeInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(unrelatedType)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveEntityTypeInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(unrelatedType)).Message);
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveOtherEntityTypeInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(unrelatedType)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.ResolveOtherEntityTypeInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(unrelatedType)).Message);
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsFromInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsFromInHierarchy(unrelatedType)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsFromInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsFromInHierarchy(unrelatedType)).Message);
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<ArgumentException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
+                Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
         }
     }
 }

@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (FindProperty(property.Name) != property)
                 {
-                    throw new ArgumentException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
 
                 if (property.FindContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (actualProperty == null
                     || !actualProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType))
                 {
-                    throw new ArgumentException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
 
                 if (actualProperty.FindContainingKeys().Any(k => k.DeclaringEntityType != this))
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (principalEntityType.Model != Model)
             {
-                throw new ArgumentException(CoreStrings.EntityTypeModelMismatch(this, principalEntityType));
+                throw new InvalidOperationException(CoreStrings.EntityTypeModelMismatch(this, principalEntityType));
             }
 
             _foreignKeys.Add(foreignKey);
@@ -910,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (FindProperty(property.Name) != property)
                 {
-                    throw new ArgumentException(CoreStrings.IndexPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
             }
 

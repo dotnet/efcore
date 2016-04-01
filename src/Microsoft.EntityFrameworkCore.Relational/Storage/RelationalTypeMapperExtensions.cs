@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
-            throw new NotSupportedException(RelationalStrings.UnsupportedType(property));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(property));
         }
 
         public static RelationalTypeMapping GetMapping(
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
-            throw new NotSupportedException(RelationalStrings.UnsupportedType(clrType));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType));
         }
 
         public static RelationalTypeMapping GetMapping(
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return mapping;
             }
 
-            throw new NotSupportedException(RelationalStrings.UnsupportedType(typeName));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(typeName));
         }
 
         public static bool IsTypeMapped(

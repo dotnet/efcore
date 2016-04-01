@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
             Assert.Equal(
                 CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
-                Assert.Throws<ArgumentException>(
+                Assert.Throws<InvalidOperationException>(
                     () =>
                         {
                             using (var context = CreateContext())
