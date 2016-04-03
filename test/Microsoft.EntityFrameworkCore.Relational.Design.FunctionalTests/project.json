@@ -14,7 +14,7 @@
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "1.0.0-*",
     "Microsoft.Extensions.DependencyModel": "1.0.0-*",
-    "Microsoft.CodeAnalysis.CSharp": "1.1.0-rc1-20151109-01"
+    "Microsoft.CodeAnalysis.CSharp": "1.3.0-*"
   },
   "frameworks": {
     "netstandardapp1.5": {
