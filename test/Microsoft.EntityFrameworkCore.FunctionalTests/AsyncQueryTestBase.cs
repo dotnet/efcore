@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+ï»¿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -3195,7 +3195,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query1 = context.Set<Customer>()
-                    .Where(c => c.City == "México D.F.");
+                    .Where(c => c.City == "MÃ©xico D.F.");
 
                 var query2 = context.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner");
@@ -3210,7 +3210,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual async Task Concat_nested()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(c => c.City == "México D.F.").Concat(cs.Where(s => s.City == "Berlin")).Concat(cs.Where(e => e.City == "London")),
+               cs => cs.Where(c => c.City == "MÃ©xico D.F.").Concat(cs.Where(s => s.City == "Berlin")).Concat(cs.Where(e => e.City == "London")),
                entryCount: 12);
         }
 
@@ -3220,7 +3220,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = await context.Set<Customer>()
-                    .Where(c => c.City == "México D.F.")
+                    .Where(c => c.City == "MÃ©xico D.F.")
                     .Select(c => c.CustomerID)
                     .Concat(
                         context.Set<Customer>()
@@ -3236,7 +3236,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual async Task Except_simple()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(c => c.City == "México D.F.")),
+               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(c => c.City == "MÃ©xico D.F.")),
                entryCount: 14);
         }
 
@@ -3244,7 +3244,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual async Task Except_nested()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "México D.F.")).Except(cs.Where(e => e.City == "Seattle")),
+               cs => cs.Where(s => s.ContactTitle == "Owner").Except(cs.Where(s => s.City == "MÃ©xico D.F.")).Except(cs.Where(e => e.City == "Seattle")),
                entryCount: 13);
         }
 
@@ -3258,7 +3258,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     .Select(c => c.CustomerID)
                     .Except(
                         context.Set<Customer>()
-                            .Where(c => c.City == "México D.F.")
+                            .Where(c => c.City == "MÃ©xico D.F.")
                             .Select(c => c.CustomerID))
                     .ToListAsync();
 
@@ -3270,7 +3270,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual async Task Intersect_simple()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")),
+               cs => cs.Where(c => c.City == "MÃ©xico D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")),
                entryCount: 3);
         }
 
@@ -3278,7 +3278,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual async Task Intersect_nested()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(c => c.City == "México D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")).Intersect(cs.Where(e => e.Fax != null)),
+               cs => cs.Where(c => c.City == "MÃ©xico D.F.").Intersect(cs.Where(s => s.ContactTitle == "Owner")).Intersect(cs.Where(e => e.Fax != null)),
                entryCount: 1);
         }
 
@@ -3288,7 +3288,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = await context.Set<Customer>()
-                    .Where(c => c.City == "México D.F.")
+                    .Where(c => c.City == "MÃ©xico D.F.")
                     .Select(c => c.CustomerID)
                     .Intersect(
                         context.Set<Customer>()
@@ -3304,7 +3304,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual async Task Union_simple()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(c => c.City == "México D.F.")),
+               cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(c => c.City == "MÃ©xico D.F.")),
                entryCount: 19);
         }
 
@@ -3312,7 +3312,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         public virtual async Task Union_nested()
         {
             await AssertQuery<Customer>(
-               cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(s => s.City == "México D.F.")).Union(cs.Where(e => e.City == "London")),
+               cs => cs.Where(s => s.ContactTitle == "Owner").Union(cs.Where(s => s.City == "MÃ©xico D.F.")).Union(cs.Where(e => e.City == "London")),
                entryCount: 25);
         }
 
@@ -3326,7 +3326,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                     .Select(c => c.CustomerID)
                     .Union(
                         context.Set<Customer>()
-                            .Where(c => c.City == "México D.F.")
+                            .Where(c => c.City == "MÃ©xico D.F.")
                             .Select(c => c.CustomerID))
                     .ToListAsync();
 

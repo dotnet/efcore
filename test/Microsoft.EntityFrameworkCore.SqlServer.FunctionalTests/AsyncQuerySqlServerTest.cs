@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var task1 = context.Customers.Where(c => c.City == "M�xico D.F.").ToListAsync();
+                var task1 = context.Customers.Where(c => c.City == "México D.F.").ToListAsync();
                 var task2 = context.Customers.Where(c => c.City == "London").ToListAsync();
                 var task3 = context.Customers.Where(c => c.City == "Sao Paulo").ToListAsync();
 
