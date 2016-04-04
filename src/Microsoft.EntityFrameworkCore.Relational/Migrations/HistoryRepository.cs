@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = _rawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                using (var reader = await command.ExecuteReaderAsync(_connection))
+                using (var reader = await command.ExecuteReaderAsync(_connection, cancellationToken: cancellationToken))
                 {
                     while (await reader.DbDataReader.ReadAsync(cancellationToken))
                     {
