@@ -797,7 +797,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var sequenceType = _expression.Type.GetSequenceType();
 
-            if (selectClause.Selector.Type == sequenceType)
+            if (selectClause.Selector.Type == sequenceType
+                && selectClause.Selector is QuerySourceReferenceExpression)
             {
                 return;
             }
@@ -809,21 +810,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Visit(selectClause.Selector),
                     inProjection: true);
 
-            if (selector.Type != sequenceType)
-            {
-                if (!queryModel.ResultOperators
+            if ((selector.Type != sequenceType
+                || !(selectClause.Selector is QuerySourceReferenceExpression))
+                && !queryModel.ResultOperators
                     .Select(ro => ro.GetType())
                     .Any(t =>
                         t == typeof(GroupResultOperator)
                         || t == typeof(AllResultOperator)))
-                {
-                    _expression
-                        = Expression.Call(
-                            LinqOperatorProvider.Select
-                                .MakeGenericMethod(CurrentParameter.Type, selector.Type),
-                            _expression,
-                            Expression.Lambda(selector, CurrentParameter));
-                }
+            {
+                _expression
+                    = Expression.Call(
+                        LinqOperatorProvider.Select
+                            .MakeGenericMethod(CurrentParameter.Type, selector.Type),
+                        _expression,
+                        Expression.Lambda(selector, CurrentParameter));
             }
         }
 

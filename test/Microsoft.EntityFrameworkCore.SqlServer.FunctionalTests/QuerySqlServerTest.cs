@@ -24,6 +24,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
+        public override void Queryable_reprojection()
+        {
+            base.Queryable_reprojection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Default_if_empty_top_level()
         {
             base.Default_if_empty_top_level();

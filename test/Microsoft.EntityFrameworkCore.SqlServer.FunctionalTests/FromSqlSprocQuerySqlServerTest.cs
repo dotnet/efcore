@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -34,6 +35,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 @"@p0: ALFKI
 
 [dbo].[CustOrderHist] @CustomerID = @p0",
+                Sql);
+        }
+
+        public override void From_sql_queryable_stored_procedure_reprojection()
+        {
+            base.From_sql_queryable_stored_procedure_reprojection();
+
+            Assert.Equal(
+                @"[dbo].[Ten Most Expensive Products]",
                 Sql);
         }
 
@@ -123,9 +133,11 @@ FROM (
                 Sql);
         }
 
-        public FromSqlSprocQuerySqlServerTest(NorthwindSprocQuerySqlServerFixture fixture)
+        public FromSqlSprocQuerySqlServerTest(
+            NorthwindSprocQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";

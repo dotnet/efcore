@@ -54,6 +54,18 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Queryable_reprojection()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.IsLondon)
+                    .Select(c => new Customer
+                        {
+                            CustomerID = "Foo",
+                            City = c.City
+                        }));
+        }
+
+        [ConditionalFact]
         public virtual void Queryable_nested_simple()
         {
             AssertQuery<Customer>(

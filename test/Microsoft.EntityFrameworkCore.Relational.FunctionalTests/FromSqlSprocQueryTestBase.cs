@@ -51,6 +51,27 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void From_sql_queryable_stored_procedure_reprojection()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = context
+                    .Set<MostExpensiveProduct>()
+                    .FromSql(TenMostExpensiveProductsSproc)
+                    .Select(mep =>
+                        new MostExpensiveProduct
+                        {
+                            TenMostExpensiveProducts = "Foo",
+                            UnitPrice = mep.UnitPrice
+                        })
+                    .ToArray();
+
+                Assert.Equal(10, actual.Length);
+                Assert.True(actual.All(mep => mep.TenMostExpensiveProducts == "Foo"));
+            }
+        }
+
+        [Fact]
         public virtual void From_sql_queryable_stored_procedure_with_parameter()
         {
             using (var context = CreateContext())
