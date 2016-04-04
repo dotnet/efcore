@@ -34,8 +34,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _createCollection = createCollection;
         }
 
-        public virtual void Add(object instance, object value)
-            => GetOrCreateCollection(instance).Add((TElement)value);
+        public virtual bool Add(object instance, object value)
+        {
+            var collection = GetOrCreateCollection(instance);
+            var element = (TElement)value;
+
+            if (!collection.Contains(element))
+            {
+                collection.Add(element);
+                return true;
+            }
+            return false;
+        }
 
         public virtual void AddRange(object instance, IEnumerable<object> values)
         {

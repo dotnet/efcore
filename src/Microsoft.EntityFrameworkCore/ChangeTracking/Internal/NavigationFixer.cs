@@ -720,19 +720,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (navigation != null)
             {
-                if (!collectionAccessor.Contains(entry.Entity, value))
+                _changeDetector.Suspend();
+                try
                 {
-                    _changeDetector.Suspend();
-                    try
+                    if (collectionAccessor.Add(entry.Entity, value))
                     {
-                        collectionAccessor.Add(entry.Entity, value);
-                    }
-                    finally
-                    {
-                        _changeDetector.Resume();
+                        entry.AddToCollectionSnapshot(navigation, value);
                     }
                 }
-                entry.AddToCollectionSnapshot(navigation, value);
+                finally
+                {
+                    _changeDetector.Resume();
+                }
             }
         }
 

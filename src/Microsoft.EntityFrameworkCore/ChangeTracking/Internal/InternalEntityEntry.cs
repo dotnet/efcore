@@ -396,6 +396,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _relationshipsSnapshot.AddToCollection(propertyBase, addedEntity);
         }
 
+        public virtual void AddRangeToCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] IEnumerable<object> addedEntities)
+        {
+            EnsureRelationshipSnapshot();
+            _relationshipsSnapshot.AddRangeToCollection(propertyBase, addedEntities);
+        }
+
         public virtual object this[[NotNull] IPropertyBase propertyBase]
         {
             get

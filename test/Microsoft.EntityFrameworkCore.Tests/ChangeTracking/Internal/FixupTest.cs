@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -1612,6 +1613,64 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();
+        }
+
+        [Fact] // Issue #4853
+        public void Collection_nav_props_remain_fixed_up_after_DetectChanges()
+        {
+            using (var db = new Context4853())
+            {
+                var assembly = new TestAssembly { Name = "Assembly1" };
+                db.Classes.Add(new TestClass { Assembly = assembly, Name = "Class1" });
+                db.Classes.Add(new TestClass { Assembly = assembly, Name = "Class2" });
+                db.SaveChanges();
+            }
+
+            using (var db = new Context4853())
+            {
+                var assembly = db.Classes.Include(c => c.Assembly).ToList().First().Assembly;
+
+                Assert.Equal(2, assembly.Classes.Count);
+
+                db.ChangeTracker.DetectChanges();
+
+                Assert.Equal(2, assembly.Classes.Count);
+            }
+        }
+
+        private class TestAssembly
+        {
+            [Key]
+            public string Name { get; set; }
+
+            public ICollection<TestClass> Classes { get; } = new List<TestClass>();
+        }
+
+        private class TestClass
+        {
+            public TestAssembly Assembly { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Context4853 : DbContext
+        {
+            public DbSet<TestAssembly> Assemblies { get; set; }
+            public DbSet<TestClass> Classes { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder options)
+                => options.UseInMemoryDatabase();
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<TestClass>(
+                    x =>
+                        {
+                            x.Property<string>("AssemblyName");
+                            x.HasKey("AssemblyName", nameof(TestClass.Name));
+                            x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
+                                .HasForeignKey("AssemblyName");
+                        });
+            }
         }
     }
 }

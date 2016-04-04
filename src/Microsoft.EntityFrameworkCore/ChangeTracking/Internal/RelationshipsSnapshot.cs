@@ -51,6 +51,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public void AddToCollection(IPropertyBase propertyBase, object addedEntity)
             {
+                var snapshot = GetOrCreateCollection(propertyBase);
+
+                snapshot.Add(addedEntity);
+            }
+
+            public void AddRangeToCollection(IPropertyBase propertyBase, IEnumerable<object> addedEntities)
+            {
+                var snapshot = GetOrCreateCollection(propertyBase);
+
+                foreach (var addedEntity in addedEntities)
+                {
+                    snapshot.Add(addedEntity);
+                }
+            }
+
+            private HashSet<object> GetOrCreateCollection(IPropertyBase propertyBase)
+            {
                 var index = propertyBase.GetRelationshipIndex();
 
                 var snapshot = (HashSet<object>)_values[index];
@@ -60,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     _values[index] = snapshot;
                 }
 
-                snapshot.Add(addedEntity);
+                return snapshot;
             }
 
             public bool IsEmpty => _values == null;
