@@ -174,6 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var frameworks = projectFile.GetTargetFrameworks().Select(f => f.FrameworkName);
             var framework = NuGetFrameworkUtility.GetNearest(
                 frameworks,
+                // TODO: Use netcoreapp
                 FrameworkConstants.CommonFrameworks.NetStandardApp15,
                 f => new NuGetFramework(f))
                 // TODO: Remove with dnxcore50
@@ -184,9 +185,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
             if (framework == null)
             {
                 throw new OperationException(
-                    "The project '" + projectFile.Name + "' doesn't target a framework compatible with DNX Core 5.0. You must " +
-                    "target a compatible framework like 'dotnet5.4' before using the Entity Framework Core .NET Core CLI " +
-                    "Commands.");
+                    "The project '" + projectFile.Name + "' doesn't target a framework compatible with .NET Standard "+
+                    "App 1.5. You must target a compatible framework such as 'netstandard1.3' in order to use the " +
+                    "Entity Framework .NET Core CLI Commands.");
             }
 
             Reporter.Verbose.WriteLine(

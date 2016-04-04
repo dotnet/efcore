@@ -18,14 +18,16 @@
     "Microsoft.Extensions.CommandLineUtils": "1.0.0-*"
   },
   "frameworks": {
-    "dnxcore50": {
+    "netstandard1.5": {
       "imports": [
-        "netstandardapp1.5",
+        "dnxcore50",
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*",
-        "System.Security.Cryptography.Algorithms": "4.1.0-*"
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
       }
     }
   }
