@@ -30,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 expression = predicateNegationExpressionOptimizer.Visit(expression);
 
+                expression = new PredicateReductionExpressionOptimizer().Visit(expression);
+
                 if (_useRelationalNulls)
                 {
                     expression = new NotNullableExpression(expression);

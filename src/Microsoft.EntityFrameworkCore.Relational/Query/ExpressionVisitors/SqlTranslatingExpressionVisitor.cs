@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -32,6 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private readonly bool _bindParentQueries;
         private readonly bool _inProjection;
+        private static readonly Dictionary<ExpressionType, ExpressionType> _inverseOperatorMap = new Dictionary<ExpressionType, ExpressionType>
+        {
+            { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual },
+            { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
+            { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
+            { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
+            { ExpressionType.Equal, ExpressionType.NotEqual },
+            { ExpressionType.NotEqual, ExpressionType.Equal }
+        };
+
 
         public SqlTranslatingExpressionVisitor(
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
@@ -181,6 +192,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             var test = Visit(expression.Test);
+            if (test.IsSimpleExpression())
+            {
+                test = Expression.Equal(test, Expression.Constant(true, typeof(bool)));
+            }
+
             var ifTrue = Visit(expression.IfTrue);
             var ifFalse = Visit(expression.IfFalse);
 
@@ -188,7 +204,36 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 && ifTrue != null
                 && ifFalse != null)
             {
+                if (ifTrue.IsComparisonOperation()
+                    || ifFalse.IsComparisonOperation())
+                {
+                    return Expression.OrElse(
+                        Expression.AndAlso(test, ifTrue),
+                        Expression.AndAlso(Invert(test), ifFalse));
+                }
+
                 return expression.Update(test, ifTrue, ifFalse);
+            }
+
+            return null;
+        }
+
+        private Expression Invert(Expression test)
+        {
+            if (test.IsComparisonOperation())
+            {
+                var binaryOperation = test as BinaryExpression;
+                if (binaryOperation != null)
+                {
+                    var nodeType = binaryOperation.NodeType;
+                    if (!_inverseOperatorMap.ContainsKey(nodeType))
+                    {
+                        return null;
+                    }
+                    return Expression.MakeBinary(_inverseOperatorMap[nodeType], binaryOperation.Left, binaryOperation.Right);
+                }
+
+                return Expression.Not(test);
             }
 
             return null;

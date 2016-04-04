@@ -1494,6 +1494,38 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Where_ternary_boolean_condition()
+        {
+            var flag = new Random().Next(0, 2) == 1;
+
+            AssertQuery<Product>(ps => ps
+                .Where(p => flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
+                    entryCount: flag ? 51 : 26);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_ternary_boolean_condition_with_another_condition()
+        {
+            var flag = true;
+            var productId = 15;
+
+            AssertQuery<Product>(ps => ps
+                .Where(p => p.ProductID < productId
+                    && (flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20)),
+                    entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_ternary_boolean_condition_with_false_as_result()
+        {
+            var flag = new Random().Next(0, 2) == 1;
+
+            AssertQuery<Product>(ps => ps
+                .Where(p => flag ? p.UnitsInStock >= 20 : false),
+                    entryCount: flag ? 51 : 0);
+        }
+
+        [ConditionalFact]
         public virtual void Select_bool_closure()
         {
             var boolean = false;

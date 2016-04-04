@@ -239,6 +239,7 @@
     <Compile Include="Query\ExpressionVisitors\Internal\IShaper.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\IsNullExpressionBuildingVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\MaterializerFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\PredicateReductionExpressionOptimizer.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\PredicateNegationExpressionOptimizer.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\QueryFlattener.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\QueryFlattenerFactory.cs" />

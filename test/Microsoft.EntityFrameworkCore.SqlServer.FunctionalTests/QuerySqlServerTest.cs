@@ -3077,6 +3077,42 @@ WHERE 1 = 0",
                 Sql);
         }
 
+        public override void Where_ternary_boolean_condition()
+        {
+            base.Where_ternary_boolean_condition();
+
+            Assert.Contains(
+                    @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
+                    Sql);
+        }
+
+        public override void Where_ternary_boolean_condition_with_another_condition()
+        {
+            base.Where_ternary_boolean_condition_with_another_condition();
+
+            Assert.Equal(
+                    @"@__productId_0: 15
+@__flag_1: True
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
+                    Sql);
+        }
+
+        public override void Where_ternary_boolean_condition_with_false_as_result()
+        {
+            base.Where_ternary_boolean_condition_with_false_as_result();
+
+            Assert.Contains(
+                    @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)",
+                    Sql);
+        }
+
         public override void Where_concat_string_int_comparison1()
         {
             base.Where_concat_string_int_comparison1();
