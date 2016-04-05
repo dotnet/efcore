@@ -141,13 +141,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
             }
 
-            foreach (var migration in migrationsToApply)
+            for (var i = 0; i < migrationsToApply.Count; i++)
             {
+                var migration = migrationsToApply[i];
+
                 yield return () =>
                 {
                     _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
 
-                    return GenerateUpSql(migration);
+                    return GenerateUpSql(
+                        migration,
+                        i != migrationsToApply.Count - 1
+                            ? migrationsToApply[i + 1]
+                            : null);
                 };
             }
         }
@@ -207,7 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             string toMigration = null,
             bool idempotent = false)
         {
-            var firstMigrationId = _migrationsAssembly.Migrations.Select(t => t.Key).FirstOrDefault();
             var skippedMigrations = _migrationsAssembly.Migrations
                 .Where(t => string.Compare(t.Key, fromMigration, StringComparison.OrdinalIgnoreCase) < 0)
                 .Select(t => t.Key);
@@ -256,11 +261,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            foreach (var migration in migrationsToApply)
+            for (var i = 0; i < migrationsToApply.Count; i++)
             {
+                var migration = migrationsToApply[i];
+                var previousMigration = i != migrationsToApply.Count - 1
+                    ? migrationsToApply[i + 1]
+                    : null;
+
                 _logger.LogDebug(RelationalStrings.GeneratingUp(migration.GetId()));
 
-                foreach (var command in GenerateUpSql(migration))
+                foreach (var command in GenerateUpSql(migration, previousMigration))
                 {
                     if (idempotent)
                     {
@@ -283,14 +293,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return builder.ToString();
         }
 
-        protected virtual IReadOnlyList<IRelationalCommand> GenerateUpSql([NotNull] Migration migration)
+        protected virtual IReadOnlyList<IRelationalCommand> GenerateUpSql(
+            [NotNull] Migration migration,
+            [CanBeNull] Migration previousMigration)
         {
             Check.NotNull(migration, nameof(migration));
 
             var commands = new List<IRelationalCommand>();
             commands.AddRange(_migrationsSqlGenerator.Generate(migration.UpOperations, migration.TargetModel));
             commands.Add(
-                _rawSqlCommandBuilder.Build(_historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion()))));
+                _rawSqlCommandBuilder.Build(
+                    _historyRepository.GetInsertScript(
+                        new HistoryRow(
+                            migration.GetId(),
+                            ProductInfo.GetVersion(),
+                            GenerateScript(migration.GetId(), previousMigration?.GetId())))));
 
             return commands;
         }

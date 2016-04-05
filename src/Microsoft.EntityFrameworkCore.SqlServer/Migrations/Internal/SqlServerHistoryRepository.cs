@@ -71,11 +71,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(", ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(ProductVersionColumnName))
+                .Append(", ")
+                .Append(SqlGenerationHelper.DelimitIdentifier(DownScriptColumnName))
                 .AppendLine(")")
                 .Append("VALUES (N'")
                 .Append(SqlGenerationHelper.EscapeLiteral(row.MigrationId))
                 .Append("', N'")
                 .Append(SqlGenerationHelper.EscapeLiteral(row.ProductVersion))
+                .Append("', N'")
+                .Append(SqlGenerationHelper.EscapeLiteral(row.DownScript))
                 .AppendLine("');")
                 .ToString();
         }
