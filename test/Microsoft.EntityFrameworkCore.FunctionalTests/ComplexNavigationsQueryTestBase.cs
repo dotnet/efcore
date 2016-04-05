@@ -38,6 +38,32 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
 
         public void Dispose() => TestStore.Dispose();
 
+        //[ConditionalFact] #5043
+        public virtual void Entity_equality_empty()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.Where(l => l.OneToOne_Optional_FK == new Level2());
+                var result = query.ToList();
+
+                Assert.Equal(0, result.Count);
+            }
+        }
+
+        //[ConditionalFact] #5043
+        public virtual void Key_equality_when_sentinel_ef_property()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<int>(l.OneToOne_Optional_FK, "Id") == 0);
+
+                var result = query.ToList();
+
+                Assert.Equal(0, result.Count);
+            }
+        }
+
         [ConditionalFact]
         public virtual void Data_reader_is_closed_correct_number_of_times_for_include_queries_on_optional_navigations()
         {

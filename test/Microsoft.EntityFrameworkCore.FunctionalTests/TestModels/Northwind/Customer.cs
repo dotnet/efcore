@@ -42,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
                    && Equals((Customer)obj);
         }
 
+        public static bool operator ==(Customer left, Customer right) => Equals(left, right);
+
+        public static bool operator !=(Customer left, Customer right) => !Equals(left, right);
+
         public override int GetHashCode() => CustomerID.GetHashCode();
 
         public override string ToString() => "Customer " + CustomerID;

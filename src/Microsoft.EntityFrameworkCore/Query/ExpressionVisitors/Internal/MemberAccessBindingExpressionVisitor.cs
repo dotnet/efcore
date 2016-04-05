@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var expression = node.Expression.RemoveConvert();
 
-            if ((expression != node.Expression)
+            if (expression != node.Expression
                 && !(expression is QuerySourceReferenceExpression))
             {
                 expression = node.Expression;
@@ -134,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var typeInfo = newExpression.Type.GetTypeInfo();
 
                 if (typeInfo.IsGenericType
-                    && ((typeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>))
-                        || (typeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>))))
+                    && (typeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
+                        || typeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
                 {
                     member = typeInfo.GetDeclaredProperty("Key");
                 }
@@ -146,19 +147,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression node)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             MethodCallExpression newExpression = null;
             Expression firstArgument = null;
 
-            if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+            if (EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
             {
                 var newArguments
                     = VisitAndConvert(
                         new List<Expression>
                         {
-                            node.Arguments[0].RemoveConvert(),
-                            node.Arguments[1]
+                            methodCallExpression.Arguments[0].RemoveConvert(),
+                            methodCallExpression.Arguments[1]
                         }.AsReadOnly(),
                         "VisitMethodCall");
 
@@ -169,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     // Compensate for ValueBuffer being a struct, and hence not compatible with Object method
                     newExpression
                         = Expression.Call(
-                            node.Method,
+                            methodCallExpression.Method,
                             Expression.Convert(newArguments[0], typeof(object)),
                             newArguments[1]);
                 }
@@ -178,28 +179,57 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (newExpression == null)
             {
                 newExpression
-                    = (MethodCallExpression)base.VisitMethodCall(node);
+                    = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
             }
 
             firstArgument = firstArgument ?? newExpression.Arguments.FirstOrDefault();
 
-            if ((newExpression != node)
-                && (firstArgument?.Type == typeof(ValueBuffer)))
+            if (newExpression != methodCallExpression
+                && firstArgument?.Type == typeof(ValueBuffer))
             {
                 return
                     _queryModelVisitor
-                        .BindMethodCallToValueBuffer(node, firstArgument)
+                        .BindMethodCallToValueBuffer(methodCallExpression, firstArgument)
                     ?? newExpression;
             }
 
             return _queryModelVisitor
-                .BindMethodCallExpression(
-                    node,
-                    (property, _) => Expression.Call(
-                        _getValueMethodInfo.MakeGenericMethod(newExpression.Method.GetGenericArguments()[0]),
-                        EntityQueryModelVisitor.QueryContextParameter,
-                        newExpression.Arguments[0],
-                        Expression.Constant(property)))
+                .BindMethodCallExpression<Expression>(
+                    methodCallExpression,
+                    (property, _) =>
+                        {
+                            var propertyType = newExpression.Method.GetGenericArguments()[0];
+
+                            var maybeConstantExpression = newExpression.Arguments[0] as ConstantExpression;
+
+                            if (maybeConstantExpression != null)
+                            {
+                                return Expression.Constant(
+                                    property.GetGetter().GetClrValue(maybeConstantExpression.Value),
+                                    propertyType);
+                            }
+                            
+                            var maybeMethodCallExpression= newExpression.Arguments[0] as MethodCallExpression;
+
+                            if (maybeMethodCallExpression != null
+                                && maybeMethodCallExpression.Method.IsGenericMethod
+                                && maybeMethodCallExpression.Method.GetGenericMethodDefinition()
+                                == DefaultQueryExpressionVisitor.GetParameterValueMethodInfo)
+                            {
+                                // The target is a parameter, try and get the value from it directly.
+                                return Expression.Call(
+                                    _getValueFromEntityMethodInfo
+                                        .MakeGenericMethod(propertyType),
+                                    Expression.Constant(property.GetGetter()),
+                                    newExpression.Arguments[0]);
+                            }
+                            
+                            return Expression.Call(
+                                _getValueMethodInfo.MakeGenericMethod(propertyType),
+                                EntityQueryModelVisitor.QueryContextParameter,
+                                newExpression.Arguments[0],
+                                Expression.Constant(property));
+                        })
                    ?? newExpression;
         }
 
@@ -209,6 +239,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         [UsedImplicitly]
         private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
-            => (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
+        {
+            if (entity == null)
+            {
+                return default(T);
+            }
+
+            return (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
+        }
+
+        private static readonly MethodInfo _getValueFromEntityMethodInfo
+            = typeof(MemberAccessBindingExpressionVisitor)
+                .GetTypeInfo().GetDeclaredMethod(nameof(GetValueFromEntity));
+
+        [UsedImplicitly]
+        private static T GetValueFromEntity<T>(IClrPropertyGetter clrPropertyGetter, object entity)
+        {
+            if (entity == null)
+            {
+                return default(T);
+            }
+
+            return (T)clrPropertyGetter.GetClrValue(entity);
+        }
     }
 }

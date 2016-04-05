@@ -24,6 +24,41 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
+        public override void Entity_equality_self()
+        {
+            base.Entity_equality_self();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Entity_equality_local()
+        {
+            base.Entity_equality_local();
+
+            Assert.Equal(
+                @"@__local_0_CustomerID: ANATR
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__local_0_CustomerID",
+                Sql);
+        }
+
+        public override void Entity_equality_local_inline()
+        {
+            base.Entity_equality_local_inline();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ANATR'",
+                Sql);
+        }
+
         public override void Queryable_reprojection()
         {
             base.Queryable_reprojection();
@@ -145,8 +180,8 @@ FROM [Employees] AS [e2]",
                 @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
 
-SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]",
+SELECT [e20].[EmployeeID]
+FROM [Employees] AS [e20]",
                 Sql);
         }
 
@@ -4801,7 +4836,7 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-        private static readonly string FileLineEnding = @"
+        private const string FileLineEnding = @"
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);

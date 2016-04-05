@@ -24,6 +24,41 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
+        public virtual void Entity_equality_self()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                    // ReSharper disable once EqualExpressionComparison
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
+#pragma warning disable CS1718 // Comparison made to same variable
+                where c == c
+#pragma warning restore CS1718 // Comparison made to same variable
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_local()
+        {
+            var local = new Customer { CustomerID = "ANATR" };
+
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
+                where c == local
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_local_inline()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                    // ReSharper disable once PossibleUnintendedReferenceComparison
+                where c == new Customer { CustomerID = "ANATR" }
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
         public virtual void Queryable_simple()
         {
             AssertQuery<Customer>(

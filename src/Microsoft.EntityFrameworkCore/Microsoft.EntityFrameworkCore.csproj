@@ -383,6 +383,8 @@
     <Compile Include="Query\ExpressionVisitors\IEntityResultFindingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IMemberAccessBindingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\INavigationRewritingExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\CompositeKey.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\EntityEqualityRewritingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\DefaultQueryExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\EntityResultFindingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\EntityResultFindingExpressionVisitorFactory.cs" />

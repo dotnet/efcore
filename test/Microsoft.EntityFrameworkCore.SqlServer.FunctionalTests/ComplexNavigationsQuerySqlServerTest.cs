@@ -5,17 +5,40 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.FunctionalTests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryTestBase<SqlServerTestStore, ComplexNavigationsQuerySqlServerFixture>
     {
-        public ComplexNavigationsQuerySqlServerTest(ComplexNavigationsQuerySqlServerFixture fixture)
+        public ComplexNavigationsQuerySqlServerTest(
+            ComplexNavigationsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
+
+        // TODO #5043
+        public override void Entity_equality_empty()
+        {
+            base.Entity_equality_empty();
+
+            Assert.Equal(
+                @"", 
+                Sql);
+        }
+
+        // TODO #5043
+        public override void Key_equality_when_sentinel_ef_property()
+        {
+            base.Key_equality_when_sentinel_ef_property();
+
+            Assert.Equal(
+                @"", 
+                Sql);
+        }
 
         public override void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {
@@ -708,9 +731,10 @@ ORDER BY [l1].[Id]",
             base.SelectMany_navigation_comparison1();
 
             Assert.Equal(
-                @"SELECT [l11].[Id], [l11].[Name], [l11].[OneToMany_Optional_Self_InverseId], [l11].[OneToMany_Required_Self_InverseId], [l11].[OneToOne_Optional_SelfId], [l12].[Id], [l12].[Name], [l12].[OneToMany_Optional_Self_InverseId], [l12].[OneToMany_Required_Self_InverseId], [l12].[OneToOne_Optional_SelfId]
+                @"SELECT [l11].[Id], [l12].[Id]
 FROM [Level1] AS [l11]
-CROSS JOIN [Level1] AS [l12]",
+CROSS JOIN [Level1] AS [l12]
+WHERE [l11].[Id] = [l12].[Id]",
                 Sql);
         }
 

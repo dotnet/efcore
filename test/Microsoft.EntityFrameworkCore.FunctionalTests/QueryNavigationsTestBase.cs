@@ -163,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        [ConditionalFact]
+        // issue 4539
+        ////[ConditionalFact]
         public virtual void Select_Where_Navigation_Equals_Navigation()
         {
             using (var context = CreateContext())

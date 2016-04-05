@@ -198,6 +198,7 @@
     <Compile Include="Query\Expressions\MaxExpression.cs" />
     <Compile Include="Query\Expressions\MinExpression.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
+    <Compile Include="Query\Expressions\PropertyParameterExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpressionFactory.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
@@ -309,6 +310,7 @@
     <Compile Include="Storage\Internal\RelationalParameterBuilder.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\Internal\TypeMappedPropertyRelationalParameter.cs" />
     <Compile Include="Storage\Internal\TypeMappedRelationalParameter.cs" />
     <Compile Include="Storage\Internal\UntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IParameterNameGeneratorFactory.cs" />

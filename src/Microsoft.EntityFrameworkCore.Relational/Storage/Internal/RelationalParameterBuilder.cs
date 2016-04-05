@@ -76,5 +76,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         innerList.Parameters));
             }
         }
+
+        public virtual void AddPropertyParameter(string invariantName, string name, IProperty property)
+        {
+            Check.NotEmpty(invariantName, nameof(invariantName));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(property, nameof(property));
+
+            _parameters.Add(
+                new TypeMappedPropertyRelationalParameter(
+                    invariantName,
+                    name,
+                    TypeMapper.GetMapping(property),
+                    property));
+        }
     }
 }

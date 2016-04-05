@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
             public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
                 => new AsyncEnumerable<TElement>(RewriteShadowPropertyAccess(expression));
 
-            private Expression RewriteShadowPropertyAccess(Expression expression)
+            private static Expression RewriteShadowPropertyAccess(Expression expression)
                 => new ShadowStateAccessRewriter().Visit(expression);
         }
 

@@ -1146,24 +1146,45 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return expression;
         }
 
-        protected override Expression VisitParameter(ParameterExpression expression)
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(parameterExpression, nameof(parameterExpression));
 
-            var name = _sqlGenerationHelper.GenerateParameterName(expression.Name);
+            var parameterName = _sqlGenerationHelper.GenerateParameterName(parameterExpression.Name);
 
-            if (_relationalCommandBuilder.ParameterBuilder.Parameters.All(p => p.InvariantName != expression.Name))
+            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+                .All(p => p.InvariantName != parameterExpression.Name))
             {
                 _relationalCommandBuilder.AddParameter(
-                    expression.Name,
-                    name,
-                    expression.Type,
+                    parameterExpression.Name,
+                    parameterName,
+                    parameterExpression.Type,
                     unicode: _isUnicode);
             }
 
-            _relationalCommandBuilder.Append(name);
+            _relationalCommandBuilder.Append(parameterName);
 
-            return expression;
+            return parameterExpression;
+        }
+
+        public virtual Expression VisitPropertyParameter(PropertyParameterExpression propertyParameterExpression)
+        {
+            var parameterName 
+                = _sqlGenerationHelper.GenerateParameterName(
+                    propertyParameterExpression.PropertyParameterName);
+
+            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+                .All(p => p.InvariantName != propertyParameterExpression.PropertyParameterName))
+            {
+                _relationalCommandBuilder.AddPropertyParameter(
+                    propertyParameterExpression.Name,
+                    parameterName,
+                    propertyParameterExpression.Property);
+            }
+
+            _relationalCommandBuilder.Append(parameterName);
+
+            return propertyParameterExpression;
         }
 
         protected virtual bool? InferUnicodeFromColumn([NotNull] Expression expression)

@@ -18,6 +18,18 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         where TFixture : GearsOfWarQueryFixtureBase<TTestStore>, new()
     {
         [ConditionalFact]
+        public virtual void Entity_equality_empty()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g == new Gear());
+                var result = query.ToList();
+
+                Assert.Equal(0, result.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Include_multiple_one_to_one_and_one_to_many()
         {
             using (var context = CreateContext())
@@ -775,7 +787,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             }
         }
 
-        [ConditionalFact]
+        // issue 4539
+        ////[ConditionalFact]
         public virtual void Select_Where_Navigation_Equals_Navigation()
         {
             using (var context = CreateContext())

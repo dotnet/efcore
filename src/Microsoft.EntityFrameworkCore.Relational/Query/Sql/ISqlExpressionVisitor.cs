@@ -30,5 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
         Expression VisitStringCompare([NotNull] StringCompareExpression stringCompareExpression);
         Expression VisitExplicitCast([NotNull] ExplicitCastExpression explicitCastExpression);
+        Expression VisitPropertyParameter([NotNull] PropertyParameterExpression propertyParameterExpression);
     }
 }

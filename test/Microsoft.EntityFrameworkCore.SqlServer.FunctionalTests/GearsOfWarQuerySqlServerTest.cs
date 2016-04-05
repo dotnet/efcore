@@ -10,6 +10,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<SqlServerTestStore, GearsOfWarQuerySqlServerFixture>
     {
+        public override void Entity_equality_empty()
+        {
+            base.Entity_equality_empty();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] IS NULL AND ([g].[SquadId] = 0))",
+                Sql);
+        }
+
         public override void Include_multiple_one_to_one_and_one_to_many()
         {
             base.Include_multiple_one_to_one_and_one_to_many();

@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("InvariantName", parameter.InvariantName);
             Assert.Equal("Name", parameter.Name);
             Assert.Equal(typeMapper.GetMapping(typeof(int)), parameter.RelationalTypeMapping);
-            Assert.Equal(nullable, parameter.Nullable);
+            Assert.Equal(nullable, parameter.IsNullable);
         }
 
         [Theory]
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("InvariantName", parameter.InvariantName);
             Assert.Equal("Name", parameter.Name);
             Assert.Equal(typeMapper.GetMapping(property), parameter.RelationalTypeMapping);
-            Assert.Equal(nullable, parameter.Nullable);
+            Assert.Equal(nullable, parameter.IsNullable);
         }
 
         [Fact]

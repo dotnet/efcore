@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         public QueryInMemoryTest(NorthwindQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
         public override void GroupJoin_DefaultIfEmpty3()
