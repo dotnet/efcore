@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<IUpdateEntry> entries)
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-            var commands = CreateModificationCommands(entries, parameterNameGenerator);
+            var commands = CreateModificationCommands(entries, parameterNameGenerator.GenerateNext);
             var sortedCommandSets = TopologicalSort(commands);
 
             // TODO: Enable batching of dependent commands by passing through the dependency graph
@@ -62,21 +63,26 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
             [NotNull] IReadOnlyList<IUpdateEntry> entries,
-            [NotNull] ParameterNameGenerator parameterNameGenerator)
+            [NotNull] Func<string> generateParameterName)
         {
             // TODO: Handle multiple state entries that update the same row
-            return entries.Select(
-                e =>
-                    {
-                        var command = new ModificationCommand(
-                            _annotationProvider.For(e.EntityType).TableName,
-                            _annotationProvider.For(e.EntityType).Schema,
-                            parameterNameGenerator,
-                            _annotationProvider.For);
 
-                        command.AddEntry(e);
-                        return command;
-                    }).Where(c => c.EntityState != EntityState.Modified || c.ColumnModifications.Any(m => m.IsWrite));
+            Func<IProperty, IRelationalPropertyAnnotations> getAnnotationsDelegate = _annotationProvider.For;
+            foreach (var entry in entries)
+            {
+                var command = new ModificationCommand(
+                    _annotationProvider.For(entry.EntityType).TableName,
+                    _annotationProvider.For(entry.EntityType).Schema,
+                    generateParameterName,
+                    getAnnotationsDelegate);
+
+                command.AddEntry(entry);
+                if (command.EntityState != EntityState.Modified
+                    || command.ColumnModifications.Any(m => m.IsWrite))
+                {
+                    yield return command;
+                }
+            }
         }
 
         // To avoid violating store constraints the modification commands must be sorted

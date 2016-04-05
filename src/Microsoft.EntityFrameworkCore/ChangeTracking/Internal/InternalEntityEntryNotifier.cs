@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -48,33 +47,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
-            => Dispatch(l => l.StateChanging(entry, newState));
-
-        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup, bool fromQuery)
-            => Dispatch(l => l.StateChanged(entry, oldState, skipInitialFixup, fromQuery));
-
-        public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
-            => Dispatch(l => l.NavigationReferenceChanged(entry, navigation, oldValue, newValue));
-
-        public virtual void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
-            => Dispatch(l => l.NavigationCollectionChanged(entry, navigation, added, removed));
-
-        public virtual void KeyPropertyChanged(
-            InternalEntityEntry entry,
-            IProperty property,
-            IReadOnlyList<IKey> keys,
-            IReadOnlyList<IForeignKey> foreignKeys,
-            object oldValue,
-            object newValue)
-            => Dispatch(l => l.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue));
-
-        public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
-            => Dispatch(l => l.PropertyChanged(entry, property, setModified));
-
-        public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
-            => Dispatch(l => l.PropertyChanging(entry, property));
-
-        private void Dispatch(Action<IEntityStateListener> action)
         {
             if (_entityStateListeners == null)
             {
@@ -83,24 +55,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var listener in _entityStateListeners)
             {
-                action(listener);
+                listener.StateChanging(entry, newState);
             }
         }
 
-        private void Dispatch(Action<IPropertyListener> action)
+        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup, bool fromQuery)
         {
-            if (_propertyListeners == null)
+            if (_entityStateListeners == null)
             {
                 return;
             }
 
-            foreach (var listener in _propertyListeners)
+            foreach (var listener in _entityStateListeners)
             {
-                action(listener);
+                listener.StateChanged(entry, oldState, skipInitialFixup, fromQuery);
             }
         }
 
-        private void Dispatch(Action<INavigationListener> action)
+        public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
         {
             if (_navigationListeners == null)
             {
@@ -109,11 +81,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var listener in _navigationListeners)
             {
-                action(listener);
+                listener.NavigationReferenceChanged(entry, navigation, oldValue, newValue);
             }
         }
 
-        private void Dispatch(Action<IKeyListener> action)
+        public virtual void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+        {
+            if (_navigationListeners == null)
+            {
+                return;
+            }
+
+            foreach (var listener in _navigationListeners)
+            {
+                listener.NavigationCollectionChanged(entry, navigation, added, removed);
+            }
+        }
+
+        public virtual void KeyPropertyChanged(
+            InternalEntityEntry entry,
+            IProperty property,
+            IReadOnlyList<IKey> keys,
+            IReadOnlyList<IForeignKey> foreignKeys,
+            object oldValue,
+            object newValue)
         {
             if (_keyListeners == null)
             {
@@ -122,7 +113,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var listener in _keyListeners)
             {
-                action(listener);
+                listener.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue);
+            }
+        }
+
+        public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
+        {
+            if (_propertyListeners == null)
+            {
+                return;
+            }
+
+            foreach (var listener in _propertyListeners)
+            {
+                listener.PropertyChanged(entry, property, setModified);
+            }
+        }
+
+        public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
+        {
+            if (_propertyListeners == null)
+            {
+                return;
+            }
+
+            foreach (var listener in _propertyListeners)
+            {
+                listener.PropertyChanging(entry, property);
             }
         }
     }

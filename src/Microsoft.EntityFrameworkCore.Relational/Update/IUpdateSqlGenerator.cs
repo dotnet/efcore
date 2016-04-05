@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Update
     public interface IUpdateSqlGenerator
     {
         string GenerateNextSequenceValueOperation([NotNull] string name, [CanBeNull] string schema);
+
+        void AppendNextSequenceValueOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] string name, [CanBeNull] string schema);
+
         void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder);
 
         ResultSetMapping AppendDeleteOperation(

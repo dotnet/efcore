@@ -75,7 +75,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            public bool AnyPropertiesFlagged(PropertyFlag propertyFlag) => _bits.Where((t, i) => (t & CreateMaskForRead(i, propertyFlag)) != 0).Any();
+            public bool AnyPropertiesFlagged(PropertyFlag propertyFlag)
+            {
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                for (var i = 0; i < _bits.Length; i++)
+                {
+                    var bit = _bits[i];
+                    if ((bit & CreateMaskForRead(i, propertyFlag)) != 0)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
 
             private static int CreateMaskForRead(int i, PropertyFlag propertyFlag)
             {

@@ -427,7 +427,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual PropertyIndexes PropertyIndexes
         {
-            get { return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this, CalculateIndexes); }
+            get
+            {
+                return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
+                    property => property.DeclaringEntityType.CalculateIndexes(property));
+            }
 
             set
             {
@@ -448,8 +452,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyList<IKey> Keys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
-
-        private static PropertyIndexes CalculateIndexes(Property property) 
-            => property.DeclaringEntityType.CalculateIndexes(property);
     }
 }

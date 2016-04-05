@@ -173,6 +173,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
 
+            var referencingForeignKeyMetadata = entityType as IReferencingForeignKeyMetadata;
+            if (referencingForeignKeyMetadata != null)
+            {
+                return referencingForeignKeyMetadata.ReferencingForeignKeys;
+            }
+
             return entityType.Model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
                 .Where(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType));
         }

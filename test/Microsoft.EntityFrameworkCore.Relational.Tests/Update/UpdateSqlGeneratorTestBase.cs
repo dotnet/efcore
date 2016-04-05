@@ -316,15 +316,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator, identityKey, !identityKey, true, false),
+                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, identityKey, !identityKey, true, false),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator, false, true, false, false),
+                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator, false, true, false, false),
+                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator, isComputed, false, false, false),
+                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator, false, true, false, false)
+                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, false)
             };
 
             if (defaultsOnly)
@@ -333,7 +333,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             }
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>(
+                "Ducks", Schema, new Func<string>(new ParameterNameGenerator().GenerateNext), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -353,19 +354,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator, false, false, true, true),
+                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator, false, true, false, false),
+                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator, false, true, false, false),
+                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator, isComputed, false, false, false),
+                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator, false, true, false, concurrencyToken)
+                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, concurrencyToken)
             };
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>(
+                "Ducks", Schema, new Func<string>(new ParameterNameGenerator().GenerateNext), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -382,13 +384,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator, false, false, true, true),
+                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator, false, false, false, concurrencyToken)
+                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, false, false, concurrencyToken)
             };
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>(
+                "Ducks", Schema, new Func<string>(new ParameterNameGenerator().GenerateNext), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;

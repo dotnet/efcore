@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this, n => value);
+                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
                 }
             }
         }

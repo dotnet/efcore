@@ -341,6 +341,7 @@
     <Compile Include="Metadata\Internal\IPropertyIndexesAccessor.cs" />
     <Compile Include="Metadata\Internal\IPropertyIndexMetadata.cs" />
     <Compile Include="Metadata\Internal\IPropertyKeyMetadata.cs" />
+    <Compile Include="Metadata\Internal\IReferencingForeignKeyMetadata.cs" />
     <Compile Include="Metadata\Internal\ISnapshotFactorySource.cs" />
     <Compile Include="Metadata\Internal\Key.cs" />
     <Compile Include="Metadata\Internal\KeyExtensions.cs" />

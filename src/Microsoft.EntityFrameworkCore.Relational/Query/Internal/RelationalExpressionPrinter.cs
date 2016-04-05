@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var trackingInfoList = value as List<EntityTrackingInfo>;
                 if (trackingInfoList != null)
                 {
-                    var appendAction = trackingInfoList.Count() > 2 ? AppendLine : Append;
+                    var appendAction = trackingInfoList.Count > 2 ? AppendLine : Append;
 
                     appendAction(stringBuilder, "{ ");
                     stringBuilder.IncrementIndent();

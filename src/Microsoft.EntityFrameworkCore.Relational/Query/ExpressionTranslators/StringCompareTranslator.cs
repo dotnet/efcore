@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 
         private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
             .GetDeclaredMethods(nameof(string.Compare))
-            .Single(m => m.GetParameters().Count() == 2);
+            .Single(m => m.GetParameters().Length == 2);
 
         public virtual Expression Translate(Expression expression)
         {
