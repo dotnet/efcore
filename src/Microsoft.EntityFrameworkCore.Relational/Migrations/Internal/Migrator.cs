@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -307,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         new HistoryRow(
                             migration.GetId(),
                             ProductInfo.GetVersion(),
-                            GenerateScript(migration.GetId(), previousMigration?.GetId())))));
+                            AppendScript(GenerateDownSql(migration, previousMigration))))));
 
             return commands;
         }
@@ -335,6 +336,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 transaction.Commit();
             }
         }
+
+        private string AppendScript(IReadOnlyList<IRelationalCommand> downCommands) => new StringBuilder().AppendJoin(downCommands.Select(t => t.CommandText), "").ToString();
 
         private async Task ExecuteAsync(
             IEnumerable<IRelationalCommand> relationalCommands,

@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             Assert.Equal(
                 @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
     ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
+    ""DownScript"" TEXT NOT NULL,
     ""ProductVersion"" TEXT NOT NULL
 );
 
@@ -40,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             Assert.Equal(
                 @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
     ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
+    ""DownScript"" TEXT NOT NULL,
     ""ProductVersion"" TEXT NOT NULL
 );
 
@@ -54,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
             Assert.Equal(
                 @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
     ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY,
+    ""DownScript"" TEXT NOT NULL,
     ""ProductVersion"" TEXT NOT NULL
 );
 
@@ -61,13 +64,19 @@ CREATE TABLE ""Table1"" (
     ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Table1"" PRIMARY KEY
 );
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
-VALUES ('00000000000001_Migration1', '7.0.0-test');
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"", ""DownScript"")
+VALUES ('00000000000001_Migration1', '7.0.0-test', 'DROP TABLE ""Table1"";
+DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = ''00000000000001_Migration1'';
+');
 
 ALTER TABLE ""Table1"" RENAME TO ""Table2"";
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
-VALUES ('00000000000002_Migration2', '7.0.0-test');
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"", ""DownScript"")
+VALUES ('00000000000002_Migration2', '7.0.0-test', 'ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = ''00000000000002_Migration2'';
+');
 
 ",
                 Sql);

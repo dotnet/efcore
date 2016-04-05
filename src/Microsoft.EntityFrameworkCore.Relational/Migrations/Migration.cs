@@ -46,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected virtual void Down([NotNull] MigrationBuilder migrationBuilder)
         {
-            throw new NotImplementedException();
         }
 
         private List<MigrationOperation> BuildOperations(Action<MigrationBuilder> buildAction)
