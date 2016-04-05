@@ -50,8 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     ex = ex.InnerException;
                 }
 
-                if (!(ex is CommandException
-                    || (ex as OperationException)?.Type == "Microsoft.EntityFrameworkCore.Design.OperationException"))
+                if ((ex as OperationErrorException)?.Type != OperationErrorException.OperationException)
                 {
                     Reporter.Error.WriteLine(ex.ToString());
                 }

@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string environment,
             Action<IDictionary> reporter)
         {
-            var files = new OperationExecutor(startupProject, environment)
+            var files = new ReflectionOperationExecutor(startupProject, environment)
                 .AddMigration(name, outputDir, context);
 
             reporter?.Invoke(files);
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
         {
             // TODO use a real json serializer
             Reporter.Output.WriteLine("{");
-            Reporter.Output.WriteLine("   \"MigrationFile\": \""+ SerializePath(files["MigrationFile"] as string) + "\",");
+            Reporter.Output.WriteLine("   \"MigrationFile\": \"" + SerializePath(files["MigrationFile"] as string) + "\",");
             Reporter.Output.WriteLine("   \"MetadataFile\": \"" + SerializePath(files["MetadataFile"] as string) + "\",");
             Reporter.Output.WriteLine("   \"SnapshotFile\": \"" + SerializePath(files["SnapshotFile"] as string) + "\"");
             Reporter.Output.WriteLine("}");

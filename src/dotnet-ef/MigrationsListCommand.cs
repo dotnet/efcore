@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string environment,
             Action<IEnumerable<IDictionary>> reportResultsAction)
         {
-            var migrations = new OperationExecutor(startupProject, environment)
+            var migrations = new ReflectionOperationExecutor(startupProject, environment)
                 .GetMigrations(context);
 
             reportResultsAction(migrations);

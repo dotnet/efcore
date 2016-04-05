@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string startupProject,
             string environment)
         {
-            var sql = new OperationExecutor(startupProject, environment)
+            var sql = new ReflectionOperationExecutor(startupProject, environment)
                 .ScriptMigration(from, to, idempotent, context);
 
             if (string.IsNullOrEmpty(output))

@@ -73,7 +73,7 @@
     <Compile Include="Migrations\CodeCompilationTest.cs" />
     <Compile Include="Migrations\ModelSnapshotTest.cs" />
     <Compile Include="Migrations\OperationCompilationTest.cs" />
-    <Compile Include="TestUtilities\OperationExecutorWrapper.cs" />
+    <Compile Include="TestUtilities\AppDomainOperationExecutor.cs" />
     <Compile Include="TestUtilities\TempDirectory.cs" />
     <Compile Include="TestUtilities\WrappedOperationException.cs" />
   </ItemGroup>

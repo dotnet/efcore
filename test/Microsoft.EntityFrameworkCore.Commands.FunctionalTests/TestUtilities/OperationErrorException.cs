@@ -1,16 +1,15 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Commands
+namespace Microsoft.EntityFrameworkCore.Commands.TestUtilities
 {
-    public class OperationException : Exception
+    public class OperationErrorException : Exception
     {
         private readonly string _stackTrace;
 
-        public OperationException([NotNull] string type, [NotNull] string stackTrace, [NotNull] string message)
+        public OperationErrorException(string type, string stackTrace, string message)
             : base(message)
         {
             _stackTrace = stackTrace;

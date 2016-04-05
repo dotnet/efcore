@@ -6,6 +6,9 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
+    /// <summary>
+    ///     Represents an exception whose stack trace should, by default, not be reported by the commands.
+    /// </summary>
     public class OperationException : Exception
     {
         public OperationException([NotNull] string message)

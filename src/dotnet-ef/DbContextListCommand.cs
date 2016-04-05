@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string environment,
             Action<IEnumerable<IDictionary>> reportResultsAction)
         {
-            var contextTypes = new OperationExecutor(startupProject, environment)
+            var contextTypes = new ReflectionOperationExecutor(startupProject, environment)
                 .GetContextTypes();
 
             reportResultsAction(contextTypes);

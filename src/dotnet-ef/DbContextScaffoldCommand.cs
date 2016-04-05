@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string startupProject,
             string environment)
         {
-            new OperationExecutor(startupProject, environment)
+            new ReflectionOperationExecutor(startupProject, environment)
                 .ReverseEngineer(
                     provider,
                     connection,

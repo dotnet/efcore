@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
         private static int Execute(string context, string startupProject, string environment, bool force)
         {
-            new OperationExecutor(startupProject, environment)
+            new ReflectionOperationExecutor(startupProject, environment)
                 .RemoveMigration(context, force);
 
             return 0;

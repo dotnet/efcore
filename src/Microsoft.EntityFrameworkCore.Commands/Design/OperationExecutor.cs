@@ -13,6 +13,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
+    /// <summary>
+    ///     A version-resilient, AppDomain-and-reflection-friendly facade for command operations.
+    /// </summary>
     public partial class OperationExecutor
     {
         private readonly LazyRef<DbContextOperations> _contextOperations;
@@ -124,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        private IEnumerable<string> AddMigrationImpl(
+        private IDictionary AddMigrationImpl(
             [NotNull] string name,
             [CanBeNull] string outputDir,
             [CanBeNull] string contextType)

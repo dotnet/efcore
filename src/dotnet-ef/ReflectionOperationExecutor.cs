@@ -16,18 +16,16 @@ using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Commands
 {
-    public class OperationExecutor
+    public class ReflectionOperationExecutor
     {
         private const string ExecutorTypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
+        private const string DataDirEnvName = "ADONET_DATA_DIR";
 
         private readonly Assembly _commandsAssembly;
         private readonly object _executor;
         private readonly string _startupProjectDir;
 
-        private const string DataDirEnvName = "ADONET_DATA_DIR";
-        private const string DefaultConfiguration = "Debug";
-
-        public OperationExecutor([CanBeNull] string startupProject, [CanBeNull] string environment)
+        public ReflectionOperationExecutor([CanBeNull] string startupProject, [CanBeNull] string environment)
         {
             var project = Path.Combine(Directory.GetCurrentDirectory(), Project.FileName);
 
@@ -52,12 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 new[] { startupProject, "-f", startupProjectContext.TargetFramework.GetShortFolderName() });
             if (buildCommand.Execute().ExitCode != 0)
             {
-                throw new CommandException("Build failed.");
+                throw OperationErrorException.CreateOperationException("Build failed.");
             }
 
             Reporter.Verbose.WriteLine("Build succeeded.".Bold().Black());
 
-            var runtimeOutputPath = startupProjectContext.GetOutputPaths(DefaultConfiguration)?.RuntimeOutputPath;
+            var runtimeOutputPath = startupProjectContext.GetOutputPaths(Constants.DefaultConfiguration)?.RuntimeOutputPath;
             if (!string.IsNullOrEmpty(runtimeOutputPath))
             {
                 // TODO set data directory in AppDomain when/if this supports desktop .NET
@@ -72,8 +70,19 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var rootNamespace = projectFile.Name;
             var assemblyLoadContext = startupProjectContext.CreateLoadContext();
 
-            _commandsAssembly = assemblyLoadContext.LoadFromAssemblyName(
-                new AssemblyName("Microsoft.EntityFrameworkCore.Commands"));
+            try
+            {
+                _commandsAssembly = assemblyLoadContext.LoadFromAssemblyName(
+                    new AssemblyName("Microsoft.EntityFrameworkCore.Commands"));
+            }
+            catch (FileNotFoundException ex)
+            {
+                Reporter.Verbose.WriteLine(ex.ToString().Bold().Black());
+
+                throw OperationErrorException.CreateOperationException(
+                    "Cannot execute this command because Microsoft.EntityFramework.Commands is not installed in the " +
+                    "startup project '" + startupAssemblyName + "'.");
+            }
 
             var assemblyLoader = Activator.CreateInstance(
                 _commandsAssembly.GetType(
@@ -97,11 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 _commandsAssembly.GetType(ExecutorTypeName, throwOnError: true, ignoreCase: false),
                 logHandler,
                 new Dictionary<string, string>
-            {
+                {
                     ["targetName"] = assemblyName,
                     ["startupTargetName"] = startupAssemblyName,
                     ["environment"] = environment,
                     ["projectDir"] = projectDir,
+                    ["startupProjectDir"] = _startupProjectDir,
                     ["rootNamespace"] = rootNamespace
                 },
                 assemblyLoader);
@@ -216,8 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
                     f => new NuGetFramework(f));
             if (framework == null)
             {
-                throw new CommandException(
-                    "The project '" + projectFile.Name + "' doesn't target a framework compatible with .NET Standard "+
+                throw OperationErrorException.CreateOperationException(
+                    "The project '" + projectFile.Name + "' doesn't target a framework compatible with .NET Standard " +
                     "App 1.5. You must target a compatible framework such as 'netstandard1.3' in order to use the " +
                     "Entity Framework .NET Core CLI Commands.");
             }
@@ -260,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
             if (resultHandler.ErrorType != null)
             {
-                throw new OperationException(
+                throw new OperationErrorException(
                     resultHandler.ErrorType,
                     resultHandler.ErrorStackTrace,
                     resultHandler.ErrorMessage);

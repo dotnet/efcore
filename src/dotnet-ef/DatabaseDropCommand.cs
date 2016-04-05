@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
 
         private static int Execute(string context, string startupProject, string environment, bool isForced)
         {
-            new OperationExecutor(startupProject, environment)
+            new ReflectionOperationExecutor(startupProject, environment)
                 .DropDatabase(
                     context,
                     (database, dataSource) =>
