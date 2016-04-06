@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             // for the connection and then retry the Open call.
             // Also handling (Number -2):
             //   System.Data.SqlClient.SqlException: Connection Timeout Expired.  The timeout period elapsed while
-            //   attempting to consume the pre-login handshake acknowledgement.  This could be because the pre-login
+            //   attempting to consume the pre-login handshake acknowledgment.  This could be because the pre-login
             //   handshake failed or the server was unable to respond back in time.
             // And (Number 4060):
             //   System.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The

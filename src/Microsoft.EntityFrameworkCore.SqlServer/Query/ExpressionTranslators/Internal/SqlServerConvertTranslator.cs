@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         private static readonly IEnumerable<MethodInfo> _supportedMethods
             = _typeMapping.Keys
                 .SelectMany(t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
-                    .Where(m => (m.GetParameters().Count() == 1)
+                    .Where(m => (m.GetParameters().Length == 1)
                                 && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)

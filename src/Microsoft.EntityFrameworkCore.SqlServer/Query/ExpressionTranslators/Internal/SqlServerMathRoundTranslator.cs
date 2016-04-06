@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     public class SqlServerMathRoundTranslator : IMethodCallTranslator
     {
         private static readonly IEnumerable<MethodInfo> _methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods(nameof(Math.Round))
-            .Where(m => (m.GetParameters().Count() == 1)
-                        || ((m.GetParameters().Count() == 2) && (m.GetParameters()[1].ParameterType == typeof(int))));
+            .Where(m => (m.GetParameters().Length == 1)
+                        || ((m.GetParameters().Length == 2) && (m.GetParameters()[1].ParameterType == typeof(int))));
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
             => _methodInfos.Contains(methodCallExpression.Method)

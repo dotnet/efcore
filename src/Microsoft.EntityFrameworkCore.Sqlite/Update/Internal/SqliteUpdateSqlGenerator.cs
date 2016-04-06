@@ -22,9 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            commandStringBuilder
-                .Append(SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName))
-                .Append(" = ")
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
+            commandStringBuilder.Append(" = ")
                 .Append("last_insert_rowid()");
         }
 

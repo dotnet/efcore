@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
+            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
         }
 
         [Fact]
@@ -53,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
         }
     }
 }

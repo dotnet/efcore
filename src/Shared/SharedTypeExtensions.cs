@@ -47,7 +47,7 @@ namespace System
         public static PropertyInfo GetAnyProperty(this Type type, string name)
         {
             var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
-            if (props.Count() > 1)
+            if (props.Count > 1)
             {
                 throw new AmbiguousMatchException();
             }

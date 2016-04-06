@@ -24,17 +24,20 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         private struct CacheKey
         {
-            public CacheKey(IProperty property, IEntityType entityType)
+            public CacheKey(IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
             {
                 Property = property;
                 EntityType = entityType;
+                Factory = factory;
             }
 
             public IProperty Property { get; }
 
             public IEntityType EntityType { get; }
 
-            private bool Equals(CacheKey other) 
+            public Func<IProperty, IEntityType, ValueGenerator> Factory { get; }
+
+            private bool Equals(CacheKey other)
                 => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
 
             public override bool Equals(object obj)
@@ -73,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(factory, nameof(factory));
 
-            return _cache.GetOrAdd(new CacheKey(property, entityType), ck => factory(ck.Property, ck.EntityType));
+            return _cache.GetOrAdd(new CacheKey(property, entityType, factory), ck => ck.Factory(ck.Property, ck.EntityType));
         }
     }
 }

@@ -170,15 +170,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(operations, nameof(operations));
 
-            commandStringBuilder
-                .Append("INSERT INTO ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(name, schema));
+            commandStringBuilder.Append("INSERT INTO ");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
 
             if (operations.Count > 0)
             {
                 commandStringBuilder
                     .Append(" (")
-                    .AppendJoin(operations.Select(o => SqlGenerationHelper.DelimitIdentifier(o.ColumnName)))
+                    .AppendJoin(operations,
+                        SqlGenerationHelper,
+                        (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName))
                     .Append(")");
             }
         }
@@ -191,9 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
 
-            commandStringBuilder
-                .Append("DELETE FROM ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(name, schema));
+            commandStringBuilder.Append("DELETE FROM ");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
         }
 
         protected virtual void AppendUpdateCommandHeader(
@@ -206,17 +206,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(operations, nameof(operations));
 
-            commandStringBuilder
-                .Append("UPDATE ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(name, schema))
-                .Append(" SET ")
+            commandStringBuilder.Append("UPDATE ");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
+            commandStringBuilder.Append(" SET ")
                 .AppendJoin(
                     operations,
-                    (sb, v) => sb
-                        .Append(SqlGenerationHelper.DelimitIdentifier(v.ColumnName))
-                        .Append(" = ")
-                        .Append(SqlGenerationHelper.GenerateParameterName(v.ParameterName)),
-                    ", ");
+                    SqlGenerationHelper,
+                    (sb, o, helper) =>
+                        {
+                            helper.DelimitIdentifier(sb, o.ColumnName);
+                            sb.Append(" = ");
+                            helper.GenerateParameterName(sb, o.ParameterName);
+                        });
         }
 
         protected virtual void AppendSelectCommandHeader(
@@ -228,7 +229,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             commandStringBuilder
                 .Append("SELECT ")
-                .AppendJoin(operations.Select(c => SqlGenerationHelper.DelimitIdentifier(c.ColumnName)));
+                .AppendJoin(
+                    operations,
+                    SqlGenerationHelper,
+                    (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName));
         }
 
         protected virtual void AppendFromClause(
@@ -241,8 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             commandStringBuilder
                 .AppendLine()
-                .Append("FROM ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(name, schema));
+                .Append("FROM ");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
         }
 
         protected virtual void AppendValuesHeader(
@@ -267,8 +271,20 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 commandStringBuilder
                     .Append("(")
-                    .AppendJoin(operations.Select(
-                        o => o.IsWrite ? SqlGenerationHelper.GenerateParameterName(o.ParameterName) : "DEFAULT"))
+                    .AppendJoin(
+                        operations,
+                        SqlGenerationHelper,
+                        (sb, o, helper) =>
+                            {
+                                if (o.IsWrite)
+                                {
+                                    helper.GenerateParameterName(sb, o.ParameterName);
+                                }
+                                else
+                                {
+                                    sb.Append("DEFAULT");
+                                }
+                            })
                     .Append(")");
             }
         }
@@ -333,14 +349,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            commandStringBuilder
-                .Append(SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName))
-                .Append(" = ")
-                .Append(
-                    SqlGenerationHelper.GenerateParameterName(
-                        useOriginalValue
-                            ? columnModification.OriginalParameterName
-                            : columnModification.ParameterName));
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
+            commandStringBuilder.Append(" = ");
+            SqlGenerationHelper.GenerateParameterName(commandStringBuilder, useOriginalValue
+                ? columnModification.OriginalParameterName
+                : columnModification.ParameterName);
         }
 
         protected abstract void AppendIdentityWhereCondition(
@@ -352,6 +365,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         public virtual string GenerateNextSequenceValueOperation(string name, string schema)
-            => "SELECT NEXT VALUE FOR " + SqlGenerationHelper.DelimitIdentifier(Check.NotNull(name, nameof(name)), schema);
+        {
+            var commandStringBuilder = new StringBuilder();
+            AppendNextSequenceValueOperation(commandStringBuilder, name, schema);
+            return commandStringBuilder.ToString();
+        }
+
+        public virtual void AppendNextSequenceValueOperation(StringBuilder commandStringBuilder, string name, string schema)
+        {
+            commandStringBuilder.Append("SELECT NEXT VALUE FOR ");
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, Check.NotNull(name, nameof(name)), schema);
+        }
     }
 }
