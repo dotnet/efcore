@@ -60,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateIsUniqueConfigurationSource(ConfigurationSource configurationSource)
             => _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
 
-        IReadOnlyList<IProperty> IIndex.Properties => Properties;
-        IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
-        IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableIndex.DeclaringEntityType => DeclaringEntityType;
+        IReadOnlyList<IProperty> IMetadataProperties.Properties => Properties;
+        IReadOnlyList<IMutableProperty> IMutableMetadataProperties.Properties => Properties;
+        IEntityType IMetadataElement.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableMetadataElement.DeclaringEntityType => DeclaringEntityType;
 
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);

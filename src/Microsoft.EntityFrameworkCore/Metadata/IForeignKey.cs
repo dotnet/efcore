@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -10,20 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relationship where a foreign key property(s) in a dependent entity type
     ///     reference a corresponding primary or alternate key in a principal entity type.
     /// </summary>
-    public interface IForeignKey : IAnnotatable
+    public interface IForeignKey : IAnnotatable, IMetadataElement, IMetadataProperties
     {
-        /// <summary>
-        ///     Gets the dependent entity type. This may be different from the type that <see cref="Properties" />
-        ///     are defined on when the relationship is defined a derived type in an inheritance hierarchy (since the properties
-        ///     may be defined on a base type).
-        /// </summary>
-        IEntityType DeclaringEntityType { get; }
-
-        /// <summary>
-        ///     Gets the foreign key properties in the dependent entity.
-        /// </summary>
-        IReadOnlyList<IProperty> Properties { get; }
-
         /// <summary>
         ///     Gets the principal entity type that this relationship targets. This may be different from the type that
         ///     <see cref="PrincipalKey" /> is defined on when the relationship targets a derived type in an inheritance

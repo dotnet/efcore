@@ -305,12 +305,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType ResolveEntityTypeInHierarchy([NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)this).ResolveEntityTypeInHierarchy(entityType);
 
-        IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
-        IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties => Properties;
+        IReadOnlyList<IProperty> IMetadataProperties.Properties => Properties;
+        IReadOnlyList<IMutableProperty> IMutableMetadataProperties.Properties => Properties;
         IKey IForeignKey.PrincipalKey => PrincipalKey;
         IMutableKey IMutableForeignKey.PrincipalKey => PrincipalKey;
-        IEntityType IForeignKey.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableForeignKey.DeclaringEntityType => DeclaringEntityType;
+        IEntityType IMetadataElement.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableMetadataElement.DeclaringEntityType => DeclaringEntityType;
         IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
         IMutableEntityType IMutableForeignKey.PrincipalEntityType => PrincipalEntityType;
 

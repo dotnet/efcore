@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IForeignKey INavigation.ForeignKey => ForeignKey;
         IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
-        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableNavigation.DeclaringEntityType => DeclaringEntityType;
+        IEntityType IMetadataElement.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableMetadataElement.DeclaringEntityType => DeclaringEntityType;
     }
 }
