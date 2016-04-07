@@ -1360,6 +1360,20 @@ WHERE EXISTS (
                 Sql);
         }
 
+        public override void Any_with_multiple_conditions_still_uses_exists()
+        {
+            base.Any_with_multiple_conditions_still_uses_exists();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[City] = N'London') AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE ([o].[EmployeeID] = 1) AND ([c].[CustomerID] = [o].[CustomerID]))",
+                Sql);
+        }
+
         public override void All_top_level()
         {
             base.All_top_level();

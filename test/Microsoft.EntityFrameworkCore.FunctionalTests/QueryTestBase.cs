@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.IsLondon)
                     .Select(c => new Customer
-                        {
-                            CustomerID = "Foo",
-                            City = c.City
-                        }));
+                    {
+                        CustomerID = "Foo",
+                        City = c.City
+                    }));
         }
 
         [ConditionalFact]
@@ -333,6 +333,19 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             AssertQuery<Customer, Order>(
                 (cs, os) => cs.Where(c => os.Any(o => o.CustomerID.StartsWith("A"))
                                           && c.City != "London"));
+        }
+
+        [ConditionalFact]
+        public virtual void Any_with_multiple_conditions_still_uses_exists()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.City == "London" && c.Orders.Any(o => o.EmployeeID == 1))
+                    .ToList();
+
+                Assert.Equal(4, query.Count);
+            }
         }
 
         [ConditionalFact]
@@ -1244,7 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             AssertQuery<Customer, Employee>((cs, es) =>
                 from c in cs
                 from e in es
-                // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
                 where (c.City == "London" && c.Country == "UK")
                       && (e.City == "London" && e.Country == "UK")
                 select new { c, e });
@@ -4820,7 +4833,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             {
                 var orders
                     = (from o in context.Orders.Take(2)
-                       // ReSharper disable once UseMethodAny.0
+                           // ReSharper disable once UseMethodAny.0
                        where (from od in context.OrderDetails.Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
