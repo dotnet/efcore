@@ -121,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
             protected override Expression VisitMethodCall(MethodCallExpression expression)
                 => EntityQueryModelVisitor.IsPropertyMethod(expression.Method)
                     ? Expression.Property(
-                        expression.Arguments[0],
-                        (string)((ConstantExpression)expression.Arguments[1]).Value)
+                        expression.Arguments[0].RemoveConvert(),
+                        Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())
                     : base.VisitMethodCall(expression);
         }
 

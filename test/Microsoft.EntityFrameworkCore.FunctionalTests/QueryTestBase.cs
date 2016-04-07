@@ -4689,6 +4689,24 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [ConditionalFact]
+        public virtual void Where_Property_shadow_closure()
+        {
+            var propertyName = "Title";
+            var value = "Sales Representative";
+
+            AssertQuery<Employee>(
+                es => es.Where(e => EF.Property<string>(e, propertyName) == value),
+                entryCount: 6);
+
+            propertyName = "FirstName";
+            value = "Steven";
+
+            AssertQuery<Employee>(
+                es => es.Where(e => EF.Property<string>(e, propertyName) == value),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Selected_column_can_coalesce()
         {
             using (var context = CreateContext())

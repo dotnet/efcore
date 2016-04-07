@@ -69,8 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var methodInfo = methodCallExpression.Method;
             var declaringType = methodInfo.DeclaringType;
 
-            if (declaringType == typeof(EF)
-                || declaringType == typeof(DbContext))
+            if (declaringType == typeof(DbContext))
             {
                 return methodCallExpression;
             }
