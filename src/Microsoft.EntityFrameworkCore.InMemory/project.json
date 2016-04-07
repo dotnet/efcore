@@ -14,10 +14,9 @@
   },
   "compile": "../Shared/*.cs",
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netstandard1.3": {
       "imports": [
-        "dotnet5.4",
         "portable-net452+win81"
       ]
     }

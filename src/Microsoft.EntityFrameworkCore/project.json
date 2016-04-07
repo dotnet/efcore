@@ -22,12 +22,13 @@
     "net451": {
       "frameworkAssemblies": {
         "System.ComponentModel.DataAnnotations": "",
-        "System.Runtime": { "type": "build" }
+        "System.Runtime": {
+          "type": "build"
+        }
       }
     },
     "netstandard1.3": {
       "imports": [
-        "dotnet5.4",
         "portable-net452+win81"
       ],
       "dependencies": {
