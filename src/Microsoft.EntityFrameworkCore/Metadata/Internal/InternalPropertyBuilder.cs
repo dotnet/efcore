@@ -159,41 +159,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             newPropertyBuilder.MergeAnnotationsFrom(this);
 
-            if (Metadata.GetClrTypeConfigurationSource().HasValue)
+            var oldClrTypeConfigurationSource = Metadata.GetClrTypeConfigurationSource();
+            if (oldClrTypeConfigurationSource.HasValue)
             {
-                newPropertyBuilder.HasClrType(Metadata.ClrType, Metadata.GetClrTypeConfigurationSource().Value);
+                newPropertyBuilder.HasClrType(Metadata.ClrType, oldClrTypeConfigurationSource.Value);
             }
-            if (Metadata.GetIsReadOnlyAfterSaveConfigurationSource().HasValue)
+            var oldIsReadOnlyAfterSaveConfigurationSource = Metadata.GetIsReadOnlyAfterSaveConfigurationSource();
+            if (oldIsReadOnlyAfterSaveConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ReadOnlyAfterSave(Metadata.IsReadOnlyAfterSave,
-                    Metadata.GetIsReadOnlyAfterSaveConfigurationSource().Value);
+                    oldIsReadOnlyAfterSaveConfigurationSource.Value);
             }
-            if (Metadata.GetIsReadOnlyBeforeSaveConfigurationSource().HasValue)
+            var oldIsReadOnlyBeforeSaveConfigurationSource = Metadata.GetIsReadOnlyBeforeSaveConfigurationSource();
+            if (oldIsReadOnlyBeforeSaveConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ReadOnlyBeforeSave(Metadata.IsReadOnlyBeforeSave,
-                    Metadata.GetIsReadOnlyBeforeSaveConfigurationSource().Value);
+                    oldIsReadOnlyBeforeSaveConfigurationSource.Value);
             }
-            if (Metadata.GetIsNullableConfigurationSource().HasValue)
+            var oldIsNullableConfigurationSource = Metadata.GetIsNullableConfigurationSource();
+            if (oldIsNullableConfigurationSource.HasValue)
             {
-                newPropertyBuilder.IsRequired(!Metadata.IsNullable, Metadata.GetIsNullableConfigurationSource().Value);
+                newPropertyBuilder.IsRequired(!Metadata.IsNullable, oldIsNullableConfigurationSource.Value);
             }
-            if (Metadata.GetIsConcurrencyTokenConfigurationSource().HasValue)
+            var oldIsConcurrencyTokenConfigurationSource = Metadata.GetIsConcurrencyTokenConfigurationSource();
+            if (oldIsConcurrencyTokenConfigurationSource.HasValue)
             {
                 newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken,
-                    Metadata.GetIsConcurrencyTokenConfigurationSource().Value);
+                    oldIsConcurrencyTokenConfigurationSource.Value);
             }
-            if (Metadata.GetIsShadowPropertyConfigurationSource().HasValue)
+            var oldIsShadowPropertyConfigurationSource = Metadata.GetIsShadowPropertyConfigurationSource();
+            if (oldIsShadowPropertyConfigurationSource.HasValue)
             {
-                newPropertyBuilder.IsShadow(Metadata.IsShadowProperty, Metadata.GetIsShadowPropertyConfigurationSource().Value);
+                newPropertyBuilder.IsShadow(Metadata.IsShadowProperty, oldIsShadowPropertyConfigurationSource.Value);
             }
-            if (Metadata.GetRequiresValueGeneratorConfigurationSource().HasValue)
+            var oldRequiresValueGeneratorConfigurationSource = Metadata.GetRequiresValueGeneratorConfigurationSource();
+            if (oldRequiresValueGeneratorConfigurationSource.HasValue)
             {
                 newPropertyBuilder.RequiresValueGenerator(Metadata.RequiresValueGenerator,
-                    Metadata.GetRequiresValueGeneratorConfigurationSource().Value);
+                    oldRequiresValueGeneratorConfigurationSource.Value);
             }
-            if (Metadata.GetValueGeneratedConfigurationSource().HasValue)
+            var oldValueGeneratedConfigurationSource = Metadata.GetValueGeneratedConfigurationSource();
+            if (oldValueGeneratedConfigurationSource.HasValue)
             {
-                newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, Metadata.GetValueGeneratedConfigurationSource().Value);
+                newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, oldValueGeneratedConfigurationSource.Value);
             }
 
             return newPropertyBuilder;

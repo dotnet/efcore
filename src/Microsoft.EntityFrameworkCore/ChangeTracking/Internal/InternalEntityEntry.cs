@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract partial class InternalEntityEntry : IUpdateEntry
     {
         private StateData _stateData;
@@ -517,7 +516,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (EntityState == EntityState.Modified)
             {
-
                 IProperty modifiedProperty = null;
                 foreach (var property in EntityType.GetProperties())
                 {

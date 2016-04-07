@@ -775,14 +775,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             .ToArray()));
         }
 
-        private static readonly MethodInfo PropertyMethodInfo
+        private static readonly MethodInfo _propertyMethodInfo
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property));
 
         private static Expression CreatePropertyExpression(Expression target, IProperty property, bool addNullCheck)
         {
             var propertyExpression = (Expression)Expression.Call(
                 null,
-                PropertyMethodInfo.MakeGenericMethod(property.ClrType),
+                _propertyMethodInfo.MakeGenericMethod(property.ClrType),
                 target,
                 Expression.Constant(property.Name));
 
@@ -851,6 +851,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_CreateEntityQueryable));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
             => new EntityQueryable<TResult>(entityQueryProvider);
 
@@ -924,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     _queryModelVisitor = queryModelVisitor;
                 }
 
-                protected override Expression VisitSubQuery(SubQueryExpression expression) 
+                protected override Expression VisitSubQuery(SubQueryExpression expression)
                     => expression;
 
                 protected override Expression VisitMember(MemberExpression node)
@@ -950,9 +951,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var targetType = collectionNavigation.GetTargetType().ClrType;
                     var mainFromClause = new MainFromClause(targetType.Name.Substring(0, 1).ToLower(), targetType, expression);
-                    var selecor = new QuerySourceReferenceExpression(mainFromClause);
+                    var selector = new QuerySourceReferenceExpression(mainFromClause);
 
-                    var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selecor));
+                    var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selector));
                     var subqueryExpression = new SubQueryExpression(subqueryModel);
 
                     var resultCollectionType = collectionNavigation.GetCollectionAccessor().CollectionType;
@@ -970,6 +971,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     = typeof(SubqueryInjector).GetTypeInfo()
                         .GetDeclaredMethod(nameof(MaterializeCollectionNavigation));
 
+                [UsedImplicitly]
                 private static ICollection<TEntity> MaterializeCollectionNavigation<TEntity>(INavigation navigation, IEnumerable<object> elements)
                 {
                     var collection = navigation.GetCollectionAccessor().Create(elements);

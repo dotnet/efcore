@@ -352,7 +352,7 @@
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>
   </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
-    <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show aditional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.</value>
+    <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.</value>
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
@@ -545,5 +545,8 @@
   </data>
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
+  </data>
+  <data name="NoClrSetter" xml:space="preserve">
+    <value>Could not find setter for property {property}</value>
   </data>
 </root>

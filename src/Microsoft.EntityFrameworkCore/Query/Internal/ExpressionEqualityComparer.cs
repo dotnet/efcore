@@ -10,7 +10,6 @@ using System.Reflection;
 // ReSharper disable SwitchStatementMissingSomeCases
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable LoopCanBeConvertedToQuery
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class ExpressionEqualityComparer : IEqualityComparer<Expression>

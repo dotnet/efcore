@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToEnumerable));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static EnumerableAdapter<TResult> _ToEnumerable<TResult>(IAsyncEnumerable<TResult> results)
             => new EnumerableAdapter<TResult>(results);
 
@@ -55,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToOrdered));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IAsyncEnumerable<TResult> results)
             => new OrderedEnumerableAdapter<TResult>(results);
 
@@ -84,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_InterceptExceptions));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _InterceptExceptions<T>(
             IAsyncEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
@@ -157,6 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackEntities));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TOut> _TrackEntities<TOut, TIn>(
             IAsyncEnumerable<TOut> results,
             QueryContext queryContext,
@@ -204,6 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackGroupedEntities));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TrackingGrouping<TKey, TOut, TIn>> _TrackGroupedEntities<TKey, TOut, TIn>(
             IAsyncEnumerable<IGrouping<TKey, TOut>> groupings,
             QueryContext queryContext,
@@ -275,6 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToSequence));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _ToSequence<T>(T element)
             => new AsyncEnumerableAdapter<T>(new[] { element });
 
@@ -285,6 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToQueryable));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IAsyncEnumerable<TSource> source)
             => new AsyncQueryableAdapter<TSource>(source);
 
@@ -321,6 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_SelectMany));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
             IAsyncEnumerable<TSource> source,
             Func<TSource, IAsyncEnumerable<TCollection>> collectionSelector,
@@ -334,6 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Join));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
             IAsyncEnumerable<TOuter> outer,
             IAsyncEnumerable<TInner> inner,
@@ -349,6 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             IAsyncEnumerable<TOuter> outer,
             IAsyncEnumerable<TInner> inner,
@@ -364,6 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Select));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             IAsyncEnumerable<TSource> source, Func<TSource, TResult> selector)
             => source.Select(selector);
@@ -375,6 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_OrderBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
             IAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
@@ -388,6 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ThenBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
@@ -401,6 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Where));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TSource> _Where<TSource>(
             IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate) => source.Where(predicate);
 
@@ -435,6 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -596,7 +611,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-
         // Set operations
         private static readonly MethodInfo _concat = GetMethod("Concat", 1);
         private static readonly MethodInfo _except = GetMethod("Except", 1);
@@ -607,7 +621,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual MethodInfo Except => _except;
         public virtual MethodInfo Intersect => _intersect;
         public virtual MethodInfo Union => _union;
-
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)
         {

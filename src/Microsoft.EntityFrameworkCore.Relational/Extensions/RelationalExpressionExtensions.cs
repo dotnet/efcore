@@ -1,37 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
-
-namespace System.Linq.Expressions
+namespace Microsoft.EntityFrameworkCore.Internal
 {
-    public static class ExpressionExtensions
+    public static class RelationalExpressionExtensions
     {
-        public static bool IsLogicalOperation([NotNull] this Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            return (expression.NodeType == ExpressionType.AndAlso)
-                   || (expression.NodeType == ExpressionType.OrElse);
-        }
-
-        public static bool IsComparisonOperation([NotNull] this Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            return (expression.NodeType == ExpressionType.Equal)
-                || (expression.NodeType == ExpressionType.NotEqual)
-                || (expression.NodeType == ExpressionType.LessThan)
-                || (expression.NodeType == ExpressionType.LessThanOrEqual)
-                || (expression.NodeType == ExpressionType.GreaterThan)
-                || (expression.NodeType == ExpressionType.GreaterThanOrEqual)
-                || (expression.NodeType == ExpressionType.Not);
-        }
-
         public static ColumnExpression TryGetColumnExpression([NotNull] this Expression expression)
             => expression as ColumnExpression ?? (expression as AliasExpression)?.TryGetColumnExpression();
 

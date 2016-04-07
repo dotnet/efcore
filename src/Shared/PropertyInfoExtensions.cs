@@ -4,7 +4,6 @@
 using System.Diagnostics;
 
 // ReSharper disable once CheckNamespace
-
 namespace System.Reflection
 {
     [DebuggerStepThrough]
@@ -18,7 +17,7 @@ namespace System.Reflection
                && propertyInfo.GetIndexParameters().Length == 0
                && propertyInfo.CanRead
                && (!needsWrite || propertyInfo.CanWrite)
-               && (propertyInfo.GetMethod != null && propertyInfo.GetMethod.IsPublic);
+               && propertyInfo.GetMethod != null && propertyInfo.GetMethod.IsPublic;
 
         public static Type FindCandidateNavigationPropertyType(this PropertyInfo propertyInfo, Func<Type, bool> isPrimitiveProperty)
         {

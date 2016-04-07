@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual void AddVertex([NotNull] TVertex vertex)
             => _vertices.Add(vertex);
 
-        public virtual void AddVertices([NotNull] IEnumerable<TVertex> verticies)
-            => _vertices.UnionWith(verticies);
+        public virtual void AddVertices([NotNull] IEnumerable<TVertex> vertices)
+            => _vertices.UnionWith(vertices);
 
         public virtual void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] TEdge edge)
             => AddEdges(@from, to, new[] { edge });
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             edgeList.AddRange(edges);
-            _edges.UnionWith(edges);
+            _edges.UnionWith(edgeList);
         }
 
         public virtual IReadOnlyList<TVertex> TopologicalSort() => TopologicalSort(null, null);

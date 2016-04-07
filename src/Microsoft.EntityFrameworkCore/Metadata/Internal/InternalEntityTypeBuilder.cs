@@ -546,6 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var propertyBuilder = propertyToDetach.Builder;
                     var removedConfigurationSource = entityTypeBuilder
                         .RemoveProperty(propertyToDetach, ConfigurationSource.Explicit);
+                    Debug.Assert(removedConfigurationSource.HasValue);
                     detachedProperties.Add(Tuple.Create(propertyBuilder, removedConfigurationSource.Value));
                 }
             }
@@ -1001,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var newRelationship = Relationship(principalEntityTypeBuilder, principalKey, configurationSource);
             var relationship = newRelationship.HasForeignKey(dependentProperties, configurationSource);
-            if (relationship == null 
+            if (relationship == null
                 && newRelationship.Metadata.Builder != null)
             {
                 RemoveForeignKey(newRelationship.Metadata, configurationSource);
@@ -1157,31 +1158,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 isUnique: toSourceCanBeNonUnique || toTargetCanBeNonUnique ? true : (bool?)null);
         }
 
-        public virtual InternalRelationshipBuilder Relationship(
-            [NotNull] EntityType principalEntityType,
-            ConfigurationSource configurationSource,
-            bool setPrincipalEnd = true)
-            => Relationship(principalEntityType.Builder, configurationSource, setPrincipalEnd);
-
-        public virtual InternalRelationshipBuilder Relationship(
-            [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
-            ConfigurationSource configurationSource,
-            bool setPrincipalEnd = true)
-        {
-            var relationship = CreateForeignKey(
-                principalEntityTypeBuilder,
-                null,
-                null,
-                null,
-                null,
-                configurationSource,
-                runConventions: true);
-
-            return setPrincipalEnd
-                ? relationship?.RelatedEntityTypes(principalEntityTypeBuilder.Metadata, Metadata, configurationSource)
-                : relationship;
-        }
-
         private InternalRelationshipBuilder Relationship(
             InternalEntityTypeBuilder principalEntityTypeBuilder,
             string navigationToPrincipalName,
@@ -1262,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] EntityType principalEntityType,
-            [NotNull] Key principalKey,
+            [CanBeNull] Key principalKey,
             ConfigurationSource configurationSource)
             => RelationshipInternal(principalEntityType.Builder, principalKey, configurationSource);
 
@@ -1273,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
-            [NotNull] Key principalKey,
+            [CanBeNull] Key principalKey,
             ConfigurationSource configurationSource)
             => RelationshipInternal(principalEntityTypeBuilder, principalKey, configurationSource);
 
@@ -1300,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ?.HasPrincipalKey(principalKey.Properties, configurationSource);
 
             if (newRelationship == null
-                && relationship.Metadata.Builder != null)
+                && relationship?.Metadata.Builder != null)
             {
                 relationship.Metadata.DeclaringEntityType.Builder.RemoveForeignKey(relationship.Metadata, configurationSource);
                 return null;
@@ -1563,7 +1539,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             private InternalRelationshipBuilder Relationship { get; }
             private ConfigurationSource RelationshipConfigurationSource { get; }
 
-            public InternalRelationshipBuilder Attach()
+            public void Attach()
                 => Relationship.Attach(RelationshipConfigurationSource);
         }
     }

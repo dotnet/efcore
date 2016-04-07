@@ -42,7 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<EntityType> GetEntityTypes() => _entityTypes.Values;
 
         public virtual EntityType AddEntityType(
-            [NotNull] string name, [CanBeNull] Type type = null, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            [NotNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            [CanBeNull] Type type = null,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotEmpty(name, nameof(name));
 

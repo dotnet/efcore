@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
             }
 
-            // Don't match with only Id since it is ambigious. PK in dependent entity used as FK is matched elsewhere
+            // Don't match with only Id since it is ambiguous. PK in dependent entity used as FK is matched elsewhere
             if ((foreignKeyProperties.Count == 1)
                 && (foreignKeyProperties.Single().Name == "Id"))
             {

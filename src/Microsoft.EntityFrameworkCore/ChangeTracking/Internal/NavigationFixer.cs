@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         _inFixup = true;
 
-                        // For a dpendent added to the collection, remove it from the collection of
+                        // For a dependent added to the collection, remove it from the collection of
                         // the principal entity that it was previously part of
                         var oldPrincipalEntry = stateManager.GetPrincipal(newTargetEntry, foreignKey);
                         if (oldPrincipalEntry != null)
@@ -306,17 +306,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // and navigation property. A.k.a. reference stealing.
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
-                                var vicitmDependentEntry
+                                var targetDependentEntry
                                     = stateManager.GetDependentsUsingRelationshipSnapshot(newPrincipalEntry, foreignKey).FirstOrDefault();
 
-                                if (vicitmDependentEntry != null
-                                    && vicitmDependentEntry != entry)
+                                if (targetDependentEntry != null
+                                    && targetDependentEntry != entry)
                                 {
-                                    ConditionallyNullForeignKeyProperties(vicitmDependentEntry, newPrincipalEntry, foreignKey);
+                                    ConditionallyNullForeignKeyProperties(targetDependentEntry, newPrincipalEntry, foreignKey);
 
-                                    if (ReferenceEquals(vicitmDependentEntry[dependentToPrincipal], newPrincipalEntry.Entity))
+                                    if (ReferenceEquals(targetDependentEntry[dependentToPrincipal], newPrincipalEntry.Entity))
                                     {
-                                        SetNavigation(vicitmDependentEntry, dependentToPrincipal, null);
+                                        SetNavigation(targetDependentEntry, dependentToPrincipal, null);
                                     }
                                 }
                             }
@@ -580,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     DelayedFixup(danglerEntry.Item2, danglerEntry.Item1, entry);
                 }
 
-                // Esnure current value is snapshotted for all keys and FKs
+                // Ensure current value is snapshotted for all keys and FKs
                 foreach (var property in entityType.GetProperties().Where(p => p.GetRelationshipIndex() >= 0))
                 {
                     entry.SetRelationshipSnapshotValue(property, entry[property]);
@@ -673,8 +673,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var principalProperties = foreignKey.PrincipalKey.Properties;
             var dependentProperties = foreignKey.Properties;
 
-            if (principalEntry == null
-                || principalEntry.EntityState != EntityState.Detached)
+            if (principalEntry != null
+                && principalEntry.EntityState != EntityState.Detached)
             {
                 for (var i = 0; i < foreignKey.Properties.Count; i++)
                 {

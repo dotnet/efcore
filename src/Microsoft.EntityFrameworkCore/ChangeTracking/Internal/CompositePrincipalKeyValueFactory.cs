@@ -99,6 +99,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var hashCode = 0;
 
+                // ReSharper disable once ForCanBeConvertedToForeach
+                // ReSharper disable once LoopCanBeConvertedToQuery
                 for (var i = 0; i < obj.Length; i++)
                 {
                     hashCode = (hashCode * 397) ^ (obj[i] != null ? obj[i].GetHashCode() : 0);
@@ -140,6 +142,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var hashCode = 0;
 
+                // ReSharper disable once ForCanBeConvertedToForeach
+                // ReSharper disable once LoopCanBeConvertedToQuery
                 for (var i = 0; i < obj.Length; i++)
                 {
                     hashCode = (hashCode * 397) ^ _structuralEqualityComparer.GetHashCode(obj[i]);

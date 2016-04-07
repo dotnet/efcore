@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -33,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 MemberInfo memberInfo = null;
                 foreach (var propertyInfo in entityType.ClrType.GetPropertiesInHierarchy(propertyName))
                 {
+                    Debug.Assert(propertyInfo.DeclaringType != null);
                     // TODO: Handle cases where backing field is declared in a different class than the property
                     // Issue #758
                     Dictionary<string, FieldInfo> fields;

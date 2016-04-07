@@ -15,7 +15,6 @@ using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Internal;
 
 #endif
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>

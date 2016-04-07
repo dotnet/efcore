@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once PossibleMultipleEnumeration
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _ToEnumerable<TResult>(IEnumerable<TResult> results) => results;
 
         public virtual MethodInfo ToOrdered => _toOrdered;
@@ -36,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToOrdered));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IEnumerable<TResult> results)
             => new OrderedEnumerableAdapter<TResult>(results);
 
@@ -63,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_InterceptExceptions));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _InterceptExceptions<T>(
             IEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
@@ -137,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackEntities));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TOut> _TrackEntities<TOut, TIn>(
             IEnumerable<TOut> results,
             QueryContext queryContext,
@@ -184,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackGroupedEntities));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<IGrouping<TKey, TOut>> _TrackGroupedEntities<TKey, TOut, TIn>(
             IEnumerable<IGrouping<TKey, TOut>> groupings,
             QueryContext queryContext,
@@ -255,6 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToSequence));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _ToSequence<T>(T element) => new[] { element };
 
         public virtual MethodInfo ToSequence => _toSequence;
@@ -264,6 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToQueryable));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IEnumerable<TSource> source)
             => new EnumerableQuery<TSource>(source);
 
@@ -274,6 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_SelectMany));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
             IEnumerable<TSource> source,
             Func<TSource, IEnumerable<TCollection>> collectionSelector,
@@ -287,6 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Join));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
             IEnumerable<TOuter> outer,
             IEnumerable<TInner> inner,
@@ -302,6 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             IEnumerable<TOuter> outer,
             IEnumerable<TInner> inner,
@@ -317,6 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Select));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _Select<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector)
             => source.Select(selector);
@@ -328,6 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_OrderBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IOrderedEnumerable<TSource> _OrderBy<TSource, TKey>(
             IEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
@@ -341,6 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ThenBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IOrderedEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
@@ -354,6 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Where));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TSource> _Where<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate) => source.Where(predicate);
 
@@ -387,6 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(LinqOperatorProvider).GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
             => source.GroupBy(keySelector, elementSelector);

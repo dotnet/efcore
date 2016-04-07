@@ -8,9 +8,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public interface IDependentKeyValueFactory<TKey>
     {
+        [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromBuffer(ValueBuffer valueBuffer, [CanBeNull] out TKey key);
+
+        [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromCurrentValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+
+        [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromOriginalValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+
+        [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromRelationshipSnapshot([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
     }
 }

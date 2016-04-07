@@ -1149,7 +1149,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The corresponding CLR type for entity type '{entityType}' is abstract and there is no derived entity type in the model that corresponds to a concrete CLR type.
+        /// The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.
         /// </summary>
         public static string AbstractLeafEntityType([CanBeNull] object entityType)
         {
@@ -1157,11 +1157,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy needs to have a unique discriminator value.
+        /// Could not find setter for property {property}
         /// </summary>
-        public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2)
+        public static string NoClrSetter([CanBeNull] object property)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateDiscriminatorValue", "entityType1", "discriminatorValue", "entityType2"), entityType1, discriminatorValue, entityType2);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoClrSetter", "property"), property);
         }
 
         private static string GetString(string name, params string[] formatterNames)

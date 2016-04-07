@@ -811,7 +811,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     inProjection: true);
 
             if ((selector.Type != sequenceType
-                || !(selectClause.Selector is QuerySourceReferenceExpression))
+                 || !(selectClause.Selector is QuerySourceReferenceExpression))
                 && !queryModel.ResultOperators
                     .Select(ro => ro.GetType())
                     .Any(t =>

@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var properties = entityType.GetDeclaredProperties().ToList();
 
-            var propertyCount = properties.Count();
+            var propertyCount = properties.Count;
             var navigationCount = entityType.GetDeclaredNavigations().Count();
             var originalValueCount = properties.Count(p => p.RequiresOriginalValue());
             var shadowCount = properties.Count(p => p.IsShadowProperty);

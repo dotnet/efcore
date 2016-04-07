@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -15,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
 // ReSharper disable ImplicitlyCapturedClosure
-
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public class IncludeExpressionVisitor : ExpressionVisitorBase

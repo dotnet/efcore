@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -333,6 +334,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            if (propertyInfo.DeclaringType == null)
+            {
+                // TODO: Add exception message
+                throw new ArgumentException();
+            }
 
             if (entityType.HasClrType()
                 && !propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))

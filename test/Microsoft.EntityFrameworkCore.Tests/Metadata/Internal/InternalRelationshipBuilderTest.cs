@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var relationshipBuilder = dependentEntityBuilder.Relationship(
-                principalEntityBuilder, ConfigurationSource.Convention, setPrincipalEnd: false);
+                principalEntityBuilder, ConfigurationSource.Convention);
 
             var fk = relationshipBuilder.Metadata;
             Assert.Equal(ConfigurationSource.Convention, fk.GetConfigurationSource());
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var foreignKey = dependentEntityBuilder.Relationship(
-                principalEntityBuilder, ConfigurationSource.Explicit, setPrincipalEnd: false).Metadata;
+                principalEntityBuilder, ConfigurationSource.Explicit).Metadata;
 
             foreignKey.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Explicit);
             foreignKey.UpdatePrincipalKeyConfigurationSource(ConfigurationSource.Explicit);

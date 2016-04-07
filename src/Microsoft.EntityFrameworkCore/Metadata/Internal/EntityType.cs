@@ -78,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
 #if DEBUG
+        [UsedImplicitly]
         private string DebugName { get; set; }
 #endif
 
@@ -169,8 +170,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(Name));
                 }
 
-                var propertyCollisions = entityType.GetProperties().Select(p => p.Name)
-                    .SelectMany(FindPropertiesInHierarchy);
+                var propertyCollisions = entityType.GetProperties()
+                    .Select(p => p.Name)
+                    .SelectMany(FindPropertiesInHierarchy)
+                    .ToList();
                 if (propertyCollisions.Any())
                 {
                     throw new InvalidOperationException(
@@ -180,8 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             string.Join(", ", propertyCollisions.Select(p => p.Name))));
                 }
 
-                var navigationCollisions = entityType.GetNavigations().Select(p => p.Name)
-                    .SelectMany(FindNavigationsInHierarchy);
+                var navigationCollisions = entityType.GetNavigations()
+                    .Select(p => p.Name)
+                    .SelectMany(FindNavigationsInHierarchy)
+                    .ToList();
                 if (navigationCollisions.Any())
                 {
                     throw new InvalidOperationException(
@@ -471,6 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : null;
         }
 
+        // ReSharper disable once MethodOverloadWithOptionalParameter
         public virtual Key RemoveKey([NotNull] IReadOnlyList<IProperty> properties, bool runConventions = true)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -731,6 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
             bool runConventions = true)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -1043,6 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual Property AddProperty(
             [NotNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
         {
