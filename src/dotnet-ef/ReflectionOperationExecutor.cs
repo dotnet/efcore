@@ -10,9 +10,9 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
-using Microsoft.DotNet.ProjectModel.Loader;
 using Microsoft.Extensions.PlatformAbstractions;
 using NuGet.Frameworks;
+using Microsoft.EntityFrameworkCore.Commands.Loader;
 
 namespace Microsoft.EntityFrameworkCore.Commands
 {
@@ -68,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
             var projectDir = projectFile.ProjectDirectory;
             _startupProjectDir = startupProjectContext.ProjectFile.ProjectDirectory;
             var rootNamespace = projectFile.Name;
-            var assemblyLoadContext = startupProjectContext.CreateLoadContext();
+            var assemblyLoadContext = startupProjectContext.CreateLoadContext(
+                PlatformServices.Default.Runtime.GetRuntimeIdentifier(), 
+                Constants.DefaultConfiguration);
 
             try
             {
@@ -214,9 +216,14 @@ namespace Microsoft.EntityFrameworkCore.Commands
         {
             var projectFile = ProjectReader.GetProject(projectPath);
             var frameworks = projectFile.GetTargetFrameworks().Select(f => f.FrameworkName);
-            var framework = NuGetFrameworkUtility.GetNearest(
+            var framework =
+                NuGetFrameworkUtility.GetNearest(
                 frameworks,
-                // TODO: Use netcoreapp
+                FrameworkConstants.CommonFrameworks.NetCoreApp10,
+                f => new NuGetFramework(f))
+                // TODO: Remove with netstandardapp1.5
+                ?? NuGetFrameworkUtility.GetNearest(
+                frameworks,
                 FrameworkConstants.CommonFrameworks.NetStandardApp15,
                 f => new NuGetFramework(f))
                 // TODO: Remove with dnxcore50
@@ -227,8 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             if (framework == null)
             {
                 throw OperationErrorException.CreateOperationException(
-                    "The project '" + projectFile.Name + "' doesn't target a framework compatible with .NET Standard " +
-                    "App 1.5. You must target a compatible framework such as 'netstandard1.3' in order to use the " +
+                    "The project '" + projectFile.Name + "' doesn't target a framework compatible with .NET Core App 1.0. " +
+                    "You must target a compatible framework such as 'netstandard1.3' in order to use the " +
                     "Entity Framework .NET Core CLI Commands.");
             }
 

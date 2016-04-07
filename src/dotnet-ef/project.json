@@ -14,7 +14,8 @@
   "dependencies": {
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.DotNet.ProjectModel.Loader": "1.0.0-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*"
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "Microsoft.Extensions.DependencyModel": "1.0.0-*"
   },
   "frameworks": {
     "netstandard1.5": {
