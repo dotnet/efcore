@@ -28,6 +28,17 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
         }
 
         [Fact]
+        public virtual void Can_use_is_kiwi()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwis = context.Set<Animal>().Where(a => a is Kiwi).ToList();
+
+                Assert.Equal(1, kiwis.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Can_use_of_type_bird()
         {
             using (var context = CreateContext())

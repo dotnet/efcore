@@ -83,6 +83,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         break;
                     }
+                    case ExpressionType.TypeIs:
+                    {
+                        var typeBinaryExpression = (TypeBinaryExpression)obj;
+
+                        hashCode += (hashCode * 397) ^ GetHashCode(typeBinaryExpression.Expression);
+                        hashCode += (hashCode * 397) ^ typeBinaryExpression.TypeOperand.GetHashCode();
+
+                        break;
+                    }
                     case ExpressionType.Constant:
                     {
                         var constantExpression = (ConstantExpression)obj;
