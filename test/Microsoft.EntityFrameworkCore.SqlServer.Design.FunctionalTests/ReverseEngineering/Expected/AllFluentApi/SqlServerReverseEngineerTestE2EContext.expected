@@ -271,6 +271,11 @@ namespace E2ETest.Namespace
                 entity.HasIndex(e => new { e.A, e.B })
                     .HasName("Test_PropertyConfiguration_Index");
 
+                entity.Property(e => e.ComputedDateTimeColumn)
+                    .HasColumnType("datetime")
+                    .HasComputedColumnSql("getdate()")
+                    .ValueGeneratedOnAddOrUpdate();
+
                 entity.Property(e => e.PropertyConfiguration1).HasColumnName("PropertyConfiguration");
 
                 entity.Property(e => e.RowversionColumn)
@@ -278,7 +283,9 @@ namespace E2ETest.Namespace
                     .HasColumnType("timestamp")
                     .ValueGeneratedOnAddOrUpdate();
 
-                entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
+                entity.Property(e => e.SumOfAAndB)
+                    .HasComputedColumnSql("[A]+[B]")
+                    .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.WithDateDefaultExpression).HasDefaultValueSql("getdate()");
 

@@ -11,15 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     public class ForeignKeyModel : Annotatable
     {
-        [CanBeNull]
         public virtual TableModel Table { get; [param: CanBeNull] set; }
 
-        [CanBeNull]
         public virtual TableModel PrincipalTable { get; [param: CanBeNull] set; }
 
         public virtual ICollection<ForeignKeyColumnModel> Columns { get; } = new List<ForeignKeyColumnModel>();
 
-        [NotNull]
         public virtual string Name { get; [param: CanBeNull] set; }
 
         public virtual ReferentialAction? OnDelete { get; [param: NotNull] set; }

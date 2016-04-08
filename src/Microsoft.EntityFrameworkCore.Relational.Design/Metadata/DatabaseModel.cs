@@ -9,10 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     public class DatabaseModel : Annotatable
     {
-        [CanBeNull]
         public virtual string DatabaseName { get; [param: CanBeNull] set; }
 
-        [CanBeNull]
         public virtual string DefaultSchemaName { get; [param: CanBeNull] set; }
 
         public virtual ICollection<TableModel> Tables { get; } = new List<TableModel>();

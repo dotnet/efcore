@@ -310,6 +310,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 property.HasDefaultValueSql(column.DefaultValue);
             }
 
+            if (column.ComputedValue != null)
+            {
+                property.HasComputedColumnSql(column.ComputedValue);
+            }
+
             if (!column.PrimaryKeyOrdinal.HasValue)
             {
                 property.IsRequired(!column.IsNullable);

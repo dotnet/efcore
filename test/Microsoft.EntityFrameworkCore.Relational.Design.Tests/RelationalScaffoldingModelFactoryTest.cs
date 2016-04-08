@@ -108,6 +108,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                                 Name = "created",
                                 DataType = "string",
                                 ValueGenerated = ValueGenerated.OnAdd
+                            },
+                            new ColumnModel
+                            {
+                                Name = "current",
+                                DataType = "string",
+                                ComputedValue = "compute_this()"
                             }
                         }
                     }
@@ -129,24 +135,30 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     },
                 col2 =>
                     {
-                        Assert.Equal("modified", col2.Relational().ColumnName);
-                        Assert.Equal(ValueGenerated.OnAddOrUpdate, col2.ValueGenerated);
+                        Assert.Equal("current", col2.Name);
+                        Assert.Equal(typeof(string), col2.ClrType);
+                        Assert.Equal("compute_this()", col2.Relational().ComputedValueSql);
                     },
                 col3 =>
                     {
-                        Assert.Equal("occupation", col3.Relational().ColumnName);
-                        Assert.Equal(typeof(string), col3.ClrType);
-                        Assert.False(col3.IsColumnNullable());
-                        Assert.Null(col3.GetMaxLength());
-                        Assert.Equal("\"dev\"", col3.Relational().DefaultValueSql);
+                        Assert.Equal("modified", col3.Relational().ColumnName);
+                        Assert.Equal(ValueGenerated.OnAddOrUpdate, col3.ValueGenerated);
                     },
                 col4 =>
                     {
-                        Assert.Equal("salary", col4.Name);
-                        Assert.Equal(typeof(long?), col4.ClrType);
-                        Assert.True(col4.IsColumnNullable());
-                        Assert.Equal(100, col4.GetMaxLength());
-                        Assert.Null(col4.Relational().DefaultValue);
+                        Assert.Equal("occupation", col4.Relational().ColumnName);
+                        Assert.Equal(typeof(string), col4.ClrType);
+                        Assert.False(col4.IsColumnNullable());
+                        Assert.Null(col4.GetMaxLength());
+                        Assert.Equal("\"dev\"", col4.Relational().DefaultValueSql);
+                    },
+                col5 =>
+                    {
+                        Assert.Equal("salary", col5.Name);
+                        Assert.Equal(typeof(long?), col5.ClrType);
+                        Assert.True(col5.IsColumnNullable());
+                        Assert.Equal(100, col5.GetMaxLength());
+                        Assert.Null(col5.Relational().DefaultValue);
                     });
         }
 
