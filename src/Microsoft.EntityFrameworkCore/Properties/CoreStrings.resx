@@ -379,7 +379,7 @@
     <value>Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>
   </data>
   <data name="NonGenericOptions" xml:space="preserve">
-    <value>The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.</value>
+    <value>The DbContextOptions passed to the {contextType} constructor must be a DbContextOptions&lt;{contextType}&gt;. When registering multiple DbContext types make sure that the constructor for each context type has a DbContextOptions&lt;TContext&gt; parameter rather than a non-generic DbContextOptions parameter.</value>
   </data>
   <data name="OptionsExtensionNotFound" xml:space="preserve">
     <value>Options extension of type '{optionsExtension}' not found.</value>
