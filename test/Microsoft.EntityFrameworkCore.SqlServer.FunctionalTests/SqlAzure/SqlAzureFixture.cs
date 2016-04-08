@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 
         public SqlAzureFixture()
         {
-            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql");
+            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql", nonMasterScript: true);
 
             Services = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()

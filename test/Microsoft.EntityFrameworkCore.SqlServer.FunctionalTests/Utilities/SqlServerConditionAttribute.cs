@@ -36,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     isMet &= TestEnvironment.DefaultConnection.Contains("database.windows.net");
                 }
+                if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
+                {
+                    isMet &= !TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                }
                 return isMet;
             }
         }
@@ -53,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         SupportsSequences = 1 << 0,
         SupportsOffset = 1 << 1,
-        IsSqlAzure = 1 << 2
+        IsSqlAzure = 1 << 2,
+        IsNotSqlAzure = 1 << 3
     }
 }

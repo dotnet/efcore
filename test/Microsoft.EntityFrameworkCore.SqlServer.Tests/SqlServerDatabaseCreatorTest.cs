@@ -25,7 +25,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Cannot immitate SqlError on this version of Mono")]
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Cannot imitate SqlError on this version of Mono")]
     public class SqlServerDatabaseCreatorTest
     {
         [ConditionalFact]

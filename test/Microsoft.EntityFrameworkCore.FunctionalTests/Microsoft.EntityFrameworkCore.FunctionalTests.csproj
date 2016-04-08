@@ -179,6 +179,8 @@
     <Compile Include="TestUtilities\Xunit\FrameworkSkipConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ITestCondition.cs" />
     <Compile Include="TestUtilities\Xunit\MonoVersionConditionAttribute.cs" />
+    <Compile Include="TestUtilities\Xunit\TestPlatform.cs" />
+    <Compile Include="TestUtilities\Xunit\PlatformSkipConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\RuntimeFrameworks.cs" />
     <Compile Include="TestUtilities\Xunit\SkipReasonTestCase.cs" />
     <Compile Include="TestUtilities\Xunit\SkipXunitTheoryTestCase.cs" />
