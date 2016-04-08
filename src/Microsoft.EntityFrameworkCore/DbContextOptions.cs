@@ -74,5 +74,7 @@ namespace Microsoft.EntityFrameworkCore
             where TExtension : class, IDbContextOptionsExtension;
 
         private readonly IReadOnlyDictionary<Type, IDbContextOptionsExtension> _extensions;
+
+        public abstract Type ContextType { get; }
     }
 }

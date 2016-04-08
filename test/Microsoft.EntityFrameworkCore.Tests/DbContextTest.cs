@@ -4103,7 +4103,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Throws_with_new_when_no_EF_services()
         {
-            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithSets>()
                 .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
                 .Options;
 
@@ -4173,7 +4173,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
         [Fact]
         public void Throws_with_new_when_no_provider()
         {
-            var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
+            var options = new DbContextOptionsBuilder<ConstructorTestContextWithSets>()
                 .UseInternalServiceProvider(new ServiceCollection().AddEntityFramework().BuildServiceProvider())
                 .Options;
 
@@ -4453,6 +4453,56 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 ILoggerFactory loggerFactory,
                 IMemoryCache memoryCache)
                 : base(internalServicesProvider, loggerFactory, memoryCache)
+            {
+            }
+        }
+
+        [Fact]
+        public void Throws_when_wrong_DbContextOptions_used()
+        {
+            var options = new DbContextOptionsBuilder<NonGenericOptions1>()
+                .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
+                .Options;
+
+            Assert.Equal(
+                CoreStrings.NonGenericOptions("Microsoft.EntityFrameworkCore.Tests.DbContextTest+NonGenericOptions2"),
+                Assert.Throws<InvalidOperationException>(() => new NonGenericOptions2(options)).Message);
+        }
+
+        [Fact]
+        public void Throws_when_adding_two_contexts_using_non_generic_options()
+        {
+            var appServiceProivder = new ServiceCollection()
+                .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase())
+                .AddDbContext<NonGenericOptions2>(b => b.UseInMemoryDatabase())
+                .BuildServiceProvider();
+
+            using (var serviceScope = appServiceProivder
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                Assert.Equal(
+                    CoreStrings.NonGenericOptions("Microsoft.EntityFrameworkCore.Tests.DbContextTest+NonGenericOptions2"),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        {
+                            serviceScope.ServiceProvider.GetService<NonGenericOptions1>();
+                            serviceScope.ServiceProvider.GetService<NonGenericOptions2>();
+                        }).Message);
+            }
+        }
+
+        private class NonGenericOptions1 : DbContext
+        {
+            public NonGenericOptions1(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private class NonGenericOptions2 : DbContext
+        {
+            public NonGenericOptions2(DbContextOptions options)
+                : base(options)
             {
             }
         }

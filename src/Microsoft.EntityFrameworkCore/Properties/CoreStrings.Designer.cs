@@ -709,11 +709,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.
+        /// The DbContextOptions passed to the {contextType} constructor must be a DbContextOptions&lt;{contextType}&gt;. When registering multiple DbContext types make sure that the constructor for each context type has a DbContextOptions&lt;TContext&gt; parameter rather than a non-generic DbContextOptions parameter.
         /// </summary>
-        public static string NonGenericOptions
+        public static string NonGenericOptions([CanBeNull] object contextType)
         {
-            get { return GetString("NonGenericOptions"); }
+            return string.Format(CultureInfo.CurrentCulture, GetString("NonGenericOptions", "contextType"), contextType);
         }
 
         /// <summary>
