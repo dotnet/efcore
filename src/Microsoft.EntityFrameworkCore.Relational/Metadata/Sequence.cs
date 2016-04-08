@@ -26,31 +26,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static readonly long? DefaultMinValue = default(long?);
         public static readonly bool DefaultIsCyclic = default(bool);
 
-        public Sequence(
+        private Sequence(
             [NotNull] IMutableModel model,
             [NotNull] string annotationPrefix,
             [NotNull] string name,
             [CanBeNull] string schema = null)
+            : this(model, BuildAnnotationName(annotationPrefix, name, schema))
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(annotationPrefix, nameof(annotationPrefix));
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            _model = model;
-            _annotationName = BuildAnnotationName(annotationPrefix, name, schema);
-
-            if (model[_annotationName] == null)
+            SetData(new SequenceData
             {
-                SetData(new SequenceData
-                {
-                    Name = name,
-                    Schema = schema,
-                    ClrType = DefaultClrType,
-                    IncrementBy = DefaultIncrementBy,
-                    StartValue = DefaultStartValue
-                });
-            }
+                Name = name,
+                Schema = schema,
+                ClrType = DefaultClrType,
+                IncrementBy = DefaultIncrementBy,
+                StartValue = DefaultStartValue
+            });
         }
 
         private Sequence(IModel model, string annotationName)
@@ -59,8 +54,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             _annotationName = annotationName;
         }
 
+        public static Sequence GetOrAddSequence(
+            [NotNull] IMutableModel model,
+            [NotNull] string annotationPrefix,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
+            => FindSequence(model, annotationPrefix, name, schema) ?? new Sequence(model, annotationPrefix, name, schema);
+
         private static string BuildAnnotationName(string annotationPrefix, string name, string schema)
             => annotationPrefix + schema + "." + name;
+
+        public static Sequence FindSequence(
+            [NotNull] IMutableModel model,
+            [NotNull] string annotationPrefix,
+            [NotNull] string name,
+            [CanBeNull] string schema = null)
+            => (Sequence)FindSequence((IModel)model, annotationPrefix, name, schema);
 
         public static ISequence FindSequence(
             [NotNull] IModel model,

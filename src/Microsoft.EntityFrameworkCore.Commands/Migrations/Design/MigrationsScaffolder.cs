@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 
         private bool ContainsForeignMigrations(string migrationsNamespace)
-            => (from t in _migrationsAssembly.Assembly.GetConstructibleTypes()
+            => (from t in _migrationsAssembly.Assembly.GetConstructableTypes()
                 where t.Namespace == migrationsNamespace
                       && t.IsSubclassOf(typeof(Migration))
                 let contextTypeAttribute = t.GetCustomAttribute<DbContextAttribute>()

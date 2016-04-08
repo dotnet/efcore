@@ -12,21 +12,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     {
         public override IEnumerable<IAnnotation> For(IKey key)
         {
-            if (key.SqlServer().IsClustered.HasValue)
+            var isClustered = key.SqlServer().IsClustered;
+            if (isClustered.HasValue)
             {
                 yield return new Annotation(
                     SqlServerFullAnnotationNames.Instance.Clustered,
-                    key.SqlServer().IsClustered.Value);
+                    isClustered.Value);
             }
         }
 
         public override IEnumerable<IAnnotation> For(IIndex index)
         {
-            if (index.SqlServer().IsClustered.HasValue)
+            var isClustered = index.SqlServer().IsClustered;
+            if (isClustered.HasValue)
             {
                 yield return new Annotation(
                     SqlServerFullAnnotationNames.Instance.Clustered,
-                    index.SqlServer().IsClustered.Value);
+                    isClustered.Value);
             }
         }
 

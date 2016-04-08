@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             if (recreate ||
                 ((newColumnExpression != null) && (ColumnExpression != newColumnExpression)))
             {
-                return new RowNumberExpression(newColumnExpression, newOrderings);
+                return new RowNumberExpression(newColumnExpression ?? ColumnExpression, newOrderings);
             }
 
             return this;

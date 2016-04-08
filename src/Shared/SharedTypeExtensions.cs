@@ -210,7 +210,7 @@ namespace System
                 : Activator.CreateInstance(type);
         }
 
-        public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
+        public static IEnumerable<TypeInfo> GetConstructableTypes(this Assembly assembly)
             => assembly.DefinedTypes.Where(
                 t => !t.IsAbstract
                      && !t.IsGenericTypeDefinition);
