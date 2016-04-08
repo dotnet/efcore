@@ -11,15 +11,5 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
             : base(fixture)
         {
         }
-
-        // TODO: See issue #4457
-        public override void Entity_range_does_not_revert_when_attached_dbContext()
-        {
-        }
-
-        // TODO: See issue #4457
-        public override void Entity_range_does_not_revert_when_attached_dbSet()
-        {
-        }
     }
 }
