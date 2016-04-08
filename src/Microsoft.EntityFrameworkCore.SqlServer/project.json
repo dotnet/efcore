@@ -15,10 +15,9 @@
   "compile": "../Shared/*.cs",
   "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.SqlServer.rd.xml",
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netstandard1.3": {
       "imports": [
-        "dotnet5.4",
         "portable-net452+win81"
       ],
       "dependencies": {

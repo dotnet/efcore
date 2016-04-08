@@ -16,10 +16,9 @@
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
   },
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netstandard1.3": {
       "imports": [
-        "dotnet5.4",
         "portable-net452+win81"
       ],
       "dependencies": {
