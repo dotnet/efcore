@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
 
                     if ((constantRight != null)
-                       && (constantRight.Type == typeof(bool)))
+                        && (constantRight.Type == typeof(bool)))
                     {
                         // a && true => a
                         // a && false => false
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
 
                     if ((constantRight != null)
-                       && (constantRight.Type == typeof(bool)))
+                        && (constantRight.Type == typeof(bool)))
                     {
                         // a || true => true
                         // a || false => a

@@ -42,14 +42,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual IRelationalValueBufferFactory Create(
             IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
         {
-            var processValuesAction = _cache.GetOrAdd(new CacheKey(valueTypes.ToArray()), CreateValueProcessorDelegate);
+            var processValuesAction = _cache.GetOrAdd(new CacheKey(valueTypes.ToArray()), _createValueProcessorDelegate);
 
             return indexMap == null
                 ? (IRelationalValueBufferFactory)new UntypedRelationalValueBufferFactory(processValuesAction)
                 : new RemappingUntypedRelationalValueBufferFactory(indexMap, processValuesAction);
         }
 
-        private static readonly Func<CacheKey, Action<object[]>> CreateValueProcessorDelegate = CreateValueProcessor;
+        private static readonly Func<CacheKey, Action<object[]>> _createValueProcessorDelegate = CreateValueProcessor;
+
         private static Action<object[]> CreateValueProcessor(CacheKey cacheKey)
         {
             var valuesParam = Expression.Parameter(typeof(object[]), "values");

@@ -243,6 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 {
                     var data = new SequenceData();
 
+                    // ReSharper disable PossibleInvalidOperationException
                     var position = 0;
                     data.Name = ExtractValue(value, ref position);
                     data.Schema = ExtractValue(value, ref position);
@@ -252,6 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     data.MaxValue = AsLong(ExtractValue(value, ref position));
                     data.ClrType = AsType(ExtractValue(value, ref position));
                     data.IsCyclic = AsBool(ExtractValue(value, ref position));
+                    // ReSharper restore PossibleInvalidOperationException
 
                     return data;
                 }

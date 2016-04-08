@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => Migrations.Keys
                 .Where(
                     _idGenerator.IsValidId(nameOrId)
+                        // ReSharper disable once ImplicitlyCapturedClosure
                         ? (Func<string, bool>)(id => string.Equals(id, nameOrId, StringComparison.OrdinalIgnoreCase))
                         : id => string.Equals(_idGenerator.GetName(id), nameOrId, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();

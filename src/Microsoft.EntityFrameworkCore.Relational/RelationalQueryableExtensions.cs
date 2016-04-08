@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore
 {
     public static class RelationalQueryableExtensions

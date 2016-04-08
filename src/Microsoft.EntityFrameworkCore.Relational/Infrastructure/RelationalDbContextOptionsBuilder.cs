@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -13,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
         where TExtension : RelationalOptionsExtension
     {
-        private static readonly int _maxQueryClientEvaluationBehavior
-            = Enum.GetValues(typeof(QueryClientEvaluationBehavior)).Cast<int>().Max();
-
         protected RelationalDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
@@ -57,12 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         public virtual TBuilder QueryClientEvaluationBehavior(QueryClientEvaluationBehavior queryClientEvaluationBehavior)
         {
-            if (queryClientEvaluationBehavior < 0
-                || (int)queryClientEvaluationBehavior > _maxQueryClientEvaluationBehavior)
-            {
-                throw new ArgumentException(CoreStrings.InvalidEnumValue(
-                    nameof(queryClientEvaluationBehavior), typeof(QueryClientEvaluationBehavior)));
-            }
+            queryClientEvaluationBehavior.Validate();
 
             return SetOption(e => e.QueryClientEvaluationBehavior = queryClientEvaluationBehavior);
         }

@@ -19,7 +19,6 @@ using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing;
 
 // ReSharper disable AssignNullToNotNullAttribute
-
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
     public class SqlTranslatingExpressionVisitor : ThrowingExpressionVisitor
@@ -34,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private readonly bool _bindParentQueries;
         private readonly bool _inProjection;
+
         private static readonly Dictionary<ExpressionType, ExpressionType> _inverseOperatorMap = new Dictionary<ExpressionType, ExpressionType>
         {
             { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual },
@@ -43,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             { ExpressionType.Equal, ExpressionType.NotEqual },
             { ExpressionType.NotEqual, ExpressionType.Equal }
         };
-
 
         public SqlTranslatingExpressionVisitor(
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
@@ -596,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                         if (memberItem != null)
                         {
-                            var aliasExpression = (AliasExpression)VisitMember(memberItem);
+                            var aliasExpression = VisitMember(memberItem) as AliasExpression;
 
                             return aliasExpression != null
                                 ? new InExpression(aliasExpression, new[] { fromExpression })

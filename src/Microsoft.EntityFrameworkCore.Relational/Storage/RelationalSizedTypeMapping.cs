@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Size = size;
         }
 
-        public RelationalSizedTypeMapping([NotNull] string defaultTypeName, [CanBeNull] Type clrType, bool unicode, int size)
+        public RelationalSizedTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, bool unicode, int size)
             : this(defaultTypeName, clrType, null, unicode, size)
         {
         }

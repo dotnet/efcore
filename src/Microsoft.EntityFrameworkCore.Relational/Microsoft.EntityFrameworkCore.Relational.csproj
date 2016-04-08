@@ -175,6 +175,7 @@
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="QueryClientEvaluationBehavior.cs" />
+    <Compile Include="QueryClientEvaluationBehaviorExtensions.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\AggregateExpression.cs" />
     <Compile Include="Query\Expressions\AliasExpression.cs" />

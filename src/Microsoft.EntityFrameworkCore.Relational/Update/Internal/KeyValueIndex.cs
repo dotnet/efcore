@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                        && Equals((KeyValueIndex<TKey>)obj)));
 
         public override int GetHashCode()
-            => ((((typeof(TKey).GetHashCode() * 397)
-                  ^ _fromOriginalValues.GetHashCode() * 397)
+            => (((((typeof(TKey).GetHashCode() * 397)
+                   ^ _fromOriginalValues.GetHashCode()) * 397)
                  ^ _foreignKey.GetHashCode()) * 397)
                ^ _keyComparer.GetHashCode(_keyValue);
     }

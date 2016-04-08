@@ -503,8 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             for (var i = _projection.Count - 1; i >= 0; i--)
             {
                 var aliasExpression = _projection[i] as AliasExpression;
-                if (aliasExpression != null
-                    && aliasExpression.Expression is ColumnExpression)
+                if (aliasExpression?.Expression is ColumnExpression)
                 {
                     _projection.RemoveAt(i);
                 }

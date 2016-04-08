@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         private readonly string _sqlFunctionName;
 
         protected MultipleOverloadStaticMethodCallTranslator(
-            [NotNull] Type declaringType, 
-            [NotNull] string clrMethodName, 
+            [NotNull] Type declaringType,
+            [NotNull] string clrMethodName,
             [NotNull] string sqlFunctionName)
         {
             _declaringType = declaringType;
@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             var methodInfos = _declaringType.GetTypeInfo().GetDeclaredMethods(_clrMethodName);
-            return methodInfos.Contains(methodCallExpression.Method) 
-                ? new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments) 
+            return methodInfos.Contains(methodCallExpression.Method)
+                ? new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments)
                 : null;
         }
     }

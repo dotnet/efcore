@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             return null;
         }
 
-        protected virtual void AddTranslators([NotNull] IEnumerable<IMemberTranslator> translators) 
+        protected virtual void AddTranslators([NotNull] IEnumerable<IMemberTranslator> translators)
             => _translators.AddRange(translators);
     }
 }

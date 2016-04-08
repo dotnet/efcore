@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var relationalOptions = RelationalOptionsExtension.Extract(options);
             TableName = relationalOptions?.MigrationsHistoryTableName ?? DefaultTableName;
-            TableSchema = relationalOptions.MigrationsHistoryTableSchema;
+            TableSchema = relationalOptions?.MigrationsHistoryTableSchema;
             _model = new LazyRef<IModel>(
                 () =>
                     {

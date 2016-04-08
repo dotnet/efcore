@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         private readonly string _sqlFunctionName;
 
         protected SingleOverloadInstanceMethodCallTranslator(
-            [NotNull] Type declaringType, 
-            [NotNull] string clrMethodName, 
+            [NotNull] Type declaringType,
+            [NotNull] string clrMethodName,
             [NotNull] string sqlFunctionName)
         {
             _declaringType = declaringType;

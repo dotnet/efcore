@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         public override string ToString()
-            => "INNER JOIN (" + _tableExpression + ") ON " + Predicate;
+            => "INNER JOIN (" + TableExpression + ") ON " + Predicate;
     }
 }
