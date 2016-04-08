@@ -23,6 +23,17 @@ ORDER BY [t].[Species]",
                 Sql);
         }
 
+        public override void Can_use_is_kiwi()
+        {
+            base.Can_use_is_kiwi();
+
+            Assert.Equal(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')",
+                Sql);
+        }
+
         public override void Can_use_of_type_bird()
         {
             base.Can_use_of_type_bird();
