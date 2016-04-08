@@ -643,7 +643,7 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 var reader = connection.ExecuteReader("SELECT 1;");
-#if DNX451
+#if NET451
                 reader.Close();
 #else
                 ((IDisposable)reader).Dispose();
