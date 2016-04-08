@@ -239,6 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     c.is_nullable AS [nullable],
     CAST(ic.key_ordinal AS int) AS [primary_key_ordinal],
     object_definition(c.default_object_id) AS [default_sql],
+    cc.definition AS [computed_sql],
     CAST(CASE WHEN c.precision <> tp.precision
             THEN c.precision
             ELSE null
@@ -257,6 +258,7 @@ FROM sys.index_columns ic
     RIGHT JOIN (SELECT * FROM sys.indexes WHERE is_primary_key = 1) AS i ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     RIGHT JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
     RIGHT JOIN sys.types tp ON tp.user_type_id = c.user_type_id
+    LEFT JOIN sys.computed_columns cc ON cc.object_id = c.object_id AND cc.column_id = c.column_id
     JOIN sys.tables AS t ON t.object_id = c.object_id
 WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                                   TemporalTableWhereClause;
@@ -273,6 +275,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                     var nullable = reader.GetValueOrDefault<bool>("nullable");
                     var primaryKeyOrdinal = reader.GetValueOrDefault<int?>("primary_key_ordinal");
                     var defaultValue = reader.GetValueOrDefault<string>("default_sql");
+                    var computedValue = reader.GetValueOrDefault<string>("computed_sql");
                     var precision = reader.GetValueOrDefault<int?>("precision");
                     var scale = reader.GetValueOrDefault<int?>("scale");
                     var maxLength = reader.GetValueOrDefault<int?>("max_length");
@@ -281,7 +284,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
 
                     Logger.LogTrace(SqlServerDesignStrings.FoundColumn(
                         schemaName, tableName, columnName, dataTypeName, ordinal, nullable,
-                        primaryKeyOrdinal, defaultValue, precision, scale, maxLength, isIdentity, isComputed));
+                        primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed));
 
                     if (!_tableSelectionSet.Allows(schemaName, tableName))
                     {
@@ -333,6 +336,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'" +
                         IsNullable = nullable,
                         PrimaryKeyOrdinal = primaryKeyOrdinal,
                         DefaultValue = defaultValue,
+                        ComputedValue = computedValue,
                         Precision = precision,
                         Scale = scale,
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,

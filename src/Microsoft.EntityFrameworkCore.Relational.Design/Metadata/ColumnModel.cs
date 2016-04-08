@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         [CanBeNull]
         public virtual string DefaultValue { get; [param: CanBeNull] set; }
 
+        [CanBeNull]
+        public virtual string ComputedValue { get; [param: CanBeNull] set; }
         public virtual int? MaxLength { get; [param: CanBeNull] set; }
         public virtual int? Precision { get; [param: CanBeNull] set; }
         public virtual int? Scale { get; [param: CanBeNull] set; }

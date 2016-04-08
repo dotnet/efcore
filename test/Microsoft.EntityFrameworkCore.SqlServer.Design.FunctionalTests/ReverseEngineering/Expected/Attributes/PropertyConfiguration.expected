@@ -23,5 +23,6 @@ namespace E2ETest.Namespace
         public byte[] RowversionColumn { get; set; }
         [Column("PropertyConfiguration")]
         public int? PropertyConfiguration1 { get; set; }
+        public DateTime ComputedDateTimeColumn { get; set; }
     }
 }
