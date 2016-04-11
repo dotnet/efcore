@@ -9,11 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         public static T Unwrap<T>([NotNull] object target)
             where T : class
+        {
 #if NET451
-            => target as T ?? new ForwardingProxy<T>(target).GetTransparentProxy();
+            return target as T ?? new ForwardingProxy<T>(target).GetTransparentProxy();
 #else
-            => (T)target;
+            return (T)target;
 #endif
+        }
     }
 }
-

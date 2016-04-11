@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -208,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (type.IsNested)
             {
+                Debug.Assert(type.DeclaringType != null);
                 builder
                     .Append(Reference(type.DeclaringType))
                     .Append(".");
@@ -301,9 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
 
         public virtual string Literal(DateTime value) =>
-            string.Format(
-                "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
-                value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
+            $"new DateTime({value.Year}, {value.Month}, {value.Day}, {value.Hour}, {value.Minute}, {value.Second}, {value.Millisecond}, DateTimeKind.{value.Kind})";
 
         public virtual string Literal(DateTimeOffset value) =>
             "new DateTimeOffset(" + Literal(value.DateTime) + ", " + Literal(value.Offset) + ")";
@@ -318,16 +318,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public virtual string Literal(short value) => "(short)" + value;
 
         public virtual string Literal(TimeSpan value) =>
-            string.Format(
-                "new TimeSpan({0}, {1}, {2}, {3}, {4})",
-                value.Days, value.Hours, value.Minutes, value.Seconds, value.Milliseconds);
+            $"new TimeSpan({value.Days}, {value.Hours}, {value.Minutes}, {value.Seconds}, {value.Milliseconds})";
 
         public virtual string Literal(uint value) => value + "u";
         public virtual string Literal(ulong value) => value + "ul";
         public virtual string Literal(ushort value) => "(ushort)" + value;
 
         public virtual string Literal<T>([NotNull] T? value) where T : struct =>
-            UnknownLiteral(value.Value);
+            UnknownLiteral(value);
 
         public virtual string Literal([NotNull] IReadOnlyList<string> values) =>
             values.Count == 1

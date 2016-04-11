@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -18,48 +19,48 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 {
     public class ModelConfiguration
     {
-        protected const string DbContextSuffix = "Context";
-        protected const string DefaultDbContextName = "Model" + DbContextSuffix;
-        protected static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
-        protected static readonly KeyConvention _keyConvention = new KeyConvention();
+        private const string DbContextSuffix = "Context";
+        private const string DefaultDbContextName = "Model" + DbContextSuffix;
+        private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
+        private static readonly KeyConvention _keyConvention = new KeyConvention();
 
-        protected readonly ConfigurationFactory _configurationFactory;
-        protected List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
-        protected SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
+        private readonly ConfigurationFactory _configurationFactory;
+        private List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
+        private SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
         private List<SequenceConfiguration> _sequenceConfigurations;
 
         public ModelConfiguration(
             [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration,
-            [NotNull] IRelationalAnnotationProvider extensionsProvider,
+            [NotNull] IRelationalAnnotationProvider annotationProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ScaffoldingUtilities scaffoldingUtilities)
         {
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(model, nameof(model));
             Check.NotNull(customConfiguration, nameof(customConfiguration));
-            Check.NotNull(extensionsProvider, nameof(extensionsProvider));
+            Check.NotNull(annotationProvider, nameof(annotationProvider));
             Check.NotNull(cSharpUtilities, nameof(scaffoldingUtilities));
             Check.NotNull(scaffoldingUtilities, nameof(cSharpUtilities));
 
             _configurationFactory = configurationFactory;
             Model = model;
             CustomConfiguration = customConfiguration;
-            ExtensionsProvider = extensionsProvider;
+            AnnotationProvider = annotationProvider;
             CSharpUtilities = cSharpUtilities;
             ScaffoldingUtilities = scaffoldingUtilities;
         }
 
         public virtual IModel Model { get; }
-        public virtual IRelationalAnnotationProvider ExtensionsProvider { get; }
+        public virtual IRelationalAnnotationProvider AnnotationProvider { get; }
         public virtual CSharpUtilities CSharpUtilities { get; }
         public virtual ScaffoldingUtilities ScaffoldingUtilities { get; }
         public virtual CustomConfiguration CustomConfiguration { get; [param: NotNull] set; }
 
         public virtual string ClassName()
         {
-            var annotatedName = ExtensionsProvider.For(Model).DatabaseName;
+            var annotatedName = AnnotationProvider.For(Model).DatabaseName;
             if (!string.IsNullOrEmpty(annotatedName))
             {
                 return CSharpUtilities.GenerateCSharpIdentifier(annotatedName + DbContextSuffix, null);
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         public virtual void AddSequenceConfigurations()
         {
             _sequenceConfigurations = new List<SequenceConfiguration>();
-            foreach (var sequence in (Model as Model).Relational().Sequences)
+            foreach (var sequence in AnnotationProvider.For(Model).Sequences)
             {
                 var config = _configurationFactory.CreateSequenceConfiguration();
 
@@ -126,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                 }
 
                 if (!string.IsNullOrEmpty(sequence.Schema)
-                    && (Model as Model).Relational().DefaultSchema != sequence.Schema)
+                    && AnnotationProvider.For(Model).DefaultSchema != sequence.Schema)
                 {
                     config.SchemaNameIdentifier = CSharpUtilities.DelimitString(sequence.Schema);
                 }
@@ -290,13 +291,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
             var entityType = entityConfiguration.EntityType;
-            if (ExtensionsProvider.For(entityType).Schema != null
-                && ExtensionsProvider.For(entityType).Schema != ExtensionsProvider.For(Model).DefaultSchema)
+            if (AnnotationProvider.For(entityType).Schema != null
+                && AnnotationProvider.For(entityType).Schema != AnnotationProvider.For(Model).DefaultSchema)
             {
                 var delimitedTableName =
-                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
+                    CSharpUtilities.DelimitString(AnnotationProvider.For(entityType).TableName);
                 var delimitedSchemaName =
-                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).Schema);
+                    CSharpUtilities.DelimitString(AnnotationProvider.For(entityType).Schema);
                 entityConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ true,
@@ -309,11 +310,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                         delimitedTableName,
                         nameof(TableAttribute.Schema) + " = " + delimitedSchemaName));
             }
-            else if (ExtensionsProvider.For(entityType).TableName != null
-                     && ExtensionsProvider.For(entityType).TableName != entityType.DisplayName())
+            else if (AnnotationProvider.For(entityType).TableName != null
+                     && AnnotationProvider.For(entityType).TableName != entityType.DisplayName())
             {
                 var delimitedTableName =
-                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
+                    CSharpUtilities.DelimitString(AnnotationProvider.For(entityType).TableName);
                 entityConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ true,
@@ -388,11 +389,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (((Property)propertyConfiguration.Property).GetMaxLength().HasValue)
+            var maxLength = propertyConfiguration.Property.GetMaxLength();
+            if (maxLength.HasValue)
             {
                 var maxLengthLiteral =
-                    CSharpUtilities.GenerateLiteral(
-                        ((Property)propertyConfiguration.Property).GetMaxLength().Value);
+                    CSharpUtilities.GenerateLiteral(maxLength.Value);
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ true,
@@ -422,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                     if (_keyConvention.FindValueGeneratedOnAddProperty(
                         new List<Property> { (Property)propertyConfiguration.Property },
                         (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null
-                        && ExtensionsProvider.For(propertyConfiguration.Property).DefaultValueSql == null)
+                        && AnnotationProvider.For(propertyConfiguration.Property).DefaultValueSql == null)
                     {
                         propertyConfiguration.FluentApiConfigurations.Add(
                             _configurationFactory.CreateFluentApiConfiguration(
@@ -457,16 +458,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
             var delimitedColumnName =
-                ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != null
-                && ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != propertyConfiguration.Property.Name
+                AnnotationProvider.For(propertyConfiguration.Property).ColumnName != null
+                && AnnotationProvider.For(propertyConfiguration.Property).ColumnName != propertyConfiguration.Property.Name
                     ? CSharpUtilities.DelimitString(
-                        ExtensionsProvider.For(propertyConfiguration.Property).ColumnName)
+                        AnnotationProvider.For(propertyConfiguration.Property).ColumnName)
                     : null;
 
             var delimitedColumnTypeName =
-                ExtensionsProvider.For(propertyConfiguration.Property).ColumnType != null
+                AnnotationProvider.For(propertyConfiguration.Property).ColumnType != null
                     ? CSharpUtilities.DelimitString(
-                        ExtensionsProvider.For(propertyConfiguration.Property).ColumnType)
+                        AnnotationProvider.For(propertyConfiguration.Property).ColumnType)
                     : null;
 
             if (delimitedColumnName != null)
@@ -509,14 +510,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (ExtensionsProvider.For(propertyConfiguration.Property).DefaultValue != null)
+            if (AnnotationProvider.For(propertyConfiguration.Property).DefaultValue != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ false,
                         nameof(RelationalPropertyBuilderExtensions.HasDefaultValue),
                         CSharpUtilities.GenerateLiteral(
-                            (dynamic)ExtensionsProvider.For(propertyConfiguration.Property).DefaultValue)));
+                            (dynamic)AnnotationProvider.For(propertyConfiguration.Property).DefaultValue)));
             }
         }
 
@@ -525,14 +526,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (ExtensionsProvider.For(propertyConfiguration.Property).DefaultValueSql != null)
+            if (AnnotationProvider.For(propertyConfiguration.Property).DefaultValueSql != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ false,
                         nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
                         CSharpUtilities.DelimitString(
-                            ExtensionsProvider.For(propertyConfiguration.Property).DefaultValueSql)));
+                            AnnotationProvider.For(propertyConfiguration.Property).DefaultValueSql)));
             }
         }
 
@@ -541,14 +542,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (ExtensionsProvider.For(propertyConfiguration.Property).ComputedValueSql != null)
+            if (AnnotationProvider.For(propertyConfiguration.Property).ComputedValueSql != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ false,
                         nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
                         CSharpUtilities.DelimitString(
-                            ExtensionsProvider.For(propertyConfiguration.Property).ComputedValueSql)));
+                            AnnotationProvider.For(propertyConfiguration.Property).ComputedValueSql)));
             }
         }
 
@@ -686,7 +687,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             if (_entityConfigurationMap == null)
             {
+                // ReSharper disable once UnusedVariable
                 var _ = EntityConfigurations;
+                Debug.Assert(_entityConfigurationMap != null);
             }
 
             return _entityConfigurationMap[entityType];

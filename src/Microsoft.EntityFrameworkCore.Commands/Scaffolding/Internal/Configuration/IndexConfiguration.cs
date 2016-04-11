@@ -25,15 +25,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         public virtual string LambdaIdentifier { get; }
         public virtual Index Index { get; }
 
-        public virtual bool HasAttributeEquivalent { get; }
+        public virtual bool HasAttributeEquivalent => false;
 
         public virtual ICollection<string> FluentApiLines
         {
             get
             {
-                var lines = new List<string>();
-                lines.Add(nameof(EntityTypeBuilder<EntityType>.HasIndex) + "(" + LambdaIdentifier + " => "
-                          + new ScaffoldingUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier) + ")");
+                var lines = new List<string>
+                {
+                    nameof(EntityTypeBuilder<EntityType>.HasIndex) + "(" + LambdaIdentifier + " => "
+                    + new ScaffoldingUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier) + ")"
+                };
 
                 if (!string.IsNullOrEmpty(Index.Relational().Name))
                 {

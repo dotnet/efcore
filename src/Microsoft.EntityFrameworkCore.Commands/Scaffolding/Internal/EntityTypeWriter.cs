@@ -13,19 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class EntityTypeWriter
     {
-        private ScaffoldingUtilities ScaffoldingUtilities { get; }
         private CSharpUtilities CSharpUtilities { get; }
         private IndentedStringBuilder _sb;
         private EntityConfiguration _entity;
 
         public EntityTypeWriter(
-            [NotNull] ScaffoldingUtilities scaffoldingUtilities,
             [NotNull] CSharpUtilities cSharpUtilities)
         {
-            Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
-
-            ScaffoldingUtilities = scaffoldingUtilities;
+            
             CSharpUtilities = cSharpUtilities;
         }
 

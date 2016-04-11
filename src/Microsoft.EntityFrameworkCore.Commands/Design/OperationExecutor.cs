@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                Execute(() => executor.GetContextTypesImpl());
+                Execute(executor.GetContextTypesImpl);
             }
         }
 
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         private IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextType)
         {
-            var migrations = _migrationsOperations.Value.GetMigrations(contextType);
+            var migrations = _migrationsOperations.Value.GetMigrations(contextType).ToList();
             var nameGroups = migrations.GroupBy(m => m.Name).ToList();
 
             return migrations.Select(

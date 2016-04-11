@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(uniquifier, nameof(uniquifier));
 
             var proposedIdentifier =
-                (identifier.Length > 1 && identifier[0] == '@')
+                identifier.Length > 1 && identifier[0] == '@'
                     ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
                     : _invalidCharsRegex.Replace(identifier, "_");
             if (string.IsNullOrEmpty(proposedIdentifier))

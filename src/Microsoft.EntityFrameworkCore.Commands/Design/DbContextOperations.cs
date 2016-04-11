@@ -115,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             // Look for DbContext classes in assemblies
             var types = _startupAssembly.GetConstructableTypes()
                 .Concat(_assembly.GetConstructableTypes())
-                .Select(i => i.AsType());
+                .Select(i => i.AsType())
+                .ToList();
             var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t))
                 .Concat(
                     types.Where(t => typeof(Migration).IsAssignableFrom(t))

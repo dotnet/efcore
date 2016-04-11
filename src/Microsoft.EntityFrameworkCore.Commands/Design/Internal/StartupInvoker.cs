@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             MethodInfo method = null;
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < methodNames.Length; i++)
             {
                 method = type.GetTypeInfo().GetDeclaredMethod(methodNames[i]);
@@ -75,10 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     break;
                 }
-                if (i == methodNames.Length - 1)
-                {
-                    return null;
-                }
+            }
+
+            if (method == null)
+            {
+                return null;
             }
 
             var instance = !method.IsStatic

@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private static readonly char[] directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private static readonly char[] _directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
         ///     Construct canonicalized paths from the project path and output path and a namespace
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             // later to form the canonicalized relative path we strip off the
             // correct number of characters.
             for (var projectPathLastChar = projectPath.Last();
-                directorySeparatorChars.Contains(projectPathLastChar);
+                _directorySeparatorChars.Contains(projectPathLastChar);
                 projectPathLastChar = projectPath.Last())
             {
                 projectPath = projectPath.Substring(0, projectPath.Length - 1);
@@ -170,16 +170,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var canonicalizedRelativeOutputPath =
                 canonicalizedFullOutputPath == canonicalizedFullProjectPath
                     ? string.Empty
-                    : canonicalizedFullOutputPath.StartsWith(canonicalizedFullProjectPath)
+                    : canonicalizedFullOutputPath.StartsWith(canonicalizedFullProjectPath, StringComparison.Ordinal)
                         ? canonicalizedFullOutputPath
-                            .Substring(canonicalizedFullProjectPath.Count() + 1)
+                            .Substring(canonicalizedFullProjectPath.Length + 1)
                         : null;
 
             var @namespace = rootNamespace;
             if (!string.IsNullOrEmpty(canonicalizedRelativeOutputPath))
             {
                 foreach (var pathPart in canonicalizedRelativeOutputPath
-                    .Split(directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries))
+                    .Split(_directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries))
                 {
                     @namespace += "." + CSharpUtilities.Instance.GenerateCSharpIdentifier(pathPart, null);
                 }

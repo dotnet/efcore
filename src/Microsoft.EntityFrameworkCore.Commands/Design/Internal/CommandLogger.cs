@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     WriteTrace(message.ToString());
                     break;
                 default:
-                    Debug.Fail("Unexpected event type: " + logLevel);
                     WriteDebug(message.ToString());
+                    Debug.Fail("Unexpected event type: " + logLevel);
                     break;
             }
         }
