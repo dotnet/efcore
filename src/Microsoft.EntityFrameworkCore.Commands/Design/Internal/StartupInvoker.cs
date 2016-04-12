@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 #if !NETCORE50
 using Microsoft.AspNetCore.Hosting;
 #endif
@@ -100,8 +101,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return method.Invoke(instance, arguments);
         }
 
-        protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
+        private void ConfigureAspNetHostServices(IServiceCollection services)
         {
+            // This implementation is very intentional.
+            //  1. This is not compiled on NETCORE50
+            //  2. This is in a separate method.
+            //
+            // This prevents powershell commands from loading Microsoft.AspNetCore.Hosting.Abstractions
+            // when executing on a UWP project.
+
+            // TODO create a better abstraction for startup services on different project models
 #if !NETCORE50
             services.AddSingleton<IHostingEnvironment>(
                 new HostingEnvironment
@@ -109,10 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ContentRootPath = _startupProjectDir,
                     EnvironmentName = _environment
                 });
-#endif
-
-            services.AddLogging();
-            services.AddOptions();
 
             if (PlatformServices.Default != null)
             {
@@ -130,6 +135,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     services.AddSingleton(PlatformServices.Default.Runtime);
                 }
             }
+#endif
+        }
+
+        protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
+        {
+            if (!DesignTimeEnvironment.IsUwp())
+            {
+                ConfigureAspNetHostServices(services);
+            }
+
+            services.AddLogging();
+            services.AddOptions();
 
             return services;
         }
