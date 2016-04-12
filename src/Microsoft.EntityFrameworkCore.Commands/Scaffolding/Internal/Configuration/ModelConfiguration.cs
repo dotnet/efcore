@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
 {
     public class ModelConfiguration
     {
-        private const string DbContextSuffix = "Context";
-        private const string DefaultDbContextName = "Model" + DbContextSuffix;
+        protected const string DbContextSuffix = "Context";
+        protected const string DefaultDbContextName = "Model" + DbContextSuffix;
         private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
         private static readonly KeyConvention _keyConvention = new KeyConvention();
 
@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
             Check.NotNull(model, nameof(model));
             Check.NotNull(customConfiguration, nameof(customConfiguration));
             Check.NotNull(annotationProvider, nameof(annotationProvider));
-            Check.NotNull(cSharpUtilities, nameof(scaffoldingUtilities));
-            Check.NotNull(scaffoldingUtilities, nameof(cSharpUtilities));
+            Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
+            Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
 
             _configurationFactory = configurationFactory;
             Model = model;
