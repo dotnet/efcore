@@ -694,6 +694,17 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     }
 
     if (!$skipBuild) {
+
+        if (IsUwpProject $startupProject) {
+            $config = $startupProject.ConfigurationManager.ActiveConfiguration.ConfigurationName
+            $configProperties = $startupProject.ConfigurationManager.ActiveConfiguration.Properties
+            $isNative = (GetProperty $configProperties ProjectN.UseDotNetNativeToolchain) -eq 'True'
+
+            if ($isNative) {
+                throw "Cannot run in '$config' mode because 'Compile with the .NET Native tool chain' is enabled. Disable this setting or use a different configuration and try again."
+            }
+        }
+
         Write-Verbose 'Build started...'
 
         # TODO: Only build required project. Don't use BuildProject, you can't specify platform

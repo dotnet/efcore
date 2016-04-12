@@ -67,6 +67,7 @@
     <Compile Include="Internal\CSharpUtilities.cs" />
     <Compile Include="Internal\DbDataReaderExtension.cs" />
     <Compile Include="Internal\ModelUtilities.cs" />
+    <Compile Include="Internal\DesignTimeEnvironment.cs" />
     <Compile Include="IScaffoldingModelFactory.cs" />
     <Compile Include="Metadata\ColumnModel.cs" />
     <Compile Include="Metadata\DatabaseModel.cs" />
