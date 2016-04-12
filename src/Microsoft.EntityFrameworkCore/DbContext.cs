@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(options, nameof(options));
 
-            if (!options.ContextType.IsAssignableFrom(GetType()))
+            if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
             {
                 throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().DisplayName()));
             }
