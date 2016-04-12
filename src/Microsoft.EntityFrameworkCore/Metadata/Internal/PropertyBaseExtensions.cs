@@ -20,8 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var accessors = propertyBase as IPropertyBaseAccessors;
 
-            return accessors != null
-                ? accessors.Getter
+            if (accessors != null)
+            {
+                return accessors.Getter;
+            }
+
+            var propertyInfoAccessor = propertyBase as IPropertyPropertyInfoAccessor;
+            return propertyInfoAccessor != null
+                ? new ClrPropertyGetterFactory().Create(propertyInfoAccessor.PropertyInfo)
                 : new ClrPropertyGetterFactory().Create(propertyBase);
         }
 
@@ -29,8 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var accessors = propertyBase as IPropertyBaseAccessors;
 
-            return accessors != null
-                ? accessors.Setter
+            if (accessors != null)
+            {
+                return accessors.Setter;
+            }
+
+            var propertyInfoAccessor = propertyBase as IPropertyPropertyInfoAccessor;
+            return propertyInfoAccessor != null
+                ? new ClrPropertySetterFactory().Create(propertyInfoAccessor.PropertyInfo)
                 : new ClrPropertySetterFactory().Create(propertyBase);
         }
     }

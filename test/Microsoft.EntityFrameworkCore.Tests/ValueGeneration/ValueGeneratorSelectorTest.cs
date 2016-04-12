@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             builder.Entity<AnEntity>();
             var model = builder.Model;
             var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random)).IsShadowProperty = false;
+            entityType.AddProperty("Random", typeof(Random), shadow: false);
 
             foreach (var property in entityType.GetProperties())
             {

@@ -1593,7 +1593,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var relationship = entityA.HasMany<Beta>().WithOne(e => e.FirstNav);
 
                 Assert.Equal(
-                    CoreStrings.NoClrProperty("ShadowId", typeof(Beta)),
+                    CoreStrings.NoPropertyType("ShadowId", nameof(Beta)),
                     Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey("ShadowId")).Message);
             }
 

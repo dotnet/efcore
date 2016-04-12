@@ -535,14 +535,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var entityType = model.AddEntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Id", typeof(int));
-            key.IsShadowProperty = false;
+            var key = entityType.AddProperty("Id", typeof(int), shadow: false);
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.IsShadowProperty = false;
+            var nonKey = entityType.AddProperty("Name", typeof(string), shadow: false);
             nonKey.Relational().ColumnName = "Col2";
             nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 

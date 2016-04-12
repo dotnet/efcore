@@ -364,14 +364,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The newly created builder. </returns>
         protected virtual InternalPropertyBuilder PropertyBuilder(
             [NotNull] Type propertyType, [CanBeNull] string propertyName)
-        {
-            Check.NotNull(propertyType, nameof(propertyType));
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            var builder = Builder.Property(propertyName, ConfigurationSource.Explicit);
-            var clrTypeSet = builder.HasClrType(propertyType, ConfigurationSource.Explicit);
-            Debug.Assert(clrTypeSet);
-            return builder;
-        }
+            => Builder.Property(
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotNull(propertyType, nameof(propertyType)),
+                ConfigurationSource.Explicit);
     }
 }

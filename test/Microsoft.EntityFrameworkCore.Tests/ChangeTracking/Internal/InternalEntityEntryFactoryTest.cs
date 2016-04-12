@@ -38,10 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(RedHook));
-            var property = entityType.AddProperty("Long", typeof(int));
-            property.IsShadowProperty = false;
-            var property1 = entityType.AddProperty("Hammer", typeof(string));
-            property1.IsShadowProperty = false;
+            entityType.AddProperty("Long", typeof(int), shadow: false);
+            entityType.AddProperty("Hammer", typeof(string), shadow: false);
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -62,9 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(RedHook));
-            var property1 = entityType.AddProperty("Long", typeof(int));
-            property1.IsShadowProperty = false;
-            entityType.AddProperty("Hammer", typeof(string));
+            entityType.AddProperty("Long", typeof(int), shadow: false);
+            entityType.AddProperty("Hammer", typeof(string), shadow: true);
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();

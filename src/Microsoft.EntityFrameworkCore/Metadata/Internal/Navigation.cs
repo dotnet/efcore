@@ -12,7 +12,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
-    public class Navigation : ConventionalAnnotatable, IMutableNavigation, INavigationAccessors, IPropertyIndexesAccessor
+    public class Navigation :
+        ConventionalAnnotatable,
+        IMutableNavigation,
+        INavigationAccessors,
+        IPropertyIndexesAccessor,
+        IPropertyPropertyInfoAccessor
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
@@ -21,12 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
 
-        public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey)
+        public Navigation([NotNull] PropertyInfo navigationProperty, [NotNull] ForeignKey foreignKey)
         {
-            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(navigationProperty, nameof(navigationProperty));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            Name = name;
+            PropertyInfo = navigationProperty;
+            Name = navigationProperty.Name;
             ForeignKey = foreignKey;
         }
 
@@ -187,10 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (EntityType)((INavigation)this).GetTargetType();
 
         public virtual IClrPropertyGetter Getter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, n => new ClrPropertyGetterFactory().Create(n));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, PropertyInfo, p => new ClrPropertyGetterFactory().Create(p));
 
         public virtual IClrPropertySetter Setter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, n => new ClrPropertySetterFactory().Create(n));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, PropertyInfo, p => new ClrPropertySetterFactory().Create(p));
 
         public virtual IClrCollectionAccessor CollectionAccessor
             => NonCapturingLazyInitializer.EnsureInitialized(ref _collectionAccessor, this, n => new ClrCollectionAccessorFactory().Create(n));
@@ -217,6 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        public virtual PropertyInfo PropertyInfo { get; }
         IForeignKey INavigation.ForeignKey => ForeignKey;
         IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;

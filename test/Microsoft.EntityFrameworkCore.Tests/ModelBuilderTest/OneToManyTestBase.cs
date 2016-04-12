@@ -1726,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var relationship = entityB.HasOne(e => e.FirstNav).WithMany();
 
                 Assert.Equal(
-                    CoreStrings.NoClrProperty("ShadowId", typeof(Beta)),
+                    CoreStrings.NoPropertyType("ShadowId", nameof(Beta)),
                     Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey("ShadowId")).Message);
             }
 

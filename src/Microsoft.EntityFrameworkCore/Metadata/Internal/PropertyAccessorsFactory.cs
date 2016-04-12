@@ -41,16 +41,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
 
             var shadowIndex = (propertyBase as IProperty)?.GetShadowIndex() ?? -1;
-            var currentValueExpression = shadowIndex >= 0
-                ? (Expression)Expression.Call(
+            Expression currentValueExpression;
+            if (shadowIndex >= 0)
+            {
+                currentValueExpression = Expression.Call(
                     entryParameter,
                     InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(typeof(TProperty)),
-                    Expression.Constant(shadowIndex))
-                : Expression.Property(
+                    Expression.Constant(shadowIndex));
+            }
+            else
+            {
+                var propertyInfoAccessor = propertyBase as IPropertyPropertyInfoAccessor;
+                var property = propertyInfoAccessor != null
+                    ? propertyInfoAccessor.PropertyInfo
+                    : entityClrType.GetAnyProperty(propertyBase.Name);
+                currentValueExpression = Expression.Property(
                     Expression.Convert(
                         Expression.Property(entryParameter, "Entity"),
                         entityClrType),
-                    entityClrType.GetAnyProperty(propertyBase.Name));
+                    property);
+            }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
             if (storeGeneratedIndex >= 0)

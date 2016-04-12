@@ -25,6 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected new virtual RelationalAnnotationsBuilder Annotations => (RelationalAnnotationsBuilder)base.Annotations;
         protected virtual InternalEntityTypeBuilder EntityTypeBuilder => (InternalEntityTypeBuilder)Annotations.MetadataBuilder;
 
+        protected override RelationalModelAnnotations GetAnnotations(IModel model)
+            => new RelationalModelBuilderAnnotations(
+                ((Model)model).Builder,
+                Annotations.ConfigurationSource,
+                ProviderFullAnnotationNames);
+
+        protected override RelationalEntityTypeAnnotations GetAnnotations(IEntityType entityType)
+            => new RelationalEntityTypeBuilderAnnotations(
+                ((EntityType)entityType).Builder,
+                Annotations.ConfigurationSource,
+                ProviderFullAnnotationNames);
+
         public virtual bool ToTable([CanBeNull] string name)
         {
             Check.NullButNotEmpty(name, nameof(name));
@@ -120,27 +132,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Type propertyType)
         {
             var discriminatorProperty = DiscriminatorProperty;
-            if ((discriminatorProperty != null)
-                && (createProperty != null))
+            if (discriminatorProperty != null
+                && (createProperty != null
+                    || propertyType != null))
             {
                 if (!SetDiscriminatorProperty(null))
                 {
                     return null;
                 }
             }
+
             var rootType = EntityTypeBuilder.Metadata.RootType();
             var rootTypeBuilder = EntityTypeBuilder.Metadata == rootType
                 ? EntityTypeBuilder
                 : rootType.Builder;
 
+            var configurationSource = Annotations.ConfigurationSource;
             InternalPropertyBuilder propertyBuilder;
             if (createProperty != null)
             {
                 propertyBuilder = createProperty(rootTypeBuilder);
             }
+            else if (propertyType != null)
+            {
+                propertyBuilder = rootTypeBuilder.Property(DefaultDiscriminatorName, propertyType, configurationSource);
+            }
             else if (discriminatorProperty == null)
             {
-                propertyBuilder = rootTypeBuilder.Property(DefaultDiscriminatorName, ConfigurationSource.Convention);
+                propertyBuilder = rootTypeBuilder.Property(DefaultDiscriminatorName, typeof(string), ConfigurationSource.Convention);
             }
             else
             {
@@ -149,17 +168,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (propertyBuilder == null)
             {
-                if ((discriminatorProperty != null)
-                    && (createProperty != null))
+                if (discriminatorProperty != null
+                    && (createProperty != null
+                        || propertyType != null))
                 {
                     SetDiscriminatorProperty(discriminatorProperty);
                 }
                 return null;
             }
 
-            if ((discriminatorProperty != null)
-                && (createProperty != null)
-                && (propertyBuilder.Metadata != discriminatorProperty))
+            if (discriminatorProperty != null
+                && (createProperty != null || propertyType != null)
+                && propertyBuilder.Metadata != discriminatorProperty)
             {
                 if (discriminatorProperty.DeclaringEntityType == EntityTypeBuilder.Metadata)
                 {
@@ -167,17 +187,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            var configurationSource = Annotations.ConfigurationSource;
-            if (propertyType != null)
-            {
-                if (!propertyBuilder.HasClrType(propertyType, configurationSource))
-                {
-                    return null;
-                }
-            }
-
-            if ((discriminatorProperty == null)
-                || (createProperty != null))
+            if (discriminatorProperty == null
+                || createProperty != null
+                || propertyType != null)
             {
                 var discriminatorSet = SetDiscriminatorProperty(propertyBuilder.Metadata);
                 Debug.Assert(discriminatorSet);

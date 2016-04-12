@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(type, nameof(type));
 
-            var canFindEntityType = model as ICanFindEntityType;
+            var findClrEntityType = model as IModelFindClrType;
 
-            return canFindEntityType != null
-                ? canFindEntityType.FindEntityType(type)
+            return findClrEntityType != null
+                ? findClrEntityType.FindEntityType(type)
                 : model.FindEntityType(type.DisplayName());
         }
     }

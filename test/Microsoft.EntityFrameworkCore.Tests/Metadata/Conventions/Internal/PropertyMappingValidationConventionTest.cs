@@ -143,17 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         public virtual void Does_not_throw_when_non_candidate_property_is_not_added()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(NonCandidatePropertyEntity), ConfigurationSource.Convention);
-
-            CreateConvention().Apply(modelBuilder);
-        }
-
-        [Fact]
-        public virtual void Does_not_throw_when_clr_type_is_not_set_for_shadow_property()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationAsProperty), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("ShadowPropertyOfNullType", ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(NonCandidatePropertyEntity), ConfigurationSource.Convention);
 
             CreateConvention().Apply(modelBuilder);
         }

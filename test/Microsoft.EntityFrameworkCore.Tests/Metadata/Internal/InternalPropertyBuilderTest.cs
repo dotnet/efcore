@@ -13,50 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
     public class InternalPropertyBuilderTest
     {
         [Fact]
-        public void Can_only_override_lower_or_equal_source_ClrType()
-        {
-            var builder = CreateInternalPropertyBuilder();
-            var metadata = builder.Metadata;
-
-            Assert.True(builder.HasClrType(typeof(int), ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(typeof(int), metadata.ClrType);
-
-            Assert.True(builder.HasClrType(typeof(string), ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(typeof(string), metadata.ClrType);
-
-            Assert.False(builder.HasClrType(typeof(int), ConfigurationSource.Convention));
-
-            Assert.Equal(typeof(string), metadata.ClrType);
-
-            Assert.True(builder.HasClrType(typeof(string), ConfigurationSource.Convention));
-        }
-
-        [Fact]
-        public void Can_only_override_existing_ClrType_value_explicitly()
-        {
-            var model = new Model();
-            model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty.Name);
-            var modelBuilder = new InternalModelBuilder(model);
-            var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention);
-            Assert.Null(builder.Metadata.GetClrTypeConfigurationSource());
-
-            builder.Metadata.ClrType = typeof(string);
-
-            Assert.Equal(ConfigurationSource.Explicit, builder.Metadata.GetClrTypeConfigurationSource());
-            Assert.True(builder.HasClrType(typeof(string), ConfigurationSource.DataAnnotation));
-            Assert.False(builder.HasClrType(typeof(int), ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(typeof(string), builder.Metadata.ClrType);
-
-            Assert.True(builder.HasClrType(typeof(int), ConfigurationSource.Explicit));
-            Assert.Equal(typeof(int), builder.Metadata.ClrType);
-        }
-
-        [Fact]
-        public void Property_added_by_name_is_shadow_even_if_matches_Clr_type()
+        public void Property_added_by_name_is_non_shadow_if_matches_Clr_property()
         {
             var model = new Model();
             var modelBuilder = new InternalModelBuilder(model);
@@ -65,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var property = builder.Metadata;
 
             Assert.Equal(typeof(string), property.ClrType);
-            Assert.True(property.IsShadowProperty);
-            Assert.Null(property.GetClrTypeConfigurationSource());
-            Assert.Null(property.GetIsShadowPropertyConfigurationSource());
+            Assert.False(property.IsShadowProperty);
         }
 
         [Fact]
@@ -238,8 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
-            var builder = entityBuilder.Property(nameof(Customer.Id), ConfigurationSource.Convention);
-            builder.HasClrType(typeof(int), ConfigurationSource.Convention);
+            var builder = entityBuilder.Property(nameof(Customer.Id), typeof(int), ConfigurationSource.Convention);
 
             Assert.False(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
@@ -311,40 +265,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.True(builder.ReadOnlyBeforeSave(false, ConfigurationSource.Explicit));
             Assert.False(metadata.IsReadOnlyBeforeSave);
-        }
-
-        [Fact]
-        public void Can_only_override_lower_or_equal_source_Shadow()
-        {
-            var builder = CreateInternalPropertyBuilder();
-            var metadata = builder.Metadata;
-
-            Assert.True(builder.IsShadow(true, ConfigurationSource.DataAnnotation));
-            Assert.True(builder.IsShadow(false, ConfigurationSource.DataAnnotation));
-
-            Assert.False(metadata.IsShadowProperty);
-
-            Assert.False(builder.IsShadow(true, ConfigurationSource.Convention));
-            Assert.False(metadata.IsShadowProperty);
-        }
-
-        [Fact]
-        public void Can_only_override_existing_Shadow_value_explicitly()
-        {
-            var model = new Model();
-            var metadata = model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty.Name);
-            Assert.Null(metadata.GetIsShadowPropertyConfigurationSource());
-            metadata.IsShadowProperty = false;
-            var builder = CreateInternalPropertyBuilder(metadata);
-
-            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsShadowPropertyConfigurationSource());
-            Assert.True(builder.IsShadow(false, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.IsShadow(true, ConfigurationSource.DataAnnotation));
-
-            Assert.False(builder.Metadata.IsShadowProperty);
-
-            Assert.True(builder.IsShadow(true, ConfigurationSource.Explicit));
-            Assert.True(builder.Metadata.IsShadowProperty);
         }
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()

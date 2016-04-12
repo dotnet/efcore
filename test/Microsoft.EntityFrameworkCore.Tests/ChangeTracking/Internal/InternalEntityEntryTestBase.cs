@@ -1182,56 +1182,44 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var model = new Model();
 
             var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
-            var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int));
-            simpleKeyProperty.IsShadowProperty = false;
+            var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int), shadow: false);
             simpleKeyProperty.RequiresValueGenerator = true;
             someSimpleEntityType.GetOrSetPrimaryKey(simpleKeyProperty);
 
             var someCompositeEntityType = model.AddEntityType(typeof(SomeCompositeEntityBase));
-            var compositeKeyProperty1 = someCompositeEntityType.AddProperty("Id1", typeof(int));
-            compositeKeyProperty1.IsShadowProperty = false;
-            var compositeKeyProperty2 = someCompositeEntityType.AddProperty("Id2", typeof(string));
-            compositeKeyProperty2.IsShadowProperty = false;
+            var compositeKeyProperty1 = someCompositeEntityType.AddProperty("Id1", typeof(int), shadow: false);
+            var compositeKeyProperty2 = someCompositeEntityType.AddProperty("Id2", typeof(string), shadow: false);
             compositeKeyProperty2.IsNullable = false;
             someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
             entityType1.HasBaseType(someSimpleEntityType);
-            var property3 = entityType1.AddProperty("Name", typeof(string));
-            property3.IsShadowProperty = false;
+            var property3 = entityType1.AddProperty("Name", typeof(string), shadow: false);
             property3.IsConcurrencyToken = true;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
             entityType2.HasBaseType(someCompositeEntityType);
-            var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
-            fk.IsShadowProperty = false;
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int), shadow: false);
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
-            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
-            justAProperty.IsShadowProperty = false;
+            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int), shadow: false);
             justAProperty.RequiresValueGenerator = true;
 
             var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
-            var property6 = entityType3.AddProperty("Id", typeof(int));
-            property6.IsShadowProperty = false;
+            var property6 = entityType3.AddProperty("Id", typeof(int), shadow: false);
             entityType3.GetOrSetPrimaryKey(property6);
-            var property7 = entityType3.AddProperty("Name", typeof(string));
-            property7.IsShadowProperty = false;
+            var property7 = entityType3.AddProperty("Name", typeof(string), shadow: false);
             property7.IsConcurrencyToken = true;
 
             var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
-            var property8 = entityType4.AddProperty("Id", typeof(int));
-            property8.IsShadowProperty = false;
+            var property8 = entityType4.AddProperty("Id", typeof(int), shadow: false);
             entityType4.GetOrSetPrimaryKey(property8);
-            var property9 = entityType4.AddProperty("Name", typeof(string));
-            property9.IsShadowProperty = false;
+            var property9 = entityType4.AddProperty("Name", typeof(string), shadow: false);
             property9.IsConcurrencyToken = true;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
             entityType5.HasBaseType(someSimpleEntityType);
-            var fk5a = entityType5.AddProperty("Fk1", typeof(int));
-            fk5a.IsShadowProperty = false;
-            var fk5b = entityType5.AddProperty("Fk2", typeof(string));
-            fk5b.IsShadowProperty = false;
+            var fk5a = entityType5.AddProperty("Fk1", typeof(int), shadow: false);
+            var fk5b = entityType5.AddProperty("Fk2", typeof(string), shadow: false);
             entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
 
             return model;

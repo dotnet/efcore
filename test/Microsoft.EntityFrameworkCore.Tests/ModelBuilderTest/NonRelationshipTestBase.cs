@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var modelBuilder = CreateModelBuilder();
                 var entityType = (EntityType)modelBuilder.Entity<SelfRef>().Metadata;
-                var shadowProperty = entityType.AddProperty("ShadowProperty", ConfigurationSource.Convention);
+                var shadowProperty = entityType.AddProperty("ShadowProperty", typeof(string), configurationSource: ConfigurationSource.Convention);
                 shadowProperty.IsNullable = false;
                 entityType.AddKey(shadowProperty);
 

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    [DebuggerDisplay("{Metadata,nq}")]
     public class InternalRelationshipBuilder : InternalMetadataItemBuilder<ForeignKey>
     {
         public InternalRelationshipBuilder(

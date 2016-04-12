@@ -181,7 +181,7 @@
     <value>The property '{entityType}.{property}' does not have a setter and no backing field was found by convention. Either remove the property from the model, add a property setter, or configure a backing field (see http://go.microsoft.com/fwlink/?LinkId=723277).</value>
   </data>
   <data name="NoClrType" xml:space="preserve">
-    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
+    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>The database providers {storeNames}are configured. A context can only be configured to use a single database provider.</value>
@@ -214,10 +214,10 @@
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="NoClrProperty" xml:space="preserve">
-    <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
+    <value>The property '{property}' cannot be added to entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
   </data>
   <data name="PropertyWrongClrType" xml:space="preserve">
-    <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and the type of the corresponding CLR property does not match the type specified in the property.</value>
+    <value>The property '{property}' cannot be added to entity type '{entityType}' because the property is not in shadow state and the type of the corresponding CLR property '{clrType}' does not match the specified type '{propertyType}'.</value>
   </data>
   <data name="ClrPropertyOnShadowEntity" xml:space="preserve">
     <value>The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.</value>
@@ -423,9 +423,6 @@
   <data name="PropertyWrongEntityClrType" xml:space="preserve">
     <value>CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
   </data>
-  <data name="PropertyClrTypeCannotBeChangedWhenReferenced" xml:space="preserve">
-    <value>The CLR type for property '{property}' cannot be changed because it is referenced by the foreign key {foreignKey} from entity type '{entityType}'.</value>
-  </data>
   <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
     <value>The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.</value>
   </data>
@@ -479,12 +476,6 @@
   </data>
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
-  </data>
-  <data name="ClrTypeWrongName" xml:space="preserve">
-    <value>The specified CLR type '{clrType}' does not match the entity type name '{entity}'.</value>
-  </data>
-  <data name="EntityTypeInUse" xml:space="preserve">
-    <value>The CLR type cannot be set on the entity type '{entityType}' because it has members, base entity type or derived entity types.</value>
   </data>
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
@@ -548,5 +539,8 @@
   </data>
   <data name="NoClrSetter" xml:space="preserve">
     <value>Could not find setter for property {property}</value>
+  </data>
+  <data name="NoPropertyType" xml:space="preserve">
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.</value>
   </data>
 </root>

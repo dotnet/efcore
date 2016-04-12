@@ -35,17 +35,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual RelationalModelAnnotations GetAnnotations([NotNull] IModel model)
             => new RelationalModelAnnotations(model, ProviderFullAnnotationNames);
 
+        protected virtual RelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
+            => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
+
         public virtual string TableName
         {
             get
             {
-                var rootType = EntityType.RootType();
-                var rootAnnotations = new RelationalAnnotations(rootType);
+                if (EntityType.BaseType != null)
+                {
+                    var rootType = EntityType.RootType();
+                    return GetAnnotations(rootType).TableName;
+                }
 
-                return (string)rootAnnotations.GetAnnotation(
+                return (string)Annotations.GetAnnotation(
                     RelationalFullAnnotationNames.Instance.TableName,
                     ProviderFullAnnotationNames?.TableName)
-                       ?? rootType.DisplayName();
+                       ?? EntityType.DisplayName();
             }
             [param: CanBeNull] set { SetTableName(value); }
         }
@@ -60,8 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get
             {
-                var rootAnnotations = new RelationalAnnotations(EntityType.RootType());
-                return (string)rootAnnotations.GetAnnotation(
+                if (EntityType.BaseType != null)
+                {
+                    var rootType = EntityType.RootType();
+                    return GetAnnotations(rootType).Schema;
+                }
+
+                return (string)Annotations.GetAnnotation(
                     RelationalFullAnnotationNames.Instance.Schema,
                     ProviderFullAnnotationNames?.Schema)
                        ?? GetAnnotations((IMutableModel)EntityType.Model).DefaultSchema;
@@ -79,13 +90,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get
             {
-                var rootType = EntityType.RootType();
-                var rootAnnotations = new RelationalAnnotations(rootType);
-                var propertyName = (string)rootAnnotations.GetAnnotation(
+                if (EntityType.BaseType != null)
+                {
+                    var rootType = EntityType.RootType();
+                    return GetAnnotations(rootType).DiscriminatorProperty;
+                }
+
+                var propertyName = (string)Annotations.GetAnnotation(
                     RelationalFullAnnotationNames.Instance.DiscriminatorProperty,
                     ProviderFullAnnotationNames?.DiscriminatorProperty);
 
-                return propertyName == null ? null : rootType.FindProperty(propertyName);
+                return propertyName == null ? null : EntityType.FindProperty(propertyName);
             }
             [param: CanBeNull] set { SetDiscriminatorProperty(value); }
         }
@@ -118,10 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             foreach (var derivedType in EntityType.GetDerivedTypes())
             {
-                new RelationalAnnotations(derivedType).SetAnnotation(
-                    RelationalFullAnnotationNames.Instance.DiscriminatorValue,
-                    ProviderFullAnnotationNames?.DiscriminatorValue,
-                    null);
+                GetAnnotations(derivedType).DiscriminatorValue = null;
             }
 
             return Annotations.SetAnnotation(
@@ -143,13 +155,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual bool SetDiscriminatorValue([CanBeNull] object value)
         {
-            if (DiscriminatorProperty == null)
+            if (value != null
+                && DiscriminatorProperty == null)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.NoDiscriminatorForValue(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
             }
 
-            if ((value != null)
+            if (value != null
                 && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
                 throw new InvalidOperationException(RelationalStrings.DiscriminatorValueIncompatible(

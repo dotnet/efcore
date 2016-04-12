@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
+        /// The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
         /// </summary>
         public static string NoClrType([CanBeNull] object entityType)
         {
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.
+        /// The property '{property}' cannot be added to entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.
         /// </summary>
         public static string NoClrProperty([CanBeNull] object property, [CanBeNull] object entityType)
         {
@@ -277,11 +277,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and the type of the corresponding CLR property does not match the type specified in the property.
+        /// The property '{property}' cannot be added to entity type '{entityType}' because the property is not in shadow state and the type of the corresponding CLR property '{clrType}' does not match the specified type '{propertyType}'.
         /// </summary>
-        public static string PropertyWrongClrType([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string PropertyWrongClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrType, [CanBeNull] object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWrongClrType", "property", "entityType"), property, entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWrongClrType", "property", "entityType", "clrType", "propertyType"), property, entityType, clrType, propertyType);
         }
 
         /// <summary>
@@ -637,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show aditional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.
+        /// An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.
         /// </summary>
         public static string ExpressionParameterizationException
         {
@@ -829,14 +829,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The CLR type for property '{property}' cannot be changed because it is referenced by the foreign key {foreignKey} from entity type '{entityType}'.
-        /// </summary>
-        public static string PropertyClrTypeCannotBeChangedWhenReferenced([CanBeNull] object property, [CanBeNull] object foreignKey, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyClrTypeCannotBeChangedWhenReferenced", "property", "foreignKey", "entityType"), property, foreignKey, entityType);
-        }
-
-        /// <summary>
         /// The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.
         /// </summary>
         public static string InvalidNavigationWithInverseProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
@@ -978,22 +970,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NavigationForWrongForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetFk, [CanBeNull] object actualFk)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NavigationForWrongForeignKey", "navigation", "entityType", "targetFk", "actualFk"), navigation, entityType, targetFk, actualFk);
-        }
-
-        /// <summary>
-        /// The specified CLR type '{clrType}' does not match the entity type name '{entity}'.
-        /// </summary>
-        public static string ClrTypeWrongName([CanBeNull] object clrType, [CanBeNull] object entity)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ClrTypeWrongName", "clrType", "entity"), clrType, entity);
-        }
-
-        /// <summary>
-        /// The CLR type cannot be set on the entity type '{entityType}' because it has members, base entity type or derived entity types.
-        /// </summary>
-        public static string EntityTypeInUse([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeInUse", "entityType"), entityType);
         }
 
         /// <summary>
@@ -1162,6 +1138,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NoClrSetter([CanBeNull] object property)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoClrSetter", "property"), property);
+        }
+
+        /// <summary>
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.
+        /// </summary>
+        public static string NoPropertyType([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoPropertyType", "property", "entityType"), property, entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         : ConventionalAnnotatable,
             IMutableProperty,
             IPropertyBaseAccessors,
+            IPropertyPropertyInfoAccessor,
             IPropertyIndexesAccessor,
             IPropertyKeyMetadata,
             IPropertyIndexMetadata
@@ -29,29 +30,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private int _flags;
 
-        private Type _clrType;
-
         private ConfigurationSource _configurationSource;
-        private ConfigurationSource? _clrTypeConfigurationSource;
         private ConfigurationSource? _isReadOnlyAfterSaveConfigurationSource;
         private ConfigurationSource? _isReadOnlyBeforeSaveConfigurationSource;
         private ConfigurationSource? _isNullableConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
-        private ConfigurationSource? _isShadowPropertyConfigurationSource;
         private ConfigurationSource? _isStoreGeneratedAlwaysConfigurationSource;
         private ConfigurationSource? _requiresValueGeneratorConfigurationSource;
         private ConfigurationSource? _valueGeneratedConfigurationSource;
 
-        public Property([NotNull] string name, [NotNull] EntityType declaringEntityType, ConfigurationSource configurationSource)
+        public Property(
+            [NotNull] string name,
+            [NotNull] Type clrType,
+            [NotNull] EntityType declaringEntityType,
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
+            Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             Name = name;
+            ClrType = clrType;
             DeclaringEntityType = declaringEntityType;
             _configurationSource = configurationSource;
 
             Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
+        }
+
+        public Property(
+            [NotNull] PropertyInfo propertyInfo,
+            [NotNull] EntityType declaringEntityType,
+            ConfigurationSource configurationSource)
+            : this(Check.NotNull(propertyInfo, nameof(propertyInfo)).Name,
+                propertyInfo.PropertyType,
+                Check.NotNull(declaringEntityType, nameof(declaringEntityType)),
+                configurationSource)
+        {
+            PropertyInfo = propertyInfo;
         }
 
         public virtual string Name { get; }
@@ -68,34 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void SetConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = configurationSource;
 
-        public virtual Type ClrType
-        {
-            get { return _clrType ?? DefaultClrType; }
-            [param: NotNull] set { HasClrType(value, ConfigurationSource.Explicit); }
-        }
-
-        public virtual void HasClrType([NotNull] Type type, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(type, nameof(type));
-            if (type != ClrType)
-            {
-                var foreignKey = this.FindReferencingForeignKeys().FirstOrDefault();
-                if (foreignKey != null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.PropertyClrTypeCannotBeChangedWhenReferenced(Name, Format(foreignKey.Properties), foreignKey.DeclaringEntityType.Name));
-                }
-            }
-            _clrType = type;
-            UpdateClrTypeConfigurationSource(configurationSource);
-        }
-
-        private static Type DefaultClrType => typeof(string);
-
-        public virtual ConfigurationSource? GetClrTypeConfigurationSource() => _clrTypeConfigurationSource;
-
-        private void UpdateClrTypeConfigurationSource(ConfigurationSource configurationSource)
-            => _clrTypeConfigurationSource = configurationSource.Max(_clrTypeConfigurationSource);
+        public virtual Type ClrType { get; }
 
         public virtual bool IsNullable
         {
@@ -249,60 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateRequiresValueGeneratorConfigurationSource(ConfigurationSource configurationSource)
             => _requiresValueGeneratorConfigurationSource = configurationSource.Max(_requiresValueGeneratorConfigurationSource);
 
-        public virtual bool IsShadowProperty
-        {
-            get
-            {
-                bool value;
-                return TryGetFlag(PropertyFlags.IsShadowProperty, out value) ? value : DefaultIsShadowProperty;
-            }
-            set { SetIsShadowProperty(value, ConfigurationSource.Explicit); }
-        }
-
-        public virtual void SetIsShadowProperty(bool shadowProperty, ConfigurationSource configurationSource)
-        {
-            if (IsShadowProperty != shadowProperty)
-            {
-                if (shadowProperty == false)
-                {
-                    if (DeclaringEntityType.ClrType == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(Name, DeclaringEntityType.DisplayName()));
-                    }
-
-                    var clrProperty = DeclaringEntityType.ClrType.GetPropertiesInHierarchy(Name).FirstOrDefault();
-                    if (clrProperty == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.NoClrProperty(Name, DeclaringEntityType.DisplayName()));
-                    }
-
-                    if (ClrType == null)
-                    {
-                        ClrType = clrProperty.PropertyType;
-                    }
-                    else if (ClrType != clrProperty.PropertyType)
-                    {
-                        throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(Name, DeclaringEntityType.DisplayName()));
-                    }
-                }
-
-                SetFlag(shadowProperty, PropertyFlags.IsShadowProperty);
-
-                DeclaringEntityType.PropertyMetadataChanged();
-            }
-            else
-            {
-                SetFlag(shadowProperty, PropertyFlags.IsShadowProperty);
-            }
-
-            UpdateIsShadowPropertyConfigurationSource(configurationSource);
-        }
-
-        private static bool DefaultIsShadowProperty => true;
-        public virtual ConfigurationSource? GetIsShadowPropertyConfigurationSource() => _isShadowPropertyConfigurationSource;
-
-        private void UpdateIsShadowPropertyConfigurationSource(ConfigurationSource configurationSource)
-            => _isShadowPropertyConfigurationSource = configurationSource.Max(_isShadowPropertyConfigurationSource);
+        public virtual bool IsShadowProperty => PropertyInfo == null;
 
         public virtual bool IsConcurrencyToken
         {
@@ -395,14 +330,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private enum PropertyFlags
         {
-            IsConcurrencyToken = 3,
+            IsConcurrencyToken = 3 << 0,
             IsNullable = 3 << 2,
             IsReadOnlyBeforeSave = 3 << 4,
             IsReadOnlyAfterSave = 3 << 6,
             ValueGenerated = 7 << 8,
             RequiresValueGenerator = 3 << 11,
-            IsShadowProperty = 3 << 13,
-            StoreGeneratedAlways = 3 << 15
+            StoreGeneratedAlways = 3 << 13
         }
 
         public static bool AreCompatible([NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
@@ -417,10 +351,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         public virtual IClrPropertyGetter Getter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, PropertyInfo, p => new ClrPropertyGetterFactory().Create(p));
 
         public virtual IClrPropertySetter Setter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, PropertyInfo, p => new ClrPropertySetterFactory().Create(p));
 
         public virtual PropertyAccessors Accessors
             => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
@@ -452,5 +386,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyList<IKey> Keys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
+        public virtual PropertyInfo PropertyInfo { get; }
     }
 }

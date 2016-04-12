@@ -19,18 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IMutableEntityType : IEntityType, IMutableAnnotatable
     {
         /// <summary>
-        ///     <para>
-        ///         Gets or sets the CLR class that is used to represent instances of this entity. Returns null if the entity does not
-        ///         have a corresponding CLR class (known as a shadow entity).
-        ///     </para>
-        ///     <para>
-        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
-        ///         Therefore, shadow entities will only exist in migration model snapshots, etc.
-        ///     </para>
-        /// </summary>
-        new Type ClrType { get; [param: CanBeNull] set; }
-
-        /// <summary>
         ///     Gets the model this entity belongs to.
         /// </summary>
         new IMutableModel Model { get; }
@@ -173,8 +161,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Adds a property to this entity.
         /// </summary>
         /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="shadow"> Whether the property is in shadow-state. </param>
         /// <returns> The newly created property. </returns>
-        IMutableProperty AddProperty([NotNull] string name);
+        IMutableProperty AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadow);
 
         /// <summary>
         ///     <para>

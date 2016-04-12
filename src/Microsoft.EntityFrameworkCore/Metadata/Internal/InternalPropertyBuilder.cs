@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    [DebuggerDisplay("{Metadata,nq}")]
     public class InternalPropertyBuilder : InternalMetadataItemBuilder<Property>
     {
         public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder)
@@ -82,38 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
-        public virtual bool IsShadow(bool isShadowProperty, ConfigurationSource? configurationSource)
-        {
-            if ((Metadata.IsShadowProperty == isShadowProperty)
-                || (configurationSource.HasValue
-                    && configurationSource.Value.Overrides(Metadata.GetIsShadowPropertyConfigurationSource())))
-            {
-                if (configurationSource.HasValue)
-                {
-                    Metadata.SetIsShadowProperty(isShadowProperty, configurationSource.Value);
-                }
-                return true;
-            }
-
-            return false;
-        }
-
-        public virtual bool HasClrType([NotNull] Type propertyType, ConfigurationSource? configurationSource)
-        {
-            if ((Metadata.ClrType == propertyType)
-                || (configurationSource.HasValue
-                    && configurationSource.Value.Overrides(Metadata.GetClrTypeConfigurationSource())))
-            {
-                if (configurationSource.HasValue)
-                {
-                    Metadata.HasClrType(propertyType, configurationSource.Value);
-                }
-                return true;
-            }
-
-            return false;
-        }
-
         public virtual bool RequiresValueGenerator(bool generateValue, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetRequiresValueGeneratorConfigurationSource())
@@ -159,11 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             newPropertyBuilder.MergeAnnotationsFrom(this);
 
-            var oldClrTypeConfigurationSource = Metadata.GetClrTypeConfigurationSource();
-            if (oldClrTypeConfigurationSource.HasValue)
-            {
-                newPropertyBuilder.HasClrType(Metadata.ClrType, oldClrTypeConfigurationSource.Value);
-            }
             var oldIsReadOnlyAfterSaveConfigurationSource = Metadata.GetIsReadOnlyAfterSaveConfigurationSource();
             if (oldIsReadOnlyAfterSaveConfigurationSource.HasValue)
             {
@@ -186,11 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken,
                     oldIsConcurrencyTokenConfigurationSource.Value);
-            }
-            var oldIsShadowPropertyConfigurationSource = Metadata.GetIsShadowPropertyConfigurationSource();
-            if (oldIsShadowPropertyConfigurationSource.HasValue)
-            {
-                newPropertyBuilder.IsShadow(Metadata.IsShadowProperty, oldIsShadowPropertyConfigurationSource.Value);
             }
             var oldRequiresValueGeneratorConfigurationSource = Metadata.GetRequiresValueGeneratorConfigurationSource();
             if (oldRequiresValueGeneratorConfigurationSource.HasValue)

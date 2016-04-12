@@ -117,8 +117,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             var model = builder.Model;
             model.SqlServer().GetOrAddSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName);
             var entityType = model.FindEntityType(typeof(AnEntity));
-            var property1 = entityType.AddProperty("Random", typeof(Random));
-            property1.IsShadowProperty = false;
+            entityType.AddProperty("Random", typeof(Random), shadow: false);
 
             foreach (var property in entityType.GetProperties())
             {

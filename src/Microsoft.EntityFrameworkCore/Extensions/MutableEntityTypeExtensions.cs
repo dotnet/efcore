@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -306,27 +305,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     Adds a property to this entity.
         /// </summary>
         /// <param name="entityType"> The entity type to add the property to. </param>
-        /// <param name="name"> The name of the property to add. </param>
-        /// <param name="propertyType"> The type of value the property will hold. </param>
-        /// <returns> The newly created property. </returns>
-        public static IMutableProperty AddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyType, nameof(propertyType));
-
-            var property = entityType.AddProperty(name);
-            if (property != null)
-            {
-                property.ClrType = propertyType;
-            }
-            return property;
-        }
-
-        /// <summary>
-        ///     Adds a property to this entity.
-        /// </summary>
-        /// <param name="entityType"> The entity type to add the property to. </param>
         /// <param name="propertyInfo"> The corresponding property in the entity class. </param>
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddProperty(
@@ -335,25 +313,10 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            if (propertyInfo.DeclaringType == null)
-            {
-                // TODO: Add exception message
-                throw new ArgumentException();
-            }
-
-            if (entityType.HasClrType()
-                && !propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
-            {
-                throw new ArgumentException(CoreStrings.PropertyWrongEntityClrType(
-                    propertyInfo.Name, entityType.DisplayName(), propertyInfo.DeclaringType.Name));
-            }
-
-            var property = entityType.AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
-            if (property != null)
-            {
-                property.IsShadowProperty = false;
-            }
-            return property;
+            var propertyInfoPropertyAdder = entityType as IMutableEntityTypeAddPropertyInfo;
+            return propertyInfoPropertyAdder != null
+                ? propertyInfoPropertyAdder.AddProperty(propertyInfo)
+                : entityType.AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadow: false);
         }
 
         /// <summary>
@@ -362,22 +325,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get or add the property to. </param>
         /// <param name="name"> The name of the property. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="shadow"> Whether the property is in shadow-state. </param>
         /// <returns> The existing or newly created property. </returns>
+        /// <remarks> The returned property might not have the specified type and shadowness. </remarks>
         public static IMutableProperty GetOrAddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyType, nameof(propertyType));
-
-            var property = entityType.FindProperty(name);
-            if (property != null)
-            {
-                property.ClrType = propertyType;
-                return property;
-            }
-
-            return entityType.AddProperty(name, propertyType);
-        }
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType, bool shadow)
+            => entityType.FindProperty(name) ?? entityType.AddProperty(name, propertyType, shadow);
 
         /// <summary>
         ///     Gets the property with the given name, or creates a new one if one is not already defined.
@@ -385,36 +338,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get or add the property to. </param>
         /// <param name="propertyInfo"> The corresponding property in the entity class. </param>
         /// <returns> The existing or newly created property. </returns>
-        public static IMutableProperty GetOrAddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            var property = entityType.FindProperty(propertyInfo);
-            if (property != null)
-            {
-                property.ClrType = propertyInfo.PropertyType;
-                property.IsShadowProperty = false;
-                return property;
-            }
-
-            return entityType.AddProperty(propertyInfo);
-        }
-
-        /// <summary>
-        ///     Gets the property with the given name, or creates a new one if one is not already defined.
-        /// </summary>
-        /// <param name="entityType"> The entity type to get or add the property to. </param>
-        /// <param name="name"> The name of the property. </param>
-        /// <returns> The existing or newly created property. </returns>
-        public static IMutableProperty GetOrAddProperty(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType.FindProperty(name) ?? entityType.AddProperty(name);
-        }
+        /// <remarks> The returned property might not have the specified type and shadowness. </remarks>
+        public static IMutableProperty GetOrAddProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
+            => entityType.FindProperty(propertyInfo) ?? entityType.AddProperty(propertyInfo);
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.
