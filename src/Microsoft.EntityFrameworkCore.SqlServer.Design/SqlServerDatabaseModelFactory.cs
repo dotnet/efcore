@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -400,6 +401,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         continue;
                     }
 
+                    Debug.Assert(index == null || index.Table != null);
                     if (index == null
                         || index.Name != indexName
                         || index.Table.Name != tableName

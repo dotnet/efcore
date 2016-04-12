@@ -69,8 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(resultType, nameof(resultType));
             Check.NotNull(accessorLambda, nameof(accessorLambda));
 
-            var keyComparerParameter = Expression.Parameter(typeof(IIncludeKeyComparer), "keyComparer");
-
             MethodInfo includeMethod;
 
             var resultItemTypeInfo = resultType.GetTypeInfo();

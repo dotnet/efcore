@@ -136,11 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
             }
 
-            if (column.SqlServer().DateTimePrecision.HasValue
-                && column.SqlServer().DateTimePrecision != DefaultTimeTimePrecision)
+            var dateTimePrecision = column.SqlServer().DateTimePrecision;
+            if (dateTimePrecision.HasValue
+                && dateTimePrecision.Value != DefaultTimeTimePrecision)
             {
                 propertyBuilder.Metadata.SetMaxLength(null);
-                propertyBuilder.HasColumnType($"{column.DataType}({column.SqlServer().DateTimePrecision.Value})");
+                propertyBuilder.HasColumnType($"{column.DataType}({dateTimePrecision.Value})");
             }
             else if (!HasTypeAlias(column))
             {
@@ -161,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         private static bool HasTypeAlias(ColumnModel column)
-            => column.Table.Database.SqlServer().TypeAliases?.ContainsKey(column.DataType) == true;
+            => column.DataType != null
+               && column.Table.Database.SqlServer().TypeAliases?.ContainsKey(column.DataType) == true;
 
         // Turns an unqualified SQL Server type name (e.g. varchar) and its
         // max length into a qualified SQL Server type name (e.g. varchar(max))

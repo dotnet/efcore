@@ -458,6 +458,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 return null;
             }
 
+            if (foreignKey.Table == null)
+            {
+                return null;
+            }
+
             var dependentEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.Table));
 
             if (dependentEntityType == null)

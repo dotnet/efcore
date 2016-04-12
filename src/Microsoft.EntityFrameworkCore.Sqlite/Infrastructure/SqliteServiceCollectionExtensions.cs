@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SqliteServiceCollectionExtensions

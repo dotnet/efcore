@@ -52,21 +52,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private string FindCommonPrefix(IEnumerable<string> stringsEnumerable)
         {
-            if (stringsEnumerable.Count() == 0)
+            var strings = stringsEnumerable.ToList();
+            if (!strings.Any())
             {
                 return string.Empty;
             }
 
-            if (stringsEnumerable.Count() == 1)
+            if (strings.Count == 1)
             {
-                return stringsEnumerable.Single();
+                return strings.Single();
             }
 
             var prefixLength = 0;
-            var firstString = stringsEnumerable.First();
+            var firstString = strings.First();
             foreach (var c in firstString)
             {
-                foreach (var s in stringsEnumerable)
+                foreach (var s in strings)
                 {
                     if (s.Length <= prefixLength
                         || s[prefixLength] != c)

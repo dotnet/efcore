@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var script = GetCreateScript();
 
-            return script.Insert(script.IndexOf("CREATE TABLE") + 12, " IF NOT EXISTS");
+            return script.Insert(script.IndexOf("CREATE TABLE", StringComparison.Ordinal) + 12, " IF NOT EXISTS");
         }
 
         public override string GetBeginIfNotExistsScript(string migrationId)

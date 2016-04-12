@@ -8,7 +8,7 @@
     <ProjectGuid>{DA30FC85-8D88-4BB2-98CE-B8A5845BB3EA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Scaffolding</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
