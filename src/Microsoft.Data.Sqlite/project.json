@@ -27,6 +27,31 @@
         "System.Runtime.InteropServices": "4.1.0-*",
         "System.Text.Encoding": "4.0.11-*"
       }
+    },
+    "netcore50": {
+      "dependencies": {
+        "Microsoft.NETCore.Platforms": {
+          "type": "build",
+          "version": "1.0.1-*"
+        },
+        "System.AppContext": "4.0.0",
+        "System.Data.Common": "4.0.0",
+        "System.Diagnostics.Debug": "4.0.10",
+        "System.Linq": "4.0.0",
+        "System.Reflection.Extensions": "4.0.0",
+        "System.Resources.ResourceManager": "4.0.0",
+        "System.Runtime.Extensions": "4.0.10",
+        "System.Runtime.InteropServices": "4.0.20",
+        "System.Text.Encoding": "4.0.10",
+        "System.Threading": {
+          "type": "build",
+          "version": "4.0.10"
+        },
+        "System.Text.RegularExpressions": {
+          "type": "build",
+          "version": "4.0.10"
+        }
+      }
     }
   },
   "resource": [
