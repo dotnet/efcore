@@ -53,6 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             VisitDefaultValue(propertyBuilder, column);
 
+            VisitComputedValue(propertyBuilder, column);
+
             return propertyBuilder;
         }
 
@@ -228,6 +230,34 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         SqlServerDesignStrings.CannotInterpretDefaultValue(
                             column.DisplayName,
                             column.DefaultValue,
+                            propertyBuilder.Metadata.Name,
+                            propertyBuilder.Metadata.DeclaringEntityType.Name));
+                }
+            }
+        }
+
+        private void VisitComputedValue(PropertyBuilder propertyBuilder, ColumnModel column)
+        {
+            if (column.ComputedValue != null)
+            {
+                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
+                propertyBuilder.Metadata.Relational().ComputedValueSql = null;
+
+                var computedExpression = ConvertSqlServerDefaultValue(column.ComputedValue);
+                if (computedExpression != null)
+                {
+                    if (!(computedExpression == "NULL"
+                          && propertyBuilder.Metadata.ClrType.IsNullableType()))
+                    {
+                        propertyBuilder.HasComputedColumnSql(computedExpression);
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning(
+                        SqlServerDesignStrings.CannotInterpretComputedValue(
+                            column.DisplayName,
+                            column.ComputedValue,
                             propertyBuilder.Metadata.Name,
                             propertyBuilder.Metadata.DeclaringEntityType.Name));
                 }

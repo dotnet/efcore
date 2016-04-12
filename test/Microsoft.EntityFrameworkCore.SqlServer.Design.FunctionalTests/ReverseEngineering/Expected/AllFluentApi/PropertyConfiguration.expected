@@ -19,5 +19,6 @@ namespace E2ETest.Namespace
         public int? SumOfAAndB { get; set; }
         public byte[] RowversionColumn { get; set; }
         public int? PropertyConfiguration1 { get; set; }
+        public DateTime ComputedDateTimeColumn { get; set; }
     }
 }
