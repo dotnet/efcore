@@ -255,6 +255,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
 
+                                var nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
+                                
+                                // If the next outer is not the current, we are no longer in the same group
+                                if (!Equals(nextOuter, outer))
+                                {
+                                    break;
+                                }
+                                
                                 inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
 
                                 if (inner == null)
