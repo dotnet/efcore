@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.FunctionalTests;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
-    public class UpdatesSqliteTest : UpdatesRelationalTest<UpdatesSqliteFixture, SqliteTestStore>
+    public class UpdatesSqliteTest : UpdatesRelationalTestBase<UpdatesSqliteFixture, SqliteTestStore>
     {
         public UpdatesSqliteTest(UpdatesSqliteFixture fixture)
             : base(fixture)

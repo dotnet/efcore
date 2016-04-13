@@ -14,7 +14,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : ComplexNavigationsQueryFixtureBase<TTestStore>, new()

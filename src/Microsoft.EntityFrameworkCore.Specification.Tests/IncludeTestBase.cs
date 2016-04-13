@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-#if NETSTANDARDAPP1_5
+#if NETSTANDARD1_3
 using System.Reflection;
 #endif
 

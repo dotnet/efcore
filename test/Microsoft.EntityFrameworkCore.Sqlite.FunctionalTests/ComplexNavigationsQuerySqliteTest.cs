@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryTestBase<SqliteTestStore, ComplexNavigationsQuerySqliteFixture>
     {
         public ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture)

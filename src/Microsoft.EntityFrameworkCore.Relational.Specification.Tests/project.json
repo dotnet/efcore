@@ -9,18 +9,15 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.FunctionalTests": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
   "frameworks": {
-    "netstandardapp1.5": {
+    "netstandard1.3": {
       "imports": [
         "dnxcore50",
         "portable-net452+win81"
-      ],
-      "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*"
-      }
+      ]
     },
     "net451": {}
   }

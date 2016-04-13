@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{47C167C3-ABB0-442D-B528-7666E1FBF19A}</ProjectGuid>
+    <ProjectGuid>{07FA2B15-A6A5-4292-A096-7771FB32EEDA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</RootNamespace>
-    <AssemblyName>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Relational.Specification.Tests</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Specification.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -63,27 +63,27 @@
     <Compile Include="TestSqlLoggerFactory.cs" />
     <Compile Include="TransactionFixtureBase.cs" />
     <Compile Include="TransactionTestBase.cs" />
-    <Compile Include="UpdatesRelationalTest.cs" />
+    <Compile Include="UpdatesRelationalTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.InMemory\Microsoft.EntityFrameworkCore.InMemory.csproj">
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.InMemory\Microsoft.EntityFrameworkCore.InMemory.csproj">
       <Project>{6b102cc4-4396-4a7b-9f72-2c6b5c4d8310}</Project>
       <Name>Microsoft.EntityFrameworkCore.InMemory</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
       <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj">
+      <Project>{1a73d95e-e8b5-4f96-908c-7b040e4f7afe}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Specification.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
-      <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
-      <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

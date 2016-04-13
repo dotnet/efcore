@@ -13,6 +13,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Async queries will not work on Mono < 4.2.0 due to differences in the IQueryable interface")]
     public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture>
     {
         // TODO: Complex projection translation.

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
-    public abstract class UpdatesRelationalTest<TFixture, TTestStore> : UpdatesTestBase<TFixture, TTestStore>
+    public abstract class UpdatesRelationalTestBase<TFixture, TTestStore> : UpdatesTestBase<TFixture, TTestStore>
         where TFixture : UpdatesFixtureBase<TTestStore>
         where TTestStore : TestStore
     {
-        protected UpdatesRelationalTest(TFixture fixture)
+        protected UpdatesRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
         }

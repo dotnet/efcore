@@ -20,7 +20,6 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.FunctionalTests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Async queries will not work on Mono < 4.2.0 due to differences in the IQueryable interface")]
     public abstract class AsyncQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
-    public class UpdatesSqlServerTest : UpdatesRelationalTest<UpdatesSqlServerFixture, SqlServerTestStore>
+    public class UpdatesSqlServerTest : UpdatesRelationalTestBase<UpdatesSqlServerFixture, SqlServerTestStore>
     {
         public UpdatesSqlServerTest(UpdatesSqlServerFixture fixture)
             : base(fixture)

@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Commands.Migrations
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR | RuntimeFrameworks.Mono, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public class OperationCompilationTest
     {
         private static string EOL => Environment.NewLine;

@@ -51,6 +51,10 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Specification.Tests.csproj">
+      <Project>{07fa2b15-a6a5-4292-a096-7771fb32eeda}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Relational.Specification.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational\Microsoft.EntityFrameworkCore.Relational.csproj">
       <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational</Name>
@@ -66,10 +70,6 @@
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
       <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
       <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.FunctionalTests.csproj">
-      <Project>{47c167c3-abb0-442d-b528-7666e1fbf19a}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Relational.FunctionalTests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Relational.Tests\Microsoft.EntityFrameworkCore.Relational.Tests.csproj">
       <Project>{1a884122-dc9e-42b1-8821-e43340f954d1}</Project>

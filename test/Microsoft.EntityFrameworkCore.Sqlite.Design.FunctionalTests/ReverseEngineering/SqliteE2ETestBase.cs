@@ -21,7 +21,7 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
-    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
+    [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR | RuntimeFrameworks.Mono, SkipReason = "https://github.com/aspnet/EntityFramework/issues/4841")]
     public abstract class SqliteE2ETestBase : E2ETestBase
     {
         public const string TestProjectPath = "testout";
