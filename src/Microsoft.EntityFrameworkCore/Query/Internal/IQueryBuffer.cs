@@ -11,6 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public interface IQueryBuffer
     {
+        object GetEntityKey(
+            [NotNull] IKey key,
+            EntityLoadInfo entityLoadInfo,
+            bool queryStateManager,
+            bool throwOnNullKey);
+
         object GetEntity(
             [NotNull] IKey key,
             EntityLoadInfo entityLoadInfo,

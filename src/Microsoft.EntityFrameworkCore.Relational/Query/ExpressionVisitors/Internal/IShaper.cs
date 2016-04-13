@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
     public interface IShaper<out T>
     {
+        object GetKey([NotNull] QueryContext queryContext, ValueBuffer valueBuffer);
         T Shape([NotNull] QueryContext queryContext, ValueBuffer valueBuffer);
         bool IsShaperForQuerySource([NotNull] IQuerySource querySource);
         void SaveAccessorExpression([NotNull] QuerySourceMapping querySourceMapping);

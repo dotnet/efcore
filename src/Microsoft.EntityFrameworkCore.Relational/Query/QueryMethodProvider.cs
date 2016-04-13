@@ -240,7 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                         else
                         {
-                            var currentGroupKey = innerKeySelector(inner);
+                            var currentOuterEntityKey = outerShaper.GetKey(queryContext, sourceEnumerator.Current);
+	                        var currentInnerKey = innerKeySelector(inner);
 
                             innerGroupJoinInclude?.Include(inner);
 
@@ -255,15 +256,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
 
-                                var nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
-                                
-                                // If the next outer is not the current, we are no longer in the same group
-                                if (!Equals(nextOuter, outer))
-                                {
-                                    break;
-                                }
-                                
-                                inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
+	                            if (currentOuterEntityKey != null)
+	                            {
+									//var nextOuterEntityKey = outerShaper.GetKey(queryContext, sourceEnumerator.Current);
+									var nextOuterEntityKey = outerShaper.GetKey(queryContext, sourceEnumerator.Current);
+
+									if (!Equals(currentOuterEntityKey, nextOuterEntityKey))
+									{
+										break;
+									}
+								}
+
+								inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
 
                                 if (inner == null)
                                 {
@@ -272,12 +276,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 var innerKey = innerKeySelector(inner);
 
-                                if (!comparer.Equals(currentGroupKey, innerKey))
-                                {
-                                    break;
-                                }
+								if (!comparer.Equals(currentInnerKey, innerKey))
+								{
+									break;
+								}
 
-                                innerGroupJoinInclude?.Include(inner);
+								innerGroupJoinInclude?.Include(inner);
 
                                 inners.Add(inner);
                             }

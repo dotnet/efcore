@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.2.0-*",
   "description": "Entity Framework is Microsoft's recommended data access technology for new applications.",
   "compilationOptions": {
     "warningsAsErrors": true,

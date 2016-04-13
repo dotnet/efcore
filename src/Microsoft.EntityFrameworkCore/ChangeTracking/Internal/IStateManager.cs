@@ -19,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         void BeginTrackingQuery();
 
+        object TryGetEntryKey([NotNull] IKey key, ValueBuffer valueBuffer, bool throwOnNullKey);
+
         InternalEntityEntry TryGetEntry([NotNull] IKey key, ValueBuffer valueBuffer, bool throwOnNullKey);
 
         InternalEntityEntry TryGetEntry([NotNull] object entity);
