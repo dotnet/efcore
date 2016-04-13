@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Property_added_by_name_is_shadow_even_if_matches_Clr_type()
+        public void Property_added_by_name_is_non_shadow_if_matches_Clr_property()
         {
             var model = new Model();
             var modelBuilder = new InternalModelBuilder(model);
@@ -65,9 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var property = builder.Metadata;
 
             Assert.Equal(typeof(string), property.ClrType);
-            Assert.True(property.IsShadowProperty);
-            Assert.Null(property.GetClrTypeConfigurationSource());
-            Assert.Null(property.GetIsShadowPropertyConfigurationSource());
+            Assert.False(property.IsShadowProperty);
+            Assert.Equal(ConfigurationSource.Convention, property.GetClrTypeConfigurationSource());
+            Assert.Equal(ConfigurationSource.Convention, property.GetIsShadowPropertyConfigurationSource());
         }
 
         [Fact]

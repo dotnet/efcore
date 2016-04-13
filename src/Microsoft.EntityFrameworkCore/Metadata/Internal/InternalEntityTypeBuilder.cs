@@ -212,6 +212,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Unignore(propertyName);
 
+                if (shadowProperty != false)
+                {
+                    var clrProperty = Metadata.ClrType?.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
+                    if (clrProperty != null)
+                    {
+                        propertyType = clrProperty.PropertyType;
+                        shadowProperty = false;
+                    }
+                    else
+                    {
+                        shadowProperty = true;
+                    }
+                }
+
                 property = Metadata.AddProperty(propertyName, configurationSource.Value, runConventions: false);
             }
             else if (configurationSource.HasValue)

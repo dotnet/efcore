@@ -1270,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredProperties());
             Assert.Empty(derivedEntityBuilder2.Metadata.GetDeclaredProperties());
-            Assert.Equal(typeof(string), propertyBuilder.Metadata.ClrType);
+            Assert.Equal(typeof(int), propertyBuilder.Metadata.ClrType);
             Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
             Assert.True(propertyBuilder.Metadata.RequiresValueGenerator);
             Assert.Equal(1, propertyBuilder.Metadata.GetMaxLength());

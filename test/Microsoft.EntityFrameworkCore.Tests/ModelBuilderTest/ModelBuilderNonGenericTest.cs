@@ -36,45 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         public class NonGenericOneToMany : OneToManyTestBase
         {
-            [Fact]
-            public override void Can_set_foreign_key_property_when_matching_property_added()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
-                modelBuilder.Entity<PrincipalEntity>();
-
-                var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
-                Assert.Equal("NavId", foreignKey.Properties.Single().Name);
-
-                modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
-
-                // Does not set foreign key property for added shadow property
-                var newForeignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
-                Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
-            }
-
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
         public class NonGenericManyToOne : ManyToOneTestBase
         {
-            [Fact]
-            public override void Can_set_foreign_key_property_when_matching_property_added()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
-                modelBuilder.Entity<PrincipalEntity>();
-
-                var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
-                Assert.Equal("NavId", foreignKey.Properties.Single().Name);
-
-                modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
-
-                // Does not set foreign key property for added shadow property
-                var newForeignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
-                Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
-            }
-
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
