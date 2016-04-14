@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         For derived contexts to be registered in the <see cref="IServiceProvider" /> and resolve their services
         ///         from the <see cref="IServiceProvider" /> you must chain a call to the
         ///         <see
-        ///             cref="Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder})" />
+        ///             cref="Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}, ServiceLifetime)" />
         ///         method on the returned <see cref="IServiceCollection" />.
         ///     </para>
         /// </remarks>

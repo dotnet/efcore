@@ -58,18 +58,27 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         work if you have one derived context type registered in your <see cref="IServiceProvider" />.
         ///     </para>
         /// </param>
+        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <returns>
         ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
         /// </returns>
         public static IServiceCollection AddDbContext<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null)
+            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
-            => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b));
+            => AddDbContext<TContext>(serviceCollection, (p, b) => optionsAction?.Invoke(b), contextLifetime);
 
         public static IServiceCollection AddDbContext<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
-            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
+            ServiceLifetime contextLifetime)
+            where TContext : DbContext
+            => AddDbContext<TContext>(serviceCollection, (Action<IServiceProvider, DbContextOptionsBuilder>)null, contextLifetime);
+
+        public static IServiceCollection AddDbContext<TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
         {
             serviceCollection
@@ -79,7 +88,7 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.TryAddSingleton(p => DbContextOptionsFactory<TContext>(p, optionsAction));
             serviceCollection.TryAddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
 
-            serviceCollection.TryAddScoped<TContext>();
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContext), typeof(TContext), contextLifetime));
 
             return serviceCollection;
         }

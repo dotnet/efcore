@@ -3536,19 +3536,24 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Can_add_derived_context_as_singleton(bool addSingletonFirst)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        public void Can_add_derived_context_as_singleton(bool addSingletonFirst, bool useDbContext)
         {
-            var appServiceProivder = addSingletonFirst
+            var appServiceProivder = useDbContext
                 ? new ServiceCollection()
-                    .AddSingleton<ConstructorTestContextWithOC1A>()
-                    .AddDbContext<ConstructorTestContextWithOC1A>()
+                    .AddDbContext<ConstructorTestContextWithOC1A>(ServiceLifetime.Singleton)
                     .BuildServiceProvider()
-                : new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC1A>()
-                    .AddSingleton<ConstructorTestContextWithOC1A>()
-                    .BuildServiceProvider();
+                : (addSingletonFirst
+                    ? new ServiceCollection()
+                        .AddSingleton<ConstructorTestContextWithOC1A>()
+                        .AddDbContext<ConstructorTestContextWithOC1A>()
+                        .BuildServiceProvider()
+                    : new ServiceCollection()
+                        .AddDbContext<ConstructorTestContextWithOC1A>()
+                        .AddSingleton<ConstructorTestContextWithOC1A>()
+                        .BuildServiceProvider());
 
             var singleton = new object[3];
             DbContext context1;
@@ -3585,21 +3590,28 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Can_add_derived_context_as_singleton_controlling_internal_services(bool addSingletonFirst)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        public void Can_add_derived_context_as_singleton_controlling_internal_services(bool addSingletonFirst, bool useDbContext)
         {
-            var appServiceProivder = addSingletonFirst
+            var appServiceProivder = useDbContext
                 ? new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddSingleton<ConstructorTestContextWithOC1A>()
-                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                    .AddDbContext<ConstructorTestContextWithOC1A>(
+                        (p, b) => b.UseInternalServiceProvider(p),
+                        ServiceLifetime.Singleton)
                     .BuildServiceProvider()
-                : new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
-                    .AddSingleton<ConstructorTestContextWithOC1A>()
-                    .BuildServiceProvider();
+                : (addSingletonFirst
+                    ? new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .AddSingleton<ConstructorTestContextWithOC1A>()
+                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                        .BuildServiceProvider()
+                    : new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                        .AddSingleton<ConstructorTestContextWithOC1A>()
+                        .BuildServiceProvider());
 
             var singleton = new object[3];
             DbContext context1;
@@ -3636,19 +3648,24 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Can_add_derived_context_as_transient(bool addTransientFirst)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        public void Can_add_derived_context_as_transient(bool addTransientFirst, bool useDbContext)
         {
-            var appServiceProivder = addTransientFirst
+            var appServiceProivder = useDbContext
                 ? new ServiceCollection()
-                    .AddTransient<ConstructorTestContextWithOC1A>()
-                    .AddDbContext<ConstructorTestContextWithOC1A>()
+                    .AddDbContext<ConstructorTestContextWithOC1A>(ServiceLifetime.Transient)
                     .BuildServiceProvider()
-                : new ServiceCollection()
-                    .AddDbContext<ConstructorTestContextWithOC1A>()
-                    .AddTransient<ConstructorTestContextWithOC1A>()
-                    .BuildServiceProvider();
+                : (addTransientFirst
+                    ? new ServiceCollection()
+                        .AddTransient<ConstructorTestContextWithOC1A>()
+                        .AddDbContext<ConstructorTestContextWithOC1A>()
+                        .BuildServiceProvider()
+                    : new ServiceCollection()
+                        .AddDbContext<ConstructorTestContextWithOC1A>()
+                        .AddTransient<ConstructorTestContextWithOC1A>()
+                        .BuildServiceProvider());
 
             var singleton = new object[3];
 
@@ -3691,21 +3708,28 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Can_add_derived_context_as_transient_controlling_internal_services(bool addTransientFirst)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        public void Can_add_derived_context_as_transient_controlling_internal_services(bool addTransientFirst, bool useDbContext)
         {
-            var appServiceProivder = addTransientFirst
+            var appServiceProivder = useDbContext
                 ? new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddTransient<ConstructorTestContextWithOC1A>()
-                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                    .AddDbContext<ConstructorTestContextWithOC1A>(
+                        (p, b) => b.UseInternalServiceProvider(p),
+                        ServiceLifetime.Transient)
                     .BuildServiceProvider()
-                : new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
-                    .AddTransient<ConstructorTestContextWithOC1A>()
-                    .BuildServiceProvider();
+                : (addTransientFirst
+                    ? new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .AddTransient<ConstructorTestContextWithOC1A>()
+                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                        .BuildServiceProvider()
+                    : new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .AddDbContext<ConstructorTestContextWithOC1A>((p, b) => b.UseInternalServiceProvider(p))
+                        .AddTransient<ConstructorTestContextWithOC1A>()
+                        .BuildServiceProvider());
 
             var singleton = new object[3];
 
