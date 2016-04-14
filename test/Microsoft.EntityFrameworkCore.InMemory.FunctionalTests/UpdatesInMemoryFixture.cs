@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
                             UpdatesModelInitializer.Seed(context);
                         }
                     },
-                () => { _serviceProvider.GetRequiredService<IInMemoryStore>().Clear(); });
+                () => { _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear(); });
 
         public override UpdatesContext CreateContext(InMemoryTestStore testStore)
             => new UpdatesContext(_optionsBuilder.Options);

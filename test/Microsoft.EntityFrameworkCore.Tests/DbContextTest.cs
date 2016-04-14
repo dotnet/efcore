@@ -2172,7 +2172,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC1A())
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
 
@@ -2181,7 +2181,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC1A())
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
             }
@@ -2198,11 +2198,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new ConstructorTestContextWithOC1B(loggerFactory, memoryCache))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
 
@@ -2212,7 +2212,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC1B(loggerFactory, memoryCache))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
             }
@@ -2229,7 +2229,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2239,7 +2239,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2263,11 +2263,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseMemoryCache(memoryCache)
                 .Options;
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2278,7 +2278,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2296,20 +2296,20 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC2A(internalServiceProivder))
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
 
                 Assert.NotNull(context.GetService<ILogger<Random>>());
 
-                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], internalServiceProivder.GetService<IMemoryCache>());
             }
 
             using (var context = new ConstructorTestContextWithOC2A(internalServiceProivder))
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
             }
@@ -2330,23 +2330,23 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = new WrappingLoggerFactory(appServiceProivder.GetService<ILoggerFactory>());
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new ConstructorTestContextWithOC2B(internalServiceProivder, loggerFactory, memoryCache))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
 
                 Assert.NotNull(context.GetService<ILogger<Random>>());
                 Assert.Contains("System.Random", loggerFactory.CreatedLoggers);
 
-                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStoreSource>());
             }
 
             using (var context = new ConstructorTestContextWithOC2B(internalServiceProivder, loggerFactory, memoryCache))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
             }
@@ -2368,21 +2368,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
                 Assert.NotNull(context.GetService<ILogger<Random>>());
 
-                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], internalServiceProivder.GetService<IMemoryCache>());
             }
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2411,11 +2411,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseInternalServiceProvider(internalServiceProivder)
                 .Options;
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2423,12 +2423,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(context.GetService<ILogger<Random>>());
                 Assert.Contains("System.Random", loggerFactory.CreatedLoggers);
 
-                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStoreSource>());
             }
 
             using (var context = new ConstructorTestContextWithOC3A(options))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2446,7 +2446,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2456,7 +2456,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2480,11 +2480,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseMemoryCache(memoryCache)
                 .Options;
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2495,7 +2495,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2518,21 +2518,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
                 Assert.NotNull(context.GetService<ILogger<Random>>());
 
-                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], internalServiceProivder.GetService<IMemoryCache>());
             }
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2561,11 +2561,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseInternalServiceProvider(internalServiceProivder)
                 .Options;
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2573,12 +2573,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(context.GetService<ILogger<Random>>());
                 Assert.Contains("System.Random", loggerFactory.CreatedLoggers);
 
-                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStoreSource>());
             }
 
             using (var context = new ConstructorTestContext1A(options))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2596,7 +2596,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new DbContext(options))
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2606,7 +2606,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new DbContext(options))
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2630,11 +2630,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseMemoryCache(memoryCache)
                 .Options;
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new DbContext(options))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2645,7 +2645,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new DbContext(options))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2668,21 +2668,21 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             using (var context = new DbContext(options))
             {
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
 
                 Assert.NotNull(context.GetService<ILogger<Random>>());
 
-                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], internalServiceProivder.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], internalServiceProivder.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], internalServiceProivder.GetService<IMemoryCache>());
             }
 
             using (var context = new DbContext(options))
             {
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2711,11 +2711,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 .UseInternalServiceProvider(internalServiceProivder)
                 .Options;
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var context = new DbContext(options))
             {
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2723,12 +2723,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.NotNull(context.GetService<ILogger<Random>>());
                 Assert.Contains("System.Random", loggerFactory.CreatedLoggers);
 
-                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStore>());
+                Assert.Same(singleton, internalServiceProivder.GetService<IInMemoryStoreSource>());
             }
 
             using (var context = new DbContext(options))
             {
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2752,7 +2752,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -2767,7 +2767,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
             }
@@ -2786,7 +2786,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -2794,7 +2794,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1B>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
 
@@ -2807,7 +2807,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1B>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
             }
@@ -2828,7 +2828,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -2842,7 +2842,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -2859,7 +2859,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
             IDbContextOptions options;
 
             using (var serviceScope = appServiceProivder
@@ -2868,7 +2868,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -2882,7 +2882,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -2905,7 +2905,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC2A>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
 
@@ -2918,7 +2918,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC2A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
             }
@@ -2935,7 +2935,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -2943,7 +2943,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC2B>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
 
@@ -2956,7 +2956,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC2B>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
             }
@@ -2983,7 +2983,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -2997,7 +2997,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -3020,7 +3020,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
             IDbContextOptions options;
 
             using (var serviceScope = appServiceProivder
@@ -3029,7 +3029,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -3043,7 +3043,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -3067,7 +3067,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -3081,7 +3081,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -3100,7 +3100,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
             IDbContextOptions options;
 
             using (var serviceScope = appServiceProivder
@@ -3109,7 +3109,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -3123,7 +3123,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -3145,7 +3145,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -3159,7 +3159,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -3176,7 +3176,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
             IDbContextOptions options;
 
             using (var serviceScope = appServiceProivder
@@ -3185,7 +3185,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -3199,7 +3199,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -3227,7 +3227,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -3241,7 +3241,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -3264,7 +3264,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
             IDbContextOptions options;
 
             using (var serviceScope = appServiceProivder
@@ -3273,7 +3273,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -3287,7 +3287,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -3311,7 +3311,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -3325,7 +3325,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -3344,7 +3344,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var loggerFactory = appServiceProivder.GetService<ILoggerFactory>();
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
             IDbContextOptions options;
 
             using (var serviceScope = appServiceProivder
@@ -3353,7 +3353,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -3367,7 +3367,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -3389,7 +3389,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -3403,7 +3403,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -3424,7 +3424,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
             IDbContextOptions options;
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -3432,7 +3432,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -3446,7 +3446,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -3469,7 +3469,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
                 Assert.NotNull(singleton[3] = context.GetService<IDbContextOptions>());
@@ -3483,7 +3483,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
                 Assert.Same(singleton[3], context.GetService<IDbContextOptions>());
@@ -3506,7 +3506,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             var memoryCache = appServiceProivder.GetService<IMemoryCache>();
 
             IDbContextOptions options;
-            IInMemoryStore singleton;
+            IInMemoryStoreSource singleton;
 
             using (var serviceScope = appServiceProivder
                 .GetRequiredService<IServiceScopeFactory>()
@@ -3514,7 +3514,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.NotNull(singleton = context.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton = context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.NotNull(options = context.GetService<IDbContextOptions>());
@@ -3528,7 +3528,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton, context.GetService<IInMemoryStore>());
+                Assert.Same(singleton, context.GetService<IInMemoryStoreSource>());
                 Assert.Same(loggerFactory, context.GetService<IDbContextServices>().LoggerFactory);
                 Assert.Same(memoryCache, context.GetService<IDbContextServices>().MemoryCache);
                 Assert.Same(options, context.GetService<IDbContextOptions>());
@@ -3565,7 +3565,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -3580,7 +3580,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
             }
@@ -3623,7 +3623,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -3638,7 +3638,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
             }
@@ -3678,7 +3678,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.NotSame(context1, context2);
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -3698,7 +3698,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
 
@@ -3742,7 +3742,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.NotSame(context1, context2);
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -3762,7 +3762,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
 
@@ -3796,7 +3796,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context1 = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -3811,7 +3811,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context2 = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
             }
@@ -3864,7 +3864,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context1 = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -3879,7 +3879,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 context2 = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton[0], context2.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context2.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context2.GetService<IMemoryCache>());
             }
@@ -3914,7 +3914,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.NotSame(context1, context2);
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -3934,7 +3934,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
 
@@ -3988,7 +3988,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.NotSame(context1, context2);
 
-                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStore>());
+                Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreSource>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());
 
@@ -4008,7 +4008,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
 
-                Assert.Same(singleton[0], context.GetService<IInMemoryStore>());
+                Assert.Same(singleton[0], context.GetService<IInMemoryStoreSource>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
 

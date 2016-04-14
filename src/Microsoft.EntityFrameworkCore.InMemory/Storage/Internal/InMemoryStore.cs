@@ -1,10 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -21,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly object _lock = new object();
 
-        private Lazy<Dictionary<IEntityType, IInMemoryTable>> _tables = CreateTables();
+        private LazyRef<Dictionary<IEntityType, IInMemoryTable>> _tables = CreateTables();
 
         public InMemoryStore([NotNull] IInMemoryTableFactory tableFactory)
         {
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             lock (_lock)
             {
-                var returnValue = !_tables.IsValueCreated;
+                var returnValue = !_tables.HasValue;
 
                 // ReSharper disable once UnusedVariable
                 var _ = _tables.Value;
@@ -51,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             lock (_lock)
             {
-                if (!_tables.IsValueCreated)
+                if (!_tables.HasValue)
                 {
                     return false;
                 }
@@ -61,11 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        private static Lazy<Dictionary<IEntityType, IInMemoryTable>> CreateTables()
+        private static LazyRef<Dictionary<IEntityType, IInMemoryTable>> CreateTables()
         {
-            return new Lazy<Dictionary<IEntityType, IInMemoryTable>>(
-                () => new Dictionary<IEntityType, IInMemoryTable>(),
-                LazyThreadSafetyMode.PublicationOnly);
+            return new LazyRef<Dictionary<IEntityType, IInMemoryTable>>(
+                () => new Dictionary<IEntityType, IInMemoryTable>());
         }
 
         public virtual IReadOnlyList<InMemoryTableSnapshot> GetTables(IEntityType entityType)
@@ -73,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var data = new List<InMemoryTableSnapshot>();
             lock (_lock)
             {
-                if (_tables.IsValueCreated)
+                if (_tables.HasValue)
                 {
                     foreach (var et in entityType.GetConcreteTypesInHierarchy())
                     {
