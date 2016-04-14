@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
@@ -37,10 +38,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 changing.PropertyChanging += (s, e) =>
                     {
-                        var property = TryGetPropertyBase(entityType, e.PropertyName);
-                        if (property != null)
+                        foreach (var propertyBase in GetNotificationProperties(entityType, e.PropertyName))
                         {
-                            _notifier.PropertyChanging(entry, property);
+                            _notifier.PropertyChanging(entry, propertyBase);
                         }
                     };
             }
@@ -50,15 +50,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 changed.PropertyChanged += (s, e) =>
                     {
-                        var property = TryGetPropertyBase(entityType, e.PropertyName);
-                        if (property != null)
+                        foreach (var propertyBase in GetNotificationProperties(entityType, e.PropertyName))
                         {
-                            _notifier.PropertyChanged(entry, property, setModified: true);
+                            _notifier.PropertyChanged(entry, propertyBase, setModified: true);
                         }
                     };
             }
 
             return entry;
+        }
+
+        private static IEnumerable<IPropertyBase> GetNotificationProperties(IEntityType entityType, string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                foreach (var property in entityType.GetProperties().Where(p => !p.IsReadOnlyAfterSave))
+                {
+                    yield return property;
+                }
+
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    yield return navigation;
+                }
+            }
+            else
+            {
+                var property = TryGetPropertyBase(entityType, propertyName);
+                if (property != null)
+                {
+                    yield return property;
+                }
+            }
         }
 
         private static IPropertyBase TryGetPropertyBase(IEntityType entityType, string propertyName)
