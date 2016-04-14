@@ -82,12 +82,15 @@
     <Compile Include="Storage\InMemoryTransactionManager.cs" />
     <Compile Include="Storage\Internal\IInMemoryDatabase.cs" />
     <Compile Include="Storage\Internal\IInMemoryStore.cs" />
+    <Compile Include="Storage\Internal\IInMemoryStoreSource.cs" />
     <Compile Include="Storage\Internal\IInMemoryTable.cs" />
     <Compile Include="Storage\Internal\IInMemoryTableFactory.cs" />
     <Compile Include="Storage\Internal\InMemoryDatabase.cs" />
     <Compile Include="Storage\Internal\InMemoryDatabaseCreator.cs" />
     <Compile Include="Storage\Internal\InMemoryDatabaseProviderServices.cs" />
     <Compile Include="Storage\Internal\InMemoryStore.cs" />
+    <Compile Include="Storage\Internal\InMemoryStoreSource.cs" />
+    <Compile Include="Storage\Internal\InMemoryStoreSourceExtensions.cs" />
     <Compile Include="Storage\Internal\InMemoryTable.cs" />
     <Compile Include="Storage\Internal\InMemoryTableFactory.cs" />
     <Compile Include="Storage\Internal\InMemoryTableSnapshot.cs" />

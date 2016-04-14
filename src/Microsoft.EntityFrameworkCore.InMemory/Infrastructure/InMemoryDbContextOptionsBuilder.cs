@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual InMemoryDbContextOptionsBuilder IgnoreTransactions()
             => SetOption(e => e.IgnoreTransactions = true);
 
-        protected virtual InMemoryDbContextOptionsBuilder SetOption([NotNull] Action<InMemoryOptionsExtension> setAction)
+        private InMemoryDbContextOptionsBuilder SetOption([NotNull] Action<InMemoryOptionsExtension> setAction)
         {
             Check.NotNull(setAction, nameof(setAction));
 

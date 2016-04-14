@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 
             // In memory dingletones
             VerifySingleton<InMemoryValueGeneratorCache>();
-            VerifySingleton<IInMemoryStore>();
+            VerifySingleton<IInMemoryStoreSource>();
             VerifySingleton<InMemoryModelSource>();
 
             // In memory scoped

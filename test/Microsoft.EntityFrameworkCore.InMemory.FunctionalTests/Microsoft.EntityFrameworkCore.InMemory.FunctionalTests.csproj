@@ -76,6 +76,7 @@
     <Compile Include="IntegerGeneratorEndToEndInMemoryTest.cs" />
     <Compile Include="MonsterFixupInMemoryTest.cs" />
     <Compile Include="MusicStoreQueryTests.cs" />
+    <Compile Include="NamedDatabaseTest.cs" />
     <Compile Include="NorthwindQueryInMemoryFixture.cs" />
     <Compile Include="NotificationEntitiesInMemoryTest.cs" />
     <Compile Include="NullKeysInMemoryTest.cs" />

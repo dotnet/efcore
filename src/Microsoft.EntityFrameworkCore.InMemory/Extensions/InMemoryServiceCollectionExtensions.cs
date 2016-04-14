@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAdd(new ServiceCollection()
                 .AddSingleton<InMemoryValueGeneratorCache>()
-                .AddSingleton<IInMemoryStore, InMemoryStore>()
+                .AddSingleton<IInMemoryStoreSource, InMemoryStoreSource>()
                 .AddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
                 .AddSingleton<InMemoryModelSource>()
                 .AddScoped<InMemoryValueGeneratorSelector>()
