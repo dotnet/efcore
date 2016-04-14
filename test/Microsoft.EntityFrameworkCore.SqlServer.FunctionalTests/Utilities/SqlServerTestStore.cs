@@ -18,6 +18,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         public const int CommandTimeout = 90;
 
+#if NETSTANDARDAPP1_5
+        private static string BaseDirectory => AppContext.BaseDirectory;
+#else
+        private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
+#endif
+
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
             => new SqlServerTestStore(name).CreateShared(initializeDatabase);
 
@@ -121,11 +127,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                             }
                             else
                             {
-                                var appBase = Environment.GetEnvironmentVariable("DNX_APPBASE");
-                                if (appBase != null)
-                                {
-                                    scriptPath = Path.Combine(appBase, scriptPath);
-                                }
+                                scriptPath = Path.Combine(BaseDirectory, scriptPath);
                             }
 
                             if (nonMasterScript)
