@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25102.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7067BD06-DEBE-49A0-BC78-AB99B06424FC}"
 EndProject
@@ -77,6 +77,8 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests", "test\Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests\Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.xproj", "{CF9E7087-235F-4E61-941C-BB9EDC087312}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.SqlServer.Tests", "test\Microsoft.EntityFrameworkCore.SqlServer.Tests\Microsoft.EntityFrameworkCore.SqlServer.Tests.xproj", "{DC946BF1-3598-41C8-A979-0DBA3B19F799}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "dotnet-ef.FunctionalTests", "test\dotnet-ef.FunctionalTests\dotnet-ef.FunctionalTests.xproj", "{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -216,6 +218,10 @@ Global
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799}.Release|Any CPU.Build.0 = Release|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,5 +260,6 @@ Global
 		{30A896EA-DB51-4E68-BD6D-4279EB5E1138} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{CF9E7087-235F-4E61-941C-BB9EDC087312} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 		{DC946BF1-3598-41C8-A979-0DBA3B19F799} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
+		{100C88C9-C14D-4B4D-ADE9-50FBC6A03B88} = {CEF61AEE-F8DA-4A3B-9D30-F6228479CA0B}
 	EndGlobalSection
 EndGlobal
