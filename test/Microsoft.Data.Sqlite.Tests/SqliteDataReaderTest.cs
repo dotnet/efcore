@@ -179,7 +179,7 @@ namespace Microsoft.Data.Sqlite
             GetX_throws_when_null(
                 r => r.GetDouble(0));
 
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
         [Fact]
         public void GetEnumerator_not_implemented()
         {
