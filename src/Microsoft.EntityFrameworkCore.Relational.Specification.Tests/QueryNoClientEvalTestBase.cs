@@ -3,13 +3,13 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture, new()
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
             using (var context = CreateContext())
             {
                 Assert.Equal(RelationalStrings.ClientEvalDisabled(
-                    "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}"),
+                    "{from Customer c2 in value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]) where (([c1].CustomerID == [c2].CustomerID) AndAlso [c2].IsLondon) select [c2] => Any()}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
                             .Where(c1 => context.Customers

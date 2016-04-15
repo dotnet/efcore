@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Inheritance
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Inheritance
 {
     public class Eagle : Bird
     {

@@ -4,15 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ComplexNavigationsModel;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable MergeConditionalExpression
 // ReSharper disable ReplaceWithSingleCallToSingle
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore

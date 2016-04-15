@@ -7,12 +7,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     // TODO: Remove these once available in the product
     internal static class TestExtensions

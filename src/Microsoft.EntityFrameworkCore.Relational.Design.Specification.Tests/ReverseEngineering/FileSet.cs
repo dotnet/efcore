@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering
 {
     public class FileSet
     {

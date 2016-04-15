@@ -4,14 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.NullSemanticsModel;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.NullSemanticsModel;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable NegativeEqualityExpression
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class NullSemanticsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore

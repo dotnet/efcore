@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class DataAnnotationFixtureBase<TTestStore>
         where TTestStore : TestStore

@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

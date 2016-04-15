@@ -7,7 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;

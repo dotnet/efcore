@@ -4,14 +4,14 @@
 using System;
 using System.Data.Common;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable AccessToDisposedClosure
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture, new()

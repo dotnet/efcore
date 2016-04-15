@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class BuiltInDataTypesFixtureBase : IDisposable
     {

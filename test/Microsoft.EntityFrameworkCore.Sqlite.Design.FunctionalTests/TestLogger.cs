@@ -3,7 +3,7 @@
 
 using System;
 using System.Text;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests

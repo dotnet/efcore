@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
 {
     public class Product
     {

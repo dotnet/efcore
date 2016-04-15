@@ -6,11 +6,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class MonsterFixupTestBase
     {

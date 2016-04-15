@@ -3,8 +3,8 @@
 
 using System;
 using System.Threading;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;

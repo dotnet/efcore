@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel
 {
     public class GearsOfWarModelInitializer
     {

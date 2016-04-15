@@ -8,7 +8,7 @@
     <ProjectGuid>{A0B496FE-1E59-4262-A5F5-101CBBA42738}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</RootNamespace>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

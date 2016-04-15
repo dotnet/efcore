@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.PlatformAbstractions;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
 {
     public static class TestPlatformHelper
     {

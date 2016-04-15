@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
 {
     public class NavigationComparer : IEqualityComparer<INavigation>, IComparer<INavigation>
     {

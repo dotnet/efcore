@@ -7,7 +7,7 @@
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>88796ee8-b48b-434d-ac55-faffc9be0d77</ProjectGuid>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">..\..\artifacts\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\</OutputPath>
   </PropertyGroup>

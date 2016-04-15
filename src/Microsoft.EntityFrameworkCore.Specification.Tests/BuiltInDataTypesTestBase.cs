@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : BuiltInDataTypesFixtureBase, new()

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class TestStore : IDisposable
     {

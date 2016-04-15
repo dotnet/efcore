@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
 {
     public static class NorthwindData
     {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;

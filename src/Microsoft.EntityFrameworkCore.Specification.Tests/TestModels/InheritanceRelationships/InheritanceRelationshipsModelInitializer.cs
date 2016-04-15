@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.InheritanceRelationships
 {
     public class InheritanceRelationshipsModelInitializer
     {

@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.InheritanceRelationships;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class InheritanceRelationshipsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.FunctionalTests
                 Assert.IsType<DerivedCollectionOnBase>(entry.Entity);
 
                 Assert.Equal(
-                    "Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships.DerivedCollectionOnBase",
+                    "Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.InheritanceRelationships.DerivedCollectionOnBase",
                     entry.Metadata.Name);
 
                 firstRelatedEntity.DerivedProperty = originalValue + 1;

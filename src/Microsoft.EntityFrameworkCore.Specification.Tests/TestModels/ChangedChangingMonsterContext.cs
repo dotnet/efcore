@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 {
     public class ChangedChangingMonsterContext : MonsterContext<
         ChangedChangingMonsterContext.Customer, ChangedChangingMonsterContext.Barcode, ChangedChangingMonsterContext.IncorrectScan,

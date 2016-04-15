@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +18,7 @@ using Xunit;
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable StringEndsWithIsCultureSpecific
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class AsyncQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()

@@ -3,8 +3,8 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;

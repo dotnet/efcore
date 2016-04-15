@@ -5,10 +5,10 @@ using System;
 using Xunit;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method)]
-    [XunitTestCaseDiscoverer("Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit.ConditionalTheoryDiscoverer", "Microsoft.EntityFrameworkCore.Specification.Tests")]
+    [XunitTestCaseDiscoverer("Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit.ConditionalTheoryDiscoverer", "Microsoft.EntityFrameworkCore.Specification.Tests")]
     public class ConditionalTheoryAttribute : TheoryAttribute
     {
     }
