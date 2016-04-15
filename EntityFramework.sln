@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25025.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore", "src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj", "{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4}"
 EndProject
@@ -42,11 +42,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Microbenchmarks.EF6", "test\Microsoft.EntityFrameworkCore.Microbenchmarks.EF6\Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.csproj", "{F0E22F6C-F87A-4BFE-9A95-5C4ABDAB098E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.csproj", "{D21B92B9-3684-40F2-9643-8D84E89784B4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.Design.Tests", "test\Microsoft.EntityFrameworkCore.Relational.Design.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Tests.csproj", "{47DCCE35-C7FD-4E53-A0F9-BB8A7226978C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.FunctionalTests", "test\Microsoft.EntityFrameworkCore.Relational.FunctionalTests\Microsoft.EntityFrameworkCore.Relational.FunctionalTests.csproj", "{47C167C3-ABB0-442D-B528-7666E1FBF19A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.Tests", "test\Microsoft.EntityFrameworkCore.Relational.Tests\Microsoft.EntityFrameworkCore.Relational.Tests.csproj", "{1A884122-DC9E-42B1-8821-E43340F954D1}"
 EndProject
@@ -67,6 +63,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.SqlServer.Tests", "test\Microsoft.EntityFrameworkCore.SqlServer.Tests\Microsoft.EntityFrameworkCore.SqlServer.Tests.csproj", "{7D1C4E40-0DE6-4C50-AB84-CA8647EA92DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Tests", "test\Microsoft.EntityFrameworkCore.Tests\Microsoft.EntityFrameworkCore.Tests.csproj", "{313F46FE-9962-4A15-805F-FCBDF5A6181E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj", "{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Relational.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Specification.Tests.csproj", "{07FA2B15-A6A5-4292-A096-7771FB32EEDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.csproj", "{A0B496FE-1E59-4262-A5F5-101CBBA42738}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -146,18 +148,10 @@ Global
 		{F0E22F6C-F87A-4BFE-9A95-5C4ABDAB098E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0E22F6C-F87A-4BFE-9A95-5C4ABDAB098E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0E22F6C-F87A-4BFE-9A95-5C4ABDAB098E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D21B92B9-3684-40F2-9643-8D84E89784B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D21B92B9-3684-40F2-9643-8D84E89784B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D21B92B9-3684-40F2-9643-8D84E89784B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D21B92B9-3684-40F2-9643-8D84E89784B4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{47DCCE35-C7FD-4E53-A0F9-BB8A7226978C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{47DCCE35-C7FD-4E53-A0F9-BB8A7226978C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47DCCE35-C7FD-4E53-A0F9-BB8A7226978C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47DCCE35-C7FD-4E53-A0F9-BB8A7226978C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47C167C3-ABB0-442D-B528-7666E1FBF19A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47C167C3-ABB0-442D-B528-7666E1FBF19A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47C167C3-ABB0-442D-B528-7666E1FBF19A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47C167C3-ABB0-442D-B528-7666E1FBF19A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1A884122-DC9E-42B1-8821-E43340F954D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1A884122-DC9E-42B1-8821-E43340F954D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A884122-DC9E-42B1-8821-E43340F954D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -198,6 +192,18 @@ Global
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07FA2B15-A6A5-4292-A096-7771FB32EEDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07FA2B15-A6A5-4292-A096-7771FB32EEDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07FA2B15-A6A5-4292-A096-7771FB32EEDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07FA2B15-A6A5-4292-A096-7771FB32EEDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0B496FE-1E59-4262-A5F5-101CBBA42738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0B496FE-1E59-4262-A5F5-101CBBA42738}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0B496FE-1E59-4262-A5F5-101CBBA42738}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0B496FE-1E59-4262-A5F5-101CBBA42738}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -221,9 +227,7 @@ Global
 		{91551E0D-E295-489A-A1B8-ED00A813AAF9} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{EF26D68F-3786-408E-8FE6-AE1569E32B8E} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{F0E22F6C-F87A-4BFE-9A95-5C4ABDAB098E} = {258D5057-81B9-40EC-A872-D21E27452749}
-		{D21B92B9-3684-40F2-9643-8D84E89784B4} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{47DCCE35-C7FD-4E53-A0F9-BB8A7226978C} = {258D5057-81B9-40EC-A872-D21E27452749}
-		{47C167C3-ABB0-442D-B528-7666E1FBF19A} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{1A884122-DC9E-42B1-8821-E43340F954D1} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{2A62F6C9-B7F3-443B-A253-931D38879A9C} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{DE5338E6-BD0D-45A1-9C53-FD05CFCE578E} = {258D5057-81B9-40EC-A872-D21E27452749}
@@ -234,5 +238,8 @@ Global
 		{87AB43B7-767B-467B-9AA9-47BADF850D6A} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{7D1C4E40-0DE6-4C50-AB84-CA8647EA92DF} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{1A73D95E-E8B5-4F96-908C-7B040E4F7AFE} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
+		{07FA2B15-A6A5-4292-A096-7771FB32EEDA} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
+		{A0B496FE-1E59-4262-A5F5-101CBBA42738} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 	EndGlobalSection
 EndGlobal

@@ -3,7 +3,7 @@
 
 using System.Data.Common;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 

@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0-*",
+  "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
+  "compilationOptions": {
+    "keyFile": "../../tools/Key.snk",
+    "nowarn": [
+      "CS1591"
+    ],
+    "xmlDoc": true
+  },
+  "dependencies": {
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.InMemory": "1.0.0-*",
+    "xunit": "2.1.0"
+  },
+  "frameworks": {
+    "netstandard1.3": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.1-*"
+      }
+    },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Collections": {
+          "type": "build"
+        },
+        "System.Diagnostics.Debug": {
+          "type": "build"
+        },
+        "System.Globalization": {
+          "type": "build"
+        },
+        "System.Linq": {
+          "type": "build"
+        },
+        "System.ObjectModel": {
+          "type": "build"
+        },
+        "System.Reflection": {
+          "type": "build"
+        },
+        "System.Reflection.Extensions": {
+          "type": "build"
+        },
+        "System.Runtime": {
+          "type": "build"
+        },
+        "System.Runtime.Extensions": {
+          "type": "build"
+        },
+        "System.Text.RegularExpressions": {
+          "type": "build"
+        },
+        "System.Threading.Tasks": {
+          "type": "build"
+        }
+      }
+    }
+  }
+}

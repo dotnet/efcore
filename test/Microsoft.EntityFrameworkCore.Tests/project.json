@@ -3,7 +3,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.FunctionalTests": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -14,6 +14,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.Platforms": "1.0.1-*",
+        "dotnet-test-xunit": "1.0.0-dev-*",
         "moq.netcore": "4.4.0-*"
       }
     },
