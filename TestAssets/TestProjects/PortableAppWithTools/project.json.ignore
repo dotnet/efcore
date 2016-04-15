@@ -17,7 +17,8 @@
     },
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
-    }
+    },
+    "Newtonsoft.Json": "7.0.1"
   },
   "frameworks": {
     "netcoreapp1.0": {
