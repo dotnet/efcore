@@ -8,28 +8,29 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
 {
-    public class TemporaryStringValueGeneratorTest
+    public class BinaryValueGeneratorTest
     {
         [Fact]
-        public void Creates_GUID_strings()
+        public void Creates_GUID_arrays()
         {
-            var generator = new TemporaryStringValueGenerator();
+            var generator = new BinaryValueGenerator(generateTemporaryValues: true);
 
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
                 var generatedValue = generator.Next();
 
-                values.Add(Guid.Parse(generatedValue));
+                values.Add(new Guid(generatedValue));
             }
 
             Assert.Equal(100, values.Count);
         }
 
         [Fact]
-        public void Generates_temp_values()
+        public void Generates_temp_or_non_temp_values()
         {
-            Assert.True(new TemporaryStringValueGenerator().GeneratesTemporaryValues);
+            Assert.True(new BinaryValueGenerator(generateTemporaryValues: true).GeneratesTemporaryValues);
+            Assert.False(new BinaryValueGenerator(generateTemporaryValues: false).GeneratesTemporaryValues);
         }
     }
 }

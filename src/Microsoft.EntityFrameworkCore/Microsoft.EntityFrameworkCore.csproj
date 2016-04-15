@@ -480,7 +480,7 @@
     <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\HiLoValueGenerator.cs" />
     <Compile Include="ValueGeneration\HiLoValueGeneratorState.cs" />
-    <Compile Include="ValueGeneration\Internal\TemporaryBinaryValueGenerator.cs" />
+    <Compile Include="ValueGeneration\Internal\BinaryValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryByteValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryCharValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryDateTimeOffsetValueGenerator.cs" />
@@ -494,7 +494,7 @@
     <Compile Include="ValueGeneration\Internal\TemporaryNumberValueGeneratorFactory.cs" />
     <Compile Include="ValueGeneration\Internal\TemporarySByteValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryShortValueGenerator.cs" />
-    <Compile Include="ValueGeneration\Internal\TemporaryStringValueGenerator.cs" />
+    <Compile Include="ValueGeneration\Internal\StringValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryUIntValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryULongValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryUShortValueGenerator.cs" />
@@ -505,7 +505,6 @@
     <Compile Include="ValueGeneration\ValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactory.cs" />
-    <Compile Include="ValueGeneration\ValueGeneratorFactory`.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
   </ItemGroup>

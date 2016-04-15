@@ -13,12 +13,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
     {
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
 
-        private readonly ValueGeneratorFactory<TemporaryGuidValueGenerator> _temporaryGuidFactory
-            = new ValueGeneratorFactory<TemporaryGuidValueGenerator>();
-
-        private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory
-            = new ValueGeneratorFactory<SequentialGuidValueGenerator>();
-
         private readonly ISqlServerConnection _connection;
 
         public SqlServerValueGeneratorSelector(
@@ -55,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
             return property.ClrType.UnwrapNullableType() == typeof(Guid)
                 ? property.ValueGenerated == ValueGenerated.Never
                   || property.SqlServer().DefaultValueSql != null
-                    ? _temporaryGuidFactory.Create(property)
-                    : _sequentialGuidFactory.Create(property)
+                    ? (ValueGenerator)new TemporaryGuidValueGenerator()
+                    : new SequentialGuidValueGenerator()
                 : base.Create(property, entityType);
         }
     }

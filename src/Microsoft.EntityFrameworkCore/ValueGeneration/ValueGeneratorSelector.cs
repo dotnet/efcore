@@ -22,24 +22,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class ValueGeneratorSelector : IValueGeneratorSelector
     {
-        private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory
-            = new ValueGeneratorFactory<GuidValueGenerator>();
-
-        private readonly TemporaryNumberValueGeneratorFactory _numberFactory
-            = new TemporaryNumberValueGeneratorFactory();
-
-        private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory
-            = new ValueGeneratorFactory<TemporaryStringValueGenerator>();
-
-        private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory
-            = new ValueGeneratorFactory<TemporaryBinaryValueGenerator>();
-
-        private readonly ValueGeneratorFactory<TemporaryDateTimeValueGenerator> _dateTimeFactory
-            = new ValueGeneratorFactory<TemporaryDateTimeValueGenerator>();
-
-        private readonly ValueGeneratorFactory<TemporaryDateTimeOffsetValueGenerator> _dateTimeOffsetFactory
-            = new ValueGeneratorFactory<TemporaryDateTimeOffsetValueGenerator>();
-
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
@@ -91,35 +73,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             if (propertyType == typeof(Guid))
             {
-                return _guidFactory.Create(property);
-            }
-
-            if (propertyType.IsInteger()
-                || (propertyType == typeof(decimal))
-                || (propertyType == typeof(float))
-                || (propertyType == typeof(double)))
-            {
-                return _numberFactory.Create(property);
+                return new GuidValueGenerator();
             }
 
             if (propertyType == typeof(string))
             {
-                return _stringFactory.Create(property);
+                return new StringValueGenerator(generateTemporaryValues: false);
             }
 
             if (propertyType == typeof(byte[]))
             {
-                return _binaryFactory.Create(property);
-            }
-
-            if (propertyType == typeof(DateTime))
-            {
-                return _dateTimeFactory.Create(property);
-            }
-
-            if (propertyType == typeof(DateTimeOffset))
-            {
-                return _dateTimeOffsetFactory.Create(property);
+                return new BinaryValueGenerator(generateTemporaryValues: false);
             }
 
             throw new NotSupportedException(
