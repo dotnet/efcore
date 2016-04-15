@@ -65,6 +65,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return (entityType as EntityType)?.UseEagerSnapshots ?? false;
         }
 
+        public static void UseEagerSnapshots([NotNull] this IEntityType entityType, bool useEagerSnapshots)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var asEntityType = entityType as EntityType;
+            if (asEntityType != null)
+            {
+                asEntityType.UseEagerSnapshots = useEagerSnapshots;
+            }
+        }
+
         public static int StoreGeneratedCount([NotNull] this IEntityType entityType)
             => GetCounts(entityType).StoreGeneratedCount;
 

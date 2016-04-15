@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 isRead: true,
                 isWrite: true,
                 isKey: true,
-                isCondition: true);
+                isCondition: true,
+                isConcurrencyToken: false);
 
             Assert.Null(columnModification.ColumnName);
             Assert.True(columnModification.IsRead);
@@ -33,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.True(columnModification.IsCondition);
             Assert.Equal("p0", columnModification.ParameterName);
             Assert.Equal("p1", columnModification.OriginalParameterName);
-            Assert.Equal("p2", columnModification.OutputParameterName);
         }
 
         [Fact]
@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 isRead: false,
                 isWrite: false,
                 isKey: false,
-                isCondition: false);
+                isCondition: false,
+                isConcurrencyToken: false);
 
             var value = columnModification.Value;
 
@@ -68,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 isRead: false,
                 isWrite: false,
                 isKey: false,
-                isCondition: false);
+                isCondition: false,
+                isConcurrencyToken: false);
             var value = new object();
 
             columnModification.Value = value;

@@ -194,7 +194,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 MarkAsTemporary(property, isTemporary: false);
 
-                SetOriginalValue(property, this[property]);
+                var index = property.GetOriginalValueIndex();
+                if (index != -1)
+                {
+                    SetOriginalValue(property, this[property], index);
+                }
             }
 
             if (currentState != EntityState.Modified
@@ -346,10 +350,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void SetCurrentValue(IPropertyBase propertyBase, object value)
             => this[propertyBase] = value;
 
-        public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
+        public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, int index = -1)
         {
             EnsureOriginalValues();
-            _originalValues.SetValue((IProperty)propertyBase, value);
+            _originalValues.SetValue((IProperty)propertyBase, value, index);
         }
 
         public virtual void SetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)

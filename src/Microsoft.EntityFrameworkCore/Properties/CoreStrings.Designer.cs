@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.
+        /// The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities that utilize the INotifyPropertyChanging interface. To access all original values set 'UseEagerSnapshots' to true on the EntityType during model building.
         /// </summary>
         public static string OriginalValueNotTracked([CanBeNull] object property, [CanBeNull] object entityType)
         {

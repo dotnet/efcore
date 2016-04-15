@@ -290,12 +290,12 @@ SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%' + N'owenii'
 
-@p0: Apteryx owenii
-@p1: Aquila chrysaetos canadensis
+@p1: Apteryx owenii
+@p0: Aquila chrysaetos canadensis
 
 SET NOCOUNT ON;
-UPDATE [Animal] SET [EagleId] = @p1
-WHERE [Species] = @p0;
+UPDATE [Animal] SET [EagleId] = @p0
+WHERE [Species] = @p1;
 SELECT @@ROWCOUNT;
 
 SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]

@@ -316,15 +316,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, identityKey, !identityKey, true, false),
+                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, identityKey, !identityKey, true, false, false),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
+                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
+                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false),
+                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false, true),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, false)
+                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false)
             };
 
             if (defaultsOnly)
@@ -354,15 +354,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true),
+                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true, false),
                 new ColumnModification(
-                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
+                    entry, nameProperty, nameProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
                 new ColumnModification(
-                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false),
+                    entry, quacksProperty, quacksProperty.TestProvider(), generator.GenerateNext, false, true, false, false, false),
                 new ColumnModification(
-                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false),
+                    entry, computedProperty, computedProperty.TestProvider(), generator.GenerateNext, isComputed, false, false, false, false),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, concurrencyToken)
+                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, true, false, concurrencyToken, concurrencyToken)
             };
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
@@ -384,9 +384,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var columnModifications = new[]
             {
                 new ColumnModification(
-                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true),
+                    entry, idProperty, idProperty.TestProvider(), generator.GenerateNext, false, false, true, true, concurrencyToken),
                 new ColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, false, false, concurrencyToken)
+                    entry, concurrencyProperty, concurrencyProperty.TestProvider(), generator.GenerateNext, false, false, false, concurrencyToken, concurrencyToken)
             };
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();

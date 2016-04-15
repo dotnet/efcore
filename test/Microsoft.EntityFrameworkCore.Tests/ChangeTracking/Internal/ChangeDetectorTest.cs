@@ -78,13 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 .PropertyChanging(entry, property);
 
             Assert.Equal("Cheese", entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal("Cheese", entry.GetOriginalValue(property));
             Assert.Equal("Cheese", entry.GetCurrentValue(property));
 
             entity.Name = "Pickle";
 
             Assert.Equal("Pickle", entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal("Pickle", entry.GetOriginalValue(property));
             Assert.Equal("Pickle", entry.GetCurrentValue(property));
         }
 
@@ -135,13 +133,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.True(entry.HasRelationshipSnapshot);
 
             Assert.Equal(77, entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal(77, entry.GetOriginalValue(property));
             Assert.Equal(77, entry.GetCurrentValue(property));
 
             entity.Id = 777;
 
             Assert.Equal(77, entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal(777, entry.GetOriginalValue(property));
             Assert.Equal(777, entry.GetCurrentValue(property));
         }
 

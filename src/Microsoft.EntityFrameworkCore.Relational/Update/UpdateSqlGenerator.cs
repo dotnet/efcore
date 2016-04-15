@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 commandStringBuilder
                     .AppendLine()
                     .Append("WHERE ")
-                    .AppendJoin(operations, (sb, v) => AppendWhereCondition(sb, v, useOriginalValue: true), " AND ");
+                    .AppendJoin(operations, (sb, v) => AppendWhereCondition(sb, v, v.UseOriginalValueParameter), " AND ");
             }
         }
 
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                                 }
                                 else
                                 {
-                                    AppendWhereCondition(sb, v, useOriginalValue: !v.IsWrite);
+                                    AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
                                 }
                             }
                         }, " AND ");

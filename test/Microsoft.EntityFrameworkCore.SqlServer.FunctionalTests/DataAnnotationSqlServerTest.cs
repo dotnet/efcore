@@ -26,24 +26,24 @@ SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersi
 FROM [Sample] AS [r]
 WHERE [r].[UniqueNo] = 1
 
-@p0: 1
-@p1: ModifiedData
-@p2: 00000000-0000-0000-0003-000000000001
+@p2: 1
+@p0: ModifiedData
+@p1: 00000000-0000-0000-0003-000000000001
 @p3: 00000001-0000-0000-0000-000000000001
 
 SET NOCOUNT ON;
-UPDATE [Sample] SET [Name] = @p1, [RowVersion] = @p2
-WHERE [UniqueNo] = @p0 AND [RowVersion] = @p3;
+UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
+WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;
 
-@p0: 1
-@p1: ChangedData
-@p2: 00000000-0000-0000-0002-000000000001
+@p2: 1
+@p0: ChangedData
+@p1: 00000000-0000-0000-0002-000000000001
 @p3: 00000001-0000-0000-0000-000000000001
 
 SET NOCOUNT ON;
-UPDATE [Sample] SET [Name] = @p1, [RowVersion] = @p2
-WHERE [UniqueNo] = @p0 AND [RowVersion] = @p3;
+UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
+WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;",
                 Sql);
         }
@@ -170,28 +170,28 @@ SELECT TOP(1) [r].[Id], [r].[Data], [r].[Timestamp]
 FROM [Two] AS [r]
 WHERE [r].[Id] = 1
 
-@p0: 1
-@p1: ModifiedData
+@p1: 1
+@p0: ModifiedData
 @p2: System.Byte[]
 
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p1
+UPDATE [Two] SET [Data] = @p0
 OUTPUT INSERTED.[Timestamp]
 INTO @inserted0
-WHERE [Id] = @p0 AND [Timestamp] = @p2;
+WHERE [Id] = @p1 AND [Timestamp] = @p2;
 SELECT [Timestamp] FROM @inserted0;
 
-@p0: 1
-@p1: ChangedData
+@p1: 1
+@p0: ChangedData
 @p2: System.Byte[]
 
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Timestamp] varbinary(8));
-UPDATE [Two] SET [Data] = @p1
+UPDATE [Two] SET [Data] = @p0
 OUTPUT INSERTED.[Timestamp]
 INTO @inserted0
-WHERE [Id] = @p0 AND [Timestamp] = @p2;
+WHERE [Id] = @p1 AND [Timestamp] = @p2;
 SELECT [Timestamp] FROM @inserted0;",
                 Sql);
         }

@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             property,
                             property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false)
+                            false, true, false, false, false)
                     }));
 
             batch.AddCommand(
@@ -379,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             property,
                             property.TestProvider(),
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false)
+                            false, true, false, false, false)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             property,
                             property.TestProvider(),
                             new ParameterNameGenerator().GenerateNext,
-                            false, true, false, false)
+                            false, true, false, false, false)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             property,
                             property.TestProvider(),
                             new ParameterNameGenerator().GenerateNext,
-                            false, false, false, true)
+                            false, false, false, true, false)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -480,18 +480,16 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             property,
                             property.TestProvider(),
                             new ParameterNameGenerator().GenerateNext,
-                            false, true, false, true)
+                            false, true, false, true, false)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
 
-            Assert.Equal(2, storeCommand.RelationalCommand.Parameters.Count);
+            Assert.Equal(1, storeCommand.RelationalCommand.Parameters.Count);
             Assert.Equal("p0", storeCommand.RelationalCommand.Parameters[0].InvariantName);
-            Assert.Equal("p1", storeCommand.RelationalCommand.Parameters[1].InvariantName);
 
-            Assert.Equal(2, storeCommand.ParameterValues.Count);
+            Assert.Equal(1, storeCommand.ParameterValues.Count);
             Assert.Equal(1, storeCommand.ParameterValues["p0"]);
-            Assert.Equal(1, storeCommand.ParameterValues["p1"]);
         }
 
         [Fact]
@@ -515,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             property,
                             property.TestProvider(),
                             new ParameterNameGenerator().GenerateNext,
-                            true, false, false, false)
+                            true, false, false, false, false)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();

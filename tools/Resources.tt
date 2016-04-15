@@ -4,6 +4,7 @@
 <#@ assembly name="Microsoft.VisualStudio.Shell.Interop.8.0" #>
 <#@ assembly name="EnvDTE" #>
 <#@ assembly name="EnvDTE80" #>
+<#@ import namespace="System" #>
 <#@ import namespace="System.Collections" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
@@ -11,6 +12,9 @@
 <#@ import namespace="System.Resources" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="Microsoft.VisualStudio.Shell.Interop" #>
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="EnvDTE80" #>
 <#
     var hostServiceProvider = (IServiceProvider)Host;
     var dte = (EnvDTE.DTE)hostServiceProvider.GetService(typeof(EnvDTE.DTE));
@@ -147,15 +151,18 @@ namespace {0}
     }
 
     private static void RenderProperty(StringBuilder builder, ResourceData resourceString)
-        => builder.AppendFormat("        public static string {0}", resourceString.Name)
+    {
+        builder.AppendFormat("        public static string {0}", resourceString.Name)
             .AppendLine()
             .AppendLine("        {")
             .AppendFormat(@"            get {{ return GetString(""{0}""); }}", resourceString.Name)
             .AppendLine()
             .AppendLine("        }");
+    }
 
     private static void RenderFormatMethod(StringBuilder builder, ResourceData resourceString)
-        => builder.AppendFormat("        public static string {0}({1})", resourceString.Name, resourceString.Parameters)
+    {
+        builder.AppendFormat("        public static string {0}({1})", resourceString.Name, resourceString.Parameters)
             .AppendLine()
             .AppendLine("        {")
             .AppendFormat(
@@ -165,6 +172,7 @@ namespace {0}
                 resourceString.ArgumentNames)
             .AppendLine()
             .AppendLine("        }");
+    }
 
     private class ResourceData
     {
@@ -174,12 +182,24 @@ namespace {0}
 
         public bool UsingNamedArgs { get; set; }
 
-        public string FormatArguments => string.Join(", ", Arguments.Select(a => "\"" + a + "\""));
+        public string FormatArguments
+        {
+            get { return string.Join(", ", Arguments.Select(a => "\"" + a + "\"")); }
+        }
 
-        public string ArgumentNames => string.Join(", ", Arguments.Select(GetArgName));
+        public string ArgumentNames
+        {
+            get { return string.Join(", ", Arguments.Select(GetArgName)); }
+        }
 
-        public string Parameters => string.Join(", ", Arguments.Select(a => "[CanBeNull] object " + GetArgName(a)));
+        public string Parameters
+        {
+            get { return string.Join(", ", Arguments.Select(a => "[CanBeNull] object " + GetArgName(a))); }
+        }
 
-        private string GetArgName(string name) => UsingNamedArgs ? name : 'p' + name;
+        public string GetArgName(string name)
+        {
+            return UsingNamedArgs ? name : 'p' + name;
+        }
     }
 #>

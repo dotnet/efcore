@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int));
             simpleKeyProperty.RequiresValueGenerator = true;
             someSimpleEntityType.GetOrSetPrimaryKey(simpleKeyProperty);
+            simpleKeyProperty.IsConcurrencyToken = true; // So we get original values for it
 
             var someCompositeEntityType = model.AddEntityType(typeof(SomeCompositeEntityBase).FullName);
             var compositeKeyProperty1 = someCompositeEntityType.AddProperty("Id1", typeof(int));

@@ -169,7 +169,7 @@
     <value>Lazy original value tracking cannot be turned on for entity type '{entityType}'. Entities that do not implement both INotifyPropertyChanging and INotifyPropertyChanged require original values to be stored eagerly in order to correct detect changes made to entities.</value>
   </data>
   <data name="OriginalValueNotTracked" xml:space="preserve">
-    <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.</value>
+    <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities that utilize the INotifyPropertyChanging interface. To access all original values set 'UseEagerSnapshots' to true on the EntityType during model building.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.</value>
