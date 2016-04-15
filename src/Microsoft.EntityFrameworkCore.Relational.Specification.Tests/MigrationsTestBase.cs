@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : MigrationsFixtureBase, new()

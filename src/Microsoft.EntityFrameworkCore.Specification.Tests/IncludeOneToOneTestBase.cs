@@ -4,7 +4,7 @@
 using System.Linq;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class IncludeOneToOneTestBase
     {

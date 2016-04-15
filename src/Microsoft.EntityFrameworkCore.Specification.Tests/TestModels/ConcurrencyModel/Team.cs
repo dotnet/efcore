@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel
 {
     public class Team
     {

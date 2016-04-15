@@ -4,12 +4,12 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Commands.Migrations

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.ConcurrencyModel
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel
 {
     public class Engine
     {

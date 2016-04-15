@@ -3,7 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.InheritanceRelationships
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.InheritanceRelationships
 {
     public class NestedReferenceBase
     {

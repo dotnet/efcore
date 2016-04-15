@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.PlatformAbstractions;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class FrameworkSkipConditionAttribute : Attribute, ITestCondition

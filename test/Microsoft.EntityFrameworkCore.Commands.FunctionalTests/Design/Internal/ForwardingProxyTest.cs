@@ -5,8 +5,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal

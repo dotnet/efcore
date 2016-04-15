@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.ReverseEngineering
 {
     public class InMemoryCommandLogger : CommandLogger
     {

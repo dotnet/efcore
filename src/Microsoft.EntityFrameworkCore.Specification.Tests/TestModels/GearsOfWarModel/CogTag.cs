@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.GearsOfWarModel
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWarModel
 {
     public class CogTag
     {

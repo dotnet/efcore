@@ -3,7 +3,7 @@
 
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {

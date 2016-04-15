@@ -3,7 +3,7 @@
 
 using System.Linq;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 {
     public abstract class MonsterContext : DbContext
     {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.UpdatesModel
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.UpdatesModel
 {
     public class UpdatesModelInitializer
     {

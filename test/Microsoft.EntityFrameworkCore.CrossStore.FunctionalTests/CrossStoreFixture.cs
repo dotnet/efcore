@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests.TestModels;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 
 namespace Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests
 {

@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities
 {
     public class KeyComparer : IEqualityComparer<IKey>, IComparer<IKey>
     {

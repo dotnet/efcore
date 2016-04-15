@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestModels
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 {
     public class MonsterContext<
         TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,

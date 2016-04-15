@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class TransactionFixtureBase<TTestStore>
         where TTestStore : TestStore

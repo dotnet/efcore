@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading;
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit
+namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class UseCultureAttribute : BeforeAfterTestAttribute

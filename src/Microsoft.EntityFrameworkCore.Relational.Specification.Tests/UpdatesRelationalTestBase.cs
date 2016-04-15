@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class UpdatesRelationalTestBase<TFixture, TTestStore> : UpdatesTestBase<TFixture, TTestStore>
         where TFixture : UpdatesFixtureBase<TTestStore>

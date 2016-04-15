@@ -15,7 +15,7 @@ using System.Runtime.Remoting.Messaging;
 
 #endif
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {

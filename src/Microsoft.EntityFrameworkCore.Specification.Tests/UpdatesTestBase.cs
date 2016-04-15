@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.UpdatesModel;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.FunctionalTests
+namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class UpdatesTestBase<TFixture, TTestStore> : IClassFixture<TFixture>, IDisposable
         where TFixture : UpdatesFixtureBase<TTestStore>
