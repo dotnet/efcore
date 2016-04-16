@@ -3134,7 +3134,7 @@ WHERE 1 = 0",
             Assert.Contains(
                     @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
+WHERE (@__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
                     Sql);
         }
 
@@ -3148,7 +3148,7 @@ WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND 
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
+WHERE ([p].[ProductID] < @__productId_0) AND ((@__flag_1 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
                     Sql);
         }
 
@@ -3159,7 +3159,7 @@ WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsIn
             Assert.Contains(
                     @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)",
+WHERE @__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)",
                     Sql);
         }
 
@@ -3303,7 +3303,7 @@ WHERE [p].[Discontinued] = 1",
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR ([p].[Discontinued] = 1)",
+WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR [p].[Discontinued] = 1",
                 Sql);
         }
 
@@ -3439,6 +3439,17 @@ WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] < 60)) AND ([p].[ProductID] >
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] > 10",
+                Sql);
+        }
+
+        public override void Where_comparison_to_nullable_bool()
+        {
+            base.Where_comparison_to_nullable_bool();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'%' + N'KI'",
                 Sql);
         }
 

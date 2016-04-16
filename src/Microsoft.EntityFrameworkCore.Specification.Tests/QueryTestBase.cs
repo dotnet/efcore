@@ -1472,6 +1472,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_comparison_to_nullable_bool()
+        {
+            AssertQuery<Customer>(cs => cs.Where(c => c.CustomerID.EndsWith("KI") == ((bool?)true)), entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Where_true()
         {
             AssertQuery<Customer>(

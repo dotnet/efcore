@@ -724,6 +724,95 @@ FROM [Weapon] AS [w]",
                 Sql);
         }
 
+        public override void Null_propagation_optimization1()
+        {
+            base.Null_propagation_optimization1();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g].[LeaderNickname] = N'Marcus'",
+                Sql);
+        }
+
+        public override void Null_propagation_optimization2()
+        {
+            base.Null_propagation_optimization2();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g].[LeaderNickname] LIKE N'%' + N'us'",
+                Sql);
+        }
+
+
+        public override void Null_propagation_optimization3()
+        {
+            base.Null_propagation_optimization3();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND [g].[LeaderNickname] LIKE N'%' + N'us'",
+                Sql);
+        }
+
+        public override void Null_propagation_optimization4()
+        {
+            base.Null_propagation_optimization4();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND LEN([g].[LeaderNickname]) = 5",
+                Sql);
+        }
+
+        public override void Null_propagation_optimization5()
+        {
+            base.Null_propagation_optimization5();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND LEN([g].[LeaderNickname]) = 5",
+                Sql);
+        }
+
+        public override void Select_null_propagation_negative1()
+        {
+            base.Select_null_propagation_negative1();
+
+            Assert.Equal(
+                @"SELECT CASE
+    WHEN [g].[LeaderNickname] IS NOT NULL
+    THEN CASE
+        WHEN LEN([g].[Nickname]) = 5
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END ELSE NULL
+END
+FROM [Gear] AS [g]
+WHERE ([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')",
+                Sql);
+        }
+
+        public override void Select_null_propagation_negative2()
+        {
+            base.Select_null_propagation_negative2();
+
+            Assert.Equal(
+                @"SELECT CASE
+    WHEN [g1].[LeaderNickname] IS NOT NULL
+    THEN [g2].[LeaderNickname] ELSE NULL
+END
+FROM [Gear] AS [g1]
+CROSS JOIN [Gear] AS [g2]
+WHERE ([g1].[Discriminator] = N'Officer') OR ([g1].[Discriminator] = N'Gear')",
+                Sql);
+        }
+
+
         public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
         {
             base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();

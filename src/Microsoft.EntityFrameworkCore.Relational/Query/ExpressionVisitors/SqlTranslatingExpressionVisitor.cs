@@ -244,35 +244,160 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             var binaryTest = node.Test as BinaryExpression;
             if (binaryTest == null
-                || binaryTest.NodeType != ExpressionType.NotEqual)
+                || !(binaryTest.NodeType == ExpressionType.Equal 
+                    || binaryTest.NodeType == ExpressionType.NotEqual))
             {
                 return null;
             }
+
+            var leftConstant = binaryTest.Left as ConstantExpression;
+            var isLeftNullConstant = leftConstant != null && leftConstant.Value == null;
 
             var rightConstant = binaryTest.Right as ConstantExpression;
-            if (rightConstant == null
-                || rightConstant.Value != null)
+            var isRightNullConstant = rightConstant != null && rightConstant.Value == null;
+
+            if (isLeftNullConstant == isRightNullConstant) 
             {
                 return null;
             }
 
-            var ifFalseConstant = node.IfFalse as ConstantExpression;
-            if (ifFalseConstant == null
-                || ifFalseConstant.Value != null)
+            if (binaryTest.NodeType == ExpressionType.Equal)
             {
-                return null;
+                var ifTrueConstant = node.IfTrue as ConstantExpression;
+                if (ifTrueConstant == null || ifTrueConstant.Value != null)
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                var ifFalseConstant = node.IfFalse as ConstantExpression;
+                if (ifFalseConstant == null || ifFalseConstant.Value != null)
+                {
+                    return null;
+                }
             }
 
-            var ifTrueMemberExpression = node.IfTrue.RemoveConvert() as MemberExpression;
-            var correctMemberExpression = ifTrueMemberExpression != null
-                                          && ifTrueMemberExpression.Expression == binaryTest.Left;
+            var testExpression = isLeftNullConstant ? binaryTest.Right : binaryTest.Left;
+            var resultExpression = binaryTest.NodeType == ExpressionType.Equal ? node.IfFalse : node.IfTrue;
 
-            var ifTruePropertyMethodCallExpression = node.IfTrue.RemoveConvert() as MethodCallExpression;
-            var correctPropertyMethodCallExpression = ifTruePropertyMethodCallExpression != null
-                                                      && EntityQueryModelVisitor.IsPropertyMethod(ifTruePropertyMethodCallExpression.Method)
-                                                      && ifTruePropertyMethodCallExpression.Arguments[0] == binaryTest.Left;
+            var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor();
+            if (nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression))
+            {
+                return resultExpression;
+            }
 
-            return correctMemberExpression || correctPropertyMethodCallExpression ? node.IfTrue : null;
+            return null;
+        }
+
+        private class NullCheckRemovalTestingVisitor : ExpressionVisitorBase
+        {
+            private IQuerySource _querySource;
+            private string _propertyName;
+            private bool? _canRemoveNullCheck;
+
+            public bool CanRemoveNullCheck(Expression testExpression, Expression resultExpression)
+            {
+                AnalyzeTestExpression(testExpression);
+                if (_querySource == null)
+                {
+                    return false;
+                }
+
+                Visit(resultExpression);
+
+                return _canRemoveNullCheck ?? false;
+            }
+
+            public override Expression Visit([CanBeNull] Expression node)
+            {
+                return _canRemoveNullCheck == false ? node : base.Visit(node);
+            }
+
+            private void AnalyzeTestExpression(Expression expression)
+            {
+                var querySourceReferenceExpression = expression as QuerySourceReferenceExpression;
+                if (querySourceReferenceExpression != null)
+                {
+                    _querySource = querySourceReferenceExpression.ReferencedQuerySource;
+                    _propertyName = null;
+
+                    return;
+                }
+
+                var memberExpression = expression as MemberExpression;
+                if (memberExpression != null)
+                {
+                    var querySourceInstance = memberExpression.Expression as QuerySourceReferenceExpression;
+                    if (querySourceInstance != null)
+                    {
+                        _querySource = querySourceInstance.ReferencedQuerySource;
+                        _propertyName = memberExpression.Member.Name;
+
+                        return;
+                    }
+                }
+
+                var methodCallExpression = expression as MethodCallExpression;
+                if (methodCallExpression != null && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+                {
+                    var querySourceCaller = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
+                    if (querySourceCaller != null)
+                    {
+                        var propertyNameExpression = methodCallExpression.Arguments[1] as ConstantExpression;
+                        if (propertyNameExpression != null)
+                        {
+                            _querySource = querySourceCaller.ReferencedQuerySource;
+                            _propertyName = (string)propertyNameExpression.Value;
+
+                            return;
+                        }
+                    }
+                }
+            }
+
+            protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
+            {
+                _canRemoveNullCheck = (expression.ReferencedQuerySource == _querySource && _propertyName == null);
+
+                return expression;
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (node.Member.Name == _propertyName)
+                {
+                    var querySource = node.Expression as QuerySourceReferenceExpression;
+                    if (querySource != null)
+                    {
+                        _canRemoveNullCheck = querySource.ReferencedQuerySource == _querySource;
+
+                        return node;
+                    }
+                }
+
+                return base.VisitMember(node);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
+                {
+                    var propertyNameExpression = node.Arguments[1] as ConstantExpression;
+                    if (propertyNameExpression != null && (string)propertyNameExpression.Value == _propertyName)
+                    {
+                        var querySource = node.Arguments[0] as QuerySourceReferenceExpression;
+                        if (querySource != null)
+                        {
+                            _canRemoveNullCheck = querySource.ReferencedQuerySource == _querySource;
+
+                            return node;
+                        }
+                    }
+                }
+
+                return base.VisitMethodCall(node);
+            }
         }
 
         private static Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
@@ -338,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 return nullExpression;
             }
-            
+
             return leftExpression.Type == rightExpression.Type
                 ? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression)
                 : null;
