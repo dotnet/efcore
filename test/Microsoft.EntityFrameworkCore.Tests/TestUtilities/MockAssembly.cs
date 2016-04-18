@@ -23,10 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
 #else
             var assembly = new Mock<Assembly>();
             assembly.SetupGet(a => a.DefinedTypes).Returns(definedTypeInfos);
+            assembly.Setup(a => a.GetName()).Returns(new AssemblyName(nameof(MockAssembly)));
 
             return assembly.Object;
 #endif
         }
+
+#if !NET451
+        public AssemblyName GetName()
+            => new AssemblyName(nameof(MockAssembly));
+#endif
     }
 
 #if NET451
@@ -38,6 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.TestUtilities
         }
 
         public override IEnumerable<TypeInfo> DefinedTypes { get; }
+        public override AssemblyName GetName()
+            => new AssemblyName(nameof(MockAssembly));
     }
 #endif
 }

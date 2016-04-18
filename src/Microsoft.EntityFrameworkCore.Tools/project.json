@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0-*",
+  "description": "Command line tools for Entity Framework.",
+  "compilationOptions": {
+    "emitEntryPoint": true,
+    "outputName": "dotnet-ef",
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
+    "nowarn": [
+      "CS1591"
+    ],
+    "xmlDoc": true
+  },
+  "compile": "../Shared/*.cs",
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
+  },
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "portable-net451+win8"
+      ],
+      "dependencies": {
+        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*",
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      }
+    },
+    "net451": {
+      "dependencies": {
+        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*"
+      },
+      "compilationOptions": {
+        "outputName":  "Microsoft.EntityFrameworkCore.Tools",
+        "emitEntryPoint": false
+      }
+    },
+    "netcore50": {
+      "dependencies": {
+        "Microsoft.NETCore.Platforms": {
+          "type": "build",
+          "version": "1.0.1-*"
+        },
+        "System.Collections.NonGeneric": "4.0.0",
+        "System.IO": "4.0.10",
+        "System.IO.FileSystem": "4.0.0",
+        "System.Dynamic.Runtime": {
+          "type": "build",
+          "version": "4.0.10"
+        },
+        "System.Runtime.WindowsRuntime": {
+          "type": "build",
+          "version": "4.0.10"
+        },
+        "System.Runtime.Extensions": {
+          "type": "build",
+          "version": "4.0.10"
+        }
+      },
+      "compilationOptions": {
+        "outputName":  "Microsoft.EntityFrameworkCore.Tools",
+        "emitEntryPoint": false
+      }
+    }
+  },
+  "packInclude": {
+    "build/": "build/**",
+    "tools/": "tools/**"
+  }
+}
