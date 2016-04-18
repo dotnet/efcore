@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
         private static readonly Lazy<BenchmarkConfig> _instance = new Lazy<BenchmarkConfig>(() =>
             {
                 var config = new ConfigurationBuilder()
-                    .SetBasePath(".")
                     .AddJsonFile("config.json")
                     .AddEnvironmentVariables()
                     .Build();
