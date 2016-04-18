@@ -543,4 +543,7 @@
   <data name="NoPropertyType" xml:space="preserve">
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.</value>
   </data>
+  <data name="TempValue" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
+  </data>
 </root>

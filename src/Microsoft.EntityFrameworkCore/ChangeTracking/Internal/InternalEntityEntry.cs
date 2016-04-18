@@ -77,20 +77,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && (newState != EntityState.Added)
                 && (newState != EntityState.Detached))
             {
-                IProperty hasTempValue = null;
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var property in EntityType.GetProperties())
                 {
-                    if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified))
+                    if (HasTemporaryValue(property))
                     {
-                        hasTempValue = property;
-                        break;
+                        throw new InvalidOperationException(CoreStrings.TempValuePersists(property.Name, EntityType.DisplayName(), newState));
                     }
-                }
-
-                if (hasTempValue != null)
-                {
-                    throw new InvalidOperationException(CoreStrings.TempValuePersists(hasTempValue.Name, EntityType.DisplayName(), newState));
                 }
             }
 
@@ -256,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _stateData.EntityState != EntityState.Deleted
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
 
-        public virtual bool HasTemporaryValue([NotNull] IProperty property)
+        public virtual bool HasTemporaryValue(IProperty property)
             => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 

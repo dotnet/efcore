@@ -361,6 +361,20 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.False(command.RequiresResultPropagation);
         }
 
+        [Fact]
+        public void ColumnModifications_throw_on_temporary_values_with_no_store_generation_configured()
+        {
+            var entry = CreateEntry(EntityState.Added);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
+
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
+            command.AddEntry(entry);
+
+            Assert.Equal(
+                CoreStrings.TempValue("Id", "T1"),
+                Assert.Throws<InvalidOperationException>(() => command.ColumnModifications).Message);
+        }
+
         private class T1
         {
             public int Id { get; set; }

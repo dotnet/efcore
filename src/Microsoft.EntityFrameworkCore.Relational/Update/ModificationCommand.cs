@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -97,6 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                     var readValue = entry.IsStoreGenerated(property);
                     var writeValue = !readValue && (adding || entry.IsModified(property));
+
+                    if (adding && !readValue && entry.HasTemporaryValue(property))
+                    {
+                        throw new InvalidOperationException(CoreStrings.TempValue(property.Name, entityType.DisplayName()));
+                    }
 
                     if (readValue
                         || writeValue
