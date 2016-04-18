@@ -15,7 +15,13 @@ Requires SQLite >= 3.7.9
 This library binds to the native SQLite library. On some systems, you must also install separately the SQLite library.
 
 ### Ubuntu
-Requires "libsqlite3-dev", which is not installed by default.
+Requires "libsqlite3-dev", which may not installed by default.
 ```
 sudo apt-get install libsqlite3-dev
+```
+
+### RedHat
+Requires "sqlite-devel" which may not be installed by default.
+```
+sudo yum install sqlite-devel
 ```
