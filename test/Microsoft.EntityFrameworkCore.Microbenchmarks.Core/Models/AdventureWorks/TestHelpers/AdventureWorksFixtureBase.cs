@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWor
 {
     public class AdventureWorksFixtureBase
     {
-        public static string ConnectionString { get; } = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=AdventureWorks2014;Integrated Security=True;MultipleActiveResultSets=true;";
+        public static string ConnectionString { get; } = $@"{BenchmarkConfig.Instance.BenchmarkDatabase}Database=AdventureWorks2014;";
     }
 }

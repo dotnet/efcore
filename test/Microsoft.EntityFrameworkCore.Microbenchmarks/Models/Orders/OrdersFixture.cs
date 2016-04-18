@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders
 
         public OrdersFixture(string databaseName, int productCount, int customerCount, int ordersPerCustomer, int linesPerOrder)
         {
-            ConnectionString = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database={databaseName};Integrated Security=True;MultipleActiveResultSets=true;";
+            ConnectionString = $@"{BenchmarkConfig.Instance.BenchmarkDatabase}Database={databaseName};";
             _productCount = productCount;
             _customerCount = customerCount;
             _ordersPerCustomer = ordersPerCustomer;
