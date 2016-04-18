@@ -8,7 +8,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
 using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 #endif
 

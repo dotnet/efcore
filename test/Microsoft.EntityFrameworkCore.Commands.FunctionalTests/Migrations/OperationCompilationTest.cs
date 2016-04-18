@@ -1765,7 +1765,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.Migrations
             {
                 References =
                 {
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
                     BuildReference.ByName("System.Collections"),
                     BuildReference.ByName("System.Linq.Expressions"),
                     BuildReference.ByName("System.Reflection"),

@@ -1,11 +1,12 @@
 {
   "dependencies": {
+    "Microsoft.NETCore.Platforms": "1.0.1-*",
     "EntityFramework": "6.1.2",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
   "contentFiles": "config.json",
   "testRunner": "xunit",
   "frameworks": {
-    "net451": { }
+    "net451": {}
   }
 }

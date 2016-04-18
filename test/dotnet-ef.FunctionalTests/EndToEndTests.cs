@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Commands.FunctionalTests
             // TODO can remove when https://github.com/NuGet/Home/issues/2469 is available
             AssertCommand.Passes(
                 new PackCommand(
-                    Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "src", "dotnet-ef"), // count carefully
+                    Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "dotnet-ef"), // count carefully
                     Path.Combine(AppContext.BaseDirectory, "artifacts"),
                     _output)
                     .Execute($"--version-suffix {suffix}"));

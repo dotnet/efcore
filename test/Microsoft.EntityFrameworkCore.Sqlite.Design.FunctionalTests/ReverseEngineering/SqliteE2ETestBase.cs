@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
 using System.Reflection;
 #endif
 
@@ -400,7 +400,7 @@ CREATE TABLE IF NOT EXISTS Comment (
 
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
                 BuildReference.ByName("System.Collections"),
                 BuildReference.ByName("System.Data.Common"),
                 BuildReference.ByName("System.Linq.Expressions"),
