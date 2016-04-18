@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     var joinExpression
                         = canProduceInnerJoin
                             ? selectExpression.AddInnerJoin(joinedTableExpression)
-                            : selectExpression.AddOuterJoin(joinedTableExpression);
+                            : selectExpression.AddLeftOuterJoin(joinedTableExpression);
 
                     var oldPredicate = selectExpression.Predicate;
 

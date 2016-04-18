@@ -679,14 +679,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return innerJoinExpression;
         }
 
-        public virtual JoinExpressionBase AddOuterJoin([NotNull] TableExpressionBase tableExpression)
+        public virtual JoinExpressionBase AddLeftOuterJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            return AddOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
+            return AddLeftOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
         }
 
-        public virtual JoinExpressionBase AddOuterJoin(
+        public virtual JoinExpressionBase AddLeftOuterJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {
