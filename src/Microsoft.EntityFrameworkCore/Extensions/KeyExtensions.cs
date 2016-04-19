@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -24,8 +25,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(key, nameof(key));
 
-            return key.DeclaringEntityType.Model.GetEntityTypes().SelectMany(e =>
-                e.GetDeclaredForeignKeys()).Where(fk => fk.PrincipalKey == key);
+            var referencingForeignKeyMetadata = key as IReferencingForeignKeyMetadata;
+            if (referencingForeignKeyMetadata != null)
+            {
+                return referencingForeignKeyMetadata.ReferencingForeignKeys;
+            }
+
+            return key.DeclaringEntityType.Model.GetEntityTypes()
+                .SelectMany(e => e.GetDeclaredForeignKeys())
+                .Where(fk => fk.PrincipalKey == key);
         }
     }
 }

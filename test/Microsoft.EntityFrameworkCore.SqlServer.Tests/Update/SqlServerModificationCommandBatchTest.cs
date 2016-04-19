@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 new UntypedRelationalValueBufferFactoryFactory(),
                 1);
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
+            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.SqlServer())));
         }
     }
 }

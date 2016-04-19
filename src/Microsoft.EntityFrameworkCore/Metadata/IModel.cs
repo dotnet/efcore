@@ -15,16 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IModel : IAnnotatable
     {
         /// <summary>
-        ///     Gets all entities types defined in the model.
+        ///     Gets all entity types defined in the model.
         /// </summary>
-        /// <returns> All entities types defined in the model. </returns>
+        /// <returns> All entity types defined in the model. </returns>
         IEnumerable<IEntityType> GetEntityTypes();
 
         /// <summary>
-        ///     Gets the entity with the given name. Returns null if no entity with the given name is found.
+        ///     Gets the entity type with the given name. Returns null if no entity type with the given name is found.
         /// </summary>
-        /// <param name="name"> The name of the entity to find. </param>
-        /// <returns> The entity type, or null if none if found. </returns>
+        /// <param name="name"> The name of the entity type to find. </param>
+        /// <returns> The entity type, or null if none are found. </returns>
         IEntityType FindEntityType([NotNull] string name);
     }
 }

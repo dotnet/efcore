@@ -7,9 +7,9 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Commands.TestUtilities;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -38,7 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             public void AddMigration_works_cross_domain()
             {
                 var artifacts = _project.Executor.AddMigration("EmptyMigration", "Migrationz", "SimpleContext");
-                Assert.Equal(3, artifacts.Count());
+                Assert.NotNull(artifacts);
+                Assert.NotNull(artifacts["MigrationFile"]);
+                Assert.NotNull(artifacts["MetadataFile"]);
+                Assert.NotNull(artifacts["SnapshotFile"]);
                 Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, @"Migrationz")));
             }
 
@@ -124,12 +127,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                             }" }
                     };
                     var build = source.Build();
-                    Executor = new OperationExecutorWrapper(TargetDir, build.TargetName, TargetDir, TargetDir, "SimpleProject");
+                    Executor = new AppDomainOperationExecutor(TargetDir, build.TargetName, TargetDir, TargetDir, "SimpleProject");
                 }
 
                 public string TargetDir => _directory.Path;
 
-                public OperationExecutorWrapper Executor { get; }
+                public AppDomainOperationExecutor Executor { get; }
 
                 public void Dispose()
                 {
@@ -219,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         }" }
                 };
                 var build = source.Build();
-                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
                 {
                     var migrations = executor.GetMigrations("Context1");
 
@@ -320,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         }" }
                 };
                 var migrationsBuild = migrationsSource.Build();
-                using (var executor = new OperationExecutorWrapper(targetDir, migrationsBuild.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(targetDir, migrationsBuild.TargetName, targetDir, targetDir, "MyProject"))
                 {
                     var contextTypes = executor.GetContextTypes();
 
@@ -398,10 +401,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                             }" }
                 };
                 var build = source.Build();
-                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
                 {
                     var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
-                    Assert.Equal(3, artifacts.Count());
+                    Assert.Equal(3, artifacts.Keys.Count);
                     Assert.True(Directory.Exists(Path.Combine(targetDir, @"Migrations\MySecond")));
                 }
             }
@@ -471,9 +474,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                             }" }
                 };
                 var build = source.Build();
-                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
                 {
-                    var ex = Assert.Throws<WrappedOperationException>(
+                    var ex = Assert.Throws<OperationErrorException>(
                         () => executor.GetMigrations("MyContext"));
 
                     Assert.Equal(
@@ -487,9 +490,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void Assembly_load_errors_are_wrapped()
         {
             var targetDir = AppDomain.CurrentDomain.BaseDirectory;
-            using (var executor = new OperationExecutorWrapper(targetDir, "Unknown", targetDir, targetDir, "Unknown"))
+            using (var executor = new AppDomainOperationExecutor(targetDir, "Unknown", targetDir, targetDir, "Unknown"))
             {
-                Assert.Throws<WrappedOperationException>(() => executor.GetContextTypes());
+                Assert.Throws<OperationErrorException>(() => executor.GetContextTypes());
             }
         }
     }

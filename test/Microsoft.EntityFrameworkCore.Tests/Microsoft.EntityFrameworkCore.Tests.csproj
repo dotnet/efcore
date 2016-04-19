@@ -41,13 +41,13 @@
       <Project>{6b102cc4-4396-4a7b-9f72-2c6b5c4d8310}</Project>
       <Name>Microsoft.EntityFrameworkCore.InMemory</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Specification.Tests\Microsoft.EntityFrameworkCore.Specification.Tests.csproj">
+      <Project>{1a73d95e-e8b5-4f96-908c-7b040e4f7afe}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Specification.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.FunctionalTests\Microsoft.EntityFrameworkCore.FunctionalTests.csproj">
-      <Project>{390c7cad-659d-4e45-90ba-6f6ddcb4303d}</Project>
-      <Name>Microsoft.EntityFrameworkCore.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

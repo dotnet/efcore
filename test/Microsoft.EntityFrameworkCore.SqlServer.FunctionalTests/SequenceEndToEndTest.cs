@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        // [ConditionalFact] Currently disabled due to GitHub issue #266
+        [ConditionalFact]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             {
                 var pegasuses = await context.Pegasuses.ToListAsync();
 
-                for (var i = 0; i < 50; i++)
+                for (var i = 0; i < 10; i++)
                 {
                     Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
                     Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Fluttershy " + i));

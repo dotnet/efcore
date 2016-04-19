@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected virtual void ColumnDefinition(
             [CanBeNull] string schema,
-            [CanBeNull] string table,
+            [NotNull] string table,
             [NotNull] string name,
             [NotNull] Type clrType,
             [CanBeNull] string type,

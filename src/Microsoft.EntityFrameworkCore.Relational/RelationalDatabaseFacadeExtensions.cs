@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore
 {
     public static class RelationalDatabaseFacadeExtensions

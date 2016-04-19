@@ -53,6 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             VisitDefaultValue(propertyBuilder, column);
 
+            VisitComputedValue(propertyBuilder, column);
+
             return propertyBuilder;
         }
 
@@ -136,11 +138,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
             }
 
-            if (column.SqlServer().DateTimePrecision.HasValue
-                && column.SqlServer().DateTimePrecision != DefaultTimeTimePrecision)
+            var dateTimePrecision = column.SqlServer().DateTimePrecision;
+            if (dateTimePrecision.HasValue
+                && dateTimePrecision.Value != DefaultTimeTimePrecision)
             {
                 propertyBuilder.Metadata.SetMaxLength(null);
-                propertyBuilder.HasColumnType($"{column.DataType}({column.SqlServer().DateTimePrecision.Value})");
+                propertyBuilder.HasColumnType($"{column.DataType}({dateTimePrecision.Value})");
             }
             else if (!HasTypeAlias(column))
             {
@@ -161,7 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         private static bool HasTypeAlias(ColumnModel column)
-            => column.Table.Database.SqlServer().TypeAliases?.ContainsKey(column.DataType) == true;
+            => column.DataType != null
+               && column.Table.Database.SqlServer().TypeAliases?.ContainsKey(column.DataType) == true;
 
         // Turns an unqualified SQL Server type name (e.g. varchar) and its
         // max length into a qualified SQL Server type name (e.g. varchar(max))
@@ -226,6 +230,34 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         SqlServerDesignStrings.CannotInterpretDefaultValue(
                             column.DisplayName,
                             column.DefaultValue,
+                            propertyBuilder.Metadata.Name,
+                            propertyBuilder.Metadata.DeclaringEntityType.Name));
+                }
+            }
+        }
+
+        private void VisitComputedValue(PropertyBuilder propertyBuilder, ColumnModel column)
+        {
+            if (column.ComputedValue != null)
+            {
+                ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
+                propertyBuilder.Metadata.Relational().ComputedValueSql = null;
+
+                var computedExpression = ConvertSqlServerDefaultValue(column.ComputedValue);
+                if (computedExpression != null)
+                {
+                    if (!(computedExpression == "NULL"
+                          && propertyBuilder.Metadata.ClrType.IsNullableType()))
+                    {
+                        propertyBuilder.HasComputedColumnSql(computedExpression);
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning(
+                        SqlServerDesignStrings.CannotInterpretComputedValue(
+                            column.DisplayName,
+                            column.ComputedValue,
                             propertyBuilder.Metadata.Name,
                             propertyBuilder.Metadata.DeclaringEntityType.Name));
                 }

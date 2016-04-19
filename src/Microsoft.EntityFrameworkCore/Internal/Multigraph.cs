@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual void AddVertex([NotNull] TVertex vertex)
             => _vertices.Add(vertex);
 
-        public virtual void AddVertices([NotNull] IEnumerable<TVertex> verticies)
-            => _vertices.UnionWith(verticies);
+        public virtual void AddVertices([NotNull] IEnumerable<TVertex> vertices)
+            => _vertices.UnionWith(vertices);
 
         public virtual void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] TEdge edge)
             => AddEdges(@from, to, new[] { edge });
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             edgeList.AddRange(edges);
-            _edges.UnionWith(edges);
+            _edges.UnionWith(edgeList);
         }
 
         public virtual IReadOnlyList<TVertex> TopologicalSort() => TopologicalSort(null, null);
@@ -88,16 +88,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             foreach (var vertex in _vertices)
             {
-                var count = GetIncomingNeighbours(vertex).Count();
-                if (count == 0)
+                foreach (var outgoingNeighbour in GetOutgoingNeighbours(vertex))
                 {
-                    // Collect verticies without predecessors
-                    sortedQueue.Add(vertex);
+                    if (predecessorCounts.ContainsKey(outgoingNeighbour))
+                    {
+                        predecessorCounts[outgoingNeighbour]++;
+                    }
+                    else
+                    {
+                        predecessorCounts[outgoingNeighbour] = 1;
+                    }
                 }
-                else
+            }
+
+            foreach (var vertex in _vertices)
+            {
+                if (!predecessorCounts.ContainsKey(vertex))
                 {
-                    // Track number of predecessors for remaining verticies
-                    predecessorCounts[vertex] = count;
+                    sortedQueue.Add(vertex);
                 }
             }
 
@@ -110,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                     foreach (var successor in GetOutgoingNeighbours(currentRoot).Where(neighbour => predecessorCounts.ContainsKey(neighbour)))
                     {
-                        // Decrement counts for edges from sorted verticies and append any verticies that no longer have predecessors
+                        // Decrement counts for edges from sorted vertices and append any vertices that no longer have predecessors
                         predecessorCounts[successor]--;
                         if (predecessorCounts[successor] == 0)
                         {
@@ -129,21 +137,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     var candidateVertices = predecessorCounts.Keys.ToList();
                     var candidateIndex = 0;
 
-                    // Iterrate over the unsorted verticies
+                    // Iterate over the unsorted vertices
                     while ((candidateIndex < candidateVertices.Count)
                            && !broken
                            && (canBreakEdge != null))
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 
-                        // Find verticies in the unsorted portion of the graph that have edges to the candidate
-                        var incommingNeighbours = GetIncomingNeighbours(candidateVertex)
+                        // Find vertices in the unsorted portion of the graph that have edges to the candidate
+                        var incomingNeighbours = GetIncomingNeighbours(candidateVertex)
                             .Where(neighbour => predecessorCounts.ContainsKey(neighbour)).ToList();
 
-                        foreach (var incommingNeighbour in incommingNeighbours)
+                        foreach (var incomingNeighbour in incomingNeighbours)
                         {
                             // Check to see if the edge can be broken
-                            if (canBreakEdge(incommingNeighbour, candidateVertex, _successorMap[incommingNeighbour][candidateVertex]))
+                            if (canBreakEdge(incomingNeighbour, candidateVertex, _successorMap[incomingNeighbour][candidateVertex]))
                             {
                                 predecessorCounts[candidateVertex]--;
                                 if (predecessorCounts[candidateVertex] == 0)
@@ -160,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     if (!broken)
                     {
                         // Failed to break the cycle
-                        var currentCycleVertex = predecessorCounts.First().Key;
+                        var currentCycleVertex = _vertices.First(v => predecessorCounts.ContainsKey(v));
                         var cycle = new List<TVertex> { currentCycleVertex };
                         var finished = false;
                         while (!finished)
@@ -218,16 +226,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             foreach (var vertex in _vertices)
             {
-                var count = GetIncomingNeighbours(vertex).Count();
-                if (count == 0)
+                foreach (var outgoingNeighbour in GetOutgoingNeighbours(vertex))
                 {
-                    // Collect verticies without predecessors
-                    currentRootsQueue.Add(vertex);
+                    if (predecessorCounts.ContainsKey(outgoingNeighbour))
+                    {
+                        predecessorCounts[outgoingNeighbour]++;
+                    }
+                    else
+                    {
+                        predecessorCounts[outgoingNeighbour] = 1;
+                    }
                 }
-                else
+            }
+
+            foreach (var vertex in _vertices)
+            {
+                if (!predecessorCounts.ContainsKey(vertex))
                 {
-                    // Track number of predecessors for remaining verticies
-                    predecessorCounts[vertex] = count;
+                    currentRootsQueue.Add(vertex);
                 }
             }
 
@@ -269,15 +285,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 // TODO: Support cycle-breaking?
 
-                var currentCycleVertex = predecessorCounts.First(p => p.Value != 0).Key;
+                var currentCycleVertex = _vertices.First(v =>
+                    {
+                        int predecessorNumber;
+                        if (predecessorCounts.TryGetValue(v, out predecessorNumber))
+                        {
+                            return predecessorNumber != 0;
+                        }
+                        return false;
+                    });
                 var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)
                 {
-                    foreach (var predecessor in GetIncomingNeighbours(currentCycleVertex)
-                        .Where(neighbour => predecessorCounts.ContainsKey(neighbour)))
+                    foreach (var predecessor in GetIncomingNeighbours(currentCycleVertex))
                     {
-                        if (predecessorCounts[predecessor] != 0)
+                        int predecessorCount;
+                        if (!predecessorCounts.TryGetValue(predecessor, out predecessorCount))
+                        {
+                            continue;
+                        }
+
+                        if (predecessorCount != 0)
                         {
                             predecessorCounts[currentCycleVertex] = -1;
 

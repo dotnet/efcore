@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
@@ -20,30 +21,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IMutableModel : IModel, IMutableAnnotatable
     {
         /// <summary>
-        ///     Adds an entity from the model.
+        ///     <para>
+        ///         Adds a shadow state entity type to the model.
+        ///     </para>
+        ///     <para>
+        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
+        ///         Therefore, shadow state entity types will only exist in migration model snapshots, etc.
+        ///     </para>
         /// </summary>
         /// <param name="name"> The name of the entity to be added. </param>
-        /// <returns> The new created entity. </returns>
+        /// <returns> The new entity type. </returns>
         IMutableEntityType AddEntityType([NotNull] string name);
 
         /// <summary>
-        ///     Gets the entity with the given name. Returns null if no navigation property with the given name is found.
+        ///     Adds an entity type to the model.
         /// </summary>
-        /// <param name="name"> The name of the entity to find. </param>
-        /// <returns> The entity type, or null if none if found. </returns>
+        /// <param name="clrType"> The CLR class that is used to represent instances of this entity type. </param>
+        /// <returns> The new entity type. </returns>
+        IMutableEntityType AddEntityType([CanBeNull] Type clrType);
+
+        /// <summary>
+        ///     Gets the entity with the given name. Returns null if no entity type with the given name is found.
+        /// </summary>
+        /// <param name="name"> The name of the entity type to find. </param>
+        /// <returns> The entity type, or null if none are found. </returns>
         new IMutableEntityType FindEntityType([NotNull] string name);
 
         /// <summary>
-        ///     Removes an entity from the model.
+        ///     Removes an entity type from the model.
         /// </summary>
-        /// <param name="name"> The name of the entity to be removed. </param>
-        /// <returns> The entity that was removed. </returns>
+        /// <param name="name"> The name of the entity type to be removed. </param>
+        /// <returns> The entity type that was removed. </returns>
         IMutableEntityType RemoveEntityType([NotNull] string name);
 
         /// <summary>
-        ///     Gets all entities types defined in the model.
+        ///     Gets all entity types defined in the model.
         /// </summary>
-        /// <returns> All entities types defined in the model. </returns>
+        /// <returns> All entity types defined in the model. </returns>
         new IEnumerable<IMutableEntityType> GetEntityTypes();
     }
 }

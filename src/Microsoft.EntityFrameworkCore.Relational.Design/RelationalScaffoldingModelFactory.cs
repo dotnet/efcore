@@ -310,6 +310,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 property.HasDefaultValueSql(column.DefaultValue);
             }
 
+            if (column.ComputedValue != null)
+            {
+                property.HasComputedColumnSql(column.ComputedValue);
+            }
+
             if (!column.PrimaryKeyOrdinal.HasValue)
             {
                 property.IsRequired(!column.IsNullable);
@@ -455,6 +460,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             if (foreignKey.PrincipalTable == null)
             {
                 Logger.LogWarning(RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound(foreignKey.DisplayName));
+                return null;
+            }
+
+            if (foreignKey.Table == null)
+            {
                 return null;
             }
 

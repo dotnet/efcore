@@ -130,16 +130,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 var migration = migrationsToRevert[i];
 
+                var index = i;
                 yield return () =>
-                {
-                    _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
+                    {
+                        _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
 
-                    return GenerateDownSql(
-                        migration,
-                        i != migrationsToRevert.Count - 1
-                            ? migrationsToRevert[i + 1]
-                            : null);
-                };
+                        return GenerateDownSql(
+                            migration,
+                            index != migrationsToRevert.Count - 1
+                                ? migrationsToRevert[index + 1]
+                                : null);
+                    };
             }
 
             for (var i = 0; i < migrationsToApply.Count; i++)
@@ -147,8 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var migration = migrationsToApply[i];
 
                 yield return () =>
-                {
-                    _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+                    {
+                        _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
 
                     return GenerateUpSql(
                         migration,
@@ -167,10 +168,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var appliedMigrations = new Dictionary<string, TypeInfo>();
             var unappliedMigrations = new Dictionary<string, TypeInfo>();
+            var appliedMigrationEntrySet = new HashSet<string>(appliedMigrationEntries, StringComparer.OrdinalIgnoreCase);
             foreach (var migration in _migrationsAssembly.Migrations)
             {
-                if (appliedMigrationEntries.Any(
-                    e => string.Equals(e, migration.Key, StringComparison.OrdinalIgnoreCase)))
+                if (appliedMigrationEntrySet.Contains(migration.Key))
                 {
                     appliedMigrations.Add(migration.Key, migration.Value);
                 }
@@ -227,7 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var builder = new IndentedStringBuilder();
 
-            if (fromMigration == Migration.InitialDatabase || string.IsNullOrEmpty(fromMigration))
+            if (fromMigration == Migration.InitialDatabase
+                || string.IsNullOrEmpty(fromMigration))
             {
                 builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
                 builder.Append(_sqlGenerationHelper.BatchTerminator);

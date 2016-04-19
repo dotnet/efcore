@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 // ReSharper disable ImplicitlyCapturedClosure
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncQueryMethodProvider : IQueryMethodProvider
@@ -26,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_DefaultIfEmptyShapedQuery));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -119,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Query));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -160,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -280,6 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             RelationalQueryContext queryContext,
             IAsyncEnumerable<ValueBuffer> source,
@@ -457,6 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IAsyncEnumerable<T> innerResults,
@@ -508,6 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_CreateReferenceRelatedEntitiesLoader));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
             int valueBufferOffset,
             int queryIndex,
@@ -596,6 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_CreateCollectionRelatedEntitiesLoader));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IAsyncRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,

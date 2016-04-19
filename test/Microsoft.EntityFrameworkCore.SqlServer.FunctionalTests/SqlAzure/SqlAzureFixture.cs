@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 
         public SqlAzureFixture()
         {
-            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql");
+            SqlServerTestStore.CreateDatabase("adventureworks", scriptPath: "SqlAzure/adventureworks.sql", nonMasterScript: true);
 
             Services = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()

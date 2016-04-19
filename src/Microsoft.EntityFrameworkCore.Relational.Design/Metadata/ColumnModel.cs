@@ -15,12 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual int Ordinal { get; [param: NotNull] set; }
         public virtual bool IsNullable { get; [param: NotNull] set; }
 
-        [CanBeNull]
         public virtual string DataType { get; [param: CanBeNull] set; }
 
-        [CanBeNull]
         public virtual string DefaultValue { get; [param: CanBeNull] set; }
 
+        public virtual string ComputedValue { get; [param: CanBeNull] set; }
         public virtual int? MaxLength { get; [param: CanBeNull] set; }
         public virtual int? Precision { get; [param: CanBeNull] set; }
         public virtual int? Scale { get; [param: CanBeNull] set; }

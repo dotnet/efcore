@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     {
         private static readonly MethodInfo _stringConcatMethodInfo = typeof(string).GetTypeInfo()
             .GetDeclaredMethods(nameof(string.Concat))
-            .Single(m => m.GetParameters().Count() == 2
+            .Single(m => m.GetParameters().Length == 2
                          && m.GetParameters()[0].ParameterType == typeof(object)
                          && m.GetParameters()[1].ParameterType == typeof(object));
 

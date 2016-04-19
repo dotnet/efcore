@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
@@ -95,11 +95,48 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         protected override Model BuildModel()
         {
-            var model = base.BuildModel();
+            var model = new Model();
 
-            model.FindEntityType(typeof(SomeSimpleEntityBase)).FindProperty("Id").IsShadowProperty = true;
-            model.FindEntityType(typeof(SomeEntity)).FindProperty("Name").IsConcurrencyToken = false;
-            model.FindEntityType(typeof(SomeDependentEntity)).FindProperty("SomeEntityId").IsShadowProperty = true;
+            var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
+            var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int), shadow: true);
+            simpleKeyProperty.RequiresValueGenerator = true;
+            someSimpleEntityType.GetOrSetPrimaryKey(simpleKeyProperty);
+
+            var someCompositeEntityType = model.AddEntityType(typeof(SomeCompositeEntityBase));
+            var compositeKeyProperty1 = someCompositeEntityType.AddProperty("Id1", typeof(int), shadow: false);
+            var compositeKeyProperty2 = someCompositeEntityType.AddProperty("Id2", typeof(string), shadow: false);
+            compositeKeyProperty2.IsNullable = false;
+            someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
+
+            var entityType1 = model.AddEntityType(typeof(SomeEntity));
+            entityType1.HasBaseType(someSimpleEntityType);
+            var property3 = entityType1.AddProperty("Name", typeof(string), shadow: false);
+            property3.IsConcurrencyToken = false;
+
+            var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
+            entityType2.HasBaseType(someCompositeEntityType);
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int), shadow: true);
+            entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
+            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int), shadow: false);
+            justAProperty.RequiresValueGenerator = true;
+
+            var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
+            var property6 = entityType3.AddProperty("Id", typeof(int), shadow: false);
+            entityType3.GetOrSetPrimaryKey(property6);
+            var property7 = entityType3.AddProperty("Name", typeof(string), shadow: false);
+            property7.IsConcurrencyToken = true;
+
+            var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
+            var property8 = entityType4.AddProperty("Id", typeof(int), shadow: false);
+            entityType4.GetOrSetPrimaryKey(property8);
+            var property9 = entityType4.AddProperty("Name", typeof(string), shadow: false);
+            property9.IsConcurrencyToken = true;
+
+            var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
+            entityType5.HasBaseType(someSimpleEntityType);
+            var fk5a = entityType5.AddProperty("Fk1", typeof(int), shadow: false);
+            var fk5b = entityType5.AddProperty("Fk2", typeof(string), shadow: false);
+            entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
 
             return model;
         }

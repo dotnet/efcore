@@ -3,8 +3,8 @@
 
 using System;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {

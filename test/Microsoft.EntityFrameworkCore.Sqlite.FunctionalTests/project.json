@@ -4,7 +4,7 @@
     "preserveCompilationContext": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.FunctionalTests": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0-*"
   },
   "contentFiles": "northwind.db",
@@ -16,7 +16,8 @@
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*"
+        "Microsoft.NETCore.Platforms": "1.0.1-*",
+        "dotnet-test-xunit": "1.0.0-dev-*"
       }
     },
     "net451": { }

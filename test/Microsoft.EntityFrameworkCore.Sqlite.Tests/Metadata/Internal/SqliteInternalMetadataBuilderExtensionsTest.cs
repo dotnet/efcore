@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Metadata.Internal
         {
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
-            var idProperty = entityTypeBuilder.Property("Id", ConfigurationSource.Convention).Metadata;
+            var idProperty = entityTypeBuilder.Property("Id", typeof(string), ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
 
             Assert.True(keyBuilder.Sqlite(ConfigurationSource.Convention).HasName("Splew"));

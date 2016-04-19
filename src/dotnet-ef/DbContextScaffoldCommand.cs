@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
@@ -61,17 +60,17 @@ namespace Microsoft.EntityFrameworkCore.Commands
                         Reporter.Error.WriteLine(("Missing required argument '" + connection.Name + "'").Bold().Red());
                         command.ShowHelp();
 
-                        return Task.FromResult(1);
+                        return 1;
                     }
                     if (string.IsNullOrEmpty(provider.Value))
                     {
                         Reporter.Error.WriteLine(("Missing required argument '" + provider.Name + "'").Bold().Red());
                         command.ShowHelp();
 
-                        return Task.FromResult(1);
+                        return 1;
                     }
 
-                    return ExecuteAsync(
+                    return Execute(
                         connection.Value,
                         provider.Value,
                         dataAnnotations.HasValue(),
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                 });
         }
 
-        private static async Task<int> ExecuteAsync(
+        private static int Execute(
             string connection,
             string provider,
             bool dataAnnotations,
@@ -97,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string startupProject,
             string environment)
         {
-            await new OperationExecutor(startupProject, environment)
-                .ReverseEngineerAsync(
+            new ReflectionOperationExecutor(startupProject, environment)
+                .ReverseEngineer(
                     provider,
                     connection,
                     outputDir,

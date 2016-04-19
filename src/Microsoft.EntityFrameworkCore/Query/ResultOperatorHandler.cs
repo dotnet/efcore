@@ -117,10 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static Expression HandleConcat(
             EntityQueryModelVisitor entityQueryModelVisitor,
-            ConcatResultOperator concateResultOperator)
+            ConcatResultOperator concatResultOperator)
             => HandleSetOperation(
                 entityQueryModelVisitor,
-                concateResultOperator.Source2,
+                concatResultOperator.Source2,
                 entityQueryModelVisitor.LinqOperatorProvider.Concat);
 
         private static Expression HandleCount(EntityQueryModelVisitor entityQueryModelVisitor)
@@ -314,14 +314,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             MethodInfo setMethodInfo)
         {
             var source2 = entityQueryModelVisitor
-               .ReplaceClauseReferences(secondSource);
+                .ReplaceClauseReferences(secondSource);
 
             return Expression.Call(
                 setMethodInfo.MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression,
                 source2);
         }
-
 
         private static Expression HandleAggregate(EntityQueryModelVisitor entityQueryModelVisitor, string methodName)
             => CallWithPossibleCancellationToken(

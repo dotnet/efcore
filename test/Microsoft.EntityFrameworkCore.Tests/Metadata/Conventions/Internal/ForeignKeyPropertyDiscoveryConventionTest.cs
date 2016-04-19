@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             DependentType.PrimaryKey(new[] { DependentEntity.PrincipalEntityPeEKaYProperty }, ConfigurationSource.Explicit);
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_match_dependent_PK_for_self_ref()
         {
-            var relationshipBuilder = PrincipalType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
+            var relationshipBuilder = PrincipalType.Relationship(PrincipalType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.DataAnnotation);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
@@ -584,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
             PrincipalType.Property(PrincipalEntity.DependentEntityKayPeeProperty, ConfigurationSource.Convention);
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
@@ -620,14 +620,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             Assert.False(fk.IsRequired);
         }
 
-        // TODO: Issue#4440 For non-required FK, nullable property should be matched over any other
+        // TODO: Issue #4440 For non-required FK, nullable property should be matched over any other
         // [Fact]
         public void Inverts_if_principal_entity_type_can_have_nullable_fk_property_for_non_required_relationship()
         {
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
             var fkProperty = PrincipalType.Property(PrincipalEntity.DependentEntityKayPeeProperty, ConfigurationSource.Convention).Metadata;
 
-            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention, setPrincipalEnd: false)
+            var relationshipBuilder = DependentType.Relationship(PrincipalType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention)
                 .IsRequired(false, ConfigurationSource.DataAnnotation);
 

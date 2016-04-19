@@ -5,7 +5,8 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore
 {
     internal static class CoreLoggerExtensions
     {

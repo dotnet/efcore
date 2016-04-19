@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -172,6 +173,12 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
+
+            var referencingForeignKeyMetadata = entityType as IReferencingForeignKeyMetadata;
+            if (referencingForeignKeyMetadata != null)
+            {
+                return referencingForeignKeyMetadata.ReferencingForeignKeys;
+            }
 
             return entityType.Model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
                 .Where(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType));

@@ -1,15 +1,17 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
-
-namespace System.Linq.Expressions
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     [DebuggerStepThrough]
     public static class ExpressionExtensions
@@ -174,6 +176,27 @@ namespace System.Linq.Expressions
             }
 
             return expression as TExpression;
+        }
+
+        public static bool IsLogicalOperation([NotNull] this Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return (expression.NodeType == ExpressionType.AndAlso)
+                   || (expression.NodeType == ExpressionType.OrElse);
+        }
+
+        public static bool IsComparisonOperation([NotNull] this Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return (expression.NodeType == ExpressionType.Equal)
+                   || (expression.NodeType == ExpressionType.NotEqual)
+                   || (expression.NodeType == ExpressionType.LessThan)
+                   || (expression.NodeType == ExpressionType.LessThanOrEqual)
+                   || (expression.NodeType == ExpressionType.GreaterThan)
+                   || (expression.NodeType == ExpressionType.GreaterThanOrEqual)
+                   || (expression.NodeType == ExpressionType.Not);
         }
     }
 }

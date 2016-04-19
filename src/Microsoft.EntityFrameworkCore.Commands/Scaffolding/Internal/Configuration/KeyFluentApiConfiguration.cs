@@ -32,13 +32,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
         {
             get
             {
-                var lines = new List<string>();
-                lines.Add(string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0}({1} => {2})",
-                    nameof(EntityTypeBuilder.HasKey),
-                    LambdaIdentifier,
-                    new ScaffoldingUtilities().GenerateLambdaToKey(Key.Properties, LambdaIdentifier)));
+                var lines = new List<string>
+                {
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0}({1} => {2})",
+                        nameof(EntityTypeBuilder.HasKey),
+                        LambdaIdentifier,
+                        new ScaffoldingUtilities().GenerateLambdaToKey(Key.Properties, LambdaIdentifier))
+                };
 
                 if (Key.Relational().Name != null)
                 {

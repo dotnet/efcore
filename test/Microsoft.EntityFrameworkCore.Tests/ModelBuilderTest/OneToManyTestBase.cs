@@ -3,8 +3,8 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1726,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var relationship = entityB.HasOne(e => e.FirstNav).WithMany();
 
                 Assert.Equal(
-                    CoreStrings.NoClrProperty("ShadowId", typeof(Beta)),
+                    CoreStrings.NoPropertyType("ShadowId", nameof(Beta)),
                     Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey("ShadowId")).Message);
             }
 

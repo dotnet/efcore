@@ -171,9 +171,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         maxLength => new SqlServerMaxLengthMapping("nvarchar(" + maxLength + ")", typeof(string)),
                         _nvarcharmax, _nvarcharmax, _nvarchar450)
                     : GetStringMapping(
-                    property, 8000,
-                    maxLength => new SqlServerMaxLengthMapping("varchar(" + maxLength + ")", typeof(string), unicode: false),
-                    _varcharmax, _varcharmax, _varchar900))
+                        property, 8000,
+                        maxLength => new SqlServerMaxLengthMapping("varchar(" + maxLength + ")", typeof(string), unicode: false),
+                        _varcharmax, _varcharmax, _varchar900))
                 : clrType == typeof(byte[])
                     ? GetByteArrayMapping(property, 8000,
                         maxLength => new SqlServerMaxLengthMapping("varbinary(" + maxLength + ")", typeof(byte[]), DbType.Binary),

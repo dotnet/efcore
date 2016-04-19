@@ -10,7 +10,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         public SqlServerE2EFixture()
         {
             SqlServerTestStore.CreateDatabase(
-                "SqlServerReverseEngineerTestE2E", "ReverseEngineering/E2E.sql", true);
+                "SqlServerReverseEngineerTestE2E",
+                scriptPath: "ReverseEngineering/E2E.sql",
+                nonMasterScript: false,
+                recreateIfAlreadyExists: true);
         }
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -30,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entity"> The entity to access the property on. </param>
         /// <param name="propertyName"> The name of the property. </param>
         /// <returns> The value assigned to the property. </returns>
-        public static TProperty Property<TProperty>([NotNull] object entity, [NotNull] string propertyName)
+        public static TProperty Property<TProperty>(
+            [NotNull] object entity,
+            [NotNull] [NotParameterized] string propertyName)
         {
             throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
         }

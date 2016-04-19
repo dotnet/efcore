@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    [DebuggerDisplay("{Metadata,nq}")]
     public class InternalRelationshipBuilder : InternalMetadataItemBuilder<ForeignKey>
     {
         public InternalRelationshipBuilder(
@@ -131,6 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 return null;
             }
+
+            Debug.Assert(configurationSource.HasValue);
 
             var builder = this;
             if (removeOppositeNavigation)
@@ -361,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static bool CanSetRequiredOnProperties(
-            IEnumerable<Property> properties,
+            IReadOnlyList<Property> properties,
             bool? isRequired,
             EntityType entityType,
             ConfigurationSource? configurationSource,
@@ -379,7 +382,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var nullableProperties = properties.Where(p => p.ClrType.IsNullableType());
-
             return isRequired.Value
                 ? nullableProperties.All(property => property.Builder.CanSetRequired(true, configurationSource))
                 : nullableProperties.Any(property => property.Builder.CanSetRequired(false, configurationSource));
@@ -701,10 +703,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalRelationshipBuilder HasForeignKey(
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource? configurationSource, bool runConventions)
         {
-            if (properties == null
-                && configurationSource.HasValue)
+            if (properties == null)
             {
-                return !configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
+                return !configurationSource.HasValue
+                       || !configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
                     ? null
                     : ReplaceForeignKey(configurationSource,
                         dependentProperties: new Property[0],
@@ -873,7 +875,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private InternalRelationshipBuilder HasPrincipalKey(
             IReadOnlyList<Property> properties, ConfigurationSource configurationSource, bool runConventions)
         {
-            if (properties == null)
+            bool resetDependent;
+            if (!CanSetPrincipalKey(properties, configurationSource, out resetDependent))
             {
                 return null;
             }
@@ -897,39 +900,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return builder;
             }
 
-            if (!configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()))
-            {
-                return null;
-            }
-
-            Property[] dependentProperties = null;
-            if (Metadata.GetForeignKeyPropertiesConfigurationSource().HasValue
-                && !ForeignKey.AreCompatible(
-                    properties,
-                    Metadata.Properties,
-                    Metadata.PrincipalEntityType,
-                    Metadata.DeclaringEntityType,
-                    shouldThrow: false))
-            {
-                if (!configurationSource.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()))
-                {
-                    return null;
-                }
-
-                dependentProperties = new Property[0];
-            }
-
             return ReplaceForeignKey(
                 configurationSource,
                 principalProperties: properties,
-                dependentProperties: dependentProperties,
+                dependentProperties: resetDependent ? new Property[0] : null,
                 runConventions: runConventions);
         }
 
         private bool CanSetPrincipalKey(
             IReadOnlyList<Property> properties,
-            ConfigurationSource? configurationSource)
+            ConfigurationSource? configurationSource,
+            out bool resetDependent)
         {
+            resetDependent = false;
             if (properties == null)
             {
                 return false;
@@ -946,15 +929,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (!configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource())
-                && !ForeignKey.AreCompatible(
+            if (!ForeignKey.AreCompatible(
                     properties,
                     Metadata.Properties,
                     Metadata.PrincipalEntityType,
                     Metadata.DeclaringEntityType,
                     shouldThrow: false))
             {
-                return false;
+                if (!configurationSource.Value.Overrides(Metadata.GetForeignKeyPropertiesConfigurationSource()))
+                {
+                    return false;
+                }
+
+                resetDependent = true;
             }
 
             return true;

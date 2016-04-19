@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var relationshipBuilder = dependentEntityBuilder.Relationship(
-                principalEntityBuilder, ConfigurationSource.Convention, setPrincipalEnd: false);
+                principalEntityBuilder, ConfigurationSource.Convention);
 
             var fk = relationshipBuilder.Metadata;
             Assert.Equal(ConfigurationSource.Convention, fk.GetConfigurationSource());
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var foreignKey = dependentEntityBuilder.Relationship(
-                principalEntityBuilder, ConfigurationSource.Explicit, setPrincipalEnd: false).Metadata;
+                principalEntityBuilder, ConfigurationSource.Explicit).Metadata;
 
             foreignKey.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Explicit);
             foreignKey.UpdatePrincipalKeyConfigurationSource(ConfigurationSource.Explicit);
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
 
             Assert.Equal(
-                CoreStrings.NoClrProperty("ShadowCustomerId", typeof(Order)),
+                CoreStrings.NoPropertyType("ShadowCustomerId", nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId", "ShadowCustomerUnique" }, ConfigurationSource.Convention)).Message);
         }
 
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
 
             Assert.Equal(
-                CoreStrings.NoClrProperty("ShadowCustomerId", typeof(Order)),
+                CoreStrings.NoPropertyType("ShadowCustomerId", nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId" }, ConfigurationSource.Convention)).Message);
         }
 

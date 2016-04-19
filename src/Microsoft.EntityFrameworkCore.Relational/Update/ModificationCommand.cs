@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -15,28 +16,25 @@ namespace Microsoft.EntityFrameworkCore.Update
     public class ModificationCommand
     {
         private readonly Func<IProperty, IRelationalPropertyAnnotations> _getPropertyExtensions;
-        private readonly ParameterNameGenerator _parameterNameGenerator;
+        private readonly Func<string> _generateParameterName;
 
         private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
-
-        private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
-            = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
-
+        private IReadOnlyList<ColumnModification> _columnModifications;
         private bool _requiresResultPropagation;
 
         public ModificationCommand(
             [NotNull] string name,
             [CanBeNull] string schema,
-            [NotNull] ParameterNameGenerator parameterNameGenerator,
+            [NotNull] Func<string> generateParameterName,
             [NotNull] Func<IProperty, IRelationalPropertyAnnotations> getPropertyExtensions)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
+            Check.NotNull(generateParameterName, nameof(generateParameterName));
             Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
 
             TableName = name;
             Schema = schema;
-            _parameterNameGenerator = parameterNameGenerator;
+            _generateParameterName = generateParameterName;
             _getPropertyExtensions = getPropertyExtensions;
         }
 
@@ -48,14 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         public virtual EntityState EntityState => _entries.FirstOrDefault()?.EntityState ?? EntityState.Detached;
 
-        public virtual IReadOnlyList<ColumnModification> ColumnModifications => _columnModifications.Value;
+        public virtual IReadOnlyList<ColumnModification> ColumnModifications
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _columnModifications, this, command => command.GenerateColumnModifications());
 
         public virtual bool RequiresResultPropagation
         {
             get
             {
                 // ReSharper disable once UnusedVariable
-                var _ = _columnModifications.Value;
+                var _ = ColumnModifications;
                 return _requiresResultPropagation;
             }
         }
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
 
             _entries.Add(entry);
-            _columnModifications.Reset(GenerateColumnModifications);
+            _columnModifications = null;
         }
 
         private IReadOnlyList<ColumnModification> GenerateColumnModifications()
@@ -100,6 +99,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var readValue = entry.IsStoreGenerated(property);
                     var writeValue = !readValue && (adding || entry.IsModified(property));
 
+                    if (adding && !readValue && entry.HasTemporaryValue(property))
+                    {
+                        throw new InvalidOperationException(CoreStrings.TempValue(property.Name, entityType.DisplayName()));
+                    }
+
                     if (readValue
                         || writeValue
                         || isCondition)
@@ -113,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             _getPropertyExtensions(property),
-                            _parameterNameGenerator,
+                            _generateParameterName,
                             readValue,
                             writeValue,
                             isKey,

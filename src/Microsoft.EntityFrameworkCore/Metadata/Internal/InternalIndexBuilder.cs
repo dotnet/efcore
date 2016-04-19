@@ -1,11 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    [DebuggerDisplay("{Metadata,nq}")]
     public class InternalIndexBuilder : InternalMetadataItemBuilder<Index>
     {
         public InternalIndexBuilder([NotNull] Index index, [NotNull] InternalModelBuilder modelBuilder)

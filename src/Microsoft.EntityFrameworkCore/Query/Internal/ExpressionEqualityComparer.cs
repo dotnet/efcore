@@ -10,7 +10,6 @@ using System.Reflection;
 // ReSharper disable SwitchStatementMissingSomeCases
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable LoopCanBeConvertedToQuery
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class ExpressionEqualityComparer : IEqualityComparer<Expression>
@@ -80,6 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         hashCode += (hashCode * 397) ^ GetHashCode(binaryExpression.Left);
                         hashCode += (hashCode * 397) ^ GetHashCode(binaryExpression.Right);
+
+                        break;
+                    }
+                    case ExpressionType.TypeIs:
+                    {
+                        var typeBinaryExpression = (TypeBinaryExpression)obj;
+
+                        hashCode += (hashCode * 397) ^ GetHashCode(typeBinaryExpression.Expression);
+                        hashCode += (hashCode * 397) ^ typeBinaryExpression.TypeOperand.GetHashCode();
 
                         break;
                     }

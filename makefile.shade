@@ -12,27 +12,6 @@ k-standard-goals
   for each='var projectFile in Files.Include("src/**/*.csproj").Include("test/**/*.csproj")'
     exec program='${buildProgram}' commandline='${projectFile} /t:GenerateProjectLockTargets /v:m /nologo /p:Configuration=${E("Configuration")}'
 
-#compile-tests target='compile'
-  @{
-    var BASE_DIR = Directory.GetCurrentDirectory();
-    var TARGET_DIR = Path.Combine(BASE_DIR, "artifacts");
-    var BUILD_DIR = Path.Combine(TARGET_DIR, "build");
-    var Configuration = E("Configuration") ?? "Debug";
-
-    var projectFiles = Files.Include("test/Microsoft.EntityFrameworkCore.Relational.FunctionalTests/project.json")
-        .Include("test/Microsoft.EntityFrameworkCore.FunctionalTests/project.json")
-        .Include("test/Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests/project.json");
-    foreach (var projectFile in projectFiles)
-    {
-        DotnetPack(projectFile, BUILD_DIR, Configuration);
-    }
-
-    foreach (var nupkg in Files.Include(Path.Combine(BUILD_DIR, "*.FunctionalTests/" + Configuration + "/*.nupkg")))
-    {
-        File.Copy(nupkg, Path.Combine(BUILD_DIR, Path.GetFileName(nupkg)), true);
-    }
-  }
-
 #publish-efci-artifacts target="test-compile" if='IsTeamCity'
   @{
     // produce .NET Core test artifacts for testing

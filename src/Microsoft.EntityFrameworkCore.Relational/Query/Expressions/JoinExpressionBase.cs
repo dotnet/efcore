@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
     public abstract class JoinExpressionBase : TableExpressionBase
     {
-        protected TableExpressionBase _tableExpression;
+        private readonly TableExpressionBase _tableExpression;
         private Expression _predicate;
 
         protected JoinExpressionBase([NotNull] TableExpressionBase tableExpression)

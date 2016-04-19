@@ -22,14 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
             var accessor = navigation as IClrCollectionAccessor;
-
             if (accessor != null)
             {
                 return accessor;
             }
 
-            var property = navigation.DeclaringEntityType.ClrType.GetAnyProperty(navigation.Name);
+            var propertyInfoAccessor = navigation as IPropertyPropertyInfoAccessor;
+            var property = propertyInfoAccessor != null
+                ? propertyInfoAccessor.PropertyInfo
+                : navigation.DeclaringEntityType.ClrType.GetAnyProperty(navigation.Name);
             var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
 
             // TODO: Only ICollections supported; add support for enumerables with add/remove methods
@@ -108,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [UsedImplicitly]
         private static TCollection CreateCollection<TCollection, TConcreteCollection>()
             where TCollection : class
-            where TConcreteCollection : TCollection, new() 
+            where TConcreteCollection : TCollection, new()
             => new TConcreteCollection();
     }
 }

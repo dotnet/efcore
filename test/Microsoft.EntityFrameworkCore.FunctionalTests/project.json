@@ -9,9 +9,7 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.0.0-*",
-    "xunit": "2.1.0"
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {

@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_DefaultIfEmptyShapedQuery));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -89,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Query));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -127,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -198,6 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             RelationalQueryContext queryContext,
             IEnumerable<ValueBuffer> source,
@@ -288,6 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IEnumerable<T> innerResults,
@@ -339,6 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_CreateReferenceRelatedEntitiesLoader));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
             int valueBufferOffset,
             int queryIndex,
@@ -383,6 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_CreateCollectionRelatedEntitiesLoader));
 
         [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
         private static IRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,

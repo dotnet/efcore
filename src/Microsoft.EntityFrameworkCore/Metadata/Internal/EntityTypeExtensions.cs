@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var properties = entityType.GetDeclaredProperties().ToList();
 
-            var propertyCount = properties.Count();
+            var propertyCount = properties.Count;
             var navigationCount = entityType.GetDeclaredNavigations().Count();
             var originalValueCount = properties.Count(p => p.RequiresOriginalValue());
             var shadowCount = properties.Count(p => p.IsShadowProperty);
@@ -215,12 +215,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
+            var mutableEntityType = entityType as EntityType;
+            if (mutableEntityType != null)
+            {
+                return mutableEntityType.GetDeclaredKeys();
+            }
+
             return entityType.GetKeys().Where(p => p.DeclaringEntityType == entityType);
         }
 
         public static IEnumerable<IForeignKey> GetDeclaredForeignKeys([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
+
+            var mutableEntityType = entityType as EntityType;
+            if (mutableEntityType != null)
+            {
+                return mutableEntityType.GetDeclaredForeignKeys();
+            }
 
             return entityType.GetForeignKeys().Where(p => p.DeclaringEntityType == entityType);
         }

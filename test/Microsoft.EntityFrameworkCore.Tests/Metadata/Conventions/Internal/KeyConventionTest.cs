@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
+            entityTypeBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
             entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.ShadowKey("{'Foo'}", typeof(SampleEntity).Name, "{'Foo'}"),
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
+            entityTypeBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
             entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.DataAnnotation);
 
             Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
+            entityTypeBuilder.Property("Foo", typeof(string), ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.Convention);
 
             Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
-            referencedEntityBuilder.Property("Foo", ConfigurationSource.Convention);
+            referencedEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.Convention);
             var properties = new List<string> { "Foo" };
             referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
@@ -463,8 +463,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
-            principalEntityBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
-            referencedEntityBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
+            principalEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.DataAnnotation);
+            referencedEntityBuilder.Property("Foo", typeof(string), ConfigurationSource.DataAnnotation);
             var properties = new List<string> { "Foo" };
             referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,

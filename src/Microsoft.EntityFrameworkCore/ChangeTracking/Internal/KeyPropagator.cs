@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (property == foreignKey.Properties[propertyIndex])
                     {
-                        object valueToPropagte = null;
+                        object valueToPropagate = null;
 
                         foreach (var navigation in entityType.GetNavigations()
                             .Concat(foreignKey.PrincipalEntityType.GetNavigations())
@@ -65,15 +65,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 var principalValue = principalEntry[principalProperty];
                                 if (!principalProperty.ClrType.IsDefaultValue(principalValue))
                                 {
-                                    valueToPropagte = principalValue;
+                                    valueToPropagate = principalValue;
                                     break;
                                 }
                             }
                         }
 
-                        if (valueToPropagte != null)
+                        if (valueToPropagate != null)
                         {
-                            entry[property] = valueToPropagte;
+                            entry[property] = valueToPropagate;
                             return true;
                         }
                     }

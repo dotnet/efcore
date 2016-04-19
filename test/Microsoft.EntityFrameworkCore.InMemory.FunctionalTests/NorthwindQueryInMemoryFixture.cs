@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
@@ -46,13 +46,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private class TestLogger : ILogger
         {
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-            {
-                if (eventId.Id == 6)
-                {
-                    TestOutputHelper.WriteLine(formatter(state, exception));
-                }
-            }
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) 
+                => TestOutputHelper?.WriteLine(formatter(state, exception));
 
             public bool IsEnabled(LogLevel logLevel) => TestOutputHelper != null;
 

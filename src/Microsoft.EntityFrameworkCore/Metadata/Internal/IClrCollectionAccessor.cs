@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public interface IClrCollectionAccessor
     {
-        void Add([NotNull] object instance, [NotNull] object value);
+        bool Add([NotNull] object instance, [NotNull] object value);
         void AddRange([NotNull] object instance, [NotNull] IEnumerable<object> values);
         bool Contains([NotNull] object instance, [NotNull] object value);
         void Remove([NotNull] object instance, [NotNull] object value);

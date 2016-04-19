@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, IQuerySqlGenerator
     {
-        private const bool _defaultUnicodeBehaviour = true;
+        private const bool DefaultUnicodeBehaviour = true;
+
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
@@ -66,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalTypeMapper = relationalTypeMapper;
 
             SelectExpression = selectExpression;
-            _isUnicode = _defaultUnicodeBehaviour;
+            _isUnicode = DefaultUnicodeBehaviour;
         }
 
         public virtual bool IsCacheable { get; private set; }
@@ -342,7 +343,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     if (parameters.TryGetValue(parameterExpression.Name, out parameterValue))
                     {
                         var argumentValues = (object[])parameterValue;
-                        var relationalParameters = new IRelationalParameter[argumentValues.Length];
 
                         substitutions = new string[argumentValues.Length];
 
@@ -883,7 +883,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 var parentUnicodeBehaviour = _isUnicode;
 
-                if (expression.IsComparisonOperation() || (expression.NodeType == ExpressionType.Add))
+                if (expression.IsComparisonOperation()
+                    || (expression.NodeType == ExpressionType.Add))
                 {
                     _isUnicode = InferUnicodeFromColumn(expression.Left) ?? InferUnicodeFromColumn(expression.Right) ?? _isUnicode;
                 }
@@ -1103,9 +1104,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     }
 
                     if (!(expression.Operand is ColumnExpression
-                            || expression.Operand is ParameterExpression
-                            || expression.Operand.IsAliasWithColumnExpression()
-                            || expression.Operand is SelectExpression))
+                          || expression.Operand is ParameterExpression
+                          || expression.Operand.IsAliasWithColumnExpression()
+                          || expression.Operand is SelectExpression))
                     {
                         _relationalCommandBuilder.Append("NOT (");
 
@@ -1145,24 +1146,45 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return expression;
         }
 
-        protected override Expression VisitParameter(ParameterExpression expression)
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(parameterExpression, nameof(parameterExpression));
 
-            var name = _sqlGenerationHelper.GenerateParameterName(expression.Name);
+            var parameterName = _sqlGenerationHelper.GenerateParameterName(parameterExpression.Name);
 
-            if (_relationalCommandBuilder.ParameterBuilder.Parameters.All(p => p.InvariantName != expression.Name))
+            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+                .All(p => p.InvariantName != parameterExpression.Name))
             {
                 _relationalCommandBuilder.AddParameter(
-                    expression.Name,
-                    name,
-                    expression.Type,
+                    parameterExpression.Name,
+                    parameterName,
+                    parameterExpression.Type,
                     unicode: _isUnicode);
             }
 
-            _relationalCommandBuilder.Append(name);
+            _relationalCommandBuilder.Append(parameterName);
 
-            return expression;
+            return parameterExpression;
+        }
+
+        public virtual Expression VisitPropertyParameter(PropertyParameterExpression propertyParameterExpression)
+        {
+            var parameterName 
+                = _sqlGenerationHelper.GenerateParameterName(
+                    propertyParameterExpression.PropertyParameterName);
+
+            if (_relationalCommandBuilder.ParameterBuilder.Parameters
+                .All(p => p.InvariantName != propertyParameterExpression.PropertyParameterName))
+            {
+                _relationalCommandBuilder.AddPropertyParameter(
+                    propertyParameterExpression.Name,
+                    parameterName,
+                    propertyParameterExpression.Property);
+            }
+
+            _relationalCommandBuilder.Append(parameterName);
+
+            return propertyParameterExpression;
         }
 
         protected virtual bool? InferUnicodeFromColumn([NotNull] Expression expression)

@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    [DebuggerDisplay("{Metadata,nq}")]
     public class InternalPropertyBuilder : InternalMetadataItemBuilder<Property>
     {
         public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder)
@@ -82,38 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
-        public virtual bool IsShadow(bool isShadowProperty, ConfigurationSource? configurationSource)
-        {
-            if ((Metadata.IsShadowProperty == isShadowProperty)
-                || (configurationSource.HasValue
-                    && configurationSource.Value.Overrides(Metadata.GetIsShadowPropertyConfigurationSource())))
-            {
-                if (configurationSource.HasValue)
-                {
-                    Metadata.SetIsShadowProperty(isShadowProperty, configurationSource.Value);
-                }
-                return true;
-            }
-
-            return false;
-        }
-
-        public virtual bool HasClrType([NotNull] Type propertyType, ConfigurationSource? configurationSource)
-        {
-            if ((Metadata.ClrType == propertyType)
-                || (configurationSource.HasValue
-                    && configurationSource.Value.Overrides(Metadata.GetClrTypeConfigurationSource())))
-            {
-                if (configurationSource.HasValue)
-                {
-                    Metadata.HasClrType(propertyType, configurationSource.Value);
-                }
-                return true;
-            }
-
-            return false;
-        }
-
         public virtual bool RequiresValueGenerator(bool generateValue, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetRequiresValueGeneratorConfigurationSource())
@@ -159,41 +128,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             newPropertyBuilder.MergeAnnotationsFrom(this);
 
-            if (Metadata.GetClrTypeConfigurationSource().HasValue)
-            {
-                newPropertyBuilder.HasClrType(Metadata.ClrType, Metadata.GetClrTypeConfigurationSource().Value);
-            }
-            if (Metadata.GetIsReadOnlyAfterSaveConfigurationSource().HasValue)
+            var oldIsReadOnlyAfterSaveConfigurationSource = Metadata.GetIsReadOnlyAfterSaveConfigurationSource();
+            if (oldIsReadOnlyAfterSaveConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ReadOnlyAfterSave(Metadata.IsReadOnlyAfterSave,
-                    Metadata.GetIsReadOnlyAfterSaveConfigurationSource().Value);
+                    oldIsReadOnlyAfterSaveConfigurationSource.Value);
             }
-            if (Metadata.GetIsReadOnlyBeforeSaveConfigurationSource().HasValue)
+            var oldIsReadOnlyBeforeSaveConfigurationSource = Metadata.GetIsReadOnlyBeforeSaveConfigurationSource();
+            if (oldIsReadOnlyBeforeSaveConfigurationSource.HasValue)
             {
                 newPropertyBuilder.ReadOnlyBeforeSave(Metadata.IsReadOnlyBeforeSave,
-                    Metadata.GetIsReadOnlyBeforeSaveConfigurationSource().Value);
+                    oldIsReadOnlyBeforeSaveConfigurationSource.Value);
             }
-            if (Metadata.GetIsNullableConfigurationSource().HasValue)
+            var oldIsNullableConfigurationSource = Metadata.GetIsNullableConfigurationSource();
+            if (oldIsNullableConfigurationSource.HasValue)
             {
-                newPropertyBuilder.IsRequired(!Metadata.IsNullable, Metadata.GetIsNullableConfigurationSource().Value);
+                newPropertyBuilder.IsRequired(!Metadata.IsNullable, oldIsNullableConfigurationSource.Value);
             }
-            if (Metadata.GetIsConcurrencyTokenConfigurationSource().HasValue)
+            var oldIsConcurrencyTokenConfigurationSource = Metadata.GetIsConcurrencyTokenConfigurationSource();
+            if (oldIsConcurrencyTokenConfigurationSource.HasValue)
             {
                 newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken,
-                    Metadata.GetIsConcurrencyTokenConfigurationSource().Value);
+                    oldIsConcurrencyTokenConfigurationSource.Value);
             }
-            if (Metadata.GetIsShadowPropertyConfigurationSource().HasValue)
-            {
-                newPropertyBuilder.IsShadow(Metadata.IsShadowProperty, Metadata.GetIsShadowPropertyConfigurationSource().Value);
-            }
-            if (Metadata.GetRequiresValueGeneratorConfigurationSource().HasValue)
+            var oldRequiresValueGeneratorConfigurationSource = Metadata.GetRequiresValueGeneratorConfigurationSource();
+            if (oldRequiresValueGeneratorConfigurationSource.HasValue)
             {
                 newPropertyBuilder.RequiresValueGenerator(Metadata.RequiresValueGenerator,
-                    Metadata.GetRequiresValueGeneratorConfigurationSource().Value);
+                    oldRequiresValueGeneratorConfigurationSource.Value);
             }
-            if (Metadata.GetValueGeneratedConfigurationSource().HasValue)
+            var oldValueGeneratedConfigurationSource = Metadata.GetValueGeneratedConfigurationSource();
+            if (oldValueGeneratedConfigurationSource.HasValue)
             {
-                newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, Metadata.GetValueGeneratedConfigurationSource().Value);
+                newPropertyBuilder.ValueGenerated(Metadata.ValueGenerated, oldValueGeneratedConfigurationSource.Value);
             }
 
             return newPropertyBuilder;

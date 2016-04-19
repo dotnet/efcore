@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
@@ -59,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string startupProject,
             string environment)
         {
-            var sql = new OperationExecutor(startupProject, environment)
+            var sql = new ReflectionOperationExecutor(startupProject, environment)
                 .ScriptMigration(from, to, idempotent, context);
 
             if (string.IsNullOrEmpty(output))
@@ -69,9 +70,10 @@ namespace Microsoft.EntityFrameworkCore.Commands
             else
             {
                 Reporter.Verbose.WriteLine("Writing SQL script to '" + output + "'".Bold().Black());
-                File.WriteAllText(output, sql);
+                File.WriteAllText(output, sql, Encoding.UTF8);
 
-                Reporter.Error.WriteLine("Done");
+                // TODO https://github.com/aspnet/EntityFramework/issues/4771
+                // Reporter.Error.WriteLine("Done");
             }
 
             return 0;

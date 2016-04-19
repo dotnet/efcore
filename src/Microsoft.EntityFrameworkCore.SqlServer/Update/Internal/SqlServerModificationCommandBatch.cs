@@ -82,6 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return true;
         }
 
+        protected override int GetParameterCount()
+            => _parameterCount;
+
         private static int CountParameters(ModificationCommand modificationCommand)
         {
             var parameterCount = 0;

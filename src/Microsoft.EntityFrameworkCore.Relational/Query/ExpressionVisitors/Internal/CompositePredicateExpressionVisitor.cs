@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 expression = predicateNegationExpressionOptimizer.Visit(expression);
 
+                expression = new PredicateReductionExpressionOptimizer().Visit(expression);
+
                 expression = new EqualityPredicateExpandingVisitor().Visit(expression);
 
                 expression = predicateNegationExpressionOptimizer.Visit(expression);
-
-                expression = new PredicateReductionExpressionOptimizer().Visit(expression);
 
                 if (_useRelationalNulls)
                 {

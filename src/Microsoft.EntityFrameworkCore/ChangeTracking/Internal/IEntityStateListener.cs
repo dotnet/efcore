@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    // TODO: Consider which of listerners/events/interceptors/etc is better here
+    // TODO: Consider which of listeners/events/interceptors/etc is better here
     // See issue #737
     public interface IEntityStateListener
     {

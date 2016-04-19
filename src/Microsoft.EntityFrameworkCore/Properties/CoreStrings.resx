@@ -181,13 +181,13 @@
     <value>The property '{entityType}.{property}' does not have a setter and no backing field was found by convention. Either remove the property from the model, add a property setter, or configure a backing field (see http://go.microsoft.com/fwlink/?LinkId=723277).</value>
   </data>
   <data name="NoClrType" xml:space="preserve">
-    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow-state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
+    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>The database providers {storeNames}are configured. A context can only be configured to use a single database provider.</value>
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
-    <value>No database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions object in its constructor.</value>
+    <value>No database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.</value>
   </data>
   <data name="NoEfServices" xml:space="preserve">
     <value>Entity Framework services have not been added to the internal service provider. Either remove the call to UseInternalServiceProvider so that EF will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. AddEntityFrameworkSqlServer).</value>
@@ -214,10 +214,10 @@
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="NoClrProperty" xml:space="preserve">
-    <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
+    <value>The property '{property}' cannot be added to entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
   </data>
   <data name="PropertyWrongClrType" xml:space="preserve">
-    <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and the type of the corresponding CLR property does not match the type specified in the property.</value>
+    <value>The property '{property}' cannot be added to entity type '{entityType}' because the property is not in shadow state and the type of the corresponding CLR property '{clrType}' does not match the specified type '{propertyType}'.</value>
   </data>
   <data name="ClrPropertyOnShadowEntity" xml:space="preserve">
     <value>The property '{property}' cannot exist on entity type '{entityType}' because the entity type is marked as shadow state while the property is not. Shadow state entity types can only contain shadow state properties.</value>
@@ -352,7 +352,7 @@
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>
   </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
-    <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show aditional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.</value>
+    <value>An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show additional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.</value>
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
@@ -379,7 +379,7 @@
     <value>Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>
   </data>
   <data name="NonGenericOptions" xml:space="preserve">
-    <value>The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.</value>
+    <value>The DbContextOptions passed to the {contextType} constructor must be a DbContextOptions&lt;{contextType}&gt;. When registering multiple DbContext types make sure that the constructor for each context type has a DbContextOptions&lt;TContext&gt; parameter rather than a non-generic DbContextOptions parameter.</value>
   </data>
   <data name="OptionsExtensionNotFound" xml:space="preserve">
     <value>Options extension of type '{optionsExtension}' not found.</value>
@@ -422,9 +422,6 @@
   </data>
   <data name="PropertyWrongEntityClrType" xml:space="preserve">
     <value>CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
-  </data>
-  <data name="PropertyClrTypeCannotBeChangedWhenReferenced" xml:space="preserve">
-    <value>The CLR type for property '{property}' cannot be changed because it is referenced by the foreign key {foreignKey} from entity type '{entityType}'.</value>
   </data>
   <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
     <value>The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.</value>
@@ -479,12 +476,6 @@
   </data>
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
-  </data>
-  <data name="ClrTypeWrongName" xml:space="preserve">
-    <value>The specified CLR type '{clrType}' does not match the entity type name '{entity}'.</value>
-  </data>
-  <data name="EntityTypeInUse" xml:space="preserve">
-    <value>The CLR type cannot be set on the entity type '{entityType}' because it has members, base entity type or derived entity types.</value>
   </data>
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
@@ -545,5 +536,14 @@
   </data>
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
+  </data>
+  <data name="NoClrSetter" xml:space="preserve">
+    <value>Could not find setter for property {property}</value>
+  </data>
+  <data name="NoPropertyType" xml:space="preserve">
+    <value>The property '{property}' cannot be added to the entity type '{entityType}' because there was no property type specified and there is no corresponding CLR property. To add a shadow state property the property type needs to be specified.</value>
+  </data>
+  <data name="TempValue" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
 </root>

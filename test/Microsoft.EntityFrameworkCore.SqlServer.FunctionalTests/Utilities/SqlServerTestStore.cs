@@ -10,13 +10,19 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 {
     public class SqlServerTestStore : RelationalTestStore
     {
         public const int CommandTimeout = 90;
+
+#if NETSTANDARDAPP1_5
+        private static string BaseDirectory => AppContext.BaseDirectory;
+#else
+        private static string BaseDirectory => AppDomain.CurrentDomain.BaseDirectory;
+#endif
 
         public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
             => new SqlServerTestStore(name).CreateShared(initializeDatabase);
@@ -72,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
             return this;
         }
 
-        public static void CreateDatabase(string name, string scriptPath = null, bool recreateIfAlreadyExists = false)
+        public static void CreateDatabase(string name, string scriptPath = null, bool nonMasterScript = false, bool recreateIfAlreadyExists = false)
         {
             using (var master = new SqlConnection(CreateConnectionString("master", multipleActiveResultSets: false)))
             {
@@ -82,26 +88,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     command.CommandTimeout = CommandTimeout;
 
-                    var exists = DatabaseExists(name) && TablesExist(name);
-                    if (exists && recreateIfAlreadyExists)
+                    var exists = DatabaseExists(name);
+                    if (exists && (recreateIfAlreadyExists || !TablesExist(name)))
                     {
                         // if scriptPath is non-null assume that the script will handle dropping DB
-                        if (scriptPath == null)
+                        if (scriptPath == null
+                            || nonMasterScript)
                         {
-                            command.CommandText = $@"DROP DATABASE [{name}]";
+                            command.CommandText = GetDeleteDatabaseSql(name);
 
                             command.ExecuteNonQuery();
-
-                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
-                            {
-                                WaitForExists(newConnection);
-                            }
                         }
                     }
 
                     if (!exists || recreateIfAlreadyExists)
                     {
-                        if (scriptPath == null)
+                        if (scriptPath == null
+                            || nonMasterScript)
                         {
                             command.CommandText = $@"CREATE DATABASE [{name}]";
 
@@ -112,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                                 WaitForExists(newConnection);
                             }
                         }
-                        else
+
+                        if (scriptPath != null)
                         {
                             // HACK: Probe for script file as current dir
                             // is different between k build and VS run.
@@ -123,26 +127,39 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                             }
                             else
                             {
-                                var appBase = Environment.GetEnvironmentVariable("DNX_APPBASE");
-                                if (appBase != null)
-                                {
-                                    scriptPath = Path.Combine(appBase, scriptPath);
-                                }
+                                scriptPath = Path.Combine(BaseDirectory, scriptPath);
                             }
 
-                            var script = File.ReadAllText(scriptPath);
-
-                            foreach (var batch
-                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                                    .Split(script))
+                            if (nonMasterScript)
                             {
-                                command.CommandText = batch;
-
-                                command.ExecuteNonQuery();
+                                using (var newConnection = new SqlConnection(CreateConnectionString(name)))
+                                {
+                                    newConnection.Open();
+                                    using (var nonMasterCommand = newConnection.CreateCommand())
+                                    {
+                                        ExecuteScript(scriptPath, nonMasterCommand);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ExecuteScript(scriptPath, command);
                             }
                         }
                     }
                 }
+            }
+        }
+
+        private static void ExecuteScript(string scriptPath, SqlCommand scriptCommand)
+        {
+            var script = File.ReadAllText(scriptPath);
+            foreach (var batch in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
+                .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+            {
+                scriptCommand.CommandText = batch;
+
+                scriptCommand.ExecuteNonQuery();
             }
         }
 
@@ -336,17 +353,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                     command.CommandTimeout = CommandTimeout; // Query will take a few seconds if (and only if) there are active connections
 
                     // SET SINGLE_USER will close any open connections that would prevent the drop
-                    command.CommandText
-                        = string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
-                                          BEGIN
-                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                                              DROP DATABASE [{0}];
-                                          END", name);
+                    command.CommandText = GetDeleteDatabaseSql(name);
 
                     command.ExecuteNonQuery();
                 }
             }
         }
+
+        private static string GetDeleteDatabaseSql(string name)
+            => string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+                                          BEGIN
+                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                                              DROP DATABASE [{0}];
+                                          END", name);
 
         public override DbConnection Connection => _connection;
 

@@ -178,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return targetEntity;
                         })
                     .Where(e => e != null)
-                    .ToList());
+                    .ToList(),
+                queryStateManager);
         }
 
         public virtual Task IncludeAsync(
@@ -237,7 +238,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return targetEntity;
                         })
                     .Where(e => e != null)
-                    .ToList(cancellationToken));
+                    .ToList(cancellationToken),
+                queryStateManager);
         }
 
         private IIncludeKeyComparer IncludeCore(
@@ -263,73 +265,99 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             object entity,
             IReadOnlyList<INavigation> navigationPath,
             int currentNavigationIndex,
-            IReadOnlyList<object> relatedEntities)
+            IReadOnlyList<object> relatedEntities,
+            bool tracking)
         {
             _changeDetector.Suspend();
             try
             {
-                if (navigationPath[currentNavigationIndex].IsDependentToPrincipal()
+                var navigation = navigationPath[currentNavigationIndex];
+                var inverseNavigation = navigation.FindInverse();
+
+                if (navigation.IsDependentToPrincipal()
                     && relatedEntities.Any())
                 {
-                    navigationPath[currentNavigationIndex]
-                        .GetSetter()
-                        .SetClrValue(entity, relatedEntities[0]);
+                    var relatedEntity = relatedEntities[0];
 
-                    var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
+                    SetNavigation(entity, navigation, relatedEntity, tracking);
 
                     if (inverseNavigation != null)
                     {
                         if (inverseNavigation.IsCollection())
                         {
-                            inverseNavigation
-                                .GetCollectionAccessor()
-                                .AddRange(relatedEntities[0], new[] { entity });
+                            AddToCollection(relatedEntity, inverseNavigation, entity, tracking);
                         }
                         else
                         {
-                            inverseNavigation
-                                .GetSetter()
-                                .SetClrValue(relatedEntities[0], entity);
+                            SetNavigation(relatedEntity, inverseNavigation, entity, tracking);
                         }
                     }
                 }
                 else
                 {
-                    if (navigationPath[currentNavigationIndex].IsCollection())
+                    if (navigation.IsCollection())
                     {
-                        navigationPath[currentNavigationIndex]
-                            .GetCollectionAccessor()
-                            .AddRange(entity, relatedEntities);
-
-                        var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
+                        AddRangeToCollection(entity, navigation, relatedEntities, tracking);
 
                         if (inverseNavigation != null)
                         {
-                            var clrPropertySetter
-                                = inverseNavigation.GetSetter();
+                            var setter = inverseNavigation.GetSetter();
 
                             foreach (var relatedEntity in relatedEntities)
                             {
-                                clrPropertySetter.SetClrValue(relatedEntity, entity);
+                                SetNavigation(relatedEntity, inverseNavigation, setter, entity, tracking);
                             }
                         }
                     }
                     else if (relatedEntities.Any())
                     {
-                        navigationPath[currentNavigationIndex]
-                            .GetSetter()
-                            .SetClrValue(entity, relatedEntities[0]);
+                        var relatedEntity = relatedEntities[0];
 
-                        var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
+                        SetNavigation(entity, navigation, relatedEntity, tracking);
 
-                        inverseNavigation?.GetSetter()
-                            .SetClrValue(relatedEntities[0], entity);
+                        if (inverseNavigation != null)
+                        {
+                            SetNavigation(relatedEntity, inverseNavigation, entity, tracking);
+                        }
                     }
                 }
             }
             finally
             {
                 _changeDetector.Resume();
+            }
+        }
+
+        private void SetNavigation(object entity, INavigation navigation, object value, bool tracking)
+            => SetNavigation(entity, navigation, navigation.GetSetter(), value, tracking);
+
+        private void SetNavigation(object entity, INavigation navigation, IClrPropertySetter setter, object value, bool tracking)
+        {
+            setter.SetClrValue(entity, value);
+
+            if (tracking)
+            {
+                _stateManager.TryGetEntry(entity)?.SetRelationshipSnapshotValue(navigation, value);
+            }
+        }
+
+        private void AddToCollection(object entity, INavigation navigation, object value, bool tracking)
+        {
+            navigation.GetCollectionAccessor().Add(entity, value);
+
+            if (tracking)
+            {
+                _stateManager.TryGetEntry(entity)?.AddToCollectionSnapshot(navigation, value);
+            }
+        }
+
+        private void AddRangeToCollection(object entity, INavigation navigation, IEnumerable<object> values, bool tracking)
+        {
+            navigation.GetCollectionAccessor().AddRange(entity, values);
+
+            if (tracking)
+            {
+                _stateManager.TryGetEntry(entity)?.AddRangeToCollectionSnapshot(navigation, values);
             }
         }
 

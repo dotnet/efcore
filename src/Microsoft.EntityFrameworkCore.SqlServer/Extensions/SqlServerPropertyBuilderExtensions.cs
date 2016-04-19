@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore
 {
     public static class SqlServerPropertyBuilderExtensions
@@ -130,9 +129,10 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = property.DeclaringEntityType.Model;
 
-            var sequence =
-                model.SqlServer().FindSequence(name, schema) ??
-                new Sequence(model, SqlServerFullAnnotationNames.Instance.SequencePrefix, name, schema) { IncrementBy = 10 };
+            if (model.SqlServer().FindSequence(name, schema) == null)
+            {
+                model.SqlServer().GetOrAddSequence(name, schema).IncrementBy = 10;
+            }
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
             property.ValueGenerated = ValueGenerated.OnAdd;

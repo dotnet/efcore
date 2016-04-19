@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(rootNamespace)
                         .Append(".Migrations.");
 
-                    if (sanitizedContextName.EndsWith("Context"))
+                    if (sanitizedContextName.EndsWith("Context", StringComparison.Ordinal))
                     {
                         builder.Append(sanitizedContextName.Substring(0, sanitizedContextName.Length - 7));
                     }
@@ -183,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual string GetSubNamespace([NotNull] string rootNamespace, [NotNull] string @namespace) =>
             @namespace == rootNamespace
                 ? string.Empty
-                : @namespace.StartsWith(rootNamespace + '.')
+                : @namespace.StartsWith(rootNamespace + '.', StringComparison.Ordinal)
                     ? @namespace.Substring(rootNamespace.Length + 1)
                     : @namespace;
 
@@ -279,6 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             else
             {
                 var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
+                Debug.Assert(!string.IsNullOrEmpty(modelSnapshotNamespace));
                 var modelSnapshotCode = _migrationCodeGenerator.GenerateSnapshot(
                     modelSnapshotNamespace,
                     _contextType,
@@ -377,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 
         private bool ContainsForeignMigrations(string migrationsNamespace)
-            => (from t in _migrationsAssembly.Assembly.GetConstructibleTypes()
+            => (from t in _migrationsAssembly.Assembly.GetConstructableTypes()
                 where t.Namespace == migrationsNamespace
                       && t.IsSubclassOf(typeof(Migration))
                 let contextTypeAttribute = t.GetCustomAttribute<DbContextAttribute>()

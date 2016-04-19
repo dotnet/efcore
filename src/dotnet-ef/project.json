@@ -10,22 +10,25 @@
     ],
     "xmlDoc": true
   },
-  "compile": "../Shared/*.cs",
+  "compileFiles": "../Shared/CodeAnnotations.cs",
   "dependencies": {
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.DotNet.ProjectModel.Loader": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*"
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "Microsoft.Extensions.DependencyModel": "1.0.0-*",
+    "Newtonsoft.Json": "8.0.3"
   },
   "frameworks": {
-    "dnxcore50": {
+    "netstandard1.5": {
       "imports": [
-        "netstandardapp1.5",
+        "dnxcore50",
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*",
-        "System.Security.Cryptography.Algorithms": "4.1.0-*"
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
       }
     }
   }

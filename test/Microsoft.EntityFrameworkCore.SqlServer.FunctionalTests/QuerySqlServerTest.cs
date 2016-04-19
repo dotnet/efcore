@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,12 +16,48 @@ using System.Threading;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
     {
         public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
+        public override void Entity_equality_self()
+        {
+            base.Entity_equality_self();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Entity_equality_local()
+        {
+            base.Entity_equality_local();
+
+            Assert.Equal(
+                @"@__local_0_CustomerID: ANATR
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__local_0_CustomerID",
+                Sql);
+        }
+
+        public override void Entity_equality_local_inline()
+        {
+            base.Entity_equality_local_inline();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ANATR'",
+                Sql);
         }
 
         public override void Queryable_reprojection()
@@ -145,8 +181,8 @@ FROM [Employees] AS [e2]",
                 @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
 
-SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]",
+SELECT [e20].[EmployeeID]
+FROM [Employees] AS [e20]",
                 Sql);
         }
 
@@ -1357,6 +1393,20 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] LIKE N'A' + N'%') AND (([c].[City] <> N'London') OR [c].[City] IS NULL)",
+                Sql);
+        }
+
+        public override void Any_with_multiple_conditions_still_uses_exists()
+        {
+            base.Any_with_multiple_conditions_still_uses_exists();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[City] = N'London') AND EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE ([o].[EmployeeID] = 1) AND ([c].[CustomerID] = [o].[CustomerID]))",
                 Sql);
         }
 
@@ -3084,7 +3134,7 @@ WHERE 1 = 0",
             Assert.Contains(
                     @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
+WHERE (@__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
                     Sql);
         }
 
@@ -3098,7 +3148,7 @@ WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND 
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
+WHERE ([p].[ProductID] < @__productId_0) AND ((@__flag_1 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
                     Sql);
         }
 
@@ -3109,7 +3159,7 @@ WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsIn
             Assert.Contains(
                     @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)",
+WHERE @__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)",
                     Sql);
         }
 
@@ -3253,7 +3303,7 @@ WHERE [p].[Discontinued] = 1",
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR ([p].[Discontinued] = 1)",
+WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR [p].[Discontinued] = 1",
                 Sql);
         }
 
@@ -3389,6 +3439,17 @@ WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] < 60)) AND ([p].[ProductID] >
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] > 10",
+                Sql);
+        }
+
+        public override void Where_comparison_to_nullable_bool()
+        {
+            base.Where_comparison_to_nullable_bool();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'%' + N'KI'",
                 Sql);
         }
 
@@ -4787,7 +4848,7 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-        private static readonly string FileLineEnding = @"
+        private const string FileLineEnding = @"
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);

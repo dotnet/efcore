@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -235,6 +236,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
+            var entityEqualityRewritingExpressionVisitor 
+                = new EntityEqualityRewritingExpressionVisitor(QueryCompilationContext.Model);
+
+            entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
+
             _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
@@ -389,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private IEnumerable<INavigation> BindChainedNavigations(
+        private static IEnumerable<INavigation> BindChainedNavigations(
             IEnumerable<INavigation> boundNavigations, IReadOnlyList<PropertyInfo> chainedNavigationProperties)
         {
             var boundNavigationsList = boundNavigations.ToList();
@@ -811,7 +817,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     inProjection: true);
 
             if ((selector.Type != sequenceType
-                || !(selectClause.Selector is QuerySourceReferenceExpression))
+                 || !(selectClause.Selector is QuerySourceReferenceExpression))
                 && !queryModel.ResultOperators
                     .Select(ro => ro.GetType())
                     .Any(t =>
@@ -1186,9 +1192,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || querySource == null
                     || querySource == querySourceReferenceExpression.ReferencedQuerySource)
                 {
+                    var entityExpression = methodCallExpression.Arguments[0];
+
+                    if ((entityExpression.NodeType == ExpressionType.Convert
+                        || entityExpression.NodeType == ExpressionType.ConvertChecked)
+                            && ((UnaryExpression)entityExpression).Type == typeof(object))
+                    {
+                        entityExpression = ((UnaryExpression)entityExpression).Operand;
+                    }
+
                     var entityType
                         = QueryCompilationContext.Model
-                            .FindEntityType(methodCallExpression.Arguments[0].Type);
+                            .FindEntityType(entityExpression.Type);
 
                     if (entityType != null)
                     {

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void AddCommand_adds_command_if_possible()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void AddCommand_does_not_add_command_if_not_possible()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void AddCommand_does_not_add_command_if_resulting_sql_is_invalid()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var fakeSqlGenerator = new FakeSqlGenerator();
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var dbDataReader = CreateFakeDataReader();
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var connection = CreateConnection(
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
             entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var connection = CreateConnection(
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var connection = CreateConnection(
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var connection = CreateConnection(
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var connection = CreateConnection(
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             var connection = CreateConnection(
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            parameterNameGenerator,
+                            parameterNameGenerator.GenerateNext,
                             false, true, false, false)
                     }));
 
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            parameterNameGenerator,
+                            parameterNameGenerator.GenerateNext,
                             false, true, false, false)
                     }));
 
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            new ParameterNameGenerator(),
+                            new ParameterNameGenerator().GenerateNext,
                             false, true, false, false)
                     }));
 
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            new ParameterNameGenerator(),
+                            new ParameterNameGenerator().GenerateNext,
                             false, false, false, true)
                     }));
 
@@ -479,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            new ParameterNameGenerator(),
+                            new ParameterNameGenerator().GenerateNext,
                             false, true, false, true)
                     }));
 
@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                             entry,
                             property,
                             property.TestProvider(),
-                            new ParameterNameGenerator(),
+                            new ParameterNameGenerator().GenerateNext,
                             true, false, false, false)
                     }));
 
@@ -535,14 +535,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             var entityType = model.AddEntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Id", typeof(int));
-            key.IsShadowProperty = false;
+            var key = entityType.AddProperty("Id", typeof(int), shadow: false);
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.IsShadowProperty = false;
+            var nonKey = entityType.AddProperty("Name", typeof(string), shadow: false);
             nonKey.Relational().ColumnName = "Col2";
             nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
@@ -614,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 ParameterNameGenerator parameterNameGenerator,
                 Func<IProperty, IRelationalPropertyAnnotations> getPropertyExtensions,
                 IReadOnlyList<ColumnModification> columnModifications)
-                : base(name, schema, parameterNameGenerator, getPropertyExtensions)
+                : base(name, schema, parameterNameGenerator.GenerateNext, getPropertyExtensions)
             {
                 ColumnModifications = columnModifications;
             }

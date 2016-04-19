@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
-
 namespace System
 {
     [DebuggerStepThrough]
@@ -47,7 +46,7 @@ namespace System
         public static PropertyInfo GetAnyProperty(this Type type, string name)
         {
             var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
-            if (props.Count() > 1)
+            if (props.Count > 1)
             {
                 throw new AmbiguousMatchException();
             }
@@ -211,7 +210,7 @@ namespace System
                 : Activator.CreateInstance(type);
         }
 
-        public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
+        public static IEnumerable<TypeInfo> GetConstructableTypes(this Assembly assembly)
             => assembly.DefinedTypes.Where(
                 t => !t.IsAbstract
                      && !t.IsGenericTypeDefinition);

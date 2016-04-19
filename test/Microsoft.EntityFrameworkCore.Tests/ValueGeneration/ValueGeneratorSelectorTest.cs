@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             builder.Entity<AnEntity>();
             var model = builder.Model;
             var entityType = model.FindEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random)).IsShadowProperty = false;
+            entityType.AddProperty("Random", typeof(Random), shadow: false);
 
             foreach (var property in entityType.GetProperties())
             {

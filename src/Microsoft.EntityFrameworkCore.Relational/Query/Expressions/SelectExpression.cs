@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -502,8 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             for (var i = _projection.Count - 1; i >= 0; i--)
             {
                 var aliasExpression = _projection[i] as AliasExpression;
-                if (aliasExpression != null
-                    && aliasExpression.Expression is ColumnExpression)
+                if (aliasExpression?.Expression is ColumnExpression)
                 {
                     _projection.RemoveAt(i);
                 }

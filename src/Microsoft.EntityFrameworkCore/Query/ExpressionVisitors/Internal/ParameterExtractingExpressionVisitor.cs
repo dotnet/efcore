@@ -69,8 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var methodInfo = methodCallExpression.Method;
             var declaringType = methodInfo.DeclaringType;
 
-            if (declaringType == typeof(EF)
-                || declaringType == typeof(DbContext))
+            if (declaringType == typeof(DbContext))
             {
                 return methodCallExpression;
             }
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                     if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
                     {
-                        var parameter = newArgument as ParameterExpression;
+                        var parameter = newArgument.RemoveConvert() as ParameterExpression;
 
                         if (parameter != null)
                         {

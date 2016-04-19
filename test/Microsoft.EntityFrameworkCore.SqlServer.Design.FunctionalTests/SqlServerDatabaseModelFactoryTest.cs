@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -147,6 +147,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
     Latitude decimal( 5, 2 ) DEFAULT 0.0,
     Created datetime2(6) DEFAULT('October 20, 2015 11am'),
     DiscoveredDate datetime2,
+    CurrentDate AS GETDATE(),
     Sum AS Latitude + 1.0,
     Modified rowversion,
     Primary Key (Name, Id)
@@ -205,6 +206,12 @@ CREATE TABLE [dbo].[MountainsColumns] (
                     {
                         Assert.Equal("DiscoveredDate", discovered.Name);
                         Assert.Equal(7, discovered.SqlServer().DateTimePrecision);
+                    },
+                current =>
+                    {
+                        Assert.Equal("CurrentDate", current.Name);
+                        Assert.Equal("datetime", current.DataType);
+                        Assert.Equal("(getdate())", current.ComputedValue);
                     },
                 sum =>
                     {

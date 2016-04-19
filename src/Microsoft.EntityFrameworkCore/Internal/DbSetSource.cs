@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual object Create(DbContext context, Type type)
             => _cache.GetOrAdd(
                 type,
-                t => (Func<DbContext, object>)_genericCreate.MakeGenericMethod(type).Invoke(null, null))(context);
+                t => (Func<DbContext, object>)_genericCreate.MakeGenericMethod(t).Invoke(null, null))(context);
 
         [UsedImplicitly]
         private static Func<DbContext, object> CreateConstructor<TEntity>() where TEntity : class

@@ -270,10 +270,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
                             var fkColumn = new ForeignKeyColumnModel
                             {
-                                Ordinal = fkOrdinal
+                                Ordinal = fkOrdinal,
+                                Column = _tableColumns[ColumnKey(dependentTable, fromColumnName)]
                             };
-
-                            fkColumn.Column = _tableColumns[ColumnKey(dependentTable, fromColumnName)];
 
                             ColumnModel toColumn;
                             if (!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))

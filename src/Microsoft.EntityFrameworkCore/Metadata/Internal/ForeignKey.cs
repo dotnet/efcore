@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -105,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual Navigation HasDependentToPrincipal(
             [CanBeNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
         {
@@ -117,6 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (oldNavigation != null)
             {
+                Debug.Assert(oldNavigation.Name != null);
                 DeclaringEntityType.RemoveNavigation(oldNavigation.Name);
             }
 
@@ -133,6 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (oldNavigation != null)
                 {
+                    Debug.Assert(oldNavigation.Name != null);
                     DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                         DeclaringEntityType.Builder,
                         PrincipalEntityType.Builder,
@@ -158,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual Navigation HasPrincipalToDependent(
             [CanBeNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
         {
@@ -170,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (oldNavigation != null)
             {
+                Debug.Assert(oldNavigation.Name != null);
                 PrincipalEntityType.RemoveNavigation(oldNavigation.Name);
             }
 
@@ -186,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (oldNavigation != null)
                 {
+                    Debug.Assert(oldNavigation.Name != null);
                     DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                         PrincipalEntityType.Builder,
                         DeclaringEntityType.Builder,
@@ -393,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         public static bool CanPropertiesBeRequired(
-            [NotNull] IEnumerable<Property> properties,
+            [NotNull] IReadOnlyList<Property> properties,
             bool? required,
             [NotNull] EntityType entityType,
             bool shouldThrow)

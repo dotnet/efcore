@@ -180,8 +180,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     UnhandledExpressionType(node.NodeType);
                 }
-
-                _stringBuilder.Append(operand);
+                else
+                {
+                    _stringBuilder.Append(operand);
+                }
 
                 Visit(node.Right);
             }
@@ -509,8 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return processedPlan;
         }
 
-        //throw new NotSupportedException(CoreStrings.UnhandledExpressionType(expressionType));
-        private void UnhandledExpressionType(ExpressionType expressionType) 
+        private void UnhandledExpressionType(ExpressionType expressionType)
             => _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
 
         protected interface IConstantPrinter

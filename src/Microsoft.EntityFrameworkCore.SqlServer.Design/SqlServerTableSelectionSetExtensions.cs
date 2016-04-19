@@ -10,13 +10,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     internal static class SqlServerTableSelectionSetExtensions
     {
-        private static readonly List<string> schemaPatterns = new List<string>
+        private static readonly List<string> _schemaPatterns = new List<string>
         {
             "{schema}",
             "[{schema}]"
         };
 
-        private static readonly List<string> tablePatterns = new List<string>
+        private static readonly List<string> _tablePatterns = new List<string>
         {
             "{schema}.{table}",
             "[{schema}].[{table}]",
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="schemaName"> name of the database schema to check </param>
         /// <param name="tableName"> name of the database table to check </param>
         /// <returns> whether or not the schema/table is allowed </returns>
-        public static bool Allows(this TableSelectionSet tableSelectionSet, [NotNull] string schemaName, [NotNull] string tableName)
+        public static bool Allows(this TableSelectionSet tableSelectionSet, [CanBeNull] string schemaName, [NotNull] string tableName)
         {
             if (tableSelectionSet == null
                 || (tableSelectionSet.Schemas.Count == 0
@@ -47,26 +47,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             var result = false;
 
             //TODO: look into performance for large selection sets and numbers of tables
-            foreach (var pattern in schemaPatterns)
+            if (schemaName != null)
             {
-                var patternToMatch = pattern.Replace("{schema}", schemaName);
-                var matchingSchemaSelections = tableSelectionSet.Schemas.Where(
-                    s => s.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase));
-                if (matchingSchemaSelections.Any())
+                foreach (var pattern in _schemaPatterns)
                 {
-                    matchingSchemaSelections.ToList().ForEach(selection => selection.IsMatched = true);
-                    result = true;
+                    var patternToMatch = pattern.Replace("{schema}", schemaName);
+                    var matchingSchemaSelections = tableSelectionSet.Schemas.Where(
+                        s => s.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    if (matchingSchemaSelections.Any())
+                    {
+                        matchingSchemaSelections.ForEach(selection => selection.IsMatched = true);
+                        result = true;
+                    }
                 }
             }
 
-            foreach (var pattern in tablePatterns)
+            foreach (var pattern in _tablePatterns)
             {
                 var patternToMatch = pattern.Replace("{schema}", schemaName).Replace("{table}", tableName);
                 var matchingTableSelections = tableSelectionSet.Tables.Where(
-                    t => t.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase));
+                    t => t.Text.Equals(patternToMatch, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
                 if (matchingTableSelections.Any())
                 {
-                    matchingTableSelections.ToList().ForEach(selection => selection.IsMatched = true);
+                    matchingTableSelections.ForEach(selection => selection.IsMatched = true);
                     result = true;
                 }
             }

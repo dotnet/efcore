@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if !NETCORE50
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 
@@ -21,3 +22,4 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual IFileProvider ContentRootFileProvider { get; set; }
     }
 }
+#endif

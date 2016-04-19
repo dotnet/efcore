@@ -1,9 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -23,11 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the type that this property belongs to.
         /// </summary>
         new IMutableEntityType DeclaringEntityType { get; }
-
-        /// <summary>
-        ///     Gets or sets the type of value that this property holds.
-        /// </summary>
-        new Type ClrType { get; [param: NotNull] set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this property can contain null.
@@ -61,13 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     values when new entities are added to the context.
         /// </summary>
         new bool RequiresValueGenerator { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether this is a shadow property. A shadow property is one that does not have a
-        ///     corresponding property in the entity class. The current value for the property is stored in
-        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-        /// </summary>
-        new bool IsShadowProperty { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this property is used as a concurrency token. When a property is configured

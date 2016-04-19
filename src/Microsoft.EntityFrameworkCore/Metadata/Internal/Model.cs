@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
-    public class Model : ConventionalAnnotatable, IMutableModel, ICanFindEntityType
+    public class Model : ConventionalAnnotatable, IMutableModel, IModelFindClrType
     {
         private readonly SortedDictionary<string, EntityType> _entityTypes
             = new SortedDictionary<string, EntityType>();
@@ -42,34 +42,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<EntityType> GetEntityTypes() => _entityTypes.Values;
 
         public virtual EntityType AddEntityType(
-            [NotNull] string name, [CanBeNull] Type type = null, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            [NotNull] string name,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotEmpty(name, nameof(name));
 
             var entityType = new EntityType(name, this, configurationSource);
 
+            return AddEntityType(entityType);
+        }
+
+        public virtual EntityType AddEntityType(
+            [NotNull] Type type,
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            Check.NotNull(type, nameof(type));
+
+            var entityType = new EntityType(type, this, configurationSource);
+
+            _clrTypeMap[type] = entityType;
+            return AddEntityType(entityType);
+        }
+
+        private EntityType AddEntityType(EntityType entityType)
+        {
             var previousLength = _entityTypes.Count;
-            _entityTypes[name] = entityType;
+            _entityTypes[entityType.Name] = entityType;
             if (previousLength == _entityTypes.Count)
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.Name));
             }
 
-            if (type != null)
-            {
-                entityType.ClrType = type;
-                _clrTypeMap[type] = entityType;
-            }
-
             return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
         }
-
-        IMutableEntityType ICanFindEntityType.AddEntityType(string name, Type type)
-            => AddEntityType(name, type);
-
-        public virtual EntityType AddEntityType(
-            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-            => AddEntityType(type.DisplayName(), type, configurationSource);
 
         public virtual EntityType GetOrAddEntityType([NotNull] Type type)
             => FindEntityType(type) ?? AddEntityType(type);
@@ -78,9 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => FindEntityType(name) ?? AddEntityType(name);
 
         public virtual EntityType FindEntityType([NotNull] Type type)
-            => (EntityType)((ICanFindEntityType)this).FindEntityType(type);
+            => (EntityType)((IModelFindClrType)this).FindEntityType(type);
 
-        IEntityType ICanFindEntityType.FindEntityType(Type type)
+        IEntityType IModelFindClrType.FindEntityType(Type type)
         {
             Check.NotNull(type, nameof(type));
 
@@ -208,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
 
         IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name);
+        IMutableEntityType IMutableModel.AddEntityType(Type type) => AddEntityType(type);
         IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
         IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
         IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);

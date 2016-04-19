@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             {
                 Assert.Null(
                     dependentEntityBuilder
-                        .Relationship(entityBuilder, ConfigurationSource.Convention, setPrincipalEnd: false)
+                        .Relationship(entityBuilder, ConfigurationSource.Convention)
                         .HasPrincipalKey(entityBuilder.Metadata.FindPrimaryKey().Properties, ConfigurationSource.Convention));
             }
             else

@@ -15,8 +15,8 @@ using Microsoft.Extensions.Logging;
 using IsolationLevel = System.Data.IsolationLevel;
 #if NET451
 using System.Transactions;
-#endif
 
+#endif
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalConnection : IRelationalConnection

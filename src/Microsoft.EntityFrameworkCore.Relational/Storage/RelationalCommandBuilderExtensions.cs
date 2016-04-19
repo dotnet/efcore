@@ -139,5 +139,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return commandBuilder;
         }
+
+        public static IRelationalCommandBuilder AddPropertyParameter(
+            [NotNull] this IRelationalCommandBuilder commandBuilder,
+            [NotNull] string invariantName,
+            [NotNull] string name,
+            [NotNull] IProperty property)
+        {
+            Check.NotNull(commandBuilder, nameof(commandBuilder));
+            Check.NotEmpty(invariantName, nameof(invariantName));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(property, nameof(property));
+
+            commandBuilder.ParameterBuilder.AddPropertyParameter(invariantName, name, property);
+
+            return commandBuilder;
+        }
     }
 }

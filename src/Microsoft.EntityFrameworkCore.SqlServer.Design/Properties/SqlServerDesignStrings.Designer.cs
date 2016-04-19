@@ -13,6 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Design.Properties.SqlServerDesignStrings", typeof(SqlServerDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        /// For column {columnId} unable to interpret computed value {computedValue}. Will not generate code setting a computed value for the property {propertyName} on entity type {entityTypeName}.
+        /// </summary>
+        public static string CannotInterpretComputedValue([CanBeNull] object columnId, [CanBeNull] object computedValue, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotInterpretComputedValue", "columnId", "computedValue", "propertyName", "entityTypeName"), columnId, computedValue, propertyName, entityTypeName);
+        }
+
+        /// <summary>
         /// For column {columnId} unable to interpret default value {defaultValue}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
         /// </summary>
         public static string CannotInterpretDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
@@ -77,11 +85,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
+        /// Found column with schema: {schema}, table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
         /// </summary>
-        public static string FoundColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object ordinal, [CanBeNull] object isNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue, [CanBeNull] object precision, [CanBeNull] object scale, [CanBeNull] object maxLength, [CanBeNull] object isIdentity, [CanBeNull] object isComputed)
+        public static string FoundColumn([CanBeNull] object schema, [CanBeNull] object tableName, [CanBeNull] object columnName, [CanBeNull] object dataType, [CanBeNull] object ordinal, [CanBeNull] object isNullable, [CanBeNull] object primaryKeyOrdinal, [CanBeNull] object defaultValue, [CanBeNull] object computedValue, [CanBeNull] object precision, [CanBeNull] object scale, [CanBeNull] object maxLength, [CanBeNull] object isIdentity, [CanBeNull] object isComputed)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("FoundColumn", "schema", "tableName", "columnName", "dataType", "ordinal", "isNullable", "primaryKeyOrdinal", "defaultValue", "precision", "scale", "maxLength", "isIdentity", "isComputed"), schema, tableName, columnName, dataType, ordinal, isNullable, primaryKeyOrdinal, defaultValue, precision, scale, maxLength, isIdentity, isComputed);
+            return string.Format(CultureInfo.CurrentCulture, GetString("FoundColumn", "schema", "tableName", "columnName", "dataType", "ordinal", "isNullable", "primaryKeyOrdinal", "defaultValue", "computedValue", "precision", "scale", "maxLength", "isIdentity", "isComputed"), schema, tableName, columnName, dataType, ordinal, isNullable, primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed);
         }
 
         /// <summary>

@@ -8,8 +8,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -25,7 +25,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Cannot immitate SqlError on this version of Mono")]
+    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Cannot imitate SqlError on this version of Mono")]
     public class SqlServerDatabaseCreatorTest
     {
         [ConditionalFact]

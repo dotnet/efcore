@@ -225,6 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             var unionOperator = resultOperator as UnionResultOperator;
+            // ReSharper disable once UseNullPropagation
             if (unionOperator != null)
             {
                 return unionOperator.Source2;

@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var targetColumnType = targetAnnotations.ColumnType
                                    ?? TypeMapper.GetMapping(target).DefaultTypeName;
 
-            var targetMigrationsAnnotations = MigrationsAnnotations.For(target);
+            var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
 
             var isSourceColumnNullable = source.IsColumnNullable();
             var isTargetColumnNullable = target.IsColumnNullable();
@@ -680,6 +680,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Annotations.For(t).Name,
                     StringComparison.OrdinalIgnoreCase)
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
+                // ReSharper disable once ImplicitlyCapturedClosure
                 (s, t) => s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IIndex source, [NotNull] IIndex target)

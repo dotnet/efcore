@@ -48,12 +48,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             const int blockSize = 4;
 
-            var state = new SqlServerSequenceValueGeneratorState(
-                new Sequence(
-                    new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo")
-                {
-                    IncrementBy = blockSize
-                });
+            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
+            sequence.IncrementBy = blockSize;
+            var state = new SqlServerSequenceValueGeneratorState(sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeRawSqlCommandBuilder(blockSize),
@@ -95,12 +92,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
 
-            var state = new SqlServerSequenceValueGeneratorState(
-                new Sequence(
-                    new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo")
-                {
-                    IncrementBy = blockSize
-                });
+            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
+            sequence.IncrementBy = blockSize;
+            var state = new SqlServerSequenceValueGeneratorState(sequence);
 
             var executor = new FakeRawSqlCommandBuilder(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper());
@@ -131,12 +125,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Does_not_generate_temp_values()
         {
-            var state = new SqlServerSequenceValueGeneratorState(
-                new Sequence(
-                    new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo")
-                {
-                    IncrementBy = 4
-                });
+            var sequence = Sequence.GetOrAddSequence(new Model(), RelationalFullAnnotationNames.Instance.SequencePrefix, "Foo");
+            sequence.IncrementBy = 4;
+            var state = new SqlServerSequenceValueGeneratorState(sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeRawSqlCommandBuilder(4),

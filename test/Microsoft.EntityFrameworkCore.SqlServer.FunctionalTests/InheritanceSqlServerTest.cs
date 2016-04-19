@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -20,6 +20,17 @@ FROM (
     WHERE [a0].[Discriminator] IN (N'Kiwi', N'Eagle')
 ) AS [t]
 ORDER BY [t].[Species]",
+                Sql);
+        }
+
+        public override void Can_use_is_kiwi()
+        {
+            base.Can_use_is_kiwi();
+
+            Assert.Equal(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')",
                 Sql);
         }
 

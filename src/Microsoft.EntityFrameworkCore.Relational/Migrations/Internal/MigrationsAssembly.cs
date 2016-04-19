@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _idGenerator = idGenerator;
             _migrations = new LazyRef<IReadOnlyDictionary<string, TypeInfo>>(
                 () => (
-                    from t in Assembly.GetConstructibleTypes()
+                    from t in Assembly.GetConstructableTypes()
                     where t.IsSubclassOf(typeof(Migration))
                           && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
                     let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .ToDictionary(i => i.Key, i => i.Element));
             _modelSnapshot = new LazyRef<ModelSnapshot>(
                 () => (
-                    from t in Assembly.GetConstructibleTypes()
+                    from t in Assembly.GetConstructableTypes()
                     where t.IsSubclassOf(typeof(ModelSnapshot))
                           && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
                     select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => Migrations.Keys
                 .Where(
                     _idGenerator.IsValidId(nameOrId)
+                        // ReSharper disable once ImplicitlyCapturedClosure
                         ? (Func<string, bool>)(id => string.Equals(id, nameOrId, StringComparison.OrdinalIgnoreCase))
                         : id => string.Equals(_idGenerator.GetName(id), nameOrId, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();

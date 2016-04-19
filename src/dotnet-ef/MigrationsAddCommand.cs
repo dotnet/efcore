@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
-using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Commands
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Commands
                         startupProject.Value(),
                         environment.Value(),
                         json.HasValue()
-                            ? (Action<MigrationFiles>)ReportJson
+                            ? (Action<IDictionary>)ReportJson
                             : null);
                 });
         }
@@ -63,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Commands
             string context,
             string startupProject,
             string environment,
-            Action<MigrationFiles> reporter)
+            Action<IDictionary> reporter)
         {
-            var files = new OperationExecutor(startupProject, environment)
+            var files = new ReflectionOperationExecutor(startupProject, environment)
                 .AddMigration(name, outputDir, context);
 
             reporter?.Invoke(files);
@@ -75,17 +75,17 @@ namespace Microsoft.EntityFrameworkCore.Commands
             return 0;
         }
 
-        private static void ReportJson(MigrationFiles files)
+        private static void ReportJson(IDictionary files)
         {
             // TODO use a real json serializer
             Reporter.Output.WriteLine("{");
-            Reporter.Output.WriteLine("   \"MigrationFile\": \""+ SerializePath(files.MigrationFile) + "\",");
-            Reporter.Output.WriteLine("   \"MetadataFile\": \"" + SerializePath(files.MetadataFile) + "\",");
-            Reporter.Output.WriteLine("   \"SnapshotFile\": \"" + SerializePath(files.SnapshotFile) + "\"");
+            Reporter.Output.WriteLine("   \"MigrationFile\": \"" + SerializePath(files["MigrationFile"] as string) + "\",");
+            Reporter.Output.WriteLine("   \"MetadataFile\": \"" + SerializePath(files["MetadataFile"] as string) + "\",");
+            Reporter.Output.WriteLine("   \"SnapshotFile\": \"" + SerializePath(files["SnapshotFile"] as string) + "\"");
             Reporter.Output.WriteLine("}");
         }
 
         private static string SerializePath(string path)
-            => path.Replace("\\", "\\\\");
+            => path?.Replace("\\", "\\\\");
     }
 }

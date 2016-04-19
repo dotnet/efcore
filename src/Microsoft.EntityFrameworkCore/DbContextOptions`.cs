@@ -56,5 +56,7 @@ namespace Microsoft.EntityFrameworkCore
 
             return new DbContextOptions<TContext>(extensions);
         }
+
+        public override Type ContextType => typeof(TContext);
     }
 }

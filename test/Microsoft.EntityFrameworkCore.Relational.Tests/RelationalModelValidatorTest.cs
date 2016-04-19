@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         {
             base.SetBaseType(entityType, baseEntityType);
 
-            var discriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string));
+            var discriminatorProperty = baseEntityType.GetOrAddProperty("Discriminator", typeof(string), shadow: true);
             baseEntityType.Relational().DiscriminatorProperty = discriminatorProperty;
             baseEntityType.Relational().DiscriminatorValue = baseEntityType.Name;
             entityType.Relational().DiscriminatorValue = entityType.Name;

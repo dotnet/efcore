@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
@@ -36,13 +36,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
                 {
                     isMet &= TestEnvironment.DefaultConnection.Contains("database.windows.net");
                 }
+                if (Conditions.HasFlag(SqlServerCondition.IsNotSqlAzure))
+                {
+                    isMet &= !TestEnvironment.DefaultConnection.Contains("database.windows.net");
+                }
                 return isMet;
             }
         }
 
         public string SkipReason =>
-            string.Format("The test SQL Server does not meet these conditions: '{0}'"
-                , string.Join(", ", Enum.GetValues(typeof(SqlServerCondition))
+            // ReSharper disable once UseStringInterpolation
+            string.Format("The test SQL Server does not meet these conditions: '{0}'",
+                string.Join(", ", Enum.GetValues(typeof(SqlServerCondition))
                     .Cast<Enum>()
                     .Where(f => Conditions.HasFlag(f))
                     .Select(f => Enum.GetName(typeof(SqlServerCondition), f))));
@@ -53,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
     {
         SupportsSequences = 1 << 0,
         SupportsOffset = 1 << 1,
-        IsSqlAzure = 1 << 2
+        IsSqlAzure = 1 << 2,
+        IsNotSqlAzure = 1 << 3
     }
 }

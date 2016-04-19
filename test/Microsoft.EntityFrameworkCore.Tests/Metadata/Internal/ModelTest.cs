@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var entityType1 = model.AddEntityType(typeof(Customer));
             var entityType2 = model.AddEntityType(typeof(Order));
             var keyProperty = entityType1.AddProperty("Id", typeof(int));
-            var fkProperty = entityType2.AddProperty("CustomerId", typeof(int?));
+            var fkProperty = entityType2.AddProperty("CustomerId", typeof(int));
             var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, entityType1.AddKey(keyProperty), entityType1);
 
             var referencingForeignKeys = entityType1.GetReferencingForeignKeys();

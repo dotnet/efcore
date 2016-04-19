@@ -1,14 +1,21 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if ENABLE_HANDLERS && NET451
 using System;
 
-#endif
+// ReSharper disable All
+
+// CAUTION / CAUTION / CAUTION
+//
+// This file needs to be written in C# 5. It is also compiled by the powershell host 
+// in Package Manager Console which does not support C# 6.
+//
+// CAUTION / CAUTION /CAUTION
+
+// ReSharper disable once CheckNamespace
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
-#if !OMIT_HANDLER_INTERFACES
     public interface IOperationResultHandler
     {
         int Version { get; }
@@ -25,10 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         void WriteDebug(string message);
         void WriteTrace(string message);
     }
-#endif
 
-#if ENABLE_HANDLERS && NET451
-    public class OperationResultHandler : MarshalByRefObject, IOperationResultHandler
+    public partial class OperationResultHandler : IOperationResultHandler
     {
         private bool _hasResult;
         private object _result;
@@ -36,17 +41,17 @@ namespace Microsoft.EntityFrameworkCore.Design
         private string _errorMessage;
         private string _errorStackTrace;
 
-        public virtual int Version => 0;
+        public virtual int Version { get { return 0; } }
 
-        public virtual bool HasResult => _hasResult;
+        public virtual bool HasResult { get { return _hasResult; } }
 
-        public virtual object Result => _result;
+        public virtual object Result { get { return _result; } }
 
-        public virtual string ErrorType => _errorType;
+        public virtual string ErrorType { get { return _errorType; } }
 
-        public virtual string ErrorMessage => _errorMessage;
+        public virtual string ErrorMessage { get { return _errorMessage; } }
 
-        public virtual string ErrorStackTrace => _errorStackTrace;
+        public virtual string ErrorStackTrace { get { return _errorStackTrace; } }
 
         public virtual void OnResult(object value)
         {
@@ -62,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
     }
 
-    public class OperationLogHandler : MarshalByRefObject, IOperationLogHandler
+    public partial class OperationLogHandler : IOperationLogHandler
     {
         private readonly Action<string> _writeError;
         private readonly Action<string> _writeWarning;
@@ -70,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly Action<string> _writeDebug;
         private readonly Action<string> _writeTrace;
 
-        public virtual int Version => 0;
+        public virtual int Version { get { return 0; } }
 
         public OperationLogHandler(
             Action<string> writeError = null,
@@ -86,15 +91,54 @@ namespace Microsoft.EntityFrameworkCore.Design
             _writeTrace = writeTrace;
         }
 
-        public virtual void WriteError(string message) => _writeError?.Invoke(message);
+        public virtual void WriteError(string message)
+        {
+            if (_writeError != null)
+            {
+                _writeError.Invoke(message);
+            }
+        }
 
-        public virtual void WriteWarning(string message) => _writeWarning?.Invoke(message);
+        public virtual void WriteWarning(string message)
+        {
+            if (_writeWarning != null)
+            {
+                _writeWarning.Invoke(message);
+            }
+        }
 
-        public virtual void WriteInformation(string message) => _writeInformation?.Invoke(message);
+        public virtual void WriteInformation(string message)
+        {
+            if (_writeInformation != null)
+            {
+                _writeInformation.Invoke(message);
+            }
+        }
 
-        public virtual void WriteDebug(string message) => _writeDebug?.Invoke(message);
+        public virtual void WriteDebug(string message)
+        {
+            if (_writeDebug != null)
+            {
+                _writeDebug.Invoke(message);
+            }
+        }
 
-        public virtual void WriteTrace(string message) => _writeTrace?.Invoke(message);
+        public virtual void WriteTrace(string message)
+        {
+            if (_writeTrace != null)
+            {
+                _writeTrace.Invoke(message);
+            }
+        }
+    }
+
+#if NET451
+    partial class OperationResultHandler : MarshalByRefObject
+    {
+    }
+
+    partial class OperationLogHandler : MarshalByRefObject
+    {
     }
 #endif
 }

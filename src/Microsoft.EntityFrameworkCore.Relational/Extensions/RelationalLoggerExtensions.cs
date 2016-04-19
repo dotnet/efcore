@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     internal static class RelationalLoggerExtensions
@@ -27,38 +26,41 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(command, nameof(command));
 
-            logger.LogInformation(
-                RelationalLoggingEventId.ExecutedCommand,
-                () =>
-                    {
-                        var logParameterValues
-                            = command.Parameters.Count > 0
-                              && logger.LogSensitiveData;
-                        var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                var logParameterValues
+                    = command.Parameters.Count > 0
+                      && logger.LogSensitiveData;
 
-                        return new DbCommandLogData(
-                            command.CommandText.TrimEnd(),
-                            command.CommandType,
-                            command.CommandTimeout,
-                            command.Parameters
-                                .Cast<DbParameter>()
-                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
-                            elapsedMilliseconds);
-                    },
-                state =>
-                    {
-                        var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
+                var logData = new DbCommandLogData(
+                    command.CommandText.TrimEnd(),
+                    command.CommandType,
+                    command.CommandTimeout,
+                    command.Parameters
+                        .Cast<DbParameter>()
+                        .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
+                    DeriveTimespan(startTimestamp, currentTimestamp));
 
-                        return RelationalStrings.RelationalLoggerExecutedCommand(
-                            string.Format($"{elapsedMilliseconds:N0}"),
-                            state.Parameters
-                                .Select(kv => $"{kv.Key}='{FormatParameterValue(kv.Value)}'")
-                                .Join(),
-                            state.CommandType,
-                            state.CommandTimeout,
-                            Environment.NewLine,
-                            state.CommandText);
-                    });
+                logger.Log(
+                    LogLevel.Information,
+                    (int)RelationalLoggingEventId.ExecutedCommand,
+                    logData,
+                    null,
+                    (state, _) =>
+                        {
+                            var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
+
+                            return RelationalStrings.RelationalLoggerExecutedCommand(
+                                string.Format($"{elapsedMilliseconds:N0}"),
+                                state.Parameters
+                                    .Select(kv => $"{kv.Key}='{FormatParameterValue(kv.Value)}'")
+                                    .Join(),
+                                state.CommandType,
+                                state.CommandTimeout,
+                                Environment.NewLine,
+                                state.CommandText);
+                        });
+            }
         }
 
         public static object FormatParameterValue(object parameterValue)
@@ -84,12 +86,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return stringValueBuilder.ToString();
         }
 
-        private static void LogInformation<TState>(
-            this ILogger logger, RelationalLoggingEventId eventId, Func<TState> state, Func<TState, string> formatter)
+        public static void LogInformation<TState>(
+            this ILogger logger, RelationalLoggingEventId eventId, TState state, Func<TState, string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.Log(LogLevel.Information, (int)eventId, state(), null, (s, _) => formatter(s));
+                logger.Log(LogLevel.Information, (int)eventId, state, null, (s, _) => formatter(s));
             }
         }
 

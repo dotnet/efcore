@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -13,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract partial class InternalEntityEntry : IUpdateEntry
     {
         private StateData _stateData;
@@ -77,12 +77,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && (newState != EntityState.Added)
                 && (newState != EntityState.Detached))
             {
-                var hasTempValue = EntityType.GetProperties()
-                    .FirstOrDefault(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.TemporaryOrModified));
-
-                if (hasTempValue != null)
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var property in EntityType.GetProperties())
                 {
-                    throw new InvalidOperationException(CoreStrings.TempValuePersists(hasTempValue.Name, EntityType.DisplayName(), newState));
+                    if (HasTemporaryValue(property))
+                    {
+                        throw new InvalidOperationException(CoreStrings.TempValuePersists(property.Name, EntityType.DisplayName(), newState));
+                    }
                 }
             }
 
@@ -248,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _stateData.EntityState != EntityState.Deleted
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
 
-        public virtual bool HasTemporaryValue([NotNull] IProperty property)
+        public virtual bool HasTemporaryValue(IProperty property)
             => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
@@ -387,6 +388,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _relationshipsSnapshot.AddToCollection(propertyBase, addedEntity);
         }
 
+        public virtual void AddRangeToCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] IEnumerable<object> addedEntities)
+        {
+            EnsureRelationshipSnapshot();
+            _relationshipsSnapshot.AddRangeToCollection(propertyBase, addedEntities);
+        }
+
         public virtual object this[[NotNull] IPropertyBase propertyBase]
         {
             get
@@ -485,7 +492,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (EntityState == EntityState.Added)
             {
-                var setProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyBeforeSave && !IsTemporaryOrDefault(p));
+                IProperty setProperty = null;
+                foreach (var property in EntityType.GetProperties())
+                {
+                    if (property.IsReadOnlyBeforeSave
+                        && !IsTemporaryOrDefault(property))
+                    {
+                        setProperty = property;
+                        break;
+                    }
+                }
                 if (setProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(setProperty.Name, EntityType.DisplayName()));
@@ -493,7 +509,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (EntityState == EntityState.Modified)
             {
-                var modifiedProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyAfterSave && IsModified(p));
+                IProperty modifiedProperty = null;
+                foreach (var property in EntityType.GetProperties())
+                {
+                    if (property.IsReadOnlyAfterSave
+                        && IsModified(property))
+                    {
+                        modifiedProperty = property;
+                        break;
+                    }
+                }
                 if (modifiedProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(modifiedProperty.Name, EntityType.DisplayName()));
@@ -510,10 +535,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual void HandleConceptualNulls()
         {
-            var fks = EntityType.GetForeignKeys()
-                .Where(fk => fk.Properties
-                    .Any(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null)))
-                .ToList();
+            var fks = new List<IForeignKey>();
+            foreach (var foreignKey in EntityType.GetForeignKeys())
+            {
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var property in foreignKey.Properties)
+                {
+                    if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null))
+                    {
+                        fks.Add(foreignKey);
+                        break;
+                    }
+                }
+            }
 
             if (fks.Any(fk => fk.DeleteBehavior == DeleteBehavior.Cascade))
             {

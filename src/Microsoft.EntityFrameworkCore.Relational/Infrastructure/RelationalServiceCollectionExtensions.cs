@@ -25,7 +25,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public static class RelationalServiceCollectionExtensions

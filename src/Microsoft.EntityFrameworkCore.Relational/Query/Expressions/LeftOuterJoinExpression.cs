@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         public override string ToString()
-            => "OUTER JOIN (" + _tableExpression + ") ON " + Predicate;
+            => "OUTER JOIN (" + TableExpression + ") ON " + Predicate;
     }
 }

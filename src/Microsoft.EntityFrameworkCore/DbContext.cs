@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -82,6 +83,11 @@ namespace Microsoft.EntityFrameworkCore
         public DbContext([NotNull] DbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
+
+            if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
+            {
+                throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().DisplayName()));
+            }
 
             _options = options;
 

@@ -65,8 +65,8 @@
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
     <Compile Include="Extensions\DbCommandLogData.cs" />
-    <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\MethodInfoExtensions.cs" />
+    <Compile Include="Extensions\RelationalExpressionExtensions.cs" />
     <Compile Include="Extensions\RelationalLoggerExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
@@ -175,6 +175,7 @@
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="QueryClientEvaluationBehavior.cs" />
+    <Compile Include="QueryClientEvaluationBehaviorExtensions.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\AggregateExpression.cs" />
     <Compile Include="Query\Expressions\AliasExpression.cs" />
@@ -197,6 +198,7 @@
     <Compile Include="Query\Expressions\MaxExpression.cs" />
     <Compile Include="Query\Expressions\MinExpression.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
+    <Compile Include="Query\Expressions\PropertyParameterExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpression.cs" />
     <Compile Include="Query\Expressions\SelectExpressionFactory.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
@@ -308,6 +310,7 @@
     <Compile Include="Storage\Internal\RelationalParameterBuilder.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\Internal\TypeMappedPropertyRelationalParameter.cs" />
     <Compile Include="Storage\Internal\TypeMappedRelationalParameter.cs" />
     <Compile Include="Storage\Internal\UntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IParameterNameGeneratorFactory.cs" />

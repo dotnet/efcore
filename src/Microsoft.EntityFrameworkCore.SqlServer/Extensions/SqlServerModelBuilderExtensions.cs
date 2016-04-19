@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore
 {
     public static class SqlServerModelBuilderExtensions
@@ -21,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            return new RelationalSequenceBuilder(
-                modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema));
+            return new RelationalSequenceBuilder(modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema));
         }
 
         public static ModelBuilder ForSqlServerHasSequence(
@@ -139,9 +137,10 @@ namespace Microsoft.EntityFrameworkCore
 
             name = name ?? SqlServerModelAnnotations.DefaultHiLoSequenceName;
 
-            var sequence =
-                model.SqlServer().FindSequence(name, schema) ??
-                modelBuilder.ForSqlServerHasSequence(name, schema).IncrementsBy(10).Metadata;
+            if (model.SqlServer().FindSequence(name, schema) == null)
+            {
+                modelBuilder.ForSqlServerHasSequence(name, schema).IncrementsBy(10);
+            }
 
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
             model.SqlServer().HiLoSequenceName = name;

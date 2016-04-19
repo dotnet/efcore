@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class ScaffoldingUtilities
     {
         public virtual string GenerateLambdaToKey(
-            [NotNull] IEnumerable<IProperty> properties,
+            [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] string lambdaIdentifier)
         {
             Check.NotNull(properties, nameof(properties));
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var sb = new StringBuilder();
 
-            if (properties.Count() > 1)
+            if (properties.Count > 1)
             {
                 sb.Append("new { ");
                 sb.Append(string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name)));
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var primaryKeyProperties =
                 ((EntityType)entityType).FindPrimaryKey()?.Properties.ToList()
-                ?? Enumerable.Empty<Property>();
+                ?? new List<Property>();
 
             foreach (var property in primaryKeyProperties)
             {

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
             .GetDeclaredMethods(nameof(string.Substring))
-            .Single(m => m.GetParameters().Count() == 2);
+            .Single(m => m.GetParameters().Length == 2);
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
             => methodCallExpression.Method == _methodInfo
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     new[]
                     {
                         methodCallExpression.Object,
-                        // Accomidate for SQL Server assumption of 1-based string indexes
+                        // Accommodate for SQL Server assumption of 1-based string indexes
                         methodCallExpression.Arguments[0].NodeType == ExpressionType.Constant
                             ? (Expression)Expression.Constant(
                                 (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value + 1)

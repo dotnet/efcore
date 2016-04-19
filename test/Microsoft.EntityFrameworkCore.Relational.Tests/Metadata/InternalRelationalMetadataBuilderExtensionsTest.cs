@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         {
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
-            var idProperty = entityTypeBuilder.Property("Id", ConfigurationSource.Convention).Metadata;
+            var idProperty = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
 
             Assert.True(keyBuilder.Relational(ConfigurationSource.Convention).HasName("Splew"));
@@ -202,8 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             Assert.Equal(typeof(int?), typeBuilder.Metadata.Relational().DiscriminatorProperty.ClrType);
 
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.DataAnnotation).HasDiscriminator(typeof(int)));
-            Assert.Null(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(typeof(int?)));
-            Assert.Equal(Splot.SplowedProperty.Name, typeBuilder.Metadata.Relational().DiscriminatorProperty.Name);
+            Assert.Null(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(typeof(long)));
+            Assert.Equal("Discriminator", typeBuilder.Metadata.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(int), typeBuilder.Metadata.Relational().DiscriminatorProperty.ClrType);
 
             Assert.Null(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((PropertyInfo)null));

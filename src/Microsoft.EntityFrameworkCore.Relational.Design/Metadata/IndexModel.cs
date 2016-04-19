@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     public class IndexModel : Annotatable
     {
-        [CanBeNull]
         public virtual TableModel Table { get; [param: CanBeNull] set; }
 
         public virtual string Name { get; [param: NotNull] set; }

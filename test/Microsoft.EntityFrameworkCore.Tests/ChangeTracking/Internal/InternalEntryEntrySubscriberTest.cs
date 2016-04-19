@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.FunctionalTests;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -81,14 +81,45 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Null(testListener.Changing);
-            Assert.Null(testListener.Changed);
+            Assert.Empty(testListener.Changing);
+            Assert.Empty(testListener.Changed);
 
             entity.Name = "Palmer";
 
             var property = entry.EntityType.FindProperty("Name");
-            Assert.Same(property, testListener.Changing);
-            Assert.Same(property, testListener.Changed);
+            Assert.Same(property, testListener.Changing.Single());
+            Assert.Same(property, testListener.Changed.Single());
+        }
+
+        [Fact]
+        public void Entry_handles_null_or_empty_string_in_INotifyPropertyChanging_and_INotifyPropertyChanged()
+        {
+            var contextServices = TestHelpers.Instance.CreateContextServices(
+                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                BuildModel());
+
+            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
+
+            var entity = new FullNotificationEntity();
+            var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
+            entry.SetEntityState(EntityState.Unchanged);
+
+            Assert.Empty(testListener.Changing);
+            Assert.Empty(testListener.Changed);
+
+            entity.NotifyChanging(null);
+
+            Assert.Equal(
+                new[] { "Name", "RelatedCollection" }, 
+                testListener.Changing.Select(e => e.Name).OrderBy(e => e).ToArray());
+
+            Assert.Empty(testListener.Changed);
+
+            entity.NotifyChanged("");
+
+            Assert.Equal(
+                new[] { "Name", "RelatedCollection" },
+                testListener.Changed.Select(e => e.Name).OrderBy(e => e).ToArray());
         }
 
         [Fact]
@@ -104,14 +135,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Null(testListener.Changing);
-            Assert.Null(testListener.Changed);
+            Assert.Empty(testListener.Changing);
+            Assert.Empty(testListener.Changed);
 
             entity.RelatedCollection = new List<ChangedOnlyNotificationEntity>();
 
             var property = entry.EntityType.FindNavigation("RelatedCollection");
-            Assert.Same(property, testListener.Changing);
-            Assert.Same(property, testListener.Changed);
+            Assert.Same(property, testListener.Changing.Single());
+            Assert.Same(property, testListener.Changed.Single());
         }
 
         [Fact]
@@ -126,29 +157,25 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var entity = new FullNotificationEntity();
             contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entity);
 
-            Assert.Null(testListener.Changing);
-            Assert.Null(testListener.Changed);
+            Assert.Empty(testListener.Changing);
+            Assert.Empty(testListener.Changed);
 
             entity.NotMapped = "Luckey";
 
-            Assert.Null(testListener.Changing);
-            Assert.Null(testListener.Changed);
+            Assert.Empty(testListener.Changing);
+            Assert.Empty(testListener.Changed);
         }
 
         private class TestPropertyListener : IPropertyListener
         {
-            public IPropertyBase Changing { get; set; }
-            public IPropertyBase Changed { get; set; }
+            public List<IPropertyBase> Changing { get; } = new List<IPropertyBase>();
+            public List<IPropertyBase> Changed { get; } = new List<IPropertyBase>();
 
-            public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
-            {
-                Changed = property;
-            }
+            public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified) 
+                => Changed.Add(property);
 
-            public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
-            {
-                Changing = property;
-            }
+            public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property) 
+                => Changing.Add(property);
         }
 
         private static IModel BuildModel()
@@ -208,10 +235,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged(string propertyName)
+            public void NotifyChanged(string propertyName)
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            private void NotifyChanging(string propertyName)
+            public void NotifyChanging(string propertyName)
                 => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 

@@ -51,11 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                ?? Sequence.FindSequence(Model, RelationalFullAnnotationNames.Instance.SequencePrefix, name, schema);
 
         public virtual Sequence GetOrAddSequence([CanBeNull] string name, [CanBeNull] string schema = null)
-            => new Sequence(
-                (IMutableModel)Model,
+            => Sequence.GetOrAddSequence((IMutableModel)Model,
                 (ProviderFullAnnotationNames ?? RelationalFullAnnotationNames.Instance).SequencePrefix,
-                Check.NotEmpty(name, nameof(name)),
-                Check.NullButNotEmpty(schema, nameof(schema)));
+                name,
+                schema);
 
         public virtual string DefaultSchema
         {

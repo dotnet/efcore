@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0], isTemporary: false);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Deleted, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.Equal("T1", command.TableName);
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
 
             Assert.Equal(
                 RelationalStrings.ModificationFunctionInvalidEntityState(EntityState.Unchanged),
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Detached);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
 
             Assert.Equal(
                 RelationalStrings.ModificationFunctionInvalidEntityState(EntityState.Detached),
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(
                 EntityState.Deleted, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -355,10 +355,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
             command.AddEntry(entry);
 
             Assert.False(command.RequiresResultPropagation);
+        }
+
+        [Fact]
+        public void ColumnModifications_throw_on_temporary_values_with_no_store_generation_configured()
+        {
+            var entry = CreateEntry(EntityState.Added);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
+
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, p => p.TestProvider());
+            command.AddEntry(entry);
+
+            Assert.Equal(
+                CoreStrings.TempValue("Id", "T1"),
+                Assert.Throws<InvalidOperationException>(() => command.ColumnModifications).Message);
         }
 
         private class T1
@@ -372,14 +386,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             var model = new Model();
             var entityType = model.AddEntityType(typeof(T1));
 
-            var key = entityType.AddProperty("Id", typeof(int));
-            key.IsShadowProperty = false;
+            var key = entityType.AddProperty("Id", typeof(int), shadow: false);
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.AddProperty("Name", typeof(string));
-            nonKey.IsShadowProperty = false;
+            var nonKey = entityType.AddProperty("Name", typeof(string), shadow: false);
             nonKey.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey.Relational().ColumnName = "Col2";

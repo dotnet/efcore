@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var contexts = new Dictionary<Type, Func<DbContext>>();
 
             // Look for IDbContextFactory implementations
-            var contextFactories = _startupAssembly.GetConstructibleTypes()
+            var contextFactories = _startupAssembly.GetConstructableTypes()
                 .Where(t => typeof(IDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
             foreach (var factory in contextFactories)
             {
@@ -113,9 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
 
             // Look for DbContext classes in assemblies
-            var types = _startupAssembly.GetConstructibleTypes()
-                .Concat(_assembly.GetConstructibleTypes())
-                .Select(i => i.AsType());
+            var types = _startupAssembly.GetConstructableTypes()
+                .Concat(_assembly.GetConstructableTypes())
+                .Select(i => i.AsType())
+                .ToList();
             var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t))
                 .Concat(
                     types.Where(t => typeof(Migration).IsAssignableFrom(t))
@@ -135,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private static Func<DbContext> FindContextFactory(Type contextType)
         {
             var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
-            var factory = contextType.GetTypeInfo().Assembly.GetConstructibleTypes()
+            var factory = contextType.GetTypeInfo().Assembly.GetConstructableTypes()
                 .Where(t => factoryInterface.IsAssignableFrom(t))
                 .Select(t => t.AsType())
                 .FirstOrDefault();

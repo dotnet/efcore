@@ -44,14 +44,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             => FieldMatchTest("BrainDamage", "m_BrainDamage");
 
         [Fact]
-        public void M_underscpre_matching_field_is_used_as_fifth_preference() 
+        public void M_underscore_matching_field_is_used_as_fifth_preference() 
             => FieldMatchTest("Eclipse", "m_Eclipse");
 
         private static void FieldMatchTest(string propertyName, string fieldName)
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSideOfTheMoon));
-            var property = entityType.AddProperty(propertyName, typeof(int));
-            property.IsShadowProperty = false;
+            var property = entityType.AddProperty(propertyName, typeof(int), shadow: false);
             var propertyInfo = entityType.ClrType.GetAnyProperty(propertyName);
             var fields = propertyInfo.DeclaringType.GetRuntimeFields().ToDictionary(f => f.Name);
 
@@ -64,8 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void M_underscore_matching_field_is_not_used_if_type_is_not_compatible()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSideOfTheMoon));
-            var property = entityType.AddProperty("SpeakToMe", typeof(int));
-            property.IsShadowProperty = false;
+            var property = entityType.AddProperty("SpeakToMe", typeof(int), shadow: false);
             var propertyInfo = entityType.ClrType.GetAnyProperty("SpeakToMe");
             var fields = propertyInfo.DeclaringType.GetRuntimeFields().ToDictionary(f => f.Name);
 

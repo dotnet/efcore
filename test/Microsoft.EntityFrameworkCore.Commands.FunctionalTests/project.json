@@ -1,18 +1,13 @@
 {
   "compilationOptions": {
-    "define": [
-      "OMIT_HANDLER_INTERFACES",
-      "ENABLE_HANDLERS"
-    ],
     "keyFile": "../../tools/Key.snk",
     "preserveCompilationContext": true
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Commands": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design.FunctionalTests": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.0-*"
   },
-  "compileFiles": "../../src/Microsoft.EntityFrameworkCore.Commands/tools/OperationHandlers.cs",
   "testRunner": "xunit",
   "frameworks": {
     "netstandardapp1.5": {
@@ -21,7 +16,8 @@
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*"
+        "Microsoft.NETCore.Platforms": "1.0.1-*",
+        "dotnet-test-xunit": "1.0.0-dev-*"
       }
     },
     "net451": { }

@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class SqliteDatabaseCreator : RelationalDatabaseCreator
     {
+        // ReSharper disable once InconsistentNaming
         private const int SQLITE_CANTOPEN = 14;
 
         private readonly SqliteRelationalConnection _connection;
@@ -75,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             catch
             {
+                // any exceptions here can be ignored
             }
 
             if (!string.IsNullOrEmpty(path))
