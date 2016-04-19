@@ -9,7 +9,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
 using Microsoft.Extensions.Configuration;
 #endif
 
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 
         private static string GetMachineName()
         {
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
             var config = new ConfigurationBuilder()
                 .SetBasePath(".")
                 .AddEnvironmentVariables()

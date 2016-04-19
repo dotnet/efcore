@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
 using System.Threading;
 #endif
 

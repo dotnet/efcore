@@ -5,7 +5,7 @@
     <DefineConstants Condition=" '$(TargetFrameworkMoniker)' == '.NETFramework,Version=v4.5.1' ">$(DefineConstants);NET451</DefineConstants>
     <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <NuGetTarget Condition=" '$(NuGetTarget)' == '' ">$(TargetFrameworkMoniker)/win7-x86</NuGetTarget>
+    <NuGetTarget Condition=" '$(NuGetTarget)' == '' ">$(TargetFrameworkMoniker)</NuGetTarget>
     <ProjectLockTargetsFile>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)project.lock.targets</ProjectLockTargetsFile>
   </PropertyGroup>
   <UsingTask TaskName="GenerateProjectLockTargets"

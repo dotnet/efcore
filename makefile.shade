@@ -17,7 +17,7 @@ k-standard-goals
     // produce .NET Core test artifacts for testing
     var testProjects = Files.Include("test/Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests/project.json")
     .Include("test/Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests/project.json");
-    var tfm = "netstandardapp1.5";
+    var tfm = "netcoreapp1.0";
     foreach (var projectFile in testProjects)
     {
       var projectName = Path.GetFileName(Path.GetDirectoryName(projectFile));
