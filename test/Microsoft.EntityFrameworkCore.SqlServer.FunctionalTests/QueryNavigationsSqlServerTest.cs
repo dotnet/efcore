@@ -281,6 +281,23 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void Collection_select_nav_prop_predicate()
+        {
+            base.Collection_select_nav_prop_predicate();
+
+            Assert.Equal(
+                @"SELECT CASE
+    WHEN (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+    ) > 0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Collection_where_nav_prop_any()
         {
             base.Collection_where_nav_prop_any();

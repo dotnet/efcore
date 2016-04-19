@@ -396,6 +396,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Collection_select_nav_prop_predicate()
+        {
+            using (var context = CreateContext())
+            {
+                var result = context.Customers
+                    .Select(c => c.Orders.Count > 0)
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Collection_where_nav_prop_any()
         {
             using (var context = CreateContext())
