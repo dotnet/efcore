@@ -623,6 +623,133 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     });
         }
 
+        [Fact]
+        public void ThenInclude_with_interface_navigations_3409()
+        {
+            CreateDatabase3409();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var context = new MyContext3409(serviceProvider))
+            {
+                var results = context.Parents
+                    .Include(p => p.ChildCollection)
+                    .ThenInclude(c => c.SelfReferenceCollection)
+                    .ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(1, results[0].ChildCollection.Count);
+                Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
+            }
+
+            using (var context = new MyContext3409(serviceProvider))
+            {
+                var results = context.Children
+                    .Include(c => c.SelfReferenceBackNavigation)
+                    .ThenInclude(c => c.ParentBackNavigation)
+                    .ToList();
+
+                Assert.Equal(3, results.Count);
+                Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+            }
+        }
+
+        public class MyContext3409 : DbContext
+        {
+            public DbSet<Parent3409> Parents { get; set; }
+            public DbSet<Child3409> Children { get; set; }
+
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext3409(IServiceProvider serviceProvider)
+            {
+                _serviceProvider = serviceProvider;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3409"))
+                    .UseInternalServiceProvider(_serviceProvider);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Parent3409>()
+                    .HasMany(p => (ICollection<Child3409>)p.ChildCollection)
+                    .WithOne(c => (Parent3409)c.ParentBackNavigation);
+
+                modelBuilder.Entity<Child3409>()
+                    .HasMany(c => (ICollection<Child3409>)c.SelfReferenceCollection)
+                    .WithOne(c => (Child3409)c.SelfReferenceBackNavigation);
+            }
+        }
+
+        public interface IParent3409
+        {
+            int Id { get; set; }
+
+            ICollection<IChild3409> ChildCollection { get; set; }
+        }
+
+        public interface IChild3409
+        {
+            int Id { get; set; }
+
+            int? ParentBackNavigationId { get; set; }
+            IParent3409 ParentBackNavigation { get; set; }
+
+            ICollection<IChild3409> SelfReferenceCollection { get; set; }
+            int? SelfReferenceBackNavigationId { get; set; }
+            IChild3409 SelfReferenceBackNavigation { get; set; }
+        }
+
+        public class Parent3409 : IParent3409
+        {
+            public int Id { get; set; }
+
+            public ICollection<IChild3409> ChildCollection { get; set; }
+        }
+
+        public class Child3409 : IChild3409
+        {
+            public int Id { get; set; }
+
+            public int? ParentBackNavigationId { get; set; }
+            public IParent3409 ParentBackNavigation { get; set; }
+
+            public ICollection<IChild3409> SelfReferenceCollection { get; set; }
+            public int? SelfReferenceBackNavigationId { get; set; }
+            public IChild3409 SelfReferenceBackNavigation { get; set; }
+        }
+
+        private void CreateDatabase3409()
+        {
+            CreateTestStore(
+                "Repro3409",
+                _fixture.ServiceProvider,
+                (sp, co) => new MyContext3409(sp),
+                context =>
+                    {
+                        var parent1 = new Parent3409();
+
+                        var child1 = new Child3409();
+                        var child2 = new Child3409();
+                        var child3 = new Child3409();
+
+                        parent1.ChildCollection = new List<IChild3409> { child1 };
+                        child1.SelfReferenceCollection = new List<IChild3409> { child2, child3 };
+
+                        context.Parents.AddRange(parent1);
+                        context.Children.AddRange(child1, child2, child3);
+
+                        context.SaveChanges();
+                    });
+        }
+
         private static void CreateTestStore<TContext>(
             string databaseName,
             IServiceProvider serviceProvider,
