@@ -812,6 +812,53 @@ ORDER BY [e].[EmployeeID] - [e].[EmployeeID]",
                 Sql);
         }
 
+        public override void OrderBy_condition_comparison()
+        {
+            base.OrderBy_condition_comparison();
+
+            Assert.Equal(
+               @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+ORDER BY CASE
+    WHEN [p].[UnitsInStock] > 0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [p].[ProductID]",
+               Sql);
+        }
+
+        public override void OrderBy_ternary_conditions()
+        {
+            base.OrderBy_ternary_conditions();
+
+            Assert.Equal(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+ORDER BY CASE
+    WHEN (([p].[UnitsInStock] > 10) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= 10) AND ([p].[ProductID] <= 40))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [p].[ProductID]",
+                Sql);
+        }
+
+        public override void OrderBy_any()
+        {
+            base.OrderBy_any();
+
+            Assert.Equal(
+                @"SELECT [p].[CustomerID], [p].[Address], [p].[City], [p].[CompanyName], [p].[ContactName], [p].[ContactTitle], [p].[Country], [p].[Fax], [p].[Phone], [p].[PostalCode], [p].[Region]
+FROM [Customers] AS [p]
+ORDER BY (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ([o].[OrderID] > 11000) AND ([p].[CustomerID] = [o].[CustomerID]))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+), [p].[CustomerID]",
+                Sql);
+        }
+
         public override void Sum_with_no_arg()
         {
             base.Sum_with_no_arg();

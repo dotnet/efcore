@@ -3494,6 +3494,35 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 9);
         }
 
+        [ConditionalFact]
+        public virtual void OrderBy_condition_comparison()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitsInStock > 0).ThenBy(p => p.ProductID),
+                assertOrder: true,
+                entryCount: 77);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_ternary_conditions()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitsInStock > 10 ? p.ProductID > 40 : p.ProductID <= 40).ThenBy(p => p.ProductID),
+                assertOrder: true,
+                entryCount: 77);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_any()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(p => p.Orders.Any(o => o.OrderID > 11000)).ThenBy(p => p.CustomerID).ToList();
+
+                Assert.Equal(91, query.Count);
+            }
+        }
+
         public static bool ClientEvalPredicateStateless() => true;
 
         protected static bool ClientEvalPredicate(Order order) => order.OrderID > 10000;
