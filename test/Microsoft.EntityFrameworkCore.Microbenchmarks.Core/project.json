@@ -19,7 +19,7 @@
           "type": "platform"
         },
         "System.Data.SqlClient": "4.1.0-*",
-        "dotnet-test-xunit": "1.0.0-dev-*"
+        "dotnet-test-xunit": "1.0.0-*"
       }
     },
     "net451": {
