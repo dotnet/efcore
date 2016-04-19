@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitOuterJoin(this)
+                ? specificVisitor.VisitLeftOuterJoin(this)
                 : base.Accept(visitor);
         }
 
         public override string ToString()
-            => "OUTER JOIN (" + TableExpression + ") ON " + Predicate;
+            => "LEFT OUTER JOIN (" + TableExpression + ") ON " + Predicate;
     }
 }

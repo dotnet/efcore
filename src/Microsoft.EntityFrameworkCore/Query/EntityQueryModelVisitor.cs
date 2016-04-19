@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 VisitQueryModel(queryModel);
 
-                AsyncSingleResultToSequence(queryModel);
+                SingleResultToSequence(queryModel, _expression.Type.GetTypeInfo().GenericTypeArguments[0]);
 
                 IncludeNavigations(queryModel);
 
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => CoreStrings.LogOptimizedQueryModel(queryModel));
         }
 
-        protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
+        protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel, [CanBeNull] Type type = null)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
@@ -260,32 +260,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _expression
                     = Expression.Call(
                         LinqOperatorProvider.ToSequence
-                            .MakeGenericMethod(_expression.Type),
+                            .MakeGenericMethod(type ?? _expression.Type),
                         _expression);
             }
         }
-
-        protected virtual void AsyncSingleResultToSequence([NotNull] QueryModel queryModel)
-        {
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
-            {
-                _expression
-                    = Expression.Call(
-                        _taskToSequence.MakeGenericMethod(
-                            _expression.Type.GetTypeInfo().GenericTypeArguments[0]),
-                        _expression);
-            }
-        }
-
-        private static readonly MethodInfo _taskToSequence
-            = typeof(EntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod(nameof(TaskToSequence));
-
-        [UsedImplicitly]
-        private static IAsyncEnumerable<T> TaskToSequence<T>(Task<T> task)
-            => new TaskResultAsyncEnumerable<T>(task);
 
         protected virtual void IncludeNavigations([NotNull] QueryModel queryModel)
         {

@@ -748,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return innerJoinExpression;
         }
 
-        public virtual Expression VisitOuterJoin(LeftOuterJoinExpression leftOuterJoinExpression)
+        public virtual Expression VisitLeftOuterJoin(LeftOuterJoinExpression leftOuterJoinExpression)
         {
             Check.NotNull(leftOuterJoinExpression, nameof(leftOuterJoinExpression));
 

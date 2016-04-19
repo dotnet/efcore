@@ -281,8 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IAsyncEnumerable<T> _ToSequence<T>(T element)
-            => new AsyncEnumerableAdapter<T>(new[] { element });
+        internal static IAsyncEnumerable<T> _ToSequence<T>(Task<T> task)
+            => new TaskResultAsyncEnumerable<T>(task);
 
         public virtual MethodInfo ToSequence => _toSequence;
 

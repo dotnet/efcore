@@ -222,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 navigationPath,
                 currentNavigationIndex,
                 await relatedEntitiesLoaders[currentNavigationIndex]
-                    .Load(queryContext, keyComparer).Select(async (eli, ct) =>
+                    .Load(queryContext, keyComparer)
+                    .Select(async (eli, ct) =>
                         {
                             var targetEntity = GetEntity(key, eli, queryStateManager, throwOnNullKey: false);
 
