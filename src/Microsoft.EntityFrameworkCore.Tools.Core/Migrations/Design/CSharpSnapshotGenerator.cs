@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -418,6 +419,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 annotations.Remove(discriminatorPropertyAnnotation);
                 annotations.Remove(discriminatorValueAnnotation);
+            }
+
+            var navigationCandidatesAnnotation = annotations
+                .FirstOrDefault(a => a.Name == RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName);
+            if (navigationCandidatesAnnotation != null)
+            {
+                annotations.Remove(navigationCandidatesAnnotation);
             }
 
             if (annotations.Any())

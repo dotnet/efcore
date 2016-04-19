@@ -1142,6 +1142,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return targetEntityTypeBuilder.Relationship(this, null, navigationToTarget, configurationSource);
             }
 
+            var existingRelationship = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
+                targetEntityTypeBuilder.Metadata,
+                Metadata,
+                navigationToTarget,
+                inverseNavigation,
+                null,
+                null);
+            if (existingRelationship != null)
+            {
+                if (navigationToTarget != null)
+                {
+                    existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                }
+                if (inverseNavigation != null)
+                {
+                    existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                }
+                existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
+                return existingRelationship;
+            }
+
+            existingRelationship = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
+                Metadata,
+                targetEntityTypeBuilder.Metadata,
+                inverseNavigation,
+                navigationToTarget,
+                null,
+                null);
+            if (existingRelationship != null)
+            {
+                if (navigationToTarget != null)
+                {
+                    existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                }
+                if (inverseNavigation != null)
+                {
+                    existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                }
+                existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
+                return existingRelationship;
+            }
+
             var relationship = CreateForeignKey(
                 targetEntityTypeBuilder,
                 null,
@@ -1455,7 +1497,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return list;
         }
 
-        private IReadOnlyList<Property> GetActualProperties(IEnumerable<Property> properties, ConfigurationSource? configurationSource)
+        public virtual IReadOnlyList<Property> GetActualProperties([CanBeNull] IEnumerable<Property> properties, ConfigurationSource? configurationSource)
         {
             if (properties == null)
             {
@@ -1465,8 +1507,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var actualProperties = new List<Property>();
             foreach (var property in properties)
             {
-                var builder = property.Builder
-                              ?? Property(property.Name, propertyType: null, clrProperty: null, configurationSource: configurationSource);
+                var builder = property.Builder != null && property.DeclaringEntityType.IsAssignableFrom(Metadata)
+                    ? property.Builder
+                    : Metadata.FindProperty(property.Name)?.Builder
+                      ?? Property(property.Name, property.ClrType, property.PropertyInfo, configurationSource);
                 if (builder == null)
                 {
                     return null;

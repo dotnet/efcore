@@ -213,6 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return derivedTypes;
         }
 
+        public virtual IEnumerable<EntityType> GetDerivedTypesInclusive()
+            => new[] { this }.Concat(GetDerivedTypes());
+
         private bool InheritsFrom(EntityType entityType)
         {
             var et = this;

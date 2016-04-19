@@ -42,11 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotEmpty(ignoredMemberName, nameof(ignoredMemberName));
 
-            foreach (var entityTypeMemberIgnoredConvention in _conventionSet.EntityTypeMemberIgnoredConventions)
+            foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
-                if (!entityTypeMemberIgnoredConvention.Apply(entityTypeBuilder, ignoredMemberName))
+                foreach (var entityTypeMemberIgnoredConvention in _conventionSet.EntityTypeMemberIgnoredConventions)
                 {
-                    break;
+                    if (!entityTypeMemberIgnoredConvention.Apply(entityType.Builder, ignoredMemberName))
+                    {
+                        break;
+                    }
                 }
             }
 

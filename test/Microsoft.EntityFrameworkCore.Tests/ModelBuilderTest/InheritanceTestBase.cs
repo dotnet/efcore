@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var fk = bookLabelEntityBuilder.Metadata.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
                 Assert.Equal(nameof(SpecialBookLabel.BookLabel), fk.DependentToPrincipal.Name);
-                Assert.Same(fk, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys().Single());
+                Assert.Equal(new[] { fk }, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
             }
         }
     }

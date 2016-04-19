@@ -2,16 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -1717,6 +1715,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 67
         }
+
         private static IModel BuildModelWithChanged()
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder()

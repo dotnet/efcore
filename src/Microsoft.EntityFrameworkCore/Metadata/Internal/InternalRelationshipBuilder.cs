@@ -934,7 +934,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 return null;
             }
-
+            
+            var dependentProperties = (IReadOnlyList<Property>)new Property[0];
+            var principalProperties = (IReadOnlyList<Property>)new Property[0];
             var builder = this;
             if (shouldInvert)
             {
@@ -971,6 +973,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     return builder;
                 }
+
+                dependentProperties = shouldResetDependentProperties
+                    ? dependentProperties
+                    : ((Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
+                        ? dependentEntityType.Builder.GetActualProperties(Metadata.Properties, configurationSource)
+                        : null);
+
+                principalProperties = shouldResetPrincipalProperties
+                    ? principalProperties
+                    : ((Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) ?? false)
+                        ? principalEntityType.Builder.GetActualProperties(Metadata.PrincipalKey.Properties, configurationSource)
+                        : null);
             }
 
             return builder.ReplaceForeignKey(
@@ -979,8 +993,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentEntityTypeBuilder: dependentEntityType.Builder,
                 navigationToPrincipal: shouldResetToPrincipal ? PropertyIdentity.None : (PropertyIdentity?)null,
                 navigationToDependent: shouldResetToDependent ? PropertyIdentity.None : (PropertyIdentity?)null,
-                dependentProperties: shouldResetDependentProperties ? new Property[0] : null,
-                principalProperties: shouldResetPrincipalProperties ? new Property[0] : null,
+                dependentProperties: dependentProperties,
+                principalProperties: principalProperties,
                 isUnique: shouldBeUnique,
                 principalEndConfigurationSource: principalEndConfigurationSource,
                 oldRelationshipInverted: shouldInvert,
@@ -2204,7 +2218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && (!existingRelationshipInverted
                         || (existingRelationshipInverted
                             && newRelationshipBuilder.Metadata.IsSelfReferencing()
-                            && CanInvert(configurationSource))))
+                            && newRelationshipBuilder.CanInvert(principalEndConfigurationSource))))
                 {
                     // TODO: Also handle the case where existing relationship cannot be inverted,
                     // so the new nav to principal will be the specified nav to dependent
@@ -2304,13 +2318,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return existingRelationships;
         }
 
-        private InternalRelationshipBuilder FindCurrentRelationshipBuilder(
-            EntityType principalEntityType,
-            EntityType dependentEntityType,
+        public static InternalRelationshipBuilder FindCurrentRelationshipBuilder(
+            [NotNull] EntityType principalEntityType,
+            [NotNull] EntityType dependentEntityType,
             PropertyIdentity? navigationToPrincipal,
             PropertyIdentity? navigationToDependent,
-            IReadOnlyList<Property> dependentProperties = null,
-            IReadOnlyList<Property> principalProperties = null)
+            [CanBeNull] IReadOnlyList<Property> dependentProperties,
+            [CanBeNull] IReadOnlyList<Property> principalProperties)
         {
             InternalRelationshipBuilder currentRelationship = null;
             var matchingRelationships = FindRelationships(
@@ -2323,17 +2337,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var matchingRelationship in matchingRelationships)
             {
-                var matchingForeignKey = matchingRelationship.Metadata;
-                if (navigationToPrincipal != null
-                    && matchingForeignKey.DependentToPrincipal?.Name != navigationToPrincipal.Value.Name)
+                if (!matchingRelationship.Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityType))
                 {
                     continue;
                 }
 
-                if (navigationToDependent != null
-                    && matchingForeignKey.PrincipalToDependent?.Name != navigationToDependent.Value.Name)
+                if (!matchingRelationship.Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityType))
                 {
                     continue;
+                }
+
+                var matchingForeignKey = matchingRelationship.Metadata;
+                var sameHierarchyInvertedNavigations =
+                    principalEntityType.IsSameHierarchy(dependentEntityType)
+                    && (navigationToPrincipal == null
+                        || navigationToPrincipal.Value.Name == matchingForeignKey.PrincipalToDependent?.Name)
+                    && (navigationToDependent == null
+                        || navigationToDependent.Value.Name == matchingForeignKey.DependentToPrincipal?.Name);
+
+                if (!sameHierarchyInvertedNavigations)
+                {
+                    if (navigationToPrincipal != null
+                        && matchingForeignKey.DependentToPrincipal?.Name != navigationToPrincipal.Value.Name)
+                    {
+                        continue;
+                    }
+
+                    if (navigationToDependent != null
+                        && matchingForeignKey.PrincipalToDependent?.Name != navigationToDependent.Value.Name)
+                    {
+                        continue;
+                    }
                 }
 
                 if (dependentProperties != null
