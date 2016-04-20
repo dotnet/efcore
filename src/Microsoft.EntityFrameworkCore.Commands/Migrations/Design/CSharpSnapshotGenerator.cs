@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var firstKey = true;
-            foreach (var key in keys.Where(key => key != primaryKey && !key.FindReferencingForeignKeys().Any()))
+            foreach (var key in keys.Where(key => key != primaryKey && !key.GetReferencingForeignKeys().Any()))
             {
                 if (!firstKey)
                 {

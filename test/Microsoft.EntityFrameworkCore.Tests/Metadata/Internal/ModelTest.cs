@@ -5,13 +5,23 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class ModelTest
     {
+        [Fact]
+        public void Use_of_custom_IModel_throws()
+        {
+            Assert.Equal(
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IModel_throws), nameof(IModel), "IModelProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IModel>().AsModel()).Message);
+        }
+
         [Fact]
         public void Can_add_and_remove_entity_by_type()
         {

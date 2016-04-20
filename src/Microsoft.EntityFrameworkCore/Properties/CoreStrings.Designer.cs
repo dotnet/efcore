@@ -229,15 +229,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
-        /// </summary>
-        public static string TempValue([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("TempValue", "property", "entityType"), property, entityType);
-        }
-
-
-        /// <summary>
         /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
         /// </summary>
         public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)
@@ -990,6 +981,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.
+        /// </summary>
+        public static string CustomMetadata([CanBeNull] object method, [CanBeNull] object interfaceType, [CanBeNull] object concreteType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CustomMetadata", "method", "interfaceType", "concreteType"), method, interfaceType, concreteType);
+        }
+
+        /// <summary>
         /// Unhandled operation: MemberInitExpression binding is not a MemberAssignment
         /// </summary>
         public static string InvalidMemberInitBinding
@@ -1155,6 +1154,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NoPropertyType([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoPropertyType", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
+        /// </summary>
+        public static string TempValue([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TempValue", "property", "entityType"), property, entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

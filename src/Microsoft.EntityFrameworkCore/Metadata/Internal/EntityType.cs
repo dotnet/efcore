@@ -14,14 +14,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
-    public class EntityType :
-        ConventionalAnnotatable,
-        IMutableEntityType,
-        ICanGetNavigations,
-        IPropertyCountsAccessor,
-        ISnapshotFactorySource,
-        IReferencingForeignKeyMetadata,
-        IMutableEntityTypeAddPropertyInfo
+    public class EntityType : ConventionalAnnotatable, IMutableEntityType
     {
         private readonly SortedSet<ForeignKey> _foreignKeys
             = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance);
@@ -394,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
 
-                if (property.FindContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
+                if (property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
                 }
@@ -507,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void CheckKeyNotInUse(Key key)
         {
-            var foreignKey = key.FindReferencingForeignKeys().FirstOrDefault();
+            var foreignKey = key.GetReferencingForeignKeys().FirstOrDefault();
             if (foreignKey != null)
             {
                 throw new InvalidOperationException(CoreStrings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.DeclaringEntityType.Name));
@@ -548,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
 
-                if (actualProperty.FindContainingKeys().Any(k => k.DeclaringEntityType != this))
+                if (actualProperty.GetContainingKeys().Any(k => k.DeclaringEntityType != this))
                 {
                     throw new InvalidOperationException(CoreStrings.ForeignKeyPropertyInKey(actualProperty.Name, this.DisplayName()));
                 }
@@ -795,8 +788,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => _baseType?.GetDeclaredReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
                ?? GetDeclaredReferencingForeignKeys();
-
-        IEnumerable<IForeignKey> IReferencingForeignKeyMetadata.ReferencingForeignKeys => GetReferencingForeignKeys();
 
         public virtual IEnumerable<ForeignKey> GetDeclaredReferencingForeignKeys()
             => DeclaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
@@ -1218,7 +1209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public virtual void PropertyMetadataChanged()
         {
-            foreach (var indexedProperty in this.GetPropertiesAndNavigations().OfType<IPropertyIndexesAccessor>())
+            foreach (var indexedProperty in this.GetPropertiesAndNavigations().OfType<PropertyBase>())
             {
                 indexedProperty.PropertyIndexes = null;
             }
@@ -1333,8 +1324,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => RemoveForeignKey(properties, principalKey, principalEntityType);
 
-        IEnumerable<INavigation> ICanGetNavigations.GetNavigations() => GetNavigations();
-
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
             => AddIndex(properties.Cast<Property>().ToList());
 
@@ -1347,7 +1336,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => RemoveIndex(properties);
 
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, bool shadow) => AddProperty(name, propertyType, shadow);
-        IMutableProperty IMutableEntityTypeAddPropertyInfo.AddProperty(PropertyInfo propertyInfo) => AddProperty(propertyInfo);
         IProperty IEntityType.FindProperty(string name) => FindProperty(name);
         IMutableProperty IMutableEntityType.FindProperty(string name) => FindProperty(name);
         IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();

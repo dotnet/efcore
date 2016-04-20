@@ -3,40 +3,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public static class ForeignKeyExtensions
     {
         public static bool IsSelfReferencing([NotNull] this IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return foreignKey.DeclaringEntityType == foreignKey.PrincipalEntityType;
-        }
+            => foreignKey.DeclaringEntityType == foreignKey.PrincipalEntityType;
 
         public static bool IsIntraHierarchical([NotNull] this IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return foreignKey.DeclaringEntityType.IsSameHierarchy(foreignKey.PrincipalEntityType);
-        }
+            => foreignKey.DeclaringEntityType.IsSameHierarchy(foreignKey.PrincipalEntityType);
 
         public static bool IsSelfPrimaryKeyReferencing([NotNull] this IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            return foreignKey.DeclaringEntityType.FindPrimaryKey() == foreignKey.PrincipalKey;
-        }
+            => foreignKey.DeclaringEntityType.FindPrimaryKey() == foreignKey.PrincipalKey;
 
         public static IEnumerable<INavigation> GetNavigations([NotNull] this IForeignKey foreignKey)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             if (foreignKey.PrincipalToDependent != null)
             {
                 yield return foreignKey.PrincipalToDependent;
@@ -51,11 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IEnumerable<INavigation> FindNavigationsFrom(
             [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(entityType, nameof(entityType));
-
-            if ((foreignKey.DeclaringEntityType != entityType)
-                && (foreignKey.PrincipalEntityType != entityType))
+            if (foreignKey.DeclaringEntityType != entityType
+                && foreignKey.PrincipalEntityType != entityType)
             {
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationshipStrict(
                     entityType.DisplayName(),
@@ -71,9 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IEnumerable<INavigation> FindNavigationsFromInHierarchy(
             [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(entityType, nameof(entityType));
-
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
@@ -90,11 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public static IEnumerable<INavigation> FindNavigationsTo([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(entityType, nameof(entityType));
-
-            if ((foreignKey.DeclaringEntityType != entityType)
-                && (foreignKey.PrincipalEntityType != entityType))
+            if (foreignKey.DeclaringEntityType != entityType
+                && foreignKey.PrincipalEntityType != entityType)
             {
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationshipStrict(
                     entityType.DisplayName(),
@@ -110,9 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IEnumerable<INavigation> FindNavigationsToInHierarchy(
             [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(entityType, nameof(entityType));
-
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
@@ -146,11 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public static IEntityType ResolveOtherEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(entityType, nameof(entityType));
-
-            if ((foreignKey.DeclaringEntityType != entityType)
-                && (foreignKey.PrincipalEntityType != entityType))
+            if (foreignKey.DeclaringEntityType != entityType
+                && foreignKey.PrincipalEntityType != entityType)
             {
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotInRelationshipStrict(
                     entityType.DisplayName(),
@@ -166,9 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IEntityType ResolveOtherEntityTypeInHierarchy(
             [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(entityType, nameof(entityType));
-
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
@@ -194,9 +162,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public static IEntityType ResolveEntityTypeInHierarchy([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotNull(entityType, nameof(entityType));
-
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
@@ -221,21 +186,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public static IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory<TKey>(
             [NotNull] this IForeignKey foreignKey)
-        {
-            var factorySource = foreignKey as IDependentKeyValueFactorySource;
-
-            return factorySource != null
-                ? (IDependentKeyValueFactory<TKey>)factorySource.DependentKeyValueFactory
-                : new DependentKeyValueFactoryFactory().Create<TKey>(foreignKey);
-        }
+            => (IDependentKeyValueFactory<TKey>)foreignKey.AsForeignKey().DependentKeyValueFactory;
 
         public static IDependentsMap CreateDependentsMapFactory([NotNull] this IForeignKey foreignKey)
-        {
-            var factorySource = foreignKey as IDependentsMapFactorySource;
+            => foreignKey.AsForeignKey().DependentsMapFactory();
 
-            return factorySource != null
-                ? factorySource.DependentsMapFactory()
-                : new DependentsMapFactoryFactory().Create(foreignKey)();
-        }
+        public static ForeignKey AsForeignKey([NotNull] this IForeignKey foreignKey, [NotNull] [CallerMemberName] string methodName = "")
+            => foreignKey.AsConcreteMetadataType<IForeignKey, ForeignKey>(methodName);
     }
 }

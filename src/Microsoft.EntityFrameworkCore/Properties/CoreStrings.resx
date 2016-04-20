@@ -480,6 +480,9 @@
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
   </data>
+  <data name="CustomMetadata" xml:space="preserve">
+    <value>The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.</value>
+  </data>
   <data name="InvalidMemberInitBinding" xml:space="preserve">
     <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
   </data>

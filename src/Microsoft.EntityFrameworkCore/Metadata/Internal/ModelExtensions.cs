@@ -3,29 +3,23 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public static class ModelExtensions
     {
         public static string GetProductVersion([NotNull] this IModel model)
-        {
-            Check.NotNull(model, nameof(model));
-
-            return model[CoreAnnotationNames.ProductVersionAnnotation] as string;
-        }
+            => model[CoreAnnotationNames.ProductVersionAnnotation] as string;
 
         public static void SetProductVersion([NotNull] this Model model, [NotNull] string value)
-        {
-            Check.NotNull(model, nameof(model));
-            Check.NotEmpty(value, nameof(value));
-
-            model[CoreAnnotationNames.ProductVersionAnnotation] = value;
-        }
+            => model[CoreAnnotationNames.ProductVersionAnnotation] = value;
 
         public static IEnumerable<IEntityType> GetRootEntityTypes([NotNull] this IModel model)
             => model.GetEntityTypes().Where(e => e.BaseType == null);
+
+        public static Model AsModel([NotNull] this IModel model, [CallerMemberName] [NotNull] string methodName = "")
+            => model.AsConcreteMetadataType<IModel, Model>(methodName);
     }
 }

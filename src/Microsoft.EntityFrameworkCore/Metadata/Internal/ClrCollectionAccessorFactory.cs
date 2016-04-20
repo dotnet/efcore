@@ -29,10 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return accessor;
             }
 
-            var propertyInfoAccessor = navigation as IPropertyPropertyInfoAccessor;
-            var property = propertyInfoAccessor != null
-                ? propertyInfoAccessor.PropertyInfo
-                : navigation.DeclaringEntityType.ClrType.GetAnyProperty(navigation.Name);
+            var property = navigation.GetPropertyInfo();
             var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
 
             // TODO: Only ICollections supported; add support for enumerables with add/remove methods

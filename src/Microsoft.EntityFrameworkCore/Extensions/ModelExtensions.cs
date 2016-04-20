@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -23,14 +22,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity class to find the type for. </param>
         /// <returns> The entity type, or null if none if found. </returns>
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            var findClrEntityType = model as IModelFindClrType;
-
-            return findClrEntityType != null
-                ? findClrEntityType.FindEntityType(type)
-                : model.FindEntityType(type.DisplayName());
-        }
+            => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
     }
 }

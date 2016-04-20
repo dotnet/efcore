@@ -37,17 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     True if the property is used as a foreign key, otherwise false.
         /// </returns>
         public static bool IsForeignKey([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var keyMetadata = property as IPropertyKeyMetadata;
-            if (keyMetadata != null)
-            {
-                return keyMetadata.ForeignKeys != null;
-            }
-
-            return FindContainingForeignKeys(property).Any();
-        }
+            => Check.NotNull(property, nameof(property)).AsProperty().ForeignKeys != null;
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as an index (or part of a composite index).
@@ -57,17 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     True if the property is used as an index, otherwise false.
         /// </returns>
         public static bool IsIndex([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var indexMetadata = property as IPropertyIndexMetadata;
-            if (indexMetadata != null)
-            {
-                return indexMetadata.Indexes != null;
-            }
-
-            return FindContainingIndexes(property).Any();
-        }
+            => Check.NotNull(property, nameof(property)).AsProperty().Indexes != null;
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
@@ -77,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     True if the property is used as the primary key, otherwise false.
         /// </returns>
         public static bool IsPrimaryKey([NotNull] this IProperty property)
-            => FindContainingPrimaryKey(property) != null;
+            => GetContainingPrimaryKey(property) != null;
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as part of a primary or alternate key
@@ -88,17 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     True if the property is part of a key, otherwise false.
         /// </returns>
         public static bool IsKey([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var keyMetadata = property as IPropertyKeyMetadata;
-            if (keyMetadata != null)
-            {
-                return keyMetadata.Keys != null;
-            }
-
-            return FindContainingKeys(property).Any();
-        }
+            => Check.NotNull(property, nameof(property)).AsProperty().Keys != null;
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -108,22 +78,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The foreign keys that use this property.
         /// </returns>
-        public static IEnumerable<IForeignKey> FindContainingForeignKeys([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var keyMetadata = property as IPropertyKeyMetadata;
-            if (keyMetadata != null)
-            {
-                return keyMetadata.ForeignKeys ?? Enumerable.Empty<IForeignKey>();
-            }
-
-            var entityType = property.DeclaringEntityType;
-            return entityType.GetAllBaseTypesInclusive()
-                .Concat(entityType.GetDerivedTypes())
-                .SelectMany(et => et.GetDeclaredForeignKeys())
-                .Where(k => k.Properties.Contains(property));
-        }
+        public static IEnumerable<IForeignKey> GetContainingForeignKeys([NotNull] this IProperty property)
+            => Check.NotNull(property, nameof(property)).AsProperty().ForeignKeys
+               ?? Enumerable.Empty<IForeignKey>();
 
         /// <summary>
         ///     Gets all indexes that use this property (including composite indexes in which this property
@@ -133,22 +90,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The indexes that use this property.
         /// </returns>
-        public static IEnumerable<IIndex> FindContainingIndexes([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var indexMetadata = property as IPropertyIndexMetadata;
-            if (indexMetadata != null)
-            {
-                return indexMetadata.Indexes ?? Enumerable.Empty<IIndex>();
-            }
-
-            var entityType = property.DeclaringEntityType;
-            return entityType.GetAllBaseTypesInclusive()
-                .Concat(entityType.GetDerivedTypes())
-                .SelectMany(et => et.GetDeclaredIndexes())
-                .Where(k => k.Properties.Contains(property));
-        }
+        public static IEnumerable<IIndex> GetContainingIndexes([NotNull] this IProperty property)
+            => Check.NotNull(property, nameof(property)).AsProperty().Indexes
+               ?? Enumerable.Empty<IIndex>();
 
         /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
@@ -158,25 +102,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or null if it is not part of the primary key.
         /// </returns>
-        public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var keyMetadata = property as IPropertyKeyMetadata;
-            if (keyMetadata != null)
-            {
-                return keyMetadata.PrimaryKey;
-            }
-
-            var pk = property.DeclaringEntityType.FindPrimaryKey();
-            if ((pk != null)
-                && pk.Properties.Contains(property))
-            {
-                return pk;
-            }
-
-            return null;
-        }
+        public static IKey GetContainingPrimaryKey([NotNull] this IProperty property)
+            => Check.NotNull(property, nameof(property)).AsProperty().PrimaryKey;
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property
@@ -186,17 +113,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary and alternate keys that use this property.
         /// </returns>
-        public static IEnumerable<IKey> FindContainingKeys([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var keyMetadata = property as IPropertyKeyMetadata;
-            if (keyMetadata != null)
-            {
-                return keyMetadata.Keys ?? Enumerable.Empty<IKey>();
-            }
-
-            return property.DeclaringEntityType.GetKeys().Where(e => e.Properties.Contains(property));
-        }
+        public static IEnumerable<IKey> GetContainingKeys([NotNull] this IProperty property)
+            => Check.NotNull(property, nameof(property)).AsProperty().Keys
+               ?? Enumerable.Empty<IKey>();
     }
 }

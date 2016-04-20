@@ -4857,10 +4857,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         private static Mock<InternalEntityEntry> CreateInternalEntryMock()
         {
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(e => e.GetProperties()).Returns(new IProperty[0]);
+            var entityTypeMock = new Mock<EntityType>("Entity", new Model(), ConfigurationSource.Explicit);
+            entityTypeMock.Setup(e => e.GetProperties()).Returns(new Property[0]);
 
-            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
+            entityTypeMock.Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
 
             var internalEntryMock = new Mock<InternalEntityEntry>(
                 Mock.Of<IStateManager>(), entityTypeMock.Object);

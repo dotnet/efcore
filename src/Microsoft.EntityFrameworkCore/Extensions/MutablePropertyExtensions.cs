@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(property, nameof(property));
 
-            if ((maxLength != null)
-                && (maxLength < 0))
+            if (maxLength != null
+                && maxLength < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The foreign keys that use this property.
         /// </returns>
-        public static IEnumerable<IMutableForeignKey> FindContainingForeignKeys([NotNull] this IMutableProperty property)
-            => ((IProperty)property).FindContainingForeignKeys().Cast<IMutableForeignKey>();
+        public static IEnumerable<IMutableForeignKey> GetContainingForeignKeys([NotNull] this IMutableProperty property)
+            => ((IProperty)property).GetContainingForeignKeys().Cast<IMutableForeignKey>();
 
         /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or null if it is not part of the primary key.
         /// </returns>
-        public static IMutableKey FindContainingPrimaryKey([NotNull] this IMutableProperty property)
-            => (IMutableKey)((IProperty)property).FindContainingPrimaryKey();
+        public static IMutableKey GetContainingPrimaryKey([NotNull] this IMutableProperty property)
+            => (IMutableKey)((IProperty)property).GetContainingPrimaryKey();
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary and alternate keys that use this property.
         /// </returns>
-        public static IEnumerable<IMutableKey> FindContainingKeys([NotNull] this IMutableProperty property)
-            => ((IProperty)property).FindContainingKeys().Cast<IMutableKey>();
+        public static IEnumerable<IMutableKey> GetContainingKeys([NotNull] this IMutableProperty property)
+            => ((IProperty)property).GetContainingKeys().Cast<IMutableKey>();
     }
 }

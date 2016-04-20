@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (keyPredicate(key))
                     {
                         string message;
-                        var referencingFk = key.FindReferencingForeignKeys().FirstOrDefault();
+                        var referencingFk = key.GetReferencingForeignKeys().FirstOrDefault();
                         if (referencingFk != null)
                         {
                             if (referencingFk.DependentToPrincipal == null

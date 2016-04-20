@@ -16,8 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void Parameters_return_set_values()
         {
+            var property = new Model().AddEntityType(typeof(object)).AddProperty("Kake", typeof(string));
+
             var columnModification = new ColumnModification(
-                CreateInternalEntryMock(Mock.Of<IProperty>()).Object,
+                CreateInternalEntryMock(property).Object,
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyAnnotations>().Object,
                 new ParameterNameGenerator().GenerateNext,
@@ -39,7 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void Get_Value_delegates_to_Entry()
         {
-            var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());
+            var property = new Model().AddEntityType(typeof(object)).AddProperty("Kake", typeof(string));
+
+            var internalEntryMock = CreateInternalEntryMock(property);
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 new Mock<IProperty>().Object,
@@ -59,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void Set_Value_delegates_to_Entry()
         {
-            var property = new Mock<IProperty>().Object;
+            var property = new Model().AddEntityType(typeof(object)).AddProperty("Kake", typeof(string));
+
             var internalEntryMock = CreateInternalEntryMock(property);
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
@@ -78,12 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             internalEntryMock.Verify(m => m.SetCurrentValue(property, It.IsAny<object>()), Times.Once);
         }
 
-        private static Mock<InternalEntityEntry> CreateInternalEntryMock(IProperty property)
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock(Property property)
         {
-            var entityTypeMock = new Mock<IEntityType>();
+            var entityTypeMock = new Mock<EntityType>("Entity", new Model(), ConfigurationSource.Explicit);
             entityTypeMock.Setup(e => e.GetProperties()).Returns(new[] { property });
 
-            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
+            entityTypeMock.Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
 
             var internalEntryMock = new Mock<InternalEntityEntry>(
                 Mock.Of<IStateManager>(), entityTypeMock.Object);

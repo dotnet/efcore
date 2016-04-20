@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (!isRequired)
                 {
-                    foreach (var key in Metadata.FindContainingKeys().ToList())
+                    foreach (var key in Metadata.GetContainingKeys().ToList())
                     {
                         var removed = key.DeclaringEntityType.Builder.RemoveKey(key, configurationSource);
                         Debug.Assert(removed.HasValue);

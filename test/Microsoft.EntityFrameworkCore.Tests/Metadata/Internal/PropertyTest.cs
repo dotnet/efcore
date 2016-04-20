@@ -5,12 +5,29 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class PropertyTest
     {
+        [Fact]
+        public void Use_of_custom_IProperty_throws()
+        {
+            Assert.Equal(
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), "IPropertyProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IProperty>().AsProperty()).Message);
+        }
+
+        [Fact]
+        public void Use_of_custom_IPropertyBase_throws()
+        {
+            Assert.Equal(
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), "IPropertyBaseProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IPropertyBase>().AsPropertyBase()).Message);
+        }
+
         [Fact]
         public void Can_set_ClrType()
         {

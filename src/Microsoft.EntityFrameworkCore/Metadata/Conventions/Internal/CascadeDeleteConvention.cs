@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         public virtual bool Apply(InternalPropertyBuilder propertyBuilder)
         {
-            foreach (var foreignKey in propertyBuilder.Metadata.FindContainingForeignKeys())
+            foreach (var foreignKey in propertyBuilder.Metadata.GetContainingForeignKeys())
             {
                 Apply(foreignKey.Builder);
             }

@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    var keys = property.FindContainingKeys().ToList();
-                    var foreignKeys = property.FindContainingForeignKeys().ToList();
+                    var keys = property.GetContainingKeys().ToList();
+                    var foreignKeys = property.GetContainingForeignKeys().ToList();
 
                     entry.StateManager.Notify.KeyPropertyChanged(entry, property, keys, foreignKeys, snapshotValue, currentValue);
                 }

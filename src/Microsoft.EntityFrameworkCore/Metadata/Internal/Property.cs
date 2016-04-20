@@ -13,21 +13,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
-    public class Property
-        : ConventionalAnnotatable,
-            IMutableProperty,
-            IPropertyBaseAccessors,
-            IPropertyPropertyInfoAccessor,
-            IPropertyIndexesAccessor,
-            IPropertyKeyMetadata,
-            IPropertyIndexMetadata
+    public class Property : PropertyBase, IMutableProperty
     {
-        // Warning: Never access these fields directly as access needs to be thread-safe
-        private IClrPropertyGetter _getter;
-        private IClrPropertySetter _setter;
-        private PropertyAccessors _accessors;
-        private PropertyIndexes _indexes;
-
         private int _flags;
 
         private ConfigurationSource _configurationSource;
@@ -44,33 +31,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type clrType,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource)
+            : base(name, null)
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
-            Name = name;
-            ClrType = clrType;
             DeclaringEntityType = declaringEntityType;
-            _configurationSource = configurationSource;
-
-            Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
+            ClrType = clrType;
+            Initialize(declaringEntityType, configurationSource);
         }
 
         public Property(
             [NotNull] PropertyInfo propertyInfo,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource)
-            : this(Check.NotNull(propertyInfo, nameof(propertyInfo)).Name,
-                propertyInfo.PropertyType,
-                Check.NotNull(declaringEntityType, nameof(declaringEntityType)),
-                configurationSource)
+            : base(Check.NotNull(propertyInfo, nameof(propertyInfo)).Name, propertyInfo)
         {
-            PropertyInfo = propertyInfo;
+            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
+
+            DeclaringEntityType = declaringEntityType;
+            ClrType = propertyInfo.PropertyType;
+            Initialize(declaringEntityType, configurationSource);
         }
 
-        public virtual string Name { get; }
-        public virtual EntityType DeclaringEntityType { get; }
+        private void Initialize(EntityType declaringEntityType, ConfigurationSource configurationSource)
+        {
+            _configurationSource = configurationSource;
+
+            Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
+        }
+
+        public override EntityType DeclaringEntityType { get; }
+
         public virtual InternalPropertyBuilder Builder { get; [param: CanBeNull] set; }
 
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
@@ -293,14 +285,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateIsStoreGeneratedAlwaysConfigurationSource(ConfigurationSource configurationSource)
             => _isStoreGeneratedAlwaysConfigurationSource = configurationSource.Max(_isStoreGeneratedAlwaysConfigurationSource);
 
-        public virtual IEnumerable<ForeignKey> FindContainingForeignKeys()
-            => ((IProperty)this).FindContainingForeignKeys().Cast<ForeignKey>();
+        public virtual IEnumerable<ForeignKey> GetContainingForeignKeys()
+            => ((IProperty)this).GetContainingForeignKeys().Cast<ForeignKey>();
 
-        public virtual IEnumerable<Key> FindContainingKeys()
-            => ((IProperty)this).FindContainingKeys().Cast<Key>();
+        public virtual IEnumerable<Key> GetContainingKeys()
+            => ((IProperty)this).GetContainingKeys().Cast<Key>();
 
-        public virtual IEnumerable<Index> FindContainingIndexes()
-            => ((IProperty)this).FindContainingIndexes().Cast<Index>();
+        public virtual IEnumerable<Index> GetContainingIndexes()
+            => ((IProperty)this).GetContainingIndexes().Cast<Index>();
 
         private bool TryGetFlag(PropertyFlags flag, out bool value)
         {
@@ -350,42 +342,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && (entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)));
         }
 
-        public virtual IClrPropertyGetter Getter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _getter, PropertyInfo, p => new ClrPropertyGetterFactory().Create(p));
-
-        public virtual IClrPropertySetter Setter
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _setter, PropertyInfo, p => new ClrPropertySetterFactory().Create(p));
-
-        public virtual PropertyAccessors Accessors
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
-
-        public virtual PropertyIndexes PropertyIndexes
-        {
-            get
-            {
-                return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
-                    property => property.DeclaringEntityType.CalculateIndexes(property));
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    // This path should only kick in when the model is still mutable and therefore access does not need
-                    // to be thread-safe.
-                    _indexes = null;
-                }
-                else
-                {
-                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
-                }
-            }
-        }
-
         public virtual IKey PrimaryKey { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IKey> Keys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
         public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
-        public virtual PropertyInfo PropertyInfo { get; }
     }
 }
