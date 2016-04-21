@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 runSummary.Aggregate(iterationSummary);
             }
 
-            if (runSummary.Failed != 0)
+            if (runSummary.Failed != 0 || runSummary.Skipped != 0)
             {
                 _diagnosticMessageSink.OnMessage(new DiagnosticMessage($"No valid results for {TestCase.DisplayName}. {runSummary.Failed} of {TestCase.Iterations + TestCase.WarmupIterations} iterations failed."));
             }
