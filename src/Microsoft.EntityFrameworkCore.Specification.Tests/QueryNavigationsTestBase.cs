@@ -747,6 +747,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void GroupBy_on_nav_prop()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from o in context.Orders
+                            group o by o.Customer.City into og
+                            select og;
+
+                var result = query.ToList();
+
+                Assert.Equal(69, result.Count);
+            }
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;
