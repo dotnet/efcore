@@ -15,9 +15,18 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
             Data = data;
         }
 
+        public BenchmarkVariationAttribute(string variationName, int iterations, object[] data)
+        {
+            VariationName = variationName;
+            Iterations = iterations;
+            Data = data;
+        }
+
         public string VariationName { get; private set; }
 
         public object[] Data { get; }
+
+        public int? Iterations { get; set; }
 
         public override IEnumerable<object[]> GetData(MethodInfo testMethod) => new[] { Data };
     }
