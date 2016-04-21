@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
@@ -72,6 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 
         private class Category
         {
+            public static readonly PropertyInfo ProductsProperty = typeof(Category).GetProperty(nameof(Products));
+            public static readonly PropertyInfo FeaturedProductProperty = typeof(Category).GetProperty(nameof(FeaturedProduct));
+
             public int Id { get; set; }
 
             public int FeaturedProductId { get; set; }
@@ -82,6 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 
         private class Product
         {
+            public static readonly PropertyInfo CategoryProperty = typeof(Product).GetProperty(nameof(Category));
+            public static readonly PropertyInfo FeaturedProductCategoryProperty = typeof(Product).GetProperty(nameof(FeaturedProductCategory));
+
             public int Id { get; set; }
 
             public Category FeaturedProductCategory { get; set; }
@@ -117,20 +124,20 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
 
             if (createProducts)
             {
-                categoryFk.HasPrincipalToDependent(nameof(Category.Products));
+                categoryFk.HasPrincipalToDependent(Category.ProductsProperty);
             }
             if (createCategory)
             {
-                categoryFk.HasDependentToPrincipal(nameof(Product.Category));
+                categoryFk.HasDependentToPrincipal(Product.CategoryProperty);
             }
 
             if (createFeaturedProductCategory)
             {
-                featuredProductFk.HasPrincipalToDependent(nameof(Product.FeaturedProductCategory));
+                featuredProductFk.HasPrincipalToDependent(Product.FeaturedProductCategoryProperty);
             }
             if (createFeaturedProduct)
             {
-                featuredProductFk.HasDependentToPrincipal(nameof(Category.FeaturedProduct));
+                featuredProductFk.HasDependentToPrincipal(Category.FeaturedProductProperty);
             }
 
             return model;

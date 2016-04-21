@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -125,29 +124,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (!entityType.HasClrType())
                     {
-                        throw new InvalidOperationException(CoreStrings.NonClrBaseType(this, entityType));
+                        throw new InvalidOperationException(CoreStrings.NonClrBaseType(this.DisplayName(), entityType.DisplayName()));
                     }
 
                     if (!entityType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                     {
-                        throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this, entityType, ClrType.Name, entityType.ClrType.Name));
+                        throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this.DisplayName(), entityType.DisplayName(), ClrType.DisplayName(fullName: false), entityType.ClrType.DisplayName(fullName: false)));
                     }
                 }
 
                 if (!this.HasClrType()
                     && entityType.HasClrType())
                 {
-                    throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this, entityType));
+                    throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this.DisplayName(), entityType.DisplayName()));
                 }
 
                 if (entityType.InheritsFrom(this))
                 {
-                    throw new InvalidOperationException(CoreStrings.CircularInheritance(this, entityType));
+                    throw new InvalidOperationException(CoreStrings.CircularInheritance(this.DisplayName(), entityType.DisplayName()));
                 }
 
                 if (_keys.Any())
                 {
-                    throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(Name));
+                    throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(this.DisplayName()));
                 }
 
                 var propertyCollisions = entityType.GetProperties()
@@ -158,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.DuplicatePropertiesOnBase(
-                            Name,
-                            entityType.Name,
+                            this.DisplayName(),
+                            entityType.DisplayName(),
                             string.Join(", ", propertyCollisions.Select(p => p.Name))));
                 }
 
@@ -171,8 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     throw new InvalidOperationException(
                         CoreStrings.DuplicateNavigationsOnBase(
-                            Name,
-                            entityType.Name,
+                            this.DisplayName(),
+                            entityType.DisplayName(),
                             string.Join(", ", navigationCollisions.Select(p => p.Name))));
                 }
 
@@ -809,6 +808,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
+            return AddNavigation(new PropertyIdentity(name), foreignKey, pointsToPrincipal);
+        }
+
+        public virtual Navigation AddNavigation(
+            [NotNull] PropertyInfo navigationProperty,
+            [NotNull] ForeignKey foreignKey,
+            bool pointsToPrincipal)
+        {
+            Check.NotNull(navigationProperty, nameof(navigationProperty));
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            return AddNavigation(new PropertyIdentity(navigationProperty), foreignKey, pointsToPrincipal);
+        }
+
+        private Navigation AddNavigation(PropertyIdentity propertyIdentity, ForeignKey foreignKey, bool pointsToPrincipal)
+        {
+            var name = propertyIdentity.Name;
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
             {
@@ -840,20 +856,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "EntityType mismatch");
 
             Navigation navigation = null;
-
+            var navigationProperty = propertyIdentity.Property;
             if (ClrType != null)
             {
                 Navigation.IsCompatible(
-                    name,
+                    propertyIdentity.Name,
+                    navigationProperty,
                     this,
                     pointsToPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType,
                     !pointsToPrincipal && !foreignKey.IsUnique,
                     shouldThrow: true);
-
-                // TODO: use this value for IsCompatible call
-                var navigationProperty = ClrType.GetPropertiesInHierarchy(name).FirstOrDefault();
-                Debug.Assert(navigationProperty != null);
-
                 navigation = new Navigation(navigationProperty, foreignKey);
             }
             else
@@ -1210,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || entityType.GetDeclaredForeignKeys().Any(k => k.Properties.Contains(property))
                 || entityType.GetDeclaredIndexes().Any(i => i.Properties.Contains(property)))
             {
-                throw new InvalidOperationException(CoreStrings.PropertyInUse(property.Name, Name));
+                throw new InvalidOperationException(CoreStrings.PropertyInUse(property.Name, this.DisplayName()));
             }
         }
 

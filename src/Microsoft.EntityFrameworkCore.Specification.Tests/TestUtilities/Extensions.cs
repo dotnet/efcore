@@ -141,8 +141,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
                 var clonedNavigation = navigation.IsDependentToPrincipal()
-                    ? targetForeignKey.HasDependentToPrincipal(navigation.Name)
-                    : targetForeignKey.HasPrincipalToDependent(navigation.Name);
+                    ? (navigation.GetPropertyInfo() != null
+                        ? targetForeignKey.HasDependentToPrincipal(navigation.GetPropertyInfo())
+                        : targetForeignKey.HasDependentToPrincipal(navigation.Name))
+                    : (navigation.GetPropertyInfo() != null
+                        ? targetForeignKey.HasPrincipalToDependent(navigation.GetPropertyInfo())
+                        : targetForeignKey.HasPrincipalToDependent(navigation.Name));
                 navigation.GetAnnotations().ForEach(annotation => clonedNavigation[annotation.Name] = annotation.Value);
             }
         }

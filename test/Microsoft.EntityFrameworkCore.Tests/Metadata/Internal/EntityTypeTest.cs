@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var b = model.AddEntityType(typeof(B).Name);
 
             Assert.Equal(
-                CoreStrings.NonShadowBaseType(b, a),
+                CoreStrings.NonShadowBaseType(typeof(B).Name, typeof(A).Name),
                 Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var b = model.AddEntityType(typeof(B));
 
             Assert.Equal(
-                CoreStrings.NonClrBaseType(b, a),
+                CoreStrings.NonClrBaseType(typeof(B).Name, typeof(A).Name),
                 Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var b = model.AddEntityType(typeof(B));
 
             Assert.Equal(
-                CoreStrings.NotAssignableClrBaseType(a, b, typeof(A).Name, typeof(B).Name),
+                CoreStrings.NotAssignableClrBaseType(typeof(A).Name, typeof(B).Name, typeof(A).Name, typeof(B).Name),
                 Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
         }
 
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             b.AddProperty(A.GProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(B).FullName, typeof(A).FullName, "G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(B).Name, typeof(A).Name, "G"),
                 Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.AddProperty(A.GProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(D).FullName, typeof(C).FullName, "E, G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(D).Name, typeof(C).Name, "E, G"),
                 Assert.Throws<InvalidOperationException>(() => { d.HasBaseType(c); }).Message);
         }
 
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             d.HasBaseType(c);
 
             Assert.Equal(
-                CoreStrings.DuplicatePropertiesOnBase(typeof(C).FullName, typeof(A).FullName, "E, G"),
+                CoreStrings.DuplicatePropertiesOnBase(typeof(C).Name, typeof(A).Name, "E, G"),
                 Assert.Throws<InvalidOperationException>(() => { c.HasBaseType(a); }).Message);
         }
 
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var key = b.AddKey(h);
 
             Assert.Equal(
-                CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
+                CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).Name),
                 Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
 
             b.RemoveKey(key.Properties);
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             b.SetPrimaryKey(f);
 
             Assert.Equal(
-                CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
+                CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).Name),
                 Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            customerForeignKey.HasPrincipalToDependent("Orders");
+            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var derivedForeignKeyProperty = orderType.GetOrAddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent("DerivedOrders");
+            specialCustomerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders", "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders", "DerivedOrders" }, ((IEntityType)specialCustomerType).GetNavigations().Select(p => p.Name).ToArray());
@@ -547,14 +547,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.HasBaseType(customerType);
 
-            customerForeignKey.HasPrincipalToDependent("Orders");
+            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
 
             var derivedForeignKeyProperty = orderType.GetOrAddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent("DerivedOrders");
+            specialCustomerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
 
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders", "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
@@ -572,19 +572,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            customerForeignKey.HasPrincipalToDependent("Orders");
+            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.HasBaseType(customerType);
 
             var derivedForeignKeyProperty = orderType.GetOrAddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent("DerivedOrders");
+            specialCustomerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
 
             specialCustomerType.HasBaseType(null);
 
-            Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { nameof(Customer.Orders) }, customerType.GetNavigations().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { nameof(SpecialCustomer.DerivedOrders) }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
         }
 
         [Fact]
@@ -598,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var orderType = model.AddEntityType(typeof(SpecialOrder));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasPrincipalToDependent("Orders");
+            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.HasBaseType(customerType);
@@ -607,9 +607,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var specialCustomerForeignKey = orderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
 
             Assert.Equal(
-                CoreStrings.NavigationForWrongForeignKey("Orders", typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
+                CoreStrings.NavigationForWrongForeignKey(nameof(Customer.Orders), typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(() =>
-                    specialCustomerForeignKey.HasPrincipalToDependent("Orders")).Message);
+                    specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
         }
 
         [Fact]
@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var orderType = model.AddEntityType(typeof(SpecialOrder));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasPrincipalToDependent("Orders");
+            customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
             specialCustomerType.HasBaseType(customerType);
@@ -659,7 +659,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var derivedForeignKeyProperty = orderType.GetOrAddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, specialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent("Orders");
+            specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey("Orders", typeof(SpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
@@ -687,14 +687,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var derivedForeignKeyProperty = orderType.GetOrAddProperty(Order.IdProperty);
             var specialCustomerForeignKey = orderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, verySpecialCustomerType);
-            specialCustomerForeignKey.HasPrincipalToDependent("Orders");
+            specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.Equal(
-                CoreStrings.NavigationForWrongForeignKey("Orders", typeof(VerySpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
+                CoreStrings.NavigationForWrongForeignKey(nameof(Customer.Orders), typeof(VerySpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
                 Assert.Throws<InvalidOperationException>(() =>
-                    customerForeignKey.HasPrincipalToDependent("Orders")).Message);
+                    customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
 
-            Assert.Equal("Orders", ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
+            Assert.Equal(nameof(Customer.Orders), ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
         }
 
         [Fact]
@@ -708,7 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasDependentToPrincipal("Customer");
+            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
 
@@ -718,10 +718,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var property = specialCustomerType.AddProperty("AltId", typeof(int));
             var specialCustomerKey = specialCustomerType.GetOrAddKey(property);
             var specialCustomerForeignKey = specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
-            specialCustomerForeignKey.HasDependentToPrincipal("Customer");
+            specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).FullName, typeof(Order).FullName, "Customer"),
+                CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).Name, typeof(Order).Name, "Customer"),
                 Assert.Throws<InvalidOperationException>(() => { specialOrderType.HasBaseType(orderType); }).Message);
         }
 
@@ -736,7 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasDependentToPrincipal("Customer");
+            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
 
@@ -747,11 +747,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var property = specialCustomerType.AddProperty("AltId", typeof(int));
             var specialCustomerKey = specialCustomerType.GetOrAddKey(property);
             var specialCustomerForeignKey = verySpecialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
-            specialCustomerForeignKey.HasDependentToPrincipal("Customer");
+            specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
             verySpecialOrderType.HasBaseType(specialOrderType);
 
             Assert.Equal(
-                CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).FullName, typeof(Order).FullName, "Customer"),
+                CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).Name, typeof(Order).Name, nameof(Order.Customer)),
                 Assert.Throws<InvalidOperationException>(() => { specialOrderType.HasBaseType(orderType); }).Message);
         }
 
@@ -766,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-            customerForeignKey.HasDependentToPrincipal("Customer");
+            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             specialOrderType.HasBaseType(orderType);
@@ -778,10 +778,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var property = specialCustomerType.AddProperty("AltId", typeof(int));
             var specialCustomerKey = specialCustomerType.GetOrAddKey(property);
             var specialCustomerForeignKey = verySpecialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
-            specialCustomerForeignKey.HasDependentToPrincipal("Customer");
+            specialCustomerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicateNavigationsOnBase(typeof(VerySpecialOrder).FullName, typeof(SpecialOrder).FullName, "Customer"),
+                CoreStrings.DuplicateNavigationsOnBase(typeof(VerySpecialOrder).Name, typeof(SpecialOrder).Name, "Customer"),
                 Assert.Throws<InvalidOperationException>(() => { verySpecialOrderType.HasBaseType(specialOrderType); }).Message);
         }
 
@@ -1842,8 +1842,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var fk = orderType.GetOrAddForeignKey(customerFk, customerKey, customerType);
 
-            fk.HasDependentToPrincipal("Customer");
-            fk.HasPrincipalToDependent("Orders");
+            fk.HasDependentToPrincipal(Order.CustomerProperty);
+            fk.HasPrincipalToDependent(Customer.OrdersProperty);
 
             Assert.NotNull(orderType.RemoveForeignKey(fk.Properties, fk.PrincipalKey, fk.PrincipalEntityType));
             Assert.Empty(orderType.GetNavigations());
@@ -1887,10 +1887,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            var customerNavigation = customerForeignKey.HasDependentToPrincipal("Customer");
-            var ordersNavigation = customerForeignKey.HasPrincipalToDependent("Orders");
+            var customerNavigation = customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            var ordersNavigation = customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
-            Assert.Equal("Customer", customerNavigation.Name);
+            Assert.Equal(nameof(Order.Customer), customerNavigation.Name);
             Assert.Same(orderType, customerNavigation.DeclaringEntityType);
             Assert.Same(customerForeignKey, customerNavigation.ForeignKey);
             Assert.True(customerNavigation.IsDependentToPrincipal());
@@ -1898,7 +1898,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(customerType, customerNavigation.GetTargetType());
             Assert.Same(customerNavigation, customerForeignKey.DependentToPrincipal);
 
-            Assert.Equal("Orders", ordersNavigation.Name);
+            Assert.Equal(nameof(Customer.Orders), ordersNavigation.Name);
             Assert.Same(customerType, ordersNavigation.DeclaringEntityType);
             Assert.Same(customerForeignKey, ordersNavigation.ForeignKey);
             Assert.False(ordersNavigation.IsDependentToPrincipal());
@@ -1909,13 +1909,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(customerNavigation, orderType.GetNavigations().Single());
             Assert.Same(ordersNavigation, customerType.GetNavigations().Single());
 
-            Assert.Same(customerNavigation, customerForeignKey.HasDependentToPrincipal(null));
-            Assert.Null(customerForeignKey.HasDependentToPrincipal(null));
+            Assert.Same(customerNavigation, customerForeignKey.HasDependentToPrincipal((string)null));
+            Assert.Null(customerForeignKey.HasDependentToPrincipal((string)null));
             Assert.Empty(orderType.GetNavigations());
             Assert.Empty(((IEntityType)orderType).GetNavigations());
 
-            Assert.Same(ordersNavigation, customerForeignKey.HasPrincipalToDependent(null));
-            Assert.Null(customerForeignKey.HasPrincipalToDependent(null));
+            Assert.Same(ordersNavigation, customerForeignKey.HasPrincipalToDependent((string)null));
+            Assert.Null(customerForeignKey.HasPrincipalToDependent((string)null));
             Assert.Empty(customerType.GetNavigations());
             Assert.Empty(((IEntityType)customerType).GetNavigations());
         }
@@ -1930,16 +1930,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-            var customerNavigation = customerForeignKey.HasDependentToPrincipal("Customer");
+            var customerNavigation = customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
-            Assert.Equal("Customer", customerNavigation.Name);
+            Assert.Equal(nameof(Order.Customer), customerNavigation.Name);
             Assert.Same(orderType, customerNavigation.DeclaringEntityType);
             Assert.Same(customerForeignKey, customerNavigation.ForeignKey);
             Assert.True(customerNavigation.IsDependentToPrincipal());
             Assert.False(customerNavigation.IsCollection());
             Assert.Same(customerType, customerNavigation.GetTargetType());
 
-            Assert.Same(customerNavigation, orderType.FindNavigation("Customer"));
+            Assert.Same(customerNavigation, orderType.FindNavigation(nameof(Order.Customer)));
             Assert.True(customerNavigation.IsDependentToPrincipal());
         }
 
@@ -1953,10 +1953,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-            var customerNavigation = customerForeignKey.HasDependentToPrincipal("Customer");
+            var customerNavigation = customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
-            Assert.Same(customerNavigation, orderType.FindNavigation("Customer"));
-            Assert.Same(customerNavigation, orderType.FindNavigation("Customer"));
+            Assert.Same(customerNavigation, orderType.FindNavigation(nameof(Order.Customer)));
+            Assert.Same(customerNavigation, orderType.FindNavigation(nameof(Order.Customer)));
 
             Assert.Null(orderType.FindNavigation("Nose"));
         }
@@ -2006,9 +2006,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.NavigationToShadowEntity("Customer", typeof(Order).Name, "Customer"),
+                CoreStrings.NavigationToShadowEntity(nameof(Order.Customer), typeof(Order).Name, "Customer"),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("Customer")).Message);
+                    () => customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty)).Message);
         }
 
         [Fact]
@@ -2058,9 +2058,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationCollectionWrongClrType(
-                    "NotCollectionOrders", typeof(Customer).Name, typeof(Order).FullName, typeof(Order).FullName),
+                    nameof(Customer.NotCollectionOrders), typeof(Customer).Name, typeof(Order).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasPrincipalToDependent("NotCollectionOrders")).Message);
+                    () => customerForeignKey.HasPrincipalToDependent(Customer.NotCollectionOrdersProperty)).Message);
         }
 
         [Fact]
@@ -2076,9 +2076,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationCollectionWrongClrType(
-                    "DerivedOrders", typeof(SpecialCustomer).Name, typeof(IEnumerable<SpecialOrder>).FullName, typeof(Order).FullName),
+                    nameof(SpecialCustomer.DerivedOrders),
+                    typeof(SpecialCustomer).Name,
+                    typeof(IEnumerable<SpecialOrder>).DisplayName(fullName: false),
+                    typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasPrincipalToDependent("DerivedOrders")).Message);
+                    () => customerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty)).Message);
         }
 
         [Fact]
@@ -2092,9 +2095,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            var ordersNavigation = customerForeignKey.HasPrincipalToDependent("Orders");
+            var ordersNavigation = customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
-            Assert.Equal("Orders", ordersNavigation.Name);
+            Assert.Equal(nameof(Customer.Orders), ordersNavigation.Name);
             Assert.Same(customerType, ordersNavigation.DeclaringEntityType);
             Assert.Same(customerForeignKey, ordersNavigation.ForeignKey);
             Assert.False(ordersNavigation.IsDependentToPrincipal());
@@ -2115,9 +2118,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.NavigationSingleWrongClrType("OrderCustomer", typeof(Order).Name, typeof(Order).FullName, typeof(Customer).FullName),
+                CoreStrings.NavigationSingleWrongClrType("OrderCustomer", typeof(Order).Name, typeof(Order).Name, typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("OrderCustomer")).Message);
+                    () => customerForeignKey.HasDependentToPrincipal(Order.OrderCustomerProperty)).Message);
         }
 
         [Fact]
@@ -2133,9 +2136,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationSingleWrongClrType(
-                    "DerivedCustomer", typeof(SpecialOrder).Name, typeof(SpecialCustomer).FullName, typeof(Customer).FullName),
+                    nameof(SpecialOrder.DerivedCustomer), typeof(SpecialOrder).Name, typeof(SpecialCustomer).Name, typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("DerivedCustomer")).Message);
+                    () => customerForeignKey.HasDependentToPrincipal(SpecialOrder.DerivedCustomerProperty)).Message);
         }
 
         [Fact]
@@ -2149,7 +2152,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            var customerNavigation = customerForeignKey.HasDependentToPrincipal("Customer");
+            var customerNavigation = customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal("Customer", customerNavigation.Name);
             Assert.Same(orderType, customerNavigation.DeclaringEntityType);
@@ -2170,8 +2173,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var fk = entityType.AddForeignKey(fkProperty, referencedKey, entityType);
             fk.IsUnique = true;
 
-            var navigationToDependent = fk.HasPrincipalToDependent("SelfRef1");
-            var navigationToPrincipal = fk.HasDependentToPrincipal("SelfRef2");
+            var navigationToDependent = fk.HasPrincipalToDependent(SelfRef.SelfRef1Property);
+            var navigationToPrincipal = fk.HasDependentToPrincipal(SelfRef.SelfRef2Property);
 
             Assert.Same(fk.PrincipalToDependent, navigationToDependent);
             Assert.Same(fk.DependentToPrincipal, navigationToPrincipal);
@@ -2188,9 +2191,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var fk = entityType.AddForeignKey(fkProperty, referencedKey, entityType);
             fk.IsUnique = true;
 
-            fk.HasPrincipalToDependent("SelfRef1");
-            Assert.Equal(CoreStrings.DuplicateNavigation("SelfRef1", typeof(SelfRef).Name, typeof(SelfRef).Name),
-                Assert.Throws<InvalidOperationException>(() => fk.HasDependentToPrincipal("SelfRef1")).Message);
+            fk.HasPrincipalToDependent(SelfRef.SelfRef1Property);
+            Assert.Equal(CoreStrings.DuplicateNavigation(nameof(SelfRef.SelfRef1), typeof(SelfRef).Name, typeof(SelfRef).Name),
+                Assert.Throws<InvalidOperationException>(() => fk.HasDependentToPrincipal(SelfRef.SelfRef1Property)).Message);
         }
 
         [Fact]
@@ -2208,8 +2211,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var specialCustomerForeignKeyProperty = specialOrderType.AddProperty(Order.CustomerIdProperty);
             var specialCustomerForeignKey = specialOrderType.AddForeignKey(specialCustomerForeignKeyProperty, customerKey, customerType);
 
-            var navigation2 = customerForeignKey.HasPrincipalToDependent("Orders");
-            var navigation1 = specialCustomerForeignKey.HasPrincipalToDependent("DerivedOrders");
+            var navigation2 = customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty);
+            var navigation1 = specialCustomerForeignKey.HasPrincipalToDependent(SpecialCustomer.DerivedOrdersProperty);
 
             Assert.True(new[] { navigation1, navigation2 }.SequenceEqual(customerType.GetNavigations()));
             Assert.True(new[] { navigation1, navigation2 }.SequenceEqual(((IEntityType)customerType).GetNavigations()));
@@ -2399,7 +2402,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrSetPrimaryKey(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).FullName),
+                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2413,7 +2416,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrAddKey(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).FullName),
+                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2429,7 +2432,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             orderType.GetOrAddForeignKey(customerFk, customerPk, customerType);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("CustomerId", typeof(Order).FullName),
+                CoreStrings.PropertyInUse("CustomerId", typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveProperty(customerFk.Name)).Message);
         }
 
@@ -2443,7 +2446,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             entityType.GetOrAddIndex(property);
 
             Assert.Equal(
-                CoreStrings.PropertyInUse("Id", typeof(Customer).FullName),
+                CoreStrings.PropertyInUse("Id", typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property.Name)).Message);
         }
 
@@ -2576,7 +2579,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            customerForeignKey.HasDependentToPrincipal("Customer");
+            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
 
             Assert.Equal(
                 CoreStrings.ConflictingNavigation("Customer", typeof(Order).Name, typeof(Order).Name),
@@ -3015,8 +3018,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class Customer : BaseType
         {
-            public static readonly PropertyInfo IdProperty = typeof(BaseType).GetProperty("Id");
-            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+            public static readonly PropertyInfo IdProperty = typeof(BaseType).GetProperty(nameof(Id));
+            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty(nameof(Name));
+            public static readonly PropertyInfo OrdersProperty = typeof(Customer).GetProperty(nameof(Orders));
+            public static readonly PropertyInfo NotCollectionOrdersProperty = typeof(Customer).GetProperty(nameof(NotCollectionOrders));
 
             public int AlternateId { get; set; }
             public Guid Unique { get; set; }
@@ -3030,6 +3035,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class SpecialCustomer : Customer
         {
+            public static readonly PropertyInfo DerivedOrdersProperty = typeof(SpecialCustomer).GetProperty(nameof(DerivedOrders));
+
             public IEnumerable<SpecialOrder> DerivedOrders { get; set; }
         }
 
@@ -3039,9 +3046,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class Order : BaseType
         {
-            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
-            public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
-            public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty("CustomerUnique");
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty(nameof(Id));
+            public static readonly PropertyInfo CustomerProperty = typeof(Order).GetProperty(nameof(Customer));
+            public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty(nameof(CustomerId));
+            public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty(nameof(CustomerUnique));
+            public static readonly PropertyInfo OrderCustomerProperty = typeof(Order).GetProperty(nameof(OrderCustomer));
 
             public int CustomerId { get; set; }
             public Guid CustomerUnique { get; set; }
@@ -3052,6 +3061,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class SpecialOrder : Order
         {
+            public static readonly PropertyInfo DerivedCustomerProperty = typeof(SpecialOrder).GetProperty(nameof(DerivedCustomer));
+
             public SpecialCustomer DerivedCustomer { get; set; }
         }
 
@@ -3117,6 +3128,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             public static readonly PropertyInfo IdProperty = typeof(SelfRef).GetProperty("Id");
             public static readonly PropertyInfo ForeignKeyProperty = typeof(SelfRef).GetProperty("ForeignKey");
+            public static readonly PropertyInfo SelfRef1Property = typeof(SelfRef).GetProperty(nameof(SelfRef1));
+            public static readonly PropertyInfo SelfRef2Property = typeof(SelfRef).GetProperty(nameof(SelfRef2));
 
             public int Id { get; set; }
             public SelfRef SelfRef1 { get; set; }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -25,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
             var foreignKey = CreateForeignKey();
 
-            var navigation = foreignKey.HasDependentToPrincipal("Deception");
+            var navigation = foreignKey.HasDependentToPrincipal(E.DeceptionProperty);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
-            Assert.Equal("Deception", navigation.Name);
+            Assert.Equal(nameof(E.Deception), navigation.Name);
             Assert.Same(foreignKey.DeclaringEntityType, navigation.DeclaringEntityType);
         }
 
@@ -44,6 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class E
         {
+            public static readonly PropertyInfo DeceptionProperty = typeof(E).GetProperty(nameof(Deception));
+
             public E Deception { get; set; }
         }
     }

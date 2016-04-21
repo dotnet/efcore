@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -208,7 +209,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
-            return foreignKey.HasPrincipalToDependent(navigationName);
+            return foreignKey.HasPrincipalToDependent(
+                typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
         }
 
         private class MyEntity

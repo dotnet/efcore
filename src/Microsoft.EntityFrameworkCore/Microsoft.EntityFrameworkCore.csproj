@@ -349,6 +349,7 @@
     <Compile Include="Metadata\Internal\PropertyBaseExtensions.cs" />
     <Compile Include="Metadata\Internal\PropertyCounts.cs" />
     <Compile Include="Metadata\Internal\PropertyExtensions.cs" />
+    <Compile Include="Metadata\Internal\PropertyIdentity.cs" />
     <Compile Include="Metadata\Internal\PropertyIndexes.cs" />
     <Compile Include="Metadata\Internal\PropertyListComparer.cs" />
     <Compile Include="Metadata\IProperty.cs" />

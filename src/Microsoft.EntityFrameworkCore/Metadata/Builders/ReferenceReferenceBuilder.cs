@@ -110,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 ForeignKey.AreCompatible(
                     foreignKey.PrincipalEntityType,
                     foreignKey.DeclaringEntityType,
-                    foreignKey.DependentToPrincipal?.Name,
-                    foreignKey.PrincipalToDependent?.Name,
+                    foreignKey.DependentToPrincipal?.PropertyInfo,
+                    foreignKey.PrincipalToDependent?.PropertyInfo,
                     _foreignKeyProperties,
                     _principalKeyProperties,
                     foreignKey.IsUnique,
@@ -186,16 +186,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasForeignKey(
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
-        {
-            Check.NotNull(dependentEntityType, nameof(dependentEntityType));
-            Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
-
-            return new ReferenceReferenceBuilder(
-                SetDependentEntityType(dependentEntityType).HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceReferenceBuilder(
+                SetDependentEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))
+                    .HasForeignKey(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)), ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
                 foreignKeySet: true);
-        }
 
         /// <summary>
         ///     <para>
@@ -226,16 +222,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasForeignKey(
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
-        {
-            Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName));
-            Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
-
-            return new ReferenceReferenceBuilder(
-                SetDependentEntityType(dependentEntityTypeName).HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceReferenceBuilder(
+                SetDependentEntityType(Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName)))
+                    .HasForeignKey(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)), ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != dependentEntityTypeName,
                 foreignKeySet: true);
-        }
 
         protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] string dependentEntityTypeName)
         {
@@ -252,7 +244,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] Type dependentEntityType)
-            => SetDependentEntityType(dependentEntityType.DisplayName());
+        {
+            var entityType = ResolveEntityType(dependentEntityType);
+            if (entityType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
+                    _declaringEntityType.DisplayName(),
+                    _relatedEntityType.DisplayName(),
+                    dependentEntityType.DisplayName()));
+            }
+
+            return Builder.RelatedEntityTypes(GetOtherEntityType(entityType), entityType, ConfigurationSource.Explicit);
+        }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -269,16 +272,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasPrincipalKey(
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
-        {
-            Check.NotNull(principalEntityType, nameof(principalEntityType));
-            Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
-
-            return new ReferenceReferenceBuilder(
-                SetPrincipalEntityType(principalEntityType).HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceReferenceBuilder(
+                SetPrincipalEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))
+                    .HasPrincipalKey(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames)), ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
                 principalKeySet: true);
-        }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -295,16 +294,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceReferenceBuilder HasPrincipalKey(
             [NotNull] string principalEntityTypeName,
             [NotNull] params string[] keyPropertyNames)
-        {
-            Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-            Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
-
-            return new ReferenceReferenceBuilder(
-                SetPrincipalEntityType(principalEntityTypeName).HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit),
+            => new ReferenceReferenceBuilder(
+                SetPrincipalEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))
+                    .HasPrincipalKey(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames)), ConfigurationSource.Explicit),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
                 principalKeySet: true);
-        }
 
         protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] string principalEntityTypeName)
         {
@@ -321,7 +316,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] Type principalEntityType)
-            => SetPrincipalEntityType(principalEntityType.DisplayName());
+        {
+            var entityType = ResolveEntityType(principalEntityType);
+            if (entityType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
+                    _declaringEntityType.DisplayName(),
+                    _relatedEntityType.DisplayName(),
+                    principalEntityType.DisplayName()));
+            }
+
+            return Builder.RelatedEntityTypes(entityType, GetOtherEntityType(entityType), ConfigurationSource.Explicit);
+        }
 
         private EntityType ResolveEntityType(string entityTypeName)
         {
@@ -331,6 +337,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             if (_relatedEntityType.Name == entityTypeName)
+            {
+                return _relatedEntityType;
+            }
+
+            return null;
+        }
+
+        private EntityType ResolveEntityType(Type entityType)
+        {
+            if (_declaringEntityType.ClrType == entityType)
+            {
+                return _declaringEntityType;
+            }
+
+            if (_relatedEntityType.ClrType == entityType)
             {
                 return _relatedEntityType;
             }

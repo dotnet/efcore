@@ -110,6 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected class Order
         {
+            public static readonly PropertyInfo DetailsProperty = typeof(Order).GetProperty(nameof(Details));
+
             public int OrderId { get; set; }
 
             public int? CustomerId { get; set; }

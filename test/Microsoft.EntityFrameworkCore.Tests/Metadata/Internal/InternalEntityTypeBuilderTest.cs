@@ -1632,7 +1632,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.NotNull(principalEntityBuilder.Metadata.FindNavigation(Customer.OrdersProperty.Name));
 
             Assert.Same(foreignKeyBuilder, foreignKeyBuilder.PrincipalToDependent(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
-            Assert.Null(foreignKeyBuilder.DependentToPrincipal(null, ConfigurationSource.DataAnnotation));
+            Assert.Null(foreignKeyBuilder.DependentToPrincipal((string)null, ConfigurationSource.DataAnnotation));
         }
 
         [Fact]
@@ -1653,8 +1653,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 principalEntityBuilder.Metadata.FindPrimaryKey(),
                 principalEntityBuilder.Metadata);
 
-            var navigationToPrincipal = foreignKey.HasDependentToPrincipal(Order.CustomerProperty.Name);
-            var navigationToDependent = foreignKey.HasPrincipalToDependent(Customer.OrdersProperty.Name);
+            var navigationToPrincipal = foreignKey.HasDependentToPrincipal(Order.CustomerProperty);
+            var navigationToDependent = foreignKey.HasPrincipalToDependent(Customer.OrdersProperty);
 
             var relationship = dependentEntityBuilder.HasForeignKey(principalEntityBuilder, foreignKey.Properties, ConfigurationSource.Convention)
                 .DependentToPrincipal(navigationToPrincipal.Name, ConfigurationSource.Convention)
@@ -1883,8 +1883,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 customerEntityBuilder, new[] { fkProperty }, key, ConfigurationSource.DataAnnotation)
                 .IsUnique(false, ConfigurationSource.DataAnnotation);
             Assert.NotNull(fkRelationship);
-            Assert.Equal(2, orderEntityBuilder.Metadata.GetForeignKeys().Count());
-            Assert.Equal(1, customerEntityBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Same(fkRelationship.Metadata, orderEntityBuilder.Metadata.GetForeignKeys()
+                .Single(fk => fk.DependentToPrincipal == null && fk.PrincipalToDependent == null));
+            var fk1 = orderEntityBuilder.Metadata.FindNavigation(Order.CustomerProperty.Name).ForeignKey;
+            Assert.NotSame(fkRelationship.Metadata, fk1);
+            var fk2 = customerEntityBuilder.Metadata.FindNavigation(Customer.NotCollectionOrdersProperty.Name).ForeignKey;
+            Assert.NotSame(fkRelationship.Metadata, fk2);
+            Assert.NotSame(fk1, fk2);
 
             orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention)
                 .DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Convention)

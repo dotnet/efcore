@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
@@ -136,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var orderEntityType = modelBuilder.Entity(typeof(Order));
 
                 Assert.Equal(
-                    CoreStrings.NavigationToShadowEntity("OrderDetails", typeof(Order).DisplayName(fullName: false), "OrderDetails"),
-                    Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne("OrderDetails", "OrderDetails")).Message);
+                    CoreStrings.NavigationToShadowEntity(nameof(Order.Details), typeof(Order).DisplayName(fullName: false), nameof(OrderDetails)),
+                    Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne(nameof(OrderDetails), nameof(Order.Details))).Message);
             }
 
             [Fact]

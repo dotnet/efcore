@@ -537,14 +537,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.Null(dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention));
+                Assert.Null(dependentEntityBuilder.Relationship(principalEntityBuilder, OrderDetails.OrderProperty, Order.OrderDetailsProperty, ConfigurationSource.Convention));
             }
             else
             {
                 var fk = dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention)
                     .IsUnique(true, ConfigurationSource.Convention)
                     .Metadata;
-                Assert.Null(fk.HasDependentToPrincipal(nameof(OrderDetails.Order)));
+                Assert.Null(fk.HasDependentToPrincipal(OrderDetails.OrderProperty));
             }
 
             Assert.True(orderIgnored);
@@ -588,11 +588,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.NotNull(relationshipBuilder.DependentToPrincipal(null, ConfigurationSource.Convention));
+                Assert.NotNull(relationshipBuilder.DependentToPrincipal((string)null, ConfigurationSource.Convention));
             }
             else
             {
-                Assert.NotNull(relationshipBuilder.Metadata.HasDependentToPrincipal(null, ConfigurationSource.Convention));
+                Assert.NotNull(relationshipBuilder.Metadata.HasDependentToPrincipal((string)null, ConfigurationSource.Convention));
             }
 
             Assert.Same(dependentEntityTypeBuilderFromConvention, dependentEntityBuilder);
@@ -842,7 +842,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
         private class Order
         {
-            public static readonly PropertyInfo OrderIdProperty = typeof(Order).GetProperty("OrderId");
+            public static readonly PropertyInfo OrderIdProperty = typeof(Order).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo OrderDetailsProperty = typeof(Order).GetProperty(nameof(OrderDetails));
 
             public int OrderId { get; set; }
 
@@ -857,6 +858,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
 
         private class OrderDetails
         {
+            public static readonly PropertyInfo OrderProperty = typeof(OrderDetails).GetProperty(nameof(Order));
+
             public int Id { get; set; }
             public virtual Order Order { get; set; }
         }

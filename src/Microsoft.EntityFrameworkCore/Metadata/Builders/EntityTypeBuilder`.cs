@@ -99,11 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
-        {
-            Check.NotNull(keyExpression, nameof(keyExpression));
-
-            return new KeyBuilder(Builder.PrimaryKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
-        }
+            => new KeyBuilder(Builder.PrimaryKey(
+                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Creates a new unique constraint for this entity type if one does not already exist over the specified
@@ -120,11 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the unique constraint. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
-        {
-            Check.NotNull(keyExpression, nameof(keyExpression));
-
-            return new KeyBuilder(Builder.HasKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
-        }
+            => new KeyBuilder(Builder.HasKey(
+                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Returns an object that can be used to configure a property of the entity type.
@@ -136,12 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
-        {
-            Check.NotNull(propertyExpression, nameof(propertyExpression));
-
-            var propertyInfo = propertyExpression.GetPropertyAccess();
-            return new PropertyBuilder<TProperty>(Builder.Property(propertyInfo, ConfigurationSource.Explicit));
-        }
+            => new PropertyBuilder<TProperty>(Builder.Property(
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -191,11 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
-        {
-            Check.NotNull(indexExpression, nameof(indexExpression));
-
-            return new IndexBuilder(Builder.HasIndex(indexExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
-        }
+            => new IndexBuilder(Builder.HasIndex(
+                Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -214,24 +201,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="reference">
+        /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
-            [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null)
+            [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
             where TRelatedEntity : class
         {
             var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
-            var navigationName = reference?.GetPropertyAccess().Name;
+            var navigation = navigationExpression?.GetPropertyAccess();
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
-                navigationName,
-                ReferenceBuilder(relatedEntityType, navigationName));
+                navigation?.Name,
+                HasOneBuilder(relatedEntityType, navigation));
         }
 
         /// <summary>
@@ -248,22 +235,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="collection">
+        /// <param name="navigationExpression">
         ///     A lambda expression representing the collection navigation property on this entity type that represents
         ///     the relationship (<c>blog => blog.Posts</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
-            [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
+            [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
             where TRelatedEntity : class
-        {
-            var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
-            var navigationName = collection?.GetPropertyAccess().Name;
-
-            return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
-                CollectionBuilder(relatedEntityType, navigationName));
-        }
+            => new CollectionNavigationBuilder<TEntity, TRelatedEntity>(HasManyBuilder(
+                Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata,
+                navigationExpression?.GetPropertyAccess()));
 
         public new virtual EntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
             => (EntityTypeBuilder<TEntity>)base.HasChangeTrackingStrategy(changeTrackingStrategy);

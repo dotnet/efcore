@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -105,11 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder HasKey([NotNull] params string[] propertyNames)
-        {
-            Check.NotEmpty(propertyNames, nameof(propertyNames));
-
-            return new KeyBuilder(Builder.PrimaryKey(propertyNames, ConfigurationSource.Explicit));
-        }
+            => new KeyBuilder(Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Creates a new unique constraint for this entity type if one does not already exist over the specified
@@ -118,11 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the unique constraint. </param>
         /// <returns> An object that can be used to configure the unique constraint. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] params string[] propertyNames)
-        {
-            Check.NotNull(propertyNames, nameof(propertyNames));
-
-            return new KeyBuilder(Builder.HasKey(propertyNames, ConfigurationSource.Explicit));
-        }
+            => new KeyBuilder(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -141,7 +133,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] string propertyName)
-            => new PropertyBuilder<TProperty>(PropertyBuilder(typeof(TProperty), propertyName));
+            => new PropertyBuilder<TProperty>(Builder.Property(
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                typeof(TProperty),
+                ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -160,7 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string propertyName)
-            => new PropertyBuilder(PropertyBuilder(propertyType, propertyName));
+            => new PropertyBuilder(Builder.Property(
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotNull(propertyType, nameof(propertyType)),
+                ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -183,11 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
-        {
-            Check.NotEmpty(propertyNames, nameof(propertyNames));
-
-            return new IndexBuilder(Builder.HasIndex(propertyNames, ConfigurationSource.Explicit));
-        }
+            => new IndexBuilder(Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -222,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                ReferenceBuilder(relatedEntityType, navigationName));
+                HasOneBuilder(relatedEntityType, navigationName));
         }
 
         /// <summary>
@@ -258,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                ReferenceBuilder(relatedEntityType, navigationName));
+                HasOneBuilder(relatedEntityType, navigationName));
         }
 
         /// <summary>
@@ -283,14 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] Type relatedType,
             [CanBeNull] string navigationName = null)
-        {
-            Check.NotNull(relatedType, nameof(relatedType));
-            Check.NullButNotEmpty(navigationName, nameof(navigationName));
-
-            var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
-
-            return new CollectionNavigationBuilder(CollectionBuilder(relatedEntityType, navigationName));
-        }
+            => new CollectionNavigationBuilder(HasManyBuilder(
+                Builder.ModelBuilder.Entity(Check.NotNull(relatedType, nameof(relatedType)), ConfigurationSource.Explicit).Metadata,
+                Check.NullButNotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
         ///     <para>
@@ -314,60 +303,86 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual CollectionNavigationBuilder HasMany(
             [NotNull] string relatedTypeName,
             [CanBeNull] string navigationName = null)
-        {
-            Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
-            Check.NullButNotEmpty(navigationName, nameof(navigationName));
-
-            var relatedEntityType = Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
-
-            return new CollectionNavigationBuilder(CollectionBuilder(relatedEntityType, navigationName));
-        }
+            => new CollectionNavigationBuilder(HasManyBuilder(
+                Builder.ModelBuilder.Entity(Check.NotEmpty(relatedTypeName, nameof(relatedTypeName)), ConfigurationSource.Explicit).Metadata,
+                Check.NullButNotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
         ///     Creates a relationship builder for a relationship that has a reference navigation property on this entity.
         /// </summary>
         /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
         /// <param name="navigationName">
-        ///     The name of the navigation property on this entity. If null is passed, then a relationship with no navigation
+        ///     The name of the reference navigation property on this entity. If null is passed, then a relationship with no navigation
         ///     property is created.
         /// </param>
         /// <returns> The newly created builder. </returns>
-        protected virtual InternalRelationshipBuilder ReferenceBuilder(
+        protected virtual InternalRelationshipBuilder HasOneBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
-            => Builder.Navigation(
-                relatedEntityType.Builder,
-                navigationName,
-                ConfigurationSource.Explicit,
-                strictPrincipalEnd: relatedEntityType == Metadata);
+            => HasOneBuilder(relatedEntityType, PropertyIdentity.Create(navigationName));
+
+        /// <summary>
+        ///     Creates a relationship builder for a relationship that has a reference navigation property on this entity.
+        /// </summary>
+        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
+        /// <param name="navigationProperty">
+        ///     The reference navigation property on this entity. If null is passed, then a relationship with no navigation
+        ///     property is created.
+        /// </param>
+        /// <returns> The newly created builder. </returns>
+        protected virtual InternalRelationshipBuilder HasOneBuilder(
+            [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
+            => HasOneBuilder(relatedEntityType, PropertyIdentity.Create(navigationProperty));
+
+        private InternalRelationshipBuilder HasOneBuilder(EntityType relatedEntityType, PropertyIdentity navigation)
+        {
+            var navigationProperty = navigation.Property;
+            if (relatedEntityType == Metadata)
+            {
+                var relationship = Builder.Relationship(relatedEntityType.Builder, ConfigurationSource.Explicit)
+                    .RelatedEntityTypes(relatedEntityType, Builder.Metadata, ConfigurationSource.Explicit);
+                return navigationProperty != null
+                    ? relationship.DependentToPrincipal(navigationProperty, ConfigurationSource.Explicit)
+                    : relationship.DependentToPrincipal(navigation.Name, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                return navigationProperty != null
+                    ? Builder.Navigation(relatedEntityType.Builder, navigationProperty, ConfigurationSource.Explicit)
+                    : Builder.Navigation(relatedEntityType.Builder, navigation.Name, ConfigurationSource.Explicit);
+            }
+        }
 
         /// <summary>
         ///     Creates a relationship builder for a relationship that has a collection navigation property on this entity.
         /// </summary>
         /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
         /// <param name="navigationName">
-        ///     The name of the navigation property on this entity. If null is passed, then a relationship with no navigation
+        ///     The name of the collection navigation property on this entity. If null is passed, then a relationship with no navigation
         ///     property is created.
         /// </param>
         /// <returns> The newly created builder. </returns>
-        protected virtual InternalRelationshipBuilder CollectionBuilder(
+        protected virtual InternalRelationshipBuilder HasManyBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
-            => Builder.ModelBuilder.Entity(relatedEntityType.Name, ConfigurationSource.Explicit)
+            => relatedEntityType.Builder
                 .Relationship(Builder, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
 
         /// <summary>
-        ///     Creates a builder for a property on this entity.
+        ///     Creates a relationship builder for a relationship that has a collection navigation property on this entity.
         /// </summary>
-        /// <param name="propertyType"> The type of values stored in the property. </param>
-        /// <param name="propertyName"> The name of the property. </param>
+        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
+        /// <param name="navigationProperty">
+        ///     The collection navigation property on this entity. If null is passed, then a relationship with no navigation
+        ///     property is created.
+        /// </param>
         /// <returns> The newly created builder. </returns>
-        protected virtual InternalPropertyBuilder PropertyBuilder(
-            [NotNull] Type propertyType, [CanBeNull] string propertyName)
-            => Builder.Property(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotNull(propertyType, nameof(propertyType)),
-                ConfigurationSource.Explicit);
+        protected virtual InternalRelationshipBuilder HasManyBuilder(
+            [NotNull] EntityType relatedEntityType, [CanBeNull] PropertyInfo navigationProperty)
+            => relatedEntityType.Builder
+                .Relationship(Builder, ConfigurationSource.Explicit)
+                .IsUnique(false, ConfigurationSource.Explicit)
+                .PrincipalToDependent(navigationProperty, ConfigurationSource.Explicit);
 
         public virtual EntityTypeBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {

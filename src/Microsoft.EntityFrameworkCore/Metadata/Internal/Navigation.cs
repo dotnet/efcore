@@ -42,58 +42,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public override string ToString() => DeclaringEntityType + "." + Name;
 
-        public static bool IsCompatible(
+        public static PropertyInfo GetClrProperty(
             [NotNull] string navigationName,
-            bool pointsToPrincipal,
-            [NotNull] EntityType dependentType,
-            [NotNull] EntityType principalType,
-            bool shouldThrow,
-            out bool? shouldBeUnique)
+            [NotNull] EntityType sourceType,
+            [NotNull] EntityType targetType,
+            bool shouldThrow)
         {
-            shouldBeUnique = null;
-            if (!pointsToPrincipal)
+            var sourceClrType = sourceType.ClrType;
+            var navigationProperty = sourceClrType?.GetPropertiesInHierarchy(navigationName).FirstOrDefault();
+            if (!IsCompatible(navigationName, navigationProperty, sourceType, targetType, null, shouldThrow))
             {
-                var canBeUnique = IsCompatible(navigationName, principalType, dependentType, shouldBeCollection: false, shouldThrow: false);
-                var canBeNonUnique = IsCompatible(navigationName, principalType, dependentType, shouldBeCollection: true, shouldThrow: false);
-
-                if (canBeUnique != canBeNonUnique)
-                {
-                    shouldBeUnique = canBeUnique;
-                }
-                else if (!canBeUnique)
-                {
-                    if (shouldThrow)
-                    {
-                        IsCompatible(navigationName, principalType, dependentType, shouldBeCollection: false, shouldThrow: true);
-                    }
-
-                    return false;
-                }
-            }
-            else if (!IsCompatible(navigationName, dependentType, principalType, shouldBeCollection: false, shouldThrow: shouldThrow))
-            {
-                return false;
+                return null;
             }
 
-            return true;
+            return navigationProperty;
         }
 
         public static bool IsCompatible(
-            [NotNull] string navigationPropertyName,
+            [NotNull] string navigationName,
+            [CanBeNull] PropertyInfo navigationProperty,
             [NotNull] EntityType sourceType,
             [NotNull] EntityType targetType,
             bool? shouldBeCollection,
             bool shouldThrow)
         {
-            Check.NotNull(navigationPropertyName, nameof(navigationPropertyName));
-            Check.NotNull(sourceType, nameof(sourceType));
-            Check.NotNull(targetType, nameof(targetType));
-
-            var sourceClrType = sourceType.ClrType;
-            if (sourceClrType == null)
+            if (navigationProperty == null)
             {
-                // Navigation defined on shadow entity type.
-                return true;
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(CoreStrings.NoClrNavigation(navigationName, sourceType.DisplayName()));
+                }
+                return false;
             }
 
             var targetClrType = targetType.ClrType;
@@ -102,36 +81,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.NavigationToShadowEntity(navigationPropertyName, sourceType.DisplayName(), targetType.DisplayName()));
+                        CoreStrings.NavigationToShadowEntity(navigationName, sourceType.DisplayName(), targetType.DisplayName()));
                 }
                 return false;
             }
 
-            var navigationProperty = sourceClrType.GetPropertiesInHierarchy(navigationPropertyName).FirstOrDefault();
-            if (navigationProperty == null)
+            return IsCompatible(navigationProperty, sourceType.ClrType, targetClrType, shouldBeCollection, shouldThrow);
+        }
+
+        public static bool IsCompatible(
+            [NotNull] PropertyInfo navigationProperty,
+            [NotNull] Type sourceClrType,
+            [NotNull] Type targetClrType,
+            bool? shouldBeCollection,
+            bool shouldThrow)
+        {
+            if (!navigationProperty.DeclaringType.GetTypeInfo().IsAssignableFrom(sourceClrType.GetTypeInfo()))
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(CoreStrings.NoClrNavigation(navigationPropertyName, sourceType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.NoClrNavigation(
+                        navigationProperty.Name, sourceClrType.DisplayName(fullName: false)));
                 }
                 return false;
             }
 
             var navigationTargetClrType = navigationProperty.PropertyType.TryGetSequenceType();
-            if ((shouldBeCollection == false)
-                || (navigationTargetClrType == null)
+            if (shouldBeCollection == false
+                || navigationTargetClrType == null
                 || !navigationTargetClrType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
             {
                 if (shouldBeCollection == true)
                 {
                     if (shouldThrow)
                     {
-                        throw new InvalidOperationException(
-                            CoreStrings.NavigationCollectionWrongClrType(
-                                navigationProperty.Name,
-                                sourceClrType.Name,
-                                navigationProperty.PropertyType.FullName,
-                                targetClrType.FullName));
+                        throw new InvalidOperationException(CoreStrings.NavigationCollectionWrongClrType(
+                            navigationProperty.Name,
+                            sourceClrType.DisplayName(fullName: false),
+                            navigationProperty.PropertyType.DisplayName(fullName: false),
+                            targetClrType.DisplayName(fullName: false)));
                     }
                     return false;
                 }
@@ -142,40 +130,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         throw new InvalidOperationException(CoreStrings.NavigationSingleWrongClrType(
                             navigationProperty.Name,
-                            sourceClrType.Name,
-                            navigationProperty.PropertyType.FullName,
-                            targetClrType.FullName));
+                            sourceClrType.DisplayName(fullName: false),
+                            navigationProperty.PropertyType.DisplayName(fullName: false),
+                            targetClrType.DisplayName(fullName: false)));
                     }
                     return false;
                 }
             }
 
             return true;
-        }
-
-        public virtual bool IsCompatible(
-            [NotNull] EntityType principalType,
-            [NotNull] EntityType dependentType,
-            bool? shouldPointToPrincipal,
-            bool? oneToOne)
-        {
-            Check.NotNull(principalType, nameof(principalType));
-            Check.NotNull(dependentType, nameof(dependentType));
-
-            if ((!shouldPointToPrincipal.HasValue
-                 || (this.IsDependentToPrincipal() == shouldPointToPrincipal.Value))
-                && ForeignKey.IsCompatible(principalType, dependentType, oneToOne))
-            {
-                return true;
-            }
-
-            if (!shouldPointToPrincipal.HasValue
-                && ForeignKey.IsCompatible(dependentType, principalType, oneToOne))
-            {
-                return true;
-            }
-
-            return false;
         }
 
         public virtual Navigation FindInverse()

@@ -285,8 +285,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
             var fkProp = dependentEntityType.AddProperty(NavigationBase.IdProperty);
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, principalEntityType);
-            fk.HasPrincipalToDependent("OneToManyDependents");
-            fk.HasDependentToPrincipal("OneToManyPrincipal");
+            fk.HasPrincipalToDependent(NavigationBase.OneToManyDependentsProperty);
+            fk.HasDependentToPrincipal(NavigationBase.OneToManyPrincipalProperty);
             return fk;
         }
 
@@ -305,8 +305,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             dependentEntityType.HasBaseType(baseEntityType);
             var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, principalEntityType);
-            fk.HasPrincipalToDependent("OneToManyDependents");
-            fk.HasDependentToPrincipal("OneToManyPrincipal");
+            fk.HasPrincipalToDependent(NavigationBase.OneToManyDependentsProperty);
+            fk.HasDependentToPrincipal(NavigationBase.OneToManyPrincipalProperty);
             return fk;
         }
 
@@ -322,13 +322,15 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             dependentEntityType.HasBaseType(baseEntityType);
             var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, baseEntityType);
-            fk.HasPrincipalToDependent("OneToManyDependents");
+            fk.HasPrincipalToDependent(NavigationBase.OneToManyDependentsProperty);
             return fk;
         }
 
         public abstract class NavigationBase
         {
-            public static readonly PropertyInfo IdProperty = typeof(NavigationBase).GetProperty("Id");
+            public static readonly PropertyInfo IdProperty = typeof(NavigationBase).GetProperty(nameof(Id));
+            public static readonly PropertyInfo OneToManyDependentsProperty = typeof(NavigationBase).GetProperty(nameof(OneToManyDependents));
+            public static readonly PropertyInfo OneToManyPrincipalProperty = typeof(NavigationBase).GetProperty(nameof(OneToManyPrincipal));
 
             public int Id { get; set; }
             public IEnumerable<OneToManyDependent> OneToManyDependents { get; set; }
@@ -346,6 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         public class OneToManyDependent : NavigationBase
         {
+            public static readonly PropertyInfo DeceptionProperty = typeof(OneToManyDependent).GetProperty(nameof(Deception));
+
             public OneToManyPrincipal Deception { get; set; }
         }
 
@@ -357,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         public void Throws_when_setting_navigation_to_principal_on_wrong_FK()
         {
             var foreignKey1 = CreateOneToManyFK();
-            foreignKey1.HasDependentToPrincipal("Deception");
+            foreignKey1.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty);
 
             var newFkProp = foreignKey1.DeclaringEntityType.AddProperty("FkProp", typeof(int));
             var foreignKey2 = foreignKey1.DeclaringEntityType.AddForeignKey(
@@ -367,18 +371,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey(
-                    "Deception",
+                    nameof(OneToManyDependent.Deception),
                     nameof(OneToManyDependent),
                     Property.Format(foreignKey2.Properties),
                     Property.Format(foreignKey1.Properties)),
-                Assert.Throws<InvalidOperationException>(() => foreignKey2.HasDependentToPrincipal("Deception")).Message);
+                Assert.Throws<InvalidOperationException>(()
+                => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
         [Fact]
         public void Throws_when_setting_navigation_to_dependent_on_wrong_FK()
         {
             var foreignKey1 = CreateOneToManyFK();
-            foreignKey1.HasPrincipalToDependent("Deception");
+            foreignKey1.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty);
 
             var newFkProp = foreignKey1.DeclaringEntityType.AddProperty("FkProp", typeof(int));
             var foreignKey2 = foreignKey1.DeclaringEntityType.AddForeignKey(
@@ -388,11 +393,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey(
-                    "Deception",
-                    nameof(OneToManyPrincipal),
+                    nameof(OneToManyDependent.Deception),
+                    nameof(OneToManyDependent),
                     Property.Format(foreignKey2.Properties),
                     Property.Format(foreignKey1.Properties)),
-                Assert.Throws<InvalidOperationException>(() => foreignKey2.HasPrincipalToDependent("Deception")).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
         private ForeignKey CreateSelfRefFK(bool useAltKey = false)
@@ -408,15 +414,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, principalKey, entityType);
             fk.IsUnique = true;
-            fk.HasDependentToPrincipal("SelfRefPrincipal");
-            fk.HasPrincipalToDependent("SelfRefDependent");
+            fk.HasDependentToPrincipal(SelfRef.SelfRefPrincipalProperty);
+            fk.HasPrincipalToDependent(SelfRef.SelfRefDependentProperty);
             return fk;
         }
 
         private class SelfRef
         {
             public static readonly PropertyInfo IdProperty = typeof(SelfRef).GetProperty("Id");
-            public static readonly PropertyInfo SelfRefIdProperty = typeof(SelfRef).GetProperty("SelfRefId");
+            public static readonly PropertyInfo SelfRefIdProperty = typeof(SelfRef).GetProperty(nameof(SelfRefId));
+            public static readonly PropertyInfo SelfRefPrincipalProperty = typeof(SelfRef).GetProperty(nameof(SelfRefPrincipal));
+            public static readonly PropertyInfo SelfRefDependentProperty = typeof(SelfRef).GetProperty(nameof(SelfRefDependent));
 
             public int Id { get; set; }
             public SelfRef SelfRefPrincipal { get; set; }

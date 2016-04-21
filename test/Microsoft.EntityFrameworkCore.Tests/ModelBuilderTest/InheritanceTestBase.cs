@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Do_not_run_relationship_discovery_on_entity_type_while_removing_it()
+            public virtual void Can_ignore_base_entity_type()
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<SpecialBookLabel>();
@@ -201,6 +201,22 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Ignore<BookLabel>();
 
                 Assert.Null(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName));
+            }
+
+            [Fact]
+            public virtual void Relationships_are_discovered_on_the_base_entity_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<SpecialBookLabel>();
+                modelBuilder.Entity<AnotherBookLabel>();
+
+                var bookLabel = modelBuilder.Model.FindEntityType(typeof(BookLabel));
+                var specialNavigation = bookLabel.GetDeclaredNavigations().Single(n => n.Name == nameof(BookLabel.SpecialBookLabel));
+                Assert.Equal(typeof(SpecialBookLabel), specialNavigation.GetTargetType().ClrType);
+                Assert.Equal(nameof(SpecialBookLabel.BookLabel), specialNavigation.FindInverse().Name);
+                var anotherNavigation = bookLabel.GetDeclaredNavigations().Single(n => n.Name == nameof(BookLabel.AnotherBookLabel));
+                Assert.Equal(typeof(AnotherBookLabel), anotherNavigation.GetTargetType().ClrType);
+                Assert.Null(anotherNavigation.FindInverse());
             }
 
             [Fact]

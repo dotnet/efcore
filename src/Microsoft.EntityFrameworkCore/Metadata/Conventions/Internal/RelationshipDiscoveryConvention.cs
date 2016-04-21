@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -257,9 +258,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             foreach (var relationshipCandidate in relationshipCandidates)
             {
-                if (((relationshipCandidate.NavigationProperties.Count > 1)
-                     && (relationshipCandidate.InverseProperties.Count > 0))
-                    || (relationshipCandidate.InverseProperties.Count > 1))
+                Debug.Assert(relationshipCandidate.NavigationProperties.Count > 0);
+                if ((relationshipCandidate.NavigationProperties.Count > 1
+                     && relationshipCandidate.InverseProperties.Count > 0)
+                    || relationshipCandidate.InverseProperties.Count > 1)
                 {
                     foreach (var navigationProperty in relationshipCandidate.NavigationProperties)
                     {
@@ -282,11 +284,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var navigation in relationshipCandidate.NavigationProperties)
                 {
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
-                    entityTypeBuilder.Relationship(
-                        relationshipCandidate.TargetTypeBuilder,
-                        navigation,
-                        inverse,
-                        ConfigurationSource.Convention);
+                    if (inverse == null)
+                    {
+                        entityTypeBuilder.Navigation(
+                            relationshipCandidate.TargetTypeBuilder,
+                            navigation,
+                            ConfigurationSource.Convention);
+                    }
+                    else
+                    {
+                        entityTypeBuilder.Relationship(
+                            relationshipCandidate.TargetTypeBuilder,
+                            navigation,
+                            inverse,
+                            ConfigurationSource.Convention);
+                    }
                 }
             }
         }
