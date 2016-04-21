@@ -558,13 +558,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var source = relationshipToBeRemoved.IsDependent ? dependentEntityType : principalEntityType;
                 var target = relationshipToBeRemoved.IsDependent ? principalEntityType : dependentEntityType;
 
-                if (relationshipToBeRemoved.NavigationFrom != null)
+                var from = relationshipToBeRemoved.NavigationFrom;
+                if (from != null)
                 {
-                    ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(source, target, relationshipToBeRemoved.NavigationFrom.Name);
+                    ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(source, target, from.Name, from.PropertyInfo);
                 }
-                if (relationshipToBeRemoved.NavigationTo != null)
+
+                var to = relationshipToBeRemoved.NavigationTo;
+                if (to != null)
                 {
-                    ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(target, source, relationshipToBeRemoved.NavigationTo.Name);
+                    ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(target, source, to.Name, to.PropertyInfo);
                 }
 
                 ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(dependentEntityType, relationshipToBeRemoved.ForeignKey);

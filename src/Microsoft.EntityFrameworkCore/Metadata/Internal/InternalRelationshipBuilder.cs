@@ -1686,7 +1686,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreach (var removedNavigation in removedNavigations)
                 {
                     ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(
-                        removedNavigation.Item1, removedNavigation.Item2, removedNavigation.Item3);
+                        removedNavigation.Item1, removedNavigation.Item2, removedNavigation.Item3, removedNavigation.Item4);
                 }
 
                 foreach (var removedForeignKey in removedForeignKeys)

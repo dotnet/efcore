@@ -336,8 +336,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual bool Apply(
             InternalEntityTypeBuilder sourceEntityTypeBuilder,
             InternalEntityTypeBuilder targetEntityTypeBuilder,
-            string navigationName)
+            string navigationName,
+            PropertyInfo propertyInfo)
         {
+            if (propertyInfo == null)
+            {
+                return true;
+            }
+
             sourceEntityTypeBuilder = sourceEntityTypeBuilder.Metadata.Builder;
             if (sourceEntityTypeBuilder == null
                 || sourceEntityTypeBuilder.ModelBuilder.IsIgnored(sourceEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention))

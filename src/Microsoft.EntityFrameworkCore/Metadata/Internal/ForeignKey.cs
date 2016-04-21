@@ -213,14 +213,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                             DeclaringEntityType.Builder,
                             PrincipalEntityType.Builder,
-                            oldNavigation.Name);
+                            oldNavigation.Name,
+                        	oldNavigation.PropertyInfo);
                     }
                     else
                     {
                         DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                             PrincipalEntityType.Builder,
                             DeclaringEntityType.Builder,
-                            oldNavigation.Name);
+                            oldNavigation.Name,
+                        	oldNavigation.PropertyInfo);
                     }
                 }
 

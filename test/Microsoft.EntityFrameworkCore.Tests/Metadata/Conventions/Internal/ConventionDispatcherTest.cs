@@ -562,17 +562,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             InternalEntityTypeBuilder dependentEntityTypeBuilderFromConvention = null;
             InternalEntityTypeBuilder principalEntityBuilderFromConvention = null;
             var convention = new Mock<INavigationRemovedConvention>();
-            convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>())).Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n) =>
+            convention.Setup(c => c.Apply(
+                It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>(), It.IsAny<PropertyInfo>()))
+                .Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n, PropertyInfo p) =>
                 {
                     dependentEntityTypeBuilderFromConvention = s;
                     principalEntityBuilderFromConvention = t;
                     Assert.Equal(nameof(OrderDetails.Order), n);
+                    Assert.Equal(nameof(OrderDetails.Order), p.Name);
                     return false;
                 });
             conventions.NavigationRemovedConventions.Add(convention.Object);
 
             var extraConvention = new Mock<INavigationRemovedConvention>();
-            extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>())).Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n) =>
+            extraConvention.Setup(c => c.Apply(
+                It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<string>(), It.IsAny<PropertyInfo>()))
+                .Returns((InternalEntityTypeBuilder s, InternalEntityTypeBuilder t, string n, PropertyInfo p) =>
                 {
                     Assert.False(true);
                     return false;

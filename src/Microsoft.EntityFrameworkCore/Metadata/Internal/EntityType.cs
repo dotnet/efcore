@@ -765,7 +765,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Model.ConventionDispatcher.OnNavigationRemoved(
                             Builder,
                             foreignKey.PrincipalEntityType.Builder,
-                            foreignKey.DependentToPrincipal.Name);
+                            foreignKey.DependentToPrincipal.Name,
+                            foreignKey.DependentToPrincipal.PropertyInfo);
                     }
 
                     if (foreignKey.PrincipalToDependent != null)
@@ -773,7 +774,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Model.ConventionDispatcher.OnNavigationRemoved(
                             foreignKey.PrincipalEntityType.Builder,
                             Builder,
-                            foreignKey.PrincipalToDependent.Name);
+                            foreignKey.PrincipalToDependent.Name,
+                            foreignKey.PrincipalToDependent.PropertyInfo);
                     }
 
                     Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
