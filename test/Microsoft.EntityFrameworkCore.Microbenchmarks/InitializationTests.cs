@@ -15,7 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
     public class InitializationTests : IClassFixture<AdventureWorksFixture>
     {
         [Benchmark]
-        [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
+        [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
+#if NET451
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
         public void CreateAndDisposeUnusedContext(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
@@ -23,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
 
         [Benchmark]
         [AdventureWorksDatabaseRequired]
-        [BenchmarkVariation("Warm (100 instances)", false, 100)]
+        [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
+#if NET451
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
         public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
@@ -32,6 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
         [Benchmark]
         [AdventureWorksDatabaseRequired]
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
+#if NET451
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
         public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));
@@ -56,14 +65,14 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks
         {
             if (cold)
             {
-#if NETCOREAPP1_0
-                throw new NotSupportedException("ColdStartSandbox can not be used on CoreCLR.");
-#else
+#if NET451
                 using (var sandbox = new ColdStartSandbox())
                 {
                     var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
                     test(testClass);
                 }
+#else
+                throw new NotSupportedException("ColdStartSandbox can not be used on CoreCLR.");
 #endif
             }
             else

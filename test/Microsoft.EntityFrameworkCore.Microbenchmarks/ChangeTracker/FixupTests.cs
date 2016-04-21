@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: false);
                 context.Customers.AttachRange(customers);
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: false);
                 context.Orders.AddRange(orders);
 
                 Assert.All(customers, c => Assert.Null(c.Orders));
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
                     }
                 }
 
-                Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
+                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
         }
 
@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
@@ -109,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
                 context.Orders.AttachRange(orders);
 
                 Assert.All(customers, c => Assert.Null(c.Orders));
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
                     }
                 }
 
-                Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
+                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
         }
 

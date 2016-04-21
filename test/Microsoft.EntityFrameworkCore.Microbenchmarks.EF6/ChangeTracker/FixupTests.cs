@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 10 /* Reduced due to slow perf */, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AddChildren(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: false);
                 customers.ForEach(c => context.Customers.Attach(c));
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         //       only happens during SaveChanges for EF6.x (not during Add)
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 10 /* Reduced due to slow perf */, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AttachChildren(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
                 customers.ForEach(c => context.Customers.Attach(c));
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 10 /* Reduced due to slow perf */, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AttachParents(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -85,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
                 orders.ForEach(o => context.Orders.Attach(o));
 
                 Assert.All(customers, c => Assert.Null(c.Orders));
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
                     }
                 }
 
-                Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
+                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
         }
 
