@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 setterDelegate = (Action<TEntity, TCollection>)setter.CreateDelegate(typeof(Action<TEntity, TCollection>));
 
-                var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TCollection));
+                var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TEntity), typeof(TCollection));
 
                 if (concreteType != null)
                 {

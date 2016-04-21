@@ -6,8 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -109,12 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
                 p => CreateSnapshotMonsterContext(p, SnapshotDatabaseName + "_PrincipalNavs"));
 
-        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
+        [Fact]
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_principal_navigations()
             => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
                 p => CreateChangedChangingMonsterContext(p, FullNotifyDatabaseName + "_PrincipalNavs"));
 
-        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
+        [Fact]
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_principal_navigations()
             => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
                 p => CreateChangedOnlyMonsterContext(p, ChangedOnlyDatabaseName + "_PrincipalNavs"));
@@ -414,11 +415,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void One_to_many_fixup_happens_when_collection_changes_for_snapshot_entities()
             => One_to_many_fixup_happens_when_collection_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
-        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
+        [Fact]
         public virtual void One_to_many_fixup_happens_when_collection_changes_for_full_notification_entities()
             => One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
-        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
+        [Fact]
         public virtual void One_to_many_fixup_happens_when_collection_changes_for_changed_only_notification_entities()
             => One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
@@ -811,11 +812,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_snapshot_entities()
             => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
-        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
+        [Fact]
         public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_full_notification_entities()
             => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
-        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
+        [Fact]
         public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_changed_only_notification_entities()
             => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
@@ -943,7 +944,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 incorrectScan2.ExpectedBarcode = barcode1;
                 incorrectScan1.ActualBarcode = barcode3;
                 incorrectScan2.ActualBarcode = barcode3;
-                barcode2.BadScans.Add(incorrectScan2);
 
                 if (useDetectChanges)
                 {
@@ -1366,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Same(barcode1, incorrectScan2.ExpectedBarcode);
                 Assert.Same(incorrectScan2, barcode1.BadScans.Single());
 
-                Assert.Null(barcode3.BadScans);
+                Assert.True(barcode3.BadScans == null || !barcode3.BadScans.Any());
 
                 var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
                 var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
@@ -1394,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Same(customer3, login3.Customer);
                 Assert.Same(login3, customer3.Logins.Single());
 
-                Assert.Null(customer0.Logins);
+                Assert.True(customer0.Logins == null || !customer0.Logins.Any());
 
                 var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
                 var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
@@ -1514,7 +1514,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Same(product2, productReview3.Product);
                 Assert.Same(productReview3, product2.Reviews.Single());
 
-                Assert.Null(product3.Reviews);
+                Assert.True(product3.Reviews == null || !product3.Reviews.Any());
 
                 var productPhoto1 = context.ProductPhotos.Single(e => e.Photo[0] == 101);
                 var productPhoto2 = context.ProductPhotos.Single(e => e.Photo[0] == 103);
@@ -1525,7 +1525,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     product1.Photos.OrderBy(r => r.Photo.First()).ToArray());
 
                 Assert.Same(productPhoto3, product3.Photos.Single());
-                Assert.Null(product2.Photos);
+                Assert.True(product2.Photos == null || !product2.Photos.Any());
 
                 var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
                 var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
@@ -1537,13 +1537,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Same(productWebFeature1, productReview1.Features.Single());
 
                 Assert.Null(productWebFeature2.Photo);
-                Assert.Null(productPhoto2.Features);
+                Assert.True(productPhoto2.Features == null || !productPhoto2.Features.Any());
 
                 Assert.Same(productReview3, productWebFeature2.Review);
                 Assert.Same(productWebFeature2, productReview3.Features.Single());
 
-                Assert.Null(productPhoto3.Features);
-                Assert.Null(productReview2.Features);
+                Assert.True(productPhoto3.Features == null || !productPhoto3.Features.Any());
+                Assert.True(productReview2.Features == null || !productReview2.Features.Any());
 
                 var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
                 var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
@@ -1602,15 +1602,27 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
             => new SnapshotMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
-                OnModelCreating<SnapshotMonsterContext.Message, SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>);
+                b =>
+                    {
+                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+                        OnModelCreating<SnapshotMonsterContext.Message, SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>(b);
+                    });
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
             => new ChangedChangingMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
-                OnModelCreating<ChangedChangingMonsterContext.Message, ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>);
+                b =>
+                    {
+                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+                        OnModelCreating<ChangedChangingMonsterContext.Message, ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>(b);
+                    });
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
             => new ChangedOnlyMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
-                OnModelCreating<ChangedOnlyMonsterContext.Message, ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>);
+                b =>
+                    {
+                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+                        OnModelCreating<ChangedOnlyMonsterContext.Message, ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>(b);
+                    });
 
         public virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
             where TMessage : class, IMessage

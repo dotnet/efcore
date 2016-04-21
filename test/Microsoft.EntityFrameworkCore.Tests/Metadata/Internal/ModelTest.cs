@@ -23,6 +23,23 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Snapshot_change_tracking_is_used_by_default()
+        {
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().ChangeTrackingStrategy);
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().GetChangeTrackingStrategy());
+        }
+
+        [Fact]
+        public void Change_tracking_strategy_can_be_changed()
+        {
+            var model = new Model { ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications };
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, model.ChangeTrackingStrategy);
+
+            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, model.GetChangeTrackingStrategy());
+        }
+
+        [Fact]
         public void Can_add_and_remove_entity_by_type()
         {
             var model = new Model();

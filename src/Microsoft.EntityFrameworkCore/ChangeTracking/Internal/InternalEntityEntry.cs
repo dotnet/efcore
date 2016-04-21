@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private bool PrepareForAdd(EntityState newState)
         {
-            if ((newState != EntityState.Added)
-                || (EntityState == EntityState.Added))
+            if (newState != EntityState.Added
+                || EntityState == EntityState.Added)
             {
                 return false;
             }
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges)
         {
             // Prevent temp values from becoming permanent values
-            if ((oldState == EntityState.Added)
-                && (newState != EntityState.Added)
-                && (newState != EntityState.Detached))
+            if (oldState == EntityState.Added
+                && newState != EntityState.Added
+                && newState != EntityState.Detached)
             {
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var property in EntityType.GetProperties())
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             StateManager.Notify.StateChanging(this, newState);
 
-            if ((newState == EntityState.Unchanged)
-                && (oldState == EntityState.Modified))
+            if (newState == EntityState.Unchanged
+                && oldState == EntityState.Modified)
             {
                 if (acceptChanges)
                 {
@@ -265,7 +265,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return;
             }
 
-            _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isTemporary);
+            var index = property.GetIndex();
+            _stateData.FlagProperty(index, PropertyFlag.TemporaryOrModified, isTemporary);
+            _stateData.FlagProperty(index, PropertyFlag.Unknown, isFlagged: false);
         }
 
         protected virtual void MarkShadowPropertiesNotSet([NotNull] IEntityType entityType)
@@ -378,6 +380,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        public virtual bool HasOriginalValuesSnapshot => !_originalValues.IsEmpty;
+
         public virtual bool HasRelationshipSnapshot => !_relationshipsSnapshot.IsEmpty;
 
         public virtual void RemoveFromCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] object removedEntity)
@@ -449,6 +453,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         StateManager.Notify.PropertyChanging(this, propertyBase);
                         WritePropertyValue(propertyBase, value);
+
+                        if (propertyIndex.HasValue)
+                        {
+                            _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Unknown, isFlagged: false);
+                        }
+
                         StateManager.Notify.PropertyChanged(this, propertyBase, setModified);
                     }
                 }

@@ -36,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConventionDispatcher.OnModelInitialized(Builder);
         }
 
+        public virtual ChangeTrackingStrategy ChangeTrackingStrategy { get; set; } 
+            = ChangeTrackingStrategy.Snapshot;
+
         public virtual ConventionDispatcher ConventionDispatcher { get; }
         public virtual InternalModelBuilder Builder { get; }
 

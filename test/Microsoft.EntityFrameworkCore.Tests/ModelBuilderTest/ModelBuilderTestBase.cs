@@ -166,6 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public abstract TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
                 where TRelatedEntity : class;
+
+            public abstract TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
         }
 
         public class TestKeyBuilder

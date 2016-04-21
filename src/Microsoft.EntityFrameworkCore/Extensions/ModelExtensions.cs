@@ -23,5 +23,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity type, or null if none if found. </returns>
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
+
+        public static ChangeTrackingStrategy GetChangeTrackingStrategy(
+            [NotNull] this IModel model)
+            => Check.NotNull(model, nameof(model)).AsModel().ChangeTrackingStrategy;
     }
 }

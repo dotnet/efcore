@@ -53,10 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new[] { entityType }.Concat(entityType.GetDerivedTypes());
 
         public static bool UseEagerSnapshots([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().UseEagerSnapshots;
+        {
+            var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
 
-        public static void UseEagerSnapshots([NotNull] this IEntityType entityType, bool useEagerSnapshots)
-            => entityType.AsEntityType().UseEagerSnapshots = useEagerSnapshots;
+            return changeTrackingStrategy == ChangeTrackingStrategy.Snapshot
+                   || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
+        }
 
         public static int StoreGeneratedCount([NotNull] this IEntityType entityType)
             => GetCounts(entityType).StoreGeneratedCount;
@@ -82,12 +84,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static PropertyCounts CalculateCounts([NotNull] this IEntityType entityType)
         {
             var properties = entityType.GetDeclaredProperties().ToList();
+            var navigations = entityType.GetDeclaredNavigations();
+
+            var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
             var propertyCount = properties.Count;
-            var navigationCount = entityType.GetDeclaredNavigations().Count();
+            var navigationCount = navigations.Count();
             var originalValueCount = properties.Count(p => p.RequiresOriginalValue());
             var shadowCount = properties.Count(p => p.IsShadowProperty);
-            var relationshipCount = navigationCount + properties.Count(p => p.IsKeyOrForeignKey());
+            var relationshipCount = (isNotifying ? navigations.Count(n => !n.IsCollection()) : navigationCount) 
+                + properties.Count(p => p.IsKeyOrForeignKey());
             var storeGeneratedCount = properties.Count(p => p.MayBeStoreGenerated());
 
             var baseCounts = entityType.BaseType?.CalculateCounts();
@@ -120,14 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public static Func<ISnapshot> GetEmptyShadowValuesFactory([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().EmptyShadowValuesFactory;
-
-        public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)
-            => entityType.ClrType == null
-               || typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
-
-        public static bool HasPropertyChangedNotifications([NotNull] this IEntityType entityType)
-            => entityType.ClrType == null
-               || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
 
         public static bool HasClrType([NotNull] this IEntityType entityType)
             => entityType.ClrType != null;
@@ -184,6 +182,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
             => entityType.GetIndexes().Where(p => p.DeclaringEntityType == entityType);
+
+        public static string CheckChangeTrackingStrategy([NotNull] this IEntityType entityType, ChangeTrackingStrategy value)
+        {
+            if (entityType.ClrType != null)
+            {
+                if (value != ChangeTrackingStrategy.Snapshot
+                    && !typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
+                {
+                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, typeof(INotifyPropertyChanged).Name);
+                }
+
+                if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
+                     || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                    && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
+                {
+                    return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, typeof(INotifyPropertyChanging).Name);
+                }
+            }
+
+            return null;
+        }
 
         public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull] [CallerMemberName] string methodName = "")
             => entityType.AsConcreteMetadataType<IEntityType, EntityType>(methodName);

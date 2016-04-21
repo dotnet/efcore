@@ -368,5 +368,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(propertyName, nameof(propertyName)),
                 Check.NotNull(propertyType, nameof(propertyType)),
                 ConfigurationSource.Explicit);
+
+        public virtual EntityTypeBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
+        {
+            Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;
+
+            return this;
+        }
     }
 }

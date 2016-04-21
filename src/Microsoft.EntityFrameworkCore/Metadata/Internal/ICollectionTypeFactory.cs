@@ -8,6 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public interface ICollectionTypeFactory
     {
-        Type TryFindTypeToInstantiate([NotNull] Type collectionType);
+        Type TryFindTypeToInstantiate([NotNull] Type entityType, [NotNull] Type collectionType);
     }
 }

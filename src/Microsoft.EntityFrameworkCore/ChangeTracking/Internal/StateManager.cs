@@ -102,8 +102,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     : _model.FindEntityType(clrType),
                 entity, valueBuffer);
 
-            _subscriber.SnapshotAndSubscribe(newEntry);
-
             foreach (var key in baseEntityType.GetKeys())
             {
                 GetOrCreateIdentityMap(key).AddOrUpdate(newEntry);
@@ -112,6 +110,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _entityReferenceMap[entity] = newEntry;
 
             newEntry.MarkUnchangedFromQuery();
+
+            _subscriber.SnapshotAndSubscribe(newEntry);
 
             return newEntry;
         }

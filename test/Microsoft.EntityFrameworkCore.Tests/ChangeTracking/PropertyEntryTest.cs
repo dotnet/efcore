@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
@@ -396,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
 
             var entry = TestHelpers.Instance.CreateInternalEntry(
-                BuildModel(useEagerSnapshots: true),
+                BuildModel(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues),
                 EntityState.Unchanged,
                 entity);
 
@@ -414,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             var entity = new FullyNotifyingWotty { Id = 1, Primate = "Monkey" };
 
             var entry = TestHelpers.Instance.CreateInternalEntry(
-                BuildModel(useEagerSnapshots: true),
+                BuildModel(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues),
                 EntityState.Unchanged,
                 entity);
 
@@ -529,20 +530,23 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
                 => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
-        public IMutableModel BuildModel(bool useEagerSnapshots = false)
+        public IMutableModel BuildModel(
+            ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications)
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<Wotty>();
-            builder.Entity<NotifyingWotty>();
+            builder.HasChangeTrackingStrategy(fullNotificationStrategy);
 
-            var wottyBuilder = builder.Entity<FullyNotifyingWotty>();
-            wottyBuilder.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
+            builder.Entity<Wotty>()
+                .HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
 
-            if (useEagerSnapshots)
-            {
-                wottyBuilder.Metadata.UseEagerSnapshots(true);
-            }
+            builder.Entity<NotifyingWotty>()
+                .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+
+            builder.Entity<FullyNotifyingWotty>()
+                .HasChangeTrackingStrategy(fullNotificationStrategy)
+                .Property(e => e.ConcurrentPrimate)
+                .IsConcurrencyToken();
 
             return builder.Model;
         }

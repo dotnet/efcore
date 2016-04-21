@@ -241,5 +241,9 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.FindIndex(new[] { property });
         }
+
+        public static ChangeTrackingStrategy GetChangeTrackingStrategy(
+            [NotNull] this IEntityType entityType)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy;
     }
 }

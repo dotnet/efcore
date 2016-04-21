@@ -265,6 +265,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 CollectionBuilder(relatedEntityType, navigationName));
         }
 
+        public new virtual EntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
+            => (EntityTypeBuilder<TEntity>)base.HasChangeTrackingStrategy(changeTrackingStrategy);
+
         private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
     }
 }

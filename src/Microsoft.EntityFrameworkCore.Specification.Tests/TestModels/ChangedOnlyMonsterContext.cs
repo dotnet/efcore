@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                BadScans = BadScans ?? new HashSet<IIncorrectScan>();
+                BadScans = BadScans ?? new ObservableCollection<IIncorrectScan>();
             }
 
             public byte[] Code
@@ -608,8 +609,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                OrderLines = OrderLines ?? new HashSet<IOrderLine>();
-                Notes = Notes ?? new HashSet<IOrderNote>();
+                OrderLines = OrderLines ?? new ObservableCollection<IOrderLine>();
+                Notes = Notes ?? new ObservableCollection<IOrderNote>();
             }
 
             public int AnOrderId
@@ -856,11 +857,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                Suppliers = Suppliers ?? new HashSet<ISupplier>();
-                //Replaces = new HashSet<DiscontinuedProduct>();
-                Reviews = Reviews ?? new HashSet<IProductReview>();
-                Photos = Photos ?? new HashSet<IProductPhoto>();
-                Barcodes = Barcodes ?? new HashSet<IBarcode>();
+                Suppliers = Suppliers ?? new ObservableCollection<ISupplier>();
+                //Replaces = new ObservableCollection<DiscontinuedProduct>();
+                Reviews = Reviews ?? new ObservableCollection<IProductReview>();
+                Photos = Photos ?? new ObservableCollection<IProductPhoto>();
+                Barcodes = Barcodes ?? new ObservableCollection<IBarcode>();
                 Dimensions = Dimensions ?? new Dimensions();
             }
 
@@ -950,7 +951,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                Features = Features ?? new HashSet<IProductWebFeature>();
+                Features = Features ?? new ObservableCollection<IProductWebFeature>();
             }
 
             public int ProductId
@@ -988,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                Features = Features ?? new HashSet<IProductWebFeature>();
+                Features = Features ?? new ObservableCollection<IProductWebFeature>();
             }
 
             public int ProductId
@@ -1230,8 +1231,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                Products = Products ?? new HashSet<IProduct>();
-                //BackOrderLines = new HashSet<BackOrderLine>();
+                Products = Products ?? new ObservableCollection<IProduct>();
+                //BackOrderLines = new ObservableCollection<BackOrderLine>();
             }
 
             public int SupplierId
@@ -1307,8 +1308,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                Orders = Orders ?? new HashSet<IAnOrder>();
-                Logins = Logins ?? new HashSet<ILogin>();
+                Orders = Orders ?? new ObservableCollection<IAnOrder>();
+                Logins = Logins ?? new ObservableCollection<ILogin>();
             }
 
             public int CustomerId
@@ -1385,9 +1386,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels
 
             public void InitializeCollections()
             {
-                SentMessages = SentMessages ?? new HashSet<IMessage>();
-                ReceivedMessages = ReceivedMessages ?? new HashSet<IMessage>();
-                Orders = Orders ?? new HashSet<IAnOrder>();
+                SentMessages = SentMessages ?? new ObservableCollection<IMessage>();
+                ReceivedMessages = ReceivedMessages ?? new ObservableCollection<IMessage>();
+                Orders = Orders ?? new ObservableCollection<IAnOrder>();
             }
 
             public string Username

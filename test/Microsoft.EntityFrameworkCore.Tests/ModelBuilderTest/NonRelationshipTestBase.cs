@@ -511,6 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                         b.Property<string>("Strange").IsConcurrencyToken(false);
                         b.Property<int>("Top").IsConcurrencyToken();
                         b.Property<string>("Bottom").IsConcurrencyToken(false);
+                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
                     });
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));

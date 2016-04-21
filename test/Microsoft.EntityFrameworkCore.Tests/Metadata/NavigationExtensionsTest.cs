@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata
@@ -136,81 +134,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata
             }
 
             return model;
-        }
-
-        [Fact]
-        public void IsNonNotifyingCollection_returns_false_for_reference_avigations()
-        {
-            var entry = TestHelpers.Instance.CreateInternalEntry<Dependent>(BuildCollectionsModel());
-
-            Assert.False(entry.EntityType.FindNavigation("Principal1").IsNonNotifyingCollection(entry));
-        }
-
-        [Fact]
-        public void IsNonNotifyingCollection_returns_false_for_collections_typed_for_notifications()
-        {
-            var entry = TestHelpers.Instance.CreateInternalEntry<Principal>(BuildCollectionsModel());
-
-            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
-            Assert.True(entry.EntityType.FindNavigation("Dependents2").IsNonNotifyingCollection(entry));
-        }
-
-        [Fact]
-        public void IsNonNotifyingCollection_returns_false_for_null_collections()
-        {
-            var entry = TestHelpers.Instance.CreateInternalEntry<Principal>(BuildCollectionsModel());
-
-            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
-            Assert.True(entry.EntityType.FindNavigation("Dependents1").IsNonNotifyingCollection(entry));
-        }
-
-        [Fact]
-        public void IsNonNotifyingCollection_returns_false_for_notifying_instances()
-        {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
-                BuildCollectionsModel(),
-                EntityState.Detached,
-                new Principal { Dependents1 = new ObservableCollection<Dependent>() });
-
-            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
-            Assert.True(entry.EntityType.FindNavigation("Dependents1").IsNonNotifyingCollection(entry));
-        }
-
-        [Fact]
-        public void IsNonNotifyingCollection_returns_true_for_non_notifying_instances()
-        {
-            var entry = TestHelpers.Instance.CreateInternalEntry(
-                BuildCollectionsModel(),
-                EntityState.Detached,
-                new Principal { Dependents1 = new List<Dependent>() });
-
-            Assert.True(entry.EntityType.FindNavigation("Dependents1").IsNonNotifyingCollection(entry));
-        }
-
-        private static IModel BuildCollectionsModel()
-        {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
-
-            builder.Entity<Principal>().HasMany(e => e.Dependents1).WithOne(e => e.Principal1);
-            builder.Entity<Principal>().HasMany(e => e.Dependents2).WithOne(e => e.Principal2);
-
-            return builder.Model;
-        }
-
-        private class Principal
-        {
-            public int Id { get; set; }
-
-            public ICollection<Dependent> Dependents1 { get; set; }
-            public ObservableCollection<Dependent> Dependents2 { get; set; }
-        }
-
-        private class Dependent
-        {
-            public int Id { get; set; }
-
-            public Principal Principal1 { get; set; }
-            public Principal Principal2 { get; set; }
         }
     }
 }

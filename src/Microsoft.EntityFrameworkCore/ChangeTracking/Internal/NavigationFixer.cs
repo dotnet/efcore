@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -163,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void NavigationCollectionChanged(
             InternalEntityEntry entry,
             INavigation navigation,
-            ISet<object> added,
-            ISet<object> removed)
+            IEnumerable<object> added,
+            IEnumerable<object> removed)
         {
             if (_inFixup)
             {
@@ -578,12 +579,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 foreach (var danglerEntry in stateManager.GetRecordedReferers(entry.Entity))
                 {
                     DelayedFixup(danglerEntry.Item2, danglerEntry.Item1, entry);
-                }
-
-                // Ensure current value is snapshotted for all keys and FKs
-                foreach (var property in entityType.GetProperties().Where(p => p.GetRelationshipIndex() >= 0))
-                {
-                    entry.SetRelationshipSnapshotValue(property, entry[property]);
                 }
             }
         }

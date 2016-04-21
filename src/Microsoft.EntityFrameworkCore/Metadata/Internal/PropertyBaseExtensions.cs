@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static int GetRelationshipIndex([NotNull] this IPropertyBase propertyBase)
             => propertyBase.GetPropertyIndexes().RelationshipIndex;
 
+        public static int GetIndex([NotNull] this IPropertyBase property)
+            => property.GetPropertyIndexes().Index;
+
         public static PropertyIndexes GetPropertyIndexes([NotNull] this IPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().PropertyIndexes;
 
@@ -41,11 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var property in entityType.GetDeclaredProperties())
             {
                 var indexes = new PropertyIndexes(
-                    index++,
-                    property.RequiresOriginalValue() ? originalValueIndex++ : -1,
-                    property.IsShadowProperty ? shadowIndex++ : -1,
-                    property.IsKeyOrForeignKey() ? relationshipIndex++ : -1,
-                    property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
+                    index: index++,
+                    originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
+                    shadowIndex: property.IsShadowProperty ? shadowIndex++ : -1,
+                    relationshipIndex: property.IsKeyOrForeignKey() ? relationshipIndex++ : -1,
+                    storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
                 TrySetIndexes(property, indexes);
 
@@ -55,9 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
+            var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
+
             foreach (var navigation in entityType.GetDeclaredNavigations())
             {
-                var indexes = new PropertyIndexes(index++, -1, -1, relationshipIndex++, -1);
+                var indexes = new PropertyIndexes(
+                    index: index++,
+                    originalValueIndex: -1,
+                    shadowIndex: -1,
+                    relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
+                    storeGenerationIndex: -1);
 
                 TrySetIndexes(navigation, indexes);
 

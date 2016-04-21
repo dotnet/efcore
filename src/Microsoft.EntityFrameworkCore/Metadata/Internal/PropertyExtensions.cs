@@ -55,9 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static int GetOriginalValueIndex([NotNull] this IProperty property)
             => property.GetPropertyIndexes().OriginalValueIndex;
 
-        public static int GetIndex([NotNull] this IProperty property)
-            => property.GetPropertyIndexes().Index;
-
         public static bool MayBeStoreGenerated([NotNull] this IProperty property)
         {
             if (property.ValueGenerated != ValueGenerated.Never)
@@ -76,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         public static bool RequiresOriginalValue([NotNull] this IProperty property)
-            => property.DeclaringEntityType.UseEagerSnapshots()
+            => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
                || property.IsConcurrencyToken
                || property.IsForeignKey();
 

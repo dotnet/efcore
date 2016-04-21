@@ -213,26 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
         }
 
-        [Fact]
-        public void Entry_methods_delegate_to_underlying_state_manager()
-        {
-            var entity = new Random();
-            var stateManagerMock = new Mock<IStateManager>();
-            var entry = CreateInternalEntryMock().Object;
-            stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(entry);
-
-            var services = new ServiceCollection()
-                .AddScoped(_ => stateManagerMock.Object);
-
-            var serviceProvider = TestHelpers.Instance.CreateServiceProvider(services);
-
-            using (var context = new EarlyLearningCenter(serviceProvider))
-            {
-                Assert.Same(entry, context.Entry(entity).GetInfrastructure());
-                Assert.Same(entry, context.Entry((object)entity).GetInfrastructure());
-            }
-        }
-
         private class FakeStateManager : IStateManager
         {
             public IEnumerable<InternalEntityEntry> InternalEntries { get; set; }

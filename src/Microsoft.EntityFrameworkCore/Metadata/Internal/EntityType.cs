@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Key _primaryKey;
         private EntityType _baseType;
 
-        private bool _useEagerSnapshots;
+        private ChangeTrackingStrategy? _changeTrackingStrategy;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _baseTypeConfigurationSource;
@@ -74,7 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(model, nameof(model));
 
             _typeOrName = clrType;
-            _useEagerSnapshots = !this.HasPropertyChangingNotifications();
 #if DEBUG
             DebugName = this.DisplayName();
 #endif
@@ -251,18 +251,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
-        public virtual bool UseEagerSnapshots
+        public virtual ChangeTrackingStrategy ChangeTrackingStrategy
         {
-            get { return _useEagerSnapshots; }
+            get { return _changeTrackingStrategy ?? Model.ChangeTrackingStrategy; }
             set
             {
-                if (!value
-                    && !this.HasPropertyChangingNotifications())
+                var errorMessage = this.CheckChangeTrackingStrategy(value);
+                if (errorMessage != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.EagerOriginalValuesRequired(Name));
+                    throw new InvalidOperationException(errorMessage);
                 }
 
-                _useEagerSnapshots = value;
+                _changeTrackingStrategy = value;
 
                 PropertyMetadataChanged();
             }

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (value == null)
                 {
                     var property = propertyBase as IProperty;
-                    if ((property != null)
+                    if (property != null
                         && !property.IsNullable)
                     {
                         return;
@@ -47,29 +47,43 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public void RemoveFromCollection(IPropertyBase propertyBase, object removedEntity)
-                => ((HashSet<object>)_values[propertyBase.GetRelationshipIndex()]).Remove(removedEntity);
+            {
+                var index = propertyBase.GetRelationshipIndex();
+                if (index != -1)
+                {
+                    ((HashSet<object>)_values[index]).Remove(removedEntity);
+                }
+            }
 
             public void AddToCollection(IPropertyBase propertyBase, object addedEntity)
             {
-                var snapshot = GetOrCreateCollection(propertyBase);
+                var index = propertyBase.GetRelationshipIndex();
 
-                snapshot.Add(addedEntity);
-            }
-
-            public void AddRangeToCollection(IPropertyBase propertyBase, IEnumerable<object> addedEntities)
-            {
-                var snapshot = GetOrCreateCollection(propertyBase);
-
-                foreach (var addedEntity in addedEntities)
+                if (index != -1)
                 {
+                    var snapshot = GetOrCreateCollection(index);
+
                     snapshot.Add(addedEntity);
                 }
             }
 
-            private HashSet<object> GetOrCreateCollection(IPropertyBase propertyBase)
+            public void AddRangeToCollection(IPropertyBase propertyBase, IEnumerable<object> addedEntities)
             {
                 var index = propertyBase.GetRelationshipIndex();
 
+                if (index != -1)
+                {
+                    var snapshot = GetOrCreateCollection(index);
+
+                    foreach (var addedEntity in addedEntities)
+                    {
+                        snapshot.Add(addedEntity);
+                    }
+                }
+            }
+
+            private HashSet<object> GetOrCreateCollection(int index)
+            {
                 var snapshot = (HashSet<object>)_values[index];
                 if (snapshot == null)
                 {

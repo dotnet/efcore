@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Moq;
 using Xunit;
 
@@ -2629,23 +2629,44 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         [Fact]
         public void Indexes_are_rebuilt_when_more_properties_added_or_relevant_state_changes()
         {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(FullNotificationEntity));
-
-            var nameProperty = entityType.AddProperty("Name", typeof(string), shadow: false);
-            entityType.AddProperty("Id", typeof(int), shadow: true).IsConcurrencyToken = true;
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
             Assert.Equal(0, entityType.FindProperty("Id").GetIndex());
-            Assert.Equal(1, entityType.FindProperty("Name").GetIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetIndex());
+            Assert.Equal(2, entityType.FindProperty("Name").GetIndex());
+            Assert.Equal(3, entityType.FindProperty("Token").GetIndex());
+            Assert.Equal(4, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(5, entityType.FindNavigation("ReferenceNav").GetIndex());
 
-            Assert.Equal(0, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("Token").GetOriginalValueIndex());
 
-            Assert.Equal(1, entityType.ShadowPropertyCount());
-            Assert.Equal(1, entityType.OriginalValueCount());
+            Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
+            Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
+
+            Assert.Equal(0, entityType.FindProperty("Id").GetStoreGeneratedIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
+
+            Assert.Equal(0, entityType.ShadowPropertyCount());
+            Assert.Equal(2, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.RelationshipPropertyCount());
+            Assert.Equal(2, entityType.StoreGeneratedCount());
 
             var gameProperty = entityType.AddProperty("Game", typeof(int), shadow: true);
             gameProperty.IsConcurrencyToken = true;
@@ -2653,44 +2674,100 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var maneProperty = entityType.AddProperty("Mane", typeof(int), shadow: true);
             maneProperty.IsConcurrencyToken = true;
 
-            Assert.Equal(0, entityType.FindProperty("Game").GetIndex());
-            Assert.Equal(1, entityType.FindProperty("Id").GetIndex());
-            Assert.Equal(2, entityType.FindProperty("Mane").GetIndex());
-            Assert.Equal(3, entityType.FindProperty("Name").GetIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetIndex());
+            Assert.Equal(2, entityType.FindProperty("Game").GetIndex());
+            Assert.Equal(3, entityType.FindProperty("Mane").GetIndex());
+            Assert.Equal(4, entityType.FindProperty("Name").GetIndex());
+            Assert.Equal(5, entityType.FindProperty("Token").GetIndex());
+            Assert.Equal(6, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(7, entityType.FindNavigation("ReferenceNav").GetIndex());
 
+            Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
             Assert.Equal(0, entityType.FindProperty("Game").GetShadowIndex());
-            Assert.Equal(1, entityType.FindProperty("Id").GetShadowIndex());
-            Assert.Equal(2, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
-            Assert.Equal(0, entityType.FindProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("Game").GetOriginalValueIndex());
             Assert.Equal(2, entityType.FindProperty("Mane").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
 
-            Assert.Equal(3, entityType.ShadowPropertyCount());
-            Assert.Equal(3, entityType.OriginalValueCount());
+            Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Game").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Mane").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
+            Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
+
+            Assert.Equal(0, entityType.FindProperty("Id").GetStoreGeneratedIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Game").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Mane").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
+
+            Assert.Equal(2, entityType.ShadowPropertyCount());
+            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.RelationshipPropertyCount());
+            Assert.Equal(2, entityType.StoreGeneratedCount());
 
             gameProperty.IsConcurrencyToken = false;
-            nameProperty.IsConcurrencyToken = true;
+            entityType.FindProperty("Name").IsConcurrencyToken = true;
 
-            Assert.Equal(0, entityType.FindProperty("Game").GetIndex());
-            Assert.Equal(1, entityType.FindProperty("Id").GetIndex());
-            Assert.Equal(2, entityType.FindProperty("Mane").GetIndex());
-            Assert.Equal(3, entityType.FindProperty("Name").GetIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetIndex());
+            Assert.Equal(2, entityType.FindProperty("Game").GetIndex());
+            Assert.Equal(3, entityType.FindProperty("Mane").GetIndex());
+            Assert.Equal(4, entityType.FindProperty("Name").GetIndex());
+            Assert.Equal(5, entityType.FindProperty("Token").GetIndex());
+            Assert.Equal(6, entityType.FindNavigation("CollectionNav").GetIndex());
+            Assert.Equal(7, entityType.FindNavigation("ReferenceNav").GetIndex());
 
+            Assert.Equal(-1, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("AnotherEntityId").GetShadowIndex());
             Assert.Equal(0, entityType.FindProperty("Game").GetShadowIndex());
-            Assert.Equal(1, entityType.FindProperty("Id").GetShadowIndex());
-            Assert.Equal(2, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane").GetShadowIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetShadowIndex());
 
+            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("Mane").GetOriginalValueIndex());
             Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
 
-            Assert.Equal(3, entityType.ShadowPropertyCount());
-            Assert.Equal(3, entityType.OriginalValueCount());
+            Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Game").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Mane").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
+            Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
+
+            Assert.Equal(0, entityType.FindProperty("Id").GetStoreGeneratedIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Game").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Mane").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetStoreGeneratedIndex());
+            Assert.Equal(-1, entityType.FindNavigation("ReferenceNav").GetStoreGeneratedIndex());
+
+            Assert.Equal(2, entityType.ShadowPropertyCount());
+            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.RelationshipPropertyCount());
+            Assert.Equal(2, entityType.StoreGeneratedCount());
         }
 
         [Fact]
@@ -2711,93 +2788,224 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Lazy_original_values_are_used_for_full_notification_and_shadow_enties()
+        public void Change_tracking_from_model_is_used_by_default_regardless_of_CLR_type()
         {
-            Assert.False(new Model().AddEntityType(typeof(FullNotificationEntity)).UseEagerSnapshots);
+            var model = BuildFullNotificationEntityModel();
+            var entityType = model.FindEntityType(typeof(FullNotificationEntity));
+
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.GetChangeTrackingStrategy());
+
+            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
         }
 
         [Fact]
-        public void Lazy_original_values_are_used_for_shadow_enties()
+        public void Change_tracking_from_model_is_used_by_default_for_shadow_entities()
         {
-            Assert.False(new Model().AddEntityType("Z'ha'dum").UseEagerSnapshots);
+            var model = new Model();
+            var entityType = model.AddEntityType("Z'ha'dum");
+
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.ChangeTrackingStrategy);
+
+            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.ChangeTrackingStrategy);
         }
 
         [Fact]
-        public void Eager_original_values_are_used_for_enties_that_only_implement_INotifyPropertyChanged()
+        public void Change_tracking_can_be_set_to_anything_for_full_notification_entities()
         {
-            Assert.True(new Model().AddEntityType(typeof(ChangedOnlyEntity)).UseEagerSnapshots);
+            var model = BuildFullNotificationEntityModel();
+            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+
+            var entityType = model.FindEntityType(typeof(FullNotificationEntity));
+
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
+
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.GetChangeTrackingStrategy());
+
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
+
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.GetChangeTrackingStrategy());
+
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, entityType.GetChangeTrackingStrategy());
         }
 
         [Fact]
-        public void Eager_original_values_are_used_for_enties_that_do_no_notification()
+        public void Change_tracking_can_be_set_to_snapshot_or_changed_only_for_changed_only_entities()
         {
-            Assert.True(new Model().AddEntityType(typeof(Customer)).UseEagerSnapshots);
-        }
+            var model = new Model { ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications };
+            var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
 
-        [Fact]
-        public void Lazy_original_values_can_be_switched_off()
-        {
-            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
-            entityType.UseEagerSnapshots = false;
-            Assert.False(entityType.UseEagerSnapshots);
-        }
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.ChangeTrackingStrategy);
 
-        [Fact]
-        public void Lazy_original_values_can_be_switched_on_but_only_if_entity_does_not_require_eager_values()
-        {
-            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
-            entityType.UseEagerSnapshots = true;
-            entityType.UseEagerSnapshots = false;
-            Assert.False(entityType.UseEagerSnapshots);
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.ChangeTrackingStrategy);
 
-            entityType = new Model().AddEntityType(typeof(ChangedOnlyEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.ChangeTrackingStrategy);
+
             Assert.Equal(
-                CoreStrings.EagerOriginalValuesRequired(typeof(ChangedOnlyEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType.UseEagerSnapshots = false).Message);
+                CoreStrings.ChangeTrackingInterfaceMissing("ChangedOnlyEntity", "ChangingAndChangedNotifications", "INotifyPropertyChanging"),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications).Message);
+
+            Assert.Equal(
+                CoreStrings.ChangeTrackingInterfaceMissing("ChangedOnlyEntity", "ChangingAndChangedNotificationsWithOriginalValues", "INotifyPropertyChanging"),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues).Message);
         }
 
         [Fact]
-        public void All_properties_have_original_value_indexes_when_using_eager_original_values()
+        public void Change_tracking_can_be_set_to_snapshot_only_for_non_notifying_entities()
         {
-            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
-            entityType.UseEagerSnapshots = true;
-            entityType.AddProperty(FullNotificationEntity.NameProperty);
-            entityType.AddProperty(FullNotificationEntity.IdProperty);
+            var model = new Model { ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications };
+            var entityType = model.AddEntityType(typeof(Customer));
+
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.ChangeTrackingStrategy);
+
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.ChangeTrackingStrategy);
+
+            Assert.Equal(
+                CoreStrings.ChangeTrackingInterfaceMissing("Customer", "ChangedNotifications", "INotifyPropertyChanged"),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications).Message);
+
+            Assert.Equal(
+                CoreStrings.ChangeTrackingInterfaceMissing("Customer", "ChangingAndChangedNotifications", "INotifyPropertyChanged"),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications).Message);
+
+            Assert.Equal(
+                CoreStrings.ChangeTrackingInterfaceMissing("Customer", "ChangingAndChangedNotificationsWithOriginalValues", "INotifyPropertyChanged"),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues).Message);
+        }
+
+        [Fact]
+        public void All_properties_have_original_value_indexes_when_using_snapshot_change_tracking()
+        {
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+
+            Assert.Equal(4, entityType.OriginalValueCount());
+        }
+
+        [Fact]
+        public void All_relationship_properties_have_relationship_indexes_when_using_snapshot_change_tracking()
+        {
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+
+            Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(2, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
+            Assert.Equal(3, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
+
+            Assert.Equal(4, entityType.RelationshipPropertyCount());
+        }
+
+        [Fact]
+        public void All_properties_have_original_value_indexes_when_using_changed_only_tracking()
+        {
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+
+            Assert.Equal(4, entityType.OriginalValueCount());
+        }
+
+        [Fact]
+        public void Collections_dont_have_relationship_indexes_when_using_changed_only_change_tracking()
+        {
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+
+            Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
+            Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
+
+            Assert.Equal(3, entityType.RelationshipPropertyCount());
+        }
+
+        [Fact]
+        public void Only_concurrency_and_FK_properties_have_original_value_indexes_when_using_full_notifications()
+        {
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+
+            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("Token").GetOriginalValueIndex());
 
             Assert.Equal(2, entityType.OriginalValueCount());
         }
 
         [Fact]
-        public void Only_required_properties_have_original_value_indexes_when_using_lazy_original_values()
+        public void Collections_dont_have_relationship_indexes_when_using_full_notifications()
         {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(FullNotificationEntity));
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
-            entityType.AddProperty(FullNotificationEntity.NameProperty).IsConcurrencyToken = true;
-            entityType.AddProperty(FullNotificationEntity.IdProperty);
+            Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
+            Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
 
-            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.FindProperty("Name").GetOriginalValueIndex());
-
-            Assert.Equal(1, entityType.OriginalValueCount());
+            Assert.Equal(3, entityType.RelationshipPropertyCount());
         }
 
         [Fact]
-        public void FK_properties_are_marked_as_requiring_original_values()
+        public void All_properties_have_original_value_indexes_when_full_notifications_with_original_values()
         {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(FullNotificationEntity));
-            var key = entityType.GetOrSetPrimaryKey(entityType.AddProperty(FullNotificationEntity.IdProperty));
-            var fkProperty = entityType.AddProperty("Fk", typeof(int));
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
 
-            Assert.Equal(-1, fkProperty.GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
 
-            entityType.GetOrAddForeignKey(new[] { fkProperty }, key, entityType);
+            Assert.Equal(4, entityType.OriginalValueCount());
+        }
 
-            Assert.Equal(0, fkProperty.GetOriginalValueIndex());
+        [Fact]
+        public void Collections_dont_have_relationship_indexes_when_full_notifications_with_original_values()
+        {
+            var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
+
+            Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
+            Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
+            Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
+
+            Assert.Equal(3, entityType.RelationshipPropertyCount());
         }
 
         private class BaseType
@@ -2851,102 +3059,58 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         {
         }
 
-        private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
+        private static Model BuildFullNotificationEntityModel()
         {
-            public static readonly PropertyInfo IdProperty = typeof(FullNotificationEntity).GetProperty("Id");
-            public static readonly PropertyInfo NameProperty = typeof(FullNotificationEntity).GetProperty("Name");
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
-            private int _id;
-            private string _name;
-            private int _game;
-
-            public int Id
-            {
-                get { return _id; }
-                set
-                {
-                    if (_id != value)
+            builder.Entity<FullNotificationEntity>(
+                b =>
                     {
-                        NotifyChanging();
-                        _id = value;
-                        NotifyChanged();
-                    }
-                }
-            }
+                        b.HasOne(e => e.ReferenceNav)
+                            .WithMany()
+                            .HasForeignKey(e => e.AnotherEntityId);
 
-            public string Name
-            {
-                get { return _name; }
-                set
-                {
-                    if (_name != value)
-                    {
-                        NotifyChanging();
-                        _name = value;
-                        NotifyChanged();
-                    }
-                }
-            }
+                        b.HasMany(e => e.CollectionNav)
+                            .WithOne();
 
-            public int Game
-            {
-                get { return _game; }
-                set
-                {
-                    if (_game != value)
-                    {
-                        NotifyChanging();
-                        _game = value;
-                        NotifyChanged();
-                    }
-                }
-            }
+                        b.Property(e => e.Token).IsConcurrencyToken();
+                    });
 
-            public event PropertyChangingEventHandler PropertyChanging;
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            private void NotifyChanged([CallerMemberName] string propertyName = "")
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            private void NotifyChanging([CallerMemberName] string propertyName = "")
-                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+            return (Model)builder.Model;
         }
 
+        // INotify interfaces not really implemented; just marking the classes to test metadata construction
+        private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int Token { get; set; }
+
+            public AnotherEntity ReferenceNav { get; set; }
+            public int AnotherEntityId { get; set; }
+
+            public ICollection<AnotherEntity> CollectionNav { get; set; }
+
+#pragma warning disable 67
+            public event PropertyChangingEventHandler PropertyChanging;
+            public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 67
+        }
+
+        private class AnotherEntity
+        {
+            public int Id { get; set; }
+        }
+
+        // INotify interfaces not really implemented; just marking the classes to test metadata construction
         private class ChangedOnlyEntity : INotifyPropertyChanged
         {
-            private int _id;
-            private string _name;
+            public int Id { get; set; }
+            public string Name { get; set; }
 
-            public int Id
-            {
-                get { return _id; }
-                set
-                {
-                    if (_id != value)
-                    {
-                        _id = value;
-                        NotifyChanged();
-                    }
-                }
-            }
-
-            public string Name
-            {
-                get { return _name; }
-                set
-                {
-                    if (_name != value)
-                    {
-                        _name = value;
-                        NotifyChanged();
-                    }
-                }
-            }
-
+#pragma warning disable 67
             public event PropertyChangedEventHandler PropertyChanged;
-
-            private void NotifyChanged([CallerMemberName] string propertyName = "")
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+#pragma warning restore 67
         }
 
         private class SelfRef

@@ -165,11 +165,20 @@
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
     <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.</value>
   </data>
-  <data name="EagerOriginalValuesRequired" xml:space="preserve">
-    <value>Lazy original value tracking cannot be turned on for entity type '{entityType}'. Entities that do not implement both INotifyPropertyChanging and INotifyPropertyChanged require original values to be stored eagerly in order to correct detect changes made to entities.</value>
+  <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
+    <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface.</value>
+  </data>
+  <data name="NonNotifyingCollection" xml:space="preserve">
+    <value>The collection type being used for navigation property '{navigation}' on entity type '{entityType}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.</value>
+  </data>
+  <data name="ResetNotSupported" xml:space="preserve">
+    <value>'ObservableCollection&lt;T&gt;.Clear()' is not supported because it uses the 'INotifyCollectionChanged' 'Reset' operation, which does not supply the items removed. Either use multiple calls to 'Remove' or use a notifying collection that supports 'Clear', such as 'Microsoft.EntityFrameworkCore.ChangeTracking.ObservableCollectionWithClear&lt;T&gt;'.</value>
   </data>
   <data name="OriginalValueNotTracked" xml:space="preserve">
-    <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities that utilize the INotifyPropertyChanging interface. To access all original values set 'UseEagerSnapshots' to true on the EntityType during model building.</value>
+    <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.</value>
+  </data>
+  <data name="ObservableCollectionReentrancy" xml:space="preserve">
+    <value>Cannot change ObservableCollectionWithClear during a CollectionChanged event.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.</value>

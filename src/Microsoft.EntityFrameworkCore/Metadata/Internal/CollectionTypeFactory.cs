@@ -3,16 +3,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class CollectionTypeFactory : ICollectionTypeFactory
     {
-        public virtual Type TryFindTypeToInstantiate(Type collectionType)
+        public virtual Type TryFindTypeToInstantiate(Type entityType, Type collectionType)
         {
             // Code taken from EF6. The rules are:
             // If the collection is defined as a concrete type with a public parameterless constructor, then create an instance of that type
+            // Else, if entity type is notifying and ObservableCollectionWithClear{T} can be assigned to the type, then use ObservableCollectionWithClear{T}
+            // Else, if entity type is notifying and ObservableCollection{T} can be assigned to the type, then use ObservableCollection{T}
             // Else, if HashSet{T} can be assigned to the type, then use HashSet{T}
             // Else, if List{T} can be assigned to the type, then use List{T}
             // Else, return null.
@@ -27,10 +33,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (!collectionType.GetTypeInfo().IsAbstract)
             {
                 var constructor = collectionType.GetDeclaredConstructor(null);
-                if ((constructor != null)
+                if (constructor != null
                     && constructor.IsPublic)
                 {
                     return collectionType;
+                }
+            }
+
+            if (typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.GetTypeInfo()))
+            {
+                var observableCollectionWithClearOfT = typeof(ObservableCollectionWithClear<>).MakeGenericType(elementType);
+                if (collectionType.GetTypeInfo().IsAssignableFrom(observableCollectionWithClearOfT.GetTypeInfo()))
+                {
+                    return observableCollectionWithClearOfT;
                 }
             }
 
