@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
 using Xunit;
@@ -19,9 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
         }
 
         [Benchmark]
-        [BenchmarkVariation("Batching Off", true)]
-        [BenchmarkVariation("Default", false)]
-        public void Insert(IMetricCollector collector, bool disableBatching)
+        [BenchmarkVariation("Sync - Batching Off", true, false)]
+        [BenchmarkVariation("Sync", false, false)]
+        [BenchmarkVariation("Async - Batching Off", true, true)]
+        [BenchmarkVariation("Async", false, true)]
+        public async Task Insert(IMetricCollector collector, bool disableBatching, bool async)
         {
             using (var context = _fixture.CreateContext(disableBatching))
             {
@@ -31,7 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
                     context.Customers.AddRange(customers);
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async 
+                        ? await context.SaveChangesAsync() 
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);
@@ -40,9 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
         }
 
         [Benchmark]
-        [BenchmarkVariation("Batching Off", true)]
-        [BenchmarkVariation("Default", false)]
-        public void Update(IMetricCollector collector, bool disableBatching)
+        [BenchmarkVariation("Sync - Batching Off", true, false)]
+        [BenchmarkVariation("Sync", false, false)]
+        [BenchmarkVariation("Async - Batching Off", true, true)]
+        [BenchmarkVariation("Async", false, true)]
+        public async Task Update(IMetricCollector collector, bool disableBatching, bool async)
         {
             using (var context = _fixture.CreateContext(disableBatching))
             {
@@ -54,7 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
                     }
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);
@@ -63,9 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
         }
 
         [Benchmark]
-        [BenchmarkVariation("Batching Off", true)]
-        [BenchmarkVariation("Default", false)]
-        public void Delete(IMetricCollector collector, bool disableBatching)
+        [BenchmarkVariation("Sync - Batching Off", true, false)]
+        [BenchmarkVariation("Sync", false, false)]
+        [BenchmarkVariation("Async - Batching Off", true, true)]
+        [BenchmarkVariation("Async", false, true)]
+        public async Task Delete(IMetricCollector collector, bool disableBatching, bool async)
         {
             using (var context = _fixture.CreateContext(disableBatching))
             {
@@ -74,7 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
                     context.Customers.RemoveRange(context.Customers.ToList());
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);
@@ -83,9 +96,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
         }
 
         [Benchmark]
-        [BenchmarkVariation("Batching Off", true)]
-        [BenchmarkVariation("Default", false)]
-        public void Mixed(IMetricCollector collector, bool disableBatching)
+        [BenchmarkVariation("Sync - Batching Off", true, false)]
+        [BenchmarkVariation("Sync", false, false)]
+        [BenchmarkVariation("Async - Batching Off", true, true)]
+        [BenchmarkVariation("Async", false, true)]
+        public async Task Mixed(IMetricCollector collector, bool disableBatching, bool async)
         {
             using (var context = _fixture.CreateContext(disableBatching))
             {
@@ -107,7 +122,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.UpdatePipeline
                     }
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);
