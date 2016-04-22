@@ -125,6 +125,7 @@
     <Compile Include="NonCollectingBenchmarkTestCase.cs" />
     <Compile Include="NullMetricCollector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SkipForNonBenchmarkTestRuns.cs" />
     <Compile Include="SqlServerBenchmarkResultProcessor.cs" />
     <Compile Include="SqlServerRequiredAttribute.cs" />
   </ItemGroup>

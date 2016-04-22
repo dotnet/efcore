@@ -10,6 +10,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
 {
     [SqlServerRequired]
+    [SkipForNonBenchmarkTestRuns("Test takes a long time to execute, only run during benchmark collection runs.")]
     public class FixupTests : IClassFixture<FixupTests.FixupFixture>
     {
         private readonly FixupFixture _fixture;
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", iterations: 10 /* Reduced due to slow perf */, data: new object[] { true })]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AddChildren(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         //       only happens during SaveChanges for EF6.x (not during Add)
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", iterations: 10 /* Reduced due to slow perf */, data: new object[] { true })]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AttachChildren(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", iterations: 10 /* Reduced due to slow perf */, data: new object[] { true })]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AttachParents(IMetricCollector collector, bool autoDetectChanges)
         {
