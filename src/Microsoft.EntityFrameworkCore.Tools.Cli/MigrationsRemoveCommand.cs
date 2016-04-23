@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class MigrationsRemoveCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Remove the last migration";
 
@@ -30,16 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.VerboseOption();
 
             command.OnExecute(
-                () => Execute(
+                () => Execute(commonOptions.Value(),
                     context.Value(),
                     startupProject.Value(),
                     environment.Value(),
                     force.HasValue()));
         }
 
-        private static int Execute(string context, string startupProject, string environment, bool force)
+        private static int Execute(CommonOptions commonOptions,
+            string context, 
+            string startupProject, 
+            string environment, 
+            bool force)
         {
-            new OperationExecutor(startupProject, environment)
+            new OperationExecutor(commonOptions, startupProject, environment)
                 .RemoveMigration(context, force);
 
             return 0;

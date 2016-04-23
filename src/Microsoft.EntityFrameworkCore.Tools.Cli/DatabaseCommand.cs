@@ -8,15 +8,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class DatabaseCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Commands to manage your database";
 
             command.HelpOption();
             command.VerboseOption();
 
-            command.Command("update", DatabaseUpdateCommand.Configure);
-            command.Command("drop", DatabaseDropCommand.Configure);
+            command.Command("update", c => DatabaseUpdateCommand.Configure(c, commonOptions));
+            command.Command("drop", c => DatabaseDropCommand.Configure(c, commonOptions));
 
             command.OnExecute(() => command.ShowHelp());
         }

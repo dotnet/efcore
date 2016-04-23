@@ -118,10 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities
 
             if (resultHandler.ErrorType != null)
             {
-                throw new OperationException(
-                    //resultHandler.ErrorType,
-                    //resultHandler.ErrorStackTrace,
-                    resultHandler.ErrorMessage);
+                throw new OperationException(resultHandler.ErrorMessage);
             }
             if (!isVoid
                 && !resultHandler.HasResult)

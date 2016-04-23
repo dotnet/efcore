@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
@@ -12,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class DbContextScaffoldCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Scaffolds a DbContext and entity type classes for a specified database";
 
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                         return Task.FromResult(1);
                     }
 
-                    return ExecuteAsync(
+                    return ExecuteAsync(commonOptions.Value(),
                         connection.Value,
                         provider.Value,
                         dataAnnotations.HasValue(),
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 });
         }
 
-        private static async Task<int> ExecuteAsync(
+        private static async Task<int> ExecuteAsync(CommonOptions commonOptions,
             string connection,
             string provider,
             bool dataAnnotations,
@@ -98,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             string startupProject,
             string environment)
         {
-            await new OperationExecutor(startupProject, environment)
+            await new OperationExecutor(commonOptions, startupProject, environment)
                 .ReverseEngineerAsync(
                     provider,
                     connection,

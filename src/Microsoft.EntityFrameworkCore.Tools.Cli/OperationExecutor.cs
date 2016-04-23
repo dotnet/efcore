@@ -1,25 +1,27 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
-using Microsoft.Extensions.PlatformAbstractions;
-using NuGet.Frameworks;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.Extensions.PlatformAbstractions;
+using NuGet.Frameworks;
+
+#if !NET451
+using Microsoft.EntityFrameworkCore.Tools.Cli.Loader;
+#endif
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -31,37 +33,40 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         private readonly LazyRef<DatabaseOperations> _databaseOperations;
         private readonly LazyRef<DbContextOperations> _contextOperations;
 
-        public OperationExecutor([CanBeNull] string startupProject, [CanBeNull] string environment)
+#if NET451
+        private static readonly NuGetFramework DefaultFramework = FrameworkConstants.CommonFrameworks.Net451;
+#else
+        private static readonly NuGetFramework DefaultFramework = FrameworkConstants.CommonFrameworks.NetCoreApp10;
+#endif
+
+        public OperationExecutor(
+            [NotNull] CommonOptions options,
+            [CanBeNull] string startupProjectPath,
+            [CanBeNull] string environment)
         {
-            var project = Path.Combine(Directory.GetCurrentDirectory(), Project.FileName);
-            var buildStartup = true;
-            if (startupProject == null)
-            {
-                startupProject = project;
-                buildStartup = false;
-            }
-            // TODO flow through from dispatch
-            var projectConfiguration = Constants.DefaultConfiguration;
-            var projectFramework = FrameworkConstants.CommonFrameworks.NetCoreApp10;
+            var projectFile = Path.Combine(Directory.GetCurrentDirectory(), Project.FileName);
+            var project = ProjectReader.GetProject(projectFile);
 
-            // TODO flow through from dispatch
-            var startupConfiguration = Constants.DefaultConfiguration;
-            string startupBuildBaseDir = null;
-            string startupOutputDir = null;
+            startupProjectPath = startupProjectPath ?? projectFile;
 
-            var startupProjectContext = GetCompatibleStartupProjectContext(startupProject);
+            var projectConfiguration = options.Configuration ?? Constants.DefaultConfiguration;
+            var projectFramework = options.Framework;
 
+            var startupConfiguration = options.Configuration ?? Constants.DefaultConfiguration;
+            var startupProjectContext = GetCompatibleStartupProjectContext(startupProjectPath, projectFramework);
             var startupFramework = startupProjectContext.TargetFramework;
 
-            if (buildStartup)
-            {
-                Reporter.Verbose.WriteLine("Build started...".Bold().Black());
+            var externalStartup = project.ProjectFilePath != startupProjectContext.ProjectFile.ProjectFilePath;
 
-                var buildExitCode = BuildCommandFactory.Create(startupProject,
+            if (externalStartup && !options.NoBuild)
+            {
+                Reporter.Verbose.WriteLine(ToolsCliStrings.LogBuildFailed.Bold().Black());
+
+                var buildExitCode = BuildCommandFactory.Create(startupProjectPath,
                         startupConfiguration,
                         startupFramework,
-                        startupBuildBaseDir,
-                        startupOutputDir)
+                        options.BuildBasePath,
+                        output: null)
                     .ForwardStdOut()
                     .ForwardStdErr()
                     .Execute()
@@ -69,44 +74,60 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
                 if (buildExitCode != 0)
                 {
-                    throw new OperationException("Build failed.");
+                    throw new OperationException(ToolsCliStrings.LogBuildFailed);
                 }
 
-                Reporter.Verbose.WriteLine("Build succeeded.".Bold().Black());
+                Reporter.Verbose.WriteLine(ToolsCliStrings.LogBuildSucceeded.Bold().Black());
             }
 
             var runtimeOutputPath = startupProjectContext.GetOutputPaths(startupConfiguration)?.RuntimeOutputPath;
             if (!string.IsNullOrEmpty(runtimeOutputPath))
             {
+                Reporter.Verbose.WriteLine(
+                    ToolsCliStrings.LogDataDirectory(runtimeOutputPath));
                 Environment.SetEnvironmentVariable(DataDirEnvName, runtimeOutputPath);
 #if NET451
                 AppDomain.CurrentDomain.SetData("DataDirectory", runtimeOutputPath);
 #endif
             }
 
-            var projectFile = ProjectReader.GetProject(project);
             var startupAssemblyName = startupProjectContext.ProjectFile.GetCompilerOptions(startupFramework, startupConfiguration).OutputName;
-            var assemblyName = projectFile.GetCompilerOptions(projectFramework, projectConfiguration).OutputName;
-            var projectDir = projectFile.ProjectDirectory;
+            var assemblyName = project.GetCompilerOptions(projectFramework, projectConfiguration).OutputName;
+            var projectDir = project.ProjectDirectory;
             var startupProjectDir = startupProjectContext.ProjectFile.ProjectDirectory;
-            // TODO should this match assembly name?
-            var rootNamespace = projectFile.Name;
+            var rootNamespace = project.Name;
 
-            var assemblyLoader = new AssemblyLoader(Assembly.Load);
-            var assembly = assemblyLoader.Load(assemblyName);
-            var startupAssembly = assemblyLoader.Load(startupAssemblyName);
+            var projectAssembly = Assembly.Load(new AssemblyName { Name = assemblyName });
+#if NET451
+            // TODO use app domains
+            var startupAssemblyLoader = new AssemblyLoader(Assembly.Load);
+#else
+            AssemblyLoader startupAssemblyLoader;
+            if (externalStartup)
+            {
+                var assemblyLoadContext = startupProjectContext.CreateLoadContext(
+                    PlatformServices.Default.Runtime.GetRuntimeIdentifier(),
+                    Constants.DefaultConfiguration);
+                startupAssemblyLoader = new AssemblyLoader(assemblyLoadContext.LoadFromAssemblyName);
+            }
+            else
+            {
+                startupAssemblyLoader = new AssemblyLoader(Assembly.Load);
+            }
+#endif
+            var startupAssembly = startupAssemblyLoader.Load(startupAssemblyName);
 
             _contextOperations = new LazyRef<DbContextOperations>(
                           () => new DbContextOperations(
                               new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                              assembly,
+                              projectAssembly,
                               startupAssembly,
                               environment,
                               startupProjectDir));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
-                    assemblyLoader,
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
+                    startupAssemblyLoader,
                     startupAssembly,
                     environment,
                     projectDir,
@@ -114,9 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
-                    assemblyLoader,
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                    assembly,
+                    projectAssembly,
+                    startupAssemblyLoader,
                     startupAssembly,
                     environment,
                     projectDir,
@@ -173,44 +194,50 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 overwriteFiles,
                 cancellationToken);
 
-        private ProjectContext GetCompatibleStartupProjectContext(string projectPath)
+        private ProjectContext GetCompatibleStartupProjectContext(string startupProjectPath, NuGetFramework projectFramework)
         {
-            var projectFile = ProjectReader.GetProject(projectPath);
-            var frameworks = projectFile.GetTargetFrameworks().Select(f => f.FrameworkName);
+            var startupProject = ProjectReader.GetProject(startupProjectPath);
+            var frameworks = startupProject.GetTargetFrameworks()
+                .Select(f => f.FrameworkName);
 
-#if NET451
-            var currentFramework = FrameworkConstants.CommonFrameworks.Net451;
-            var framework = frameworks.FirstOrDefault(f => f.IsDesktop())
-                ?? NuGetFrameworkUtility.GetNearest(
-                        frameworks,
-                        FrameworkConstants.CommonFrameworks.NetStandard12,
-                        f => new NuGetFramework(f));
-#else
-            var currentFramework = FrameworkConstants.CommonFrameworks.NetCoreApp10;
-            var framework = NuGetFrameworkUtility.GetNearest(
-                    frameworks,
-                    FrameworkConstants.CommonFrameworks.NetCoreApp10,
-                    f => new NuGetFramework(f))
-                    // TODO remove fallback to dnxcore50
-                    ?? NuGetFrameworkUtility.GetNearest(
-                    frameworks,
-                    FrameworkConstants.CommonFrameworks.DnxCore50,
-                    f => new NuGetFramework(f));
-#endif
+            var startupFramework = frameworks.FirstOrDefault(f => f.Equals(projectFramework));
 
-            if (framework == null)
+            if (startupFramework == null)
+            {
+                if (projectFramework.IsDesktop())
+                {
+                    startupFramework = frameworks.FirstOrDefault(f => f.IsDesktop())
+                        ?? NuGetFrameworkUtility.GetNearest(
+                            frameworks,
+                            FrameworkConstants.CommonFrameworks.NetStandard15,
+                            f => f);
+                }
+                else
+                {
+                    startupFramework = NuGetFrameworkUtility.GetNearest(
+                            frameworks,
+                            FrameworkConstants.CommonFrameworks.NetCoreApp10,
+                            f => f)
+                        // TODO remove fallback to dnxcore50
+                        ?? NuGetFrameworkUtility.GetNearest(
+                            frameworks,
+                            FrameworkConstants.CommonFrameworks.DnxCore50,
+                            f => f);
+                }
+            }
+
+            if (startupFramework == null)
             {
                 throw new OperationException(
-                    $"The project '{projectFile.Name}' doesn't target a framework compatible with '{ currentFramework.GetShortFolderName() }'. " +
-                    "The project must have a compatible framework in order to use the Entity Framework .NET Core CLI Commands.");
+                    ToolsCliStrings.IncompatibleStartupProject(startupProject.Name, projectFramework.GetShortFolderName()));
             }
 
             Reporter.Verbose.WriteLine(
-                ("Using framework '" + framework + "' for project '" + projectFile.Name + "'").Bold().Black());
+                ToolsCliStrings.LogUsingFramework(startupFramework.GetShortFolderName(), startupProject.Name).Bold().Black());
 
             return new ProjectContextBuilder()
-                .WithProject(projectFile)
-                .WithTargetFramework(framework)
+                .WithProject(startupProject)
+                .WithTargetFramework(startupFramework)
                 .WithRuntimeIdentifiers(PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers())
                 .Build();
         }

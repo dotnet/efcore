@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class DatabaseUpdateCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Updates the database to a specified migration";
 
@@ -30,13 +30,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.VerboseOption();
 
             command.OnExecute(
-                () => Execute(migration.Value, context.Value(), startupProject.Value(), environment.Value()));
+                () => Execute(commonOptions.Value(), 
+                    migration.Value, 
+                    context.Value(),
+                    startupProject.Value(), 
+                    environment.Value()));
         }
 
-        private static int Execute(string migration, string context, string startupProject, string environment)
+        private static int Execute(CommonOptions commonOptions,
+            string migration, 
+            string context, 
+            string startupProject, 
+            string environment)
         {
-            new OperationExecutor(startupProject, environment)
-                .UpdateDatabase(migration, context);
+            new OperationExecutor(commonOptions, startupProject, environment)
+                 .UpdateDatabase(migration, context);
 
             return 0;
         }

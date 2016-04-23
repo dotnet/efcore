@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using LibraryUsingSqlite;
 
 namespace AspNetHostingPortableApp
 {
@@ -21,7 +22,8 @@ namespace AspNetHostingPortableApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddEntityFrameworkSqlite()
-                .AddDbContext<TestContext>(o => o.UseSqlite(_config["Sqlite"]));
+                .AddDbContext<TestContext>(o => o.UseSqlite(_config["TestContext"]))
+                .AddDbContext<LibraryContext>(o => o.UseSqlite(_config["LibraryContext"], b => b.MigrationsAssembly("AspNetApp")));
         }
 
         public void Configure(IApplicationBuilder app)

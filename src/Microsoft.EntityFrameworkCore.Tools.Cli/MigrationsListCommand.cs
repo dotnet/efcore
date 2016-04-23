@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class MigrationsListCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "List the migrations";
 
@@ -28,14 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
-            var json = command.Option(
-                "--json",
-                "Use json output");
+            var json = command.JsonOption();
+
             command.HelpOption();
             command.VerboseOption();
 
             command.OnExecute(
-                () => Execute(
+                () => Execute(commonOptions.Value(),
                     context.Value(),
                     startupProject.Value(),
                     environment.Value(),
@@ -44,13 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                         : ReportResults));
         }
 
-        private static int Execute(
+        private static int Execute(CommonOptions commonOptions,
             string context,
             string startupProject,
             string environment,
             Action<IEnumerable<MigrationInfo>> reportResultsAction)
         {
-            var migrations = new OperationExecutor(startupProject, environment)
+            var migrations = new OperationExecutor(commonOptions, startupProject, environment)
                 .GetMigrations(context);
 
             reportResultsAction(migrations);
@@ -60,7 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
         private static void ReportJsonResults(IEnumerable<MigrationInfo> migrations)
         {
-            var output = migrations.Select(m => new { id = m.Id, name = m.Name }).ToArray();
+            var nameGroups = migrations.GroupBy(m => m.Name).ToList();
+            var output = migrations.Select(
+                m => new
+                {
+                    id = m.Id,
+                    name = m.Name,
+                    safeName = nameGroups.Count(g => g.Key == m.Name) == 1
+                        ? m.Name
+                        : m.Id
+                }).ToArray();
 
             Reporter.Output.Write(JsonConvert.SerializeObject(output, Formatting.Indented));
         }

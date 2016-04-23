@@ -7,7 +7,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Tools.Cli;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
@@ -20,9 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             try
             {
-                var app = DispatchCommand.Configure(args);
-
-                return app.Execute(args);
+                return DispatchCommand.Create().Execute(args);
             }
             catch (Exception ex)
             {
@@ -43,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private static void HandleVerboseOption(ref string[] args)
         {
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-v" || args[i] == "--verbose")
                 {

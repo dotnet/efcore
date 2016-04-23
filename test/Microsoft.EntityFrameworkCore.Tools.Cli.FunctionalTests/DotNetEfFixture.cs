@@ -60,16 +60,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             }
         }
 
-        public void InstallTool(string projectPath, ITestOutputHelper logger)
+        public void InstallTool(string projectPath, ITestOutputHelper logger, params string[] fallbackRestoreLocations)
         {
             BuildToolsPackages(logger);
 
             var json = File.ReadAllText(projectPath);
             File.WriteAllText(projectPath, json.Replace("$toolVersion$", _suffix));
-           
+            var fallbacks = new [] { LocalArtifacts }
+                .Concat(fallbackRestoreLocations ?? Enumerable.Empty<string>())
+                .Select(s => "--fallbacksource " + s);
+                
             AssertCommand.Passes(
                 new RestoreCommand(projectPath, logger)
-                    .Execute($"--fallbacksource {LocalArtifacts}")
+                    .Execute(string.Join(" ", fallbacks))
                 );
         }
     }

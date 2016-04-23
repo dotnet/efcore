@@ -2,68 +2,54 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 #if NETCOREAPP1_0
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.Cli;
 using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.Extensions.PlatformAbstractions;
 using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class DispatchCommand
     {
-        private readonly static string ProjectCommand
+        private static readonly string ProjectCommand
             = typeof(ExecuteCommand).GetTypeInfo().Assembly.GetName().Name;
 
-        public static CommandLineApplication Configure([NotNull] string[] args)
+        public static CommandLineApplication Create()
         {
-            EfCommandLineApplication app;
-            var help = false;
-            if (args.Length == 0
-                || args.FirstOrDefault(a => a.Equals("-h") || a.Equals("--help") || a.Equals("--version")) != null)
+            var app = new CommandLineApplication(throwOnUnexpectedArg: false)
             {
-                // show common output options
-                app = ExecuteCommand.Configure();
-                help = true;
-            }
-            else
-            {
-                app = new EfCommandLineApplication(throwOnUnexpectedArg: false);
-            }
+                Name = "dotnet ef",
+                FullName = "Entity Framework .NET Core CLI Commands Dispatcher"
+            };
 
-            var noBuildOption = app.Option("--no-build", "Do not build project before executing");
+            var noBuildOption = app.Option("--no-build", "Do not build before executing");
 
             var configurationOption = app.Option(
                       "-c|--configuration <CONFIGURATION>",
                       "Configuration under which to load");
-            var outputOption = app.Option(
-                      "-o|--output <OUTPUT_DIR>",
-                      "Directory in which to find outputs");
-            var buildBasePathOption = app.Option(
-                      "-b|--build-base-path <OUTPUT_DIR>",
-                      "Directory in which to find temporary outputs");
             var frameworkOption = app.Option(
                       "-f|--framework <FRAMEWORK>",
                       "Target framework to load");
+            var buildBasePathOption = app.Option(
+                      "-b|--build-base-path <OUTPUT_DIR>",
+                      "Directory in which to find temporary outputs");
+
+            var outputOption = app.Option(
+                      "-o|--output <OUTPUT_DIR>",
+                      "Directory in which to find outputs");
 
             app.OnExecute(() =>
             {
-                if (help)
-                {
-                    app.WriteLogo();
-                    app.ShowHelp();
-                    return 0;
-                }
-
                 var project = Directory.GetCurrentDirectory();
 
-                Reporter.Verbose.WriteLine("Using project '" + project + "'.");
+                Reporter.Verbose.WriteLine(ToolsStrings.LogUsingProject(project));
 
                 var projectFile = ProjectReader.GetProject(project);
 
@@ -77,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     framework = NuGetFrameworkUtility.GetNearest(frameworks, FrameworkConstants.CommonFrameworks.NetCoreApp10, f => f)
                                 ?? frameworks.FirstOrDefault();
 
-                    Reporter.Verbose.WriteLine("Using framework '" + framework.GetShortFolderName() + "'.");
+                    Reporter.Verbose.WriteLine(ToolsStrings.LogUsingFramework(framework.GetShortFolderName()));
                 }
 
                 var configuration = configurationOption.Value();
@@ -86,8 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 {
                     configuration = Constants.DefaultConfiguration;
 
-                    Reporter.Verbose.WriteLine("Using configuration '" + configuration + "'.");
+                    Reporter.Verbose.WriteLine(ToolsStrings.LogUsingConfiguration(configuration));
                 }
+
 
                 if (!noBuildOption.HasValue())
                 {
@@ -103,40 +90,45 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         .ExitCode;
                     if (buildExitCode != 0)
                     {
-                        throw new OperationException("Build failed.");
+                        throw new OperationException(ToolsStrings.BuildFailed(projectFile.Name));
                     }
                 }
 
-                var projectContext = new ProjectContextBuilder()
-                   .WithProject(projectFile)
-                   .WithTargetFramework(framework)
-                   .WithRuntimeIdentifiers(PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers())
-                   .Build();
+                Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectCommand, projectFile.Name));
 
-                Reporter.Verbose.WriteLine($"Dispatching to {ProjectCommand} in project");
+                var buildBasePath = buildBasePathOption.Value();
+                if (buildBasePath != null && !Path.IsPathRooted(buildBasePath))
+                {
+                    // TODO this is a workaround for https://github.com/dotnet/cli/issues/2682
+                    buildBasePath = Path.Combine(Directory.GetCurrentDirectory(), buildBasePath);
+                }
 
                 try
                 {
+                    bool isVerbose;
+                    bool.TryParse(Environment.GetEnvironmentVariable(CommandContext.Variables.Verbose), out isVerbose);
+
                     return new ProjectDependenciesCommandFactory(
-                       projectContext.TargetFramework,
+                       framework,
                        configuration,
                        outputOption.Value(),
-                       buildBasePathOption.Value(),
-                       projectContext.ProjectDirectory)
+                       buildBasePath,
+                       projectFile.ProjectDirectory)
                        .Create(
                            ProjectCommand,
-                           args,
-                           projectContext.TargetFramework,
+                           ExecuteCommand.CreateArgs(framework, configuration, buildBasePath, noBuildOption.HasValue(), isVerbose)
+                                .Concat(app.RemainingArguments),
+                           framework,
                            configuration)
                         .ForwardStdErr()
                         .ForwardStdOut()
                         .Execute()
                         .ExitCode;
                 }
-                catch(CommandUnknownException)
+                catch (CommandUnknownException ex)
                 {
-                    Reporter.Error.WriteLine(
-                        $"Could not invoke this command on the project. Check that the version of {ProjectCommand} in \"tools\" and \"dependencies\" are the same");
+                    Reporter.Verbose.WriteLine(ex.Message);
+                    Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(ProjectCommand));
                     return 1;
                 }
             });

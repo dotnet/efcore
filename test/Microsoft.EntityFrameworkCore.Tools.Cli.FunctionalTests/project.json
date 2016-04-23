@@ -25,11 +25,6 @@
   "scripts": {
     "precompile": "clean-assets %compile:OutputDir%"
   },
-  "content": [
-    "../../TestAssets/TestProjects/PortableAppWithTools/",
-    "../../TestAssets/TestProjects/DesktopAppWithTools/",
-    "../../TestAssets/TestProjects/AspNetHostingPortableApp/",
-    "../../TestAssets/TestProjects/StandaloneAppWithTools/",
-    "../../TestAssets/TestProjects/LibraryWithTools/"
-  ]
+  "exclude": "TestProjects/",
+  "content": "TestProjects/"
 }

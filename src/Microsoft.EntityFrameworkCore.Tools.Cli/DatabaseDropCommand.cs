@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class DatabaseDropCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Drop the database for specific environment";
 
@@ -31,12 +31,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.VerboseOption();
 
             command.OnExecute(
-                () => Execute(context.Value(), startupProject.Value(), environment.Value(), force.HasValue()));
+                () => Execute(commonOptions.Value(),
+                    context.Value(),
+                    startupProject.Value(),
+                    environment.Value(),
+                    force.HasValue()));
         }
 
-        private static int Execute(string context, string startupProject, string environment, bool isForced)
+        private static int Execute(CommonOptions commonOptions,
+            string context,
+            string startupProject,
+            string environment,
+            bool isForced)
         {
-            new OperationExecutor(startupProject, environment)
+            new OperationExecutor(commonOptions, startupProject, environment)
                 .DropDatabase(
                     context,
                     (database, dataSource) =>

@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                     startupProjectDir));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
-                    assemblyLoader,
                     loggerProvider,
+                    assemblyLoader,
                     startupAssembly.Value,
                     environment,
                     projectDir,
@@ -78,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Design
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
-                    assemblyLoader,
                     loggerProvider,
                     assembly.Value,
+                    assemblyLoader,
                     startupAssembly.Value,
                     environment,
                     projectDir,

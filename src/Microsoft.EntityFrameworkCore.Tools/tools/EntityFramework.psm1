@@ -127,7 +127,7 @@ function Add-Migration {
         if($OutputDir) {
             $options += "--output-dir", (NormalizePath $OutputDir)
         }
-        $files = InvokeDotNetEf $dteProject -Json migrations add $Name @options
+        $files = InvokeDotNetEf $dteProject -json migrations add $Name @options
         $DTE.ItemOperations.OpenFile($files.MigrationFile) | Out-Null
     } else {
         $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject AddMigration @{
@@ -537,7 +537,8 @@ function GetContextTypes($projectName, $startupProjectName, $environment) {
     $project = $values.Project
 
     if (IsDotNetProject $startupProject) {
-        $types = InvokeDotNetEf $startupProject -Json dbcontext list
+        $options = ProcessCommonDotnetParameters $startupProject $startupProject $environment
+        $types = InvokeDotNetEf $startupProject -json -skipBuild dbcontext list @options
         return $types | %{ $_.fullName }
     } else {
         $contextTypes = InvokeOperation $startupProject $environment $project GetContextTypes -skipBuild
@@ -551,9 +552,15 @@ function GetMigrations($contextTypeName, $projectName, $startupProjectName, $env
     $project = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $migrations = InvokeOperation $startupProject $environment $project GetMigrations @{ contextTypeName = $contextTypeName } -skipBuild
-
-    return $migrations | %{ $_.SafeName }
+    if (IsDotNetProject $startupProject) {
+        $options = ProcessCommonDotnetParameters $startupProject $startupProject $environment $contextTypeName
+        $migrations = InvokeDotNetEf $startupProject -json -skipBuild migrations list @options
+        return $migrations | %{ $_.safeName }
+    }
+    else {
+        $migrations = InvokeOperation $startupProject $environment $project GetMigrations @{ contextTypeName = $contextTypeName } -skipBuild
+        return $migrations | %{ $_.SafeName }
+    }
 }
 
 function ProcessCommonParameters($startupProjectName, $projectName, $contextTypeName) {
@@ -616,7 +623,7 @@ function ShowConsole {
     $powerConsoleWindow.Show()
 }
 
-function InvokeDotNetEf($project, [switch] $Json) {
+function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
     $dotnet = (Get-Command dotnet).Source
     Write-Debug "Found $dotnet"
     $fullPath = GetProperty $project.Properties FullPath
@@ -636,9 +643,23 @@ function InvokeDotNetEf($project, [switch] $Json) {
         throw "Cannot execute this command because 'Microsoft.EntityFrameworkCore.Tools' is not installed in project '$projectName'. Add 'Microsoft.EntityFrameworkCore.Tools' to the 'tools' section in project.json."
     }
 
-    $output=$null
-    $arguments = $args | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
-    if ($Json) {
+    $output = $null
+
+    $config = $project.ConfigurationManager.ActiveConfiguration.ConfigurationName
+    $arguments = "--configuration", $config
+    Write-Debug "Using configuration $config"
+
+    $buildBasePath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties OutputPath
+    $arguments += "--build-base-path", $buildBasePath
+    Write-Debug "Using build base path $buildBasePath"
+    
+    if ($skipBuild) {
+        $arguments += "--no-build"
+    }
+
+    $arguments += $args | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
+
+    if ($json) {
         $arguments += "--json"
     } else {
         # TODO better json output parsing so we don't need to suppress verbose output
@@ -651,7 +672,9 @@ function InvokeDotNetEf($project, [switch] $Json) {
         $ErrorActionPreference='SilentlyContinue'
         Write-Verbose "Executing command: dotnet $command"
         $output = Invoke-Expression "& '$dotnet' $command" -ErrorVariable verboseOutput
-        if ($LASTEXITCODE -ne 0) {
+        $exit = $LASTEXITCODE
+        Write-Debug "Finish executing command with code $exit"
+        if ($exit -ne 0) {
             if (!($verboseOutput) -and $output) {
                 # most often occurs when Microsoft.EntityFrameworkCore.Tools didn't install
                 throw $output
@@ -661,16 +684,17 @@ function InvokeDotNetEf($project, [switch] $Json) {
         $output = $output -join [Environment]::NewLine
 
         Write-Debug $output
-        if ($Json) {
-            $output = $output | ConvertFrom-Json
+        if ($json) {
+            Write-Debug "Parsing json output"
+            # TODO trim the output of dotnet-build
+            $match = [regex]::Match($output, "\[|\{")
+            $output = $output.Substring($match.Index) | ConvertFrom-Json
         } else {
             Write-Verbose $output
         }
 
         # dotnet commands log verbose output to stderr
         Write-Verbose $($verboseOutput -join [Environment]::NewLine)
-    } catch {
-        Write-Debug $_.Exception.Message
     }
     finally {
         $ErrorActionPreference='Stop'

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class DbContextListCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "List your DbContext types";
 
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.VerboseOption();
 
             command.OnExecute(
-                () => Execute(
+                () => Execute(commonOptions.Value(),
                     startupProject.Value(),
                     environment.Value(),
                     json.HasValue()
@@ -40,12 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 );
         }
 
-        private static int Execute(
+        private static int Execute(CommonOptions commonOptions,
             string startupProject,
             string environment,
             Action<IEnumerable<Type>> reportResultsAction)
         {
-            var contextTypes = new OperationExecutor(startupProject, environment)
+            var contextTypes = new OperationExecutor(commonOptions, startupProject, environment)
                 .GetContextTypes();
 
             reportResultsAction(contextTypes);

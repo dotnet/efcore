@@ -19,12 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             try
             {
-                var app = ExecuteCommand.Configure();
-
-                return app.Execute(args);
+                return ExecuteCommand.Create().Execute(args);
             }
             catch (Exception ex)
             {
+                // TODO ensure always a json response if --json is supplied
                 if (ex is TargetInvocationException)
                 {
                     ex = ex.InnerException;
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
         private static void HandleVerboseOption(ref string[] args)
         {
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-v" || args[i] == "--verbose")
                 {

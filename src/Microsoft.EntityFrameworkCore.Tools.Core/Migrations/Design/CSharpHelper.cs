@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(name, nameof(name));
 
             var @namespace = new StringBuilder();
-            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split('.')))
+            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split(new [] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
             {
                 var identifier = Identifier(piece);
                 if (!string.IsNullOrEmpty(identifier))

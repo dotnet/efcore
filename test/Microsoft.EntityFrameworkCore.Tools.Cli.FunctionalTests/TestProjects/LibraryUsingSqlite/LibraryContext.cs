@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace AspNetHostingPortableApp
+namespace LibraryUsingSqlite
 {
-    public class TestContext : DbContext
+    public class LibraryContext : DbContext
     {
-        public TestContext(DbContextOptions o) :base(o) { }
+        public LibraryContext(DbContextOptions<LibraryContext> options) : base(options)
+        { }
         
         public DbSet<Blog> Blogs { get; set; }
     }

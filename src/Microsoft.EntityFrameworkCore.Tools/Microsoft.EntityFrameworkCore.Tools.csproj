@@ -66,6 +66,9 @@
     <Compile Include="Design\OperationExecutor.cs" />
     <Compile Include="DispatchCommand.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Properties\ToolsStrings.Designer.cs">
+      <DependentUpon>ToolsStrings.resx</DependentUpon>
+    </Compile>
     <Compile Include="tools\OperationHandlers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -107,6 +110,11 @@
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
       <Name>Microsoft.EntityFrameworkCore</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\ToolsStrings.resx">
+      <LogicalName>Microsoft.EntityFrameworkCore.Tools.Properties.ToolsCoreStrings.resources</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

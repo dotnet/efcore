@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 using System;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
@@ -13,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class MigrationsAddCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Add a new migration";
 
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                         return 1;
                     }
 
-                    return Execute(
+                    return Execute(commonOptions.Value(),
                         name.Value,
                         outputDir.Value(),
                         context.Value(),
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 });
         }
 
-        private static int Execute(
+        private static int Execute(CommonOptions commonOptions,
             string name,
             string outputDir,
             string context,
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             string environment,
             Action<MigrationFiles> reporter)
         {
-            var files = new OperationExecutor(startupProject, environment)
+            var files = new OperationExecutor(commonOptions, startupProject, environment)
                 .AddMigration(name, outputDir, context);
 
             reporter?.Invoke(files);

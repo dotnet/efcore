@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
@@ -12,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class MigrationsScriptCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Generate a SQL script from migrations";
 
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.VerboseOption();
 
             command.OnExecute(
-                () => Execute(
+                () => Execute(commonOptions.Value(),
                     from.Value,
                     to.Value,
                     output.Value(),
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     environment.Value()));
         }
 
-        private static int Execute(
+        private static int Execute(CommonOptions commonOptions,
             string from,
             string to,
             string output,
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             string startupProject,
             string environment)
         {
-            var sql = new OperationExecutor(startupProject, environment)
+            var sql = new OperationExecutor(commonOptions, startupProject, environment)
                 .ScriptMigration(from, to, idempotent, context);
 
             if (string.IsNullOrEmpty(output))

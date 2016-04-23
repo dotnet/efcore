@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.PlatformAbstractions;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
     {
         private static readonly string _testProjectRoot = Path.Combine(
             AppContext.BaseDirectory,
-            "TestAssets",
             "TestProjects");
 
         private readonly ITestOutputHelper _output;
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             _output = output;
             _fixture = fixture;
         }
-        
+
         [Fact(Skip = "Unreliable on CI")]
         public void RunsMigrationCommandsOnDesktop()
         {
@@ -32,42 +32,62 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             // because of the pre-compile script on this project
             if (PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
             {
-                AddAndApplyMigrationImpl("DesktopAppWithTools");
+                AddAndApplyMigrationImpl("DesktopAppWithTools", "TestContext", "Initial");
             }
         }
-        
+
+        [Fact(Skip = "Unreliable on CI")]
+        public void RunsMigrationsForAspNetApp()
+        {
+            var ignoredJson = Path.Combine(_testProjectRoot, "LibraryUsingSqlite", "project.json.ignore");
+            var libraryProject = Path.Combine(_testProjectRoot, "LibraryUsingSqlite", "project.json");
+            File.Move(ignoredJson, libraryProject);
+
+            try
+            {
+                AssertCommand.Passes(new RestoreCommand(libraryProject, _output)
+                    .Execute());
+
+                AddAndApplyMigrationImpl("AspNetHostingPortableApp", "LibraryContext", "initialLibrary");
+                AddAndApplyMigrationImpl("AspNetHostingPortableApp", "TestContext", "initialTest");
+            }
+            finally
+            {
+                File.Move(libraryProject, ignoredJson);
+            }
+        }
 
         [Theory(Skip = "Unreliable on CI")]
         [InlineData("PortableAppWithTools")]
-        [InlineData("AspNetHostingPortableApp")]
-        // TODO support dotnet-ef in libraries and standlon
-        // [InlineData("StandaloneAppWithTools")]
-        // [InlineData("LibraryWithTools")] 
-        public void RunsMigrationCommands(string project)
-            => AddAndApplyMigrationImpl(project);
-            
-        private void AddAndApplyMigrationImpl(string project)
+        [InlineData("StandaloneAppWithTools")]
+        public void RunsMigrationCommandsForNetCoreApps(string project)
+            => AddAndApplyMigrationImpl(project, "TestContext", "Initial");
+
+        private void AddAndApplyMigrationImpl(string project, string contextName, string migrationName)
         {
             var ignoredJson = Path.Combine(_testProjectRoot, project, "project.json.ignore");
             var testProject = Path.Combine(_testProjectRoot, project, "project.json");
             File.Move(ignoredJson, testProject);
 
             var migrationDir = Path.Combine(Path.GetDirectoryName(testProject), "Migrations");
-            var snapshotFile = Path.Combine(migrationDir, "TestContextModelSnapshot.cs");
+            var snapshotFile = contextName + "ModelSnapshot.cs";
 
             try
             {
-                Assert.False(File.Exists(snapshotFile));
+                if (Directory.Exists(migrationDir))
+                {
+                    Assert.False(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
+                }
 
-                _fixture.InstallTool(testProject, _output);
+                _fixture.InstallTool(testProject, _output, _testProjectRoot);
 
-                AssertCommand.Passes(new MigrationAddCommand(testProject, "TestMigration", _output)
-                    .Execute());
+                AssertCommand.Passes(new MigrationAddCommand(testProject, migrationName, _output)
+                    .Execute($" --context {contextName}"));
 
-                Assert.True(File.Exists(snapshotFile));
+                Assert.True(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
 
                 AssertCommand.Passes(new DatabaseUpdateCommand(testProject, _output)
-                    .Execute());
+                    .Execute($" --context {contextName}"));
             }
             finally
             {

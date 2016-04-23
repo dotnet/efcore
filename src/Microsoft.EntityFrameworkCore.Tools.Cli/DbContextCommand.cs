@@ -9,15 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class DbContextCommand
     {
-        public static void Configure([NotNull] CommandLineApplication command)
+        public static void Configure([NotNull] CommandLineApplication command, [NotNull] CommonCommandOptions commonOptions)
         {
             command.Description = "Commands to manage your DbContext types";
 
             command.HelpOption();
             command.VerboseOption();
 
-            command.Command("list", DbContextListCommand.Configure);
-            command.Command("scaffold", DbContextScaffoldCommand.Configure);
+            command.Command("list", c => DbContextListCommand.Configure(c, commonOptions));
+            command.Command("scaffold", c => DbContextScaffoldCommand.Configure(c, commonOptions));
 
             command.OnExecute(() => command.ShowHelp());
         }

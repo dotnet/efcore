@@ -1,11 +1,14 @@
 {
   "version": "1.0.0-*",
   "compilationOptions": {
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "outputName": "AspNetApp"
   },
   "dependencies": {
-    "Microsoft.NETCore.Platforms": "1.0.1-*",
-    "NETStandard.Library": "1.5.0-*",
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0-*"
+    },
     "Microsoft.EntityFrameworkCore.Tools": {
       "version": "1.0.0-$toolVersion$",
       "type": "build",
@@ -18,15 +21,24 @@
     },
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
-    }
+    },
+    "LibraryUsingSqlite": {
+      "target": "project"
+    },
+    "Microsoft.AspNetCore.Hosting": "1.0.0-*",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-*"
   },
+  
   "frameworks": {
-    "netstandard1.5": {
+    "netcoreapp1.0": {
       "imports": [
         "portable-net452+win81"
       ]
     }
   },
+  
+  "content": "config.json",
+  
   "tools": {
     "Microsoft.EntityFrameworkCore.Tools": {
       "version": "1.0.0-$toolVersion$",
@@ -34,11 +46,5 @@
         "portable-net452+win81"
       ]
     }
-  },
-  "runtimes": {
-    "win7-x86": {},
-    "win7-x64": {},
-    "ubuntu.14.04-x64": {},
-    "osx.10.10-x64": {}
   }
 }
