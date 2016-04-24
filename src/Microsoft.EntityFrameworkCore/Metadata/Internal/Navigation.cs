@@ -36,6 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ForeignKey = foreignKey;
         }
 
+        public Navigation([NotNull] string navigationName, [NotNull] ForeignKey foreignKey)
+        {
+            Check.NotEmpty(navigationName, nameof(navigationName));
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            Name = navigationName;
+            ForeignKey = foreignKey;
+        }
+
         public virtual string Name { get; }
         public virtual ForeignKey ForeignKey { get; }
 
@@ -96,12 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var sourceClrType = sourceType.ClrType;
             if (sourceClrType == null)
             {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.NavigationOnShadowEntity(navigationPropertyName, sourceType.DisplayName()));
-                }
-                return false;
+                // Navigation defined on shadow entity type.
+                return true;
             }
 
             var targetClrType = targetType.ClrType;

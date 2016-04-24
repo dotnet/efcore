@@ -70,6 +70,7 @@
     <Compile Include="IncludeOneToOneInMemoryTest.cs" />
     <Compile Include="InheritanceInMemoryFixture.cs" />
     <Compile Include="InheritanceInMemoryTest.cs" />
+    <Compile Include="QueryBugsInMemoryTest.cs" />
     <Compile Include="InMemoryFixture.cs" />
     <Compile Include="InMemoryTestHelpers.cs" />
     <Compile Include="InMemoryTestStore.cs" />

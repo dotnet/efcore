@@ -1972,7 +1972,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_a_navigation_to_a_shadow_entity_type_throws()
+        public void Can_add_a_navigation_to_shadow_entity()
         {
             var model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
@@ -1982,14 +1982,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             var foreignKeyProperty = orderType.AddProperty("CustomerId", typeof(int));
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            Assert.Equal(
-                CoreStrings.NavigationOnShadowEntity("Customer", "Order"),
-                Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("Customer")).Message);
+            Assert.NotNull(customerForeignKey.HasDependentToPrincipal("Customer"));
         }
 
         [Fact]
-        public void Adding_a_navigation_pointing_to_a_shadow_entity_type_throws()
+        public void Adding_a_navigation_on_non_shadow_entity_type_pointing_to_a_shadow_entity_type_throws()
         {
             var model = new Model();
             var customerType = model.AddEntityType("Customer");
@@ -2003,6 +2000,23 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
                 CoreStrings.NavigationToShadowEntity("Customer", typeof(Order).Name, "Customer"),
                 Assert.Throws<InvalidOperationException>(
                     () => customerForeignKey.HasDependentToPrincipal("Customer")).Message);
+        }
+
+        [Fact]
+        public void Adding_a_shadow_navigation_on_a_non_shadow_entity_type_throws()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.AddProperty("Id", typeof(int)));
+
+            var orderType = model.AddEntityType(typeof(Order));
+            var foreignKeyProperty = orderType.AddProperty("CustomerId", typeof(int));
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+
+            Assert.Equal(
+                CoreStrings.NoClrNavigation("Navigation", typeof(Order).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => customerForeignKey.HasDependentToPrincipal("Navigation")).Message);
         }
 
         [Fact]

@@ -848,18 +848,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Debug.Assert((pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
                 "EntityType mismatch");
 
-            Navigation.IsCompatible(
-                name,
-                this,
-                pointsToPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType,
-                !pointsToPrincipal && !foreignKey.IsUnique,
-                shouldThrow: true);
+            Navigation navigation = null;
 
-            // TODO: use this value for IsCompatible call
-            var navigationProperty = ClrType.GetPropertiesInHierarchy(name).FirstOrDefault();
-            Debug.Assert(navigationProperty != null);
+            if (ClrType != null)
+            {
+                Navigation.IsCompatible(
+                    name,
+                    this,
+                    pointsToPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType,
+                    !pointsToPrincipal && !foreignKey.IsUnique,
+                    shouldThrow: true);
 
-            var navigation = new Navigation(navigationProperty, foreignKey);
+                // TODO: use this value for IsCompatible call
+                var navigationProperty = ClrType.GetPropertiesInHierarchy(name).FirstOrDefault();
+                Debug.Assert(navigationProperty != null);
+
+                navigation = new Navigation(navigationProperty, foreignKey);
+            }
+            else
+            {
+                navigation = new Navigation(name, foreignKey);
+            }
+
             _navigations.Add(name, navigation);
 
             PropertyMetadataChanged();

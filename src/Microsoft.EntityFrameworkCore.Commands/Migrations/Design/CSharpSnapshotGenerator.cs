@@ -467,7 +467,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .AppendLine()
                 .Append("b.HasOne(")
-                .Append(_code.Literal(foreignKey.PrincipalEntityType.Name))
+                .Append(_code.Literal(foreignKey.PrincipalEntityType.Name));
+
+            if (foreignKey.DependentToPrincipal != null)
+            {
+                stringBuilder
+                    .Append(", ")
+                    .Append(_code.Literal(foreignKey.DependentToPrincipal.Name));
+            }
+
+            stringBuilder
                 .Append(")")
                 .AppendLine();
 
@@ -476,7 +485,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (foreignKey.IsUnique)
                 {
                     stringBuilder
-                        .AppendLine(".WithOne()")
+                        .Append(".WithOne(");
+
+                    if (foreignKey.PrincipalToDependent != null)
+                    {
+                        stringBuilder
+                            .Append(_code.Literal(foreignKey.PrincipalToDependent.Name));
+                    }
+
+                    stringBuilder
+                        .AppendLine(")")
                         .Append(".HasForeignKey(")
                         .Append(_code.Literal(foreignKey.DeclaringEntityType.Name))
                         .Append(", ")
@@ -499,7 +517,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 else
                 {
                     stringBuilder
-                        .AppendLine(".WithMany()")
+                        .Append(".WithMany(");
+
+                    if (foreignKey.PrincipalToDependent != null)
+                    {
+                        stringBuilder
+                            .Append(_code.Literal(foreignKey.PrincipalToDependent.Name));
+                    }
+
+                    stringBuilder
+                        .AppendLine(")")
                         .Append(".HasForeignKey(")
                         .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
                         .Append(")");

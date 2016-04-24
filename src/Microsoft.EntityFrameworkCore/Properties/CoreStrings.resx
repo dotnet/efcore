@@ -231,9 +231,6 @@
   <data name="DuplicateNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
-  <data name="NavigationOnShadowEntity" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.</value>
-  </data>
   <data name="NoClrNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.</value>
   </data>
