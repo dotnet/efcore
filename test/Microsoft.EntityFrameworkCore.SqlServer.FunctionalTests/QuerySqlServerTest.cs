@@ -354,6 +354,18 @@ ORDER BY [o].[OrderID]",
                 Sql);
         }
 
+        public override void GroupBy_join_default_if_empty_anonymous()
+        {
+            base.GroupBy_join_default_if_empty_anonymous();
+
+            Assert.Equal(
+                @"SELECT [order].[OrderID], [order].[CustomerID], [order].[EmployeeID], [order].[OrderDate], [orderDetail].[OrderID], [orderDetail].[ProductID], [orderDetail].[Discount], [orderDetail].[Quantity], [orderDetail].[UnitPrice]
+FROM [Orders] AS [order]
+LEFT JOIN [Order Details] AS [orderDetail] ON [order].[OrderID] = [orderDetail].[OrderID]
+ORDER BY [order].[OrderID]",
+                Sql);
+        }
+
         public override void Where_simple_closure()
         {
             base.Where_simple_closure();
