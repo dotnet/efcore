@@ -7,7 +7,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 #if !NETCORE50
 using Microsoft.AspNetCore.Hosting;
@@ -118,23 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ContentRootPath = _startupProjectDir,
                     EnvironmentName = _environment
                 });
-
-            if (PlatformServices.Default != null)
-            {
-                if (PlatformServices.Default.Application != null)
-                {
-                    services.AddSingleton<IApplicationEnvironment>(
-                        new ApplicationEnvironment(PlatformServices.Default.Application)
-                        {
-                            ApplicationBasePath = _startupProjectDir
-                        });
-                }
-
-                if (PlatformServices.Default.Runtime != null)
-                {
-                    services.AddSingleton(PlatformServices.Default.Runtime);
-                }
-            }
 #endif
         }
 
