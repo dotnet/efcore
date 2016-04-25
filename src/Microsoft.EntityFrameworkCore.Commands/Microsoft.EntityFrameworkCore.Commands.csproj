@@ -66,7 +66,6 @@
     <Compile Include="Design\AssemblyLoader.cs" />
     <Compile Include="Design\DatabaseOperations.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
-    <Compile Include="Design\Internal\ApplicationEnvironment.cs" />
     <Compile Include="Design\Internal\CommandLogger.cs" />
     <Compile Include="Design\Internal\CommandLoggerAdapter.cs" />
     <Compile Include="Design\Internal\DesignTimeServicesBuilder.cs" />
