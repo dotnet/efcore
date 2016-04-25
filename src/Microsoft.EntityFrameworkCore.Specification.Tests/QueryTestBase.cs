@@ -1042,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 5);
         }
 
-        // [ConditionalFact] issue #3208
+        [ConditionalFact]
         public virtual void Where_equals_on_null_nullable_int_types()
         {
             int? nullableIntPrm = null;

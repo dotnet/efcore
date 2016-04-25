@@ -1927,7 +1927,13 @@ WHERE [e].[ReportsTo] = @__nullableIntPrm_0",
             base.Where_equals_on_null_nullable_int_types();
 
             Assert.Equal(
-                @"",
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NULL
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NULL",
                 Sql);
         }
 
