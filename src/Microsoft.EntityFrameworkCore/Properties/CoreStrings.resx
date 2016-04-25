@@ -546,4 +546,10 @@
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
   </data>
+  <data name="MoreThanOneElement" xml:space="preserve">
+    <value>Sequence contains more than one element</value>
+  </data>
+  <data name="NoElements" xml:space="preserve">
+    <value>Sequence contains no elements</value>
+  </data>
 </root>

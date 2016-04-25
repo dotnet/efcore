@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                await Assert.ThrowsAsync<AggregateException>(async () =>
+                await Assert.ThrowsAsync<NotImplementedException>(async () =>
                     await context.Set<Customer>()
                         .Where(c => c.City == city.Throw().InstanceFieldValue)
                         .ToListAsync());
@@ -3161,12 +3161,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
 
-                var ex = await Assert.ThrowsAsync<AggregateException>(
-                    async () => await context.Customers.ToListAsync());
-
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    ex.InnerException.Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () => await context.Customers.ToListAsync())).Message);
             }
         }
 
@@ -3177,12 +3175,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
 
-                var ex = await Assert.ThrowsAsync<AggregateException>(
-                    async () => await context.Customers.FirstAsync());
-
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    ex.InnerException.Message);
+                    (await Assert.ThrowsAsync<AggregateException>(
+                        async () => await context.Customers.FirstAsync())).InnerException.Message);
             }
         }
 
