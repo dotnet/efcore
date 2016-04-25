@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                var detachedRelationships = key.FindReferencingForeignKeys().ToList()
+                var detachedRelationships = key.GetReferencingForeignKeys().ToList()
                     .Select(DetachRelationship).ToList();
                 RemoveKey(key, ConfigurationSource.DataAnnotation);
                 foreach (var relationshipSnapshot in detachedRelationships)
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if ((configurationSource != ConfigurationSource.Explicit) // let it throw for explicit
                     && (configurationSource == null
-                        || actualProperties.Any(p => p.FindContainingForeignKeys().Any(k => k.DeclaringEntityType != Metadata))
+                        || actualProperties.Any(p => p.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != Metadata))
                         || actualProperties.Any(p => !p.Builder.CanSetRequired(true, configurationSource))))
                 {
                     return null;
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            foreach (var foreignKey in key.FindReferencingForeignKeys().ToList())
+            foreach (var foreignKey in key.GetReferencingForeignKeys().ToList())
             {
                 var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource, runConventions);
                 Debug.Assert(removed.HasValue);
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var key in Metadata.GetDeclaredKeys().ToList())
                 {
-                    foreach (var referencingForeignKey in key.FindReferencingForeignKeys().ToList())
+                    foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
                     {
                         detachedRelationships.Add(DetachRelationship(referencingForeignKey));
                     }
@@ -586,15 +586,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var detachedRelationships = new List<RelationshipBuilderSnapshot>();
             foreach (var propertyToDetach in propertiesToDetachList)
             {
-                foreach (var relationship in propertyToDetach.FindContainingForeignKeys().ToList())
+                foreach (var relationship in propertyToDetach.GetContainingForeignKeys().ToList())
                 {
                     detachedRelationships.Add(DetachRelationship(relationship));
                 }
             }
 
-            var detachedIndexes = DetachIndexes(propertiesToDetachList.SelectMany(p => p.FindContainingIndexes()).Distinct());
+            var detachedIndexes = DetachIndexes(propertiesToDetachList.SelectMany(p => p.GetContainingIndexes()).Distinct());
 
-            var detachedKeys = DetachKeys(propertiesToDetachList.SelectMany(p => p.FindContainingKeys()).Distinct());
+            var detachedKeys = DetachKeys(propertiesToDetachList.SelectMany(p => p.GetContainingKeys()).Distinct());
 
             var detachedProperties = new List<Tuple<InternalPropertyBuilder, ConfigurationSource>>();
             foreach (var propertyToDetach in propertiesToDetachList)
@@ -728,12 +728,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var detachedRelationships = property.FindContainingForeignKeys().ToList()
+            var detachedRelationships = property.GetContainingForeignKeys().ToList()
                 .Select(DetachRelationship).ToList();
 
             foreach (var key in Metadata.GetKeys().Where(i => i.Properties.Contains(property)).ToList())
             {
-                detachedRelationships.AddRange(key.FindReferencingForeignKeys().ToList()
+                detachedRelationships.AddRange(key.GetReferencingForeignKeys().ToList()
                     .Select(DetachRelationship));
                 var removed = RemoveKey(key, configurationSource);
                 Debug.Assert(removed.HasValue);
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            if (key.FindReferencingForeignKeys().Any())
+            if (key.GetReferencingForeignKeys().Any())
             {
                 return;
             }
@@ -838,17 +838,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return;
             }
 
-            if (property.FindContainingIndexes().Any())
+            if (property.GetContainingIndexes().Any())
             {
                 return;
             }
 
-            if (property.FindContainingForeignKeys().Any())
+            if (property.GetContainingForeignKeys().Any())
             {
                 return;
             }
 
-            if (property.FindContainingKeys().Any())
+            if (property.GetContainingKeys().Any())
             {
                 return;
             }

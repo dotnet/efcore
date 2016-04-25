@@ -2,47 +2,28 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public static class KeyExtensions
     {
         public static Func<IIdentityMap> GetIdentityMapFactory([NotNull] this IKey key)
-        {
-            var factorySource = key as IIdentityMapFactorySource;
-
-            return factorySource != null
-                ? factorySource.IdentityMapFactory
-                : new IdentityMapFactoryFactory().Create(key);
-        }
+            => key.AsKey().IdentityMapFactory;
 
         public static Func<IWeakReferenceIdentityMap> GetWeakReferenceIdentityMapFactory([NotNull] this IKey key)
-        {
-            var factorySource = key as IIdentityMapFactorySource;
-
-            return factorySource != null
-                ? factorySource.WeakReferenceIdentityMapFactory
-                : new WeakReferenceIdentityMapFactoryFactory().Create(key);
-        }
+            => key.AsKey().WeakReferenceIdentityMapFactory;
 
         public static IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>([NotNull] this IKey key)
-        {
-            var factorySource = key as IPrincipalKeyValueFactorySource;
-
-            return factorySource != null
-                ? factorySource.GetPrincipalKeyValueFactory<TKey>()
-                : new KeyValueFactoryFactory().Create<TKey>(key);
-        }
+            => key.AsKey().GetPrincipalKeyValueFactory<TKey>();
 
         public static bool IsPrimaryKey([NotNull] this IKey key)
-        {
-            Check.NotNull(key, nameof(key));
+            => key == key.DeclaringEntityType.FindPrimaryKey();
 
-            return key == key.DeclaringEntityType.FindPrimaryKey();
-        }
+        public static Key AsKey([NotNull] this IKey key, [NotNull] [CallerMemberName] string methodName = "")
+            => key.AsConcreteMetadataType<IKey, Key>(methodName);
     }
 }

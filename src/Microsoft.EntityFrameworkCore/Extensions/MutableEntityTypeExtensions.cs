@@ -313,10 +313,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            var propertyInfoPropertyAdder = entityType as IMutableEntityTypeAddPropertyInfo;
-            return propertyInfoPropertyAdder != null
-                ? propertyInfoPropertyAdder.AddProperty(propertyInfo)
-                : entityType.AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadow: false);
+            return entityType.AsEntityType().AddProperty(propertyInfo);
         }
 
         /// <summary>

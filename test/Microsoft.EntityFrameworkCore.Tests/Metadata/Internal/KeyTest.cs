@@ -5,13 +5,23 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class KeyTest
     {
+        [Fact]
+        public void Use_of_custom_IKey_throws()
+        {
+            Assert.Equal(
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), "IKeyProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IKey>().AsKey()).Message);
+        }
+
         [Fact]
         public void Can_create_key_from_properties()
         {

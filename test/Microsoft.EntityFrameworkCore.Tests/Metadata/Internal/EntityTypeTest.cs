@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Moq;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -49,6 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
         private class D : C
         {
+        }
+
+        [Fact]
+        public void Use_of_custom_IEntityType_throws()
+        {
+            Assert.Equal(
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IEntityType_throws), nameof(IEntityType), "IEntityTypeProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IEntityType>().AsEntityType()).Message);
         }
 
         [Fact]
@@ -1412,7 +1421,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Null(entityType.RemoveKey(new[] { idProperty }));
             Assert.False(idProperty.IsKey());
-            Assert.Empty(idProperty.FindContainingKeys());
+            Assert.Empty(idProperty.GetContainingKeys());
 
             var key1 = entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty });
             var key2 = entityType.GetOrAddKey(idProperty);
@@ -1421,7 +1430,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.NotNull(key2.Builder);
             Assert.Equal(new[] { key2, key1 }, entityType.GetKeys().ToArray());
             Assert.True(idProperty.IsKey());
-            Assert.Equal(new[] { key1, key2 }, idProperty.FindContainingKeys().ToArray());
+            Assert.Equal(new[] { key1, key2 }, idProperty.GetContainingKeys().ToArray());
 
             Assert.Same(key1, entityType.RemoveKey(key1.Properties));
             Assert.Null(entityType.RemoveKey(key1.Properties));
@@ -1434,7 +1443,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Null(key2.Builder);
             Assert.Empty(entityType.GetKeys());
             Assert.False(idProperty.IsKey());
-            Assert.Empty(idProperty.FindContainingKeys());
+            Assert.Empty(idProperty.GetContainingKeys());
         }
 
         [Fact]
@@ -1796,7 +1805,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 
             Assert.Null(orderType.RemoveForeignKey(new[] { customerFk2 }, customerKey, customerType));
             Assert.False(customerFk1.IsForeignKey());
-            Assert.Empty(customerFk1.FindContainingForeignKeys());
+            Assert.Empty(customerFk1.GetContainingForeignKeys());
 
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey, customerType);
             var fk2 = orderType.AddForeignKey(customerFk2, customerKey, customerType);
@@ -1805,14 +1814,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.NotNull(fk2.Builder);
             Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
             Assert.True(customerFk1.IsForeignKey());
-            Assert.Same(fk1, customerFk1.FindContainingForeignKeys().Single());
+            Assert.Same(fk1, customerFk1.GetContainingForeignKeys().Single());
 
             Assert.Same(fk1, orderType.RemoveForeignKey(fk1.Properties, fk1.PrincipalKey, fk1.PrincipalEntityType));
             Assert.Null(orderType.RemoveForeignKey(fk1.Properties, fk1.PrincipalKey, fk1.PrincipalEntityType));
 
             Assert.Equal(new[] { fk2 }, orderType.GetForeignKeys().ToArray());
             Assert.False(customerFk1.IsForeignKey());
-            Assert.Empty(customerFk1.FindContainingForeignKeys());
+            Assert.Empty(customerFk1.GetContainingForeignKeys());
 
             Assert.Same(fk2, orderType.RemoveForeignKey(new[] { customerFk2 }, customerKey, customerType));
 
@@ -2217,7 +2226,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(0, entityType.GetIndexes().Count());
             Assert.Null(entityType.RemoveIndex(new[] { property1 }));
             Assert.False(property1.IsIndex());
-            Assert.Empty(property1.FindContainingIndexes());
+            Assert.Empty(property1.GetContainingIndexes());
 
             var index1 = entityType.GetOrAddIndex(property1);
 
@@ -2236,7 +2245,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(property1, index2.Properties[0]);
             Assert.Same(property2, index2.Properties[1]);
             Assert.True(property1.IsIndex());
-            Assert.Equal(new[] { index1, index2 }, property1.FindContainingIndexes().ToArray());
+            Assert.Equal(new[] { index1, index2 }, property1.GetContainingIndexes().ToArray());
 
             Assert.Equal(2, entityType.GetIndexes().Count());
             Assert.Same(index1, entityType.GetIndexes().First());
@@ -2254,7 +2263,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Null(index2.Builder);
             Assert.Equal(0, entityType.GetIndexes().Count());
             Assert.False(property1.IsIndex());
-            Assert.Empty(property1.FindContainingIndexes());
+            Assert.Empty(property1.GetContainingIndexes());
         }
 
         [Fact]

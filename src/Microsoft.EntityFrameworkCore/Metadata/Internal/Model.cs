@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
-    public class Model : ConventionalAnnotatable, IMutableModel, IModelFindClrType
+    public class Model : ConventionalAnnotatable, IMutableModel
     {
         private readonly SortedDictionary<string, EntityType> _entityTypes
             = new SortedDictionary<string, EntityType>();
@@ -85,9 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => FindEntityType(name) ?? AddEntityType(name);
 
         public virtual EntityType FindEntityType([NotNull] Type type)
-            => (EntityType)((IModelFindClrType)this).FindEntityType(type);
-
-        IEntityType IModelFindClrType.FindEntityType(Type type)
         {
             Check.NotNull(type, nameof(type));
 

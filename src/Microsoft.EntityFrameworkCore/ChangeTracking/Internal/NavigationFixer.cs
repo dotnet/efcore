@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     stateManager.UpdateIdentityMap(entry, key);
 
                     // Propagate principal key values into FKs
-                    foreach (var foreignKey in key.FindReferencingForeignKeys())
+                    foreach (var foreignKey in key.GetReferencingForeignKeys())
                     {
                         foreach (var dependentEntry in stateManager.GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                         {

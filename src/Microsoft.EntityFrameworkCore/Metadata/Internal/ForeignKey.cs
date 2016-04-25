@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ForeignKey
-        : ConventionalAnnotatable, IMutableForeignKey, IDependentKeyValueFactorySource, IDependentsMapFactorySource
+        : ConventionalAnnotatable, IMutableForeignKey
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
@@ -479,9 +479,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
-        public virtual object DependentKeyValueFactory { get; set; }
+        public virtual object DependentKeyValueFactory { get; [param: NotNull] set; }
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
-        public virtual Func<IDependentsMap> DependentsMapFactory { get; set; }
+        public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
     }
 }

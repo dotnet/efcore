@@ -754,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if ((Metadata.DeclaringEntityType.BaseType != null)
                 && (configurationSource != ConfigurationSource.Explicit) // let it throw for explicit
-                && properties.Any(p => p.FindContainingKeys().Any(k => k.DeclaringEntityType != Metadata.DeclaringEntityType)))
+                && properties.Any(p => p.GetContainingKeys().Any(k => k.DeclaringEntityType != Metadata.DeclaringEntityType)))
             {
                 return null;
             }

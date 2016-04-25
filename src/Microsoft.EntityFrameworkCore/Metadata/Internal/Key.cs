@@ -14,12 +14,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Key :
-        ConventionalAnnotatable,
-        IMutableKey,
-        IIdentityMapFactorySource,
-        IPrincipalKeyValueFactorySource,
-        IReferencingForeignKeyMetadata
+    public class Key : ConventionalAnnotatable, IMutableKey
     {
         private ConfigurationSource _configurationSource;
 
@@ -55,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys()
+        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => ReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
         public virtual Func<IIdentityMap> IdentityMapFactory
@@ -75,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
         public virtual List<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
-        IEnumerable<IForeignKey> IReferencingForeignKeyMetadata.ReferencingForeignKeys => ReferencingForeignKeys ?? Enumerable.Empty<IForeignKey>();
 
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);

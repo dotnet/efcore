@@ -21,19 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key to find the foreign keys for. </param>
         /// <returns> The foreign keys that reference the given key. </returns>
-        public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IKey key)
-        {
-            Check.NotNull(key, nameof(key));
-
-            var referencingForeignKeyMetadata = key as IReferencingForeignKeyMetadata;
-            if (referencingForeignKeyMetadata != null)
-            {
-                return referencingForeignKeyMetadata.ReferencingForeignKeys;
-            }
-
-            return key.DeclaringEntityType.Model.GetEntityTypes()
-                .SelectMany(e => e.GetDeclaredForeignKeys())
-                .Where(fk => fk.PrincipalKey == key);
-        }
+        public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IKey key)
+            => Check.NotNull(key, nameof(key)).AsKey().ReferencingForeignKeys ?? Enumerable.Empty<IForeignKey>();
     }
 }

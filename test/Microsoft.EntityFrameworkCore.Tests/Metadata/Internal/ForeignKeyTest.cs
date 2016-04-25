@@ -8,12 +8,21 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class ForeignKeyTest
     {
+        [Fact]
+        public void Use_of_custom_IForeignKey_throws()
+        {
+            Assert.Equal(
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IForeignKey), "IForeignKeyProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IForeignKey>().AsForeignKey()).Message);
+        }
+
         [Fact]
         public void Can_create_foreign_key()
         {

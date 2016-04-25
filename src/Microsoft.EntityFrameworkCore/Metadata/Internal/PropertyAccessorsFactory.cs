@@ -52,15 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                var propertyInfoAccessor = propertyBase as IPropertyPropertyInfoAccessor;
-                var property = propertyInfoAccessor != null
-                    ? propertyInfoAccessor.PropertyInfo
-                    : entityClrType.GetAnyProperty(propertyBase.Name);
                 currentValueExpression = Expression.Property(
                     Expression.Convert(
                         Expression.Property(entryParameter, "Entity"),
                         entityClrType),
-                    property);
+                    propertyBase.GetPropertyInfo());
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
