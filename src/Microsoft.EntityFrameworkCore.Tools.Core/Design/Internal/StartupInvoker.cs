@@ -7,7 +7,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 
 #if !NETCORE50
 using Microsoft.AspNetCore.Hosting;
@@ -114,24 +113,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     EnvironmentName = _environment,
                     ApplicationName = _startupAssemblyName
                 });
-
-            if (PlatformServices.Default != null)
-            {
-                if (PlatformServices.Default.Application != null)
-                {
-                    services.AddSingleton<IApplicationEnvironment>(
-                        new ApplicationEnvironment(PlatformServices.Default.Application)
-                        {
-                            ApplicationBasePath = _startupProjectDir,
-                            ApplicationName = _startupAssemblyName
-                        });
-                }
-
-                if (PlatformServices.Default.Runtime != null)
-                {
-                    services.AddSingleton(PlatformServices.Default.Runtime);
-                }
-            }
 #endif
 
             services.AddLogging();
