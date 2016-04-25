@@ -26,15 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         public Navigation([NotNull] string navigationName, [NotNull] ForeignKey foreignKey)
+            : base(navigationName, null)
         {
-            Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            Name = navigationName;
             ForeignKey = foreignKey;
         }
-
-        public virtual string Name { get; }
 
         public virtual ForeignKey ForeignKey { get; }
 
