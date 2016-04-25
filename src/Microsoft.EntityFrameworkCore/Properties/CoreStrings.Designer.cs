@@ -1156,6 +1156,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("TempValue", "property", "entityType"), property, entityType);
         }
 
+        /// <summary>
+        /// Sequence contains more than one element
+        /// </summary>
+        public static string MoreThanOneElement
+        {
+            get { return GetString("MoreThanOneElement"); }
+        }
+
+        /// <summary>
+        /// Sequence contains no elements
+        /// </summary>
+        public static string NoElements
+        {
+            get { return GetString("NoElements"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
