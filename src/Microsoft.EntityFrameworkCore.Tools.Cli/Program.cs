@@ -7,6 +7,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -19,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             try
             {
+                DotnetToolDispatcher.EnsureValidDispatchRecipient(ref args, ExecuteCommand.GetToolName());
                 return ExecuteCommand.Create().Execute(args);
             }
             catch (Exception ex)

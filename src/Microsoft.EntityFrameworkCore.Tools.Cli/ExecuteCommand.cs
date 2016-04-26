@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         private const string FrameworkOptionTemplate = "--framework";
         private const string ConfigOptionTemplate = "--configuration";
         private const string BuildBasePathOptionTemplate = "--build-base-path";
-        private const string DispatchVersionOptionTemplate = "--dispatch-version";
         private const string NoBuildOptionTemplate = "--no-build";
         private const string VerboseOptionTemplate = "--verbose";
 
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             {
                 FrameworkOptionTemplate, framework.GetShortFolderName(),
                 ConfigOptionTemplate, configuration,
-                DispatchVersionOptionTemplate, GetVersion(),
                 buildBasePath == null ? string.Empty : BuildBasePathOptionTemplate, buildBasePath ?? string.Empty,
                 noBuild ? NoBuildOptionTemplate : string.Empty,
                 verbose ? VerboseOptionTemplate : string.Empty
@@ -39,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         {
             var app = new CommandLineApplication()
             {
-                Name = "Microsoft.EntityFrameworkCore.Tools.Cli",
+                Name = GetToolName(),
                 FullName = "Entity Framework .NET Core CLI Commands"
             };
 
@@ -54,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     CommandOptionType.SingleValue),
                 Configuration = app.Option(ConfigOptionTemplate + " <CONFIGURATION>",
                     "Configuration under which to load",
-                    CommandOptionType.SingleValue),
-                DispatchVersion = app.Option(DispatchVersionOptionTemplate + " <VERSION>",
-                    "Dispatching tool version",
                     CommandOptionType.SingleValue),
                 BuildBasePath = app.Option(BuildBasePathOptionTemplate + " <OUTPUT_DIR>",
                       "Directory in which to find temporary outputs",
@@ -104,5 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 .Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 .InformationalVersion;
+
+        public static string GetToolName()
+            => typeof(ExecuteCommand).GetTypeInfo().Assembly.GetName().Name;
     }
 }

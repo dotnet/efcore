@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not invoke this command on the project. Check that the version of {projectCommand} in "tools\" and "dependencies\" are the same
+        /// Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same.
         /// </summary>
         public static string ProjectDependencyCommandNotFound([CanBeNull] object projectCommand)
         {
