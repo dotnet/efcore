@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             // Look for DbContext classes registered in the service provider
             var registeredContexts = _runtimeServices.GetServices<DbContextOptions>()
-                .Select(o => o.GetType().GenericTypeArguments[0]);
+                .Select(o => o.ContextType);
             foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
             {
                 contexts.Add(

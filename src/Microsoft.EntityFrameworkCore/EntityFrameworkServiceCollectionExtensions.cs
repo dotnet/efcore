@@ -78,7 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddLogging();
 
             serviceCollection.TryAddSingleton(p => DbContextOptionsFactory<TContext>(p, optionsAction));
-            serviceCollection.TryAddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
+            serviceCollection.AddSingleton<DbContextOptions>(p => p.GetRequiredService<DbContextOptions<TContext>>());
 
             serviceCollection.TryAddScoped<TContext>();
 
