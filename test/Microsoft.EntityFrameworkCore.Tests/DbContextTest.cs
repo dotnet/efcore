@@ -4497,8 +4497,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
         public void Throws_when_adding_two_contexts_using_non_generic_options()
         {
             var appServiceProivder = new ServiceCollection()
-                .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase())
                 .AddDbContext<NonGenericOptions2>(b => b.UseInMemoryDatabase())
+                .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase())
                 .BuildServiceProvider();
 
             using (var serviceScope = appServiceProivder
@@ -4529,6 +4529,33 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 : base(options)
             {
             }
+        }
+
+        [Fact]
+        public void AddDbContext_adds_options_for_all_types()
+        {
+            var services = new ServiceCollection()
+                .AddSingleton<DbContextOptions>(_ => new DbContextOptions<NonGenericOptions1>())
+                .AddDbContext<NonGenericOptions1>()
+                .AddDbContext<NonGenericOptions2>()
+                .BuildServiceProvider();
+
+            Assert.Equal(3, services.GetServices<DbContextOptions>().Count());
+            Assert.Equal(2, services.GetServices<DbContextOptions>()
+                            .Select(o => o.ContextType)
+                            .Distinct()
+                            .Count());
+        }
+
+        [Fact]
+        public void Last_DbContextOptions_in_serviceCollection_selected()
+        {
+            var services = new ServiceCollection()
+                .AddDbContext<NonGenericOptions1>()
+                .AddDbContext<NonGenericOptions2>()
+                .BuildServiceProvider();
+
+            Assert.Equal(typeof(NonGenericOptions2), services.GetService<DbContextOptions>().ContextType);
         }
 
         [Fact]
