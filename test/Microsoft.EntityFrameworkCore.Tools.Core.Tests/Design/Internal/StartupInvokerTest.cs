@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
@@ -127,13 +126,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
 
         private class StartupInjected
         {
-            public StartupInjected(IHostingEnvironment env, IApplicationEnvironment appEnv)
+            public StartupInjected(IHostingEnvironment env)
             {
                 Assert.Equal(@"C:\The\Right\Path", env.ContentRootPath);
                 Assert.Equal("Injected", env.EnvironmentName);
-                Assert.Equal(@"C:\The\Right\Path", appEnv.ApplicationBasePath);
                 Assert.Equal("MockAssembly", env.ApplicationName);
-                Assert.Equal("MockAssembly", appEnv.ApplicationName);
             }
 
             private void ConfigureInjectedServices(IServiceCollection services)
