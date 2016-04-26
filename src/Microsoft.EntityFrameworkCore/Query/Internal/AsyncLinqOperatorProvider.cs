@@ -460,8 +460,48 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         // Result operators
 
-        private static readonly MethodInfo _any = GetMethod("Any");
-        private static readonly MethodInfo _all = GetMethod("All", 1);
+        private static readonly MethodInfo _any 
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_Any));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static async Task<bool> _Any<TSource>(
+            IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
+        {
+            using (var asyncEnumerator = source.GetEnumerator())
+            {
+                return await asyncEnumerator.MoveNext(cancellationToken);
+            }
+        }
+
+        public virtual MethodInfo Any => _any;
+        
+        private static readonly MethodInfo _all 
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_All));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static async Task<bool> _All<TSource>(
+            IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate, CancellationToken cancellationToken)
+        {
+            using (var asyncEnumerator = source.GetEnumerator())
+            {
+                while (await asyncEnumerator.MoveNext(cancellationToken))
+                {
+                    if (!predicate(asyncEnumerator.Current))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public virtual MethodInfo All => _all;
+        
         private static readonly MethodInfo _cast = GetMethod("Cast");
         private static readonly MethodInfo _count = GetMethod("Count");
         private static readonly MethodInfo _contains = GetMethod("Contains", 1);
@@ -512,9 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         public virtual MethodInfo FirstOrDefault => _firstOrDefault;
-
-        public virtual MethodInfo Any => _any;
-        public virtual MethodInfo All => _all;
+        
         public virtual MethodInfo Cast => _cast;
         public virtual MethodInfo Count => _count;
         public virtual MethodInfo Contains => _contains;
@@ -602,15 +640,69 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public virtual MethodInfo GroupBy => _groupBy;
 
-        private static readonly MethodInfo _last = GetMethod("Last");
-        private static readonly MethodInfo _lastOrDefault = GetMethod("LastOrDefault");
+        private static readonly MethodInfo _last 
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_Last));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static async Task<TSource> _Last<TSource>(
+            IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
+        {
+            using (var asyncEnumerator = source.GetEnumerator())
+            {
+                if (await asyncEnumerator.MoveNext(cancellationToken))
+                {
+                    TSource result;
+                    do
+                    {
+                        result = asyncEnumerator.Current;
+                    }
+                    while (await asyncEnumerator.MoveNext(cancellationToken));
+
+                    return result;
+                }
+            }
+
+            throw new InvalidOperationException(CoreStrings.NoElements);
+        }
+
+        public virtual MethodInfo Last => _last;
+
+        private static readonly MethodInfo _lastOrDefault
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_LastOrDefault));
+
+        [UsedImplicitly]
+        // ReSharper disable once InconsistentNaming
+        private static async Task<TSource> _LastOrDefault<TSource>(
+            IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
+        {
+            using (var asyncEnumerator = source.GetEnumerator())
+            {
+                if (await asyncEnumerator.MoveNext(cancellationToken))
+                {
+                    TSource result;
+                    do
+                    {
+                        result = asyncEnumerator.Current;
+                    }
+                    while (await asyncEnumerator.MoveNext(cancellationToken));
+
+                    return result;
+                }
+            }
+
+            return default(TSource);
+        }
+
+        public virtual MethodInfo LastOrDefault => _lastOrDefault;
+
         private static readonly MethodInfo _longCount = GetMethod("LongCount");
         private static readonly MethodInfo _ofType = GetMethod("OfType");
         private static readonly MethodInfo _skip = GetMethod("Skip", 1);
         private static readonly MethodInfo _take = GetMethod("Take", 1);
 
-        public virtual MethodInfo Last => _last;
-        public virtual MethodInfo LastOrDefault => _lastOrDefault;
         public virtual MethodInfo LongCount => _longCount;
         public virtual MethodInfo OfType => _ofType;
 
