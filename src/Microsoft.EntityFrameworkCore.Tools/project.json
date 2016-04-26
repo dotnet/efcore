@@ -23,6 +23,7 @@
       ],
       "dependencies": {
         "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.Extensions.DotnetToolDispatcher.Sources": "1.0.0-*",
         "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*",
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
@@ -32,7 +33,8 @@
     },
     "net451": {
       "dependencies": {
-        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*"
+        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.Extensions.DotnetToolDispatcher.Sources": "1.0.0-*"
       },
       "compilationOptions": {
         "outputName":  "Microsoft.EntityFrameworkCore.Tools",
