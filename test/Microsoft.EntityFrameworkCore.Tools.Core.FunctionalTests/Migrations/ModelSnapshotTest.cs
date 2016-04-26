@@ -529,7 +529,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -582,7 +582,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithOne(""EntityWithOneProperty"")
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
             .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
@@ -1305,7 +1305,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
@@ -1447,7 +1447,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithMany()
             .HasForeignKey(""Id"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1493,7 +1493,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithOne(""EntityWithOneProperty"")
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1615,7 +1615,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasConstraintName(""Constraint"")
@@ -1665,7 +1665,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
             .HasForeignKey(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasConstraintName(""Constraint"")
@@ -1727,7 +1727,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+BaseType"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Navigation"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Navigation"")
             .WithMany()
             .HasForeignKey(""NavigationId"");
     });
