@@ -12,14 +12,18 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.Cli;
 using Microsoft.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Internal;
 using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class DispatchCommand
     {
-        private static readonly string ProjectCommand
-            = typeof(ExecuteCommand).GetTypeInfo().Assembly.GetName().Name;
+        private const string DispatcherToolName
+            = "Microsoft.EntityFrameworkCore.Tools";
+
+        private static readonly string ProjectDependencyToolName
+            = ExecuteCommand.GetToolName();
 
         public static CommandLineApplication Create()
         {
@@ -94,32 +98,24 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     }
                 }
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectCommand, projectFile.Name));
-
-                var buildBasePath = buildBasePathOption.Value();
-                if (buildBasePath != null && !Path.IsPathRooted(buildBasePath))
-                {
-                    // TODO this is a workaround for https://github.com/dotnet/cli/issues/2682
-                    buildBasePath = Path.Combine(Directory.GetCurrentDirectory(), buildBasePath);
-                }
+                Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectDependencyToolName, projectFile.Name));
 
                 try
                 {
                     bool isVerbose;
                     bool.TryParse(Environment.GetEnvironmentVariable(CommandContext.Variables.Verbose), out isVerbose);
+                    var dispatchArgs = ExecuteCommand
+                                .CreateArgs(framework, configuration, buildBasePathOption.Value(), noBuildOption.HasValue(), isVerbose)
+                                .Concat(app.RemainingArguments);
 
-                    return new ProjectDependenciesCommandFactory(
-                       framework,
-                       configuration,
-                       outputOption.Value(),
-                       buildBasePath,
-                       projectFile.ProjectDirectory)
-                       .Create(
-                           ProjectCommand,
-                           ExecuteCommand.CreateArgs(framework, configuration, buildBasePath, noBuildOption.HasValue(), isVerbose)
-                                .Concat(app.RemainingArguments),
-                           framework,
-                           configuration)
+                    return DotnetToolDispatcher.CreateDispatchCommand(
+                            dispatchArgs,
+                            framework,
+                            configuration,
+                            outputPath: outputOption.Value(),
+                            buildBasePath: buildBasePathOption.Value(),
+                            projectDirectory: projectFile.ProjectDirectory,
+                            toolName: ProjectDependencyToolName)
                         .ForwardStdErr()
                         .ForwardStdOut()
                         .Execute()
@@ -128,7 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 catch (CommandUnknownException ex)
                 {
                     Reporter.Verbose.WriteLine(ex.Message);
-                    Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(ProjectCommand));
+                    // intentionally put DispatcherToolName in error because "Microsoft.EntityFrameworkCore.Tools.Cli" is 
+                    // brought in automatically as a dependency of "Microsoft.EntityFrameworkCore.Tools"
+                    Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(DispatcherToolName));
                     return 1;
                 }
             });

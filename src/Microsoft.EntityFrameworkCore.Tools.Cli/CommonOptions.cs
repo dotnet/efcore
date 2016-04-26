@@ -6,33 +6,11 @@ using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
-    public class CommonCommandOptions
-    {
-        public CommandOption Framework { get; set; }
-        public CommandOption Configuration { get; set; }
-        public CommandOption DispatchVersion { get; set; }
-        public CommandOption NoBuild { get; set; }
-        public CommandOption BuildBasePath { get; set; }
-
-        public CommonOptions Value()
-            => new CommonOptions
-            {
-                Framework = Framework.HasValue()
-                    ? NuGetFramework.Parse(Framework.Value())
-                    : null,
-                Configuration = Configuration.Value(),
-                DispatchVersion = DispatchVersion.Value(),
-                BuildBasePath = BuildBasePath.Value(),
-                NoBuild = NoBuild.HasValue(),
-            };
-    }
-
     public class CommonOptions
     {
         public NuGetFramework Framework { get; set; }
         public string Configuration { get; set; }
         public string BuildBasePath { get; set; }
         public bool NoBuild { get; set; }
-        public string DispatchVersion { get; set; }
     }
 }

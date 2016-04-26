@@ -133,6 +133,6 @@
     <value>Using project '{projectName}'.</value>
   </data>
   <data name="ProjectDependencyCommandNotFound" xml:space="preserve">
-    <value>Could not invoke this command on the project. Check that the version of {projectCommand} in "tools\" and "dependencies\" are the same</value>
+    <value>Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same</value>
   </data>
 </root>
