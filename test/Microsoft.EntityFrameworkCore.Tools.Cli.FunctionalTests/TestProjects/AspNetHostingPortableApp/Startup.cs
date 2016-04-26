@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using LibraryUsingSqlite;
@@ -11,10 +10,10 @@ namespace AspNetHostingPortableApp
     public class Startup
     {
         private IConfiguration _config;
-        public Startup(IApplicationEnvironment app)
+        public Startup(IHostingEnvironment app)
         {
             _config = new ConfigurationBuilder()
-                .SetBasePath(app.ApplicationBasePath)
+                .SetBasePath(app.ContentRootPath)
                 .AddJsonFile("config.json")
                 .Build();
         }
