@@ -219,8 +219,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private static readonly PropertyInfo _dateTimeUtcNow
                 = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow));
 
+            private static readonly MethodInfo _guidNewGuid
+                = typeof(Guid).GetTypeInfo().GetDeclaredMethod("NewGuid");
+
+            private static readonly List<MethodInfo> _randomNext
+                = typeof(Random).GetTypeInfo().GetDeclaredMethods("Next").ToList();
+
             public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
-                => typeof(IQueryable).GetTypeInfo().IsAssignableFrom(methodCallExpression.Type.GetTypeInfo());
+            {
+                if ((methodCallExpression.Method == _guidNewGuid)
+                    || _randomNext.Contains(methodCallExpression.Method))
+                {
+                    return false;
+                }
+                return base.IsEvaluatableMethodCall(methodCallExpression);
+            }
 
             public override bool IsEvaluatableMember(MemberExpression memberExpression)
                 => memberExpression.Member != _dateTimeNow && memberExpression.Member != _dateTimeUtcNow;

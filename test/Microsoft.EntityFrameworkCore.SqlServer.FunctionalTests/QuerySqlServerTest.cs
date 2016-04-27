@@ -3672,7 +3672,8 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + N'%'",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'M' + N'%'",
                 Sql);
         }
 
@@ -3715,7 +3716,8 @@ WHERE [c].[ContactName] LIKE N'%' + [c].[ContactName]",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'%' + N'm'",
                 Sql);
         }
 
@@ -3758,12 +3760,14 @@ WHERE [c].[ContactName] LIKE (N'%' + [c].[ContactName]) + N'%'",
         public override void String_Contains_MethodCall()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())),
-                entryCount: 19);
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
+                entryCount: 34);
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
                 Sql);
         }
 
@@ -3860,7 +3864,7 @@ WHERE [c].[CustomerID] <> UPPER([c].[CustomerID])
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] > REPLACE(N'ALFKI', UPPER(N'ALF'), [c].[CustomerID])
+WHERE [c].[CustomerID] > REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -3872,7 +3876,7 @@ WHERE [c].[CustomerID] > UPPER([c].[CustomerID])
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] < REPLACE(N'ALFKI', UPPER(N'ALF'), [c].[CustomerID])",
+WHERE [c].[CustomerID] < REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])",
                 Sql);
         }
 
@@ -3931,7 +3935,7 @@ WHERE ABS([od].[UnitPrice]) > 10.0",
             Assert.Equal(
                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE ABS(-10) < [od].[ProductID]",
+WHERE 10 < [od].[ProductID]",
                 Sql);
         }
 
@@ -4910,6 +4914,91 @@ WHERE [e].[ContactTitle] = N'Owner'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void DateTime_parse_is_funcletized()
+        {
+            base.DateTime_parse_is_funcletized();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'",
+                Sql);
+        }
+
+        public override void Random_next_is_not_funcletized_1()
+        {
+            base.Random_next_is_not_funcletized_1();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Random_next_is_not_funcletized_2()
+        {
+            base.Random_next_is_not_funcletized_2();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Random_next_is_not_funcletized_3()
+        {
+            base.Random_next_is_not_funcletized_3();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Random_next_is_not_funcletized_4()
+        {
+            base.Random_next_is_not_funcletized_4();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Random_next_is_not_funcletized_5()
+        {
+            base.Random_next_is_not_funcletized_5();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Random_next_is_not_funcletized_6()
+        {
+            base.Random_next_is_not_funcletized_6();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Environment_newline_is_funcletized()
+        {
+            base.Environment_newline_is_funcletized();
+
+            Assert.Equal(
+                @"@__NewLine_0: 
+
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE (N'%' + @__NewLine_0) + N'%'",
                 Sql);
         }
 
