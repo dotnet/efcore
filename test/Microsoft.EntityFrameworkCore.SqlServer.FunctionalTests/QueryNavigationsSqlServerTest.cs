@@ -36,6 +36,44 @@ ORDER BY [od].[OrderID], [od].[ProductID], [od.Order].[CustomerID]",
                 Sql);
         }
 
+        public override void Take_Select_Navigation()
+        {
+            base.Take_Select_Navigation();
+
+            Assert.StartsWith(
+                @"@__p_0: 2
+
+SELECT [t].[CustomerID]
+FROM (
+    SELECT TOP(@__p_0) [c0].*
+    FROM [Customers] AS [c0]
+) AS [t]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+",
+                Sql);
+        }
+
+        public override void Skip_Select_Navigation()
+        {
+            base.Skip_Select_Navigation();
+
+            Assert.StartsWith(
+                @"@__p_0: 20
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+OFFSET @__p_0 ROWS
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[OrderID]
+",
+                Sql);
+        }
+
         public override void Select_Where_Navigation_Included()
         {
             base.Select_Where_Navigation_Included();
@@ -118,6 +156,24 @@ ORDER BY [o].[CustomerID]",
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void Select_count_plus_sum()
+        {
+            base.Select_count_plus_sum();
+
+            Assert.StartsWith(
+                @"SELECT (
+    SELECT SUM([od0].[Quantity])
+    FROM [Order Details] AS [od0]
+    WHERE [o].[OrderID] = [od0].[OrderID]
+) + (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]
+)
+FROM [Orders] AS [o]",
                 Sql);
         }
 
@@ -638,6 +694,28 @@ WHERE (
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
 ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void Where_nav_prop_group_by()
+        {
+            base.Where_nav_prop_group_by();
+
+            Assert.Equal(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+WHERE [od.Order].[CustomerID] = N'ALFKI'
+ORDER BY [od].[Quantity]",
+                Sql);
+        }
+
+        public override void Let_group_by_nav_prop()
+        {
+            base.Let_group_by_nav_prop();
+
+            Assert.Equal(
+                @"",
                 Sql);
         }
 

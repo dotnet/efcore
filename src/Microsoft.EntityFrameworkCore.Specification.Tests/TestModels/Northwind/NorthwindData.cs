@@ -26,40 +26,34 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
             _orders = CreateOrders();
             _orderDetails = CreateOrderDetails();
 
+            foreach (var customer in _customers)
+            {
+                customer.Orders = new List<Order>();
+            }
+
+            foreach (var product in _products)
+            {
+                product.OrderDetails = new List<OrderDetail>();
+            }
+
             foreach (var order in _orders)
             {
+                order.OrderDetails = new List<OrderDetail>();
+
                 var customer = _customers.Where(c => c.CustomerID == order.CustomerID).First();
                 order.Customer = customer;
-
-                if (customer.Orders == null)
-                {
-                    customer.Orders = new List<Order>();
-                }
-
                 customer.Orders.Add(order);
             }
 
             foreach (var orderDetail in _orderDetails)
             {
                 var order = _orders.Where(o => o.OrderID == orderDetail.OrderID).First();
-                var product = _products.Where(p => p.ProductID == orderDetail.ProductID).First();
                 orderDetail.Order = order;
-                orderDetail.Product = product;
-
-                if (order.OrderDetails == null)
-                {
-                    order.OrderDetails = new List<OrderDetail>();
-                }
-
                 order.OrderDetails.Add(orderDetail);
 
-                if (product.OrderDetails == null)
-                {
-                    product.OrderDetails = new List<OrderDetail>();
-                }
-
+                var product = _products.Where(p => p.ProductID == orderDetail.ProductID).First();
+                orderDetail.Product = product;
                 product.OrderDetails.Add(orderDetail);
-
             }
 
             foreach (var employee in _employees)

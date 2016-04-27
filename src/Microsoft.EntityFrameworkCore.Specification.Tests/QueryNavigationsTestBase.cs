@@ -106,6 +106,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Take_Select_Navigation()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Take(2)
+                    .Select(c => c.Orders.FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Select_Navigation()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID)
+                    .Skip(20)
+                    .Select(c => c.Orders
+                        .OrderBy(o => o.OrderID)
+                        .FirstOrDefault()));
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Null()
         {
             AssertQuery<Employee>(
@@ -178,6 +197,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       where o.Customer.City == "Seattle"
                       select o,
                 entryCount: 15);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_count_plus_sum()
+        {
+            AssertQuery<Order>(os => os.Select(o => new
+            {
+                Total = o.OrderDetails.Sum(od => od.Quantity) + o.OrderDetails.Count()
+            }));
         }
 
         [ConditionalFact]
@@ -642,6 +670,51 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         pair.efItem.Select(i => i.OrderID).OrderBy(i => i));
                 }
             });
+        }
+
+        [ConditionalFact]
+        public virtual void Where_nav_prop_group_by()
+        {
+            AssertQuery<OrderDetail, IGrouping<short, OrderDetail>>(
+                ods => from od in ods
+                      where od.Order.CustomerID == "ALFKI"
+                      group od by od.Quantity,
+                asserter: (l2oItems, efItems) =>
+                    {
+                        foreach (var pair in
+                            from l2oItem in l2oItems
+                            join efItem in efItems on l2oItem.Key equals efItem.Key
+                            select new { l2oItem, efItem })
+                        {
+                            Assert.Equal(
+                                pair.l2oItem.Select(i => i.OrderID).OrderBy(i => i),
+                                pair.efItem.Select(i => i.OrderID).OrderBy(i => i));
+                        }
+                    });
+        }
+
+        // issue #3676
+        //// [ConditionalFact]
+        public virtual void Let_group_by_nav_prop()
+        {
+            AssertQuery<OrderDetail, IGrouping<string, OrderDetail>>(
+                ods => from od in ods
+                       let customer = od.Order.CustomerID
+                       group od by customer
+                       into odg
+                       select odg,
+                asserter: (l2oItems, efItems) =>
+                {
+                    foreach (var pair in
+                        from l2oItem in l2oItems
+                        join efItem in efItems on l2oItem.Key equals efItem.Key
+                        select new { l2oItem, efItem })
+                    {
+                        Assert.Equal(
+                            pair.l2oItem.Select(i => i.OrderID).OrderBy(i => i),
+                            pair.efItem.Select(i => i.OrderID).OrderBy(i => i));
+                    }
+                });
         }
 
         protected QueryNavigationsTestBase(TFixture fixture)
