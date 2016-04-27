@@ -5011,5 +5011,99 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 }
             }
         }
+
+        [Fact]
+        public void Adding_entities_with_shadow_keys_should_not_throw()
+        {
+            using (var context = new NullShadowKeyContext())
+            {
+                var assembly = new TestAssembly { Name = "Assembly1" };
+                var testClass = new TestClass { Assembly = assembly, Name = "Class1" };
+                var test = context.Tests.Add(new Test { Class = testClass, Name = "Test1" }).Entity;
+
+                context.SaveChanges();
+
+                ValidateGraph(context, assembly, testClass, test);
+            }
+
+            using (var context = new NullShadowKeyContext())
+            {
+                var test = context.Tests.Single();
+                var assembly = context.Assemblies.Single();
+                var testClass = context.Classes.Single();
+
+                ValidateGraph(context, assembly, testClass, test);
+            }
+        }
+
+        private static void ValidateGraph(NullShadowKeyContext context, TestAssembly assembly, TestClass testClass, Test test)
+        {
+            Assert.Equal(EntityState.Unchanged, context.Entry(assembly).State);
+            Assert.Equal("Assembly1", assembly.Name);
+            Assert.Same(testClass, test.Class);
+
+            Assert.Equal(EntityState.Unchanged, context.Entry(testClass).State);
+            Assert.Equal("Class1", testClass.Name);
+            Assert.Equal("Assembly1", context.Entry(testClass).Property("AssemblyName").CurrentValue);
+            Assert.Same(test, testClass.Tests.Single());
+            Assert.Same(assembly, testClass.Assembly);
+
+            Assert.Equal(EntityState.Unchanged, context.Entry(test).State);
+            Assert.Equal("Test1", test.Name);
+            Assert.Equal("Assembly1", context.Entry(test).Property("AssemblyName").CurrentValue);
+            Assert.Equal("Class1", context.Entry(test).Property("ClassName").CurrentValue);
+            Assert.Same(testClass, assembly.Classes.Single());
+        }
+
+        private class TestAssembly
+        {
+            [System.ComponentModel.DataAnnotations.Key]
+            public string Name { get; set; }
+            public ICollection<TestClass> Classes { get; } = new List<TestClass>();
+        }
+
+        private class TestClass
+        {
+            public TestAssembly Assembly { get; set; }
+            public string Name { get; set; }
+            public ICollection<Test> Tests { get; } = new List<Test>();
+        }
+
+        private class Test
+        {
+            public TestClass Class { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class NullShadowKeyContext : DbContext
+        {
+            public DbSet<TestAssembly> Assemblies { get; set; }
+            public DbSet<TestClass> Classes { get; set; }
+            public DbSet<Test> Tests { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder options)
+                => options.UseInMemoryDatabase();
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<TestClass>(
+                    x =>
+                    {
+                        x.Property<string>("AssemblyName");
+                        x.HasKey("AssemblyName", nameof(TestClass.Name));
+                        x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
+                            .HasForeignKey("AssemblyName");
+                    });
+
+                modelBuilder.Entity<Test>(
+                    x =>
+                    {
+                        x.Property<string>("AssemblyName");
+                        x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
+                        x.HasOne(t => t.Class).WithMany(c => c.Tests)
+                            .HasForeignKey("AssemblyName", "ClassName");
+                    });
+            }
+        }
     }
 }
