@@ -6,12 +6,14 @@ var AUTHORS='Microsoft Open Technologies, Inc.'
 use-standard-lifecycle
 k-standard-goals
 
+  
 #initialize-tools target='initialize'
   @{
     // workaround bug in dotnet-build for netcore50 on .Tools and .Tools.Core
     string restoreOptions = " --infer-runtimes " + E("KOREBUILD_DOTNET_RESTORE_OPTIONS");
   }
   dotnet-restore restore_options='${ restoreOptions } src/Microsoft.EntityFrameworkCore.Tools/'
+  dotnet-restore restore_options='${ restoreOptions } src/Microsoft.EntityFrameworkCore.Tools.Core/'
 
 #csproj-initialize target='initialize' if='(!IsMono && !IsTeamCity && E("APPVEYOR") == null) || E("IsEFPerfBuild") != null'
   var programFilesX86='${Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}'

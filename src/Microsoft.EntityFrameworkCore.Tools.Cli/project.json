@@ -25,14 +25,8 @@
   },
   "frameworks": {
     "net451": { },
-    "netcoreapp1.0": {
-      "imports": "portable-net452+win81",
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
-          "type": "platform"
-        }
-      }
+    "netstandard1.5": {
+      "imports": "portable-net452+win81"
     }
   }
 }

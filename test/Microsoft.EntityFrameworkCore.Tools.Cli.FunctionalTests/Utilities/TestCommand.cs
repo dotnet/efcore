@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.DotNet.Cli.Utils;
 using Xunit.Abstractions;
 
@@ -109,24 +108,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 EnableRaisingEvents = true
             };
 
-            using (process)
-            {
-                process.Start();
+            process.Start();
 
-                var threadOut = stdOut.BeginRead(process.StandardOutput);
-                var threadErr = stdErr.BeginRead(process.StandardError);
+            var threadOut = stdOut.BeginRead(process.StandardOutput);
+            var threadErr = stdErr.BeginRead(process.StandardError);
 
-                process.WaitForExit();
-                Task.WaitAll(threadOut, threadErr);
+            process.WaitForExit();
+            threadOut.Join();
+            threadErr.Join();
 
-                var result = new CommandResult(
-                    process.StartInfo,
-                    process.ExitCode,
-                    stdOut.CapturedOutput,
-                    stdErr.CapturedOutput);
+            var result = new CommandResult(
+                process.StartInfo,
+                process.ExitCode,
+                stdOut.CapturedOutput,
+                stdErr.CapturedOutput);
 
-                return result;
-            }
+            return result;
         }
     }
 }
