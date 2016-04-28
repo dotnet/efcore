@@ -211,16 +211,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             outerGroupJoinInclude?.Initialize(queryContext);
             innerGroupJoinInclude?.Initialize(queryContext);
 
+            var hasOuters = (innerShaper as EntityShaper)?.ValueBufferOffset > 0;
+
             try
             {
                 using (var sourceEnumerator = source.GetEnumerator())
                 {
                     var comparer = EqualityComparer<TKey>.Default;
                     var hasNext = sourceEnumerator.MoveNext();
+                    var nextOuter = default(TOuter);
 
                     while (hasNext)
                     {
-                        var outer = outerShaper.Shape(queryContext, sourceEnumerator.Current);
+                        var outer 
+                            = Equals(nextOuter, default(TOuter)) 
+                                ? outerShaper.Shape(queryContext, sourceEnumerator.Current)
+                                : nextOuter;
+                        
+                        nextOuter = default(TOuter);
 
                         outerGroupJoinInclude?.Include(outer);
 
@@ -248,6 +256,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 if (!hasNext)
                                 {
                                     break;
+                                }
+                                
+                                if (hasOuters)
+                                {
+                                    nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
+
+                                    if (!Equals(outer, nextOuter))
+                                    {
+                                        break;
+                                    }
+
+                                    nextOuter = default(TOuter);
                                 }
 
                                 inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);

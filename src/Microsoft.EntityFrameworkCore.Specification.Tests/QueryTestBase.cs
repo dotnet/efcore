@@ -4216,6 +4216,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 from o in orders
                 select c);
         }
+        
+        [ConditionalFact]
+        public virtual void GroupJoin_simple3()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                select new { o.OrderID });
+        }
 
         [ConditionalFact]
         public virtual void GroupJoin_simple_ordering()
@@ -5117,10 +5127,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             bool assertOrder = false,
             int entryCount = 0,
             Action<IList<object>, IList<object>> asserter = null)
-            where TItem : class
-        {
-            AssertQuery(query, query, assertOrder, entryCount, asserter);
-        }
+            where TItem : class 
+                => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, object> query,

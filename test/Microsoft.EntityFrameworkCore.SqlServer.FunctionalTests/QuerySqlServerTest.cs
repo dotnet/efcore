@@ -2722,6 +2722,30 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void GroupJoin_tracking_groups()
+        {
+            base.GroupJoin_tracking_groups();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+        
+        public override void GroupJoin_simple3()
+        {
+            base.GroupJoin_simple3();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
         public override void SelectMany_Joined_DefaultIfEmpty()
         {
             base.SelectMany_Joined_DefaultIfEmpty();
