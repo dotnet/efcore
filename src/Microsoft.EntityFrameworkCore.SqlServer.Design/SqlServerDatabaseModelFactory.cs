@@ -197,32 +197,52 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private void GetTables()
         {
             var command = _connection.CreateCommand();
+            // for origin of the CASE statement below see https://github.com/aspnet/EntityFramework/issues/5126
             command.CommandText =
-                "SELECT schema_name(t.schema_id) AS [schema], t.name FROM sys.tables AS t " +
-                $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'" +
-                TemporalTableWhereClause;
+                @"SELECT
+    schema_name(t.schema_id) AS [schema],
+    t.name,
+    CAST (
+      CASE
+        WHEN t.is_ms_shipped = 1 THEN 1
+        WHEN (
+          SELECT major_id
+          FROM  sys.extended_properties
+          WHERE major_id = t.object_id
+          AND   minor_id = 0
+          AND   class = 1
+          AND   name = N'microsoft_database_tools_support'
+        ) IS NOT NULL THEN 1
+        ELSE 0
+      END
+    AS bit) AS [is_system_object]
+    FROM sys.tables AS t " +
+    $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'" + TemporalTableWhereClause;
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    var table = new TableModel
+                    if (!reader.GetValueOrDefault<bool>("is_system_object"))
                     {
-                        Database = _databaseModel,
-                        SchemaName = reader.GetValueOrDefault<string>("schema"),
-                        Name = reader.GetValueOrDefault<string>("name")
-                    };
+                        var table = new TableModel
+                        {
+                            Database = _databaseModel,
+                            SchemaName = reader.GetValueOrDefault<string>("schema"),
+                            Name = reader.GetValueOrDefault<string>("name")
+                        };
 
-                    Logger.LogTrace(SqlServerDesignStrings.FoundTable(table.SchemaName, table.Name));
+                        Logger.LogTrace(SqlServerDesignStrings.FoundTable(table.SchemaName, table.Name));
 
-                    if (_tableSelectionSet.Allows(table.SchemaName, table.Name))
-                    {
-                        _databaseModel.Tables.Add(table);
-                        _tables[TableKey(table)] = table;
-                    }
-                    else
-                    {
-                        Logger.LogTrace(
-                            SqlServerDesignStrings.TableNotInSelectionSet(table.SchemaName, table.Name));
+                        if (_tableSelectionSet.Allows(table.SchemaName, table.Name))
+                        {
+                            _databaseModel.Tables.Add(table);
+                            _tables[TableKey(table)] = table;
+                        }
+                        else
+                        {
+                            Logger.LogTrace(
+                                SqlServerDesignStrings.TableNotInSelectionSet(table.SchemaName, table.Name));
+                        }
                     }
                 }
             }
