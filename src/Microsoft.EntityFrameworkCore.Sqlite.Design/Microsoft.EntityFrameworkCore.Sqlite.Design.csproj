@@ -63,10 +63,10 @@
       <DependentUpon>SqliteDesignStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="SqliteDatabaseModelFactory.cs" />
-    <Compile Include="SqliteDesignTimeServices.cs" />
-    <Compile Include="SqliteScaffoldingModelFactory.cs" />
-    <Compile Include="SqliteTableSelectionSetExtensions.cs" />
+    <Compile Include="Internal\SqliteDatabaseModelFactory.cs" />
+    <Compile Include="Internal\SqliteDesignTimeServices.cs" />
+    <Compile Include="Internal\SqliteScaffoldingModelFactory.cs" />
+    <Compile Include="Internal\SqliteTableSelectionSetExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\SqliteDesignStrings.resx">

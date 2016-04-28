@@ -61,21 +61,21 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
-    <Compile Include="Metadata\SqlServerColumnModelAnnotations.cs" />
-    <Compile Include="Metadata\SqlServerDatabaseModelAnnotationNames.cs" />
-    <Compile Include="Metadata\SqlServerDatabaseModelAnnotations.cs" />
-    <Compile Include="Metadata\SqlServerDatabaseModelExtensions.cs" />
-    <Compile Include="Metadata\SqlServerIndexModelAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerColumnModelAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerDatabaseModelAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\SqlServerDatabaseModelAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerDatabaseModelExtensions.cs" />
+    <Compile Include="Metadata\Internal\SqlServerIndexModelAnnotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\SqlServerDesignStrings.Designer.cs">
       <DependentUpon>SqlServerDesignStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="SqlDataReaderExtension.cs" />
-    <Compile Include="SqlServerDatabaseModelFactory.cs" />
-    <Compile Include="SqlServerDesignTimeServices.cs" />
-    <Compile Include="SqlServerScaffoldingModelFactory.cs" />
-    <Compile Include="SqlServerTableSelectionSetExtensions.cs" />
+    <Compile Include="Internal\SqlDataReaderExtension.cs" />
+    <Compile Include="Internal\SqlServerDatabaseModelFactory.cs" />
+    <Compile Include="Internal\SqlServerDesignTimeServices.cs" />
+    <Compile Include="Internal\SqlServerScaffoldingModelFactory.cs" />
+    <Compile Include="Internal\SqlServerTableSelectionSetExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\SqlServerDesignStrings.resx">
