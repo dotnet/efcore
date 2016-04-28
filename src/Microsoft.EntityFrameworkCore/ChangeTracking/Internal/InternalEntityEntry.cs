@@ -608,7 +608,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        public virtual void DiscardStoreGeneratedValues() => _storeGeneratedValues = new StoreGeneratedValues();
+        public virtual void DiscardStoreGeneratedValues()
+        {
+            if (!_storeGeneratedValues.IsEmpty)
+            {
+                var storeGeneratedValues = _storeGeneratedValues;
+                _storeGeneratedValues = new StoreGeneratedValues();
+
+                foreach (var property in EntityType.GetProperties())
+                {
+                    object value;
+                    if (storeGeneratedValues.TryGetValue(property, out value))
+                    {
+                        StateManager.Notify.PropertyChanged(this, property, setModified: false);
+                    }
+                }
+            }
+        }
 
         public virtual bool IsStoreGenerated(IProperty property)
             => (property.ValueGenerated != ValueGenerated.Never)

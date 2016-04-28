@@ -728,6 +728,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        protected class Darwin
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
         protected class Gumball
         {
             public int Id { get; set; }
@@ -758,6 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
 
             public DbSet<Gumball> Gumballs { get; set; }
+            public DbSet<Darwin> Darwins { get; set; }
         }
 
         protected StoreGeneratedContext CreateContext()
