@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         public override Type Type => typeof(TEntity);
 
+        public virtual object GetKey(QueryContext queryContext, ValueBuffer valueBuffer) =>
+            queryContext.StateManager.TryGetEntryKey(Key, valueBuffer, !AllowNullResult);
+
         public virtual TEntity Shape(QueryContext queryContext, ValueBuffer valueBuffer)
         {
             if (IsTrackingQuery)

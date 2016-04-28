@@ -300,6 +300,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 throw new NotImplementedException();
             }
 
+            public object TryGetEntryKey(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
+            {
+                throw new NotImplementedException();
+            }
+
             public InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
             {
                 throw new NotImplementedException();

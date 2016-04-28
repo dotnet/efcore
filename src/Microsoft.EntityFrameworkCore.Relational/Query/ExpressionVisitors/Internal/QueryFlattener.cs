@@ -170,6 +170,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _materializer = materializer;
             }
 
+            public object GetKey(QueryContext queryContext, ValueBuffer valueBuffer)
+            {
+                return new CompositeKey(
+                    _outerShaper.GetKey(queryContext, valueBuffer),
+                    _innerShaper.GetKey(queryContext, valueBuffer));
+            }
+
             public TResult Shape(QueryContext queryContext, ValueBuffer valueBuffer)
                 => _materializer(
                     _outerShaper.Shape(queryContext, valueBuffer),
@@ -191,6 +198,51 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             public override Expression GetAccessorExpression(IQuerySource querySource)
                 => _outerShaper.GetAccessorExpression(querySource)
                    ?? _innerShaper.GetAccessorExpression(querySource);
+        }
+
+        private class CompositeKey
+        {
+            private readonly object _outerKey;
+            private readonly object _innerKey;
+
+            public CompositeKey(object outerKey, object innerKey)
+            {
+                _outerKey = outerKey;
+                _innerKey = innerKey;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var other = obj as CompositeKey;
+                if (other == null)
+                {
+                    return false;
+                }
+
+                return _outerKey != null
+                    ? _outerKey.Equals(other._outerKey) : other._outerKey == null
+                    && _innerKey != null
+                    ? _innerKey.Equals(other._innerKey) : other._innerKey == null;
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = 0;
+                    if (_outerKey != null)
+                    {
+                        hashCode = _outerKey.GetHashCode();
+                    }
+
+                    if (_innerKey != null)
+                    {
+                        hashCode += (hashCode * 397) ^ _innerKey.GetHashCode();
+                    }
+
+                    return hashCode;
+                }
+            }
         }
     }
 }

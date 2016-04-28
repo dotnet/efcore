@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         bool Contains([NotNull] IForeignKey foreignKey, ValueBuffer valueBuffer);
 
+        object TryGetEntryKey(ValueBuffer valueBuffer, bool throwOnNullKey);
+
         InternalEntityEntry TryGetEntry(ValueBuffer valueBuffer, bool throwOnNullKey);
 
         InternalEntityEntry TryGetEntry([NotNull] IForeignKey foreignKey, [NotNull] InternalEntityEntry dependentEntry);
