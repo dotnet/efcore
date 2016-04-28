@@ -89,5 +89,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public bool IsEmpty => _values == null;
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            return obj is ValueBuffer
+                   && Equals((ValueBuffer)obj);
+        }
+
+        private bool Equals(ValueBuffer other)
+            => Equals(_values, other._values)
+               && _offset == other._offset;
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((_values?.GetHashCode() ?? 0) * 397) ^ _offset;
+            }
+        }
     }
 }

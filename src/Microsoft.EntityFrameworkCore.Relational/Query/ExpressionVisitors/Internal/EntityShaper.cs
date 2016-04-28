@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected virtual IKey Key { get; }
         protected virtual Func<ValueBuffer, object> Materializer { get; }
         protected virtual bool AllowNullResult { get; private set; }
-        protected virtual int ValueBufferOffset { get; private set; }
+
+        public virtual int ValueBufferOffset { get; private set; }
 
         public abstract IShaper<TDerived> Cast<TDerived>() where TDerived : class;
 

@@ -2919,6 +2919,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task GroupJoin_simple3()
+        {
+            await AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                select new { o.OrderID });
+        }
+
+        [ConditionalFact]
         public virtual async Task GroupJoin_projection()
         {
             await AssertQuery<Customer, Order>((cs, os) =>
