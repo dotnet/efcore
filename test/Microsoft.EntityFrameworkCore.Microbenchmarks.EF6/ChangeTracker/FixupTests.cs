@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark]
+        [Benchmark(Iterations = 1)]
         public void QueryChildren(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -115,13 +115,13 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
                 var orders = context.Orders.ToList();
                 collector.StopCollection();
 
-                Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());
+                Assert.Equal(5000, context.ChangeTracker.Entries<Customer>().Count());
+                Assert.Equal(10000, context.ChangeTracker.Entries<Order>().Count());
                 Assert.All(orders, o => Assert.NotNull(o.Customer));
             }
         }
 
-        [Benchmark]
+        [Benchmark(Iterations = 1)]
         public void QueryParents(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
                 var customers = context.Customers.ToList();
                 collector.StopCollection();
 
-                Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());
+                Assert.Equal(5000, context.ChangeTracker.Entries<Customer>().Count());
+                Assert.Equal(10000, context.ChangeTracker.Entries<Order>().Count());
                 Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
             }
         }
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         public class FixupFixture : OrdersFixture
         {
             public FixupFixture()
-                : base("Perf_ChangeTracker_Fixup_EF6", 0, 1000, 1, 0)
+                : base("Perf_ChangeTracker_Fixup_EF6", 0, 5000, 2, 0)
             {
             }
         }
