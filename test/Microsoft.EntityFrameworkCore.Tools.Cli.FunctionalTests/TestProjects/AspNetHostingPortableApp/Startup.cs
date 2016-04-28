@@ -33,7 +33,6 @@ namespace AspNetHostingPortableApp
         public static void Main(string[] args)
         {
             var host = new WebHostBuilder()
-                .UseDefaultHostingConfiguration(args)
                 .UseStartup<Startup>()
                 .Build();
 
