@@ -1968,6 +1968,110 @@ FROM [Customers] AS [c]
 WHERE LEN([c].[City]) = 6",
                 Sql);
         }
+        
+        public override void Where_datetime_date_component()
+        {
+            base.Where_datetime_date_component();
+
+            Assert.Equal(
+              @"@__myDatetime_0: 05/04/1998 00:00:00
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CONVERT(date, [o].[OrderDate]) = @__myDatetime_0",
+              Sql);
+        }
+
+        public override void Where_datetime_day_component()
+        {
+            base.Where_datetime_day_component();
+
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(day, [o].[OrderDate]) = 4",
+              Sql);
+
+        }
+
+        public override void Where_datetime_year_component()
+        {
+            base.Where_datetime_year_component();
+            
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(year, [o].[OrderDate]) = 1998",
+              Sql);
+
+        }
+
+        public override void Where_datetime_dayOfYear_component()
+        {
+            base.Where_datetime_dayOfYear_component();
+            
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(dayofyear, [o].[OrderDate]) = 68",
+              Sql);
+
+        }
+
+        public override void Where_datetime_month_component()
+        {
+            base.Where_datetime_month_component();
+
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(month, [o].[OrderDate]) = 4",
+              Sql);
+        }
+
+        public override void Where_datetime_hour_component()
+        {
+            base.Where_datetime_hour_component();
+
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(hour, [o].[OrderDate]) = 14",
+              Sql);
+        }
+
+        public override void Where_datetime_minute_component()
+        {
+            base.Where_datetime_minute_component();
+
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(minute, [o].[OrderDate]) = 23",
+              Sql);
+        }
+
+        public override void Where_datetime_second_component()
+        {
+            base.Where_datetime_second_component();
+
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(second, [o].[OrderDate]) = 44",
+              Sql);
+        }
+
+        public override void Where_datetime_millisecond_component()
+        {
+            base.Where_datetime_millisecond_component();
+
+            Assert.Equal(
+@"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE DATEPART(millisecond, [o].[OrderDate]) = 88",
+              Sql);
+        }
 
         public override void Where_datetime_now()
         {

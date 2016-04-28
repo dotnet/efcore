@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             { DbType.Int16, "smallint" },
             { DbType.Int32, "int" },
             { DbType.Int64, "bigint" },
-            { DbType.String, "nvarchar" }
+            { DbType.String, "nvarchar" },
+            { DbType.Date, "date" }
         };
 
         public virtual string StatementTerminator => ";";

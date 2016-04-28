@@ -1099,6 +1099,91 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_datetime_date_component()
+        {
+            var myDatetime = new DateTime(1998, 5, 4);
+            AssertQuery<Order>(
+                oc => oc.Where(o =>
+                o.OrderDate.Value.Date == myDatetime),
+                entryCount: 3);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Where_datetime_year_component()
+        {
+            AssertQuery<Order>(
+               oc => oc.Where(o =>
+               o.OrderDate.Value.Year == 1998),
+               entryCount: 270);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_month_component()
+        {
+            AssertQuery<Order>(
+                oc => oc.Where(o =>
+                o.OrderDate.Value.Month == 4),
+                entryCount: 105);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_dayOfYear_component()
+        {
+            AssertQuery<Order>(
+                oc => oc.Where(o =>
+                o.OrderDate.Value.DayOfYear == 68),
+                entryCount: 3);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Where_datetime_day_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Day == 4),
+              entryCount: 27);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_hour_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Hour == 14),
+              entryCount: 0);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Where_datetime_minute_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Minute == 23),
+              entryCount: 0);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_second_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Second == 44),
+              entryCount: 0);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_millisecond_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Millisecond == 88),
+              entryCount: 0);
+        }
+
+        [ConditionalFact]
         public virtual void Where_simple_reversed()
         {
             AssertQuery<Customer>(

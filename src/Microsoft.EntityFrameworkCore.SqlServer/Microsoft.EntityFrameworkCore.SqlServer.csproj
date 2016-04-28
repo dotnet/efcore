@@ -103,10 +103,12 @@
       <DependentUpon>SqlServerStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="Query\Expressions\Internal\DatePartExpression.cs" />
     <Compile Include="Query\Expressions\Internal\RowNumberExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerConvertTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeDateComponentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeNowTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathAbsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathCeilingTranslator.cs" />
@@ -120,6 +122,7 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringSubstringTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToLowerTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToUpperTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeDatePartComponentTranslator.cs" />
     <Compile Include="Query\Internal\SqlServerCompiledQueryCacheKeyGenerator.cs" />
     <Compile Include="Query\Internal\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\Internal\SqlServerQueryCompilationContextFactory.cs" />
