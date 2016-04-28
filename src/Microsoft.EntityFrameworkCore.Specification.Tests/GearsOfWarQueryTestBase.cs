@@ -344,6 +344,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Include_where_list_contains_navigation()
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+
+                var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
+
+                var gears = context.Gears
+                    .Include(g => g.Tag)
+                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id))
+                    .ToList();
+
+                Assert.Equal(5, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Include_with_join_multi_level()
         {
             using (var context = CreateContext())

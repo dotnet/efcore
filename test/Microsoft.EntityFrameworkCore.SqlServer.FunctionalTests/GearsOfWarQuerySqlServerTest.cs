@@ -375,6 +375,29 @@ ORDER BY [g0].[FullName]",
                 Sql);
         }
 
+        public override void Include_where_list_contains_navigation()
+        {
+            base.Include_where_list_contains_navigation();
+
+            Assert.Contains(
+                @"SELECT [t].[Id]
+FROM [CogTag] AS [t]",
+                Sql);
+
+            Assert.Contains(
+                @"SELECT [g.Tag0].[Id], [g.Tag0].[GearNickName], [g.Tag0].[GearSquadId], [g.Tag0].[Note]
+FROM [CogTag] AS [g.Tag0]", Sql);
+
+            Assert.Contains(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
+FROM [Gear] AS [g]
+LEFT JOIN [CogTag] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Nickname], [g].[SquadId]",
+                Sql);
+        }
+
         public override void Include_with_join_multi_level()
         {
             base.Include_with_join_multi_level();
