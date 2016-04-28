@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
     public class SqlServerIndexModelAnnotations
     {

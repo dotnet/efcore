@@ -4,7 +4,7 @@
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     // TODO merge with DbDataReaderExtension.GetValueOrDefault when Mono supports GetFieldValue. See #2079
     public static class SqlDataReaderExtension
