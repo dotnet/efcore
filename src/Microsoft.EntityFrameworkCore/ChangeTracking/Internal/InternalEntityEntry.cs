@@ -627,10 +627,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         public virtual bool IsStoreGenerated(IProperty property)
-            => (property.ValueGenerated != ValueGenerated.Never)
-               && (((EntityState == EntityState.Added)
+            => property.ValueGenerated != ValueGenerated.Never
+               && ((EntityState == EntityState.Added
                     && (property.IsStoreGeneratedAlways || IsTemporaryOrDefault(property)))
-                   || ((property.ValueGenerated == ValueGenerated.OnAddOrUpdate) && (EntityState == EntityState.Modified) && (property.IsStoreGeneratedAlways || !IsModified(property))));
+                   || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate && EntityState == EntityState.Modified && (property.IsStoreGeneratedAlways || !IsModified(property))));
 
         private bool IsTemporaryOrDefault(IProperty property)
             => HasTemporaryValue(property)
