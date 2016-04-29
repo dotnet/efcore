@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -69,14 +71,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public bool CanStoreValue(IPropertyBase propertyBase)
-                => (_values != null)
-                   && (propertyBase.GetStoreGeneratedIndex() != -1);
+                => _values != null
+                   && propertyBase.GetStoreGeneratedIndex() != -1;
 
             public void SetValue(IPropertyBase propertyBase, object value)
             {
                 var index = propertyBase.GetStoreGeneratedIndex();
 
                 Debug.Assert(index != -1);
+
+                if (!((IProperty)propertyBase).IsNullable
+                    && value == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.DatabaseGeneratedNull(propertyBase.Name, propertyBase.DeclaringEntityType.DisplayName()));
+                }
 
                 _values[index] = value ?? _nullSentinel;
             }

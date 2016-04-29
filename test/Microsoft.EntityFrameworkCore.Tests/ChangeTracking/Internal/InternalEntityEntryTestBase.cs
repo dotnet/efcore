@@ -22,6 +22,25 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
     public abstract class InternalEntityEntryTestBase
     {
         [Fact]
+        public virtual void Store_setting_null_for_non_nullable_store_generated_property_throws()
+        {
+            var model = BuildModel();
+            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.FindProperty("Id");
+            keyProperty.ValueGenerated = ValueGenerated.OnAdd;
+
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
+
+            var entry = CreateInternalEntry(contextServices, entityType, new SomeEntity());
+            entry.SetEntityState(EntityState.Added);
+            entry.PrepareToSave();
+
+            Assert.Equal(
+                CoreStrings.DatabaseGeneratedNull("Id", keyProperty.DeclaringEntityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entry.SetCurrentValue(keyProperty, null)).Message);
+        }
+
+        [Fact]
         public virtual void Changing_state_from_Unknown_causes_entity_to_start_tracking()
         {
             var model = BuildModel();

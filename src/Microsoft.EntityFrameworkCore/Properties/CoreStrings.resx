@@ -555,6 +555,9 @@
   <data name="TempValue" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
   </data>
+  <data name="DatabaseGeneratedNull" xml:space="preserve">
+    <value>The database generated a null value for non-nullable property '{property}' of entity type '{entityType}'. Ensure value generation configuration in the database matches the configuration in the model.</value>
+  </data>
   <data name="MoreThanOneElement" xml:space="preserve">
     <value>Sequence contains more than one element</value>
   </data>

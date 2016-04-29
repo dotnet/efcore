@@ -1181,6 +1181,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The database generated a null value for non-nullable property '{property}' of entity type '{entityType}'. Ensure value generation configuration in the database matches the configuration in the model.
+        /// </summary>
+        public static string DatabaseGeneratedNull([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseGeneratedNull", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
         /// Sequence contains more than one element
         /// </summary>
         public static string MoreThanOneElement
