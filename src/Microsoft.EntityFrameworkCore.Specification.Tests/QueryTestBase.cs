@@ -2940,6 +2940,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 assertOrder: true);
         }
 
+        [ConditionalFact]
+        public virtual void Let_any_subquery_anonymous()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                let hasOrders = os.Any(o => o.CustomerID == c.CustomerID)
+                select new { c, hasOrders });
+        }
+
         // TODO: Need to figure out how to do this 
         //        [ConditionalFact]
         //        public virtual void GroupBy_anonymous()

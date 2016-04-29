@@ -354,6 +354,27 @@ ORDER BY [o].[OrderID]",
                 Sql);
         }
 
+        public override void Let_any_subquery_anonymous()
+        {
+            base.Let_any_subquery_anonymous();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o0]
+            WHERE [o0].[CustomerID] = [c].[CustomerID])
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+)
+FROM [Customers] AS [c]
+
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]",
+                Sql);
+        }
+
         public override void GroupBy_join_default_if_empty_anonymous()
         {
             base.GroupBy_join_default_if_empty_anonymous();
