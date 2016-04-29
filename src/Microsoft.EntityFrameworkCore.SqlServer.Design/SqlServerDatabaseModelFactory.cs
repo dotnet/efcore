@@ -197,10 +197,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         private void GetTables()
         {
             var command = _connection.CreateCommand();
+            // for origin of the sys.extended_properties SELECT statement
+            // below see https://github.com/aspnet/EntityFramework/issues/5126
             command.CommandText =
-                "SELECT schema_name(t.schema_id) AS [schema], t.name FROM sys.tables AS t " +
-                $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'" +
-                TemporalTableWhereClause;
+                @"SELECT
+    schema_name(t.schema_id) AS [schema],
+    t.name
+    FROM sys.tables AS t
+    WHERE t.is_ms_shipped <> 1
+    AND (SELECT major_id
+         FROM  sys.extended_properties
+         WHERE major_id = t.object_id
+         AND   minor_id = 0
+         AND   class = 1
+         AND   name = N'microsoft_database_tools_support'
+        ) IS NULL " +
+    $"AND t.name <> '{HistoryRepository.DefaultTableName}'" + TemporalTableWhereClause;
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
