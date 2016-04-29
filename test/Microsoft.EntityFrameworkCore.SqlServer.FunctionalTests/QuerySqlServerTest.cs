@@ -2002,8 +2002,7 @@ WHERE [c].[City] IS NOT NULL",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE 1 = 1",
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -2035,8 +2034,7 @@ WHERE 1 = 0",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE 1 = 1",
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -3548,8 +3546,7 @@ WHERE [c].[CustomerID] LIKE N'%' + N'KI'",
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE 1 = 1",
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -3601,6 +3598,16 @@ FROM [Customers] AS [c]",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] IS NULL AND ([c].[Country] = N'UK')",
+                Sql);
+        }
+
+        public override void Where_Is_on_same_type()
+        {
+            base.Where_Is_on_same_type();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 

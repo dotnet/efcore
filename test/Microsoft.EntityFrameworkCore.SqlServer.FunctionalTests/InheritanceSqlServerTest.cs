@@ -30,6 +30,31 @@ ORDER BY [t].[Species]",
             Assert.Equal(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[Discriminator] = N'Kiwi')",
+                Sql);
+        }
+
+        public override void Can_use_is_kiwi_with_other_predicate()
+        {
+            base.Can_use_is_kiwi_with_other_predicate();
+
+            Assert.Equal(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'Kiwi') AND ([a].[CountryId] = 1))",
+                Sql);
+        }
+
+        public override void Can_use_is_kiwi_in_projection()
+        {
+            base.Can_use_is_kiwi_in_projection();
+
+            Assert.Equal(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn], CASE
+    WHEN [a].[Discriminator] = N'Kiwi'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')",
                 Sql);
         }

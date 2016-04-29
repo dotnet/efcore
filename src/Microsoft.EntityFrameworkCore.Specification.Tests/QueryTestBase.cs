@@ -1677,6 +1677,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_Is_on_same_type()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c is Customer),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
         public virtual void Select_scalar()
         {
             AssertQuery<Customer>(

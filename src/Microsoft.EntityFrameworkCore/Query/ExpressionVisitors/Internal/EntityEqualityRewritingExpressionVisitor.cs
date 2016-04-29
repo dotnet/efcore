@@ -81,26 +81,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)
         {
             return properties.Count == 1
-                ? CreatePropertyExpression(target, properties[0])
+                ? EntityQueryModelVisitor.CreatePropertyExpression(target, properties[0])
                 : Expression.New(
                     CompositeKey.CompositeKeyCtor,
                     Expression.NewArrayInit(
                         typeof(object),
                         properties
-                            .Select(p => Expression.Convert(CreatePropertyExpression(target, p), typeof(object)))
+                            .Select(p => Expression.Convert(EntityQueryModelVisitor.CreatePropertyExpression(target, p), typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
         }
-
-        private static readonly MethodInfo _efPropertyMethod
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
-
-        private static Expression CreatePropertyExpression(Expression target, IProperty property)
-            => Expression.Call(
-                null,
-                _efPropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
-                target,
-                Expression.Constant(property.Name));
 
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {

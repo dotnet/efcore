@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -33,12 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly string _efTypeName = typeof(EF).FullName;
 
+        private static readonly MethodInfo _efPropertyMethod
+            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
+
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
             methodInfo != null
             && methodInfo.IsGenericMethod
                 // string comparison because MethodInfo.Equals is not .NET Native-safe
             && methodInfo.Name == nameof(EF.Property)
             && methodInfo.DeclaringType?.FullName == _efTypeName;
+
+        public static Expression CreatePropertyExpression([NotNull] Expression target, [NotNull] IProperty property)
+            => Expression.Call(
+                null,
+                _efPropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
+                target,
+                Expression.Constant(property.Name));
 
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;

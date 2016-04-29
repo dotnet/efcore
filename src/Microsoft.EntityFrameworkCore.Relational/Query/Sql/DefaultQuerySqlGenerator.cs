@@ -170,25 +170,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (selectExpression.Predicate != null)
             {
-                _relationalCommandBuilder.AppendLine()
-                    .Append("WHERE ");
 
                 var constantExpression = selectExpression.Predicate as ConstantExpression;
 
-                if (constantExpression != null)
+                if (constantExpression == null
+                    || !(bool)constantExpression.Value)
                 {
-                    _relationalCommandBuilder.Append((bool)constantExpression.Value ? "1 = 1" : "1 = 0");
-                }
-                else
-                {
-                    Visit(ApplyNullSemantics(selectExpression.Predicate));
+                    _relationalCommandBuilder.AppendLine()
+                        .Append("WHERE ");
 
-                    if (selectExpression.Predicate is ParameterExpression
-                        || selectExpression.Predicate.IsAliasWithColumnExpression()
-                        || selectExpression.Predicate is SelectExpression)
+                    if (constantExpression != null)
                     {
-                        _relationalCommandBuilder.Append(" = ");
-                        _relationalCommandBuilder.Append(TrueLiteral);
+                        _relationalCommandBuilder.Append("1 = 0");
+                    }
+                    else
+                    {
+                        Visit(ApplyNullSemantics(selectExpression.Predicate));
+
+                        if (selectExpression.Predicate is ParameterExpression
+                            || selectExpression.Predicate.IsAliasWithColumnExpression()
+                            || selectExpression.Predicate is SelectExpression)
+                        {
+                            _relationalCommandBuilder.Append(" = ");
+                            _relationalCommandBuilder.Append(TrueLiteral);
+                        }
                     }
                 }
             }
