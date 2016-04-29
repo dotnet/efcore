@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -24,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(HashSet<Random>)));
             Assert.Same(typeof(List<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(List<Random>)));
             Assert.Same(typeof(ObservableCollection<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableCollection<Random>)));
-            Assert.Same(typeof(ObservableCollectionWithClear<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableCollectionWithClear<Random>)));
+            Assert.Same(typeof(ObservableHashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ObservableHashSet<Random>)));
         }
 
         [Fact]
-        public void Returns_ObservableCollectionWithClear_if_notifying_and_assignable()
+        public void Returns_ObservableHashSet_if_notifying_and_assignable()
         {
-            Assert.Same(typeof(ObservableCollectionWithClear<Random>), new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>)));
+            Assert.Same(typeof(ObservableHashSet<Random>), new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>)));
         }
 
         [Fact]

@@ -127,7 +127,7 @@
     <Compile Include="ChangeTracking\Internal\StateManager.cs" />
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
-    <Compile Include="ChangeTracking\ObservableCollectionWithClear.cs" />
+    <Compile Include="ChangeTracking\ObservableHashSet.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
     <Compile Include="DbContext.cs" />

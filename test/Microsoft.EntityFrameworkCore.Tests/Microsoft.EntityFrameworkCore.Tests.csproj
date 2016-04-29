@@ -69,6 +69,7 @@
     <Compile Include="ChangeTracking\Internal\ShadowFkFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
+    <Compile Include="ChangeTracking\ObservableHashSetTest.cs" />
     <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />
     <Compile Include="DatabaseFacadeTest.cs" />

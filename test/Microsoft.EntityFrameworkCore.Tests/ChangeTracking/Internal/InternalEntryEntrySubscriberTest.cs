@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -74,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.IsType<ObservableCollectionWithClear<ChangedOnlyNotificationEntity>>(
+            Assert.IsType<ObservableHashSet<ChangedOnlyNotificationEntity>>(
                 ((FullNotificationEntity)entry.Entity).RelatedCollection);
         }
 
@@ -142,49 +141,30 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Same(item, testListener.CollectionChanged.Single().Item3.Single());
         }
 
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Entry_subscribes_to_INotifyCollectionChanged_for_Replace(bool ourCollection)
+        [Fact]
+        public void Entry_subscribes_to_INotifyCollectionChanged_for_Replace()
         {
             var item1 = new ChangedOnlyNotificationEntity();
-            var collection = CreateCollection(ourCollection, item1);
+            var collection = new ObservableCollection<ChangedOnlyNotificationEntity> { item1 };
             var testListener = SetupTestCollectionListener(collection);
 
             var item2 = new ChangedOnlyNotificationEntity();
-            if (ourCollection)
-            {
-                ((ObservableCollectionWithClear<ChangedOnlyNotificationEntity>)collection)[0] = item2;
-            }
-            else
-            {
-                ((ObservableCollection<ChangedOnlyNotificationEntity>)collection)[0] = item2;
-            }
+            collection[0] = item2;
 
             Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item1.Name);
             Assert.Same(item2, testListener.CollectionChanged.Single().Item2.Single());
             Assert.Same(item1, testListener.CollectionChanged.Single().Item3.Single());
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Entry_ignores_INotifyCollectionChanged_for_Move(bool ourCollection)
+        [Fact]
+        public void Entry_ignores_INotifyCollectionChanged_for_Move()
         {
             var item1 = new ChangedOnlyNotificationEntity();
             var item2 = new ChangedOnlyNotificationEntity();
-            var collection = CreateCollection(ourCollection, item1, item2);
+            var collection = new ObservableCollection<ChangedOnlyNotificationEntity> { item1, item2 };
             var testListener = SetupTestCollectionListener(collection);
 
-            if (ourCollection)
-            {
-                ((ObservableCollectionWithClear<ChangedOnlyNotificationEntity>)collection).Move(0, 1);
-            }
-            else
-            {
-                ((ObservableCollection<ChangedOnlyNotificationEntity>)collection).Move(0, 1);
-            }
+            collection.Move(0, 1);
 
             Assert.Empty(testListener.CollectionChanged);
         }
@@ -205,11 +185,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Entry_handles_clear_as_replace_with_ObservableCollectionWithClear()
+        public void Entry_handles_clear_as_replace_with_ObservableHashSet()
         {
             var item1 = new ChangedOnlyNotificationEntity();
             var item2 = new ChangedOnlyNotificationEntity();
-            var collection = new ObservableCollectionWithClear<ChangedOnlyNotificationEntity> { item1, item2 };
+            var collection = new ObservableHashSet<ChangedOnlyNotificationEntity> { item1, item2 };
             var testListener = SetupTestCollectionListener(collection);
 
             collection.Clear();
@@ -225,8 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         private static ICollection<ChangedOnlyNotificationEntity> CreateCollection(
             bool ourCollection, params ChangedOnlyNotificationEntity[] items)
             => ourCollection
-            ? (ICollection<ChangedOnlyNotificationEntity>)new ObservableCollectionWithClear<ChangedOnlyNotificationEntity>(items)
-            : new ObservableCollection<ChangedOnlyNotificationEntity>(items);
+                ? (ICollection<ChangedOnlyNotificationEntity>)new ObservableHashSet<ChangedOnlyNotificationEntity>(items)
+                : new ObservableCollection<ChangedOnlyNotificationEntity>(items);
 
         private static TestNavigationListener SetupTestCollectionListener(
             ICollection<ChangedOnlyNotificationEntity> collection)
@@ -368,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             }
 
             public void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed) 
+                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
                 => CollectionChanged.Add(Tuple.Create(navigation, added, removed));
         }
 
@@ -483,6 +463,5 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             private void NotifyChanged(string propertyName)
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-}
+    }
 }

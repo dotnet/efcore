@@ -172,13 +172,13 @@
     <value>The collection type being used for navigation property '{navigation}' on entity type '{entityType}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.</value>
   </data>
   <data name="ResetNotSupported" xml:space="preserve">
-    <value>'ObservableCollection&lt;T&gt;.Clear()' is not supported because it uses the 'INotifyCollectionChanged' 'Reset' operation, which does not supply the items removed. Either use multiple calls to 'Remove' or use a notifying collection that supports 'Clear', such as 'Microsoft.EntityFrameworkCore.ChangeTracking.ObservableCollectionWithClear&lt;T&gt;'.</value>
+    <value>'ObservableCollection&lt;T&gt;.Clear()' is not supported because it uses the 'INotifyCollectionChanged' 'Reset' operation, which does not supply the items removed. Either use multiple calls to 'Remove' or use a notifying collection that supports 'Clear', such as 'Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet&lt;T&gt;'.</value>
   </data>
   <data name="OriginalValueNotTracked" xml:space="preserve">
     <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.</value>
   </data>
   <data name="ObservableCollectionReentrancy" xml:space="preserve">
-    <value>Cannot change ObservableCollectionWithClear during a CollectionChanged event.</value>
+    <value>Cannot change ObservableHashSet during a CollectionChanged event.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.</value>
