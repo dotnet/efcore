@@ -36,11 +36,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
 
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
-            methodInfo != null
-            && methodInfo.IsGenericMethod
-                // string comparison because MethodInfo.Equals is not .NET Native-safe
-            && methodInfo.Name == nameof(EF.Property)
-            && methodInfo.DeclaringType?.FullName == _efTypeName;
+            ReferenceEquals(methodInfo, _efPropertyMethod)
+            ||
+            (
+                // fallback to string comparison because MethodInfo.Equals is not
+                // always true in .NET Native even if methods are the same
+                methodInfo != null
+                && methodInfo.IsGenericMethod
+                && methodInfo.Name == nameof(EF.Property)
+                && methodInfo.DeclaringType?.FullName == _efTypeName
+            );
 
         public static Expression CreatePropertyExpression([NotNull] Expression target, [NotNull] IProperty property)
             => Expression.Call(
@@ -245,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext.QueryAnnotations, queryModel);
 
-            var entityEqualityRewritingExpressionVisitor 
+            var entityEqualityRewritingExpressionVisitor
                 = new EntityEqualityRewritingExpressionVisitor(QueryCompilationContext.Model);
 
             entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
