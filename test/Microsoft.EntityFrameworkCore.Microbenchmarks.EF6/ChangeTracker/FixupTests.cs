@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
 
                 Assert.Equal(5000, context.ChangeTracker.Entries<Customer>().Count());
                 Assert.Equal(10000, context.ChangeTracker.Entries<Order>().Count());
-                Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
+                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
         }
 
