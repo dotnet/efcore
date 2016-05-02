@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "description": "Shared components for Entity Framework design-time tools.",
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [

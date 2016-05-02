@@ -1,5 +1,5 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk",
     "preserveCompilationContext": true
   },
@@ -9,7 +9,9 @@
     "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": "1.0.0",
     "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.0.0-*"
   },
-  "content": "ReverseEngineering/**/*.expected",
+  "publishOptions": {
+    "include": "ReverseEngineering/**/*.expected"
+  },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {

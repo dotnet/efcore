@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "description": "Command line tools for Entity Framework.",
-  "compilationOptions": {
+  "buildOptions": {
     "emitEntryPoint": true,
     "outputName": "dotnet-ef",
     "warningsAsErrors": true,
@@ -24,8 +24,8 @@
       "dependencies": {
         "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
         "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
-           "version": "1.0.0-*",
-           "type": "build"
+          "version": "1.0.0-*",
+          "type": "build"
         },
         "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*",
         "Microsoft.NETCore.App": {
@@ -38,12 +38,12 @@
       "dependencies": {
         "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
         "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
-           "version": "1.0.0-*",
-           "type": "build"
+          "version": "1.0.0-*",
+          "type": "build"
         }
       },
-      "compilationOptions": {
-        "outputName":  "Microsoft.EntityFrameworkCore.Tools",
+      "buildOptions": {
+        "outputName": "Microsoft.EntityFrameworkCore.Tools",
         "emitEntryPoint": false
       }
     },
@@ -69,14 +69,18 @@
           "version": "4.0.10"
         }
       },
-      "compilationOptions": {
-        "outputName":  "Microsoft.EntityFrameworkCore.Tools",
+      "buildOptions": {
+        "outputName": "Microsoft.EntityFrameworkCore.Tools",
         "emitEntryPoint": false
       }
     }
   },
-  "packInclude": {
-    "build/": "build/**",
-    "tools/": "tools/**"
+  "packOptions": {
+    "files": {
+      "mappings": {
+        "build/": "build/**",
+        "tools/": "tools/**"
+      }
+    }
   }
 }
