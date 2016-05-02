@@ -1,9 +1,13 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
-    "keyFile": "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk",
+    "copyToOutput": {
+      "include": "sqlite3.dll"
+    }
   },
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.AspNetCore.Testing": "1.0.0-*",
     "Microsoft.Data.Sqlite": "1.0.0-*",
@@ -21,8 +25,7 @@
           "version": "1.0.0-*",
           "type": "platform"
         },
-        "System.Diagnostics.Process": "4.1.0-*",
-        "dotnet-test-xunit": "1.0.0-*"
+        "System.Diagnostics.Process": "4.1.0-*"
       }
     },
     "net451": {
@@ -32,5 +35,7 @@
       }
     }
   },
-  "content": "sqlite3.dll"
+  "publishOptions": {
+    "include": "sqlite3.dll"
+  }
 }
