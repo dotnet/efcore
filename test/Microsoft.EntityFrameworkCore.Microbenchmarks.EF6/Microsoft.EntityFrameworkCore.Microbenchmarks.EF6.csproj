@@ -45,6 +45,7 @@
     <Compile Include="Models\Orders\OrdersFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\FuncletizationTests.cs" />
+    <Compile Include="Query\NavigationsQueryTests.cs" />
     <Compile Include="Query\QueryCompilationTests.cs" />
     <Compile Include="Query\RawSqlQueryTests.cs" />
     <Compile Include="Query\SimpleQueryTests.cs" />
