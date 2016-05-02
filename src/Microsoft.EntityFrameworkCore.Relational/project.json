@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "description": "Shared Entity Framework components for relational data stores.",
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [

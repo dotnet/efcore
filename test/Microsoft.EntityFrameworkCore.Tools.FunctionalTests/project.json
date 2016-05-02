@@ -1,5 +1,5 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk",
     "preserveCompilationContext": true
   },
@@ -21,6 +21,6 @@
         }
       }
     },
-    "net451": { }
+    "net451": {}
   }
 }

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "description": "In memory data store for Entity Framework (to be used for testing purposes).",
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [

@@ -1,14 +1,17 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk",
     "preserveCompilationContext": true
   },
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0-*"
   },
-  "contentFiles": "northwind.db",
+  "publishOptions": {
+    "includeFiles": "northwind.db"
+  },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
@@ -20,8 +23,7 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        },
-        "dotnet-test-xunit": "1.0.0-*"
+        }
       }
     },
     "net451": {}

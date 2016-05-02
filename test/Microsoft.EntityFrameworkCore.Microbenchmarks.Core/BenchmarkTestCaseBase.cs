@@ -8,10 +8,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if NETCOREAPP1_0
-using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
-#endif
-
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 {
     public abstract class BenchmarkTestCaseBase : XunitTestCase
