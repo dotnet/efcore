@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
         }
 
-        public static string Log => Logger.SqlLoggerData._log.ToString();
+        public static string Log => Logger.SqlLoggerData.LogText;
 
         public static string Sql
             => string.Join(EOL + EOL, Logger.SqlLoggerData._sqlStatements);
@@ -59,13 +59,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public static IReadOnlyList<DbCommandLogData> CommandLogData => Logger.SqlLoggerData._logData;
 
+#if NET451
+        [Serializable]
+#endif
         private class SqlLoggerData
         {
+            public string LogText => _log.ToString();
+
             // ReSharper disable InconsistentNaming
+#if NET451
+            [NonSerialized]
+#endif
             public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
             public readonly List<string> _sqlStatements = new List<string>();
+#if NET451
+            [NonSerialized]
+#endif
             public readonly List<DbCommandLogData> _logData = new List<DbCommandLogData>();
+#if NET451
+            [NonSerialized]
+#endif
             public ITestOutputHelper _testOutputHelper;
+#if NET451
+            [NonSerialized]
+#endif
             public CancellationTokenSource _cancellationTokenSource;
             // ReSharper restore InconsistentNaming
         }
