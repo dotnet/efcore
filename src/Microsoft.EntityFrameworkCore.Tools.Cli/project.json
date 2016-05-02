@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "description": "Entity Framework Core Commands for .NET Core CLI on .NET 4.5.1",
-  "compilationOptions": {
+  "buildOptions": {
     "emitEntryPoint": true,
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -25,7 +25,7 @@
     "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
   },
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netcoreapp1.0": {
       "imports": "portable-net452+win81",
       "dependencies": {

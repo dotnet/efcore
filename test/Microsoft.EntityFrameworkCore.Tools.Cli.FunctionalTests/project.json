@@ -1,8 +1,9 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "xunit": "2.1.0"
@@ -18,8 +19,7 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        },
-        "dotnet-test-xunit": "1.0.0-*"
+        }
       }
     }
   },
@@ -27,5 +27,7 @@
     "precompile": "clean-assets %compile:OutputDir%"
   },
   "exclude": "TestProjects/",
-  "content": "TestProjects/"
+  "publishOptions": {
+    "include": "TestProjects/"
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {

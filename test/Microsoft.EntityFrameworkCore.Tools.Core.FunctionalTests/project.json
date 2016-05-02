@@ -1,9 +1,10 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk",
     "preserveCompilationContext": true
   },
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
@@ -20,8 +21,7 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        },
-        "dotnet-test-xunit": "1.0.0-*"
+        }
       }
     },
     "net451": {}

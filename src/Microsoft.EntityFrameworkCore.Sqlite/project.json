@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "description": "SQLite data store for Entity Framework.",
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [

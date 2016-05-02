@@ -1,18 +1,21 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk",
     "preserveCompilationContext": true
   },
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
   },
-  "content": [
-    "ReverseEngineering/**/*.expected",
-    "ReverseEngineering/**/*.sql"
-  ],
+  "publishOptions": {
+    "include": [
+      "ReverseEngineering/**/*.expected",
+      "ReverseEngineering/**/*.sql"
+    ]
+  },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
@@ -24,8 +27,7 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        },
-        "dotnet-test-xunit": "1.0.0-*"
+        }
       }
     },
     "net451": {}

@@ -1,10 +1,13 @@
 {
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
-  "contentFiles": "config.json",
+  "publishOptions": {
+    "includeFiles": "config.json"
+  },
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {

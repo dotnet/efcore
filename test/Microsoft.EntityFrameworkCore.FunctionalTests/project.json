@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk",
     "nowarn": [
       "CS1591"
@@ -9,6 +9,7 @@
     "xmlDoc": true
   },
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*"
   },
@@ -24,8 +25,7 @@
           "version": "1.0.0-*",
           "type": "platform"
         },
-        "Microsoft.CSharp": "4.0.1-*",
-        "dotnet-test-xunit": "1.0.0-*"
+        "Microsoft.CSharp": "4.0.1-*"
       }
     },
     "net451": {
