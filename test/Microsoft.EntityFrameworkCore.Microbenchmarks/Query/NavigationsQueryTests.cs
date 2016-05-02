@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
+using Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.AdventureWorks;
 using Xunit;
 
@@ -18,9 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             _fixture = fixture;
         }
 
-        //[Benchmark]
-        //[BenchmarkVariation("Sync (10 queries)", false, 10)]
-        //[BenchmarkVariation("Async (10 queries)", true, 10)]
+        [Benchmark]
+        [AdventureWorksDatabaseRequired]
+        [BenchmarkVariation("Sync (10 queries)", false, 10)]
+        [BenchmarkVariation("Async (10 queries)", true, 10)]
         public async Task PredicateAcrossOptionalNavigationAllResults(IMetricCollector collector, bool async, int queriesPerIteration)
         {
             using (var context = AdventureWorksFixture.CreateContext())
@@ -46,9 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        //[Benchmark]
-        //[BenchmarkVariation("Sync (10 queries)", false, 10)]
-        //[BenchmarkVariation("Async (10 queries)", true, 10)]
+        [Benchmark]
+        [AdventureWorksDatabaseRequired]
+        [BenchmarkVariation("Sync (10 queries)", false, 10)]
+        [BenchmarkVariation("Async (10 queries)", true, 10)]
         public async Task PredicateAcrossOptionalNavigationFilteredResults(IMetricCollector collector, bool async, int queriesPerIteration)
         {
             using (var context = AdventureWorksFixture.CreateContext())
