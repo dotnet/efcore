@@ -3702,9 +3702,11 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + N'%'",
             base.String_StartsWith_MethodCall();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__LocalMethod1_0: M
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'M' + N'%'",
+WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + N'%'",
                 Sql);
         }
 
@@ -3746,9 +3748,11 @@ WHERE [c].[ContactName] LIKE N'%' + [c].[ContactName]",
             base.String_EndsWith_MethodCall();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__LocalMethod2_0: m
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%' + N'm'",
+WHERE [c].[ContactName] LIKE N'%' + @__LocalMethod2_0",
                 Sql);
         }
 
@@ -3796,9 +3800,11 @@ WHERE [c].[ContactName] LIKE (N'%' + [c].[ContactName]) + N'%'",
                 entryCount: 34);
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__LocalMethod1_0: M
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
+WHERE [c].[ContactName] LIKE (N'%' + @__LocalMethod1_0) + N'%'",
                 Sql);
         }
 
@@ -3964,9 +3970,11 @@ WHERE ABS([od].[UnitPrice]) > 10.0",
             base.Where_math_abs_uncorrelated();
 
             Assert.Equal(
-                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+                @"@__Abs_0: 10
+
+SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE 10 < [od].[ProductID]",
+WHERE @__Abs_0 < [od].[ProductID]",
                 Sql);
         }
 
@@ -4948,14 +4956,16 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-        public override void DateTime_parse_is_funcletized()
+        public override void DateTime_parse_is_parameterized()
         {
-            base.DateTime_parse_is_funcletized();
+            base.DateTime_parse_is_parameterized();
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"@__Parse_0: 01/01/1998 12:00:00
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'",
+WHERE [o].[OrderDate] > @__Parse_0",
                 Sql);
         }
 

@@ -221,9 +221,11 @@ WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
                 entryCount: 34);
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"@__LocalMethod1_0: M
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
+WHERE [c].[ContactName] LIKE (N'%' + @__LocalMethod1_0) + N'%'",
                 Sql);
         }
 

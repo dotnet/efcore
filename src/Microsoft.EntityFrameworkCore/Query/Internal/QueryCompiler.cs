@@ -220,10 +220,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow));
 
             private static readonly MethodInfo _guidNewGuid
-                = typeof(Guid).GetTypeInfo().GetDeclaredMethod("NewGuid");
+                = typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid));
 
             private static readonly List<MethodInfo> _randomNext
-                = typeof(Random).GetTypeInfo().GetDeclaredMethods("Next").ToList();
+                = typeof(Random).GetTypeInfo().GetDeclaredMethods(nameof(Random.Next)).ToList();
 
             public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
             {
@@ -232,6 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     return false;
                 }
+
                 return base.IsEvaluatableMethodCall(methodCallExpression);
             }
 

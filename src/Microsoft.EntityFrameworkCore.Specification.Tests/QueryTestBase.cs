@@ -5184,7 +5184,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void DateTime_parse_is_funcletized()
+        public virtual void DateTime_parse_is_parameterized()
         {
             AssertQuery<Order>(
                 os => os.Where(o => o.OrderDate > DateTime.Parse("1/1/1998 12:00:00 PM")),
