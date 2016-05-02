@@ -1,13 +1,19 @@
 {
   "version": "1.0.0-*",
   "description": "SQLite implementation of the System.Data.Common provider model.",
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "embed": {
+      "include": [
+        "Properties/Microsoft.Data.Sqlite.rd.xml",
+        "Strings.resx"
+      ]
+    }
   },
   "frameworks": {
     "net451": {
@@ -54,11 +60,12 @@
       }
     }
   },
-  "resource": [
-    "Properties/Microsoft.Data.Sqlite.rd.xml"
-  ],
-  "packInclude": {
-    "build/": "build/**",
-    "runtimes/": "runtimes/**"
+  "packOptions": {
+    "files": {
+      "mappings": {
+        "build/": "build/**",
+        "runtimes/": "runtimes/**"
+      }
+    }
   }
 }
