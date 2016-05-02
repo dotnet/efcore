@@ -116,6 +116,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return newEntry;
         }
 
+        public virtual object TryGetEntryKey(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
+            => GetOrCreateIdentityMap(key).TryGetEntryKey(valueBuffer, throwOnNullKey);
+
         public virtual InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
             => GetOrCreateIdentityMap(key).TryGetEntry(valueBuffer, throwOnNullKey);
 

@@ -37,6 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _changeDetector = changeDetector;
         }
 
+        public virtual object GetEntityKey(
+            IKey key, EntityLoadInfo entityLoadInfo, bool queryStateManager, bool throwOnNullKey)
+        {
+            return _stateManager.TryGetEntryKey(key, entityLoadInfo.ValueBuffer, throwOnNullKey);
+        }
+
         public virtual object GetEntity(
             IKey key, EntityLoadInfo entityLoadInfo, bool queryStateManager, bool throwOnNullKey)
         {

@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool Contains(ValueBuffer valueBuffer)
         {
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
+
             return key != null && _identityMap.ContainsKey((TKey)key);
         }
 
@@ -51,6 +52,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             TKey key;
             return foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out key)
                    && _identityMap.ContainsKey(key);
+        }
+
+        public virtual object TryGetEntryKey(ValueBuffer valueBuffer, bool throwOnNullKey)
+        {
+            var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
+            if (key == null
+                && throwOnNullKey)
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidKeyValue(Key.DeclaringEntityType.DisplayName()));
+            }
+
+            return key;
         }
 
         public virtual InternalEntityEntry TryGetEntry(ValueBuffer valueBuffer, bool throwOnNullKey)
@@ -62,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 throw new InvalidOperationException(CoreStrings.InvalidKeyValue(Key.DeclaringEntityType.DisplayName()));
             }
+
             return key != null && _identityMap.TryGetValue((TKey)key, out entry) ? entry : null;
         }
 
@@ -79,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             TKey key;
             InternalEntityEntry entry;
+
             return foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromRelationshipSnapshot(dependentEntry, out key)
                    && _identityMap.TryGetValue(key, out entry)
                 ? entry

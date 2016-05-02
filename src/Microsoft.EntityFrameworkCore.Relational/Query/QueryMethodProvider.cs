@@ -248,6 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                         else
                         {
+                            var currentOuterEntityKey = outerShaper.GetKey(queryContext, sourceEnumerator.Current);
                             var currentGroupKey = innerKeySelector(inner);
 
                             innerGroupJoinInclude?.Include(inner);
@@ -273,6 +274,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     }
 
                                     nextOuter = default(TOuter);
+                                }
+
+                                if (currentOuterEntityKey != null)
+                                {
+                                    var nextOuterEntityKey = outerShaper.GetKey(queryContext, sourceEnumerator.Current);
+
+                                    if (!currentOuterEntityKey.Equals(nextOuterEntityKey))
+                                    {
+                                        break;
+                                    }
                                 }
 
                                 inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
