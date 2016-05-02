@@ -229,22 +229,6 @@ WHERE [c].[ContactName] LIKE (N'%' + @__LocalMethod1_0) + N'%'",
                 Sql);
         }
 
-        public override void String_Contains_MethodCall()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
-
-            Assert.Equal(
-                @"@__LocalMethod1_0: M
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + @__LocalMethod1_0) + N'%'",
-                Sql);
-        }
-
         private const string FileLineEnding = @"
 ";
 
