@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         {
             var app = new CommandLineApplication()
             {
-                Name = GetToolName(),
+                Name = "dotnet ef",
                 FullName = "Entity Framework .NET Core CLI Commands"
             };
 
