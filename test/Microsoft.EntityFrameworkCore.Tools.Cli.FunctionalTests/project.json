@@ -1,6 +1,17 @@
 {
   "buildOptions": {
-    "keyFile": "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk",
+    "copyToOutput": {
+      "include": "TestProjects/"
+    },
+    "compile": {
+      "include": "**/*.cs",
+      "exclude": [
+        "obj",
+        "bin",
+        "TestProjects/"
+      ]
+    }
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
@@ -26,7 +37,6 @@
   "scripts": {
     "precompile": "clean-assets %compile:OutputDir%"
   },
-  "exclude": "TestProjects/",
   "publishOptions": {
     "include": "TestProjects/"
   }
