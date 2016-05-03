@@ -11,6 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    [AdventureWorksDatabaseRequired]
     public class NavigationsQueryTests : IClassFixture<AdventureWorksFixture>
     {
         private readonly AdventureWorksFixture _fixture;
