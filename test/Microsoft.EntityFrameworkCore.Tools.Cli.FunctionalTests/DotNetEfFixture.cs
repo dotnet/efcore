@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 
             AssertCommand.Passes(
                 new RestoreCommand(projectPath, logger)
-                    .Execute(string.Join(" ", fallbacks))
+                    .Execute(" --verbosity error " + string.Join(" ", fallbacks))
                 );
         }
     }

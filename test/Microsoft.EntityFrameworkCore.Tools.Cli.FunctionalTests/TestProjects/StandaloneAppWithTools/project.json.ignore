@@ -1,6 +1,6 @@
 {
   "version": "1.0.0-*",
-  "compilationOptions": {
+  "buildOptions": {
     "emitEntryPoint": true
   },
   "dependencies": {
@@ -22,7 +22,7 @@
   "frameworks": {
     "netcoreapp1.0": {
       "imports": [
-        "portable-net452+win81"
+        "portable-net451+win8"
       ]
     }
   },
@@ -30,7 +30,7 @@
     "Microsoft.EntityFrameworkCore.Tools": {
       "version": "1.0.0-$toolVersion$",
       "imports": [
-        "portable-net452+win81"
+        "portable-net451+win8"
       ]
     }
   },
