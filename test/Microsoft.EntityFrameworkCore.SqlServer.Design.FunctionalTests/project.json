@@ -1,7 +1,13 @@
 {
   "buildOptions": {
     "keyFile": "../../tools/Key.snk",
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "copyToOutput": {
+      "include": [
+        "ReverseEngineering/**/*.expected",
+        "ReverseEngineering/**/*.sql"
+      ]
+    }
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",

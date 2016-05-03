@@ -1,6 +1,10 @@
 {
   "buildOptions": {
-    "keyFile": "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk",
+    "copyToOutput": {
+      "include": "**/*.sql",
+       "includeFiles": "config.json"
+    }
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
@@ -12,12 +16,12 @@
   },
   "publishOptions": {
     "include": "**/*.sql",
-    "includeFiles": "config.json"
+    "includeFiles": "config.json",
+    "exclude": [
+      "obj/**",
+      "bin/**"
+    ]
   },
-  "publishExclude": [
-    "obj/**",
-    "bin/**"
-  ],
   "testRunner": "xunit",
   "frameworks": {
     "netcoreapp1.0": {
