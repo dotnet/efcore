@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             return Invoke(
                 _startupType,
-                new[] { "ConfigureServices", "Configure" + _environment + "Services" },
+                new[] { "Configure" + _environment + "Services", "ConfigureServices" },
                 services) as IServiceProvider
                    ?? services.BuildServiceProvider();
         }
