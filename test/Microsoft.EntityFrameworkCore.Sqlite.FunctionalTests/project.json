@@ -1,7 +1,10 @@
 {
   "buildOptions": {
     "keyFile": "../../tools/Key.snk",
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "copyToOutput": {
+      "include": "northwind.db"
+    }
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
