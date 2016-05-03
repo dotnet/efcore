@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
+using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             if (externalStartup)
             {
                 var assemblyLoadContext = startupProjectContext.CreateLoadContext(
-                    PlatformServices.Default.Runtime.GetRuntimeIdentifier(),
+                    RuntimeEnvironment.GetRuntimeIdentifier(),
                     Constants.DefaultConfiguration);
                 startupAssemblyLoader = new AssemblyLoader(assemblyLoadContext.LoadFromAssemblyName);
             }
@@ -238,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             return new ProjectContextBuilder()
                 .WithProject(startupProject)
                 .WithTargetFramework(startupFramework)
-                .WithRuntimeIdentifiers(PlatformServices.Default.Runtime.GetAllCandidateRuntimeIdentifiers())
+                .WithRuntimeIdentifiers(RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers())
                 .Build();
         }
     }
