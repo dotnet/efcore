@@ -46,9 +46,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public override async Task String_Contains_MethodCall()
         {
             await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())),
+                entryCount: 19);
         }
 
         public async Task Skip_when_no_order_by()

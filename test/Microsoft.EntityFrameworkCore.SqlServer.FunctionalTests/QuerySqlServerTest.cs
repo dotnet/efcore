@@ -3723,11 +3723,8 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + N'%'",
             base.String_StartsWith_MethodCall();
 
             Assert.Equal(
-                @"@__LocalMethod1_0: M
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + N'%'",
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -3769,11 +3766,8 @@ WHERE [c].[ContactName] LIKE N'%' + [c].[ContactName]",
             base.String_EndsWith_MethodCall();
 
             Assert.Equal(
-                @"@__LocalMethod2_0: m
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%' + @__LocalMethod2_0",
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -3816,16 +3810,12 @@ WHERE [c].[ContactName] LIKE (N'%' + [c].[ContactName]) + N'%'",
         public override void String_Contains_MethodCall()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())),
+                entryCount: 19);
 
             Assert.Equal(
-                @"@__LocalMethod1_0: M
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE (N'%' + @__LocalMethod1_0) + N'%'",
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -3922,7 +3912,7 @@ WHERE [c].[CustomerID] <> UPPER([c].[CustomerID])
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] > REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])
+WHERE [c].[CustomerID] > REPLACE(N'ALFKI', UPPER(N'ALF'), [c].[CustomerID])
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -3934,7 +3924,7 @@ WHERE [c].[CustomerID] > UPPER([c].[CustomerID])
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] < REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])",
+WHERE [c].[CustomerID] < REPLACE(N'ALFKI', UPPER(N'ALF'), [c].[CustomerID])",
                 Sql);
         }
 
@@ -3991,11 +3981,9 @@ WHERE ABS([od].[UnitPrice]) > 10.0",
             base.Where_math_abs_uncorrelated();
 
             Assert.Equal(
-                @"@__Abs_0: 10
-
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE @__Abs_0 < [od].[ProductID]",
+WHERE ABS(-10) < [od].[ProductID]",
                 Sql);
         }
 
@@ -4977,94 +4965,7 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-        public override void DateTime_parse_is_parameterized()
-        {
-            base.DateTime_parse_is_parameterized();
-
-            Assert.Equal(
-                @"@__Parse_0: 01/01/1998 12:00:00
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__Parse_0",
-                Sql);
-        }
-
-        public override void Random_next_is_not_funcletized_1()
-        {
-            base.Random_next_is_not_funcletized_1();
-
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
-                Sql);
-        }
-
-        public override void Random_next_is_not_funcletized_2()
-        {
-            base.Random_next_is_not_funcletized_2();
-
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
-                Sql);
-        }
-
-        public override void Random_next_is_not_funcletized_3()
-        {
-            base.Random_next_is_not_funcletized_3();
-
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
-                Sql);
-        }
-
-        public override void Random_next_is_not_funcletized_4()
-        {
-            base.Random_next_is_not_funcletized_4();
-
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
-                Sql);
-        }
-
-        public override void Random_next_is_not_funcletized_5()
-        {
-            base.Random_next_is_not_funcletized_5();
-
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
-                Sql);
-        }
-
-        public override void Random_next_is_not_funcletized_6()
-        {
-            base.Random_next_is_not_funcletized_6();
-
-            Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
-                Sql);
-        }
-
-        public override void Environment_newline_is_funcletized()
-        {
-            base.Environment_newline_is_funcletized();
-
-            Assert.Equal(
-                @"@__NewLine_0: 
-
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE (N'%' + @__NewLine_0) + N'%'",
-                Sql);
-        }
-
-        private const string FileLineEnding = @"
+        private static readonly string FileLineEnding = @"
 ";
 
         private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
