@@ -21,6 +21,7 @@
       "version": "1.0.0-*",
       "type": "build"
     },
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
   },
   "frameworks": {
