@@ -8,12 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
     {
-        public override IClrPropertyGetter Create(PropertyInfo property)
-        {
-            var types = new[] { property.DeclaringType, property.PropertyType };
-            var getterType = typeof(ClrPropertyGetter<,>).MakeGenericType(types);
-            var funcType = typeof(Func<,>).MakeGenericType(types);
-            return (IClrPropertyGetter)Activator.CreateInstance(getterType, property.GetMethod.CreateDelegate(funcType));
-        }
+        protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(PropertyInfo property)
+            => new ClrPropertyGetter<TEntity, TValue>(
+                 (Func<TEntity, TValue>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TValue>)));
     }
 }
