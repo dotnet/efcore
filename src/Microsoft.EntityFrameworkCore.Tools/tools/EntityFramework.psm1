@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $EFDefaultParameterValues = @{
     ProjectName = ''
@@ -299,7 +299,7 @@ function Script-Migration {
 
         $options += "--output",$scriptFile
         if ($Idempotent) {
-            $options+="--idempotent"
+            $options += ,"--idempotent"
         }
 
         InvokeDotNetEf $dteProject migrations script $From $To @options | Out-Null
@@ -378,7 +378,7 @@ function Remove-Migration {
     if (IsDotNetProject $dteProject) {
         $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
         if ($forceRemove) {
-            $options += "--force"
+            $options += ,"--force"
         }
         InvokeDotNetEf $dteProject migrations remove @options | Out-Null
         Write-Output "Done."
@@ -477,10 +477,10 @@ function Scaffold-DbContext {
             $options += "--output-dir",(NormalizePath $OutputDir)
         }
         if ($DataAnnotations) {
-            $options += "--data-annotations"
+            $options += ,"--data-annotations"
         }
         if ($Force) {
-            $options += "--force"
+            $options += ,"--force"
         }
         $options += $Schemas | % { "--schema", $_ }
         $options += $Tables | % { "--table", $_ }
@@ -580,8 +580,14 @@ function ProcessCommonParameters($startupProjectName, $projectName, $contextType
 }
 
 function NormalizePath($path) {
-    $pathInfo = Resolve-Path -LiteralPath $path
-    return $pathInfo.Path.TrimEnd([IO.Path]::DirectorySeparatorChar)
+    try {
+        $pathInfo = Resolve-Path -LiteralPath $path
+        return $pathInfo.Path.TrimEnd([IO.Path]::DirectorySeparatorChar)
+    } 
+    catch {
+        # when directories don't exist yet
+        return $path.TrimEnd([IO.Path]::DirectorySeparatorChar)
+    }
 }
 
 function ProcessCommonDotnetParameters($dteProject, $dteStartupProject, $Environment, $contextTypeName) {
@@ -654,17 +660,21 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
     Write-Debug "Using build base path $buildBasePath"
     
     if ($skipBuild) {
-        $arguments += "--no-build"
+        $arguments += ,"--no-build"
     }
 
-    $arguments += $args | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
+    $arguments += $args
 
+    # TODO better json output parsing so we don't need to suppress verbose output
     if ($json) {
-        $arguments += "--json"
-    } else {
-        # TODO better json output parsing so we don't need to suppress verbose output
-        $arguments = ,"--verbose" + $arguments
+        $arguments += ,"--json"
+    } 
+    else {
+        $arguments += ,"--verbose"
     }
+    
+    $arguments = $arguments | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
+    
     $command = "ef $($arguments -join ' ')"
     try {
         Write-Verbose "Working directory: $fullPath"
