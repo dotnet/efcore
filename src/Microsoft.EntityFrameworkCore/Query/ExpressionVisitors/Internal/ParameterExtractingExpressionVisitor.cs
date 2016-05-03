@@ -80,6 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 return base.VisitMethodCall(methodCallExpression);
             }
+            
+            if (_partialEvaluationInfo.IsEvaluatableExpression(methodCallExpression))
+            {
+                return TryExtractParameter(methodCallExpression);
+            }
 
             ParameterInfo[] parameterInfos = null;
             Expression[] newArguments = null;
@@ -180,6 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var parameterValue = Evaluate(expression, out parameterName);
 
                 var parameterExpression = parameterValue as Expression;
+
                 if (parameterExpression != null)
                 {
                     return parameterExpression;
