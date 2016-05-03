@@ -60,12 +60,8 @@
       }
     }
   },
-  "packOptions": {
-    "files": {
-      "mappings": {
-        "build/": "build/**",
-        "runtimes/": "runtimes/**"
-      }
-    }
+  "packInclude": {
+    "build/": "build/**",
+    "runtimes/": "runtimes/**"
   }
 }
