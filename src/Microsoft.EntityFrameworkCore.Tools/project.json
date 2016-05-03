@@ -75,12 +75,8 @@
       }
     }
   },
-  "packOptions": {
-    "files": {
-      "mappings": {
-        "build/": "build/**",
-        "tools/": "tools/**"
-      }
-    }
+  "packInclude": {
+    "build/": "build/**",
+    "tools/": "tools/**"
   }
 }
