@@ -121,7 +121,7 @@
     <value>The name '{migrationName}' is used by an existing migration.</value>
   </data>
   <data name="MultipleContexts" xml:space="preserve">
-    <value>More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.</value>
+    <value>More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for DNX commands.</value>
   </data>
   <data name="MultipleContextsWithName" xml:space="preserve">
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name.</value>
@@ -226,7 +226,7 @@
     <value>Root namespace of the project is required to generate code.</value>
   </data>
   <data name="MigrationsAssemblyMismatch" xml:space="preserve">
-    <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}"))</value>
+    <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list or by using the '--targetProject' option for DNX commands. Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}"))</value>
   </data>
   <data name="SensitiveInformationWarning" xml:space="preserve">
     <value>To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
