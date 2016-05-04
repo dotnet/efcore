@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
-using Microsoft.Extensions.PlatformAbstractions;
 using NuGet.Frameworks;
 
 #if !NET451
