@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 Assert.NotNull(artifacts["MigrationFile"]);
                 Assert.NotNull(artifacts["MetadataFile"]);
                 Assert.NotNull(artifacts["SnapshotFile"]);
-                Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, @"Migrationz")));
+                Assert.True(Directory.Exists("Migrationz"));
             }
 
             [ConditionalFact]
