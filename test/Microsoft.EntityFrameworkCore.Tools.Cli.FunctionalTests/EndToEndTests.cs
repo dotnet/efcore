@@ -46,10 +46,35 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             try
             {
                 AssertCommand.Passes(new RestoreCommand(libraryProject, _output)
-                    .Execute());
+                    .Execute(" --verbosity error "));
 
                 AddAndApplyMigrationImpl("AspNetHostingPortableApp", "LibraryContext", "initialLibrary");
                 AddAndApplyMigrationImpl("AspNetHostingPortableApp", "TestContext", "initialTest");
+            }
+            finally
+            {
+                File.Move(libraryProject, ignoredJson);
+            }
+        }
+
+        [Fact(Skip = "Unreliable on CI")]
+        public void AddMigrationToDifferentFolder()
+        {
+            var ignoredJson = Path.Combine(_testProjectRoot, "PortableAppWithTools", "project.json.ignore");
+            var libraryProject = Path.Combine(_testProjectRoot, "PortableAppWithTools", "project.json");
+            File.Move(ignoredJson, libraryProject);
+
+            try
+            {
+                Assert.False(Directory.Exists(Path.Combine(_testProjectRoot, "SomeOtherDir")));
+
+                _fixture.InstallTool(libraryProject, _output, _testProjectRoot);
+
+                AssertCommand.Passes(new MigrationAddCommand(libraryProject, "OtherFolderMigration", _output)
+                    .Execute($" --context TestContext --output-dir ../SomeOtherDir"));
+
+                Assert.True(Directory.Exists(Path.Combine(_testProjectRoot, "SomeOtherDir")));
+                Assert.True(Directory.EnumerateFiles(Path.Combine(_testProjectRoot, "SomeOtherDir"), "*.cs").Any());
             }
             finally
             {

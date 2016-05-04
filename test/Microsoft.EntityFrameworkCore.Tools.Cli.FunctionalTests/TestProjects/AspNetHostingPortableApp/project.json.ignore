@@ -1,8 +1,13 @@
 {
   "version": "1.0.0-*",
-  "compilationOptions": {
+  "buildOptions": {
     "emitEntryPoint": true,
-    "outputName": "AspNetApp"
+    "outputName": "AspNetApp",
+    "copyToOutput": {
+      "includeFiles": [
+        "config.json"
+      ]
+    }
   },
   "dependencies": {
     "Microsoft.NETCore.App": {
@@ -28,22 +33,18 @@
     "Microsoft.AspNetCore.Hosting": "1.0.0-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-*"
   },
-  
   "frameworks": {
     "netcoreapp1.0": {
       "imports": [
-        "portable-net452+win81"
+        "portable-net451+win8"
       ]
     }
   },
-  
-  "content": "config.json",
-  
   "tools": {
     "Microsoft.EntityFrameworkCore.Tools": {
       "version": "1.0.0-$toolVersion$",
       "imports": [
-        "portable-net452+win81"
+        "portable-net451+win8"
       ]
     }
   }

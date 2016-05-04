@@ -301,17 +301,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return files;
         }
 
-        public virtual MigrationFiles Save([NotNull] string projectDir, [NotNull] ScaffoldedMigration migration)
+        public virtual MigrationFiles Save(
+            [NotNull] string projectDir, 
+            [NotNull] ScaffoldedMigration migration, 
+            [CanBeNull] string outputDir)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotNull(migration, nameof(migration));
 
             var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
-            var migrationDirectory = GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
+            var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
             var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
             var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
             var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
-            var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
+            var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
             _logger.Value.LogDebug(ToolsCoreStrings.WritingMigration(migrationFile));

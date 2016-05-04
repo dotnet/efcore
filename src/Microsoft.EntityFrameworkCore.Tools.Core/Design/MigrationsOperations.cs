@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
                 var migration = scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace);
-                var files = scaffolder.Save(_projectDir, migration);
+                var files = scaffolder.Save(_projectDir, migration, outputDir);
 
                 return files;
             }
