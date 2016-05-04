@@ -65,6 +65,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return key != null && _identityMap.TryGetValue((TKey)key, out entry) ? entry : null;
         }
 
+        public virtual object TryGetEntryKey(ValueBuffer valueBuffer, bool throwOnNullKey)
+        {
+            var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
+            if (key == null
+                && throwOnNullKey)
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidKeyValue(Key.DeclaringEntityType.DisplayName()));
+            }
+            return key;
+        }
+
         public virtual InternalEntityEntry TryGetEntry(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
         {
             TKey key;

@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         public override Type Type => typeof(ValueBuffer);
 
+        public virtual object GetKey(QueryContext queryContext, ValueBuffer valueBuffer)
+            => null;
+
         public virtual ValueBuffer Shape(QueryContext queryContext, ValueBuffer valueBuffer)
             => valueBuffer;
     }
