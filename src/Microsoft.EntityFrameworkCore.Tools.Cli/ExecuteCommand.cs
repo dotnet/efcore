@@ -37,6 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         {
             var app = new CommandLineApplication()
             {
+                // Technically, the real "dotnet-ef.dll" is in Microsoft.EntityFrameworkCore.Tools,
+                // but this name is what the help usage displays
                 Name = "dotnet ef",
                 FullName = "Entity Framework .NET Core CLI Commands"
             };

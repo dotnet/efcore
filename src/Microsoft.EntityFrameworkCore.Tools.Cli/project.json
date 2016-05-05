@@ -1,6 +1,6 @@
 {
   "version": "1.0.0-*",
-  "description": "Entity Framework Core Commands for .NET Core CLI on .NET 4.5.1",
+  "description": "Components for Entity Framework Commands on .NET Core CLI",
   "buildOptions": {
     "emitEntryPoint": true,
     "warningsAsErrors": true,

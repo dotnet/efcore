@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using System.IO;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly LazyRef<DbContextOperations> _contextOperations;
         private readonly LazyRef<DatabaseOperations> _databaseOperations;
         private readonly LazyRef<MigrationsOperations> _migrationsOperations;
+        private readonly string _projectDir;
 
         public OperationExecutor([NotNull] object logHandler, [NotNull] IDictionary args)
             : this(logHandler, args, new AssemblyLoader())
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var targetName = (string)args["targetName"];
             var startupTargetName = (string)args["startupTargetName"];
             var environment = (string)args["environment"];
-            var projectDir = (string)args["projectDir"];
+            _projectDir = (string)args["projectDir"];
             var startupProjectDir = (string)args["startupProjectDir"];
             var rootNamespace = (string)args["rootNamespace"];
 
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     assemblyLoader,
                     startupAssembly.Value,
                     environment,
-                    projectDir,
+                    _projectDir,
                     startupProjectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
@@ -83,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     assemblyLoader,
                     startupAssembly.Value,
                     environment,
-                    projectDir,
+                    _projectDir,
                     startupProjectDir,
                     rootNamespace));
         }
@@ -133,6 +135,12 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string contextType)
         {
             Check.NotEmpty(name, nameof(name));
+
+            // In package manager console, relative outputDir is relative to project directory
+            if (!string.IsNullOrWhiteSpace(outputDir) && !Path.IsPathRooted(outputDir))
+            {
+                outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
+            }
 
             var files = _migrationsOperations.Value.AddMigration(
                 name,

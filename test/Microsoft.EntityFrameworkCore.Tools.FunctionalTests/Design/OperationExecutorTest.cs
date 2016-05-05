@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities;
 using Xunit;
+using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
 {
@@ -35,15 +36,72 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                 Assert.StartsWith("SimpleProject.SimpleContext, ", contextTypeName);
             }
 
+            private void AssertDefaultMigrationName(IDictionary artifacts)
+            {
+                Assert.Contains("namespace SimpleProject.Migrations", File.ReadAllText(artifacts["MigrationFile"] as string));
+            }
+
             [ConditionalFact]
             public void AddMigration_works_cross_domain()
             {
-                var artifacts = _project.Executor.AddMigration("EmptyMigration", "Migrationz", "SimpleContext");
+                var artifacts = _project.Executor.AddMigration("EmptyMigration", "CustomFolder", "SimpleContext");
                 Assert.NotNull(artifacts);
                 Assert.NotNull(artifacts["MigrationFile"]);
                 Assert.NotNull(artifacts["MetadataFile"]);
                 Assert.NotNull(artifacts["SnapshotFile"]);
-                Assert.True(Directory.Exists("Migrationz"));
+                Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, "CustomFolder")));
+                Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
+            }
+
+            [ConditionalFact]
+            public void AddMigration_output_dir_relative_to_projectdir()
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", "./CustomFolder", "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(Path.Combine(_project.TargetDir, "CustomFolder"), artifacts["MigrationFile"] as string);
+                Assert.Contains("namespace SimpleProject.CustomFolder", File.ReadAllText(artifacts["MigrationFile"] as string));
+            }
+
+            [ConditionalFact]
+            public void AddMigration_output_dir_relative_out_of_to_projectdir()
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", "../CustomFolder", "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(Path.GetFullPath(Path.Combine(_project.TargetDir, "../CustomFolder")), artifacts["MigrationFile"] as string);
+                AssertDefaultMigrationName(artifacts);
+            }
+
+
+            [ConditionalFact]
+            public void AddMigration_output_dir_absolute_path_in_project()
+            {
+                var outputDir = Path.Combine(_project.TargetDir, "A/B/C");
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.Equal(Path.Combine(outputDir, Path.GetFileName(artifacts["MigrationFile"] as string)), artifacts["MigrationFile"]);
+                Assert.Contains("namespace SimpleProject.A.B.C", File.ReadAllText(artifacts["MigrationFile"] as string));
+            }
+
+            [ConditionalFact]
+            public void AddMigration_output_dir_absolute_path_outside_project()
+            {
+                var outputDir = Path.GetTempPath();
+                var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(outputDir, artifacts["MigrationFile"] as string);
+                AssertDefaultMigrationName(artifacts);
+            }
+
+            [ConditionalTheory]
+            [InlineData("")]
+            [InlineData("     ")]
+            [InlineData(null)]
+            public void AddMigration_handles_empty_output_dir(string outputDir)
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration2", outputDir, "SimpleContext");
+                Assert.NotNull(artifacts);
+                Assert.StartsWith(Path.Combine(_project.TargetDir, "Migrations"), artifacts["MigrationFile"] as string);
+                AssertDefaultMigrationName(artifacts);
             }
 
             [ConditionalFact]

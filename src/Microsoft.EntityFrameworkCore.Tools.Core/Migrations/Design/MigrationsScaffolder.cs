@@ -300,8 +300,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         public virtual MigrationFiles Save(
-            [NotNull] string projectDir, 
-            [NotNull] ScaffoldedMigration migration, 
+            [NotNull] string projectDir,
+            [NotNull] ScaffoldedMigration migration,
             [CanBeNull] string outputDir)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
