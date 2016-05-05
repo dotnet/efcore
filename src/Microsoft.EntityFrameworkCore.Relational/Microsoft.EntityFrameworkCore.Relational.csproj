@@ -209,6 +209,7 @@
     <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
+    <Compile Include="Query\ExpressionTranslators\IsNullOrEmptyTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\ContainsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\EndsWithTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\EqualsTranslator.cs" />

@@ -117,6 +117,10 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerNewGuidTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringLengthTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringReplaceTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringTrimEndTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringIsNullOrWhiteSpaceTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringTrimTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringTrimStartTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringSubstringTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToLowerTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToUpperTranslator.cs" />

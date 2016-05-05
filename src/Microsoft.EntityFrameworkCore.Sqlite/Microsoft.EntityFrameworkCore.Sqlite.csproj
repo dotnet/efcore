@@ -88,6 +88,10 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringLengthTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringToLowerTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringToUpperTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringIsNullOrWhiteSpaceTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringTrimEndTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringTrimStartTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringTrimTranslator.cs" />
     <Compile Include="Query\Sql\SqliteQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\SqliteQuerySqlGeneratorFactory.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />

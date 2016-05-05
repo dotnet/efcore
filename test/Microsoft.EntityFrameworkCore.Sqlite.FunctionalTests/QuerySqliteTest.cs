@@ -17,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
     [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>
     {
+        public QuerySqliteTest(NorthwindQuerySqliteFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void String_Contains_Literal()
         {
             AssertQuery<Customer>(
@@ -50,9 +55,81 @@ LIMIT -1 OFFSET @__p_1",
                 Sql);
         }
 
-        public QuerySqliteTest(NorthwindQuerySqliteFixture fixture)
-            : base(fixture)
+        public override void IsNullOrWhiteSpace_in_predicate()
         {
+            base.IsNullOrWhiteSpace_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""Region"" IS NULL OR (trim(""c"".""Region"") = '')",
+                Sql);
+        }
+
+        public override void TrimStart_in_predicate()
+        {
+            base.TrimStart_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ltrim(""c"".""ContactTitle"") = 'Owner'",
+                Sql);
+        }
+
+        public override void TrimStart_with_arguments_in_predicate()
+        {
+            base.TrimStart_with_arguments_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ltrim(""c"".""ContactTitle"", 'Ow') = 'ner'",
+                Sql);
+        }
+
+        public override void TrimEnd_in_predicate()
+        {
+            base.TrimEnd_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE rtrim(""c"".""ContactTitle"") = 'Owner'",
+                Sql);
+        }
+
+        public override void TrimEnd_with_arguments_in_predicate()
+        {
+            base.TrimEnd_with_arguments_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE rtrim(""c"".""ContactTitle"", 'er') = 'Own'",
+                Sql);
+        }
+
+        public override void Trim_in_predicate()
+        {
+            base.Trim_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE trim(""c"".""ContactTitle"") = 'Owner'",
+                Sql);
+        }
+
+        public override void Trim_with_arguments_in_predicate()
+        {
+            base.Trim_with_arguments_in_predicate();
+
+            Assert.Contains(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'",
+                Sql);
         }
 
         private const string FileLineEnding = @"

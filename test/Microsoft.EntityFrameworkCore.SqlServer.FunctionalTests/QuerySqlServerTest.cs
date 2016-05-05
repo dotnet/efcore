@@ -4829,6 +4829,104 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void IsNullOrEmpty_in_predicate()
+        {
+            base.IsNullOrEmpty_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')",
+                Sql);
+        }
+
+        public override void IsNullOrEmpty_in_projection()
+        {
+            base.IsNullOrEmpty_in_projection();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], CASE
+    WHEN [c].[Region] IS NULL OR ([c].[Region] = N'')
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void IsNullOrWhiteSpace_in_predicate()
+        {
+            base.IsNullOrWhiteSpace_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL OR (LTRIM(RTRIM([c].[Region])) = N'')",
+                Sql);
+        }
+
+        public override void TrimStart_in_predicate()
+        {
+            base.TrimStart_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE LTRIM([c].[ContactTitle]) = N'Owner'",
+                Sql);
+        }
+
+        public override void TrimStart_with_arguments_in_predicate()
+        {
+            base.TrimStart_with_arguments_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void TrimEnd_in_predicate()
+        {
+            base.TrimEnd_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE RTRIM([c].[ContactTitle]) = N'Owner'",
+                Sql);
+        }
+
+        public override void TrimEnd_with_arguments_in_predicate()
+        {
+            base.TrimEnd_with_arguments_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Trim_in_predicate()
+        {
+            base.Trim_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'",
+                Sql);
+        }
+
+        public override void Trim_with_arguments_in_predicate()
+        {
+            base.Trim_with_arguments_in_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
         public override void Projection_null_coalesce_operator()
         {
             base.Projection_null_coalesce_operator();

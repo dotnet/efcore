@@ -4678,6 +4678,83 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void IsNullOrEmpty_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.IsNullOrEmpty(c.Region)),
+                entryCount: 60);
+        }
+
+        [ConditionalFact]
+        public virtual void IsNullOrEmpty_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Select(c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
+                    .ToList();
+
+                Assert.Equal(91, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void IsNullOrWhiteSpace_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.IsNullOrWhiteSpace(c.Region)),
+                entryCount: 60);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimStart_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimStart() == "Owner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimStart_with_arguments_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimStart('O','w') == "ner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimEnd_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimEnd() == "Owner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimEnd_with_arguments_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimEnd('e', 'r') == "Own"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void Trim_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.Trim() == "Owner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void Trim_with_arguments_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.Trim('O', 'r') == "wne"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
         public virtual void Where_chain()
         {
             AssertQuery<Order>(order => order

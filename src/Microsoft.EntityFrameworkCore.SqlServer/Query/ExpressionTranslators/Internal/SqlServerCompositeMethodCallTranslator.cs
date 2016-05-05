@@ -10,17 +10,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private static readonly IMethodCallTranslator[] _methodCallTranslators =
         {
-            new SqlServerNewGuidTranslator(),
-            new SqlServerStringSubstringTranslator(),
             new SqlServerMathAbsTranslator(),
             new SqlServerMathCeilingTranslator(),
             new SqlServerMathFloorTranslator(),
             new SqlServerMathPowerTranslator(),
             new SqlServerMathRoundTranslator(),
             new SqlServerMathTruncateTranslator(),
+            new SqlServerNewGuidTranslator(),
+            new SqlServerStringIsNullOrWhiteSpaceTranslator(),
             new SqlServerStringReplaceTranslator(),
+            new SqlServerStringSubstringTranslator(),
             new SqlServerStringToLowerTranslator(),
             new SqlServerStringToUpperTranslator(),
+            new SqlServerStringTrimEndTranslator(),
+            new SqlServerStringTrimStartTranslator(),
+            new SqlServerStringTrimTranslator(),
             new SqlServerConvertTranslator()
         };
 
