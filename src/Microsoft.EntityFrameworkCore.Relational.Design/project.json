@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc2-*",
   "description": "Shared Design-time Entity Framework components for relational data stores.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -7,12 +7,14 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
-  "compile": "../Shared/*.cs",
   "frameworks": {
     "net451": {},
     "netstandard1.3": {

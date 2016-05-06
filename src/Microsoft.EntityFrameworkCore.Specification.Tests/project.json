@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc2-*",
   "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
   "buildOptions": {
     "keyFile": "../../tools/Key.snk",

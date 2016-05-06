@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc2-*",
   "description": "Shared components for Entity Framework design-time tools.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -7,9 +7,11 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
   },
-  "compile": "../Shared/*.cs",
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*"
   },

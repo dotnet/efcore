@@ -8,11 +8,11 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/CodeAnnotations.cs"
+    }
   },
-  "compileFiles": [
-    "../Shared/CodeAnnotations.cs"
-  ],
   "dependencies": {
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.DotNet.ProjectModel": "1.0.0-*",
