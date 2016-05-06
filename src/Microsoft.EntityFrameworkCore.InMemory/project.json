@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc3-*",
   "description": "In memory data store for Entity Framework (to be used for testing purposes).",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -7,12 +7,14 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore": "1.0.0-*"
   },
-  "compile": "../Shared/*.cs",
   "frameworks": {
     "net451": {},
     "netstandard1.3": {

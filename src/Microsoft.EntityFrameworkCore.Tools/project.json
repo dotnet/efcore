@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-preview2-*",
   "description": "Command line tools for Entity Framework.",
   "buildOptions": {
     "emitEntryPoint": true,
@@ -9,9 +9,11 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
   },
-  "compile": "../Shared/*.cs",
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"

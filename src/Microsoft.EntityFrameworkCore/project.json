@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc3-*",
   "description": "Entity Framework is Microsoft's recommended data access technology for new applications.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -7,7 +7,13 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    },
+    "embed": {
+      "includeFiles": "Properties/Microsoft.EntityFrameworkCore.rd.xml"
+    }
   },
   "dependencies": {
     "Ix-Async": "1.2.5",
@@ -16,8 +22,6 @@
     "Microsoft.Extensions.Logging": "1.0.0-*",
     "Remotion.Linq": "2.0.2"
   },
-  "compile": "../Shared/*.cs",
-  "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.rd.xml",
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {

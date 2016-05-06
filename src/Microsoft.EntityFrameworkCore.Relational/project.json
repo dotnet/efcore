@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc3-*",
   "description": "Shared Entity Framework components for relational data stores.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -7,13 +7,17 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    },
+    "embed": {
+      "includeFiles": "Properties/Microsoft.EntityFrameworkCore.Relational.rd.xml"
+    }
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore": "1.0.0-*"
   },
-  "compile": "../Shared/*.cs",
-  "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.Relational.rd.xml",
   "frameworks": {
     "net451": {
       "dependencies": {

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc3-*",
   "description": "Design-time Entity Framework functionality for SQLite",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -7,15 +7,17 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Sqlite": "1.0.0-*"
   },
-  "compile": "../Shared/*.cs",
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "netstandard1.3": {
       "imports": [
         "portable-net452+win81"
