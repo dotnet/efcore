@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -649,5 +651,56 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
 
         public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
+
+        public virtual void HandleINotifyPropertyChanging([NotNull] object sender, [NotNull] PropertyChangingEventArgs eventArgs)
+        {
+            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            {
+                StateManager.Notify.PropertyChanging(this, propertyBase);
+            }
+        }
+
+        public virtual void HandleINotifyPropertyChanged([NotNull] object sender, [NotNull] PropertyChangedEventArgs eventArgs)
+        {
+            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            {
+                StateManager.Notify.PropertyChanged(this, propertyBase, setModified: true);
+            }
+        }
+
+        public virtual void HandleINotifyCollectionChanged([NotNull] object sender, [NotNull] NotifyCollectionChangedEventArgs eventArgs)
+        {
+            var navigation = EntityType.GetNavigations().FirstOrDefault(n => n.IsCollection() && this[n] == sender);
+            if (navigation != null)
+            {
+                switch (eventArgs.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        StateManager.Notify.NavigationCollectionChanged(
+                            this,
+                            navigation,
+                            eventArgs.NewItems.OfType<object>(),
+                            Enumerable.Empty<object>());
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        StateManager.Notify.NavigationCollectionChanged(
+                            this,
+                            navigation,
+                            Enumerable.Empty<object>(),
+                            eventArgs.OldItems.OfType<object>());
+                        break;
+                    case NotifyCollectionChangedAction.Replace:
+                        StateManager.Notify.NavigationCollectionChanged(
+                            this,
+                            navigation,
+                            eventArgs.NewItems.OfType<object>(),
+                            eventArgs.OldItems.OfType<object>());
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        throw new InvalidOperationException(CoreStrings.ResetNotSupported);
+                    // Note: ignoring Move since index not important
+                }
+            }
+        }
     }
 }

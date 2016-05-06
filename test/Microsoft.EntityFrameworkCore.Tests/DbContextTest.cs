@@ -220,6 +220,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public bool SaveChangesAsyncCalled { get; set; }
             public virtual bool? SingleQueryMode { get; set; }
 
+            public void Unsubscribe()
+            {
+            }
+
             public void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey)
             {
                 throw new NotImplementedException();

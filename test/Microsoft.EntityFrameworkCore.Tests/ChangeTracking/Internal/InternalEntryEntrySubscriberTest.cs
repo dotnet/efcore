@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
@@ -120,9 +121,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var item = new ChangedOnlyNotificationEntity();
             collection.Add(item);
 
-            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item1.Name);
-            Assert.Same(item, testListener.CollectionChanged.Single().Item2.Single());
-            Assert.Empty(testListener.CollectionChanged.Single().Item3);
+            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item2.Name);
+            Assert.Same(item, testListener.CollectionChanged.Single().Item3.Single());
+            Assert.Empty(testListener.CollectionChanged.Single().Item4);
         }
 
         [Theory]
@@ -136,9 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             collection.Remove(item);
 
-            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item1.Name);
-            Assert.Empty(testListener.CollectionChanged.Single().Item2);
-            Assert.Same(item, testListener.CollectionChanged.Single().Item3.Single());
+            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item2.Name);
+            Assert.Empty(testListener.CollectionChanged.Single().Item3);
+            Assert.Same(item, testListener.CollectionChanged.Single().Item4.Single());
         }
 
         [Fact]
@@ -151,9 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var item2 = new ChangedOnlyNotificationEntity();
             collection[0] = item2;
 
-            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item1.Name);
-            Assert.Same(item2, testListener.CollectionChanged.Single().Item2.Single());
-            Assert.Same(item1, testListener.CollectionChanged.Single().Item3.Single());
+            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item2.Name);
+            Assert.Same(item2, testListener.CollectionChanged.Single().Item3.Single());
+            Assert.Same(item1, testListener.CollectionChanged.Single().Item4.Single());
         }
 
         [Fact]
@@ -196,10 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             Assert.Empty(collection);
 
-            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item1.Name);
-            Assert.Empty(testListener.CollectionChanged.Single().Item2);
-            Assert.Same(item1, testListener.CollectionChanged.Single().Item3.First());
-            Assert.Same(item2, testListener.CollectionChanged.Single().Item3.Skip(1).Single());
+            Assert.Equal("RelatedCollection", testListener.CollectionChanged.Single().Item2.Name);
+            Assert.Empty(testListener.CollectionChanged.Single().Item3);
+            Assert.Same(item1, testListener.CollectionChanged.Single().Item4.First());
+            Assert.Same(item2, testListener.CollectionChanged.Single().Item4.Skip(1).Single());
         }
 
         private static ICollection<ChangedOnlyNotificationEntity> CreateCollection(
@@ -246,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entity.Name = "Palmer";
 
             var property = entry.EntityType.FindProperty("Name");
-            Assert.Same(property, testListener.Changing.Single());
-            Assert.Same(property, testListener.Changed.Single());
+            Assert.Same(property, testListener.Changing.Single().Item2);
+            Assert.Same(property, testListener.Changed.Single().Item2);
         }
 
         [Fact]
@@ -270,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 new[] { "Name", "RelatedCollection" },
-                testListener.Changing.Select(e => e.Name).OrderBy(e => e).ToArray());
+                testListener.Changing.Select(e => e.Item2.Name).OrderBy(e => e).ToArray());
 
             Assert.Empty(testListener.Changed);
 
@@ -278,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             Assert.Equal(
                 new[] { "Name", "RelatedCollection" },
-                testListener.Changed.Select(e => e.Name).OrderBy(e => e).ToArray());
+                testListener.Changed.Select(e => e.Item2.Name).OrderBy(e => e).ToArray());
         }
 
         [Fact]
@@ -300,8 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entity.RelatedCollection = new List<ChangedOnlyNotificationEntity>();
 
             var property = entry.EntityType.FindNavigation("RelatedCollection");
-            Assert.Same(property, testListener.Changing.Single());
-            Assert.Same(property, testListener.Changed.Single());
+            Assert.Same(property, testListener.Changing.Single().Item2);
+            Assert.Same(property, testListener.Changed.Single().Item2);
         }
 
         [Fact]
@@ -325,22 +326,166 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Empty(testListener.Changed);
         }
 
+        [Fact]
+        public void Entry_unsubscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged()
+        {
+            var contextServices = TestHelpers.Instance.CreateContextServices(
+                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                BuildModel());
+
+            var testListener = contextServices
+                .GetRequiredService<IEnumerable<IPropertyListener>>()
+                .OfType<TestPropertyListener>().Single();
+
+            var entities = new List<FullNotificationEntity>();
+            var entries = new List<InternalEntityEntry>();
+            for (var i = 0; i < 10; i++)
+            {
+                entities.Add(new FullNotificationEntity { Id = i + 1 });
+                entries.Add(contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entities[i]));
+                entries[i].SetEntityState(EntityState.Unchanged);
+            }
+
+            var property = entries[0].EntityType.FindProperty("Name");
+
+            Assert.Empty(testListener.Changing);
+            Assert.Empty(testListener.Changed);
+
+            entities[2].Name = "Palmer";
+            entities[5].Name = "John";
+
+            Assert.Equal(2, testListener.Changing.Count);
+            Assert.Equal(2, testListener.Changed.Count);
+            Assert.All(testListener.Changing, e => Assert.Same(e.Item2, property));
+            Assert.All(testListener.Changed, e => Assert.Same(e.Item2, property));
+            Assert.Same(entries[2], testListener.Changing.First().Item1);
+            Assert.Same(entries[2], testListener.Changed.First().Item1);
+            Assert.Same(entries[5], testListener.Changing.Skip(1).Single().Item1);
+            Assert.Same(entries[5], testListener.Changed.Skip(1).Single().Item1);
+
+            entries[5].SetEntityState(EntityState.Detached);
+
+            entities[5].Name = "Carmack";
+
+            Assert.Equal(2, testListener.Changing.Count);
+            Assert.Equal(2, testListener.Changed.Count);
+
+            entities[2].Name = "Luckey";
+
+            Assert.Equal(3, testListener.Changing.Count);
+            Assert.Equal(3, testListener.Changed.Count);
+            Assert.All(testListener.Changing, e => Assert.Same(e.Item2, property));
+            Assert.All(testListener.Changed, e => Assert.Same(e.Item2, property));
+            Assert.Same(entries[2], testListener.Changing.Skip(2).Single().Item1);
+            Assert.Same(entries[2], testListener.Changed.Skip(2).Single().Item1);
+        }
+
+        [Fact]
+        public void Entry_unsubscribes_to_INotifyCollectionChanged()
+        {
+            var contextServices = TestHelpers.Instance.CreateContextServices(
+                new ServiceCollection().AddScoped<INavigationListener, TestNavigationListener>(),
+                BuildModel());
+
+            var testListener = contextServices
+                .GetRequiredService<IEnumerable<INavigationListener>>()
+                .OfType<TestNavigationListener>()
+                .Single();
+
+            var entities = new List<FullNotificationEntity>();
+            var entries = new List<InternalEntityEntry>();
+            for (var i = 0; i < 10; i++)
+            {
+                entities.Add(new FullNotificationEntity
+                {
+                    Id = i + 1,
+                    RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>()
+                });
+                entries.Add(contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entities[i]));
+                entries[i].SetEntityState(EntityState.Unchanged);
+            }
+
+            var navigation = entries[0].EntityType.FindNavigation("RelatedCollection");
+
+            Assert.Empty(testListener.CollectionChanged);
+
+            entities[2].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+            entities[5].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+
+            Assert.Equal(2, testListener.CollectionChanged.Count);
+            Assert.All(testListener.CollectionChanged, e => Assert.Same(e.Item2, navigation));
+            Assert.Same(entries[2], testListener.CollectionChanged.First().Item1);
+            Assert.Same(entries[5], testListener.CollectionChanged.Skip(1).Single().Item1);
+
+            entries[5].SetEntityState(EntityState.Detached);
+
+            entities[5].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+
+            Assert.Equal(2, testListener.CollectionChanged.Count);
+
+            entities[2].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+
+            Assert.Equal(3, testListener.CollectionChanged.Count);
+            Assert.All(testListener.CollectionChanged, e => Assert.Same(e.Item2, navigation));
+            Assert.Same(entries[2], testListener.CollectionChanged.Skip(2).Single().Item1);
+        }
+
+        [Fact]
+        public void Entries_are_unsubscribed_when_context_is_disposed()
+        {
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                BuildModel());
+
+            var testListener = context
+                .GetService<IEnumerable<IPropertyListener>>()
+                .OfType<TestPropertyListener>().Single();
+
+            var entities = new List<FullNotificationEntity>();
+            var entries = new List<EntityEntry>();
+            for (var i = 0; i < 10; i++)
+            {
+                entities.Add(new FullNotificationEntity { Id = i + 1 });
+                entries.Add(context.Add(entities[i]));
+                entries[i].State = EntityState.Unchanged;
+            }
+
+            Assert.Empty(testListener.Changing);
+            Assert.Empty(testListener.Changed);
+
+            entities[2].Name = "Palmer";
+            entities[5].Name = "John";
+
+            Assert.Equal(2, testListener.Changing.Count);
+            Assert.Equal(2, testListener.Changed.Count);
+
+            context.Dispose();
+
+            entities[5].Name = "Carmack";
+            Assert.Equal(2, testListener.Changing.Count);
+            Assert.Equal(2, testListener.Changed.Count);
+
+            entities[2].Name = "Luckey";
+            Assert.Equal(2, testListener.Changing.Count);
+            Assert.Equal(2, testListener.Changed.Count);
+        }
+
         private class TestPropertyListener : IPropertyListener
         {
-            public List<IPropertyBase> Changing { get; } = new List<IPropertyBase>();
-            public List<IPropertyBase> Changed { get; } = new List<IPropertyBase>();
+            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } = new List<Tuple<InternalEntityEntry, IPropertyBase>>();
+            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = new List<Tuple<InternalEntityEntry, IPropertyBase>>();
 
             public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
-                => Changed.Add(property);
+                => Changed.Add(Tuple.Create(entry, property));
 
             public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
-                => Changing.Add(property);
+                => Changing.Add(Tuple.Create(entry, property));
         }
 
         private class TestNavigationListener : INavigationListener
         {
-            public List<Tuple<INavigation, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
-                = new List<Tuple<INavigation, IEnumerable<object>, IEnumerable<object>>>();
+            public List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
+                = new List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>>();
 
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
@@ -349,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             public void NavigationCollectionChanged(
                 InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
-                => CollectionChanged.Add(Tuple.Create(navigation, added, removed));
+                => CollectionChanged.Add(Tuple.Create(entry, navigation, added, removed));
         }
 
         private static IModel BuildModel(

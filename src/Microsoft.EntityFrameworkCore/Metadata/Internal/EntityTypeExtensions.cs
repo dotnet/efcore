@@ -204,6 +204,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
+        public static IEnumerable<IPropertyBase> GetNotificationProperties(
+            [NotNull] this IEntityType entityType, [CanBeNull] string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                foreach (var property in entityType.GetProperties().Where(p => !p.IsReadOnlyAfterSave))
+                {
+                    yield return property;
+                }
+
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    yield return navigation;
+                }
+            }
+            else
+            {
+                var property = (IPropertyBase)entityType.FindProperty(propertyName)
+                    ?? entityType.FindNavigation(propertyName);
+                if (property != null)
+                {
+                    yield return property;
+                }
+            }
+        }
+
         public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull] [CallerMemberName] string methodName = "")
             => entityType.AsConcreteMetadataType<IEntityType, EntityType>(methodName);
     }
