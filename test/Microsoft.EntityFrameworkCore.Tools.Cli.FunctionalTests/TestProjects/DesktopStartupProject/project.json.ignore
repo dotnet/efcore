@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+    "DesktopClassLibrary": {
+      "target": "project"
+    },
+    "Newtonsoft.Json": "8.0.3"
+  },
+  "frameworks": {
+    "net451": { }
+  }
+}

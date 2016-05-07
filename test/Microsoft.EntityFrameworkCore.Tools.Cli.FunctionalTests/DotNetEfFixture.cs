@@ -11,12 +11,12 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
 {
-    public class DotNetEfFixture
+    public class DotNetEfFixture : IDisposable
     {
         private readonly string _solutionDir;
         private string _suffix;
         private bool _toolsBuilt;
-        private static readonly string LocalArtifacts = Path.Combine(AppContext.BaseDirectory, "artifacts");
+        private static readonly string _localArtifacts = Path.Combine(AppContext.BaseDirectory, "artifacts");
         private static readonly string[] PackagesToBuild =
             {
                 "Microsoft.EntityFrameworkCore.Tools",
@@ -27,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 "Microsoft.EntityFrameworkCore",
              };
 
+        public string TestProjectRoot { get; } = Path.Combine(AppContext.BaseDirectory, "TestProjects");
+
         public DotNetEfFixture()
         {
             var dir = AppContext.BaseDirectory;
@@ -35,6 +37,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 dir = Path.GetDirectoryName(dir);
             }
             _solutionDir = dir;
+
+            foreach (var file in Directory.EnumerateFiles(TestProjectRoot, "project.json.ignore", SearchOption.AllDirectories))
+            {
+                File.Move(file, Path.Combine(Path.GetDirectoryName(file), "project.json"));
+            }
+        }
+
+        public void Dispose()
+        {
+            // cleanup to prevent later errors with restore
+            foreach (var file in Directory.EnumerateFiles(TestProjectRoot, "project.json", SearchOption.AllDirectories))
+            {
+                File.Move(file, Path.Combine(Path.GetDirectoryName(file), "project.json.ignore"));
+            }
         }
 
         private void BuildToolsPackages(ITestOutputHelper logger)
@@ -44,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 return;
             }
             _toolsBuilt = true;
-            
+
             _suffix = "t" + DateTime.UtcNow.ToString("yyMMddHHmmss");
-            
+
             foreach (var pkg in PackagesToBuild)
             {
                 logger?.WriteLine($"Building {pkg} version {_suffix}");
@@ -54,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 AssertCommand.Passes(
                     new PackCommand(
                         Path.Combine(_solutionDir, "src", pkg, Constants.ProjectFileName),
-                        LocalArtifacts,
+                        _localArtifacts,
                         logger)
                         .Execute($"--version-suffix {_suffix}"));
             }
@@ -66,10 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
 
             var json = File.ReadAllText(projectPath);
             File.WriteAllText(projectPath, json.Replace("$toolVersion$", _suffix));
-            var fallbacks = new [] { LocalArtifacts }
+            var fallbacks = new[] { _localArtifacts }
                 .Concat(fallbackRestoreLocations ?? Enumerable.Empty<string>())
                 .Select(s => "--fallbacksource " + s);
-                
+
             AssertCommand.Passes(
                 new RestoreCommand(projectPath, logger)
                     .Execute(" --verbosity error " + string.Join(" ", fallbacks))

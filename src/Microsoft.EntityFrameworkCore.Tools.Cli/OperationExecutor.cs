@@ -91,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 #endif
             }
 
-            var startupAssemblyName = startupProjectContext.ProjectFile.GetCompilerOptions(startupFramework, startupConfiguration).OutputName;
+            var startupCompilerOptions = startupProjectContext.ProjectFile.GetCompilerOptions(startupFramework, startupConfiguration);
+            var startupAssemblyName = startupCompilerOptions.OutputName;
             var assemblyName = project.GetCompilerOptions(projectFramework, projectConfiguration).OutputName;
             var projectDir = project.ProjectDirectory;
             var startupProjectDir = startupProjectContext.ProjectFile.ProjectDirectory;
@@ -99,8 +100,27 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             var projectAssembly = Assembly.Load(new AssemblyName { Name = assemblyName });
 #if NET451
-            // TODO use app domains
+            // TODO it would be better to follow the powershell approach: create new appdomain
+            // and remote into it to execute commands, rather than trying to bring startup assemblies into
+            // the current domain.
             var startupAssemblyLoader = new AssemblyLoader(Assembly.Load);
+
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler((sender, args) =>
+            {
+                // this is a partial fix. It may break down if startup project lifts to dependency versions higher than
+                // what the current project is using
+                var assemblyFileName = new AssemblyName(args.Name).Name;
+                var ext = assemblyFileName == startupAssemblyName && startupCompilerOptions.EmitEntryPoint == true
+                    ? ".exe"
+                    : ".dll";
+
+                var assemblyPath = Path.Combine(runtimeOutputPath, new AssemblyName(args.Name).Name + ext);
+                if (!File.Exists(assemblyPath))
+                {
+                    return null;
+                }
+                return Assembly.LoadFrom(assemblyPath);
+            });
 #else
             AssemblyLoader startupAssemblyLoader;
             if (externalStartup)
