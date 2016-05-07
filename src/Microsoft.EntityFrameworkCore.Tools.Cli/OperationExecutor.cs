@@ -152,7 +152,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             [NotNull] string name,
             [CanBeNull] string outputDir,
             [CanBeNull] string contextType)
-           => _migrationsOperations.Value.AddMigration(name, outputDir, contextType);
+        {
+            if(!string.IsNullOrWhiteSpace(outputDir) && !Path.IsPathRooted(outputDir))
+            {
+                // relative paths adjusted to current working directory, not project directory
+                // PowerShell adjusts the cwd when executing dotnet-ef.
+                outputDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), outputDir));
+            }
+
+            return _migrationsOperations.Value.AddMigration(name, outputDir, contextType);
+        }
 
         public virtual void UpdateDatabase([CanBeNull] string targetMigration, [CanBeNull] string contextType)
             => _migrationsOperations.Value.UpdateDatabase(targetMigration, contextType);

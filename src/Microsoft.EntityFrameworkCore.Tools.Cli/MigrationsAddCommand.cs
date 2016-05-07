@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             var outputDir = command.Option(
                 "-o|--output-dir <path>",
-                "The directory (and sub-namespace) to use. If omitted, \"Migrations\" is used.");
+                "The directory (and sub-namespace) to use. If omitted, \"Migrations\" is used. Relative paths are relative the directory in which the command is executed.");
             var context = command.Option(
                 "-c|--context <context>",
                 "The DbContext to use. If omitted, the default DbContext is used");

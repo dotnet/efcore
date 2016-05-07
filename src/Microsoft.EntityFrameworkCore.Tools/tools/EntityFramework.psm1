@@ -74,6 +74,8 @@ Register-TabExpansion Add-Migration @{
     Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
     Project = { GetProjects }
     StartupProject = { GetProjects }
+    # disables tab completion on output dir
+    OutputDir = { }
 }
 
 <#
@@ -87,7 +89,7 @@ Register-TabExpansion Add-Migration @{
     Specifies the name of the migration.
 
 .PARAMETER OutputDir
-    The directory (and sub-namespace) to use. If omitted, "Migrations" is used.
+    The directory (and sub-namespace) to use. If omitted, "Migrations" is used. Relative paths are relative to project directory.
 
 .PARAMETER Context
     Specifies the DbContext to use. If omitted, the default DbContext is used.
@@ -129,15 +131,23 @@ function Add-Migration {
         }
         $files = InvokeDotNetEf $dteProject -json migrations add $Name @options
         $DTE.ItemOperations.OpenFile($files.MigrationFile) | Out-Null
-    } else {
+    }
+    else {
         $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject AddMigration @{
             name = $Name
             outputDir = $OutputDir
             contextType = $contextTypeName
         }
-
+        
         $dteProject.ProjectItems.AddFromFile($artifacts.MigrationFile) | Out-Null
-        $dteProject.ProjectItems.AddFromFile($artifacts.MetadataFile) | Out-Null
+
+        try {
+            $dteProject.ProjectItems.AddFromFile($artifacts.MetadataFile) | Out-Null
+        } catch {
+            # in some SKUs the call to add MigrationFile will automatically add the MetadataFile because it is named ".Designer.cs"
+            # this will throw a non fatal error when -OutputDir is outside the main project directory
+        }
+
         $dteProject.ProjectItems.AddFromFile($artifacts.SnapshotFile) | Out-Null
         $DTE.ItemOperations.OpenFile($artifacts.MigrationFile) | Out-Null
         ShowConsole

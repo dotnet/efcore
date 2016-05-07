@@ -71,9 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         {
             Check.NotEmpty(name, nameof(name));
 
-            var subNamespace = outputDir != null
-                ? string.Join(".", outputDir.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
-                : null;
+            outputDir = string.IsNullOrWhiteSpace(outputDir) ? null : outputDir;
+            var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
             using (var context = _contextOperations.CreateContext(contextType))
             {
@@ -86,6 +85,23 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                 return files;
             }
+        }
+
+        // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
+        // --output-dir $(projectFolder)/A/B/C
+        // => "namespace $(rootnamespace).A.B.C"
+        private string SubnamespaceFromOutputPath(string outputDir)
+        {
+            if (outputDir == null || !outputDir.StartsWith(_projectDir))
+            {
+                return null;
+            }
+
+            var subPath = outputDir.Substring(_projectDir.Length);
+
+            return !string.IsNullOrWhiteSpace(subPath)
+                ? string.Join(".", subPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                : null;
         }
 
         public virtual IEnumerable<MigrationInfo> GetMigrations(
