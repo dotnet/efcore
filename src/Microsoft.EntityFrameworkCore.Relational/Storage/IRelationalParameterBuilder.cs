@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         void AddParameter(
             [NotNull] string invariantName,
             [NotNull] string name,
-            [NotNull] Type type,
-            bool unicode);
+            [NotNull] RelationalTypeMapping typeMapping,
+            bool nullable);
 
         void AddParameter(
             [NotNull] string invariantName,

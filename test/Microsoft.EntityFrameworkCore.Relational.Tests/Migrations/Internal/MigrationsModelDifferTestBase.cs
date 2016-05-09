@@ -44,15 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
         {
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-            public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
+            public override RelationalTypeMapping FindMapping(Type clrType)
                 => clrType == typeof(string)
                     ? new RelationalTypeMapping("varchar(4000)", typeof(string), unicode: false)
-                    : base.FindMapping(clrType, unicode);
+                    : base.FindMapping(clrType);
 
-            protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
+            protected override RelationalTypeMapping FindCustomMapping(IProperty property)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping((unicode ? "nvarchar(" : "varchar(") + property.GetMaxLength() + ")", typeof(string), unicode: false)
-                    : base.FindCustomMapping(property, unicode);
+                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string), unicode: false)
+                    : base.FindCustomMapping(property);
 
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>

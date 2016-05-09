@@ -58,14 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        protected override string GenerateLiteralValue(string value, bool unicode = true)
-            => unicode
+        protected override string GenerateLiteralValue(string value, RelationalTypeMapping typeMapping = null)
+            => typeMapping == null || typeMapping.IsUnicode
                 ? $"N'{EscapeLiteral(Check.NotNull(value, nameof(value)))}'"
                 : $"'{EscapeLiteral(Check.NotNull(value, nameof(value)))}'";
 
-        protected override void GenerateLiteralValue(StringBuilder builder, string value, bool unicode = true)
+        protected override void GenerateLiteralValue(StringBuilder builder, string value, RelationalTypeMapping typeMapping = null)
         {
-            builder.Append(unicode ? "N'" : "'");
+            builder.Append(typeMapping.IsUnicode ? "N'" : "'");
             EscapeLiteral(builder, value);
             builder.Append("'");
         }

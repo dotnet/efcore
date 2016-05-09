@@ -36,18 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_add_type_mapped_parameter_by_type(bool nullable)
         {
             var typeMapper = new FakeRelationalTypeMapper();
-
-            var type = nullable
-                ? typeof(int?)
-                : typeof(int);
-
+            var typeMapping = typeMapper.GetMapping(nullable ? typeof(int?) : typeof(int));
             var parameterBuilder = new RelationalParameterBuilder(typeMapper);
 
             parameterBuilder.AddParameter(
                 "InvariantName",
                 "Name",
-                type,
-                unicode: true);
+                typeMapping,
+                nullable);
 
             Assert.Equal(1, parameterBuilder.Parameters.Count);
 
@@ -56,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotNull(parameter);
             Assert.Equal("InvariantName", parameter.InvariantName);
             Assert.Equal("Name", parameter.Name);
-            Assert.Equal(typeMapper.GetMapping(typeof(int)), parameter.RelationalTypeMapping);
+            Assert.Equal(typeMapping, parameter.RelationalTypeMapping);
             Assert.Equal(nullable, parameter.IsNullable);
         }
 
@@ -102,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         builder.AddParameter(
                             "FirstInvariant",
                             "FirstName",
-                            typeof(int),
-                            unicode: true);
+                            new RelationalTypeMapping("int", typeof(int)),
+                            nullable: false);
 
                         builder.AddParameter(
                             "SecondInvariant",
                             "SecondName",
-                            typeof(string),
-                            unicode: true);
+                            new RelationalTypeMapping("nvarchae(max)", typeof(string)),
+                            nullable: true);
                     });
 
             Assert.Equal(1, parameterBuilder.Parameters.Count);

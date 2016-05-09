@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                    ?? FindMapping(property.ClrType);
         }
 
-        public virtual RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
+        public virtual RelationalTypeMapping FindMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));
 
@@ -69,11 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 : null;
         }
 
-        protected virtual RelationalTypeMapping GetCustomMapping([NotNull] IProperty property, bool unicode = true)
+        protected virtual RelationalTypeMapping GetCustomMapping([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
-            var mapping = FindCustomMapping(property, unicode);
+            var mapping = FindCustomMapping(property);
 
             if (mapping != null)
             {
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             throw new InvalidOperationException(RelationalStrings.UnsupportedType(property.ClrType.Name));
         }
 
-        protected virtual RelationalTypeMapping FindCustomMapping([NotNull] IProperty property, bool unicode = true) => null;
+        protected virtual RelationalTypeMapping FindCustomMapping([NotNull] IProperty property) => null;
 
         protected virtual bool RequiresKeyMapping([NotNull] IProperty property)
             => property.IsKey() || property.IsForeignKey();

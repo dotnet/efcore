@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         void GenerateParameterName([NotNull] StringBuilder builder, [NotNull] string name);
 
-        string GenerateLiteral([CanBeNull] object value, bool unicode = true);
+        string GenerateLiteral([CanBeNull] object value, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        void GenerateLiteral([NotNull] StringBuilder builder, [CanBeNull] object value, bool unicode = true);
+        void GenerateLiteral([NotNull] StringBuilder builder, [CanBeNull] object value, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         string EscapeLiteral([NotNull] string literal);
 

@@ -145,35 +145,31 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
             => _simpleNameMappings;
 
-        public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
+        public override RelationalTypeMapping FindMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));
 
             clrType = clrType.UnwrapNullableType().UnwrapEnumType();
 
             return clrType == typeof(string)
-                ? (unicode ? _nvarcharmax : _varcharmax)
+                ? _nvarcharmax
                 : (clrType == typeof(byte[])
                     ? _varbinarymax
-                    : base.FindMapping(clrType, unicode));
+                    : base.FindMapping(clrType));
         }
 
-        protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
+        protected override RelationalTypeMapping FindCustomMapping(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
             var clrType = property.ClrType.UnwrapNullableType();
 
+            // TODO: Use unicode-ness defined in property metadata
             return clrType == typeof(string)
-                ? (unicode
-                    ? GetStringMapping(
-                        property, 4000,
-                        maxLength => new SqlServerMaxLengthMapping("nvarchar(" + maxLength + ")", typeof(string)),
-                        _nvarcharmax, _nvarcharmax, _nvarchar450)
-                    : GetStringMapping(
-                        property, 8000,
-                        maxLength => new SqlServerMaxLengthMapping("varchar(" + maxLength + ")", typeof(string), unicode: false),
-                        _varcharmax, _varcharmax, _varchar900))
+                ? GetStringMapping(
+                    property, 4000,
+                    maxLength => new SqlServerMaxLengthMapping("nvarchar(" + maxLength + ")", typeof(string)),
+                    _nvarcharmax, _nvarcharmax, _nvarchar450)
                 : clrType == typeof(byte[])
                     ? GetByteArrayMapping(property, 8000,
                         maxLength => new SqlServerMaxLengthMapping("varbinary(" + maxLength + ")", typeof(byte[]), DbType.Binary),

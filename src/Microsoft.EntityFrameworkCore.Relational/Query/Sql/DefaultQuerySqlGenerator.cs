@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -20,8 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, IQuerySqlGenerator
     {
-        private const bool DefaultUnicodeBehaviour = true;
-
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private IRelationalCommandBuilder _relationalCommandBuilder;
         private IReadOnlyDictionary<string, object> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
-        private bool _isUnicode;
+        private RelationalTypeMapping _typeMapping;
 
         private static readonly Dictionary<ExpressionType, string> _binaryOperatorMap = new Dictionary<ExpressionType, string>
         {
@@ -67,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalTypeMapper = relationalTypeMapper;
 
             SelectExpression = selectExpression;
-            _isUnicode = DefaultUnicodeBehaviour;
         }
 
         public virtual bool IsCacheable { get; private set; }
@@ -379,7 +377,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     for (var i = 0; i < argumentValues.Length; i++)
                     {
-                        substitutions[i] = SqlGenerator.GenerateLiteral(argumentValues[i], _isUnicode);
+                        var value = argumentValues[i];
+                        substitutions[i] = SqlGenerator.GenerateLiteral(value, GetTypeMapping(value));
                     }
 
                     break;
@@ -399,9 +398,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         {
                             case ExpressionType.Constant:
                             {
+                                var value = ((ConstantExpression)expression).Value;
                                 substitutions[i]
                                     = SqlGenerator
-                                        .GenerateLiteral(((ConstantExpression)expression).Value, _isUnicode);
+                                        .GenerateLiteral(value, GetTypeMapping(value));
 
                                 break;
                             }
@@ -435,6 +435,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.AppendLines(sql);
         }
+
+        private RelationalTypeMapping GetTypeMapping(object value) 
+            => _typeMapping ?? _relationalTypeMapper.GetMappingForValue(value);
 
         public virtual Expression VisitTable(TableExpression tableExpression)
         {
@@ -553,8 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 if (inValuesNotNull.Count > 0)
                 {
-                    var parentIsUnicode = _isUnicode;
-                    _isUnicode = InferUnicodeFromColumn(inExpression.Operand) ?? _isUnicode;
+                    var parentTypeMapping = _typeMapping;
+                    _typeMapping = InferTypeMappingFromColumn(inExpression.Operand) ?? parentTypeMapping;
 
                     Visit(inExpression.Operand);
 
@@ -564,7 +567,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     _relationalCommandBuilder.Append(")");
 
-                    _isUnicode = parentIsUnicode;
+                    _typeMapping = parentTypeMapping;
                 }
                 else
                 {
@@ -573,8 +576,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
             else
             {
-                var parentIsUnicode = _isUnicode;
-                _isUnicode = InferUnicodeFromColumn(inExpression.Operand) ?? _isUnicode;
+                var parentTypeMapping = _typeMapping;
+                _typeMapping = InferTypeMappingFromColumn(inExpression.Operand) ?? parentTypeMapping;
 
                 Visit(inExpression.Operand);
 
@@ -582,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 Visit(inExpression.SubQuery);
 
-                _isUnicode = parentIsUnicode;
+                _typeMapping = parentTypeMapping;
             }
 
             return inExpression;
@@ -886,12 +889,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
             else
             {
-                var parentUnicodeBehaviour = _isUnicode;
+                var parentTypeMapping = _typeMapping;
 
                 if (expression.IsComparisonOperation()
                     || (expression.NodeType == ExpressionType.Add))
                 {
-                    _isUnicode = InferUnicodeFromColumn(expression.Left) ?? InferUnicodeFromColumn(expression.Right) ?? _isUnicode;
+                    _typeMapping
+                        = InferTypeMappingFromColumn(expression.Left)
+                        ?? InferTypeMappingFromColumn(expression.Right)
+                        ?? parentTypeMapping;
                 }
 
                 var needParens = expression.Left is BinaryExpression;
@@ -955,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _relationalCommandBuilder.Append(TrueLiteral);
                 }
 
-                _isUnicode = parentUnicodeBehaviour;
+                _typeMapping = parentTypeMapping;
             }
 
             return expression;
@@ -1020,8 +1026,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(likeExpression, nameof(likeExpression));
 
-            var parentIsUnicode = _isUnicode;
-            _isUnicode = InferUnicodeFromColumn(likeExpression.Match) ?? _isUnicode;
+            var parentTypeMapping = _typeMapping;
+            _typeMapping = InferTypeMappingFromColumn(likeExpression.Match) ?? parentTypeMapping;
 
             Visit(likeExpression.Match);
 
@@ -1029,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             Visit(likeExpression.Pattern);
 
-            _isUnicode = parentIsUnicode;
+            _typeMapping = parentTypeMapping;
 
             return likeExpression;
         }
@@ -1038,7 +1044,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(literalExpression, nameof(literalExpression));
 
-            _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateLiteral(literalExpression.Literal, _isUnicode));
+            var value = literalExpression.Literal;
+            _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateLiteral(value, GetTypeMapping(value)));
 
             return literalExpression;
         }
@@ -1144,9 +1151,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(expression, nameof(expression));
 
-            _relationalCommandBuilder.Append(expression.Value == null
+            var value = expression.Value;
+            _relationalCommandBuilder.Append(value == null
                 ? "NULL"
-                : _sqlGenerationHelper.GenerateLiteral(expression.Value, _isUnicode));
+                : _sqlGenerationHelper.GenerateLiteral(value, GetTypeMapping(value)));
 
             return expression;
         }
@@ -1163,8 +1171,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AddParameter(
                     parameterExpression.Name,
                     parameterName,
-                    parameterExpression.Type,
-                    unicode: _isUnicode);
+                    _typeMapping ?? _relationalTypeMapper.GetMapping(parameterExpression.Type),
+                    parameterExpression.Type.IsNullableType());
             }
 
             _relationalCommandBuilder.Append(parameterName);
@@ -1192,16 +1200,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return propertyParameterExpression;
         }
 
-        protected virtual bool? InferUnicodeFromColumn([NotNull] Expression expression)
+        protected virtual RelationalTypeMapping InferTypeMappingFromColumn([NotNull] Expression expression)
         {
             var column = expression.TryGetColumnExpression();
-            if (column?.Property != null)
-            {
-                var typeMapping = _relationalTypeMapper.FindMapping(column.Property);
-                return typeMapping.IsUnicode;
-            }
-
-            return null;
+            return column?.Property != null 
+                ? _relationalTypeMapper.FindMapping(column.Property) 
+                : null;
         }
 
         protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result)

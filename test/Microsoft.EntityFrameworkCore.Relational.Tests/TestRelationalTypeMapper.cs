@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
             => _simpleNameMappings;
 
-        protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
+        protected override RelationalTypeMapping FindCustomMapping(IProperty property)
         {
             var clrType = property.ClrType.UnwrapNullableType();
 
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                         property, 2000,
                         l => new RelationalSizedTypeMapping("just_binary(" + l + ")", typeof(string), unicode: true, size: l),
                         _unboundedBinary, _binary, _binaryKey, _rowversion)
-                    : base.FindCustomMapping(property, unicode);
+                    : base.FindCustomMapping(property);
         }
     }
 }

@@ -322,17 +322,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-            public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
+            public override RelationalTypeMapping FindMapping(Type clrType)
                 => clrType == typeof(string)
-                    ? (unicode
-                        ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
-                        : new RelationalTypeMapping("varchar(max)", typeof(string), unicode: false))
-                    : base.FindMapping(clrType, unicode);
+                    ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
+                    : base.FindMapping(clrType);
 
-            protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
+            protected override RelationalTypeMapping FindCustomMapping(IProperty property)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping((unicode ? "nvarchar(" : "varchar(") + property.GetMaxLength() + ")", typeof(string))
-                    : base.FindCustomMapping(property, unicode);
+                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string))
+                    : base.FindCustomMapping(property);
         }
 
         private class ConcreteMigrationSqlGenerator : MigrationsSqlGenerator
