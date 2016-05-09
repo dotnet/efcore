@@ -60,6 +60,7 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs">
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
+    <Compile Include="BuildCommandFactory.cs" />
     <Compile Include="Design\Internal\CommandLoggerAdapter.cs" />
     <Compile Include="Design\Internal\ForwardingProxy.cs" />
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />

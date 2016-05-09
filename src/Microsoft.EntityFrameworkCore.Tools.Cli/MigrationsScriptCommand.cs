@@ -31,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             var context = command.Option(
                 "-c|--context <context>",
                 "The DbContext to use. If omitted, the default DbContext is used");
-            var startupProject = command.Option(
-                "-s|--startup-project <project>",
-                "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
@@ -48,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     output.Value(),
                     idempotent.HasValue(),
                     context.Value(),
-                    startupProject.Value(),
                     environment.Value()));
         }
 
@@ -58,10 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             string output,
             bool idempotent,
             string context,
-            string startupProject,
             string environment)
         {
-            var sql = new OperationExecutor(commonOptions, startupProject, environment)
+            var sql = new OperationExecutor(commonOptions, environment)
                 .ScriptMigration(from, to, idempotent, context);
 
             if (string.IsNullOrEmpty(output))

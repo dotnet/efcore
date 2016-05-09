@@ -19,9 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         {
             command.Description = "List your DbContext types";
 
-            var startupProject = command.Option(
-                "-s|--startup-project <project>",
-                "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
@@ -32,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             command.OnExecute(
                 () => Execute(commonOptions.Value(),
-                    startupProject.Value(),
                     environment.Value(),
                     json.HasValue()
                         ? (Action<IEnumerable<Type>>)ReportJsonResults
@@ -41,11 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         }
 
         private static int Execute(CommonOptions commonOptions,
-            string startupProject,
             string environment,
             Action<IEnumerable<Type>> reportResultsAction)
         {
-            var contextTypes = new OperationExecutor(commonOptions, startupProject, environment)
+            var contextTypes = new OperationExecutor(commonOptions, environment)
                 .GetContextTypes();
 
             reportResultsAction(contextTypes);

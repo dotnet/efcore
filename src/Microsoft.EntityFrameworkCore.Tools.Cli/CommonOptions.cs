@@ -10,7 +10,5 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
     {
         public NuGetFramework Framework { get; set; }
         public string Configuration { get; set; }
-        public string BuildBasePath { get; set; }
-        public bool NoBuild { get; set; }
     }
 }

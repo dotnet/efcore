@@ -602,11 +602,11 @@ function NormalizePath($path) {
 
 function ProcessCommonDotnetParameters($dteProject, $dteStartupProject, $Environment, $contextTypeName) {
     $options=@()
-    if ($dteStartupProject.Name -ne $dteProject.Name) {
-        $startupProjectPath = GetProperty $dteStartupProject.Properties FullPath
-        $options += "--startup-project",(NormalizePath $startupProjectPath)
-    }
-    if($Environment) {
+    #if ($dteStartupProject.Name -ne $dteProject.Name) {
+    #    $startupProjectPath = GetProperty $dteStartupProject.Properties FullPath
+    #    $options += "--startup-project",(NormalizePath $startupProjectPath)
+    #}
+    if ($Environment) {
         $options += "--environment",$Environment
     }
     if ($contextTypeName) {
@@ -921,6 +921,12 @@ function GetProjectItem($project, $path) {
 
 function GetStartUpProject($name, $fallbackProject) {
     if ($name) {
+        if (IsDotNetProject $fallbackProject) {
+            # this means users specified -StartupProject explicitly
+            # otherwise, ignore what VS has marked as the "startup project"
+            # TODO remove warning when https://github.com/aspnet/EntityFramework/issues/5311 is fixed
+            Write-Warning "'-StartupProject' is not supported on *.xproj projects. This parameter will be ignored."
+        }
         return Get-Project $name
     }
 

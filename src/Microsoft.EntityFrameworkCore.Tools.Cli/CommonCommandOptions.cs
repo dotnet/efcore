@@ -10,8 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
     {
         public CommandOption Framework { get; set; }
         public CommandOption Configuration { get; set; }
-        public CommandOption NoBuild { get; set; }
-        public CommandOption BuildBasePath { get; set; }
 
         public CommonOptions Value()
             => new CommonOptions
@@ -19,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 Framework = Framework.HasValue()
                     ? NuGetFramework.Parse(Framework.Value())
                     : null,
-                Configuration = Configuration.Value(),
-                BuildBasePath = BuildBasePath.Value(),
-                NoBuild = NoBuild.HasValue(),
+                Configuration = Configuration.Value()
             };
     }
 }

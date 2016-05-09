@@ -14,22 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
     {
         private const string FrameworkOptionTemplate = "--framework";
         private const string ConfigOptionTemplate = "--configuration";
-        private const string BuildBasePathOptionTemplate = "--build-base-path";
-        private const string NoBuildOptionTemplate = "--no-build";
         private const string VerboseOptionTemplate = "--verbose";
 
         public static IEnumerable<string> CreateArgs(
             [NotNull] NuGetFramework framework,
             [NotNull] string configuration,
-            [CanBeNull] string buildBasePath,
-            bool noBuild,
             bool verbose)
             => new[]
             {
                 FrameworkOptionTemplate, framework.GetShortFolderName(),
                 ConfigOptionTemplate, configuration,
-                buildBasePath == null ? string.Empty : BuildBasePathOptionTemplate, buildBasePath ?? string.Empty,
-                noBuild ? NoBuildOptionTemplate : string.Empty,
                 verbose ? VerboseOptionTemplate : string.Empty
             };
 
@@ -54,13 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     CommandOptionType.SingleValue),
                 Configuration = app.Option(ConfigOptionTemplate + " <CONFIGURATION>",
                     "Configuration under which to load",
-                    CommandOptionType.SingleValue),
-                BuildBasePath = app.Option(BuildBasePathOptionTemplate + " <OUTPUT_DIR>",
-                      "Directory in which to find temporary outputs",
-                      CommandOptionType.SingleValue),
-                NoBuild = app.Option(NoBuildOptionTemplate,
-                    "Do not build before executing",
-                    CommandOptionType.NoValue)
+                    CommandOptionType.SingleValue)
             };
 
             app.Command("database", c => DatabaseCommand.Configure(c, commonOptions));

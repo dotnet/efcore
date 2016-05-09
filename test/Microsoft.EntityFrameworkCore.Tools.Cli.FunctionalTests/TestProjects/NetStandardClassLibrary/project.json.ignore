@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": false
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Tools": {
+      "version": "$toolVersion$",
+      "type": "build",
+      "target": "package"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite": {
+      "target": "project"
+    }
+  },
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "portable-net451+win8"
+      ]
+    }
+  },
+  "tools": {
+    "Microsoft.EntityFrameworkCore.Tools": {
+      "version": "$toolVersion$",
+      "imports": [
+        "portable-net451+win8"
+      ]
+    }
+  }
+}

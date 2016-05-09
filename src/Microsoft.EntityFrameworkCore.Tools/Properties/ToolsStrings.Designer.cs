@@ -21,6 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// This preview of Entity Framework tools does not support targeting class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.
+        /// </summary>
+        public static string ClassLibrariesNotSupportedInCli([CanBeNull] object fwlink)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ClassLibrariesNotSupportedInCli", "fwlink"), fwlink);
+        }
+
+        /// <summary>
         /// Invoking dependency command '{projectCommand}' in project '{projectName}'
         /// </summary>
         public static string LogBeginDispatch([CanBeNull] object projectCommand, [CanBeNull] object projectName)
@@ -53,11 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same.
+        /// Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same. See {fwlink} for more details.
         /// </summary>
-        public static string ProjectDependencyCommandNotFound([CanBeNull] object projectCommand)
+        public static string ProjectDependencyCommandNotFound([CanBeNull] object projectCommand, [CanBeNull] object fwlink)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "projectCommand"), projectCommand);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "projectCommand", "fwlink"), projectCommand, fwlink);
         }
 
         private static string GetString(string name, params string[] formatterNames)

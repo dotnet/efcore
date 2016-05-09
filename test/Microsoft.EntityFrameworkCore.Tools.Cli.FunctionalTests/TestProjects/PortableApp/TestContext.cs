@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace PortableAppWithTools
+namespace PortableApp
 {
     public class Program
     {

@@ -9,14 +9,17 @@
       "version": "1.0.0-*"
     },
     "Microsoft.EntityFrameworkCore.Tools": {
-      "version": "1.0.0-$toolVersion$",
+      "version": "$toolVersion$",
       "type": "build",
       "target": "package"
     },
     "Microsoft.EntityFrameworkCore.Tools.Cli": {
-      "version": "1.0.0-$toolVersion$",
+      "version": "$toolVersion$",
       "type": "build",
       "target": "package"
+    },
+    "Microsoft.EntityFrameworkCore.Tools.Core": {
+      "target": "project"
     },
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
@@ -32,7 +35,7 @@
   },
   "tools": {
     "Microsoft.EntityFrameworkCore.Tools": {
-      "version": "1.0.0-$toolVersion$",
+      "version": "$toolVersion$",
       "imports": [
         "portable-net451+win8"
       ]
