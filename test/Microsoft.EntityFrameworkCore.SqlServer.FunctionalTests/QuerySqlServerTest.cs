@@ -4513,8 +4513,9 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID]
 
-SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+SELECT [o].[CustomerID], [o].[OrderID]
 FROM [Orders] AS [o]
+WHERE DATEPART(year, [o].[OrderDate]) = 1997
 ORDER BY [o].[OrderID]
 
 ",

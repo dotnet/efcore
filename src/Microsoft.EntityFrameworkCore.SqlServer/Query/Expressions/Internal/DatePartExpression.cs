@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         public override Type Type { get; }
         public override ExpressionType NodeType => ExpressionType.Extension;
         
-        public Expression Argument { get; }
-        public string DatePart { get; }
+        public virtual Expression Argument { get; }
+        public virtual string DatePart { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {

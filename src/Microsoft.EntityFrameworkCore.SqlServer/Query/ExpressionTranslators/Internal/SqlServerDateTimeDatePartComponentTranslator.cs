@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
     public class SqlServerDateTimeDatePartComponentTranslator : IMemberTranslator
     {
-        public Expression Translate(MemberExpression memberExpression)
+        public virtual Expression Translate(MemberExpression memberExpression)
         {
             string datePart;
             if (memberExpression.Expression != null
