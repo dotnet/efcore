@@ -326,6 +326,14 @@ namespace Microsoft.EntityFrameworkCore
             return string.Format(CultureInfo.CurrentCulture, GetString("ForceRemoveMigration", "name"), name);
         }
 
+        /// <summary>
+        /// No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.
+        /// </summary>
+        public static string NoParameterlessConstructor([CanBeNull] object contextType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoParameterlessConstructor", "contextType"), contextType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

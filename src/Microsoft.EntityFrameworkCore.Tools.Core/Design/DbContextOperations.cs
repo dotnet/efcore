@@ -126,7 +126,17 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 contexts.Add(
                     context,
-                    FindContextFactory(context) ?? (() => (DbContext)Activator.CreateInstance(context)));
+                    FindContextFactory(context) ?? (Func<DbContext>)(() =>
+                    {
+                        try
+                        {
+                            return (DbContext)Activator.CreateInstance(context);
+                        }
+                        catch(MissingMethodException ex)
+                        {
+                            throw new OperationException(ToolsCoreStrings.NoParameterlessConstructor(context.Name), ex);
+                        }
+                    }));
             }
 
             return contexts;

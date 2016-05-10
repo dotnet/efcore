@@ -474,6 +474,65 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
         }
 
         [ConditionalFact]
+        public void Throws_for_no_parameterless_constructor()
+        {
+            using (var directory = new TempDirectory())
+            {
+                var targetDir = directory.Path;
+                var source = new BuildSource
+                {
+                    TargetDir = targetDir,
+                    References =
+                    {
+                        BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
+                        BuildReference.ByName("System.Interactive.Async", copyLocal: true),
+                        BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+                        BuildReference.ByName("Microsoft.AspNetCore.Hosting.Abstractions", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.Configuration.Abstractions", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.FileProviders.Abstractions", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
+                        BuildReference.ByName("Microsoft.Extensions.PlatformAbstractions", copyLocal: true),
+                        BuildReference.ByName("Remotion.Linq", copyLocal: true)
+                    },
+                    Sources = { @"
+                            using Microsoft.EntityFrameworkCore;
+                            using Microsoft.EntityFrameworkCore.Infrastructure;
+                            using Microsoft.EntityFrameworkCore.Migrations;
+
+                            namespace MyProject
+                            {
+                                internal class MyContext : DbContext
+                                {
+                                    public MyContext(DbContextOptions<MyContext> options) :base(options)  {}
+                                }
+                            }" }
+                };
+                var build = source.Build();
+                using (var executor = new AppDomainOperationExecutor(targetDir, build.TargetName, targetDir, targetDir, "MyProject"))
+                {
+                    var ex = Assert.Throws<OperationException>(
+                        () => executor.GetMigrations("MyContext"));
+
+                    Assert.Equal(
+                        ToolsCoreStrings.NoParameterlessConstructor("MyContext"),
+                        ex.Message);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public void GetMigrations_throws_when_target_and_migrations_assemblies_mismatch()
         {
             using (var directory = new TempDirectory())

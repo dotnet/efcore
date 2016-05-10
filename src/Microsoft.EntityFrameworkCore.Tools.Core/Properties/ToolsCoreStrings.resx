@@ -237,4 +237,7 @@ Change your target project to the migrations project by using the Package Manage
   <data name="ForceRemoveMigration" xml:space="preserve">
     <value>Removing migration '{name}' without checking the database. If this migration has been applied to the database, you will need to manually reverse the changes it made.</value>
   </data>
+  <data name="NoParameterlessConstructor" xml:space="preserve">
+    <value>No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.</value>
+  </data>
 </root>
