@@ -139,7 +139,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cached=Shared' in the connection string.
+        /// The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cache=Shared' in the connection string.
         /// </summary>
         internal static string InvalidIsolationLevelForUnsharedCache
         {
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cached=Shared' in the connection string.
+        /// The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cache=Shared' in the connection string.
         /// </summary>
         internal static string FormatInvalidIsolationLevelForUnsharedCache(object isolationLevel)
         {

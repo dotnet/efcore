@@ -142,7 +142,7 @@
     <value>The IsolationLevel '{isolationLevel}' is invalid.</value>
   </data>
   <data name="InvalidIsolationLevelForUnsharedCache" xml:space="preserve">
-    <value>The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cached=Shared' in the connection string.</value>
+    <value>The IsolationLevel '{isolationLevel}' can only be used with a shared cache. Set 'Cache=Shared' in the connection string.</value>
   </data>
   <data name="InvalidParameterDirection" xml:space="preserve">
     <value>The ParameterDirection '{direction}' is invalid.</value>
