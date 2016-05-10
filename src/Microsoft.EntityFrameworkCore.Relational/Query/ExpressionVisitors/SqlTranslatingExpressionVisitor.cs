@@ -464,6 +464,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return nullExpression;
             }
 
+            if (leftExpression.Type != rightExpression.Type
+                && leftExpression.Type.UnwrapNullableType() == rightExpression.Type.UnwrapNullableType())
+            {
+                if (leftExpression.Type.IsNullableType())
+                {
+                    rightExpression = Expression.Convert(rightExpression, leftExpression.Type);
+                }
+                else
+                {
+                    leftExpression = Expression.Convert(leftExpression, rightExpression.Type);
+                }
+            }
+
             return leftExpression.Type == rightExpression.Type
                 ? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression)
                 : null;

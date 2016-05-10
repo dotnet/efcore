@@ -173,9 +173,9 @@ FROM [Employees] AS [e2]",
                 Sql);
         }
 
-        public override void Where_query_composition_entity_equality()
+        public override void Where_query_composition_entity_equality_one_element_SingleOrDefault()
         {
-            base.Where_query_composition_entity_equality();
+            base.Where_query_composition_entity_equality_one_element_SingleOrDefault();
 
             Assert.StartsWith(
                 @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
@@ -183,6 +183,64 @@ FROM [Employees] AS [e1]
 
 SELECT [e20].[EmployeeID]
 FROM [Employees] AS [e20]",
+                Sql);
+        }
+
+        public override void Where_query_composition_entity_equality_one_element_FirstOrDefault()
+        {
+            base.Where_query_composition_entity_equality_one_element_FirstOrDefault();
+
+            Assert.Equal(
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+FROM [Employees] AS [e1]
+WHERE (
+    SELECT TOP(1) [e2].[EmployeeID]
+    FROM [Employees] AS [e2]
+    WHERE [e2].[EmployeeID] = [e1].[ReportsTo]
+) = 0",
+                Sql);
+        }
+
+        public override void Where_query_composition_entity_equality_no_elements_SingleOrDefault()
+        {
+            base.Where_query_composition_entity_equality_no_elements_SingleOrDefault();
+
+            Assert.StartsWith(
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+FROM [Employees] AS [e1]
+
+SELECT TOP(2) [e20].[EmployeeID]
+FROM [Employees] AS [e20]
+WHERE [e20].[EmployeeID] = 42", Sql);
+        }
+
+        public override void Where_query_composition_entity_equality_no_elements_FirstOrDefault()
+        {
+            base.Where_query_composition_entity_equality_no_elements_FirstOrDefault();
+
+            Assert.Equal(
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+FROM [Employees] AS [e1]
+WHERE (
+    SELECT TOP(1) [e2].[EmployeeID]
+    FROM [Employees] AS [e2]
+    WHERE [e2].[EmployeeID] = 42
+) = 0",
+                Sql);
+        }
+
+        public override void Where_query_composition_entity_equality_multiple_elements_FirstOrDefault()
+        {
+            base.Where_query_composition_entity_equality_multiple_elements_FirstOrDefault();
+
+            Assert.Equal(
+                @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+FROM [Employees] AS [e1]
+WHERE (
+    SELECT TOP(1) [e2].[EmployeeID]
+    FROM [Employees] AS [e2]
+    WHERE ([e2].[EmployeeID] <> [e1].[ReportsTo]) OR [e1].[ReportsTo] IS NULL
+) = 0",
                 Sql);
         }
 

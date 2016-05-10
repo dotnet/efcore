@@ -2108,12 +2108,78 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Where_query_composition_entity_equality()
+        public virtual void Where_query_composition_entity_equality_one_element_SingleOrDefault()
         {
             AssertQuery<Employee>(
                 es =>
                     from e1 in es
                     where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_one_element_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_SingleOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_Single()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from e1 in ctx.Set<Employee>()
+                            where ctx.Set<Employee>().Single(e2 => e2.EmployeeID == 42) == new Employee()
+                            select e1;
+
+                Assert.Throws<InvalidOperationException>(() => query.ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_multiple_elements_SingleOrDefault()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from e1 in ctx.Set<Employee>()
+                            where ctx.Set<Employee>().SingleOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                            select e1;
+
+                Assert.Throws<InvalidOperationException>(() => query.ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_multiple_elements_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
                     select e1);
         }
 
@@ -5645,9 +5711,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var expected = l2oQuery(NorthwindData.Set<TItem>()).ToArray();
+                var actual = efQuery(context.Set<TItem>()).ToArray();
+
                 TestHelpers.AssertResults(
-                    l2oQuery(NorthwindData.Set<TItem>()).ToArray(),
-                    efQuery(context.Set<TItem>()).ToArray(),
+                    expected,
+                    actual,
                     assertOrder,
                     asserter);
 

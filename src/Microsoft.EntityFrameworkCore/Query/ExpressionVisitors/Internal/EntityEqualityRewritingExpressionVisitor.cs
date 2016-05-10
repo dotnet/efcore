@@ -38,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
+             var newBinaryExpression = (BinaryExpression)base.VisitBinary(binaryExpression);
+
             if (binaryExpression.NodeType == ExpressionType.Equal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
-                var newBinaryExpression = (BinaryExpression)base.VisitBinary(binaryExpression);
-
                 var constantExpression = newBinaryExpression.Left.RemoveConvert() as ConstantExpression;
 
                 if (constantExpression != null
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return binaryExpression;
+            return newBinaryExpression;
         }
 
         private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)

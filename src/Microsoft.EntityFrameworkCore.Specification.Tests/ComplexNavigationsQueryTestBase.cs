@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public void Dispose() => TestStore.Dispose();
 
-        //[ConditionalFact] #5043
+        [ConditionalFact] 
         public virtual void Entity_equality_empty()
         {
             using (var context = CreateContext())
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact] #5043
+        [ConditionalFact] 
         public virtual void Key_equality_when_sentinel_ef_property()
         {
             using (var context = CreateContext())
@@ -60,6 +60,88 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(0, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_required()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<int>(l.OneToOne_Required_FK, "Id") > 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_nested()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<int>(EF.Property<Level2>(l, "OneToOne_Required_FK"), "Id") == 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_and_member_expression1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<Level2>(l, "OneToOne_Required_FK").Id == 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_and_member_expression2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<int>(l.OneToOne_Required_FK, "Id") == 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_navigation_converted_to_FK()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelTwo.Where(l => l.OneToOne_Required_FK_Inverse == new Level1 { Id = 1 });
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_two_conditions_on_same_navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.Where(l => l.OneToOne_Required_FK == new Level2 { Id = 1 }
+                    || l.OneToOne_Required_FK == new Level2 { Id = 2 });
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
             }
         }
 
@@ -381,6 +463,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     Assert.True(expected.Contains(resultItem));
                 }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_inside_method_call_translated_to_join()
+        {
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Required_FK.Name.StartsWith("L")
+                            select e1;
+
+                var result = query.ToList();
             }
         }
 

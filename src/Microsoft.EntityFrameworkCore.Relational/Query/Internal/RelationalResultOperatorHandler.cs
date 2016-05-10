@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             handlerContext.SelectExpression.Limit = Expression.Constant(2);
 
-            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+            return handlerContext.EvalOnClient(requiresClientResultOperator: true);
         }
 
         private static Expression HandleSkip(HandlerContext handlerContext)
