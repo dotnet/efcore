@@ -74,8 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return methodCallExpression;
             }
 
-            if (!methodInfo.IsStatic
-                || declaringType == typeof(Queryable)
+            if (declaringType == typeof(Queryable)
                 || declaringType == typeof(EntityFrameworkQueryableExtensions))
             {
                 return base.VisitMethodCall(methodCallExpression);
@@ -84,6 +83,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (_partialEvaluationInfo.IsEvaluatableExpression(methodCallExpression))
             {
                 return TryExtractParameter(methodCallExpression);
+            }
+
+            if (!methodInfo.IsStatic)
+            {
+                return base.VisitMethodCall(methodCallExpression);
             }
 
             ParameterInfo[] parameterInfos = null;
@@ -174,6 +178,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 _inLambda = oldInLambda;
             }
+        }
+
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            var newExpression = base.VisitUnary(unaryExpression);
+
+            if (newExpression != unaryExpression
+                && newExpression.NodeType == ExpressionType.Convert)
+            {
+                var newUnaryExpression = (UnaryExpression)newExpression;
+
+                if (newUnaryExpression.Operand.NodeType == ExpressionType.Parameter
+                    && newUnaryExpression.Operand.Type == typeof(object))
+                {
+                    return Expression.Parameter(
+                        newUnaryExpression.Type,
+                        ((ParameterExpression)newUnaryExpression.Operand).Name);
+                }
+
+            }
+                
+            return newExpression;
         }
 
         private Expression TryExtractParameter(Expression expression)
