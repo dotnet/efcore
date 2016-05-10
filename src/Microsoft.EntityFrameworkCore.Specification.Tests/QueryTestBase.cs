@@ -22,6 +22,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        private class Context
+        {
+            public readonly Dictionary<string, object> Arguments = new Dictionary<string, object>();
+        }
+
+        [ConditionalFact]
+        public virtual void Local_array()
+        {
+            var context = new Context();
+            context.Arguments.Add("customerId", "ALFKI");
+
+            AssertQuery<Customer>(cs =>
+                cs.Single(c => c.CustomerID == (string)context.Arguments["customerId"]));
+        }
+
         [ConditionalFact]
         public virtual void Entity_equality_self()
         {
