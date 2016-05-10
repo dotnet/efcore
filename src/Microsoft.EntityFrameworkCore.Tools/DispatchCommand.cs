@@ -5,8 +5,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Microsoft.DotNet.Cli.Utils;
+using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -44,7 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             var buildBasePathOption = app.Option(
                       "-b|--build-base-path <OUTPUT_DIR>",
                       "Directory in which to find temporary outputs");
-
             var outputOption = app.Option(
                       "-o|--output <OUTPUT_DIR>",
                       "Directory in which to find outputs");
@@ -79,7 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     Reporter.Verbose.WriteLine(ToolsStrings.LogUsingConfiguration(configuration));
                 }
 
-
                 if (!noBuildOption.HasValue())
                 {
                     var buildExitCode = BuildCommandFactory.Create(
@@ -98,6 +96,26 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     }
                 }
 
+                // TODO remove when https://github.com/dotnet/cli/issues/2645 is resolved
+                Func<bool> isClassLibrary = () => 
+                {
+                    var projectContext = ProjectContext.Create(
+                        projectFile.ProjectFilePath,
+                        framework,
+                        RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers());
+
+                    var runtimeFiles = projectContext
+                        .GetOutputPaths(configuration, buildBasePathOption.Value(), outputOption.Value())
+                        ?.RuntimeFiles;
+
+                    return runtimeFiles == null
+                        || (
+                            framework.IsDesktop()
+                                ? !Directory.Exists(runtimeFiles.BasePath)
+                                : !File.Exists(runtimeFiles.RuntimeConfigJson) || !File.Exists(runtimeFiles.DepsJson)
+                            );
+                };
+
                 Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectDependencyToolName, projectFile.Name));
 
                 try
@@ -105,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     bool isVerbose;
                     bool.TryParse(Environment.GetEnvironmentVariable(CommandContext.Variables.Verbose), out isVerbose);
                     var dispatchArgs = ExecuteCommand
-                                .CreateArgs(framework, configuration, buildBasePathOption.Value(), noBuildOption.HasValue(), isVerbose)
+                                .CreateArgs(framework, configuration, isVerbose)
                                 .Concat(app.RemainingArguments);
 
                     return DotnetToolDispatcher.CreateDispatchCommand(
@@ -124,9 +142,20 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 catch (CommandUnknownException ex)
                 {
                     Reporter.Verbose.WriteLine(ex.Message);
-                    // intentionally put DispatcherToolName in error because "Microsoft.EntityFrameworkCore.Tools.Cli" is 
-                    // brought in automatically as a dependency of "Microsoft.EntityFrameworkCore.Tools"
-                    Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(DispatcherToolName));
+
+                    var fwlink = "http://go.microsoft.com/fwlink/?LinkId=798221";
+
+                    if (isClassLibrary())
+                    {
+                        Reporter.Error.WriteLine(ToolsStrings.ClassLibrariesNotSupportedInCli(fwlink));
+                    }
+                    else
+                    {
+                        // intentionally put DispatcherToolName in error because "Microsoft.EntityFrameworkCore.Tools.Cli" is 
+                        // brought in automatically as a dependency of "Microsoft.EntityFrameworkCore.Tools"
+                        Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(DispatcherToolName, fwlink));
+                    }
+
                     return 1;
                 }
             });

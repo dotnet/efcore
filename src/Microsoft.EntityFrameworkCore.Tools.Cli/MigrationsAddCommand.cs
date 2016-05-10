@@ -24,9 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             var context = command.Option(
                 "-c|--context <context>",
                 "The DbContext to use. If omitted, the default DbContext is used");
-            var startupProject = command.Option(
-                "-s|--startup-project <project>",
-                "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
@@ -50,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                         name.Value,
                         outputDir.Value(),
                         context.Value(),
-                        startupProject.Value(),
                         environment.Value(),
                         json.HasValue()
                             ? (Action<MigrationFiles>)ReportJson
@@ -62,11 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             string name,
             string outputDir,
             string context,
-            string startupProject,
             string environment,
             Action<MigrationFiles> reporter)
         {
-            var files = new OperationExecutor(commonOptions, startupProject, environment)
+            var files = new OperationExecutor(commonOptions, environment)
                 .AddMigration(name, outputDir, context);
 
             reporter?.Invoke(files);

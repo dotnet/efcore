@@ -117,22 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="IncompatibleStartupProject" xml:space="preserve">
-    <value>The project '{projectName}' doesn't target a framework compatible with '{framework}'. The project must have a compatible framework in order to use the Entity Framework .NET Core CLI Commands.</value>
-  </data>
-  <data name="LogBuildFailed" xml:space="preserve">
-    <value>Build failed.</value>
-  </data>
-  <data name="LogBuildStarted" xml:space="preserve">
-    <value>Build started for '{projectName}'.</value>
-  </data>
-  <data name="LogBuildSucceeded" xml:space="preserve">
-    <value>Build succeeded.</value>
-  </data>
   <data name="LogDataDirectory" xml:space="preserve">
     <value>Setting the data directory to '{path}'.</value>
-  </data>
-  <data name="LogUsingFramework" xml:space="preserve">
-    <value>Using framework '{framework}' for '{projectName}'.</value>
   </data>
 </root>

@@ -21,9 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             var context = command.Option(
                 "-c|--context <context>",
                 "The DbContext to use. If omitted, the default DbContext is used");
-            var startupProject = command.Option(
-                "-s|--startup-project <project>",
-                "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
@@ -35,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.OnExecute(
                 () => Execute(commonOptions.Value(),
                     context.Value(),
-                    startupProject.Value(),
                     environment.Value(),
                     json.HasValue()
                         ? (Action<IEnumerable<MigrationInfo>>)ReportJsonResults
@@ -44,11 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
         private static int Execute(CommonOptions commonOptions,
             string context,
-            string startupProject,
             string environment,
             Action<IEnumerable<MigrationInfo>> reportResultsAction)
         {
-            var migrations = new OperationExecutor(commonOptions, startupProject, environment)
+            var migrations = new OperationExecutor(commonOptions, environment)
                 .GetMigrations(context);
 
             reportResultsAction(migrations);

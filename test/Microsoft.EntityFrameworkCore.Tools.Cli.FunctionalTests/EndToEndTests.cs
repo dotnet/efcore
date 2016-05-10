@@ -10,14 +10,11 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
 {
-    public class EndToEndTests : IClassFixture<DotNetEfFixture>
+    public partial class EndToEndTests : IClassFixture<DotNetEfFixture>
     {
-        private static readonly string _testProjectRoot = Path.Combine(
-            AppContext.BaseDirectory,
-            "TestProjects");
-
         private readonly ITestOutputHelper _output;
         private readonly DotNetEfFixture _fixture;
+        private const string SkipReason = "Unreliable on CI";
 
         public EndToEndTests(DotNetEfFixture fixture, ITestOutputHelper output)
         {
@@ -25,101 +22,74 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             _fixture = fixture;
         }
 
-        [Fact(Skip = "Unreliable on CI")]
-        public void RunsMigrationCommandsOnDesktop()
+        [Fact(Skip = SkipReason)]
+        public void MigrationsOnDesktop()
         {
             // TODO use xunit helpers from SpecTests. Currently this causes re-compilation of the test graph
             // because of the pre-compile script on this project
             if (PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
             {
-                AddAndApplyMigrationImpl("DesktopAppWithTools", "TestContext", "Initial");
+                AddAndApplyMigrationImpl("DesktopApp", "TestContext", "Initial");
             }
         }
 
-        [Fact(Skip = "Unreliable on CI")]
-        public void RunsMigrationsForAspNetApp()
+        [Fact(Skip = SkipReason)]
+        public void MigrationsForAspNetApp()
         {
-            var ignoredJson = Path.Combine(_testProjectRoot, "LibraryUsingSqlite", "project.json.ignore");
-            var libraryProject = Path.Combine(_testProjectRoot, "LibraryUsingSqlite", "project.json");
-            File.Move(ignoredJson, libraryProject);
+            var libraryProject = Path.Combine(_fixture.TestProjectRoot, "LibraryUsingSqlite", "project.json");
+            AssertCommand.Pass(new RestoreCommand(libraryProject, _output)
+                .Execute(" --verbosity error "));
 
-            try
-            {
-                AssertCommand.Passes(new RestoreCommand(libraryProject, _output)
-                    .Execute(" --verbosity error "));
-
-                AddAndApplyMigrationImpl("AspNetHostingPortableApp", "LibraryContext", "initialLibrary");
-                AddAndApplyMigrationImpl("AspNetHostingPortableApp", "TestContext", "initialTest");
-            }
-            finally
-            {
-                File.Move(libraryProject, ignoredJson);
-            }
+            AddAndApplyMigrationImpl("AspNetHostingPortableApp", "LibraryContext", "initialLibrary");
+            AddAndApplyMigrationImpl("AspNetHostingPortableApp", "TestContext", "initialTest");
         }
 
-        [Fact(Skip = "Unreliable on CI")]
+        [Fact(Skip = SkipReason)]
         public void AddMigrationToDifferentFolder()
         {
-            var ignoredJson = Path.Combine(_testProjectRoot, "PortableAppWithTools", "project.json.ignore");
-            var libraryProject = Path.Combine(_testProjectRoot, "PortableAppWithTools", "project.json");
-            File.Move(ignoredJson, libraryProject);
+            var libraryProject = Path.Combine(_fixture.TestProjectRoot, "PortableApp", "project.json");
+            Assert.False(Directory.Exists(Path.Combine(_fixture.TestProjectRoot, "SomeOtherDir")));
 
-            try
-            {
-                Assert.False(Directory.Exists(Path.Combine(_testProjectRoot, "SomeOtherDir")));
+            _fixture.InstallTool(libraryProject, _output, _fixture.TestProjectRoot);
 
-                _fixture.InstallTool(libraryProject, _output, _testProjectRoot);
+            AssertCommand.Pass(new MigrationAddCommand(libraryProject, "OtherFolderMigration", _output)
+                .Execute($" --context TestContext --output-dir ../SomeOtherDir"));
 
-                AssertCommand.Passes(new MigrationAddCommand(libraryProject, "OtherFolderMigration", _output)
-                    .Execute($" --context TestContext --output-dir ../SomeOtherDir"));
-
-                Assert.True(Directory.Exists(Path.Combine(_testProjectRoot, "SomeOtherDir")));
-                Assert.True(Directory.EnumerateFiles(Path.Combine(_testProjectRoot, "SomeOtherDir"), "*.cs").Any());
-            }
-            finally
-            {
-                File.Move(libraryProject, ignoredJson);
-            }
+            Assert.True(Directory.Exists(Path.Combine(_fixture.TestProjectRoot, "SomeOtherDir")));
+            Assert.True(Directory.EnumerateFiles(Path.Combine(_fixture.TestProjectRoot, "SomeOtherDir"), "*.cs").Any());
         }
 
-        [Theory(Skip = "Unreliable on CI")]
-        [InlineData("PortableAppWithTools")]
-        [InlineData("StandaloneAppWithTools")]
-        public void RunsMigrationCommandsForNetCoreApps(string project)
+        [Theory(Skip = SkipReason)]
+        [InlineData("PortableApp")]
+        [InlineData("StandaloneApp")]
+        public void MigrationCommandsForNetCoreApps(string project)
             => AddAndApplyMigrationImpl(project, "TestContext", "Initial");
 
-        private void AddAndApplyMigrationImpl(string project, string contextName, string migrationName)
+        private void AddAndApplyMigrationImpl(
+            string project,
+            string contextName,
+            string migrationName)
         {
-            var ignoredJson = Path.Combine(_testProjectRoot, project, "project.json.ignore");
-            var testProject = Path.Combine(_testProjectRoot, project, "project.json");
-            File.Move(ignoredJson, testProject);
-
-            var migrationDir = Path.Combine(Path.GetDirectoryName(testProject), "Migrations");
+            var targetProject = Path.Combine(_fixture.TestProjectRoot, project, "project.json");
+            var migrationDir = Path.Combine(Path.GetDirectoryName(targetProject), "Migrations");
             var snapshotFile = contextName + "ModelSnapshot.cs";
 
-            try
+            if (Directory.Exists(migrationDir))
             {
-                if (Directory.Exists(migrationDir))
-                {
-                    Assert.False(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
-                }
-
-                _fixture.InstallTool(testProject, _output, _testProjectRoot);
-
-                AssertCommand.Passes(new MigrationAddCommand(testProject, migrationName, _output)
-                    .Execute($" --context {contextName}"));
-
-                Assert.True(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
-
-                AssertCommand.Passes(new DatabaseUpdateCommand(testProject, _output)
-                    .Execute($" --context {contextName}"));
+                Assert.False(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
             }
-            finally
-            {
-                // project.json, even nested in bin/, will fail dotnet-restore on the solution
-                File.Move(testProject, ignoredJson);
-            }
+
+            _fixture.InstallTool(targetProject, _output, _fixture.TestProjectRoot);
+
+            var args = $" --context {contextName}";
+
+            AssertCommand.Pass(new MigrationAddCommand(targetProject, migrationName, _output)
+                .Execute(args));
+
+            Assert.True(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
+
+            AssertCommand.Pass(new DatabaseUpdateCommand(targetProject, _output)
+                .Execute(args));
         }
-
     }
 }

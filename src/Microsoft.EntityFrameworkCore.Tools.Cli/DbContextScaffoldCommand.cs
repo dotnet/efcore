@@ -44,9 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 "-t|--table <schema.table>",
                 "Selects a table for which to generate classes.",
                 CommandOptionType.MultipleValue);
-            var startupProject = command.Option(
-                "-s|--startup-project <project>",
-                "The startup project to use. If omitted, the current project is used.");
             var environment = command.Option(
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
@@ -80,7 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                         outputDir.Value(),
                         schemas.Values,
                         tables.Values,
-                        startupProject.Value(),
                         environment.Value());
                 });
         }
@@ -94,10 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             string outputDir,
             IEnumerable<string> schemas,
             IEnumerable<string> tables,
-            string startupProject,
             string environment)
         {
-            await new OperationExecutor(commonOptions, startupProject, environment)
+            await new OperationExecutor(commonOptions, environment)
                 .ReverseEngineerAsync(
                     provider,
                     connection,

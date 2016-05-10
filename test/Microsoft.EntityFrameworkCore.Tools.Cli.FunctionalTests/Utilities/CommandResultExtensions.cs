@@ -8,9 +8,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
 {
     public static class AssertCommand
     {
-        public static CommandResult Passes(CommandResult result)
+        public static CommandResult Pass(CommandResult result)
         {
             Assert.Equal(0, result.ExitCode);
+            return result;
+        }
+
+        public static CommandResult Fail(CommandResult result)
+        {
+            Assert.NotEqual(0, result.ExitCode);
             return result;
         }
     }

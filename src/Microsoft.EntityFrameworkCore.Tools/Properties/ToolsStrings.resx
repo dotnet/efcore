@@ -120,6 +120,9 @@
   <data name="BuildFailed" xml:space="preserve">
     <value>Build failed on '{projectName}'.</value>
   </data>
+  <data name="ClassLibrariesNotSupportedInCli" xml:space="preserve">
+    <value>This preview of Entity Framework tools does not support targeting class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.</value>
+  </data>
   <data name="LogBeginDispatch" xml:space="preserve">
     <value>Invoking dependency command '{projectCommand}' in project '{projectName}'</value>
   </data>
@@ -133,6 +136,6 @@
     <value>Using project '{projectName}'.</value>
   </data>
   <data name="ProjectDependencyCommandNotFound" xml:space="preserve">
-    <value>Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same</value>
+    <value>Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same. See {fwlink} for more details.</value>
   </data>
 </root>

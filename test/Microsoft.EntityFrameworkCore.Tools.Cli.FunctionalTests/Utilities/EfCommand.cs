@@ -21,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             return base.Execute(args);
         }
 
+        public override CommandResult ExecuteWithCapturedOutput(string args = "")
+        {
+            args = $"--verbose ef {BuildArgs()} {args}";
+            return base.ExecuteWithCapturedOutput(args);
+        }
+
         protected abstract string BuildArgs();
     }
 }
