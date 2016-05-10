@@ -1204,6 +1204,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return GetString("NoElements"); }
         }
 
+        /// <summary>
+        /// A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.
+        /// </summary>
+        public static string NoParameterlessConstructor([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoParameterlessConstructor", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

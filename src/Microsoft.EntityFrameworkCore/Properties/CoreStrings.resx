@@ -564,4 +564,7 @@
   <data name="NoElements" xml:space="preserve">
     <value>Sequence contains no elements</value>
   </data>
+  <data name="NoParameterlessConstructor" xml:space="preserve">
+    <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
+  </data>
 </root>

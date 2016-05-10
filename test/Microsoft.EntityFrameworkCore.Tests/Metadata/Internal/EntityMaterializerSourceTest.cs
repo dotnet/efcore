@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -112,6 +113,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
             Assert.Equal(gu, entity.Goo);
         }
 
+        [Fact]
+        public void Throws_if_parameterless_constructor_is_not_defined_on_entity_type()
+        {
+            var entityType = new Model().AddEntityType(typeof(EntityWithoutParameterlessConstructor));
+            entityType.AddProperty(EntityWithoutParameterlessConstructor.IdProperty);
+
+            Assert.Equal(
+                CoreStrings.NoParameterlessConstructor(typeof(EntityWithoutParameterlessConstructor).Name),
+                Assert.Throws<InvalidOperationException>(() => GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType)).Message);
+        }
+
         private static readonly ParameterExpression _readerParameter
             = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
@@ -182,6 +194,20 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         private enum SomeEnum
         {
             EnumValue
+        }
+
+        private class EntityWithoutParameterlessConstructor
+        {
+            public static readonly PropertyInfo IdProperty = typeof(EntityWithoutParameterlessConstructor).GetProperty("Id");
+
+            public int Id { get; set; }
+
+            private readonly int _value;
+
+            public EntityWithoutParameterlessConstructor(int value)
+            {
+                _value = value;
+            }
         }
     }
 }
