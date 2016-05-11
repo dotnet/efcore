@@ -1133,8 +1133,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             while (memberExpression?.Expression != null
                 || (IsPropertyMethod(methodCallExpression?.Method) && methodCallExpression?.Arguments?[0] != null))
             {
-                string propertyName = memberExpression?.Member?.Name ?? (string)(methodCallExpression?.Arguments?[1] as ConstantExpression).Value;
-                expression = memberExpression?.Expression ?? methodCallExpression?.Arguments?[0];
+                var propertyName = memberExpression?.Member.Name ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
+                expression = memberExpression?.Expression ?? methodCallExpression.Arguments[0];
 
                 // in case of inheritance there might be convert to derived type here, so we want to check it first
                 var entityType = QueryCompilationContext.Model.FindEntityType(expression.Type);
