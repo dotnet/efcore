@@ -1212,6 +1212,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("NoParameterlessConstructor", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.
+        /// </summary>
+        public static string LogIgnoredInclude([CanBeNull] object navigation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "navigation"), navigation);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

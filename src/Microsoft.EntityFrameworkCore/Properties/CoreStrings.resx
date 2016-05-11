@@ -567,4 +567,7 @@
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
   </data>
+  <data name="LogIgnoredInclude" xml:space="preserve">
+    <value>The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.</value>
+  </data>
 </root>

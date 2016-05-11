@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -371,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     QueryCompilationContext.Logger
                         .LogDebug(
                             CoreLoggingEventId.IncludingNavigation,
-                            () => CoreStrings.LogIncludingNavigation(includeSpecification.NavigationPath.Join(".")));
+                            () => CoreStrings.LogIncludingNavigation(includeSpecification));
 
                     IncludeNavigations(
                         includeSpecification,
@@ -383,6 +384,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .AddTrackableInclude(
                             resultQuerySourceReferenceExpression.ReferencedQuerySource,
                             includeSpecification.NavigationPath);
+                }
+                else
+                {
+                    QueryCompilationContext.Logger
+                        .LogWarning(
+                            CoreLoggingEventId.IncludeIgnored,
+                            () => CoreStrings.LogIgnoredInclude(includeSpecification));
                 }
             }
         }
