@@ -39,6 +39,7 @@
     <Compile Include="TestLogger.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="project.json" />
     <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\Comment.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

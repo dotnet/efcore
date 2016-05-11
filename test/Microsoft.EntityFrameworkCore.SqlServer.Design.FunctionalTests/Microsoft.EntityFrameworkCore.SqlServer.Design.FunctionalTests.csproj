@@ -42,6 +42,7 @@
     <Compile Include="SqlServerDatabaseModelFixture.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="project.json" />
     <None Include="ReverseEngineering\Expected\AllFluentApi\AllDataTypes.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
