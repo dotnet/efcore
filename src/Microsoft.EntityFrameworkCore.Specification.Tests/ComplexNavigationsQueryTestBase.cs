@@ -1841,6 +1841,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Include(e => e.OneToOne_Optional_FK)
                     .ToList()
                     .OrderBy(e => e?.OneToOne_Optional_FK?.Name)
+                    .ThenBy(e => e.Id)
                     .Select(e => e.Id)
                     .ToList();
             }
@@ -1849,7 +1850,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne.OrderBy(e => e.OneToOne_Optional_FK.Name).Select(e => e.Id);
+                var query = context.LevelOne.OrderBy(e => e.OneToOne_Optional_FK.Name).ThenBy(e => e.Id).Select(e => e.Id);
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -1872,7 +1873,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.DefaultIfEmpty()
-                            orderby l2 == null ? null : l2.Name
+                            orderby l2 == null ? null : l2.Name, l1.Id
                             select l1.Id).ToList();
             }
 
@@ -1883,7 +1884,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = from l1 in context.LevelOne
                             join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.DefaultIfEmpty()
-                            orderby l2 == null ? null : l2.Name
+                            orderby l2 == null ? null : l2.Name, l1.Id
                             select l1.Id;
 
                 var result = query.ToList();
