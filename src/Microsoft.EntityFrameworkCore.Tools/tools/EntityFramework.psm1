@@ -640,7 +640,11 @@ function ShowConsole {
 }
 
 function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
-    $dotnet = (Get-Command dotnet).Source
+    try {
+        $dotnet = (Get-Command dotnet).Path
+    } catch {
+        throw "Could not find .NET Core CLI (dotnet.exe). .NET Core CLI is required to execute EF commands on this project type."
+    }
     Write-Debug "Found $dotnet"
     $fullPath = GetProperty $project.Properties FullPath
     $projectJson = Join-Path $fullPath project.json
