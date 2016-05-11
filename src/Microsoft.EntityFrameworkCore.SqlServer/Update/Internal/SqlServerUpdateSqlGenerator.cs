@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private string GetTypeNameForCopy(IProperty property)
         {
             var typeName = property.SqlServer().ColumnType
-                           ?? _typeMapper.GetMapping(property).DefaultTypeName;
+                           ?? _typeMapper.GetMapping(property).StoreType;
 
             return typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)

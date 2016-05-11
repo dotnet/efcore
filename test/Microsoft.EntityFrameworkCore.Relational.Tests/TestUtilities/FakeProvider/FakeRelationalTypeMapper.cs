@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
                 { "DefaultString", _string }
             };
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _simpleNameMappings;
     }
 }

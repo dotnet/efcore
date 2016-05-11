@@ -1076,7 +1076,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 throw new InvalidOperationException(RelationalStrings.UnsupportedType(explicitCastExpression.Type.Name));
             }
 
-            _relationalCommandBuilder.Append(typeMapping.DefaultTypeName);
+            _relationalCommandBuilder.Append(typeMapping.StoreType);
 
             _relationalCommandBuilder.Append(")");
 

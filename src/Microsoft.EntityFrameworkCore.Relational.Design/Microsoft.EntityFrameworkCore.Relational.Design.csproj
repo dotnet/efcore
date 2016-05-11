@@ -88,7 +88,9 @@
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="RelationalScaffoldingModelFactory.cs" />
+    <Compile Include="ScaffoldingTypeMapper.cs" />
     <Compile Include="TableSelectionSet.cs" />
+    <Compile Include="TypeScaffoldingInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">

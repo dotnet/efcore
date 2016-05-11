@@ -302,7 +302,9 @@
     <Compile Include="RelationalQueryableExtensions.cs" />
     <Compile Include="RelationalReferenceCollectionBuilderExtensions.cs" />
     <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />
+    <Compile Include="Storage\ByteArrayRelationalTypeMapper.cs" />
     <Compile Include="Storage\DbContextTransactionExtensions.cs" />
+    <Compile Include="Storage\IByteArrayRelationalTypeMapper.cs" />
     <Compile Include="Storage\Internal\CompositeRelationalParameter.cs" />
     <Compile Include="Storage\Internal\DynamicRelationalParameter.cs" />
     <Compile Include="Storage\Internal\RawSqlCommandBuilder.cs" />
@@ -330,6 +332,7 @@
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\ISqlGenerationHelper.cs" />
+    <Compile Include="Storage\IStringRelationalTypeMapper.cs" />
     <Compile Include="Storage\ParameterNameGenerator.cs" />
     <Compile Include="Storage\ParameterNameGeneratorFactory.cs" />
     <Compile Include="Storage\RawSqlCommand.cs" />
@@ -339,12 +342,12 @@
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
     <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
     <Compile Include="Storage\RelationalDataReader.cs" />
-    <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
     <Compile Include="Storage\RelationalSqlGenerationHelper.cs" />
     <Compile Include="Storage\RelationalTransaction.cs" />
     <Compile Include="Storage\RelationalTypeMapper.cs" />
     <Compile Include="Storage\RelationalTypeMapperExtensions.cs" />
     <Compile Include="Storage\RelationalTypeMapping.cs" />
+    <Compile Include="Storage\StringRelationalTypeMapper.cs" />
     <Compile Include="Storage\TypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\UntypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Update\AffectedCountModificationCommandBatch.cs" />

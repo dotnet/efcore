@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ScaffoldingTypeMapperSqlServerTest.cs" />
     <Compile Include="SqlServerTableSelectionSetExtensionsTests.cs" />
   </ItemGroup>
   <ItemGroup>

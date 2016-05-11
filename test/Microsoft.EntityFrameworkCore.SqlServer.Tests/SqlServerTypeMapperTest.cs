@@ -18,95 +18,95 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Does_simple_SQL_Server_mappings_to_DDL_types()
         {
-            Assert.Equal("int", GetTypeMapping(typeof(int)).DefaultTypeName);
-            Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime)).DefaultTypeName);
-            Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid)).DefaultTypeName);
-            Assert.Equal("int", GetTypeMapping(typeof(char)).DefaultTypeName);
-            Assert.Equal("tinyint", GetTypeMapping(typeof(byte)).DefaultTypeName);
-            Assert.Equal("float", GetTypeMapping(typeof(double)).DefaultTypeName);
-            Assert.Equal("bit", GetTypeMapping(typeof(bool)).DefaultTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(short)).DefaultTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(long)).DefaultTypeName);
-            Assert.Equal("real", GetTypeMapping(typeof(float)).DefaultTypeName);
-            Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset)).DefaultTypeName);
+            Assert.Equal("int", GetTypeMapping(typeof(int)).StoreType);
+            Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime)).StoreType);
+            Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid)).StoreType);
+            Assert.Equal("int", GetTypeMapping(typeof(char)).StoreType);
+            Assert.Equal("tinyint", GetTypeMapping(typeof(byte)).StoreType);
+            Assert.Equal("float", GetTypeMapping(typeof(double)).StoreType);
+            Assert.Equal("bit", GetTypeMapping(typeof(bool)).StoreType);
+            Assert.Equal("smallint", GetTypeMapping(typeof(short)).StoreType);
+            Assert.Equal("bigint", GetTypeMapping(typeof(long)).StoreType);
+            Assert.Equal("real", GetTypeMapping(typeof(float)).StoreType);
+            Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset)).StoreType);
         }
 
         [Fact]
         public void Does_simple_SQL_Server_mappings_for_nullable_CLR_types_to_DDL_types()
         {
-            Assert.Equal("int", GetTypeMapping(typeof(int?)).DefaultTypeName);
-            Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime?)).DefaultTypeName);
-            Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid?)).DefaultTypeName);
-            Assert.Equal("int", GetTypeMapping(typeof(char?)).DefaultTypeName);
-            Assert.Equal("tinyint", GetTypeMapping(typeof(byte?)).DefaultTypeName);
-            Assert.Equal("float", GetTypeMapping(typeof(double?)).DefaultTypeName);
-            Assert.Equal("bit", GetTypeMapping(typeof(bool?)).DefaultTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(short?)).DefaultTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(long?)).DefaultTypeName);
-            Assert.Equal("real", GetTypeMapping(typeof(float?)).DefaultTypeName);
-            Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset?)).DefaultTypeName);
+            Assert.Equal("int", GetTypeMapping(typeof(int?)).StoreType);
+            Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime?)).StoreType);
+            Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid?)).StoreType);
+            Assert.Equal("int", GetTypeMapping(typeof(char?)).StoreType);
+            Assert.Equal("tinyint", GetTypeMapping(typeof(byte?)).StoreType);
+            Assert.Equal("float", GetTypeMapping(typeof(double?)).StoreType);
+            Assert.Equal("bit", GetTypeMapping(typeof(bool?)).StoreType);
+            Assert.Equal("smallint", GetTypeMapping(typeof(short?)).StoreType);
+            Assert.Equal("bigint", GetTypeMapping(typeof(long?)).StoreType);
+            Assert.Equal("real", GetTypeMapping(typeof(float?)).StoreType);
+            Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset?)).StoreType);
         }
 
         [Fact]
         public void Does_simple_SQL_Server_mappings_for_enums_to_DDL_types()
         {
-            Assert.Equal("int", GetTypeMapping(typeof(IntEnum)).DefaultTypeName);
-            Assert.Equal("tinyint", GetTypeMapping(typeof(ByteEnum)).DefaultTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum)).DefaultTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum)).DefaultTypeName);
-            Assert.Equal("int", GetTypeMapping(typeof(IntEnum?)).DefaultTypeName);
-            Assert.Equal("tinyint", GetTypeMapping(typeof(ByteEnum?)).DefaultTypeName);
-            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum?)).DefaultTypeName);
-            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum?)).DefaultTypeName);
+            Assert.Equal("int", GetTypeMapping(typeof(IntEnum)).StoreType);
+            Assert.Equal("tinyint", GetTypeMapping(typeof(ByteEnum)).StoreType);
+            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum)).StoreType);
+            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum)).StoreType);
+            Assert.Equal("int", GetTypeMapping(typeof(IntEnum?)).StoreType);
+            Assert.Equal("tinyint", GetTypeMapping(typeof(ByteEnum?)).StoreType);
+            Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum?)).StoreType);
+            Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum?)).StoreType);
         }
 
         [Fact]
         public void Does_simple_SQL_Server_mappings_to_DbTypes()
         {
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(string)).StoreType);
-            Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).StoreType);
-            Assert.Null(GetTypeMapping(typeof(TimeSpan)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(Guid)).StoreType);
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char)).StoreType);
-            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(double)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(bool)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(float)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(DateTimeOffset)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int)).DbType);
+            Assert.Null(GetTypeMapping(typeof(string)).DbType);
+            Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
+            Assert.Null(GetTypeMapping(typeof(TimeSpan)).DbType);
+            Assert.Null(GetTypeMapping(typeof(Guid)).DbType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char)).DbType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte)).DbType);
+            Assert.Null(GetTypeMapping(typeof(double)).DbType);
+            Assert.Null(GetTypeMapping(typeof(bool)).DbType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).DbType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).DbType);
+            Assert.Null(GetTypeMapping(typeof(float)).DbType);
+            Assert.Null(GetTypeMapping(typeof(DateTimeOffset)).DbType);
         }
 
         [Fact]
         public void Does_simple_SQL_Server_mappings_for_nullable_CLR_types_to_DbTypes()
         {
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(string)).StoreType);
-            Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).StoreType);
-            Assert.Null(GetTypeMapping(typeof(TimeSpan?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(Guid?)).StoreType);
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char?)).StoreType);
-            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(double?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(bool?)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(float?)).StoreType);
-            Assert.Null(GetTypeMapping(typeof(DateTimeOffset?)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int?)).DbType);
+            Assert.Null(GetTypeMapping(typeof(string)).DbType);
+            Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
+            Assert.Null(GetTypeMapping(typeof(TimeSpan?)).DbType);
+            Assert.Null(GetTypeMapping(typeof(Guid?)).DbType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(char?)).DbType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte?)).DbType);
+            Assert.Null(GetTypeMapping(typeof(double?)).DbType);
+            Assert.Null(GetTypeMapping(typeof(bool?)).DbType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).DbType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).DbType);
+            Assert.Null(GetTypeMapping(typeof(float?)).DbType);
+            Assert.Null(GetTypeMapping(typeof(DateTimeOffset?)).DbType);
         }
 
         [Fact]
         public void Does_simple_SQL_Server_mappings_for_enums_to_DbTypes()
         {
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum)).StoreType);
-            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum)).StoreType);
-            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum?)).StoreType);
-            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum?)).StoreType);
-            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum?)).StoreType);
-            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum?)).StoreType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum)).DbType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum)).DbType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum)).DbType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum)).DbType);
+            Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum?)).DbType);
+            Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum?)).DbType);
+            Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum?)).DbType);
+            Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum?)).DbType);
         }
 
         [Fact]
@@ -114,8 +114,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(decimal));
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("decimal(18, 2)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("decimal(18, 2)", typeMapping.StoreType);
         }
 
         [Fact]
@@ -123,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(decimal?));
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("decimal(18, 2)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("decimal(18, 2)", typeMapping.StoreType);
         }
 
         [Fact]
@@ -132,8 +132,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(string));
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(max)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(max)", typeMapping.StoreType);
+            Assert.Null(typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -142,8 +144,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3);
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(3)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(3)", typeMapping.StoreType);
+            Assert.Equal(3, typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -152,8 +156,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(string));
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(max)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(max)", typeMapping.StoreType);
+            Assert.Null(typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 4001)).Size);
         }
 
@@ -162,8 +168,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3);
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(3)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(3)", typeMapping.StoreType);
+            Assert.Equal(3, typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 4001)).Size);
         }
 
@@ -172,8 +180,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(string), isNullable: false);
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(max)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(max)", typeMapping.StoreType);
+            Assert.Null(typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -186,8 +196,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(450)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(450)", typeMapping.StoreType);
+            Assert.Equal(450, typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -202,8 +214,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(450)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(450)", typeMapping.StoreType);
+            Assert.Equal(450, typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -219,8 +233,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(450)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(450)", typeMapping.StoreType);
+            Assert.Equal(450, typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -233,8 +249,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Null(typeMapping.StoreType);
-            Assert.Equal("nvarchar(450)", typeMapping.DefaultTypeName);
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(450)", typeMapping.StoreType);
+            Assert.Equal(450, typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
             Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -243,8 +261,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(byte[]));
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(max)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(max)", typeMapping.StoreType);
+            Assert.Null(typeMapping.Size);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -253,8 +272,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(byte[]), null, 3);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(3)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(3)", typeMapping.StoreType);
+            Assert.Equal(3, typeMapping.Size);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -263,8 +283,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(byte[]));
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(max)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(max)", typeMapping.StoreType);
+            Assert.Null(typeMapping.Size);
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[8001]).Size);
         }
 
@@ -273,8 +294,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(byte[]), null, 3);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(3)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(3)", typeMapping.StoreType);
+            Assert.Equal(3, typeMapping.Size);
             Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[8001]).Size);
         }
 
@@ -283,8 +305,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         {
             var typeMapping = GetTypeMapping(typeof(byte[]), isNullable: false);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(max)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(max)", typeMapping.StoreType);
+            Assert.Null(typeMapping.Size);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -296,8 +319,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("binary", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("binary(100)", typeMapping.StoreType);
         }
 
         [Fact]
@@ -309,8 +332,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(900)", typeMapping.StoreType);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -325,8 +348,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(900)", typeMapping.StoreType);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -342,8 +365,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(900)", typeMapping.StoreType);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[3]).Size);
         }
 
@@ -356,8 +379,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(900)", typeMapping.StoreType);
             Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
@@ -368,10 +391,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             property.IsConcurrencyToken = true;
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("rowversion", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("rowversion", typeMapping.StoreType);
             Assert.Equal(8, typeMapping.Size);
             Assert.Equal(8, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[8]).Size);
         }
@@ -384,10 +407,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             property.IsNullable = false;
 
-            var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("rowversion", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("rowversion", typeMapping.StoreType);
             Assert.Equal(8, typeMapping.Size);
             Assert.Equal(8, typeMapping.CreateParameter(new TestCommand(), "Name", new byte[8]).Size);
         }
@@ -400,8 +423,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             var typeMapping = (SqlServerMaxLengthMapping)new SqlServerTypeMapper().GetMapping(property);
 
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal("varbinary(max)", typeMapping.DefaultTypeName);
+            Assert.Equal(DbType.Binary, typeMapping.DbType);
+            Assert.Equal("varbinary(max)", typeMapping.StoreType);
         }
 
         private static RelationalTypeMapping GetTypeMapping(Type propertyType, bool? isNullable = null, int? maxLength = null)
@@ -426,33 +449,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         [Fact]
         public void Does_default_mappings_for_sequence_types()
         {
-            Assert.Equal("int", new SqlServerTypeMapper().GetMapping(typeof(int)).DefaultTypeName);
-            Assert.Equal("smallint", new SqlServerTypeMapper().GetMapping(typeof(short)).DefaultTypeName);
-            Assert.Equal("bigint", new SqlServerTypeMapper().GetMapping(typeof(long)).DefaultTypeName);
-            Assert.Equal("tinyint", new SqlServerTypeMapper().GetMapping(typeof(byte)).DefaultTypeName);
+            Assert.Equal("int", new SqlServerTypeMapper().GetMapping(typeof(int)).StoreType);
+            Assert.Equal("smallint", new SqlServerTypeMapper().GetMapping(typeof(short)).StoreType);
+            Assert.Equal("bigint", new SqlServerTypeMapper().GetMapping(typeof(long)).StoreType);
+            Assert.Equal("tinyint", new SqlServerTypeMapper().GetMapping(typeof(byte)).StoreType);
         }
 
         [Fact]
         public void Does_default_mappings_for_strings_and_byte_arrays()
         {
-            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMapping(typeof(string)).DefaultTypeName);
-            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMapping(typeof(byte[])).DefaultTypeName);
+            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMapping(typeof(string)).StoreType);
+            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMapping(typeof(byte[])).StoreType);
         }
 
         [Fact]
         public void Does_default_mappings_for_values()
         {
-            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMappingForValue("Cheese").DefaultTypeName);
-            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMappingForValue(new byte[1]).DefaultTypeName);
-            Assert.Equal("datetime2", new SqlServerTypeMapper().GetMappingForValue(new DateTime()).DefaultTypeName);
+            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMappingForValue("Cheese").StoreType);
+            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMappingForValue(new byte[1]).StoreType);
+            Assert.Equal("datetime2", new SqlServerTypeMapper().GetMappingForValue(new DateTime()).StoreType);
         }
 
         [Fact]
         public void Does_default_mappings_for_null_values()
         {
-            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue(null).DefaultTypeName);
-            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue(DBNull.Value).DefaultTypeName);
-            Assert.Equal("NULL", RelationalTypeMapperExtensions.GetMappingForValue(null, "Itz").DefaultTypeName);
+            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue(null).StoreType);
+            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue(DBNull.Value).StoreType);
+            Assert.Equal("NULL", RelationalTypeMapperExtensions.GetMappingForValue(null, "Itz").StoreType);
         }
 
         [Fact]
@@ -463,13 +486,80 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
         }
 
         [Theory]
-        [InlineData("VARCHAR", typeof(string))]
-        [InlineData("VarCHaR", typeof(string))] // case-insensitive
-        [InlineData("float", typeof(double))] // This is correct. SQL Server 'float' type maps to C# double
-        [InlineData("timestamp", typeof(byte[]))] // note: rowversion is a synonym but SQL Server stores the data type as 'timestamp'
-        public void It_finds_clr_type(string typeName, Type clrType)
+        [InlineData("VARCHAR", typeof(string), null, false)]
+        [InlineData("VarCHaR", typeof(string), null, false)] // case-insensitive
+        [InlineData("float", typeof(double), null, false)] // This is correct. SQL Server 'float' type maps to C# double
+        [InlineData("timestamp", typeof(byte[]), 8, false)] // note: rowversion is a synonym but SQL Server stores the data type as 'timestamp'
+        [InlineData("nvarchar(max)", typeof(string), null, true)]
+        [InlineData("nvarchar(333)", typeof(string), 333, true)]
+        [InlineData("bigint", typeof(long), null, false)]
+        [InlineData("binary varying", typeof(byte[]), null, false)]
+        [InlineData("binary varying(max)", typeof(byte[]), null, false)]
+        [InlineData("binary varying(333)", typeof(byte[]), 333, false)]
+        [InlineData("binary", typeof(byte[]), null, false)]
+        [InlineData("binary(333)", typeof(byte[]), 333, false)]
+        [InlineData("bit", typeof(bool), null, false)]
+        [InlineData("char varying", typeof(string), null, false)]
+        [InlineData("char varying(max)", typeof(string), null, false)]
+        [InlineData("char varying(333)", typeof(string), 333, false)]
+        [InlineData("char", typeof(string), null, false)]
+        [InlineData("char(333)", typeof(string), 333, false)]
+        [InlineData("character varying", typeof(string), null, false)]
+        [InlineData("character varying(max)", typeof(string), null, false)]
+        [InlineData("character varying(333)", typeof(string), 333, false)]
+        [InlineData("character", typeof(string), null, false)]
+        [InlineData("character(333)", typeof(string), 333, false)]
+        [InlineData("date", typeof(DateTime), null, false)]
+        [InlineData("datetime", typeof(DateTime), null, false)]
+        [InlineData("datetime2", typeof(DateTime), null, false)]
+        [InlineData("datetimeoffset", typeof(DateTimeOffset), null, false)]
+        [InlineData("dec", typeof(decimal), null, false)]
+        [InlineData("decimal", typeof(decimal), null, false)]
+        [InlineData("float", typeof(double), null, false)]
+        [InlineData("float(10, 8)", typeof(double), null, false)]
+        [InlineData("image", typeof(byte[]), null, false)]
+        [InlineData("int", typeof(int), null, false)]
+        [InlineData("money", typeof(decimal), null, false)]
+        [InlineData("national char varying", typeof(string), null, true)]
+        [InlineData("national char varying(max)", typeof(string), null, true)]
+        [InlineData("national char varying(333)", typeof(string), 333, true)]
+        [InlineData("national character varying", typeof(string), null, true)]
+        [InlineData("national character varying(max)", typeof(string), null, true)]
+        [InlineData("national character varying(333)", typeof(string), 333, true)]
+        [InlineData("national character", typeof(string), null, true)]
+        [InlineData("national character(333)", typeof(string), 333, true)]
+        [InlineData("nchar", typeof(string), null, true)]
+        [InlineData("nchar(333)", typeof(string), 333, true)]
+        [InlineData("ntext", typeof(string), null, true)]
+        [InlineData("numeric", typeof(decimal), null, false)]
+        [InlineData("nvarchar", typeof(string), null, true)]
+        [InlineData("nvarchar(max)", typeof(string), null, true)]
+        [InlineData("nvarchar(333)", typeof(string), 333, true)]
+        [InlineData("real", typeof(float), null, false)]
+        [InlineData("rowversion", typeof(byte[]), 8, false)]
+        [InlineData("smalldatetime", typeof(DateTime), null, false)]
+        [InlineData("smallint", typeof(short), null, false)]
+        [InlineData("smallmoney", typeof(decimal), null, false)]
+        [InlineData("text", typeof(string), null, false)]
+        [InlineData("time", typeof(TimeSpan), null, false)]
+        [InlineData("timestamp", typeof(byte[]), 8, false)]
+        [InlineData("tinyint", typeof(byte), null, false)]
+        [InlineData("uniqueidentifier", typeof(Guid), null, false)]
+        [InlineData("varbinary", typeof(byte[]), null, false)]
+        [InlineData("varbinary(max)", typeof(byte[]), null, false)]
+        [InlineData("varbinary(333)", typeof(byte[]), 333, false)]
+        [InlineData("varchar", typeof(string), null, false)]
+        [InlineData("varchar(max)", typeof(string), null, false)]
+        [InlineData("varchar(333)", typeof(string), 333, false)]
+        [InlineData("xml", typeof(string), null, false)]
+        public void Can_map_by_type_name(string typeName, Type clrType, int? size, bool unicode)
         {
-            Assert.Equal(clrType, new SqlServerTypeMapper().GetMapping(typeName).ClrType);
+            var mapping = new SqlServerTypeMapper().GetMapping(typeName);
+
+            Assert.Equal(clrType, mapping.ClrType);
+            Assert.Equal(size, mapping.Size);
+            Assert.Equal(unicode, mapping.IsUnicode);
+            Assert.Equal(typeName.ToLowerInvariant(), mapping.StoreType);
         }
 
         private enum LongEnum : long

@@ -46,12 +46,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 
             public override RelationalTypeMapping FindMapping(Type clrType)
                 => clrType == typeof(string)
-                    ? new RelationalTypeMapping("varchar(4000)", typeof(string), unicode: false)
+                    ? new RelationalTypeMapping("varchar(4000)", typeof(string), dbType: null, unicode: false, size: 4000)
                     : base.FindMapping(clrType);
 
             protected override RelationalTypeMapping FindCustomMapping(IProperty property)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string), unicode: false)
+                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string), dbType: null, unicode: false, size: property.GetMaxLength())
                     : base.FindCustomMapping(property);
 
             private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
@@ -64,14 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
                     {
-                        { "varchar", new RelationalTypeMapping("varchar", typeof(string), unicode: false) },
+                        { "varchar", new RelationalTypeMapping("varchar", typeof(string), dbType: null, unicode: false, size: null, hasNonDefaultUnicode: true) },
                         { "bigint", new RelationalTypeMapping("bigint", typeof(long)) }
                     };
 
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _simpleMappings;
 
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
                 => _simpleNameMappings;
         }
     }

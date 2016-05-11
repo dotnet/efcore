@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder
                     .Append(" AS ")
-                    .Append(TypeMapper.GetMapping(operation.ClrType).DefaultTypeName);
+                    .Append(TypeMapper.GetMapping(operation.ClrType).StoreType);
             }
 
             builder
@@ -614,8 +614,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var property = FindProperty(model, schema, table, name);
                 type = property != null
-                    ? TypeMapper.GetMapping(property).DefaultTypeName
-                    : TypeMapper.GetMapping(clrType).DefaultTypeName;
+                    ? TypeMapper.GetMapping(property).StoreType
+                    : TypeMapper.GetMapping(clrType).StoreType;
             }
 
             builder

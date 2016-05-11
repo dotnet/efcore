@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             var property = builder.Property(clrType, GetPropertyName(column));
 
-            if (TypeMapper.GetMapping(property.Metadata).DefaultTypeName != column.DataType
+            if (TypeMapper.GetMapping(property.Metadata).StoreType != column.DataType
                 && !string.IsNullOrWhiteSpace(column.DataType))
             {
                 property.HasColumnType(column.DataType);

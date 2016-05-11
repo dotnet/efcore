@@ -818,10 +818,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 { "long", _long }
             };
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _simpleNameMappings;
 
         protected override string GetColumnType(IProperty property) => ((Property)property).Relational().ColumnType;

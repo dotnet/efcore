@@ -311,25 +311,25 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
                 {
-                    { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string)) }
+                    { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string), dbType: null, unicode: true, size: null) }
                 };
 
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _simpleMappings;
 
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
                 => _simpleNameMappings;
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
             public override RelationalTypeMapping FindMapping(Type clrType)
                 => clrType == typeof(string)
-                    ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
+                    ? new RelationalTypeMapping("nvarchar(max)", typeof(string), dbType: null, unicode: true, size: null)
                     : base.FindMapping(clrType);
 
             protected override RelationalTypeMapping FindCustomMapping(IProperty property)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string))
+                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string), dbType: null, unicode: true, size: property.GetMaxLength())
                     : base.FindCustomMapping(property);
         }
 

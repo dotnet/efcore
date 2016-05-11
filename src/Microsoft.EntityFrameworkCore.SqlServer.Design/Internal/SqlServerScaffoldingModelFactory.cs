@@ -182,8 +182,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     || typeof(byte[]) == typeMapping.ClrType)
                 && !_stringAndByteArrayTypesForbiddingMaxLength.Contains(unqualifiedTypeName))
             {
-                if (typeMapping.DefaultTypeName == "nvarchar"
-                    || typeMapping.DefaultTypeName == "varbinary")
+                if (typeMapping.StoreType == "nvarchar"
+                    || typeMapping.StoreType == "varbinary")
                 {
                     // nvarchar is the default column type for string properties,
                     // so we don't need to define it using HasColumnType() and removing
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // Similarly for varbinary and byte[] properties.
                     return new Tuple<string, int?>(null, maxLength);
                 }
-                if (_dataTypesAllowingMaxLengthMax.Contains(typeMapping.DefaultTypeName))
+                if (_dataTypesAllowingMaxLengthMax.Contains(typeMapping.StoreType))
                 {
                     return new Tuple<string, int?>(
                         unqualifiedTypeName

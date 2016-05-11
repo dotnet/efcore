@@ -96,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         var previousAnnotations = RelationalExtensions.For(duplicateProperty);
                         var currentTypeString = propertyAnnotations.ColumnType
-                                                ?? TypeMapper.GetMapping(property).DefaultTypeName;
+                                                ?? TypeMapper.GetMapping(property).StoreType;
                         var previousTypeString = previousAnnotations.ColumnType
-                                                 ?? TypeMapper.GetMapping(duplicateProperty).DefaultTypeName;
+                                                 ?? TypeMapper.GetMapping(duplicateProperty).StoreType;
                         if (!currentTypeString.Equals(previousTypeString, StringComparison.OrdinalIgnoreCase))
                         {
                             ShowError(RelationalStrings.DuplicateColumnName(

@@ -12,13 +12,28 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private readonly int _maxSpecificSize;
 
-        public SqlServerMaxLengthMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, DbType? storeType = null, bool unicode = true)
-            : base(defaultTypeName, clrType, storeType, unicode)
+        public SqlServerMaxLengthMapping(
+            [NotNull] string storeType,
+            [NotNull] Type clrType,
+            DbType? dbType = null)
+            : this(storeType, clrType, dbType, unicode: false, size: null)
+        {
+        }
+
+        public SqlServerMaxLengthMapping(
+            [NotNull] string storeType,
+            [NotNull] Type clrType,
+            DbType? dbType,
+            bool unicode,
+            int? size,
+            bool hasNonDefaultUnicode = false,
+            bool hasNonDefaultSize = false)
+            : base(storeType, clrType, dbType, unicode, size, hasNonDefaultUnicode, hasNonDefaultSize)
         {
             _maxSpecificSize =
-                (storeType == DbType.AnsiString)
-                || (storeType == DbType.AnsiStringFixedLength)
-                || (storeType == DbType.Binary)
+                (dbType == System.Data.DbType.AnsiString)
+                || (dbType == System.Data.DbType.AnsiStringFixedLength)
+                || (dbType == System.Data.DbType.Binary)
                     ? 8000
                     : 4000;
         }
@@ -31,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             var length = (parameter.Value as string)?.Length ?? (parameter.Value as byte[])?.Length;
 
-            parameter.Size = (length != null) && (length <= _maxSpecificSize)
+            parameter.Size = length != null && length <= _maxSpecificSize
                 ? _maxSpecificSize
                 : -1;
         }

@@ -433,9 +433,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             var sourceColumnType = sourceAnnotations.ColumnType
-                                   ?? TypeMapper.GetMapping(source).DefaultTypeName;
+                                   ?? TypeMapper.GetMapping(source).StoreType;
             var targetColumnType = targetAnnotations.ColumnType
-                                   ?? TypeMapper.GetMapping(target).DefaultTypeName;
+                                   ?? TypeMapper.GetMapping(target).StoreType;
 
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
 
