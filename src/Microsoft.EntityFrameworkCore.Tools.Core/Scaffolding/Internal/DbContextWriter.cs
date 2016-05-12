@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _model = modelConfiguration;
             _sb = new IndentedStringBuilder();
 
+            _sb.AppendLine("using System;"); // Guid default values require new Guid() which requires this using
             _sb.AppendLine("using Microsoft.EntityFrameworkCore;");
             _sb.AppendLine("using Microsoft.EntityFrameworkCore.Metadata;");
             _sb.AppendLine();
