@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 "The connection string of the database");
             var provider = command.Argument(
                 "[provider]",
-                "The provider to use. For example, EntityFramework.MicrosoftSqlServer");
+                "The provider to use. For example, Microsoft.EntityFrameworkCore.SqlServer");
 
             var dataAnnotations = command.Option(
                 "-a|--data-annotations",
