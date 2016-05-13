@@ -7,11 +7,11 @@ namespace E2E.Sqlite
     {
         public Groups()
         {
-            Users_Groups = new HashSet<Users_Groups>();
+            UsersGroups = new HashSet<UsersGroups>();
         }
 
         public string Id { get; set; }
 
-        public virtual ICollection<Users_Groups> Users_Groups { get; set; }
+        public virtual ICollection<UsersGroups> UsersGroups { get; set; }
     }
 }

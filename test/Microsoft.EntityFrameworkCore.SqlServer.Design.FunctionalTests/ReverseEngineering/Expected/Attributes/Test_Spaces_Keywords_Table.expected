@@ -11,11 +11,11 @@ namespace E2ETest.Namespace
         [Column("Test Spaces Keywords TableID")]
         public int Test_Spaces_Keywords_TableID { get; set; }
         [Column("abstract")]
-        public int _abstract { get; set; }
+        public int Abstract { get; set; }
         [Column("class")]
-        public int? _class { get; set; }
+        public int? Class { get; set; }
         [Column("volatile")]
-        public int _volatile { get; set; }
+        public int Volatile { get; set; }
         [Column("Spaces In Column")]
         public int? Spaces_In_Column { get; set; }
         [Column("Tabs\tIn\tColumn")]

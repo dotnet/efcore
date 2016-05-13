@@ -14,8 +14,10 @@ namespace E2E.Sqlite
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Users_Groups>(entity =>
+            modelBuilder.Entity<UsersGroups>(entity =>
             {
+                entity.ToTable("Users_Groups");
+
                 entity.HasIndex(e => new { e.UserId, e.GroupId })
                     .HasName("sqlite_autoindex_Users_Groups_2")
                     .IsUnique();
@@ -25,12 +27,12 @@ namespace E2E.Sqlite
                 entity.Property(e => e.UserId).IsRequired();
 
                 entity.HasOne(d => d.Group)
-                    .WithMany(p => p.Users_Groups)
+                    .WithMany(p => p.UsersGroups)
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.Users_Groups)
+                    .WithMany(p => p.UsersGroups)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
@@ -38,6 +40,6 @@ namespace E2E.Sqlite
 
         public virtual DbSet<Groups> Groups { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-        public virtual DbSet<Users_Groups> Users_Groups { get; set; }
+        public virtual DbSet<UsersGroups> UsersGroups { get; set; }
     }
 }

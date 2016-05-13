@@ -5,7 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2E.Sqlite
 {
-    public partial class Users_Groups
+    [Table("Users_Groups")]
+    public partial class UsersGroups
     {
         public string Id { get; set; }
         [Required]
@@ -14,10 +15,10 @@ namespace E2E.Sqlite
         public string GroupId { get; set; }
 
         [ForeignKey("GroupId")]
-        [InverseProperty("Users_Groups")]
+        [InverseProperty("UsersGroups")]
         public virtual Groups Group { get; set; }
         [ForeignKey("UserId")]
-        [InverseProperty("Users_Groups")]
+        [InverseProperty("UsersGroups")]
         public virtual Users User { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace E2E.Sqlite
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Users_Groups>(entity =>
+            modelBuilder.Entity<UsersGroups>(entity =>
             {
                 entity.HasIndex(e => new { e.UserId, e.GroupId })
                     .HasName("sqlite_autoindex_Users_Groups_2")
@@ -24,6 +24,6 @@ namespace E2E.Sqlite
 
         public virtual DbSet<Groups> Groups { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-        public virtual DbSet<Users_Groups> Users_Groups { get; set; }
+        public virtual DbSet<UsersGroups> UsersGroups { get; set; }
     }
 }
