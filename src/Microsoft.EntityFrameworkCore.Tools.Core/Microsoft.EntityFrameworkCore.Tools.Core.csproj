@@ -104,7 +104,6 @@
     <Compile Include="Scaffolding\Internal\Configuration\PropertyConfiguration.cs" />
     <Compile Include="Scaffolding\Internal\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="Scaffolding\Internal\Configuration\SequenceConfiguration.cs" />
-    <Compile Include="Scaffolding\Internal\CSharpUtilities.cs" />
     <Compile Include="Scaffolding\Internal\DbContextWriter.cs" />
     <Compile Include="Scaffolding\Internal\EntityTypeWriter.cs" />
     <Compile Include="Scaffolding\Internal\FileSystemFileService.cs" />

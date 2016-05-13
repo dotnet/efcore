@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS Users_Groups (
                         "ManyToMany" + DbSuffix + "Context.expected",
                         "Groups.expected",
                         "Users.expected",
-                        "Users_Groups.expected"
+                        "UsersGroups.expected"
                     }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, TestProjectFullPath)

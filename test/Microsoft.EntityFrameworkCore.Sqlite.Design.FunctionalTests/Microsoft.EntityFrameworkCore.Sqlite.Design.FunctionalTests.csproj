@@ -59,7 +59,7 @@
     <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users_Groups.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\UsersGroups.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\Dependent.expected">
@@ -110,7 +110,7 @@
     <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\Users.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\Users_Groups.expected">
+    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\UsersGroups.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\Attributes\NoPrincipalPk\Dependent.expected">

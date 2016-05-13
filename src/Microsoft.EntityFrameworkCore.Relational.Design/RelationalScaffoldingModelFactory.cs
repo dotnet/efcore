@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            _tableNamer = new CSharpUniqueNamer<TableModel>(t => t.Name);
+            _tableNamer = new CSharpUniqueNamer<TableModel>(t => CSharpUtilities.Pascalize(t.Name));
             _columnNamers = new Dictionary<TableModel, CSharpUniqueNamer<ColumnModel>>();
 
             VisitDatabaseModel(modelBuilder, databaseModel);
@@ -105,7 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             if (!_columnNamers.ContainsKey(table))
             {
-                _columnNamers.Add(table, new CSharpUniqueNamer<ColumnModel>(c => c.Name, usedNames));
+                _columnNamers.Add(table,
+                    new CSharpUniqueNamer<ColumnModel>(
+                        c => CSharpUtilities.Pascalize(c.Name), usedNames));
             }
 
             return _columnNamers[table].GetName(column);
