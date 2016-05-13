@@ -104,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         _tables.Value.Add(entityType, table = _tableFactory.Create(entityType));
                     }
 
+                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (entry.EntityState)
                     {
                         case EntityState.Added:

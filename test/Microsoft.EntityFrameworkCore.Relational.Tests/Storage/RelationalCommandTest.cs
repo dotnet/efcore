@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
@@ -34,6 +35,30 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
 
     public class RelationalCommandTest
     {
+        [Fact]
+        public void Short_byte_arrays_are_not_truncated()
+        {
+            var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
+            var longerShortArray = shortArray.Concat(shortArray).ToArray();
+
+            Assert.Equal("0x2020EC21EA3A6940A2DD08002B30309D",
+                RelationalCommand.FormatParameterValue(shortArray));
+
+            Assert.Equal("0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D",
+                RelationalCommand.FormatParameterValue(longerShortArray));
+        }
+
+        [Fact]
+        public void Long_byte_arrays_are_truncated()
+        {
+            var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
+            var longArray = shortArray.Concat(shortArray).Concat(shortArray).ToArray();
+
+            Assert.Equal(
+                "0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D...",
+                RelationalCommand.FormatParameterValue(longArray));
+        }
+
         [Fact]
         public void Configures_DbCommand()
         {
@@ -106,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    executeNonQuery: c =>
+                    c =>
                         {
                             executeNonQueryCount++;
                             disposeCount = c.DisposeCount;
@@ -901,7 +926,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                logger: new SensitiveDataLogger<RelationalCommand>(
+                new SensitiveDataLogger<RelationalCommand>(
                     new ListLogger<RelationalCommand>(log),
                     options),
                 commandText: "Logged Command",
@@ -948,7 +973,7 @@ Logged Command",
             var fakeConnection = new FakeRelationalConnection(options);
 
             var relationalCommand = CreateRelationalCommand(
-                logger: new SensitiveDataLogger<RelationalCommand>(
+                new SensitiveDataLogger<RelationalCommand>(
                     new ListLogger<RelationalCommand>(log),
                     options),
                 commandText: "Logged Command",

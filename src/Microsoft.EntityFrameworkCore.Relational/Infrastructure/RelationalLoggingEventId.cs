@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ClosingConnection,
         BeginningTransaction,
         CommittingTransaction,
-        RollingbackTransaction
+        RollingbackTransaction,
+        ClientEvalWarning,
+        PossibleUnintendedUseOfEquals
     }
 }

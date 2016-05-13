@@ -37,7 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 if (_coreOptionsExtension.IsSensitiveDataLoggingEnabled
                     && !_coreOptionsExtension.SensitiveDataLoggingWarned)
                 {
-                    _logger.LogWarning(CoreStrings.SensitiveDataLoggingEnabled);
+                    _logger.LogWarning(
+                        CoreLoggingEventId.SensitiveDataLoggingEnabled,
+                        () => CoreStrings.SensitiveDataLoggingEnabled);
 
                     _coreOptionsExtension.SensitiveDataLoggingWarned = true;
                 }

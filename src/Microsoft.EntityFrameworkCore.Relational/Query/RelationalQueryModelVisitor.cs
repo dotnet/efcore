@@ -828,7 +828,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case QueryClientEvaluationBehavior.Throw:
                     throw new InvalidOperationException(RelationalStrings.ClientEvalDisabled(expression));
                 case QueryClientEvaluationBehavior.Warn:
-                    QueryCompilationContext.Logger.LogWarning(RelationalStrings.ClientEvalWarning(expression));
+                    QueryCompilationContext.Logger.LogWarning(
+                        RelationalLoggingEventId.ClientEvalWarning,
+                        () => RelationalStrings.ClientEvalWarning(expression));
                     break;
             }
         }
