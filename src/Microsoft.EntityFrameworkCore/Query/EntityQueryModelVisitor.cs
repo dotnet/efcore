@@ -354,12 +354,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (resultQuerySourceReferenceExpression != null)
                 {
-                    var accessorLambda
-                        = AccessorFindingExpressionVisitor
-                            .FindAccessorLambda(
-                                resultQuerySourceReferenceExpression,
-                                queryModel.SelectClause.Selector,
-                                Expression.Parameter(queryModel.SelectClause.Selector.Type, "result"));
+                    var accessorExpression = QueryCompilationContext.QuerySourceMapping.GetExpression(
+                        resultQuerySourceReferenceExpression.ReferencedQuerySource);
 
                     var sequenceType = resultQuerySourceReferenceExpression.Type.TryGetSequenceType();
 
@@ -377,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     IncludeNavigations(
                         includeSpecification,
                         _expression.Type.GetSequenceType(),
-                        accessorLambda,
+                        accessorExpression,
                         QueryCompilationContext.IsTrackingQuery);
 
                     QueryCompilationContext
@@ -422,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual void IncludeNavigations(
             [NotNull] IncludeSpecification includeSpecification,
             [NotNull] Type resultType,
-            [NotNull] LambdaExpression accessorLambda,
+            [NotNull] Expression accessorExpression,
             bool querySourceRequiresTracking)
         {
             // template method

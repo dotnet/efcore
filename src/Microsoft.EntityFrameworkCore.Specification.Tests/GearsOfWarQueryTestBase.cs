@@ -1185,6 +1185,109 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g1 in context.Gears.Include(g => g.Weapons)
+                            join g2 in context.Gears 
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                            from g2 in grouping.DefaultIfEmpty()
+                            select g2 ?? g1;
+
+                var result = query.ToList();
+
+                Assert.True(result.Count(r => r.Weapons.Count > 0) >= 4);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g1 in context.Gears
+                            join g2 in context.Gears.Include(g => g.Weapons) 
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                            from g2 in grouping.DefaultIfEmpty()
+                            select g2 ?? g1;
+
+                var result = query.ToList();
+
+                Assert.True(result.All(r => r.Weapons.Count > 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g1 in context.Gears.Include(g => g.Weapons)
+                            join g2 in context.Gears.Include(g => g.Weapons)
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                            from g2 in grouping.DefaultIfEmpty()
+                            select g2 ?? g1;
+
+                var result = query.ToList();
+
+                Assert.True(result.All(r => r.Weapons.Count > 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g1 in context.Gears.Include(g => g.Weapons)
+                            join g2 in context.Gears.OfType<Officer>().Include(g => g.Weapons)
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                            from g2 in grouping.DefaultIfEmpty()
+                            select g2 ?? g1;
+
+                var result = query.ToList();
+
+                Assert.True(result.All(r => r.Weapons.Count > 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g1 in context.Gears.Include(g => g.Weapons)
+                            join g2 in context.Gears.Include(g => g.Weapons)
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                            from g2 in grouping.DefaultIfEmpty()
+                            select g2 != null ? g2 : g1;
+
+                var result = query.ToList();
+
+                Assert.True(result.All(r => r.Weapons.Count > 0));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from g1 in context.Gears.Include(g => g.Weapons)
+                            join g2 in context.Gears.Include(g => g.Weapons)
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                            from g2 in grouping.DefaultIfEmpty()
+                            select new { g1, g2, coalesce = g2 ?? g1, conditional = g2 != null ? g2 : g1 };
+
+                var result = query.ToList();
+
+                Assert.True(result.All(r => r.coalesce.Weapons.Count > 0));
+                Assert.True(result.All(r => r.conditional.Weapons.Count > 0));
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

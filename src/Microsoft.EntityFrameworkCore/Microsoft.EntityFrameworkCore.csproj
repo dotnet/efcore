@@ -147,6 +147,7 @@
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\KeyExtensions.cs" />
+    <Compile Include="Extensions\MethodInfoExtensions.cs" />
     <Compile Include="Extensions\ModelExtensions.cs" />
     <Compile Include="Extensions\MutableAnnotatableExtensions.cs" />
     <Compile Include="Extensions\MutableEntityTypeExtensions.cs" />

@@ -1098,6 +1098,240 @@ WHERE [c].[Location] + 'Added' LIKE ('%' + 'Add') + '%'",
                 Sql);
         }
 
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
+        {
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g2].[Nickname], [g2].[SquadId], [g2].[AssignedCityName], [g2].[CityOrBirthName], [g2].[Discriminator], [g2].[FullName], [g2].[LeaderNickname], [g2].[LeaderSquadId], [g2].[Rank]
+FROM [Gear] AS [g]
+LEFT JOIN [Gear] AS [g2] ON [g].[LeaderNickname] = [g2].[Nickname]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[LeaderNickname], [g].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName]
+    FROM [Gear] AS [g]
+    LEFT JOIN [Gear] AS [g2] ON [g].[LeaderNickname] = [g2].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
+ORDER BY [g0].[LeaderNickname], [g0].[FullName]",
+                Sql);
+        }
+
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()
+        {
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2();
+
+            Assert.Equal(
+                @"SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [Gear] AS [g1]
+LEFT JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    FROM [Gear] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [g1].[LeaderNickname] = [t].[Nickname]
+WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g1].[LeaderNickname], [t].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g1].[LeaderNickname], [t].[FullName]
+    FROM [Gear] AS [g1]
+    LEFT JOIN (
+        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+        FROM [Gear] AS [g0]
+        WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t] ON [g1].[LeaderNickname] = [t].[Nickname]
+    WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON [w].[OwnerFullName] = [t0].[FullName]
+ORDER BY [t0].[LeaderNickname], [t0].[FullName]",
+                Sql);
+        }
+
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3()
+        {
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [Gear] AS [g]
+LEFT JOIN (
+    SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+    FROM [Gear] AS [g1]
+    WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[LeaderNickname], [g].[FullName], [t].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [g2] ON [w].[OwnerFullName] = [g2].[FullName]
+ORDER BY [g2].[LeaderNickname], [g2].[FullName]
+
+SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
+FROM [Weapon] AS [w0]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName], [t].[FullName] AS [FullName0]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON [w0].[OwnerFullName] = [t0].[FullName0]
+ORDER BY [t0].[LeaderNickname], [t0].[FullName], [t0].[FullName0]",
+                Sql);
+        }
+
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result()
+        {
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [Gear] AS [g]
+LEFT JOIN (
+    SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+    FROM [Gear] AS [g1]
+    WHERE [g1].[Discriminator] = N'Officer'
+) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[LeaderNickname], [g].[FullName], [t].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] = N'Officer'
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [g2] ON [w].[OwnerFullName] = [g2].[FullName]
+ORDER BY [g2].[LeaderNickname], [g2].[FullName]
+
+SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
+FROM [Weapon] AS [w0]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName], [t].[FullName] AS [FullName0]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] = N'Officer'
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON [w0].[OwnerFullName] = [t0].[FullName0]
+ORDER BY [t0].[LeaderNickname], [t0].[FullName], [t0].[FullName0]",
+                Sql);
+        }
+
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result()
+        {
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [Gear] AS [g]
+LEFT JOIN (
+    SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+    FROM [Gear] AS [g1]
+    WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[LeaderNickname], [g].[FullName], [t].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [g2] ON [w].[OwnerFullName] = [g2].[FullName]
+ORDER BY [g2].[LeaderNickname], [g2].[FullName]
+
+SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
+FROM [Weapon] AS [w0]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName], [t].[FullName] AS [FullName0]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON [w0].[OwnerFullName] = [t0].[FullName0]
+ORDER BY [t0].[LeaderNickname], [t0].[FullName], [t0].[FullName0]",
+                Sql);
+        }
+
+        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result()
+        {
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [Gear] AS [g]
+LEFT JOIN (
+    SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+    FROM [Gear] AS [g1]
+    WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[LeaderNickname], [g].[FullName], [t].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [g2] ON [w].[OwnerFullName] = [g2].[FullName]
+ORDER BY [g2].[LeaderNickname], [g2].[FullName]
+
+SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
+FROM [Weapon] AS [w0]
+INNER JOIN (
+    SELECT DISTINCT [g].[LeaderNickname], [g].[FullName], [t].[FullName] AS [FullName0]
+    FROM [Gear] AS [g]
+    LEFT JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
+        FROM [Gear] AS [g1]
+        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON [w0].[OwnerFullName] = [t0].[FullName0]
+ORDER BY [t0].[LeaderNickname], [t0].[FullName], [t0].[FullName0]",
+                Sql);
+        }
+
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

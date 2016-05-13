@@ -233,21 +233,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void IncludeNavigations(
             IncludeSpecification includeSpecification,
             Type resultType,
-            LambdaExpression accessorLambda,
+            Expression accessorExpression,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
 
-            Expression
-                = _includeExpressionVisitorFactory
-                    .Create(
-                        includeSpecification.QuerySource,
-                        includeSpecification.NavigationPath,
-                        QueryCompilationContext,
-                        _navigationIndexMap[includeSpecification],
-                        querySourceRequiresTracking)
-                    .Visit(Expression);
+            var includeExpressionVisitor = _includeExpressionVisitorFactory.Create(
+                includeSpecification.QuerySource,
+                includeSpecification.NavigationPath,
+                QueryCompilationContext,
+                _navigationIndexMap[includeSpecification],
+                querySourceRequiresTracking);
+
+            Expression = includeExpressionVisitor.Visit(Expression);
         }
 
         public override void VisitQueryModel(QueryModel queryModel)
