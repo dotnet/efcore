@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             reporter?.Invoke(files);
 
-            Reporter.Error.WriteLine("Done. To undo this action, use 'ef migrations remove'");
+            Reporter.Error.WriteLine("Done. To undo this action, use 'dotnet ef migrations remove'");
 
             return 0;
         }
