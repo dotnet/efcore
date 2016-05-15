@@ -12,8 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Concurren
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollection<Driver>();
         private readonly ObservableCollection<Sponsor> _sponsors = new ObservableCollection<Sponsor>();
 
-        public byte[] Version { get; set; }
-
         public int Id { get; set; }
 
         public string Name { get; set; }
