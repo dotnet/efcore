@@ -3,9 +3,9 @@
 
 using System;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -35,12 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
         }
 
         protected DbContextOptions BuildOptions()
-            => new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(_serviceProvider)
+            => ConfigureOptions(
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(_serviceProvider))
                 .UseSqlite(
                     _testStore.ConnectionString,
                     b => ConfigureOptions(b).SuppressForeignKeyEnforcement())
                 .Options;
+
+        protected virtual DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder)
+            => dbContextOptionsBuilder;
 
         protected virtual SqliteDbContextOptionsBuilder ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
             => sqliteDbContextOptionsBuilder;

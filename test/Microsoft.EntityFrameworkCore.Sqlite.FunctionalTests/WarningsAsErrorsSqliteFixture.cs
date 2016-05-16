@@ -7,10 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class WarningsAsErrorsSqliteFixture : NorthwindQuerySqliteFixture
     {
+        protected override DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder)
+            => dbContextOptionsBuilder.SetWarningsAsErrors();
+
         protected override SqliteDbContextOptionsBuilder ConfigureOptions(
             SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
             => sqliteDbContextOptionsBuilder
-                .QueryClientEvaluationBehavior(QueryClientEvaluationBehavior.Warn)
-                .SetWarningsAsErrors(RelationalLoggingEventId.QueryClientEvaluationWarning);
+                .QueryClientEvaluationBehavior(QueryClientEvaluationBehavior.Warn);
     }
 }

@@ -34,9 +34,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         protected DbContextOptions BuildOptions()
-            => new DbContextOptionsBuilder()
+            => ConfigureOptions(
+                new DbContextOptionsBuilder()
                 .EnableSensitiveDataLogging()
-                .UseInternalServiceProvider(_serviceProvider)
+                .UseInternalServiceProvider(_serviceProvider))
                 .UseSqlServer(
                     _testStore.ConnectionString,
                     b =>
@@ -44,6 +45,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             ConfigureOptions(b);
                             b.ApplyConfiguration();
                         }).Options;
+
+        protected virtual DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder) 
+            => dbContextOptionsBuilder;
 
         protected virtual void ConfigureOptions(SqlServerDbContextOptionsBuilder sqlServerDbContextOptionsBuilder)
         {

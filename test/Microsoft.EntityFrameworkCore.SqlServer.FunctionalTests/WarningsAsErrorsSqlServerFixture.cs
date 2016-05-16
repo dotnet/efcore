@@ -7,9 +7,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class WarningsAsErrorsSqlServerFixture : NorthwindQuerySqlServerFixture
     {
+        protected override DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder)
+            => dbContextOptionsBuilder.SetWarningsAsErrors();
+
         protected override void ConfigureOptions(SqlServerDbContextOptionsBuilder sqlServerDbContextOptionsBuilder)
             => sqlServerDbContextOptionsBuilder
-                .QueryClientEvaluationBehavior(QueryClientEvaluationBehavior.Warn)
-                .SetWarningsAsErrors(RelationalLoggingEventId.QueryClientEvaluationWarning);
+                .QueryClientEvaluationBehavior(QueryClientEvaluationBehavior.Warn);
     }
 }

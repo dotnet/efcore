@@ -128,18 +128,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbContextOptionsBuilder EnableSensitiveDataLogging()
             => SetOption(e => e.IsSensitiveDataLoggingEnabled = true);
 
-        public virtual DbContextOptionsBuilder SetWarningsAsErrors(
-            [NotNull] params CoreLoggingEventId[] coreLoggingEventIds)
-        {
-            Check.NotNull(coreLoggingEventIds, nameof(coreLoggingEventIds));
-
-            if (coreLoggingEventIds.Length == 0)
-            {
-                coreLoggingEventIds = (CoreLoggingEventId[])Enum.GetValues(typeof(CoreLoggingEventId));     
-            }
-            
-            return SetOption(e => e.WarningsAsErrorsEventIds = coreLoggingEventIds);
-        }
+        public virtual DbContextOptionsBuilder SetWarningsAsErrors() 
+            => SetOption(e => e.IsWarningsAsErrorsEnabled = true);
 
         /// <summary>
         ///     <para>

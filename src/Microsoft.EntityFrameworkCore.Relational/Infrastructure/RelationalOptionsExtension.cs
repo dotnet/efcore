@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
-    public abstract class RelationalOptionsExtension : IDbContextOptionsExtension, IWarningsAsErrorsOptionsExtension
+    public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     {
         private string _connectionString;
         private DbConnection _connection;
@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
         private string _migrationsHistoryTableSchema;
-        private IReadOnlyCollection<RelationalLoggingEventId> _warningsAsErrorsEventIds;
 
         protected RelationalOptionsExtension()
         {
@@ -46,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
             _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
-            _warningsAsErrorsEventIds = copyFrom._warningsAsErrorsEventIds;
         }
 
         public virtual string ConnectionString
@@ -140,17 +138,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             get { return _migrationsHistoryTableSchema; }
             [param: CanBeNull] set { _migrationsHistoryTableSchema = value; }
         }
-
-        public virtual IReadOnlyCollection<RelationalLoggingEventId> WarningsAsErrorsEventIds
-        {
-            get { return _warningsAsErrorsEventIds; }
-            [param: CanBeNull] set { _warningsAsErrorsEventIds = value; }
-        }
-
-        public virtual bool WarningIsError(Enum warningEventId)
-            => _warningsAsErrorsEventIds != null
-               && warningEventId is RelationalLoggingEventId
-               && _warningsAsErrorsEventIds.Contains((RelationalLoggingEventId)warningEventId);
 
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {

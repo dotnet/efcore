@@ -16,14 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// <summary>
     ///     Used to store the options specified via <see cref="DbContextOptionsBuilder" /> that are applicable to all databases.
     /// </summary>
-    public class CoreOptionsExtension : IDbContextOptionsExtension, IWarningsAsErrorsOptionsExtension
+    public class CoreOptionsExtension : IDbContextOptionsExtension
     {
         private IServiceProvider _internalServiceProvider;
         private IModel _model;
         private ILoggerFactory _loggerFactory;
         private IMemoryCache _memoryCache;
         private bool _isSensitiveDataLoggingEnabled;
-        private IReadOnlyCollection<CoreLoggingEventId> _warningsAsErrorsEventIds;
 
         /// <summary>
         ///     <para>
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _loggerFactory = copyFrom.LoggerFactory;
             _memoryCache = copyFrom.MemoryCache;
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
-            _warningsAsErrorsEventIds = copyFrom.WarningsAsErrorsEventIds;
+            IsWarningsAsErrorsEnabled = copyFrom.IsWarningsAsErrorsEnabled;
         }
 
         /// <summary>
@@ -99,11 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [param: CanBeNull] set { _internalServiceProvider = value; }
         }
 
-        public virtual IReadOnlyCollection<CoreLoggingEventId> WarningsAsErrorsEventIds
-        {
-            get { return _warningsAsErrorsEventIds; }
-            [param: CanBeNull] set { _warningsAsErrorsEventIds = value; }
-        }
+        public virtual bool IsWarningsAsErrorsEnabled { get; set; }
 
         /// <summary>
         ///     Adds the services required to make the selected options work. This is used when there is no external <see cref="IServiceProvider" />
@@ -114,10 +109,5 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual void ApplyServices(IServiceCollection builder)
         {
         }
-
-        public virtual bool WarningIsError(Enum warningEventId)
-            => _warningsAsErrorsEventIds != null
-               && warningEventId is CoreLoggingEventId
-               && _warningsAsErrorsEventIds.Contains((CoreLoggingEventId)warningEventId);
     }
 }

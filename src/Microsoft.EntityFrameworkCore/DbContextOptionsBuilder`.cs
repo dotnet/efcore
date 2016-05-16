@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore
         public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging()
             => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging();
 
-        public new virtual DbContextOptionsBuilder<TContext> SetWarningsAsErrors([NotNull] params CoreLoggingEventId[] coreLoggingEventIds)
-            => (DbContextOptionsBuilder<TContext>)base.SetWarningsAsErrors(coreLoggingEventIds);
+        public new virtual DbContextOptionsBuilder<TContext> SetWarningsAsErrors()
+            => (DbContextOptionsBuilder<TContext>)base.SetWarningsAsErrors();
 
     }
 }

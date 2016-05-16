@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class InterceptingLogger<T> : ILogger<T>
     {
         private readonly ILogger _logger;
-        private readonly List<IWarningsAsErrorsOptionsExtension> _warningsAsErrorsOptionsExtensions;
+        private readonly bool _warningsAsErrorsEnabled;
 
         public InterceptingLogger(
             [NotNull] IDbContextServices contextServices,
@@ -25,10 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                        ?? serviceProvider.GetRequiredService<ILoggerFactory>())
                 .CreateLogger(typeof(T).DisplayName());
 
-            _warningsAsErrorsOptionsExtensions
-                = contextOptions?.Extensions
-                    .OfType<IWarningsAsErrorsOptionsExtension>()
-                    .ToList();
+            _warningsAsErrorsEnabled
+                = contextOptions?.FindExtension<CoreOptionsExtension>()
+                    ?.IsWarningsAsErrorsEnabled ?? false;
         }
 
         public virtual void Log<TState>(
@@ -39,12 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Func<TState, Exception, string> formatter)
         {
             if (logLevel == LogLevel.Warning
-                && _warningsAsErrorsOptionsExtensions.Count > 0)
+                && _warningsAsErrorsEnabled)
             {
                 var stateAsEnum = state as Enum;
 
-                if (stateAsEnum != null
-                    && _warningsAsErrorsOptionsExtensions.Any(oe => oe.WarningIsError(stateAsEnum)))
+                if (stateAsEnum != null)
                 {
                     var enumType = state.GetType();
 
