@@ -111,7 +111,7 @@
     </Content>
     <Content Include="Assets\logo.png" />
     <Reference Include="Microsoft.Data.Sqlite">
-      <HintPath>..\..\artifacts\bin\Microsoft.Data.Sqlite\$(Configuration)\dotnet5.4\Microsoft.Data.Sqlite.dll</HintPath>
+      <HintPath>..\..\src\Microsoft.Data.Sqlite\bin\$(Configuration)\netcore50\Microsoft.Data.Sqlite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
