@@ -8,6 +8,7 @@ namespace E2E.Sqlite
     public partial class Dependent
     {
         public string Id { get; set; }
+        [Column(TypeName = "INT")]
         public long? PrincipalId { get; set; }
     }
 }

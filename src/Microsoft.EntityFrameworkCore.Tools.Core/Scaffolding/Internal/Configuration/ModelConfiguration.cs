@@ -470,38 +470,45 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
                         AnnotationProvider.For(propertyConfiguration.Property).ColumnType)
                     : null;
 
-            if (delimitedColumnName != null)
+            if (delimitedColumnName != null
+                && delimitedColumnTypeName != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ true,
                         nameof(RelationalPropertyBuilderExtensions.HasColumnName),
                         delimitedColumnName));
-
-                if (delimitedColumnTypeName == null)
-                {
-                    propertyConfiguration.AttributeConfigurations.Add(
-                        _configurationFactory.CreateAttributeConfiguration(nameof(ColumnAttribute), delimitedColumnName));
-                }
-                else
-                {
-                    propertyConfiguration.FluentApiConfigurations.Add(
-                        _configurationFactory.CreateFluentApiConfiguration(
-                            /* hasAttributeEquivalent */ true,
-                            nameof(RelationalPropertyBuilderExtensions.HasColumnType),
-                            delimitedColumnTypeName));
-                    propertyConfiguration.AttributeConfigurations.Add(
-                        _configurationFactory.CreateAttributeConfiguration(
-                            nameof(ColumnAttribute), delimitedColumnName, nameof(ColumnAttribute.TypeName) + " = " + delimitedColumnTypeName));
-                }
+                propertyConfiguration.FluentApiConfigurations.Add(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        /* hasAttributeEquivalent */ true,
+                        nameof(RelationalPropertyBuilderExtensions.HasColumnType),
+                        delimitedColumnTypeName));
+                propertyConfiguration.AttributeConfigurations.Add(
+                    _configurationFactory.CreateAttributeConfiguration(
+                        nameof(ColumnAttribute),
+                        delimitedColumnName,
+                        nameof(ColumnAttribute.TypeName) + " = " + delimitedColumnTypeName));
+            }
+            else if (delimitedColumnName != null)
+            {
+                propertyConfiguration.FluentApiConfigurations.Add(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        /* hasAttributeEquivalent */ true,
+                        nameof(RelationalPropertyBuilderExtensions.HasColumnName),
+                        delimitedColumnName));
+                propertyConfiguration.AttributeConfigurations.Add(
+                    _configurationFactory.CreateAttributeConfiguration(nameof(ColumnAttribute), delimitedColumnName));
             }
             else if (delimitedColumnTypeName != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
-                        /* hasAttributeEquivalent */ false,
+                        /* hasAttributeEquivalent */ true,
                         nameof(RelationalPropertyBuilderExtensions.HasColumnType),
                         delimitedColumnTypeName));
+                propertyConfiguration.AttributeConfigurations.Add(
+                    _configurationFactory.CreateAttributeConfiguration(
+                        nameof(ColumnAttribute), nameof(ColumnAttribute.TypeName) + " = " + delimitedColumnTypeName));
             }
         }
 

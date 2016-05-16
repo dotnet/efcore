@@ -102,13 +102,10 @@ namespace E2ETest.Namespace
                     .HasName("Test_PropertyConfiguration_Index");
 
                 entity.Property(e => e.ComputedDateTimeColumn)
-                    .HasColumnType("datetime")
                     .HasComputedColumnSql("getdate()")
                     .ValueGeneratedOnAddOrUpdate();
 
-                entity.Property(e => e.RowversionColumn)
-                    .HasColumnType("timestamp")
-                    .ValueGeneratedOnAddOrUpdate();
+                entity.Property(e => e.RowversionColumn).ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.SumOfAAndB)
                     .HasComputedColumnSql("[A]+[B]")
@@ -122,11 +119,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.WithGuidDefaultExpression).HasDefaultValueSql("newsequentialid()");
 
-                entity.Property(e => e.WithMoneyDefaultValue)
-                    .HasColumnType("money")
-                    .HasDefaultValueSql("0.00");
-
-                entity.Property(e => e.WithVarcharNullDefaultValue).HasColumnType("varchar(1)");
+                entity.Property(e => e.WithMoneyDefaultValue).HasDefaultValueSql("0.00");
             });
 
             modelBuilder.Entity<SelfReferencing>(entity =>
