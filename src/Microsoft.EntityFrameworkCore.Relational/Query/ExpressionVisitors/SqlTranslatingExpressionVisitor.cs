@@ -167,11 +167,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var leftExpression = Visit(expression.Left);
                     var rightExpression = Visit(expression.Right);
 
-                    return leftExpression != null
-                           && rightExpression != null
+                    return leftExpression != null && rightExpression != null
                         ? Expression.MakeBinary(
-                            expression.NodeType,
-                            leftExpression,
+                            expression.NodeType, 
+                            leftExpression, 
                             rightExpression,
                             expression.IsLiftedToNull,
                             expression.Method)

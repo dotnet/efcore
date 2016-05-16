@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return Expression.MakeBinary(node.NodeType, newLeft, newRight);
+            return Expression.MakeBinary(node.NodeType, newLeft, newRight, node.IsLiftedToNull, node.Method);
         }
 
         private static NewExpression CreateNullCompositeKey(Expression otherExpression)

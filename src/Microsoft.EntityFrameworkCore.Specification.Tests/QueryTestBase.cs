@@ -5519,6 +5519,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void String_concat_with_navigation1()
+        {
+            using (var context = CreateContext())
+            {
+                AssertQuery<Order>(
+                    os => os.Select(o => o.CustomerID + " " + o.Customer.City));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void String_concat_with_navigation2()
+        {
+            using (var context = CreateContext())
+            {
+                AssertQuery<Order>(
+                    os => os.Select(o => o.Customer.City + " " + o.Customer.City));
+            }
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
