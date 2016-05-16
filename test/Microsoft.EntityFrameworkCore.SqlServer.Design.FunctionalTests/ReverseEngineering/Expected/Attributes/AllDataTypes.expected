@@ -10,64 +10,99 @@ namespace E2ETest.Namespace
         public int AllDataTypesID { get; set; }
         public long bigintColumn { get; set; }
         public bool bitColumn { get; set; }
+        [Column(TypeName = "decimal")]
         public decimal decimalColumn { get; set; }
         public int intColumn { get; set; }
+        [Column(TypeName = "money")]
         public decimal moneyColumn { get; set; }
+        [Column(TypeName = "numeric")]
         public decimal numericColumn { get; set; }
         public short smallintColumn { get; set; }
+        [Column(TypeName = "smallmoney")]
         public decimal smallmoneyColumn { get; set; }
         public byte tinyintColumn { get; set; }
         public double floatColumn { get; set; }
         public float? realColumn { get; set; }
+        [Column(TypeName = "date")]
         public DateTime dateColumn { get; set; }
+        [Column(TypeName = "datetime")]
         public DateTime? datetimeColumn { get; set; }
         public DateTime? datetime2Column { get; set; }
+        [Column(TypeName = "datetime2(4)")]
         public DateTime? datetime24Column { get; set; }
         public DateTimeOffset? datetimeoffsetColumn { get; set; }
+        [Column(TypeName = "datetimeoffset(5)")]
         public DateTimeOffset? datetimeoffset5Column { get; set; }
+        [Column(TypeName = "smalldatetime")]
         public DateTime? smalldatetimeColumn { get; set; }
         public TimeSpan? timeColumn { get; set; }
+        [Column(TypeName = "time(4)")]
         public TimeSpan? time4Column { get; set; }
+        [Column(TypeName = "char(1)")]
         public string charColumn { get; set; }
+        [Column(TypeName = "char(10)")]
         public string char10Column { get; set; }
+        [Column(TypeName = "text")]
         public string textColumn { get; set; }
+        [Column(TypeName = "varchar(1)")]
         public string varcharColumn { get; set; }
+        [Column(TypeName = "varchar(66)")]
         public string varchar66Column { get; set; }
+        [Column(TypeName = "varchar(max)")]
         public string varcharMaxColumn { get; set; }
+        [Column(TypeName = "nchar(1)")]
         public string ncharColumn { get; set; }
+        [Column(TypeName = "nchar(99)")]
         public string nchar99Column { get; set; }
+        [Column(TypeName = "ntext")]
         public string ntextColumn { get; set; }
         [MaxLength(1)]
         public string nvarcharColumn { get; set; }
         [MaxLength(100)]
         public string nvarchar100Column { get; set; }
         public string nvarcharMaxColumn { get; set; }
+        [Column(TypeName = "binary(1)")]
         public byte[] binaryColumn { get; set; }
+        [Column(TypeName = "binary(111)")]
         public byte[] binary111Column { get; set; }
+        [Column(TypeName = "image")]
         public byte[] imageColumn { get; set; }
         [MaxLength(1)]
         public byte[] varbinaryColumn { get; set; }
         [MaxLength(123)]
         public byte[] varbinary123Column { get; set; }
         public byte[] varbinaryMaxColumn { get; set; }
+        [Column(TypeName = "timestamp")]
         public byte[] timestampColumn { get; set; }
         public Guid? uniqueidentifierColumn { get; set; }
+        [Column(TypeName = "xml")]
         public string xmlColumn { get; set; }
+        [Column(TypeName = "TestTypeAlias")]
         public string typeAliasColumn { get; set; }
         [MaxLength(1)]
         public byte[] binaryVaryingColumn { get; set; }
         [MaxLength(133)]
         public byte[] binaryVarying133Column { get; set; }
         public byte[] binaryVaryingMaxColumn { get; set; }
+        [Column(TypeName = "varchar(1)")]
         public string charVaryingColumn { get; set; }
+        [Column(TypeName = "varchar(144)")]
         public string charVarying144Column { get; set; }
+        [Column(TypeName = "varchar(max)")]
         public string charVaryingMaxColumn { get; set; }
+        [Column(TypeName = "char(1)")]
         public string characterColumn { get; set; }
+        [Column(TypeName = "char(155)")]
         public string character155Column { get; set; }
+        [Column(TypeName = "varchar(1)")]
         public string characterVaryingColumn { get; set; }
+        [Column(TypeName = "varchar(166)")]
         public string characterVarying166Column { get; set; }
+        [Column(TypeName = "varchar(max)")]
         public string characterVaryingMaxColumn { get; set; }
+        [Column(TypeName = "nchar(1)")]
         public string nationalCharacterColumn { get; set; }
+        [Column(TypeName = "nchar(171)")]
         public string nationalCharacter171Column { get; set; }
         [MaxLength(1)]
         public string nationalCharVaryingColumn { get; set; }

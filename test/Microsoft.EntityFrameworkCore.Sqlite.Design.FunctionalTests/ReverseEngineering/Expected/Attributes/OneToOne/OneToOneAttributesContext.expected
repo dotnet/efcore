@@ -19,10 +19,6 @@ namespace E2E.Sqlite
                 entity.HasIndex(e => e.PrincipalId)
                     .HasName("sqlite_autoindex_Dependent_1")
                     .IsUnique();
-
-                entity.Property(e => e.Id).HasColumnType("INT");
-
-                entity.Property(e => e.PrincipalId).HasColumnType("INT");
             });
         }
 
