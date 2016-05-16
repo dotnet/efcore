@@ -57,6 +57,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return SetOption(e => e.QueryClientEvaluationBehavior = queryClientEvaluationBehavior);
         }
 
+        public virtual TBuilder SetWarningsAsErrors(
+            [NotNull] params RelationalLoggingEventId[] relationalLoggingEventIds)
+        {
+            Check.NotNull(relationalLoggingEventIds, nameof(relationalLoggingEventIds));
+
+            if (relationalLoggingEventIds.Length == 0)
+            {
+                relationalLoggingEventIds = (RelationalLoggingEventId[])Enum.GetValues(typeof(RelationalLoggingEventId));
+            }
+
+            return SetOption(e => e.WarningsAsErrorsEventIds = relationalLoggingEventIds);
+        }
+
         protected virtual TBuilder SetOption([NotNull] Action<TExtension> setAction)
         {
             Check.NotNull(setAction, nameof(setAction));

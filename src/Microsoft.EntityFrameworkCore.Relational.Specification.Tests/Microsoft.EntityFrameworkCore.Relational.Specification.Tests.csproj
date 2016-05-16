@@ -54,6 +54,7 @@
     <Compile Include="NullSemanticsQueryTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyEntryTestBase.cs" />
+    <Compile Include="WarningsAsErrorsTestBase.cs" />
     <Compile Include="QueryNoClientEvalTestBase.cs" />
     <Compile Include="RelationalTestHelpers.cs" />
     <Compile Include="RelationalTestStore.cs" />

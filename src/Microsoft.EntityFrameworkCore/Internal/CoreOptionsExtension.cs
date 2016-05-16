@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -14,13 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// <summary>
     ///     Used to store the options specified via <see cref="DbContextOptionsBuilder" /> that are applicable to all databases.
     /// </summary>
-    public class CoreOptionsExtension : IDbContextOptionsExtension
+    public class CoreOptionsExtension : IDbContextOptionsExtension, IWarningsAsErrorsOptionsExtension
     {
         private IServiceProvider _internalServiceProvider;
         private IModel _model;
         private ILoggerFactory _loggerFactory;
         private IMemoryCache _memoryCache;
         private bool _isSensitiveDataLoggingEnabled;
+        private IReadOnlyCollection<CoreLoggingEventId> _warningsAsErrorsEventIds;
 
         /// <summary>
         ///     <para>
@@ -47,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _loggerFactory = copyFrom.LoggerFactory;
             _memoryCache = copyFrom.MemoryCache;
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
+            _warningsAsErrorsEventIds = copyFrom.WarningsAsErrorsEventIds;
         }
 
         /// <summary>
@@ -95,6 +99,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [param: CanBeNull] set { _internalServiceProvider = value; }
         }
 
+        public virtual IReadOnlyCollection<CoreLoggingEventId> WarningsAsErrorsEventIds
+        {
+            get { return _warningsAsErrorsEventIds; }
+            [param: CanBeNull] set { _warningsAsErrorsEventIds = value; }
+        }
+
         /// <summary>
         ///     Adds the services required to make the selected options work. This is used when there is no external <see cref="IServiceProvider" />
         ///     and EF is maintaining its own service provider internally. Since all the core services are already added to the service provider,
@@ -104,5 +114,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual void ApplyServices(IServiceCollection builder)
         {
         }
+
+        public virtual bool WarningIsError(Enum warningEventId)
+            => _warningsAsErrorsEventIds != null
+               && warningEventId is CoreLoggingEventId
+               && _warningsAsErrorsEventIds.Contains((CoreLoggingEventId)warningEventId);
     }
 }

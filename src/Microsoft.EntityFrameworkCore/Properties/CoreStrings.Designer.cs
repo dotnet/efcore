@@ -1220,6 +1220,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "navigation"), navigation);
         }
 
+        /// <summary>
+        /// Warning as error exception for warning '{eventId}': {message}
+        /// </summary>
+        public static string WarningAsError([CanBeNull] object eventId, [CanBeNull] object message)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WarningAsError", "eventId", "message"), eventId, message);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

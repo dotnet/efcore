@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         The service provider must contain all the services required by Entity Framework (and the database being
         ///         used). The Entity Framework services can be registered using the
-        ///         <see cref="Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServiceCollectionExtensions.AddEntityFramework(IServiceCollection)" /> 
+        ///         <see cref="Infrastructure.EntityFrameworkServiceCollectionExtensions.AddEntityFramework(IServiceCollection)" />
         ///         method. Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
         ///         services required. For example, the Microsoft SQL Server provider includes an AddEntityFrameworkSqlServer() method
         ///         to add the required services.
@@ -127,6 +127,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder EnableSensitiveDataLogging()
             => SetOption(e => e.IsSensitiveDataLoggingEnabled = true);
+
+        public virtual DbContextOptionsBuilder SetWarningsAsErrors(
+            [NotNull] params CoreLoggingEventId[] coreLoggingEventIds)
+        {
+            Check.NotNull(coreLoggingEventIds, nameof(coreLoggingEventIds));
+
+            if (coreLoggingEventIds.Length == 0)
+            {
+                coreLoggingEventIds = (CoreLoggingEventId[])Enum.GetValues(typeof(CoreLoggingEventId));     
+            }
+            
+            return SetOption(e => e.WarningsAsErrorsEventIds = coreLoggingEventIds);
+        }
 
         /// <summary>
         ///     <para>

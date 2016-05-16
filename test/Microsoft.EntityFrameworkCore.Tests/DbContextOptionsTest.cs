@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,6 +33,28 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
             Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
+        }
+
+        [Fact]
+        public void Warnings_as_errors_can_be_set()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder().SetWarningsAsErrors();
+
+            var errorEventIds = optionsBuilder.Options.FindExtension<CoreOptionsExtension>().WarningsAsErrorsEventIds;
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            Assert.Equal((ICollection<CoreLoggingEventId>)Enum.GetValues(typeof(CoreLoggingEventId)), errorEventIds);
+        }
+        
+        [Fact]
+        public void Warnings_as_errors_can_set_specific_event_ids()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder().SetWarningsAsErrors(CoreLoggingEventId.OptimizedQueryModel);
+
+            var errorEventIds = optionsBuilder.Options.FindExtension<CoreOptionsExtension>().WarningsAsErrorsEventIds;
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            Assert.Equal(CoreLoggingEventId.OptimizedQueryModel, errorEventIds.Single());
         }
 
         [Fact]

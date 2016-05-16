@@ -91,7 +91,9 @@
     <Compile Include="QueryBugsTest.cs" />
     <Compile Include="QueryLoggingSqlServerTest.cs" />
     <Compile Include="QueryNavigationsSqlServerTest.cs" />
+    <Compile Include="WarningsAsErrorsSqlServerFixture.cs" />
     <Compile Include="QueryNoClientEvalSqlServerFixture.cs" />
+    <Compile Include="WarningsAsErrorsSqlServerTest.cs" />
     <Compile Include="QueryNoClientEvalSqlServerTest.cs" />
     <Compile Include="QuerySqlServerTest.cs" />
     <Compile Include="RowNumberPagingTest.cs" />

@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(91 + 830, context.ChangeTracker.Entries().Count());
             }
         }
-
+ 
         [Fact]
         public virtual void Include_list()
         {

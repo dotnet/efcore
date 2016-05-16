@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         BeginningTransaction,
         CommittingTransaction,
         RollingbackTransaction,
-        ClientEvalWarning,
-        PossibleUnintendedUseOfEquals
+        QueryClientEvaluationWarning,
+        PossibleUnintendedUseOfEqualsWarning
     }
 }

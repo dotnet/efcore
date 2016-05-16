@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                     }
 
                     _logger.LogWarning(
-                        RelationalLoggingEventId.PossibleUnintendedUseOfEquals,
+                        RelationalLoggingEventId.PossibleUnintendedUseOfEqualsWarning,
                         () => RelationalStrings.PossibleUnintendedUseOfEquals(
                             methodCallExpression.Object.ToString(),
                             argument.ToString()));

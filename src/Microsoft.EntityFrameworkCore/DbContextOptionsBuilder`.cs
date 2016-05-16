@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -74,5 +75,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging()
             => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging();
+
+        public new virtual DbContextOptionsBuilder<TContext> SetWarningsAsErrors([NotNull] params CoreLoggingEventId[] coreLoggingEventIds)
+            => (DbContextOptionsBuilder<TContext>)base.SetWarningsAsErrors(coreLoggingEventIds);
+
     }
 }

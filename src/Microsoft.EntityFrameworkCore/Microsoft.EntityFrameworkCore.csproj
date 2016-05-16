@@ -207,6 +207,7 @@
     <Compile Include="Internal\IModelValidator.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />
+    <Compile Include="Internal\IWarningsAsErrorsOptionsExtension.cs" />
     <Compile Include="Internal\LazyRef.cs" />
     <Compile Include="Internal\LoggingModelValidator.cs" />
     <Compile Include="Internal\ModelValidator.cs" />
