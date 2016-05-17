@@ -69,6 +69,30 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        /// Dropping database '{name}'.
+        /// </summary>
+        public static string LogDroppingDatabase([CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogDroppingDatabase", "name"), name);
+        }
+
+        /// <summary>
+        /// Successfully dropped database '{name}'.
+        /// </summary>
+        public static string LogDatabaseDropped([CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogDatabaseDropped", "name"), name);
+        }
+
+        /// <summary>
+        /// Cancelled.
+        /// </summary>
+        public static string Cancelled
+        {
+            get { return GetString("Cancelled"); }
+        }
+
+        /// <summary>
         /// A manual migration deletion was detected.
         /// </summary>
         public static string ManuallyDeleted

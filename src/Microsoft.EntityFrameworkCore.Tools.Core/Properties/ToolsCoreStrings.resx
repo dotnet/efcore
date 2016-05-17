@@ -138,6 +138,15 @@
   <data name="LogUseContext" xml:space="preserve">
     <value>Using context '{name}'.</value>
   </data>
+  <data name="LogDroppingDatabase" xml:space="preserve">
+    <value>Dropping database '{name}'.</value>
+  </data>
+  <data name="LogDatabaseDropped" xml:space="preserve">
+    <value>Successfully dropped database '{name}'.</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Cancelled.</value>
+  </data>
   <data name="ManuallyDeleted" xml:space="preserve">
     <value>A manual migration deletion was detected.</value>
   </data>

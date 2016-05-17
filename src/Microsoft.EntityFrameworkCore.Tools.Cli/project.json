@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-preview1-*",
+  "version": "1.0.0-preview2-*",
   "description": "Components for Entity Framework Commands on .NET Core CLI",
   "buildOptions": {
     "emitEntryPoint": true,
