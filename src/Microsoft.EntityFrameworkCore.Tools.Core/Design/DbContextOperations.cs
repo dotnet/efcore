@@ -53,7 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var connection = context.Database.GetDbConnection();
                 if (confirmCheck(connection.Database, connection.DataSource))
                 {
+                    _logger.Value.LogInformation(ToolsCoreStrings.LogDroppingDatabase(connection.Database));
                     context.Database.EnsureDeleted();
+                    _logger.Value.LogInformation(ToolsCoreStrings.LogDatabaseDropped(connection.Database));
+                }
+                else
+                {
+                    _logger.Value.LogInformation(ToolsCoreStrings.Cancelled);
                 }
             }
         }
