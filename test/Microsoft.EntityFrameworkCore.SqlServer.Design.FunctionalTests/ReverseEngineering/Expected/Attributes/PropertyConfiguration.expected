@@ -12,17 +12,21 @@ namespace E2ETest.Namespace
         public DateTime WithDateFixedDefault { get; set; }
         public DateTime? WithDateNullDefault { get; set; }
         public Guid WithGuidDefaultExpression { get; set; }
+        [Column(TypeName = "varchar(1)")]
         public string WithVarcharNullDefaultValue { get; set; }
         public int WithDefaultValue { get; set; }
         public short? WithNullDefaultValue { get; set; }
+        [Column(TypeName = "money")]
         public decimal WithMoneyDefaultValue { get; set; }
         public int A { get; set; }
         public int B { get; set; }
         public int? SumOfAAndB { get; set; }
         [Required]
+        [Column(TypeName = "timestamp")]
         public byte[] RowversionColumn { get; set; }
         [Column("PropertyConfiguration")]
         public int? PropertyConfiguration1 { get; set; }
+        [Column(TypeName = "datetime")]
         public DateTime ComputedDateTimeColumn { get; set; }
     }
 }
