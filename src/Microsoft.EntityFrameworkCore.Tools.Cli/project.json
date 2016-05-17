@@ -11,6 +11,13 @@
     "xmlDoc": true,
     "compile": {
       "include": "../Shared/CodeAnnotations.cs"
+    },
+  },
+  "packOptions": {
+    "files": {
+      "mappings": {
+        "lib/net451/": "lib/net451/*"
+      }
     }
   },
   "dependencies": {
@@ -23,6 +30,18 @@
     },
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
+  },
+  "configurations": {
+    "debug_x86": {
+      "buildOptions": {
+        "platform": "anycpu32bitpreferred"
+      }
+    },
+    "release_x86": {
+      "buildOptions": {
+        "platform": "anycpu32bitpreferred"
+      }
+    }
   },
   "frameworks": {
     "net451": {},
