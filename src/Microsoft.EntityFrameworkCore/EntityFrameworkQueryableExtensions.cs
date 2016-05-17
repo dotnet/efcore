@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -2359,45 +2360,6 @@ namespace Microsoft.EntityFrameworkCore
 
             IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetEnumerator()
                 => ((IAsyncEnumerable<TEntity>)_queryable).GetEnumerator();
-        }
-
-        #endregion
-
-        #region AsAsyncEnumerable
-
-        /// <summary>
-        ///     Provides an <see cref="IAsyncEnumerable{T}" /> that allows asynchronous enumeration
-        ///     of the query. This method is typically not used in application code. <see cref="ForEachAsync{T}" />
-        ///     provides a simple way to asynchronously enumerate the results of a query.
-        /// </summary>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create the <see cref="IAsyncEnumerable{T}" /> from.
-        /// </param>
-        /// <returns>
-        ///     An object to asynchronously enumerate the results.
-        /// </returns>
-        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source)
-        {
-            Check.NotNull(source, nameof(source));
-
-            var enumerable = source as IAsyncEnumerable<TSource>;
-
-            if (enumerable != null)
-            {
-                return enumerable;
-            }
-
-            var entityQueryableAccessor = source as IAsyncEnumerableAccessor<TSource>;
-
-            if (entityQueryableAccessor != null)
-            {
-                return entityQueryableAccessor.AsyncEnumerable;
-            }
-
-            throw new InvalidOperationException(CoreStrings.IQueryableNotAsync(typeof(TSource)));
         }
 
         #endregion
