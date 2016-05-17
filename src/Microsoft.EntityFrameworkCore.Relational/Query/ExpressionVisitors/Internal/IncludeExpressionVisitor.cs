@@ -398,6 +398,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
+                var selectExpression = orderingExpression as SelectExpression;
+                if (selectExpression != null)
+                {
+                    orderingExpression = new AliasExpression(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, selectExpression);
+                }
+
                 var index = innerJoinSelectExpression.AddToProjection(orderingExpression);
 
                 var expression = innerJoinSelectExpression.Projection[index];
