@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc2-*",
+  "version": "1.0.0-rc2-final",
   "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
   "buildOptions": {
     "keyFile": "../../tools/Key.snk",
@@ -9,8 +9,8 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc2-final",
+    "Microsoft.EntityFrameworkCore.InMemory": "1.0.0-rc2-final",
     "xunit": "2.1.0"
   },
   "frameworks": {
@@ -20,7 +20,7 @@
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-*"
+        "Microsoft.CSharp": "4.0.1-rc2-24027"
       }
     },
     "net451": {

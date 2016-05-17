@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc2-*",
+  "version": "1.0.0-rc2-final",
   "description": "SQLite data store for Entity Framework.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -16,37 +16,37 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*",
-    "Microsoft.Data.Sqlite": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-rc2-final",
+    "Microsoft.Data.Sqlite": "1.0.0-rc2-final"
   },
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netstandard1.3": {
       "imports": [
         "portable-net452+win81"
       ],
       "dependencies": {
-        "System.IO.FileSystem": "4.0.1-*"
+        "System.IO.FileSystem": "4.0.1-rc2-24027"
       }
     },
     "netcore50": {
       "dependencies": {
         "Microsoft.NETCore.Platforms": {
           "type": "build",
-          "version": "1.0.1-*"
+          "version": "1.0.1-rc2-24027"
         },
-        "System.IO.FileSystem": "4.0.0",
+        "System.IO.FileSystem": "4.0.1-rc2-24027",
         "System.Dynamic.Runtime": {
           "type": "build",
-          "version": "4.0.10"
+          "version": "4.0.11-rc2-24027"
         },
         "System.Runtime.WindowsRuntime": {
           "type": "build",
-          "version": "4.0.10"
+          "version": "4.0.11-rc2-24027"
         },
         "System.Runtime.Extensions": {
           "type": "build",
-          "version": "4.0.10"
+          "version": "4.1.0-rc2-24027"
         }
       }
     }

@@ -3,16 +3,16 @@
     "keyFile": "../../tools/Key.snk",
     "copyToOutput": {
       "include": "**/*.sql",
-       "includeFiles": "config.json"
+      "includeFiles": "config.json"
     }
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.NETCore.Platforms": "1.0.1-*",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*"
+    "Microsoft.NETCore.Platforms": "1.0.1-rc2-24027",
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.0-rc2-final",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-rc2-final",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-final",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-rc2-final"
   },
   "publishOptions": {
     "include": "**/*.sql",
@@ -31,7 +31,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0-rc2-3002702",
           "type": "platform"
         }
       }

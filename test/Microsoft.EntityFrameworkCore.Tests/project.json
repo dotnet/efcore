@@ -4,8 +4,8 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.NETCore.Platforms": "1.0.1-*",
-    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*"
+    "Microsoft.NETCore.Platforms": "1.0.1-rc2-24027",
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-rc2-final"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -16,11 +16,11 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0-rc2-3002702",
           "type": "platform"
         },
         "moq.netcore": "4.4.0-*",
-        "System.Diagnostics.TraceSource": "4.0.0-*"
+        "System.Diagnostics.TraceSource": "4.0.0-rc2-24027"
       }
     },
     "net451": {

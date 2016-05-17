@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc2-*",
+  "version": "1.0.0-rc2-final",
   "description": "Reusable Microsoft.EntityFrameworkCore.Relational functional tests for provider writers.",
   "buildOptions": {
     "keyFile": "../../tools/Key.snk",
@@ -9,8 +9,8 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-rc2-final",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-rc2-final"
   },
   "frameworks": {
     "netstandard1.3": {
@@ -19,6 +19,6 @@
         "portable-net452+win81"
       ]
     },
-    "net451": { }
+    "net451": {}
   }
 }

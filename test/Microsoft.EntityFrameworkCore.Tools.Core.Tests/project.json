@@ -3,7 +3,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.NETCore.Platforms": "1.0.1-*",
+    "Microsoft.NETCore.Platforms": "1.0.1-rc2-24027",
     "Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests": "1.0.0",
     "Microsoft.EntityFrameworkCore.Relational.Design.Tests": "1.0.0"
   },
@@ -16,7 +16,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0-rc2-3002702",
           "type": "platform"
         }
       }

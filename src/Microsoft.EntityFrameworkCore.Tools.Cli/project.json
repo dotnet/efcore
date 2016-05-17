@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-preview1-*",
+  "version": "1.0.0-preview1-final",
   "description": "Components for Entity Framework Commands on .NET Core CLI",
   "buildOptions": {
     "emitEntryPoint": true,
@@ -14,15 +14,15 @@
     }
   },
   "dependencies": {
-    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
-    "Microsoft.DotNet.ProjectModel": "1.0.0-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-preview1-002702",
+    "Microsoft.DotNet.ProjectModel": "1.0.0-rc2-002702",
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-rc2-final",
     "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
       "version": "1.0.0-*",
       "type": "build"
     },
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc2-final",
+    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-rc2-final"
   },
   "frameworks": {
     "net451": {},
@@ -30,7 +30,7 @@
       "imports": "portable-net452+win81",
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0-rc2-3002702",
           "type": "platform"
         }
       }

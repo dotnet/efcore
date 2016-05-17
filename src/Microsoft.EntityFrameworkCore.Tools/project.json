@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-preview1-*",
+  "version": "1.0.0-preview1-final",
   "description": "Command line tools for Entity Framework.",
   "buildOptions": {
     "emitEntryPoint": true,
@@ -15,8 +15,8 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-rc2-final",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc2-final"
   },
   "frameworks": {
     "netcoreapp1.0": {
@@ -24,21 +24,21 @@
         "portable-net451+win8"
       ],
       "dependencies": {
-        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-preview1-final",
         "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
           "version": "1.0.0-*",
           "type": "build"
         },
-        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*",
+        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc2-final",
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0-rc2-3002702",
           "type": "platform"
         }
       }
     },
     "net451": {
       "dependencies": {
-        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-preview1-final",
         "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
           "version": "1.0.0-*",
           "type": "build"
@@ -53,22 +53,22 @@
       "dependencies": {
         "Microsoft.NETCore.Platforms": {
           "type": "build",
-          "version": "1.0.1-*"
+          "version": "1.0.1-rc2-24027"
         },
-        "System.Collections.NonGeneric": "4.0.0",
-        "System.IO": "4.0.10",
-        "System.IO.FileSystem": "4.0.0",
+        "System.Collections.NonGeneric": "4.0.1-rc2-24027",
+        "System.IO": "4.1.0-rc2-24027",
+        "System.IO.FileSystem": "4.0.1-rc2-24027",
         "System.Dynamic.Runtime": {
           "type": "build",
-          "version": "4.0.10"
+          "version": "4.0.11-rc2-24027"
         },
         "System.Runtime.WindowsRuntime": {
           "type": "build",
-          "version": "4.0.10"
+          "version": "4.0.11-rc2-24027"
         },
         "System.Runtime.Extensions": {
           "type": "build",
-          "version": "4.0.10"
+          "version": "4.1.0-rc2-24027"
         }
       },
       "buildOptions": {

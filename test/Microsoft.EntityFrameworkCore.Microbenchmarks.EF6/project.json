@@ -2,7 +2,7 @@
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
     "EntityFramework": "6.1.2",
-    "Microsoft.NETCore.Platforms": "1.0.1-*",
+    "Microsoft.NETCore.Platforms": "1.0.1-rc2-24027",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
   "publishOptions": {

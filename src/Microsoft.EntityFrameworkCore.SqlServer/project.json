@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc2-*",
+  "version": "1.0.0-rc2-final",
   "description": "Microsoft SQL Server data store for Entity Framework.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -16,17 +16,17 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.0-rc2-final"
   },
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netstandard1.3": {
       "imports": [
         "portable-net452+win81"
       ],
       "dependencies": {
-        "System.Data.SqlClient": "4.1.0-*",
-        "System.Threading.Thread": "4.0.0-*"
+        "System.Data.SqlClient": "4.1.0-rc2-24027",
+        "System.Threading.Thread": "4.0.0-rc2-24027"
       }
     }
   }
