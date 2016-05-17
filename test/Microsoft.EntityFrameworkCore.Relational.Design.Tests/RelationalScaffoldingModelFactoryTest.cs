@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     },
                 col2 =>
                     {
-                        Assert.Equal("current", col2.Name);
+                        Assert.Equal("Current", col2.Name);
                         Assert.Equal(typeof(string), col2.ClrType);
                         Assert.Equal("compute_this()", col2.Relational().ComputedValueSql);
                     },
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     },
                 col5 =>
                     {
-                        Assert.Equal("salary", col5.Name);
+                        Assert.Equal("Salary", col5.Name);
                         Assert.Equal(typeof(long?), col5.ClrType);
                         Assert.True(col5.IsColumnNullable());
                         Assert.Equal(100, col5.GetMaxLength());
@@ -510,8 +510,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             var principalKey = fk.PrincipalKey;
 
             Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
-            Assert.Equal("Id_A", principalKey.Properties[0].Name);
-            Assert.Equal("Id_B", principalKey.Properties[1].Name);
+            Assert.Equal("IdA", principalKey.Properties[0].Name);
+            Assert.Equal("IdB", principalKey.Properties[1].Name);
         }
 
         [Fact]
@@ -711,10 +711,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                         Name = "E F", Columns =
                         {
                             new ColumnModel { Name = "San itized", DataType = "long" },
-                            new ColumnModel { Name = "San_itized", DataType = "long" }
+                            new ColumnModel { Name = "San+itized", DataType = "long" }
                         }
                     },
-                    new TableModel { Name = "E_F" }
+                    new TableModel { Name = "E+F" }
                 }
             };
 
@@ -727,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 ef1 =>
                     {
                         Assert.Equal("E F", ef1.Relational().TableName);
-                        Assert.Equal("E_F", ef1.Name);
+                        Assert.Equal("E_f", ef1.Name);
                         Assert.Collection(ef1.GetProperties(),
                             id => { Assert.Equal("Id", id.Name); },
                             s1 =>
@@ -738,13 +738,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                             s2 =>
                                 {
                                     Assert.Equal("San_itized1", s2.Name);
-                                    Assert.Equal("San_itized", s2.Relational().ColumnName);
+                                    Assert.Equal("San+itized", s2.Relational().ColumnName);
                                 });
                     },
                 ef2 =>
                     {
-                        Assert.Equal("E_F", ef2.Relational().TableName);
-                        Assert.Equal("E_F1", ef2.Name);
+                        Assert.Equal("E+F", ef2.Relational().TableName);
+                        Assert.Equal("E_f1", ef2.Name);
                         var id = Assert.Single(ef2.GetProperties());
                         Assert.Equal("Id", id.Name);
                         Assert.Equal("Id", id.Relational().ColumnName);
