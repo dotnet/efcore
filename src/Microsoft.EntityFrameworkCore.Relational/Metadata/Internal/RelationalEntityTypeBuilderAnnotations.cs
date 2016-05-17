@@ -131,15 +131,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Func<InternalEntityTypeBuilder, InternalPropertyBuilder> createProperty,
             [CanBeNull] Type propertyType)
         {
+            var configurationSource = Annotations.ConfigurationSource;
             var discriminatorProperty = DiscriminatorProperty;
             if (discriminatorProperty != null
-                && (createProperty != null
-                    || propertyType != null))
+                && (createProperty != null || propertyType != null)
+                && !configurationSource.Overrides(GetDiscriminatorPropertyConfigurationSource()))
             {
-                if (!SetDiscriminatorProperty(null))
-                {
-                    return null;
-                }
+                return null;
             }
 
             var rootType = EntityTypeBuilder.Metadata.RootType();
@@ -147,7 +145,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? EntityTypeBuilder
                 : rootType.Builder;
 
-            var configurationSource = Annotations.ConfigurationSource;
             InternalPropertyBuilder propertyBuilder;
             if (createProperty != null)
             {
@@ -168,22 +165,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (propertyBuilder == null)
             {
-                if (discriminatorProperty != null
-                    && (createProperty != null
-                        || propertyType != null))
-                {
-                    SetDiscriminatorProperty(discriminatorProperty);
-                }
                 return null;
             }
 
-            if (discriminatorProperty != null
+            var oldDiscriminatorProperty = discriminatorProperty as Property;
+            if (oldDiscriminatorProperty?.Builder != null
                 && (createProperty != null || propertyType != null)
                 && propertyBuilder.Metadata != discriminatorProperty)
             {
                 if (discriminatorProperty.DeclaringEntityType == EntityTypeBuilder.Metadata)
                 {
-                    EntityTypeBuilder.RemoveShadowPropertiesIfUnused(new[] { (Property)discriminatorProperty });
+                    EntityTypeBuilder.RemoveShadowPropertiesIfUnused(new[] { oldDiscriminatorProperty });
                 }
             }
 
@@ -191,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || createProperty != null
                 || propertyType != null)
             {
-                var discriminatorSet = SetDiscriminatorProperty(propertyBuilder.Metadata);
+                var discriminatorSet = SetDiscriminatorProperty(propertyBuilder.Metadata, discriminatorProperty?.ClrType);
                 Debug.Assert(discriminatorSet);
             }
 
