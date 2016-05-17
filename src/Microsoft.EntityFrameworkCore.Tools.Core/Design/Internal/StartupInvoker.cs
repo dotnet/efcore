@@ -5,12 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#if !NETCORE50
-using Microsoft.AspNetCore.Hosting;
-#endif
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -107,7 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
         {
-#if !NETCORE50
             services.AddSingleton<IHostingEnvironment>(
                 new HostingEnvironment
                 {
@@ -115,7 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     EnvironmentName = _environment,
                     ApplicationName = _startupAssemblyName
                 });
-#endif
 
             services.AddLogging();
             services.AddOptions();

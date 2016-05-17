@@ -47,26 +47,6 @@
         "System.Diagnostics.DiagnosticSource": "4.0.0-*",
         "System.Text.RegularExpressions": "4.0.12-*"
       }
-    },
-    "netcore50": {
-      "dependencies": {
-        "Microsoft.NETCore.Platforms": {
-          "type": "build",
-          "version": "1.0.1-*"
-        },
-        "Microsoft.CSharp": "4.0.0",
-        "System.Data.Common": "4.0.0",
-        "System.Text.RegularExpressions": "4.0.10",
-        "System.Diagnostics.DiagnosticSource": "4.0.0-beta-*",
-        "System.Dynamic.Runtime": {
-          "type": "build",
-          "version": "4.0.10"
-        },
-        "System.Runtime.Extensions": {
-          "type": "build",
-          "version": "4.0.10"
-        }
-      }
     }
   }
 }

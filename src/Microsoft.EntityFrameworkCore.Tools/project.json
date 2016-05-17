@@ -48,36 +48,10 @@
         "outputName": "Microsoft.EntityFrameworkCore.Tools",
         "emitEntryPoint": false
       }
-    },
-    "netcore50": {
-      "dependencies": {
-        "Microsoft.NETCore.Platforms": {
-          "type": "build",
-          "version": "1.0.1-*"
-        },
-        "System.Collections.NonGeneric": "4.0.0",
-        "System.IO": "4.0.10",
-        "System.IO.FileSystem": "4.0.0",
-        "System.Dynamic.Runtime": {
-          "type": "build",
-          "version": "4.0.10"
-        },
-        "System.Runtime.WindowsRuntime": {
-          "type": "build",
-          "version": "4.0.10"
-        },
-        "System.Runtime.Extensions": {
-          "type": "build",
-          "version": "4.0.10"
-        }
-      },
-      "buildOptions": {
-        "outputName": "Microsoft.EntityFrameworkCore.Tools",
-        "emitEntryPoint": false
-      }
     }
   },
   "packInclude": {
+    "lib/": "lib/**",
     "build/": "build/**",
     "tools/": "tools/**"
   }
