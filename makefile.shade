@@ -16,13 +16,6 @@ var AUTHORS='Microsoft Open Technologies, Inc.'
 use-standard-lifecycle
 k-standard-goals
 
-#initialize-tools target='initialize'
-  @{
-    // workaround bug in dotnet-build for netcore50 on .Tools and .Tools.Core
-    string restoreOptions = " --infer-runtimes " + E("KOREBUILD_DOTNET_RESTORE_OPTIONS");
-  }
-  dotnet-restore restore_options='${ restoreOptions } src/Microsoft.EntityFrameworkCore.Tools/'
-
 #csproj-initialize target='initialize' if='(!IsMono && !IsTeamCity && E("APPVEYOR") == null) || E("IsEFPerfBuild") != null'
   var programFilesX86='${Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}'
   var buildProgram='${Path.Combine(programFilesX86, "MSBuild", "14.0", "Bin", "MSBuild.exe")}'
@@ -42,6 +35,52 @@ k-standard-goals
       Dotnet(string.Format("publish --configuration Release --output {0} --framework {1} {2}", output, tfm, projectFile));
     }
   }
+
+#repack-tools target='compile' if='Directory.Exists("src")'
+  @{
+      // copies the net451 target for UWP, minus the dependency on CLI tooling
+      var projectNupkg = Files
+        .Include(Path.Combine(BUILD_DIR_LOCAL, TOOL_PACKAGE_NAME + ".1.*.nupkg")) // Assuming the package version starts with 1.
+        .Where(path => !path.EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(f => f)    // On local builds multiple nupkgs are generated.
+        .First();
+      
+      Log.Info("Repacking Nupkg: " + projectNupkg);
+
+       var extractToDirectory = projectNupkg + "-temp";
+      ZipFile.ExtractToDirectory(projectNupkg, extractToDirectory);
+
+      var nuspecFile = Files.Include(Path.Combine(extractToDirectory, "*.nuspec")).First();
+      var nuspec = new List<string>(File.ReadAllLines(nuspecFile));
+      var dependencies = Array.FindIndex<string>(nuspec.ToArray(), l => l.Contains("<dependencies>")) + 1;
+
+      var uap = nuspec.SkipWhile(l => !l.Contains("<group targetFramework=\".NETFramework4.5.1"))
+            .TakeWhile(l => !l.Contains("</group>"))
+            .Where(l => !l.Contains(CLI_TOOL_PROJECT_NAME))
+            .ToList();
+
+      uap[0] = uap[0].Replace(".NETFramework4.5.1", ".NETCore5.0");
+      uap.Add("      </group>");
+
+      nuspec.InsertRange(dependencies, uap);
+
+      File.WriteAllLines(nuspecFile, nuspec);
+
+      // repack
+      var nugetExePath = Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe");
+      var nuspecPath = Path.Combine(extractToDirectory, TOOL_PACKAGE_NAME + ".nuspec");
+      ExecClr(nugetExePath, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
+      
+      try
+      {
+          // Delete temporary directory we used to repack.
+          Directory.Delete(extractToDirectory, true);
+      }
+      catch
+      {
+          // Don't care if we couldn't delete the temp directory.
+      }
+   }
 
 #repack-cli-tools target='compile' if='Directory.Exists("src")'
   @{    
