@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     = context.Set<Customer>()
                         .Include(c => c.Orders)
                         .Where(c => c.CustomerID == customerId)
-                        .OrderBy(c => context.Set<Order>().Where(oo => oo.CustomerID == customerId).Select(oo => oo.OrderDate).FirstOrDefault())
+                        .OrderBy(c => c.Orders.Select(oo => oo.OrderDate).FirstOrDefault())
                         .FirstOrDefault();
 
                 Assert.NotNull(customer);
