@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 {
     public class EntityConfiguration
     {

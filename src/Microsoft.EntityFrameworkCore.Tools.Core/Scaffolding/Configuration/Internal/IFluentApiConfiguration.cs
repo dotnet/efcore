@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal.Configuration
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 {
     public interface IFluentApiConfiguration
     {
