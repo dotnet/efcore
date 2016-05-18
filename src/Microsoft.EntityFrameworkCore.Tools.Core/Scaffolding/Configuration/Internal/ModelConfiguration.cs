@@ -573,24 +573,28 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                 foreach (var foreignKey in otherEntityType
                     .GetForeignKeys().Where(fk => fk.PrincipalEntityType == entityConfiguration.EntityType))
                 {
-                    var referencedType = foreignKey.IsUnique
-                        ? otherEntityType.Name
-                        : "ICollection<" + otherEntityType.Name + ">";
-                    var navPropConfiguration =
-                        _configurationFactory.CreateNavigationPropertyConfiguration(
-                            referencedType,
-                            foreignKey.Scaffolding().PrincipalEndNavigation);
-
-                    if (foreignKey.PrincipalKey.IsPrimaryKey())
+                    var principalNavProp = foreignKey.PrincipalToDependent;
+                    if (principalNavProp != null)
                     {
-                        navPropConfiguration.AttributeConfigurations.Add(
-                            _configurationFactory.CreateAttributeConfiguration(
-                                nameof(InversePropertyAttribute),
-                                CSharpUtilities.DelimitString(
-                                    foreignKey.Scaffolding().DependentEndNavigation)));
-                    }
+                        var referencedType = foreignKey.IsUnique
+                            ? otherEntityType.Name
+                            : "ICollection<" + otherEntityType.Name + ">";
+                        var navPropConfiguration =
+                            _configurationFactory.CreateNavigationPropertyConfiguration(
+                                referencedType, principalNavProp.Name);
 
-                    entityConfiguration.NavigationPropertyConfigurations.Add(navPropConfiguration);
+                        var dependentNavProp = foreignKey.DependentToPrincipal;
+                        if (foreignKey.PrincipalKey.IsPrimaryKey() &&
+                            dependentNavProp != null)
+                        {
+                            navPropConfiguration.AttributeConfigurations.Add(
+                                _configurationFactory.CreateAttributeConfiguration(
+                                    nameof(InversePropertyAttribute),
+                                    CSharpUtilities.DelimitString(dependentNavProp.Name)));
+                        }
+
+                        entityConfiguration.NavigationPropertyConfigurations.Add(navPropConfiguration);
+                    }
                 }
             }
 
@@ -598,52 +602,48 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             {
                 // set up the navigation property on this end of foreign keys owned by this EntityType
                 // (i.e. this EntityType is the dependent)
-                var dependentEndNavPropConfiguration =
-                    _configurationFactory.CreateNavigationPropertyConfiguration(
-                        foreignKey.PrincipalEntityType.Name,
-                        foreignKey.Scaffolding().DependentEndNavigation);
-
-                if (foreignKey.PrincipalKey.IsPrimaryKey())
+                var dependentNavProp = foreignKey.DependentToPrincipal;
+                if (dependentNavProp != null)
                 {
-                    dependentEndNavPropConfiguration.AttributeConfigurations.Add(
-                        _configurationFactory.CreateAttributeConfiguration(
-                            nameof(ForeignKeyAttribute),
-                            CSharpUtilities.DelimitString(
-                                string.Join(",", foreignKey.Properties.Select(p => p.Name)))));
-                    dependentEndNavPropConfiguration.AttributeConfigurations.Add(
-                        _configurationFactory.CreateAttributeConfiguration(
-                            nameof(InversePropertyAttribute),
-                            CSharpUtilities.DelimitString(
-                                foreignKey.Scaffolding().PrincipalEndNavigation)));
-                }
-
-                entityConfiguration.NavigationPropertyConfigurations.Add(
-                    dependentEndNavPropConfiguration);
-
-                // set up the other navigation property for self-referencing foreign keys owned by this EntityType
-                if (((ForeignKey)foreignKey).IsSelfReferencing())
-                {
-                    var referencedType = foreignKey.IsUnique
-                        ? foreignKey.DeclaringEntityType.Name
-                        : "ICollection<" + foreignKey.DeclaringEntityType.Name + ">";
-                    var principalEndNavPropConfiguration =
+                    var dependentEndNavPropConfiguration =
                         _configurationFactory.CreateNavigationPropertyConfiguration(
-                            referencedType,
-                            foreignKey.Scaffolding().PrincipalEndNavigation);
-                    principalEndNavPropConfiguration.AttributeConfigurations.Add(
-                        _configurationFactory.CreateAttributeConfiguration(
-                            nameof(InversePropertyAttribute),
-                            CSharpUtilities.DelimitString(
-                                foreignKey.Scaffolding().DependentEndNavigation)));
+                            foreignKey.PrincipalEntityType.Name, dependentNavProp.Name);
+
+                    var principalNavProp = foreignKey.PrincipalToDependent;
+                    if (foreignKey.PrincipalKey.IsPrimaryKey() && principalNavProp != null)
+                    {
+                        dependentEndNavPropConfiguration.AttributeConfigurations.Add(
+                            _configurationFactory.CreateAttributeConfiguration(
+                                nameof(ForeignKeyAttribute),
+                                CSharpUtilities.DelimitString(
+                                    string.Join(",", foreignKey.Properties.Select(p => p.Name)))));
+                        dependentEndNavPropConfiguration.AttributeConfigurations.Add(
+                            _configurationFactory.CreateAttributeConfiguration(
+                                nameof(InversePropertyAttribute),
+                                CSharpUtilities.DelimitString(principalNavProp.Name)));
+                    }
+
                     entityConfiguration.NavigationPropertyConfigurations.Add(
-                        principalEndNavPropConfiguration);
+                        dependentEndNavPropConfiguration);
+
+                    // set up the other navigation property for self-referencing foreign keys owned by this EntityType
+                    if (((ForeignKey)foreignKey).IsSelfReferencing() && principalNavProp != null)
+                    {
+                        var referencedType = foreignKey.IsUnique
+                            ? foreignKey.DeclaringEntityType.Name
+                            : "ICollection<" + foreignKey.DeclaringEntityType.Name + ">";
+                        var principalEndNavPropConfiguration =
+                            _configurationFactory.CreateNavigationPropertyConfiguration(
+                                referencedType, principalNavProp.Name);
+                        principalEndNavPropConfiguration.AttributeConfigurations.Add(
+                            _configurationFactory.CreateAttributeConfiguration(
+                                nameof(InversePropertyAttribute),
+                                CSharpUtilities.DelimitString(dependentNavProp.Name)));
+                        entityConfiguration.NavigationPropertyConfigurations.Add(
+                            principalEndNavPropConfiguration);
+                    }
                 }
             }
-        }
-
-        public virtual void AddNavigationPropertyConfiguration(
-            [NotNull] NavigationPropertyConfiguration navigationPropertyConfiguration)
-        {
         }
 
         public virtual void AddNavigationPropertyInitializers([NotNull] EntityConfiguration entityConfiguration)
@@ -656,13 +656,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                 foreach (var foreignKey in otherEntityType
                     .GetForeignKeys().Where(fk => fk.PrincipalEntityType == entityConfiguration.EntityType))
                 {
-                    var navigationPropertyName =
-                        foreignKey.Scaffolding().PrincipalEndNavigation;
-                    if (!foreignKey.IsUnique)
+                    var navigationProperty = foreignKey.PrincipalToDependent;
+                    if (!foreignKey.IsUnique && navigationProperty != null)
                     {
                         entityConfiguration.NavigationPropertyInitializerConfigurations.Add(
                             _configurationFactory.CreateNavigationPropertyInitializerConfiguration(
-                                navigationPropertyName, otherEntityType.Name));
+                                navigationProperty.Name, otherEntityType.Name));
                     }
                 }
             }
@@ -674,10 +673,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 
             foreach (var foreignKey in entityConfiguration.EntityType.GetForeignKeys())
             {
-                var dependentEndNavigationPropertyName =
-                    foreignKey.Scaffolding().DependentEndNavigation;
-                var principalEndNavigationPropertyName =
-                    foreignKey.Scaffolding().PrincipalEndNavigation;
+                var dependentEndNavigationPropertyName = foreignKey.DependentToPrincipal.Name;
+                var principalEndNavigationPropertyName = foreignKey.PrincipalToDependent.Name;
 
                 var relationshipConfiguration = _configurationFactory
                     .CreateRelationshipConfiguration(

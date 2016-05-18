@@ -15,8 +15,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public static ScaffoldingPropertyAnnotations Scaffolding([NotNull] this IProperty property)
             => new ScaffoldingPropertyAnnotations(Check.NotNull(property, nameof(property)));
-
-        public static ScaffoldingForeignKeyAnnotations Scaffolding([NotNull] this IForeignKey foreignKey)
-            => new ScaffoldingForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)));
     }
 }
