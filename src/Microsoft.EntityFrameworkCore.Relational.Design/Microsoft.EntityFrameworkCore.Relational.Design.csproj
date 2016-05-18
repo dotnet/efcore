@@ -76,7 +76,6 @@
     <Compile Include="Metadata\IndexModel.cs" />
     <Compile Include="Metadata\Internal\ScaffoldingAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\ScaffoldingFullAnnotationNames.cs" />
-    <Compile Include="Metadata\ScaffoldingForeignKeyAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingMetadataExtensions.cs" />
     <Compile Include="Metadata\ScaffoldingModelAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingPropertyAnnotations.cs" />

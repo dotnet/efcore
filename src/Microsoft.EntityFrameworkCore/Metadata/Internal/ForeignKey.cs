@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             DeclaringEntityType.Builder,
                             PrincipalEntityType.Builder,
                             oldNavigation.Name,
-                        	oldNavigation.PropertyInfo);
+                            oldNavigation.PropertyInfo);
                     }
                     else
                     {
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             PrincipalEntityType.Builder,
                             DeclaringEntityType.Builder,
                             oldNavigation.Name,
-                        	oldNavigation.PropertyInfo);
+                            oldNavigation.PropertyInfo);
                     }
                 }
 

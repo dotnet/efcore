@@ -131,8 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             VisitSequences(modelBuilder, databaseModel.Sequences);
             VisitTables(modelBuilder, databaseModel.Tables);
             VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
-            // TODO can we add navigation properties inline with adding foreign keys?
-            VisitNavigationProperties(modelBuilder);
 
             return modelBuilder;
         }
@@ -451,6 +449,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 VisitForeignKey(modelBuilder, fk);
             }
 
+            // Note: must completely assign all foreign keys before assigning
+            // navigation properties otherwise naming of navigation properties
+            // when there are multiple foreign keys does not work.
+            foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(et => et.GetForeignKeys()))
+            {
+                AddNavigationProperties(foreignKey);
+            }
+
             return modelBuilder;
         }
 
@@ -559,59 +565,56 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             return key;
         }
 
-        protected virtual void VisitNavigationProperties([NotNull] ModelBuilder modelBuilder)
+        protected virtual void AddNavigationProperties([NotNull] IMutableForeignKey foreignKey)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
-            // TODO perf cleanup can we do this in 1 loop instead of 2?
-            var model = modelBuilder.Model;
             var modelUtilities = new ModelUtilities();
+            var dependentEndExistingIdentifiers = ExistingIdentifiers(foreignKey.DeclaringEntityType);
+            var dependentEndNavigationPropertyCandidateName =
+                modelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
+            var dependentEndNavigationPropertyName =
+                CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                    dependentEndNavigationPropertyCandidateName,
+                    dependentEndExistingIdentifiers,
+                    NavigationUniquifier);
 
-            var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
-            foreach (var entityType in model.GetEntityTypes())
+            foreignKey.HasDependentToPrincipal(dependentEndNavigationPropertyName);
+
+            var principalEndExistingIdentifiers = ExistingIdentifiers(foreignKey.PrincipalEntityType);
+            var principalEndNavigationPropertyCandidateName = foreignKey.IsSelfReferencing()
+                ? string.Format(
+                    CultureInfo.CurrentCulture,
+                    SelfReferencingPrincipalEndNavigationNamePattern,
+                    dependentEndNavigationPropertyName)
+                : modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(
+                    foreignKey, dependentEndNavigationPropertyName);
+            var principalEndNavigationPropertyName =
+                CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                    principalEndNavigationPropertyCandidateName,
+                    principalEndExistingIdentifiers,
+                    NavigationUniquifier);
+
+            foreignKey.HasPrincipalToDependent(principalEndNavigationPropertyName);
+        }
+
+        // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties
+        private Dictionary<IEntityType, List<string>> _entityTypeAndPropertyIdentifiers = new Dictionary<IEntityType, List<string>>();
+        protected virtual List<string> ExistingIdentifiers([NotNull] IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            List<string> existingIdentifiers;
+            if (!_entityTypeAndPropertyIdentifiers.TryGetValue(entityType, out existingIdentifiers))
             {
-                var existingIdentifiers = new List<string>();
-                entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
+                existingIdentifiers = new List<string>();
                 existingIdentifiers.Add(entityType.Name);
                 existingIdentifiers.AddRange(entityType.GetProperties().Select(p => p.Name));
+                _entityTypeAndPropertyIdentifiers[entityType] = existingIdentifiers;
             }
 
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                var dependentEndExistingIdentifiers = entityTypeToExistingIdentifiers[entityType];
-                foreach (var foreignKey in entityType.GetForeignKeys())
-                {
-                    // set up the name of the navigation property on the dependent end of the foreign key
-                    var dependentEndNavigationPropertyCandidateName =
-                        modelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
-                    var dependentEndNavigationPropertyName =
-                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                            dependentEndNavigationPropertyCandidateName,
-                            dependentEndExistingIdentifiers,
-                            NavigationUniquifier);
-                    foreignKey.Scaffolding().DependentEndNavigation = dependentEndNavigationPropertyName;
-                    dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
-
-                    // set up the name of the navigation property on the principal end of the foreign key
-                    var principalEndExistingIdentifiers =
-                        entityTypeToExistingIdentifiers[foreignKey.PrincipalEntityType];
-                    var principalEndNavigationPropertyCandidateName =
-                        foreignKey.IsSelfReferencing()
-                            ? string.Format(
-                                CultureInfo.CurrentCulture,
-                                SelfReferencingPrincipalEndNavigationNamePattern,
-                                dependentEndNavigationPropertyName)
-                            : modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(
-                                foreignKey, dependentEndNavigationPropertyName);
-                    var principalEndNavigationPropertyName =
-                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                            principalEndNavigationPropertyCandidateName,
-                            principalEndExistingIdentifiers,
-                            NavigationUniquifier);
-                    foreignKey.Scaffolding().PrincipalEndNavigation = principalEndNavigationPropertyName;
-                    principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
-                }
-            }
+            existingIdentifiers.AddRange(entityType.GetNavigations().Select(p => p.Name));
+            return existingIdentifiers;
         }
 
         private static void AssignOnDeleteAction(
