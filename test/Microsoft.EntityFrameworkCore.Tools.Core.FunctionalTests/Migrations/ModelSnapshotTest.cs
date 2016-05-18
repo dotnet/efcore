@@ -985,7 +985,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
         b.ToTable(""EntityWithTwoProperties"");
     });
 ",
-                o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedValueSql"]); });
+                o => { Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]); });
         }
 
         [ConditionalFact]

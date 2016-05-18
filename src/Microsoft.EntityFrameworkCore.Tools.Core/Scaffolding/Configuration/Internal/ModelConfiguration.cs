@@ -550,14 +550,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (AnnotationProvider.For(propertyConfiguration.Property).ComputedValueSql != null)
+            if (AnnotationProvider.For(propertyConfiguration.Property).ComputedColumnSql != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
                     _configurationFactory.CreateFluentApiConfiguration(
                         /* hasAttributeEquivalent */ false,
                         nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
                         CSharpUtilities.DelimitString(
-                            AnnotationProvider.For(propertyConfiguration.Property).ComputedValueSql)));
+                            AnnotationProvider.For(propertyConfiguration.Property).ComputedColumnSql)));
             }
         }
 

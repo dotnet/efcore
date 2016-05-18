@@ -45,24 +45,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 null,
                 Check.NullButNotEmpty(value, nameof(value)));
 
+        public virtual ISequence FindHiLoSequence()
+        {
+            var modelExtensions = Property.DeclaringEntityType.Model.SqlServer();
+
+            if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
+            {
+                return null;
+            }
+
+            var sequenceName = HiLoSequenceName
+                               ?? modelExtensions.HiLoSequenceName
+                               ?? SqlServerModelAnnotations.DefaultHiLoSequenceName;
+
+            var sequenceSchema = HiLoSequenceSchema
+                                 ?? modelExtensions.HiLoSequenceSchema;
+
+            return modelExtensions.FindSequence(sequenceName, sequenceSchema);
+        }
+
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
-            get
-            {
-                if (Property.ValueGenerated != ValueGenerated.OnAdd
-                    || !Property.ClrType.UnwrapNullableType().IsInteger()
-                    || Property.SqlServer().DefaultValueSql != null)
-                {
-                    return null;
-                }
-
-                var value = (SqlServerValueGenerationStrategy?)Annotations.GetAnnotation(
-                    SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy,
-                    null);
-
-                return value ?? Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
-            }
+            get { return GetSqlServerValueGenerationStrategy(fallbackToModel: true); }
             [param: CanBeNull] set { SetValueGenerationStrategy(value); }
+        }
+
+        private SqlServerValueGenerationStrategy? GetSqlServerValueGenerationStrategy(bool fallbackToModel)
+        {
+            if (GetDefaultValue(false) != null
+                || GetDefaultValueSql(false) != null
+                || GetComputedColumnSql(false) != null)
+            {
+                return null;
+            }
+
+            var value = (SqlServerValueGenerationStrategy?)Annotations.GetAnnotation(
+                SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy,
+                null);
+
+            var relationalProperty = Property.Relational();
+            return value ??
+                   (fallbackToModel
+                    && Property.ValueGenerated == ValueGenerated.OnAdd
+                    && Property.ClrType.UnwrapNullableType().IsInteger()
+                    && relationalProperty.DefaultValue == null
+                    && relationalProperty.DefaultValueSql == null
+                    && relationalProperty.ComputedColumnSql == null
+                       ? Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy
+                       : null);
         }
 
         protected virtual bool SetValueGenerationStrategy(SqlServerValueGenerationStrategy? value)
@@ -88,26 +118,157 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             }
 
+            if (!CanSetValueGenerationStrategy(value))
+            {
+                return false;
+            }
+
+            if (!ShouldThrowOnConflict
+                && ValueGenerationStrategy != value
+                && value != null)
+            {
+                ClearAllServerGeneratedValues();
+            }
+
             return Annotations.SetAnnotation(SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy, null, value);
         }
 
-        public virtual ISequence FindHiLoSequence()
+        protected virtual bool CanSetValueGenerationStrategy(SqlServerValueGenerationStrategy? value)
         {
-            var modelExtensions = Property.DeclaringEntityType.Model.SqlServer();
+            if (GetSqlServerValueGenerationStrategy(fallbackToModel: false) == value)
+            {
+                return true;
+            }
 
-            if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
+            if (!Annotations.CanSetAnnotation(SqlServerFullAnnotationNames.Instance.ValueGenerationStrategy, null, value))
+            {
+                return false;
+            }
+
+            if (ShouldThrowOnConflict)
+            {
+                if (GetDefaultValue(false) != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingColumnServerGeneration(nameof(ValueGenerationStrategy), Property.Name, nameof(DefaultValue)));
+                }
+                if (GetDefaultValueSql(false) != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingColumnServerGeneration(nameof(ValueGenerationStrategy), Property.Name, nameof(DefaultValueSql)));
+                }
+                if (GetComputedColumnSql(false) != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingColumnServerGeneration(nameof(ValueGenerationStrategy), Property.Name, nameof(ComputedColumnSql)));
+                }
+            }
+            else if (value != null
+                     && (!CanSetDefaultValue(null)
+                         || !CanSetDefaultValueSql(null)
+                         || !CanSetComputedColumnSql(null)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected override object GetDefaultValue(bool fallback)
+        {
+            if (fallback
+                && ValueGenerationStrategy != null)
             {
                 return null;
             }
 
-            var sequenceName = HiLoSequenceName
-                               ?? modelExtensions.HiLoSequenceName
-                               ?? SqlServerModelAnnotations.DefaultHiLoSequenceName;
+            return base.GetDefaultValue(fallback);
+        }
 
-            var sequenceSchema = HiLoSequenceSchema
-                                 ?? modelExtensions.HiLoSequenceSchema;
+        protected override bool CanSetDefaultValue(object value)
+        {
+            if (ShouldThrowOnConflict)
+            {
+                if (ValueGenerationStrategy != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingColumnServerGeneration(nameof(DefaultValue), Property.Name, nameof(ValueGenerationStrategy)));
+                }
+            }
+            else if (value != null
+                     && !CanSetValueGenerationStrategy(null))
+            {
+                return false;
+            }
 
-            return modelExtensions.FindSequence(sequenceName, sequenceSchema);
+            return base.CanSetDefaultValue(value);
+        }
+
+        protected override string GetDefaultValueSql(bool fallback)
+        {
+            if (fallback
+                && ValueGenerationStrategy != null)
+            {
+                return null;
+            }
+
+            return base.GetDefaultValueSql(fallback);
+        }
+
+        protected override bool CanSetDefaultValueSql(string value)
+        {
+            if (ShouldThrowOnConflict)
+            {
+                if (ValueGenerationStrategy != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingColumnServerGeneration(nameof(DefaultValueSql), Property.Name, nameof(ValueGenerationStrategy)));
+                }
+            }
+            else if (value != null
+                     && !CanSetValueGenerationStrategy(null))
+            {
+                return false;
+            }
+
+            return base.CanSetDefaultValueSql(value);
+        }
+
+        protected override string GetComputedColumnSql(bool fallback)
+        {
+            if (fallback
+                && ValueGenerationStrategy != null)
+            {
+                return null;
+            }
+
+            return base.GetComputedColumnSql(fallback);
+        }
+
+        protected override bool CanSetComputedColumnSql(string value)
+        {
+            if (ShouldThrowOnConflict)
+            {
+                if (ValueGenerationStrategy != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingColumnServerGeneration(nameof(ComputedColumnSql), Property.Name, nameof(ValueGenerationStrategy)));
+                }
+            }
+            else if (value != null
+                     && !CanSetValueGenerationStrategy(null))
+            {
+                return false;
+            }
+
+            return base.CanSetComputedColumnSql(value);
+        }
+
+        protected override void ClearAllServerGeneratedValues()
+        {
+            SetValueGenerationStrategy(null);
+
+            base.ClearAllServerGeneratedValues();
         }
     }
 }

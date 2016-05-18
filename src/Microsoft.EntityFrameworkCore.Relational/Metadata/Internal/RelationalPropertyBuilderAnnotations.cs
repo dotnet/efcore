@@ -15,14 +15,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
+        protected new virtual RelationalAnnotationsBuilder Annotations => (RelationalAnnotationsBuilder)base.Annotations;
+        private InternalPropertyBuilder PropertyBuilder => ((Property)Property).Builder;
+        protected override bool ShouldThrowOnConflict => false;
+
         public virtual bool HasColumnName([CanBeNull] string value) => SetColumnName(value);
 
         public virtual bool HasColumnType([CanBeNull] string value) => SetColumnType(value);
 
-        public virtual bool HasDefaultValueSql([CanBeNull] string value) => SetDefaultValueSql(value);
+        public virtual bool HasDefaultValueSql([CanBeNull] string value)
+        {
+            PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
 
-        public virtual bool HasComputedValueSql([CanBeNull] string value) => SetComputedValueSql(value);
+            return SetDefaultValueSql(value);
+        }
 
-        public virtual bool HasDefaultValue([CanBeNull] object value) => SetDefaultValue(value);
+        public virtual bool HasComputedColumnSql([CanBeNull] string value)
+        {
+            PropertyBuilder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
+
+            return SetComputedColumnSql(value);
+        }
+
+        public virtual bool HasDefaultValue([CanBeNull] object value)
+        {
+            PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+
+            return SetDefaultValue(value);
+        }
     }
 }

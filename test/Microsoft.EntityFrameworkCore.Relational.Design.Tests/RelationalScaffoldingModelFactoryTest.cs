@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                     {
                         Assert.Equal("Current", col2.Name);
                         Assert.Equal(typeof(string), col2.ClrType);
-                        Assert.Equal("compute_this()", col2.Relational().ComputedValueSql);
+                        Assert.Equal("compute_this()", col2.Relational().ComputedColumnSql);
                     },
                 col3 =>
                     {

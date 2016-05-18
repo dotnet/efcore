@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (column.ComputedValue != null)
             {
                 ((Property)propertyBuilder.Metadata).SetValueGenerated(null, ConfigurationSource.Explicit);
-                propertyBuilder.Metadata.Relational().ComputedValueSql = null;
+                propertyBuilder.Metadata.Relational().ComputedColumnSql = null;
 
                 var computedExpression = ConvertSqlServerDefaultValue(column.ComputedValue);
                 if (computedExpression != null)

@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -54,13 +53,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var property = (Property)propertyBuilder.Metadata;
-            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
-            {
-                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-            }
-
-            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasDefaultValueSql(sql);
+            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
+            internalPropertyBuilder.Relational(ConfigurationSource.Explicit).HasDefaultValueSql(sql);
 
             return propertyBuilder;
         }
@@ -77,13 +71,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
-            var property = (Property)propertyBuilder.Metadata;
-            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
-            {
-                property.SetValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
-            }
-
-            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasComputedValueSql(sql);
+            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
+            internalPropertyBuilder.Relational(ConfigurationSource.Explicit).HasComputedColumnSql(sql);
 
             return propertyBuilder;
         }
@@ -99,13 +88,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var property = (Property)propertyBuilder.Metadata;
-            if (ConfigurationSource.Convention.Overrides(property.GetValueGeneratedConfigurationSource()))
-            {
-                property.SetValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-            }
-
-            propertyBuilder.GetInfrastructure<InternalPropertyBuilder>().Relational(ConfigurationSource.Explicit).HasDefaultValue(value);
+            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
+            internalPropertyBuilder.Relational(ConfigurationSource.Explicit).HasDefaultValue(value);
 
             return propertyBuilder;
         }

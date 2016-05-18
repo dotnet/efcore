@@ -19,14 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual IAnnotatable Metadata { get; }
 
-        public virtual object GetAnnotation([NotNull] string fallbackAnnotationName, [CanBeNull] string primaryAnnotationName)
-        {
-            // Not using Check for perf
-            Debug.Assert(!string.IsNullOrEmpty(fallbackAnnotationName));
-
-            return (primaryAnnotationName == null ? null : Metadata[primaryAnnotationName])
-                   ?? Metadata[fallbackAnnotationName];
-        }
+        public virtual object GetAnnotation([CanBeNull] string fallbackAnnotationName, [CanBeNull] string primaryAnnotationName)
+            => (primaryAnnotationName == null ? null : Metadata[primaryAnnotationName])
+               ?? (fallbackAnnotationName == null ? null : Metadata[fallbackAnnotationName]);
 
         public virtual bool SetAnnotation(
             [NotNull] string relationalAnnotationName,
@@ -42,5 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             annotatable[providerAnnotationName ?? relationalAnnotationName] = value;
             return true;
         }
+
+        public virtual bool CanSetAnnotation(
+            [NotNull] string relationalAnnotationName,
+            [CanBeNull] string providerAnnotationName,
+            [CanBeNull] object value)
+            => true;
     }
 }

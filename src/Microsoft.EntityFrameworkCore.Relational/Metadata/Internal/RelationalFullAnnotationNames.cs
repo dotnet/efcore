@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ColumnName = prefix + RelationalAnnotationNames.ColumnName;
             ColumnType = prefix + RelationalAnnotationNames.ColumnType;
             DefaultValueSql = prefix + RelationalAnnotationNames.DefaultValueSql;
-            ComputedValueSql = prefix + RelationalAnnotationNames.ComputedValueSql;
+            ComputedColumnSql = prefix + RelationalAnnotationNames.ComputedColumnSql;
             DefaultValue = prefix + RelationalAnnotationNames.DefaultValue;
             DatabaseName = prefix + RelationalAnnotationNames.DatabaseName;
             TableName = prefix + RelationalAnnotationNames.TableName;
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public readonly string ColumnName;
         public readonly string ColumnType;
         public readonly string DefaultValueSql;
-        public readonly string ComputedValueSql;
+        public readonly string ComputedColumnSql;
         public readonly string DefaultValue;
         public readonly string DatabaseName;
         public readonly string TableName;

@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 table));
                         }
 
-                        var currentComputedValueSql = propertyAnnotations.ComputedValueSql ?? "";
-                        var previousComputedValueSql = previousAnnotations.ComputedValueSql ?? "";
-                        if (!currentComputedValueSql.Equals(previousComputedValueSql, StringComparison.OrdinalIgnoreCase))
+                        var currentComputedColumnSql = propertyAnnotations.ComputedColumnSql ?? "";
+                        var previousComputedColumnSql = previousAnnotations.ComputedColumnSql ?? "";
+                        if (!currentComputedColumnSql.Equals(previousComputedColumnSql, StringComparison.OrdinalIgnoreCase))
                         {
                             ShowError(RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
                                 duplicateProperty.DeclaringEntityType.DisplayName(),
@@ -134,8 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 property.Name,
                                 columnName,
                                 table,
-                                previousComputedValueSql,
-                                currentComputedValueSql));
+                                previousComputedColumnSql,
+                                currentComputedColumnSql));
                         }
 
                         var currentDefaultValue = propertyAnnotations.DefaultValue;

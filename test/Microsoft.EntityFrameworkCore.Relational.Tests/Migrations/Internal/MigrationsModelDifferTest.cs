@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal(typeof(string), operation.ClrType);
                         Assert.Equal("nvarchar(30)", operation.ColumnType);
                         Assert.False(operation.IsNullable);
-                        Assert.Equal("Draco", operation.DefaultValue);
+                        Assert.Equal("", operation.DefaultValue);
                         Assert.Equal("CreateDragonName()", operation.DefaultValueSql);
                     });
         }
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal(typeof(string), operation.ClrType);
                         Assert.Equal("nvarchar(30)", operation.ColumnType);
                         Assert.False(operation.IsNullable);
-                        Assert.Equal("Draco", operation.DefaultValue);
+                        Assert.Equal("", operation.DefaultValue);
                         Assert.Equal("CreateDragonName()", operation.ComputedColumnSql);
                     });
         }
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal(typeof(string), operation.ClrType);
                         Assert.Equal("nvarchar(30)", operation.ColumnType);
                         Assert.True(operation.IsNullable);
-                        Assert.Equal("Buffy", operation.DefaultValue);
+                        Assert.Null(operation.DefaultValue);
                         Assert.Equal("CreateBisonName()", operation.DefaultValueSql);
                     });
         }
@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal(typeof(string), operation.ClrType);
                         Assert.Equal("varchar(450)", operation.ColumnType);
                         Assert.False(operation.IsNullable);
-                        Assert.Equal("Puff", operation.DefaultValue);
+                        Assert.Null(operation.DefaultValue);
                         Assert.Equal("CreatePumaName()", operation.DefaultValueSql);
                     });
         }
@@ -618,8 +618,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
-                                .HasDefaultValue("Butch")
-                                .HasDefaultValueSql("CreateCougarName()");
+                                .HasDefaultValueSql("CreateCougarName()")
+                                .HasDefaultValue("Butch");
                         }),
                 target => target.Entity(
                     "Cougar",
@@ -631,8 +631,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
-                                .HasDefaultValue("Cosmo")
-                                .HasDefaultValueSql("CreateCougarName()");
+                                .HasDefaultValueSql("CreateCougarName()")
+                                .HasDefaultValue("Cosmo");
                         }),
                 operations =>
                     {
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal("nvarchar(30)", operation.ColumnType);
                         Assert.False(operation.IsNullable);
                         Assert.Equal("Cosmo", operation.DefaultValue);
-                        Assert.Equal("CreateCougarName()", operation.DefaultValueSql);
+                        Assert.Null(operation.DefaultValueSql);
                     });
         }
 
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal(typeof(string), operation.ClrType);
                         Assert.Equal("nvarchar(30)", operation.ColumnType);
                         Assert.False(operation.IsNullable);
-                        Assert.Equal("Liam", operation.DefaultValue);
+                        Assert.Null(operation.DefaultValue);
                         Assert.Equal("CreateCatamountName()", operation.DefaultValueSql);
                     });
         }
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         Assert.Equal(typeof(string), operation.ClrType);
                         Assert.Equal("nvarchar(30)", operation.ColumnType);
                         Assert.False(operation.IsNullable);
-                        Assert.Equal("Liam", operation.DefaultValue);
+                        Assert.Null(operation.DefaultValue);
                         Assert.Equal("CreateCatamountName()", operation.ComputedColumnSql);
                     });
         }

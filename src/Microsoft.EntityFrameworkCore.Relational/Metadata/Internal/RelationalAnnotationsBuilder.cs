@@ -28,5 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string providerAnnotationName,
             object value)
             => MetadataBuilder.HasAnnotation(providerAnnotationName ?? relationalAnnotationName, value, ConfigurationSource);
+
+        public override bool CanSetAnnotation(
+            string relationalAnnotationName,
+            string providerAnnotationName,
+            object value)
+            => MetadataBuilder.CanSetAnnotation(providerAnnotationName ?? relationalAnnotationName, value, ConfigurationSource);
     }
 }

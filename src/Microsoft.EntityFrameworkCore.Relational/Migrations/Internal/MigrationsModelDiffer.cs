@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (isNullableChanged
                 || columnTypeChanged
                 || sourceAnnotations.DefaultValueSql != targetAnnotations.DefaultValueSql
-                || sourceAnnotations.ComputedValueSql != targetAnnotations.ComputedValueSql
+                || sourceAnnotations.ComputedColumnSql != targetAnnotations.ComputedColumnSql
                 || !Equals(sourceAnnotations.DefaultValue, targetAnnotations.DefaultValue)
                 || HasDifferences(MigrationsAnnotations.For(source), targetMigrationsAnnotations))
             {
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     IsNullable = isTargetColumnNullable,
                     DefaultValue = targetAnnotations.DefaultValue,
                     DefaultValueSql = targetAnnotations.DefaultValueSql,
-                    ComputedColumnSql = targetAnnotations.ComputedValueSql,
+                    ComputedColumnSql = targetAnnotations.ComputedColumnSql,
                     IsDestructiveChange = isDestructiveChange
                 };
                 CopyAnnotations(targetMigrationsAnnotations, alterColumnOperation);
@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                    ? null
                                    : GetDefaultValue(target.ClrType)),
                 DefaultValueSql = targetAnnotations.DefaultValueSql,
-                ComputedColumnSql = targetAnnotations.ComputedValueSql
+                ComputedColumnSql = targetAnnotations.ComputedColumnSql
             };
             CopyAnnotations(MigrationsAnnotations.For(target), operation);
 

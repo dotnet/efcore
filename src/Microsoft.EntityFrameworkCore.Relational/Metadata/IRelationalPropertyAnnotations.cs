@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string ColumnName { get; }
         string ColumnType { get; }
         string DefaultValueSql { get; }
-        string ComputedValueSql { get; }
+        string ComputedColumnSql { get; }
         object DefaultValue { get; }
     }
 }
