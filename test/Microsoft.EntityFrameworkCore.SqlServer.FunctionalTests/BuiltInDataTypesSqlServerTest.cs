@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable PossibleInvalidOperationException
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -15,6 +17,50 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact]
+        public void Sql_translation_uses_type_mapper_when_constant()
+        {
+            using (var context = CreateContext())
+            {
+                var results 
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => e.Time == new TimeSpan(0, 1, 2))
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"SELECT [e].[Int]
+FROM [MappedNullableDataTypes] AS [e]
+WHERE [e].[Time] = '00:01:02'", 
+                    Sql);
+            }
+        }
+
+        [Fact]
+        public void Sql_translation_uses_type_mapper_when_parameter()
+        {
+            using (var context = CreateContext())
+            {
+                var timeSpan = new TimeSpan(2, 1, 0);
+
+                var results 
+                    = context.Set<MappedNullableDataTypes>()
+                        .Where(e => e.Time == timeSpan)
+                        .Select(e => e.Int)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
+                Assert.Equal(
+                    @"@__timeSpan_0: ?
+
+SELECT [e].[Int]
+FROM [MappedNullableDataTypes] AS [e]
+WHERE [e].[Time] = @__timeSpan_0", 
+                    Sql);
+            }
         }
 
         [Fact]
@@ -819,7 +865,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        private static void AssertNullMappedNullableDataTypesWithIdentity(MappedNullableDataTypesWithIdentity entity, int id)
+        private static void AssertNullMappedNullableDataTypesWithIdentity(
+            MappedNullableDataTypesWithIdentity entity, int id)
         {
             Assert.Equal(id, entity.Int);
             Assert.Null(entity.Bigint);
@@ -1626,6 +1673,11 @@ StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
 
             Assert.Equal(expected, actual);
         }
+
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 
         private class ColumnInfo
         {

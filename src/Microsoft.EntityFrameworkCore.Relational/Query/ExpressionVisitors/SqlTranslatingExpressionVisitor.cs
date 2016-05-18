@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IMethodCallTranslator _methodCallTranslator;
         private readonly IMemberTranslator _memberTranslator;
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
+        private readonly IRelationalTypeMapper _relationalTypeMapper;
         private readonly SelectExpression _targetSelectExpression;
         private readonly Expression _topLevelPredicate;
 
@@ -50,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] IMethodCallTranslator methodCallTranslator,
             [NotNull] IMemberTranslator memberTranslator,
+            [NotNull] IRelationalTypeMapper relationalTypeMapper,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] SelectExpression targetSelectExpression = null,
             [CanBeNull] Expression topLevelPredicate = null,
@@ -60,12 +63,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
             Check.NotNull(memberTranslator, nameof(memberTranslator));
+            Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper));
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _relationalAnnotationProvider = relationalAnnotationProvider;
             _compositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
             _methodCallTranslator = methodCallTranslator;
             _memberTranslator = memberTranslator;
+            _relationalTypeMapper = relationalTypeMapper;
             _queryModelVisitor = queryModelVisitor;
             _targetSelectExpression = targetSelectExpression;
             _topLevelPredicate = topLevelPredicate;
@@ -809,29 +814,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             return null;
         }
-
-        private static readonly Type[] _supportedConstantTypes =
-        {
-            typeof(bool),
-            typeof(byte),
-            typeof(byte[]),
-            typeof(char),
-            typeof(decimal),
-            typeof(DateTime),
-            typeof(DateTimeOffset),
-            typeof(double),
-            typeof(float),
-            typeof(Guid),
-            typeof(int),
-            typeof(long),
-            typeof(sbyte),
-            typeof(short),
-            typeof(string),
-            typeof(uint),
-            typeof(ulong),
-            typeof(ushort)
-        };
-
+        
         protected override Expression VisitConstant(ConstantExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -843,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
 
-            return _supportedConstantTypes.Contains(underlyingType)
+            return _relationalTypeMapper.FindMapping(underlyingType) != null
                 ? expression
                 : null;
         }
@@ -854,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
 
-            return _supportedConstantTypes.Contains(underlyingType)
+            return _relationalTypeMapper.FindMapping(underlyingType) != null
                 ? expression
                 : null;
         }
