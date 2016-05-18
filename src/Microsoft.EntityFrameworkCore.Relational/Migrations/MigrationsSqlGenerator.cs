@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -783,11 +784,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
         }
 
-        protected virtual IEntityType FindEntityType(
+        protected virtual IEnumerable<IEntityType> FindEntityTypes(
             [CanBeNull] IModel model,
             [CanBeNull] string schema,
             [NotNull] string tableName)
-            => model?.GetEntityTypes().FirstOrDefault(
+            => model?.GetEntityTypes().Where(
                 t => (_annotations.For(t).TableName == tableName) && (_annotations.For(t).Schema == schema));
 
         protected virtual IProperty FindProperty(
@@ -795,8 +796,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName,
             [NotNull] string columnName)
-            => FindEntityType(model, schema, tableName)
-                ?.GetProperties().FirstOrDefault(p => _annotations.For(p).ColumnName == columnName);
+            => FindEntityTypes(model, schema, tableName)?.SelectMany(e => e.GetDeclaredProperties())
+                .SingleOrDefault(p => _annotations.For(p).ColumnName == columnName);
 
         protected virtual void EndStatement(
             [NotNull] MigrationCommandListBuilder builder,

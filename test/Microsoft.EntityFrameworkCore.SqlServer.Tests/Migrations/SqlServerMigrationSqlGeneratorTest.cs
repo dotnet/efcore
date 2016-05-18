@@ -97,6 +97,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_maxLength_on_derived()
+        {
+            base.AddColumnOperation_with_maxLength_on_derived();
+
+            Assert.Equal(
+                "ALTER TABLE [Person] ADD [Name] nvarchar(30);" + EOL,
+                Sql);
+        }
+
         [Fact]
         public virtual void AddPrimaryKeyOperation_nonclustered()
         {

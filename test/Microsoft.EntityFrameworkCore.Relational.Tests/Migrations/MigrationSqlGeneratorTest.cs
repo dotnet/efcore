@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -74,6 +73,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         public override void AddColumnOperation_with_maxLength()
         {
             base.AddColumnOperation_with_maxLength();
+
+            Assert.Equal(
+                "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(30);" + EOL,
+                Sql);
+        }
+
+        public override void AddColumnOperation_with_maxLength_on_derived()
+        {
+            base.AddColumnOperation_with_maxLength_on_derived();
 
             Assert.Equal(
                 "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(30);" + EOL,
