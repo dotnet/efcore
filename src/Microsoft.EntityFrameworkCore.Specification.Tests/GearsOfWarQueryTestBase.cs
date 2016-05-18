@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact] Issue #3424
+        [ConditionalFact]
         public virtual void Where_nullable_enum_with_non_nullable_parameter()
         {
             var ammunitionType = AmmunitionType.Cartridge;

@@ -559,11 +559,11 @@ WHERE [w].[AmmunitionType] IS NULL",
             base.Where_nullable_enum_with_non_nullable_parameter();
 
             Assert.Equal(
-                @"@__p_0: 1
+                @"@__ammunitionType_0: Cartridge
 
-SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-WHERE [w].[AmmunitionType] = @__p_0",
+WHERE [w].[AmmunitionType] = @__ammunitionType_0",
                 Sql);
         }
 
