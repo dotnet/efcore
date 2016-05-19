@@ -746,6 +746,26 @@ CROSS JOIN [Customers] AS [c1]",
                 Sql);
         }
 
+        public override void Include_where_skip_take_projection()
+        {
+            base.Include_where_skip_take_projection();
+
+            Assert.Equal(
+                @"@__p_0: 1
+@__p_1: 2
+
+SELECT [od.Order].[CustomerID]
+FROM (
+    SELECT [od0].*
+    FROM [Order Details] AS [od0]
+    WHERE [od0].[Quantity] = 10
+    ORDER BY [od0].[OrderID], [od0].[ProductID]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]
+INNER JOIN [Orders] AS [od.Order] ON [t].[OrderID] = [od.Order].[OrderID]",
+                Sql);
+        }
+
         public override void Include_duplicate_collection_result_operator2()
         {
             base.Include_duplicate_collection_result_operator2();
