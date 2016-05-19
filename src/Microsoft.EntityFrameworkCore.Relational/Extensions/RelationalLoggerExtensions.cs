@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
@@ -38,7 +39,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     command.CommandTimeout,
                     command.Parameters
                         .Cast<DbParameter>()
-                        .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
+                        .Select(
+                            p => new DbParameterLogData(
+                                p.ParameterName,
+                                logParameterValues ? p.Value : "?",
+                                logParameterValues,
+                                p.Direction,
+                                p.DbType,
+                                p.IsNullable,
+                                p.Size,
+                                p.Precision,
+                                p.Scale))
+                        .ToList(),
                     DeriveTimespan(startTimestamp, currentTimestamp));
 
                 logger.Log(
@@ -53,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             return RelationalStrings.RelationalLoggerExecutedCommand(
                                 string.Format($"{elapsedMilliseconds:N0}"),
                                 state.Parameters
-                                    .Select(kv => $"{kv.Key}='{FormatParameterValue(kv.Value)}'")
+                                    .Select(p => $"{p.Name}={FormatParameter(p)}")
                                     .Join(),
                                 state.CommandType,
                                 state.CommandTimeout,
@@ -63,27 +75,165 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        public static object FormatParameterValue(object parameterValue)
+        public static string FormatParameter(DbParameterLogData parameterData)
         {
-            if (parameterValue.GetType() != typeof(byte[]))
-            {
-                return Convert.ToString(parameterValue, CultureInfo.InvariantCulture);
-            }
-            var stringValueBuilder = new StringBuilder();
-            var buffer = (byte[])parameterValue;
-            stringValueBuilder.Append("0x");
+            var builder = new StringBuilder();
 
-            for (var i = 0; i < buffer.Length; i++)
+            var value = parameterData.Value;
+            var clrType = value?.GetType();
+
+            FormatParameterValue(builder, value);
+
+            if (parameterData.IsNullable
+                && value != null
+                && !clrType.IsNullableType())
             {
-                if (i > 31)
+                builder.Append(" (Nullable = true)");
+            }
+            else
+            {
+                if (!parameterData.IsNullable
+                    && parameterData.HasValue
+                    && (value == null
+                        || clrType.IsNullableType()))
                 {
-                    stringValueBuilder.Append("...");
-                    break;
+                    builder.Append(" (Nullable = false)");
                 }
-                stringValueBuilder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
             }
 
-            return stringValueBuilder.ToString();
+            if (parameterData.Size != 0)
+            {
+                builder
+                    .Append(" (Size = ")
+                    .Append(parameterData.Size)
+                    .Append(')');
+            }
+
+            if (parameterData.Precision != 0)
+            {
+                builder
+                    .Append(" (Precision = ")
+                    .Append(parameterData.Precision)
+                    .Append(')');
+            }
+
+            if (parameterData.Scale != 0)
+            {
+                builder
+                    .Append(" (Scale = ")
+                    .Append(parameterData.Scale)
+                    .Append(')');
+            }
+
+            if (parameterData.Direction != ParameterDirection.Input)
+            {
+                builder
+                    .Append(" (Direction = ")
+                    .Append(parameterData.Direction)
+                    .Append(')');
+            }
+
+            if (parameterData.HasValue
+                && !IsNormalDbType(parameterData.DbType, clrType))
+            {
+                builder
+                    .Append(" (DbType = ")
+                    .Append(parameterData.DbType)
+                    .Append(')');
+            }
+
+            return builder.ToString();
+
+        }
+
+        public static void FormatParameterValue([NotNull] StringBuilder builder, [CanBeNull] object parameterValue)
+        {
+            builder.Append('\'');
+
+            if (parameterValue?.GetType() != typeof(byte[]))
+            {
+                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                var buffer = (byte[])parameterValue;
+                builder.Append("0x");
+
+                for (var i = 0; i < buffer.Length; i++)
+                {
+                    if (i > 31)
+                    {
+                        builder.Append("...");
+                        break;
+                    }
+                    builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
+                }
+            }
+
+            builder.Append('\'');
+        }
+
+        private static bool IsNormalDbType(DbType dbType, Type clrType)
+        {
+            if (clrType == null)
+            {
+                return false;
+            }
+
+            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
+
+            switch (dbType)
+            {
+                case DbType.AnsiString: // Zero
+                    return clrType != typeof(string);
+                case DbType.Binary:
+                    return clrType == typeof(byte[]);
+                case DbType.Byte:
+                    return clrType == typeof(byte);
+                case DbType.Boolean:
+                    return clrType == typeof(bool);
+                case DbType.Decimal:
+                    return clrType == typeof(decimal);
+                case DbType.Double:
+                    return clrType == typeof(double);
+                case DbType.Guid:
+                    return clrType == typeof(Guid);
+                case DbType.Int16:
+                    return clrType == typeof(short);
+                case DbType.Int32:
+                    return clrType == typeof(int);
+                case DbType.Int64:
+                    return clrType == typeof(long);
+                case DbType.Object:
+                    return clrType == typeof(object);
+                case DbType.SByte:
+                    return clrType == typeof(sbyte);
+                case DbType.Single:
+                    return clrType == typeof(float);
+                case DbType.String:
+                    return clrType == typeof(string);
+                case DbType.Time:
+                    return clrType == typeof(TimeSpan);
+                case DbType.UInt16:
+                    return clrType == typeof(ushort);
+                case DbType.UInt32:
+                    return clrType == typeof(uint);
+                case DbType.UInt64:
+                    return clrType == typeof(ulong);
+                case DbType.DateTime2:
+                    return clrType == typeof(DateTime);
+                case DbType.DateTimeOffset:
+                    return clrType == typeof(DateTimeOffset);
+                //case DbType.VarNumeric:
+                //case DbType.AnsiStringFixedLength:
+                //case DbType.StringFixedLength:
+                //case DbType.Xml:
+                //case DbType.Currency:
+                //case DbType.Date:
+                //case DbType.DateTime:
+                default:
+                    return false;
+            }
         }
 
         public static void LogInformation<TState>(

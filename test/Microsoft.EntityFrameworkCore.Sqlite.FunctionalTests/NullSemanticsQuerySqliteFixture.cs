@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                             NullSemanticsModelInitializer.Seed(context);
                         }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
+                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

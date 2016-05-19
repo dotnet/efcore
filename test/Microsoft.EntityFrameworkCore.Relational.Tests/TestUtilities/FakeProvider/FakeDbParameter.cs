@@ -21,12 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         public static DbType DefaultDbType = DbType.AnsiString;
         public override DbType DbType { get; set; } = DefaultDbType;
 
-        public override int Size
-        {
-            get { throw new NotImplementedException(); }
-
-            set { throw new NotImplementedException(); }
-        }
+        public override int Size { get; set; }
 
         public override string SourceColumn
         {

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             GearsOfWarModelInitializer.Seed(context);
                         }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
+                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

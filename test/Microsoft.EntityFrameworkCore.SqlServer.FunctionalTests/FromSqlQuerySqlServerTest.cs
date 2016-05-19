@@ -90,7 +90,7 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
             base.From_sql_queryable_multiple_composed_with_parameters_and_closure_parameters();
 
             Assert.Equal(
-                @"@p0: London
+                @"@p0: London (Size = 4000)
 @__8__locals1_startDate_1: 01/01/1997 00:00:00
 @__8__locals1_endDate_2: 01/01/1998 00:00:00
 
@@ -135,8 +135,8 @@ WHERE [c].[City] = N'London'",
             base.From_sql_queryable_with_parameters();
 
             Assert.Equal(
-                @"@p0: London
-@p1: Sales Representative
+                @"@p0: London (Size = 4000)
+@p1: Sales Representative (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
@@ -147,8 +147,8 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
             base.From_sql_queryable_with_parameters_inline();
 
             Assert.Equal(
-                @"@p0: London
-@p1: Sales Representative
+                @"@p0: London (Size = 4000)
+@p1: Sales Representative (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
@@ -159,7 +159,7 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
             base.From_sql_queryable_with_null_parameter();
 
             Assert.Equal(
-                @"@p0: 
+                @"@p0:  (Nullable = false) (DbType = String)
 
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)",
                 Sql);
@@ -170,8 +170,8 @@ SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL 
             base.From_sql_queryable_with_parameters_and_closure();
 
             Assert.Equal(
-                @"@p0: London
-@__contactTitle_1: Sales Representative
+                @"@p0: London (Size = 4000)
+@__contactTitle_1: Sales Representative (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
@@ -197,13 +197,13 @@ SELECT * FROM ""Customers"" WHERE ""City"" = 'Seattle'",
             base.From_sql_queryable_with_parameters_cache_key_includes_parameters();
 
             Assert.Equal(
-                @"@p0: London
-@p1: Sales Representative
+                @"@p0: London (Size = 4000)
+@p1: Sales Representative (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1
 
-@p0: Madrid
-@p1: Accounting Manager
+@p0: Madrid (Size = 4000)
+@p1: Accounting Manager (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
@@ -311,7 +311,7 @@ WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND 
             base.From_sql_with_dbParameter();
 
             Assert.Equal(
-                @"@city: London
+                @"@city: London (Nullable = false) (Size = 6)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @city",
                 Sql);
@@ -322,13 +322,13 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @city",
             base.From_sql_with_dbParameter_mixed();
 
             Assert.Equal(
-                @"@p0: London
-@title: Sales Representative
+                @"@p0: London (Size = 4000)
+@title: Sales Representative (Nullable = false) (Size = 20)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title
 
-@city: London
-@p1: Sales Representative
+@city: London (Nullable = false) (Size = 6)
+@p1: Sales Representative (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1",
                 Sql);

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             DataAnnotationModelInitializer.Seed(context);
                         }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
+                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

@@ -221,7 +221,7 @@ WHERE [c].[ContactName] LIKE (N'%' + N'M') + N'%'",
                 entryCount: 34);
 
             Assert.Equal(
-                @"@__LocalMethod1_0: M
+                @"@__LocalMethod1_0: M (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]

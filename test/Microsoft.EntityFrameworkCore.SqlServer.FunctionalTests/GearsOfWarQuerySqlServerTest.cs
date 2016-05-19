@@ -572,7 +572,7 @@ WHERE [w].[AmmunitionType] = @__ammunitionType_0",
             base.Where_nullable_enum_with_nullable_parameter();
 
             Assert.Equal(
-                @"@__ammunitionType_0: Cartridge
+                @"@__ammunitionType_0: Cartridge (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
@@ -632,8 +632,8 @@ WHERE [w].[IsAutomatic] = 1",
             base.Select_comparison_with_null();
 
             Assert.Equal(
-                @"@__ammunitionType_1: Cartridge
-@__ammunitionType_0: Cartridge
+                @"@__ammunitionType_1: Cartridge (Nullable = true)
+@__ammunitionType_0: Cartridge (Nullable = true)
 
 SELECT [w].[Id], CASE
     WHEN [w].[AmmunitionType] = @__ammunitionType_1
@@ -1031,7 +1031,7 @@ WHERE 'Unknown' = [c].[Location]",
             base.Non_unicode_parameter_is_used_for_non_unicode_column();
 
             Assert.Equal(
-                @"@__value_0: Unknown
+                @"@__value_0: Unknown (Size = 8000) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location]
 FROM [City] AS [c]

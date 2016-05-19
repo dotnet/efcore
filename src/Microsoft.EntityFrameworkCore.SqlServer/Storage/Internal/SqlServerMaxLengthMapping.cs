@@ -38,6 +38,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     : 4000;
         }
 
+        public override RelationalTypeMapping CreateCopy(string storeType, int? size)
+            => new SqlServerMaxLengthMapping(
+                storeType,
+                ClrType,
+                DbType,
+                IsUnicode,
+                size,
+                HasNonDefaultUnicode,
+                hasNonDefaultSize: size != Size);
+
         protected override void ConfigureParameter(DbParameter parameter)
         {
             // For strings and byte arrays, set the max length to 8000 bytes if the data will

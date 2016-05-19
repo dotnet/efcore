@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                             GearsOfWarModelInitializer.Seed(context);
                         }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
+                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }
