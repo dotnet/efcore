@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
         public void Can_create_values_for_DateTime_types()
         {
             var generator = new TemporaryDateTimeOffsetValueGenerator();
-            Assert.Equal(new DateTimeOffset(1, TimeSpan.Zero), generator.Next());
-            Assert.Equal(new DateTimeOffset(2, TimeSpan.Zero), generator.Next());
+            Assert.Equal(new DateTimeOffset(1, TimeSpan.Zero), generator.Next(null));
+            Assert.Equal(new DateTimeOffset(2, TimeSpan.Zero), generator.Next(null));
         }
 
         [Fact]

@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
         }
 
         private static object CreateAndUseFactory(IProperty property)
-            => new TemporaryNumberValueGeneratorFactory().Create(property).Next();
+            => new TemporaryNumberValueGeneratorFactory().Create(property).Next(null);
 
         [Fact]
         public void Throws_for_non_integer_property()

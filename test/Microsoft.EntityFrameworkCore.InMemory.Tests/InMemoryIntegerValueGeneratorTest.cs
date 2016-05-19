@@ -14,30 +14,30 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         {
             var generator = new InMemoryIntegerValueGenerator<int>();
 
-            Assert.Equal(1, generator.Next());
-            Assert.Equal(2, generator.Next());
-            Assert.Equal(3, generator.Next());
-            Assert.Equal(4, generator.Next());
-            Assert.Equal(5, generator.Next());
-            Assert.Equal(6, generator.Next());
+            Assert.Equal(1, generator.Next(null));
+            Assert.Equal(2, generator.Next(null));
+            Assert.Equal(3, generator.Next(null));
+            Assert.Equal(4, generator.Next(null));
+            Assert.Equal(5, generator.Next(null));
+            Assert.Equal(6, generator.Next(null));
 
             generator = new InMemoryIntegerValueGenerator<int>();
 
-            Assert.Equal(1, generator.Next());
-            Assert.Equal(2, generator.Next());
+            Assert.Equal(1, generator.Next(null));
+            Assert.Equal(2, generator.Next(null));
         }
 
         [Fact]
         public void Can_create_values_for_all_integer_types()
         {
-            Assert.Equal(1, new InMemoryIntegerValueGenerator<int>().Next());
-            Assert.Equal(1L, new InMemoryIntegerValueGenerator<long>().Next());
-            Assert.Equal((short)1, new InMemoryIntegerValueGenerator<short>().Next());
-            Assert.Equal(unchecked((byte)1), new InMemoryIntegerValueGenerator<byte>().Next());
-            Assert.Equal(unchecked((uint)1), new InMemoryIntegerValueGenerator<uint>().Next());
-            Assert.Equal(unchecked((ulong)1), new InMemoryIntegerValueGenerator<ulong>().Next());
-            Assert.Equal(unchecked((ushort)1), new InMemoryIntegerValueGenerator<ushort>().Next());
-            Assert.Equal((sbyte)1, new InMemoryIntegerValueGenerator<sbyte>().Next());
+            Assert.Equal(1, new InMemoryIntegerValueGenerator<int>().Next(null));
+            Assert.Equal(1L, new InMemoryIntegerValueGenerator<long>().Next(null));
+            Assert.Equal((short)1, new InMemoryIntegerValueGenerator<short>().Next(null));
+            Assert.Equal(unchecked((byte)1), new InMemoryIntegerValueGenerator<byte>().Next(null));
+            Assert.Equal(unchecked((uint)1), new InMemoryIntegerValueGenerator<uint>().Next(null));
+            Assert.Equal(unchecked((ulong)1), new InMemoryIntegerValueGenerator<ulong>().Next(null));
+            Assert.Equal(unchecked((ushort)1), new InMemoryIntegerValueGenerator<ushort>().Next(null));
+            Assert.Equal((sbyte)1, new InMemoryIntegerValueGenerator<sbyte>().Next(null));
         }
 
         [Fact]
@@ -47,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
 
             for (var i = 1; i < 256; i++)
             {
-                generator.Next();
+                generator.Next(null);
             }
 
-            Assert.Throws<OverflowException>(() => generator.Next());
+            Assert.Throws<OverflowException>(() => generator.Next(null));
         }
 
         [Fact]

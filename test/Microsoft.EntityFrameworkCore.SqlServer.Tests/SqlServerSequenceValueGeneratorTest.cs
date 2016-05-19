@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
 
             for (var i = 1; i <= 27; i++)
             {
-                Assert.Equal(i, (int)Convert.ChangeType(generator.Next(), typeof(int), CultureInfo.InvariantCulture));
+                Assert.Equal(i, (int)Convert.ChangeType(generator.Next(null), typeof(int), CultureInfo.InvariantCulture));
             }
         }
 
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests
                             var connection = CreateConnection(serviceProvider);
                             var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection);
 
-                            generatedValues[testNumber].Add(generator.Next());
+                            generatedValues[testNumber].Add(generator.Next(null));
                         }
                     };
             }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
@@ -10,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
     {
         private long _current;
 
-        public override DateTime Next() => new DateTime(Interlocked.Increment(ref _current));
+        public override DateTime Next(EntityEntry entry) => new DateTime(Interlocked.Increment(ref _current));
 
         public override bool GeneratesTemporaryValues => true;
     }

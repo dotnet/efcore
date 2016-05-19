@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    entry[property] = valueGenerator.Next();
+                    entry[property] = valueGenerator.Next(new EntityEntry(entry));
                 }
             }
         }

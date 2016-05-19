@@ -24,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual void Generate(InternalEntityEntry entry)
         {
+            var entityEntry = new EntityEntry(entry);
+
             foreach (var property in entry.EntityType.GetProperties())
             {
                 var isForeignKey = property.IsForeignKey();
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         Debug.Assert(valueGenerator != null);
 
-                        SetGeneratedValue(entry, property, valueGenerator.Next(), valueGenerator.GeneratesTemporaryValues);
+                        SetGeneratedValue(entry, property, valueGenerator.Next(entityEntry), valueGenerator.GeneratesTemporaryValues);
                     }
                 }
             }

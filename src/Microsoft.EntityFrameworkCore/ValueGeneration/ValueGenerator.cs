@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -13,14 +15,16 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
-        public virtual object Next() => NextValue();
+        public virtual object Next([NotNull] EntityEntry entry) => NextValue(entry);
 
         /// <summary>
         ///     Template method to be overridden by implementations to perform value generation.
         /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The generated value. </returns>
-        protected abstract object NextValue();
+        protected abstract object NextValue([NotNull] EntityEntry entry);
 
         /// <summary>
         ///     <para>

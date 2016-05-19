@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -37,8 +38,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
-        public override TValue Next() => _generatorState.Next<TValue>(GetNewLowValue);
+        public override TValue Next(EntityEntry entry) => _generatorState.Next<TValue>(GetNewLowValue);
 
         /// <summary>
         ///     Gets the low value for the next block of values to be used.
