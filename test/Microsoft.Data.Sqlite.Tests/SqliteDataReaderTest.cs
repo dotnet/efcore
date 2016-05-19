@@ -355,12 +355,25 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetFieldType_throws_when_closed() => X_throws_when_closed(r => r.GetFieldType(0), "GetFieldType");
 
-        [Fact]
-        public void GetFloat_works() =>
+        [Theory]
+        [InlineData("3", 3f)]
+        [InlineData("9e999", float.PositiveInfinity)]
+        [InlineData("-9e999", float.NegativeInfinity)]
+        public void GetFloat_works(string val, float result) =>
             GetX_works(
-                "SELECT 3;",
+                "SELECT " + val,
                 r => r.GetFloat(0),
-                3f);
+                result);
+
+        [Theory]
+        [InlineData("2.0", 2.0)]
+        [InlineData("9e999", double.PositiveInfinity)]
+        [InlineData("-9e999", double.NegativeInfinity)]
+        public void GetDouble_works(string val, double result) =>
+            GetX_works(
+                "SELECT " + val,
+                r => r.GetDouble(0),
+                result);
 
         [Fact]
         public void GetGuid_works() =>

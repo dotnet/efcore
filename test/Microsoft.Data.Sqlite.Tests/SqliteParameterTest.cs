@@ -160,6 +160,10 @@ namespace Microsoft.Data.Sqlite
         [InlineData(1ul, 1L)]
         [InlineData((ushort)1, 1L)]
         [InlineData("测试测试测试", "测试测试测试")]
+        [InlineData(double.NegativeInfinity, double.NegativeInfinity)]
+        [InlineData(double.PositiveInfinity, double.PositiveInfinity)]
+        [InlineData(float.NegativeInfinity, double.NegativeInfinity)]
+        [InlineData(float.PositiveInfinity, double.PositiveInfinity)]
         public void Bind_works(object value, object coercedValue)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -172,6 +176,23 @@ namespace Microsoft.Data.Sqlite
                 var result = command.ExecuteScalar();
 
                 Assert.Equal(coercedValue, result);
+            }
+        }
+        
+        [Theory]
+        [InlineData(double.NaN)]
+        [InlineData(float.NaN)]
+        public void Bind_throws_for_nan(object value)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @Parameter;";
+                command.Parameters.AddWithValue("@Parameter", value);
+                connection.Open();
+
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+                Assert.Equal(Strings.CannotStoreNaN, ex.Message);
             }
         }
 

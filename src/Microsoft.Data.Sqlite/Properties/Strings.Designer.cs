@@ -435,6 +435,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        /// Cannot store 'NaN' numbers.
+        /// </summary>
+        internal static string CannotStoreNaN
+        {
+            get { return GetString("CannotStoreNaN"); }
+        }
+        
+        /// <summary>
         /// Cannot convert object of type '{sourceType}' to object of type '{targetType}'.
         /// </summary>
         internal static string FormatConvertFailed(object sourceType, object targetType)

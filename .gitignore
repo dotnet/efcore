@@ -3,9 +3,11 @@
 *.db-journal
 *.suo
 *.user
+*.iml
 /.nuget/
 /.vscode/
 /.dotnet/
+/.idea/
 /.vs/
 /.vscode/
 /artifacts/

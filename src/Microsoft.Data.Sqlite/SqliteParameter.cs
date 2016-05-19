@@ -190,12 +190,12 @@ namespace Microsoft.Data.Sqlite
                 else if (type == typeof(double))
                 {
                     var value = (double)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_double(s, i, value);
+                    _bindAction = (s, i) => BindDouble(s, i, value);
                 }
                 else if (type == typeof(float))
                 {
                     var value = (double)(float)_value;
-                    _bindAction = (s, i) => NativeMethods.sqlite3_bind_double(s, i, value);
+                    _bindAction = (s, i) => BindDouble(s, i, value);
                 }
                 else if (type == typeof(Guid))
                 {
@@ -265,6 +265,16 @@ namespace Microsoft.Data.Sqlite
 
         private static void BindText(Sqlite3StmtHandle stmt, int index, string value) =>
             NativeMethods.sqlite3_bind_text(stmt, index, value, SQLITE_TRANSIENT);
+
+        private static void BindDouble(Sqlite3StmtHandle stmt, int index, double value)
+        {
+            if (double.IsNaN(value))
+            {
+                throw new InvalidOperationException(Strings.CannotStoreNaN);
+            }
+
+            NativeMethods.sqlite3_bind_double(stmt, index, value);
+        }
 
         private readonly static char[] _parameterPrefixes = { '@', '$', ':' };
 

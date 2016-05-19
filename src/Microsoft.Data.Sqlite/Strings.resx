@@ -198,4 +198,7 @@
   <data name="ConvertFailed" xml:space="preserve">
     <value>Cannot convert object of type '{sourceType}' to object of type '{targetType}'.</value>
   </data>
+  <data name="CannotStoreNaN" xml:space="preserve">
+    <value>Cannot store 'NaN' values.</value>
+  </data>
 </root>
