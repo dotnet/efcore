@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append("ORDER BY ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-                .Append(";")
+                .Append(SqlGenerationHelper.StatementTerminator)
                 .ToString();
 
         public virtual string GetInsertScript(HistoryRow row)
@@ -189,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.EscapeLiteral(row.MigrationId))
                 .Append("', '")
                 .Append(SqlGenerationHelper.EscapeLiteral(row.ProductVersion))
-                .AppendLine("');")
+                .Append("')")
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .ToString();
         }
 
@@ -203,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = '")
                 .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
-                .AppendLine("';")
+                .Append("'")
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .ToString();
         }
 
