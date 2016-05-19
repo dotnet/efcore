@@ -1150,21 +1150,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls()).Message);
         }
 
-        public class TestInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
-        {
-            private readonly TemporaryNumberValueGeneratorFactory _inMemoryFactory = new TemporaryNumberValueGeneratorFactory();
-
-            public TestInMemoryValueGeneratorSelector(IValueGeneratorCache cache)
-                : base(cache)
-            {
-            }
-
-            public override ValueGenerator Create(IProperty property, IEntityType entityType)
-                => property.ClrType == typeof(int)
-                    ? _inMemoryFactory.Create(property)
-                    : base.Create(property, entityType);
-        }
-
         private class Root
         {
             public int Id { get; set; }
