@@ -2373,5 +2373,67 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual void Where_navigation_property_to_collection()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(l1 => l1.OneToOne_Required_FK)
+                    .ThenInclude(l1 => l1.OneToMany_Optional)
+                    .ToList()
+                    .Where(l1 => l1?.OneToOne_Required_FK.OneToMany_Optional?.Count > 0)
+                    .Select(e => e?.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.Where(l1 => l1.OneToOne_Required_FK.OneToMany_Optional.Count > 0);
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_navigation_property_to_collection_of_original_entity_type()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = context.LevelTwo
+                    .Include(l2 => l2.OneToMany_Required_Inverse)
+                    .ThenInclude(l1 => l1.OneToMany_Optional)
+                    .ToList()
+                    .Where(l2 => l2?.OneToMany_Required_Inverse.OneToMany_Optional?.Count() > 0)
+                    .Select(e => e?.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelTwo.Where(l2 => l2.OneToMany_Required_Inverse.OneToMany_Optional.Count() > 0);
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
     }
 }
