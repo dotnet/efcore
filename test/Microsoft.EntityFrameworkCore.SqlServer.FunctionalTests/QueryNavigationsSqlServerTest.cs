@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
+using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -59,8 +60,10 @@ FROM [Orders] AS [o]
         {
             base.Skip_Select_Navigation();
 
-            Assert.StartsWith(
-                @"@__p_0: 20
+            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            {
+                Assert.StartsWith(
+                    @"@__p_0: 20
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -71,7 +74,8 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]
 ",
-                Sql);
+                    Sql);
+            }
         }
 
         public override void Select_Where_Navigation_Included()
