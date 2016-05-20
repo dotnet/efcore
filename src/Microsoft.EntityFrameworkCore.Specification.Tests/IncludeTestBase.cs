@@ -490,6 +490,62 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Include_collection_order_by_non_key_with_take()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .OrderBy(c => c.ContactTitle)
+                        .Take(10)
+                        .ToList();
+
+                Assert.Equal(10, customers.Count);
+                Assert.Equal(116, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
+                Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(10 + 116, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_order_by_non_key_with_skip()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .OrderBy(c => c.ContactTitle)
+                        .Skip(10)
+                        .ToList();
+
+                Assert.Equal(81, customers.Count);
+                Assert.Equal(714, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
+                Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(81 + 714, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_order_by_non_key_with_first_or_default()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .OrderByDescending(c => c.CompanyName)
+                        .FirstOrDefault();
+
+                Assert.NotNull(customer);
+                Assert.Equal(7, customer?.Orders.Count);
+                Assert.True(customer?.Orders.All(o => o.Customer != null));
+                Assert.Equal(1 + 7, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_principal_already_tracked()
         {
             using (var context = CreateContext())

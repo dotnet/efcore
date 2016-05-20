@@ -242,6 +242,79 @@ ORDER BY [c0].[City], [c0].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_collection_order_by_non_key_with_take()
+        {
+            base.Include_collection_order_by_non_key_with_take();
+
+            Assert.Equal(
+                @"@__p_0: 10
+
+SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[ContactTitle], [c].[CustomerID]
+
+@__p_0: 10
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT TOP(@__p_0) [c].[ContactTitle], [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[ContactTitle], [c].[CustomerID]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[ContactTitle], [c0].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_collection_order_by_non_key_with_skip()
+        {
+            base.Include_collection_order_by_non_key_with_skip();
+
+            Assert.Equal(
+                @"@__p_0: 10
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[ContactTitle], [c].[CustomerID]
+OFFSET @__p_0 ROWS
+
+@__p_0: 10
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT [c].[ContactTitle], [c].[CustomerID]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[ContactTitle], [c].[CustomerID]
+        OFFSET @__p_0 ROWS
+    ) AS [t]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[ContactTitle], [c0].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_collection_order_by_non_key_with_first_or_default()
+        {
+            base.Include_collection_order_by_non_key_with_first_or_default();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CompanyName] DESC, [c].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT TOP(1) [c].[CompanyName], [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CompanyName] DESC, [c].[CustomerID]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[CompanyName] DESC, [c0].[CustomerID]",
+                Sql);
+        }
+
         public override void Include_collection_as_no_tracking()
         {
             base.Include_collection_as_no_tracking();
