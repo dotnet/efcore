@@ -43,7 +43,7 @@ k-standard-goals
     }
   }
 
-#repack-cli-tools target='compile'
+#repack-cli-tools target='compile' if='Directory.Exists("src")'
   @{    
       if (string.IsNullOrEmpty(CONFIGURATION_LOCAL))
       {
