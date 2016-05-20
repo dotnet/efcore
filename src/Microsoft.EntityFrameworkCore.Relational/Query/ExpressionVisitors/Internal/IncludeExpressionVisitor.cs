@@ -378,8 +378,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             SelectExpression targetSelectExpression,
             TableExpressionBase innerJoinExpression)
         {
-            var orderings = innerJoinSelectExpression.OrderBy.ToList();
-            innerJoinSelectExpression.ClearOrderBy();
+            var needOrderingChanges = innerJoinSelectExpression.OrderBy.Any(x => x.Expression is SelectExpression || x.Expression.IsAliasWithColumnExpression());
+
+            IEnumerable<Ordering> orderings;
+            if (needOrderingChanges)
+            {
+                orderings = innerJoinSelectExpression.OrderBy.ToList();
+                innerJoinSelectExpression.ClearOrderBy();
+            }
+            else
+            {
+                orderings = innerJoinSelectExpression.OrderBy;
+            }
 
             foreach (var ordering in orderings)
             {
@@ -407,7 +417,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var expression = innerJoinSelectExpression.Projection[index];
 
-                innerJoinSelectExpression.AddToOrderBy(new Ordering((expression as AliasExpression)?.TryGetColumnExpression() ?? expression, ordering.OrderingDirection));
+                if (needOrderingChanges)
+                {
+                    innerJoinSelectExpression.AddToOrderBy(new Ordering(expression.TryGetColumnExpression() ?? expression, ordering.OrderingDirection));
+                }
 
                 var newExpression
                     = targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);
