@@ -3,8 +3,8 @@
 
 using System.Data.Common;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
@@ -310,7 +310,7 @@ CreatedTable
                     d.Definition
                 FROM sys.objects t
                 LEFT JOIN sys.columns c ON c.object_id = t.object_id
-                LEFT JOIN sys.default_constraints d ON d.parent_column_id = c.column_id
+                LEFT JOIN sys.default_constraints d ON d.parent_column_id = c.column_id AND d.parent_object_id = t.object_id
                 WHERE t.type = 'U'
                 ORDER BY t.name, c.column_id;";
 

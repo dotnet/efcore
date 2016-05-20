@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                 .Append(" SET READ_COMMITTED_SNAPSHOT ON')");
 
-            EndStatement(builder, suppressTransaction:true);
+            EndStatement(builder, suppressTransaction: true);
         }
 
         protected virtual void Generate(
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(variable)
                 .AppendLine(" = [d].[name]")
                 .AppendLine("FROM [sys].[default_constraints] [d]")
-                .AppendLine("INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id]")
+                .AppendLine("INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]")
                 .Append("WHERE ([d].[parent_object_id] = OBJECT_ID(N'");
 
             if (schema != null)

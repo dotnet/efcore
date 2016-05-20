@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "DECLARE @var0 sysname;" + EOL +
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'dbo.People') AND [c].[name] = N'LuckyNumber');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
                 "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL +
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "DECLARE @var0 sysname;" + EOL +
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'LuckyNumber');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
                 "ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL,
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "DECLARE @var0 sysname;" + EOL +
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'Id');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
                 "ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;" + EOL,
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 "DECLARE @var0 sysname;" + EOL +
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
-                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
                 "WHERE ([d].[parent_object_id] = OBJECT_ID(N'dbo.People') AND [c].[name] = N'LuckyNumber');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
                 "ALTER TABLE [dbo].[People] DROP COLUMN [LuckyNumber];" + EOL,
