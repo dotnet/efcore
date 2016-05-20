@@ -270,8 +270,11 @@ ORDER BY [c0].[ContactTitle], [c0].[CustomerID]",
         {
             base.Include_collection_order_by_non_key_with_skip();
 
-            Assert.Equal(
-                @"@__p_0: 10
+            if (SupportsOffset)
+            {
+
+                Assert.Equal(
+                    @"@__p_0: 10
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -292,7 +295,8 @@ INNER JOIN (
     ) AS [t]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[ContactTitle], [c0].[CustomerID]",
-                Sql);
+                    Sql);
+            }
         }
 
         public override void Include_collection_order_by_non_key_with_first_or_default()
@@ -750,8 +754,10 @@ CROSS JOIN [Customers] AS [c1]",
         {
             base.Include_where_skip_take_projection();
 
-            Assert.Equal(
-                @"@__p_0: 1
+            if (SupportsOffset)
+            {
+                Assert.Equal(
+                    @"@__p_0: 1
 @__p_1: 2
 
 SELECT [od.Order].[CustomerID]
@@ -763,7 +769,8 @@ FROM (
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
 INNER JOIN [Orders] AS [od.Order] ON [t].[OrderID] = [od.Order].[OrderID]",
-                Sql);
+                    Sql);
+            }
         }
 
         public override void Include_duplicate_collection_result_operator2()
