@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 .TryGetColumnExpression().TableAlias);
 
                     innerJoinSelectExpression.ClearProjection();
-
+                    
                     var innerJoinExpression = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);
 
                     LiftOrderBy(innerJoinSelectExpression, targetSelectExpression, innerJoinExpression);
@@ -378,7 +378,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             SelectExpression targetSelectExpression,
             TableExpressionBase innerJoinExpression)
         {
-            foreach (var ordering in innerJoinSelectExpression.OrderBy)
+            var needOrderingChanges = innerJoinSelectExpression.OrderBy.Any(x => x.Expression is SelectExpression || x.Expression.IsAliasWithColumnExpression());
+
+            IEnumerable<Ordering> orderings;
+            if (needOrderingChanges)
+            {
+                orderings = innerJoinSelectExpression.OrderBy.ToList();
+                innerJoinSelectExpression.ClearOrderBy();
+            }
+            else
+            {
+                orderings = innerJoinSelectExpression.OrderBy;
+            }
+
+            foreach (var ordering in orderings)
             {
                 var orderingExpression = ordering.Expression;
 
@@ -398,9 +411,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                var index = innerJoinSelectExpression.AddToProjection(orderingExpression);
+                var index = orderingExpression is SelectExpression 
+                    ? innerJoinSelectExpression.AddAliasToProjection(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, orderingExpression)
+                    : innerJoinSelectExpression.AddToProjection(orderingExpression);
 
                 var expression = innerJoinSelectExpression.Projection[index];
+
+                if (needOrderingChanges)
+                {
+                    innerJoinSelectExpression.AddToOrderBy(new Ordering(expression.TryGetColumnExpression() ?? expression, ordering.OrderingDirection));
+                }
 
                 var newExpression
                     = targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);

@@ -454,6 +454,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Include_collection_order_by_collection_column()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .Where(c => c.CustomerID.StartsWith("W"))
+                        .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
+                        .FirstOrDefault();
+
+                Assert.NotNull(customer);
+                Assert.NotNull(customer.Orders);
+                Assert.NotEmpty(customer.Orders);
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_order_by_key()
         {
             using (var context = CreateContext())
@@ -542,6 +560,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(7, customer?.Orders.Count);
                 Assert.True(customer?.Orders.All(o => o.Customer != null));
                 Assert.Equal(1 + 7, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_order_by_subquery()
+        {
+            using (var context = CreateContext())
+            {
+                var customerId = context.Set<Order>().Select(x => x.CustomerID).FirstOrDefault();
+
+                var customer
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .Where(c => c.CustomerID == customerId)
+                        .OrderBy(c => c.Orders.Select(oo => oo.OrderDate).FirstOrDefault())
+                        .FirstOrDefault();
+
+                Assert.NotNull(customer);
+                Assert.NotNull(customer.Orders);
+                Assert.NotEmpty(customer.Orders);
             }
         }
 
