@@ -592,11 +592,99 @@ FROM [Orders] AS [o]",
 
             // TODO: Projection sub-query lifting
             Assert.StartsWith(
-                @"SELECT [c].[CustomerID]
-FROM [Customers] AS [c]
+                @"SELECT [e].[CustomerID]
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] LIKE N'A' + N'%'
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+SELECT [e0].[OrderID], [e0].[CustomerID], [e0].[EmployeeID], [e0].[OrderDate], [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
+FROM [Orders] AS [e0]
+LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
+WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
+ORDER BY [e0].[CustomerID]
+
+SELECT [e0].[OrderID], [e0].[CustomerID], [e0].[EmployeeID], [e0].[OrderDate], [e.Customer].[CustomerID], [e.Customer].[Address], [e.Customer].[City], [e.Customer].[CompanyName], [e.Customer].[ContactName], [e.Customer].[ContactTitle], [e.Customer].[Country], [e.Customer].[Fax], [e.Customer].[Phone], [e.Customer].[PostalCode], [e.Customer].[Region]
+FROM [Orders] AS [e0]
+LEFT JOIN [Customers] AS [e.Customer] ON [e0].[CustomerID] = [e.Customer].[CustomerID]
+WHERE [e0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
+ORDER BY [e0].[CustomerID]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_first_or_default_then_nav_prop_nested()
+        {
+            base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested();
+
+            Assert.StartsWith(
+                @"SELECT 1
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] LIKE N'A' + N'%'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_single_or_default_then_nav_prop_nested()
+        {
+            base.Collection_select_nav_prop_single_or_default_then_nav_prop_nested();
+
+            Assert.StartsWith(
+                @"SELECT 1
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] LIKE N'A' + N'%'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[OrderID] = 10643
+ORDER BY [o].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o].[OrderID] = 10643
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method()
+        {
+            base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method();
+
+            Assert.StartsWith(
+                @"SELECT 1
+FROM [Customers] AS [e]
+WHERE [e].[CustomerID] LIKE N'A' + N'%'
+
+SELECT [oo].[OrderID], [oo].[CustomerID], [oo].[EmployeeID], [oo].[OrderDate], [oo.Customer].[CustomerID], [oo.Customer].[Address], [oo.Customer].[City], [oo.Customer].[CompanyName], [oo.Customer].[ContactName], [oo.Customer].[ContactTitle], [oo.Customer].[Country], [oo.Customer].[Fax], [oo.Customer].[Phone], [oo.Customer].[PostalCode], [oo.Customer].[Region]
+FROM [Orders] AS [oo]
+LEFT JOIN [Customers] AS [oo.Customer] ON [oo].[CustomerID] = [oo.Customer].[CustomerID]
+WHERE [oo].[CustomerID] = N'ALFKI'
+ORDER BY [oo].[CustomerID]
+
+SELECT [oo].[OrderID], [oo].[CustomerID], [oo].[EmployeeID], [oo].[OrderDate], [oo.Customer].[CustomerID], [oo.Customer].[Address], [oo.Customer].[City], [oo.Customer].[CompanyName], [oo.Customer].[ContactName], [oo.Customer].[ContactTitle], [oo.Customer].[Country], [oo.Customer].[Fax], [oo.Customer].[Phone], [oo.Customer].[PostalCode], [oo.Customer].[Region]
+FROM [Orders] AS [oo]
+LEFT JOIN [Customers] AS [oo.Customer] ON [oo].[CustomerID] = [oo.Customer].[CustomerID]
+WHERE [oo].[CustomerID] = N'ALFKI'
+ORDER BY [oo].[CustomerID]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby()
+        {
+            base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby();
+
+            Assert.Equal(
+                @"",
                 Sql);
         }
 

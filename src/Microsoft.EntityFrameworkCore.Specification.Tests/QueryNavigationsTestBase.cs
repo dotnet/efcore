@@ -540,15 +540,60 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                       select new { First = (c.Orders ?? new List<Order>()).FirstOrDefault() });
         }
 
-        // issue #5191
-        ////[ConditionalFact]
+        [ConditionalFact]
         public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop()
         {
+            var orderIds = new[] { 10643, 10692, 10702, 10835, 10952, 11011 };
+
             AssertQuery<Customer>(
-                cs => from c in cs
-                      select new { c.Orders.FirstOrDefault().Customer },
-                cs => from c in cs
-                      select new { Customer = c.Orders != null ? c.Orders.FirstOrDefault().Customer : null });
+                cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
+                      select new { c.Orders.Where(e => orderIds.Contains(e.OrderID)).FirstOrDefault().Customer },
+                cs => from c in cs.Where(e => e.CustomerID.StartsWith("A"))
+                      select new { Customer = c.Orders != null && c.Orders.Where(e => orderIds.Contains(e.OrderID)).Any() 
+                        ? c.Orders.Where(e => orderIds.Contains(e.OrderID)).First().Customer 
+                        : null });
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop_nested()
+        {
+            AssertQuery<Customer, Order, string>(
+                (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
+                    .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City));
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_select_nav_prop_single_or_default_then_nav_prop_nested()
+        {
+            AssertQuery<Customer, Order, string>(
+                (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
+                    .Select(c => os.SingleOrDefault(o => o.OrderID == 10643).Customer.City));
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method()
+        {
+            AssertQuery<Customer, Order, string>(
+                (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
+                    .Select(c => EF.Property<string>(
+                        EF.Property<Customer>(
+                            os.FirstOrDefault(oo => oo.CustomerID == "ALFKI"),
+                            "Customer"), 
+                        "City")),
+                (cs, os) => cs.Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null 
+                        ? os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City
+                        : null)
+                );
+        }
+
+        // #5427
+        ////[ConditionalFact]
+        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby()
+        {
+            AssertQuery<Customer, Order, string>(
+                (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
+                    .Select(c => os.OrderBy(o => o.CustomerID).FirstOrDefault(o =>o.CustomerID == "ALFKI").Customer.City));
         }
 
         [ConditionalFact]

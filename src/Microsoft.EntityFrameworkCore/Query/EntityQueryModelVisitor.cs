@@ -256,9 +256,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             entityEqualityRewritingExpressionVisitor.Rewrite(queryModel);
 
-            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
-
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
+
+            _navigationRewritingExpressionVisitorFactory.Create(this).Rewrite(queryModel);
 
             QueryCompilationContext.Logger
                 .LogDebug(
