@@ -34,6 +34,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
         }
 
         [Fact]
+        public void Warnings_as_errors_can_be_set()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder().SetWarningsAsErrors();
+
+            Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsWarningsAsErrorsEnabled);
+        }
+
+        [Fact]
         public void Extensions_can_be_added_to_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

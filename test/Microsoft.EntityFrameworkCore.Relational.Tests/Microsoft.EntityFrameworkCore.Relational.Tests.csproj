@@ -97,7 +97,6 @@
     <Compile Include="Update\ReaderModificationCommandBatchTest.cs" />
     <Compile Include="Update\UpdateSqlGeneratorTest.cs" />
     <Compile Include="Update\UpdateSqlGeneratorTestBase.cs" />
-    <Compile Include="Utilities\RelationalLoggerExtensionsTest.cs" />
     <Compile Include="Utilities\StringBuilderExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>

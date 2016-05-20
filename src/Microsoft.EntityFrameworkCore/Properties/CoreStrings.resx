@@ -570,4 +570,7 @@
   <data name="LogIgnoredInclude" xml:space="preserve">
     <value>The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.</value>
   </data>
+  <data name="WarningAsError" xml:space="preserve">
+    <value>Warning as error exception for warning '{eventId}': {message}</value>
+  </data>
 </root>

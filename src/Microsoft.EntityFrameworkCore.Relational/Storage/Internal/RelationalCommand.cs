@@ -5,12 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -190,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
+                LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandAfter(
                     dbCommand,
@@ -203,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
+                LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandError(
                     dbCommand,
@@ -311,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
+                LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandAfter(
                     dbCommand,
@@ -325,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 var currentTimestamp = Stopwatch.GetTimestamp();
 
-                Logger.LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
+                LogCommandExecuted(dbCommand, startTimestamp, currentTimestamp);
 
                 DiagnosticSource.WriteCommandError(
                     dbCommand,
@@ -398,6 +402,74 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
 
             return command;
+        }
+
+        private void LogCommandExecuted(
+            DbCommand command,
+            long startTimestamp,
+            long currentTimestamp)
+        {
+            if (Logger.IsEnabled(LogLevel.Information))
+            {
+                var logParameterValues
+                    = command.Parameters.Count > 0
+                      && Logger.LogSensitiveData;
+
+                var logData = new DbCommandLogData(
+                    command.CommandText.TrimEnd(),
+                    command.CommandType,
+                    command.CommandTimeout,
+                    command.Parameters
+                        .Cast<DbParameter>()
+                        .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
+                    DeriveTimespan(startTimestamp, currentTimestamp));
+
+                Logger.Log(
+                    LogLevel.Information,
+                    (int)RelationalLoggingEventId.ExecutedCommand,
+                    logData,
+                    null,
+                    (state, _) =>
+                        {
+                            var elapsedMilliseconds = DeriveTimespan(startTimestamp, currentTimestamp);
+
+                            return RelationalStrings.RelationalLoggerExecutedCommand(
+                                string.Format($"{elapsedMilliseconds:N0}"),
+                                state.Parameters
+                                    .Select(kv => $"{kv.Key}='{FormatParameterValue(kv.Value)}'")
+                                    .Join(),
+                                state.CommandType,
+                                state.CommandTimeout,
+                                Environment.NewLine,
+                                state.CommandText);
+                        });
+            }
+        }
+
+        private static long DeriveTimespan(long startTimestamp, long currentTimestamp)
+            => (currentTimestamp - startTimestamp) / TimeSpan.TicksPerMillisecond;
+
+        internal static object FormatParameterValue(object parameterValue)
+        {
+            if (parameterValue.GetType() != typeof(byte[]))
+            {
+                return Convert.ToString(parameterValue, CultureInfo.InvariantCulture);
+            }
+            var stringValueBuilder = new StringBuilder();
+            var buffer = (byte[])parameterValue;
+            stringValueBuilder.Append("0x");
+
+            for (var i = 0; i < buffer.Length; i++)
+            {
+                if (i > 31)
+                {
+                    stringValueBuilder.Append("...");
+                    break;
+                }
+                stringValueBuilder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            return stringValueBuilder.ToString();
         }
     }
 }

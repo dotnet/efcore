@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     QueryCompilationContext.Logger
                         .LogWarning(
-                            CoreLoggingEventId.IncludeIgnored,
+                            CoreLoggingEventId.IncludeIgnoredWarning,
                             () => CoreStrings.LogIgnoredInclude(includeSpecification));
                 }
             }

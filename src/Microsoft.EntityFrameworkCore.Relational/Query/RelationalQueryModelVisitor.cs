@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -828,7 +827,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case QueryClientEvaluationBehavior.Throw:
                     throw new InvalidOperationException(RelationalStrings.ClientEvalDisabled(expression));
                 case QueryClientEvaluationBehavior.Warn:
-                    QueryCompilationContext.Logger.LogWarning(RelationalStrings.ClientEvalWarning(expression));
+                    QueryCompilationContext.Logger.LogWarning(
+                        RelationalLoggingEventId.QueryClientEvaluationWarning,
+                        () => RelationalStrings.ClientEvalWarning(expression));
                     break;
             }
         }

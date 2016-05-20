@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -47,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _loggerFactory = copyFrom.LoggerFactory;
             _memoryCache = copyFrom.MemoryCache;
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
+            IsWarningsAsErrorsEnabled = copyFrom.IsWarningsAsErrorsEnabled;
         }
 
         /// <summary>
@@ -94,6 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             get { return _internalServiceProvider; }
             [param: CanBeNull] set { _internalServiceProvider = value; }
         }
+
+        public virtual bool IsWarningsAsErrorsEnabled { get; set; }
 
         /// <summary>
         ///     Adds the services required to make the selected options work. This is used when there is no external <see cref="IServiceProvider" />
