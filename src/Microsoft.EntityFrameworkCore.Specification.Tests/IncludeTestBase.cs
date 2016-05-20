@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Include_collection_order_by_non_key_with_take()
         {
             using (var context = CreateContext())
