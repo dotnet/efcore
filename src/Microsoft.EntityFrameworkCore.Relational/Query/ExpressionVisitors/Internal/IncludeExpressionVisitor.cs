@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var expression = innerJoinSelectExpression.Projection[index];
 
-                innerJoinSelectExpression.AddToOrderBy(new Ordering(expression, ordering.OrderingDirection));
+                innerJoinSelectExpression.AddToOrderBy(new Ordering((expression as AliasExpression)?.TryGetColumnExpression() ?? expression, ordering.OrderingDirection));
 
                 var newExpression
                     = targetSelectExpression.UpdateColumnExpression(expression, innerJoinExpression);
