@@ -43,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             { ExpressionType.Subtract, " - " },
             { ExpressionType.Multiply, " * " },
             { ExpressionType.Divide, " / " },
-            { ExpressionType.Modulo, " % " }
+            { ExpressionType.Modulo, " % " },
+            { ExpressionType.And, " & " },
+            { ExpressionType.Or, " | " }
         };
 
         public DefaultQuerySqlGenerator(
