@@ -572,6 +572,134 @@ WHERE [w].[AmmunitionType] IS NULL",
                 Sql);
         }
 
+        [ConditionalFact]
+        public override void Where_bitwise_and_enum()
+        {
+            base.Where_bitwise_and_enum();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Rank] & 1 > 0)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Rank] & 1 = 1)",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_bitwise_and_integral()
+        {
+            base.Where_bitwise_and_integral();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_bitwise_and_nullable_enum_with_constant()
+        {
+            base.Where_bitwise_and_nullable_enum_with_constant();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] & 1 > 0",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_bitwise_and_nullable_enum_with_null_constant()
+        {
+            base.Where_bitwise_and_nullable_enum_with_null_constant();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] & NULL > 0",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
+        {
+            base.Where_bitwise_and_nullable_enum_with_non_nullable_parameter();
+
+            Assert.Equal(
+                @"@__ammunitionType_0: Cartridge
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] & @__ammunitionType_0 > 0",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_bitwise_and_nullable_enum_with_nullable_parameter()
+        {
+            base.Where_bitwise_and_nullable_enum_with_nullable_parameter();
+
+            Assert.Equal(
+                @"@__ammunitionType_0: Cartridge (Nullable = true)
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] & @__ammunitionType_0 > 0
+
+@__ammunitionType_0:  (DbType = Int32)
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+WHERE [w].[AmmunitionType] & @__ammunitionType_0 > 0",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Where_bitwise_or_enum()
+        {
+            base.Where_bitwise_or_enum();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Rank] | 1 > 0)",
+                Sql);
+        }
+
+        [ConditionalFact]
+        public override void Bitwise_projects_values_in_select()
+        {
+            base.Bitwise_projects_values_in_select();
+
+            Assert.Equal(
+                @"SELECT TOP(1) CASE
+    WHEN [g].[Rank] & 1 = 1
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, CASE
+    WHEN [g].[Rank] & 1 = 2
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [g].[Rank] & 1
+FROM [Gear] AS [g]
+WHERE (([g].[Discriminator] = N'Officer') OR ([g].[Discriminator] = N'Gear')) AND ([g].[Rank] & 1 = 1)",
+                Sql);
+        }
+
         public override void Where_count_subquery_without_collision()
         {
             base.Where_count_subquery_without_collision();

@@ -534,6 +534,156 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_bitwise_and_enum()
+        {
+            using (var context = CreateContext())
+            {
+                var gears = context.Gears
+                    .Where(g => (g.Rank & MilitaryRank.Corporal) > 0)
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                gears = context.Gears
+                    .Where(g => (g.Rank & MilitaryRank.Corporal) == MilitaryRank.Corporal)
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_integral()
+        {
+            using (var context = CreateContext())
+            {
+                var gears = context.Gears
+                    .Where(g => ((int)g.Rank & 1) == 1)
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                gears = context.Gears
+                    .Where(g => ((long)g.Rank & 1L) == 1L)
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                gears = context.Gears
+                    .Where(g => ((short)g.Rank & (short)1) == 1)
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+
+                gears = context.Gears
+                    .Where(g => ((char)g.Rank & '\x0001') == '\x0001')
+                    .ToList();
+
+                Assert.Equal(2, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_nullable_enum_with_constant()
+        {
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => (w.AmmunitionType & AmmunitionType.Cartridge) > 0)
+                    .ToList();
+
+                Assert.Equal(5, weapons.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_nullable_enum_with_null_constant()
+        {
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => (w.AmmunitionType & null) > 0)
+                    .ToList();
+
+                Assert.Equal(0, weapons.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
+        {
+            var ammunitionType = AmmunitionType.Cartridge;
+
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => (w.AmmunitionType & ammunitionType) > 0)
+                    .ToList();
+
+                Assert.Equal(5, weapons.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_and_nullable_enum_with_nullable_parameter()
+        {
+            AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
+
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => (w.AmmunitionType & ammunitionType) > 0)
+                    .ToList();
+
+                Assert.Equal(5, weapons.Count);
+            }
+
+            ammunitionType = null;
+
+            using (var context = CreateContext())
+            {
+                var weapons = context.Weapons
+                    .Where(w => (w.AmmunitionType & ammunitionType) > 0)
+                    .ToList();
+
+                Assert.Equal(0, weapons.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bitwise_or_enum()
+        {
+            using (var context = CreateContext())
+            {
+                var gears = context.Gears
+                    .Where(g => (g.Rank | MilitaryRank.Corporal) > 0)
+                    .ToList();
+
+                Assert.Equal(5, gears.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Bitwise_projects_values_in_select()
+        {
+            using (var context = CreateContext())
+            {
+                var gear = context.Gears
+                    .Where(g => (g.Rank & MilitaryRank.Corporal) == MilitaryRank.Corporal)
+                    .Select(b => new
+                    {
+                        BitwiseTrue = (b.Rank & MilitaryRank.Corporal) == MilitaryRank.Corporal,
+                        BitwiseFalse = (b.Rank & MilitaryRank.Corporal) == MilitaryRank.Sergeant,
+                        BitwiseValue = b.Rank & MilitaryRank.Corporal,
+                    }).First();
+
+                Assert.True(gear.BitwiseTrue);
+                Assert.False(gear.BitwiseFalse);
+                Assert.True(gear.BitwiseValue == MilitaryRank.Corporal);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Where_count_subquery_without_collision()
         {
             using (var context = CreateContext())

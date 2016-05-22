@@ -168,7 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
                 case ExpressionType.Modulo:
-                {
+                case ExpressionType.And:
+                case ExpressionType.Or:
+                    {
                     var leftExpression = Visit(expression.Left);
                     var rightExpression = Visit(expression.Right);
 
