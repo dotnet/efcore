@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.DotNet.ProjectModel;
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 }
 
                 // TODO remove when https://github.com/dotnet/cli/issues/2645 is resolved
-                Func<bool> isClassLibrary = () => 
+                Func<bool> isClassLibrary = () =>
                 {
                     var projectContext = ProjectContext.Create(
                         projectFile.ProjectFilePath,
@@ -148,6 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     if (isClassLibrary())
                     {
                         Reporter.Error.WriteLine(ToolsStrings.ClassLibrariesNotSupportedInCli(fwlink));
+                    }
+                    else if (framework.IsDesktop() && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        Reporter.Error.WriteLine(ToolsStrings.DesktopCommandsRequiresWindows(framework.GetShortFolderName());
                     }
                     else
                     {

@@ -651,7 +651,7 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
     }
     if (!$t) {
         $projectName = $project.ProjectName
-        throw "Cannot execute this command because 'Microsoft.EntityFrameworkCore.Tools' is not installed in project '$projectName'. Add 'Microsoft.EntityFrameworkCore.Tools' to the 'tools' section in project.json."
+        throw "Cannot execute this command because 'Microsoft.EntityFrameworkCore.Tools' is not installed in project '$projectName'. Add 'Microsoft.EntityFrameworkCore.Tools' to the 'tools' section in project.json. See http://go.microsoft.com/fwlink/?LinkId=798221 for more details."
     }
 
     $output = $null

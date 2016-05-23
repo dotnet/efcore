@@ -29,6 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// Could not invoke this command on this project. Commands for framework '{framework}' are only supported on Windows.
+        /// </summary>
+        public static string DesktopCommandsRequiresWindows([CanBeNull] object framework)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DesktopCommandsRequiresWindows", "framework"), framework);
+        }
+
+        /// <summary>
         /// Invoking dependency command '{projectCommand}' in project '{projectName}'
         /// </summary>
         public static string LogBeginDispatch([CanBeNull] object projectCommand, [CanBeNull] object projectName)

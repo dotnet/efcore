@@ -123,6 +123,9 @@
   <data name="ClassLibrariesNotSupportedInCli" xml:space="preserve">
     <value>This preview of Entity Framework tools does not support targeting class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.</value>
   </data>
+  <data name="DesktopCommandsRequiresWindows" xml:space="preserve">
+    <value>Could not invoke this command on this project. Commands for framework '{framework}' are only supported on Windows.</value>
+  </data>
   <data name="LogBeginDispatch" xml:space="preserve">
     <value>Invoking dependency command '{projectCommand}' in project '{projectName}'</value>
   </data>
