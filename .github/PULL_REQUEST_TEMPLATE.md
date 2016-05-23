@@ -1,8 +1,16 @@
-Summary of the changes
- - Detail 1
- - Detail 2
 
-Fixes #bugnumber
+**Please check if the PR fulfills these requirements**
 
-You will need to sign a Contributor License Agreement before we can accept your pull request.
+- [ ] The code builds and tests pass (verified by our automated build checks)
+- [ ] Commit messages follow this format
+```
+    Summary of the changes
+    - Detail 1
+    - Detail 2
+
+    Fixes #bugnumber
+```
+- [ ] Tests for the changes have been added (for bug fixes / features)
+- [ ] Code meets the expectations our engineering guidelines. https://github.com/aspnet/Home/wiki/Engineering-guidelines.
+
 Please review the guidelines for CONTRIBUTING.md for more details.

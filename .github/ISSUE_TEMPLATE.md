@@ -1,12 +1,11 @@
 ### Steps to reproduce
-Please include the minimal steps to reproduce the issue.
+Ideally include a complete code listing that we can run to reproduce the issue.
+Alternatively, you can provide a project/solution that we can run.
 
-### Expected result
+### The issue
+Describe what is not working as expected.
 
-
-### Actual result
-
-Please include full exception and stack trace if applicable.
+If you are seeing an exception, include the full exceptions details (message and stack trace).
 
 ```
 Exception message:
