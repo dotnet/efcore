@@ -3416,6 +3416,28 @@ WHERE 1 = 0",
                 Sql);
         }
 
+        public override void Where_default()
+        {
+            base.Where_default();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Fax] IS NULL",
+                Sql);
+        }
+
+        public override void Where_expression_invoke()
+        {
+            base.Where_expression_invoke();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'",
+                Sql);
+        }
+
         public override void Where_ternary_boolean_condition()
         {
             base.Where_ternary_boolean_condition();

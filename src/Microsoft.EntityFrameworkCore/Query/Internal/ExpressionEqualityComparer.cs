@@ -171,6 +171,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         break;
                     }
+                    case ExpressionType.Invoke:
+                    {
+                        var invocationExpression = (InvocationExpression)obj;
+
+                        hashCode += (hashCode * 397) ^ GetHashCode(invocationExpression.Expression);
+                        hashCode += (hashCode * 397) ^ GetHashCode(invocationExpression.Arguments);
+
+                        break;
+                    }
                     case ExpressionType.MemberInit:
                     {
                         var memberInitExpression = (MemberInitExpression)obj;
@@ -227,6 +236,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         break;
                     }
+                    case ExpressionType.Default:
+                    {
+                        hashCode += (hashCode * 397) ^ obj.Type.GetHashCode();
+                        break;
+                    }
+
                     default:
                         throw new NotImplementedException();
                 }

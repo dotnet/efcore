@@ -1622,6 +1622,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_default()
+        {
+            var parameter = Expression.Parameter(typeof(Customer), "c");
+
+            var defaultExpression =
+                Expression.Lambda<Func<Customer, bool>>(
+                    Expression.Equal(
+                        Expression.Property(
+                            parameter,
+                            "Fax"),
+                        Expression.Default(typeof(string))),
+                    parameter);
+
+            AssertQuery<Customer>(
+                es => es.Where(defaultExpression),
+                entryCount: 22);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_expression_invoke()
+        {
+            Expression<Func<Customer, bool>> expression = c => c.CustomerID == "ALFKI";
+            var parameter = Expression.Parameter(typeof(Customer), "c");
+
+            AssertQuery<Customer>(
+                cs => cs.Where(
+                    Expression.Lambda<Func<Customer, bool>>(Expression.Invoke(expression, parameter), parameter)),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Where_concat_string_int_comparison1()
         {
             var i = 10;
@@ -4514,7 +4545,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 from o in orders
                 select c);
         }
-        
+
         [ConditionalFact]
         public virtual void GroupJoin_simple3()
         {
@@ -4884,7 +4915,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         public virtual void TrimStart_with_arguments_in_predicate()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactTitle.TrimStart('O','w') == "ner"),
+                cs => cs.Where(c => c.ContactTitle.TrimStart('O', 'w') == "ner"),
                 entryCount: 17);
         }
 
@@ -5645,7 +5676,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             bool assertOrder = false,
             int entryCount = 0,
             Action<IList<object>, IList<object>> asserter = null)
-            where TItem : class 
+            where TItem : class
                 => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem>(
