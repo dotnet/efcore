@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
@@ -104,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             => from i in items
                from a in i.GetAnnotations()
                where a.Value != null
+                     && a.Name != RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName
                select a.Value.GetType().Namespace;
     }
 }

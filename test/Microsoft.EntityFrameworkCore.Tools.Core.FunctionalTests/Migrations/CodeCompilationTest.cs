@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -166,6 +168,129 @@ namespace MyNamespace
 }
 ", modelSnapshotCode);
 
+            var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
+            Assert.Empty(snapshot.Model.GetEntityTypes());
+        }
+
+        [ConditionalFact]
+        public void Snapshot_with_default_values_are_round_tripped()
+        {
+            var codeHelper = new CSharpHelper();
+            var generator = new CSharpMigrationsGenerator(
+                codeHelper,
+                new CSharpMigrationOperationGenerator(codeHelper),
+                new CSharpSnapshotGenerator(codeHelper));
+
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            modelBuilder.Entity<EntityWithEveryPrimitive>(eb =>
+                {
+                    eb.Property(e => e.Boolean).HasDefaultValue(false);
+                    eb.Property(e => e.Byte).HasDefaultValue((byte)0);
+                    eb.Property(e => e.ByteArray).HasDefaultValue(new byte[] { 0 });
+                    eb.Property(e => e.Char).HasDefaultValue('0');
+                    eb.Property(e => e.DateTime).HasDefaultValue(new DateTime(1980, 1, 1));
+                    eb.Property(e => e.DateTimeOffset).HasDefaultValue(new DateTimeOffset(1980, 1, 1, 0, 0, 0, new TimeSpan(0, 0, 0)));
+                    eb.Property(e => e.Decimal).HasDefaultValue(0m);
+                    eb.Property(e => e.Double).HasDefaultValue(0.0);
+                    eb.Property(e => e.Enum).HasDefaultValue(Enum1.Default);
+                    eb.Property(e => e.Guid).HasDefaultValue(new Guid());
+                    eb.Property(e => e.Int16).HasDefaultValue((short)0);
+                    eb.Property(e => e.Int32).HasDefaultValue(0);
+                    eb.Property(e => e.Int64).HasDefaultValue(0L);
+                    eb.Property(e => e.Single).HasDefaultValue((float)0.0);
+                    eb.Property(e => e.SByte).HasDefaultValue((sbyte)0);
+                    eb.Property(e => e.String).HasDefaultValue("'\"'");
+                    eb.Property(e => e.TimeSpan).HasDefaultValue(new TimeSpan(0, 0, 0));
+                    eb.Property(e => e.UInt16).HasDefaultValue((ushort)0);
+                    eb.Property(e => e.UInt32).HasDefaultValue(0U);
+                    eb.Property(e => e.UInt64).HasDefaultValue(0UL);
+                    eb.Property(e => e.NullableBoolean).HasDefaultValue(true);
+                    eb.Property(e => e.NullableByte).HasDefaultValue(byte.MaxValue);
+                    eb.Property(e => e.NullableChar).HasDefaultValue('\'');
+                    eb.Property(e => e.NullableDateTime).HasDefaultValue(new DateTime(1900, 12, 31));
+                    eb.Property(e => e.NullableDateTimeOffset).HasDefaultValue(new DateTimeOffset(3000, 1, 1, 0, 0, 0, new TimeSpan(0, 0, 0)));
+                    eb.Property(e => e.NullableDecimal).HasDefaultValue(2m * long.MaxValue);
+                    eb.Property(e => e.NullableDouble).HasDefaultValue(0.6822871999174);
+                    eb.Property(e => e.NullableEnum).HasDefaultValue(Enum1.Default);
+                    eb.Property(e => e.NullableGuid).HasDefaultValue(new Guid());
+                    eb.Property(e => e.NullableInt16).HasDefaultValue(short.MinValue);
+                    eb.Property(e => e.NullableInt32).HasDefaultValue(int.MinValue);
+                    eb.Property(e => e.NullableInt64).HasDefaultValue(long.MinValue);
+                    eb.Property(e => e.NullableSingle).HasDefaultValue(0.3333333f);
+                    eb.Property(e => e.NullableSByte).HasDefaultValue(sbyte.MinValue);
+                    eb.Property(e => e.NullableTimeSpan).HasDefaultValue(new TimeSpan(-1, 0, 0));
+                    eb.Property(e => e.NullableUInt16).HasDefaultValue(ushort.MaxValue);
+                    eb.Property(e => e.NullableUInt32).HasDefaultValue(uint.MaxValue);
+                    eb.Property(e => e.NullableUInt64).HasDefaultValue(ulong.MaxValue);
+                });
+
+            var modelSnapshotCode = generator.GenerateSnapshot(
+                "MyNamespace",
+                typeof(MyContext),
+                "MySnapshot",
+                modelBuilder.Model);
+
+            var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
+            var entityType = snapshot.Model.GetEntityTypes().Single();
+            Assert.Equal(typeof(EntityWithEveryPrimitive).FullName, entityType.DisplayName());
+
+            foreach (var property in modelBuilder.Model.GetEntityTypes().Single().GetProperties())
+            {
+                var snapshotProperty = entityType.FindProperty(property.Name);
+                Assert.Equal(property.Relational().DefaultValue, snapshotProperty.Relational().DefaultValue);
+            }
+        }
+
+        private class EntityWithEveryPrimitive
+        {
+            public bool Boolean { get; set; }
+            public byte Byte { get; set; }
+            public byte[] ByteArray { get; set; }
+            public char Char { get; set; }
+            public DateTime DateTime { get; set; }
+            public DateTimeOffset DateTimeOffset { get; set; }
+            public decimal Decimal { get; set; }
+            public double Double { get; set; }
+            public Enum1 Enum { get; set; }
+            public Guid Guid { get; set; }
+            public short Int16 { get; set; }
+            public int Int32 { get; set; }
+            public long Int64 { get; set; }
+            public bool? NullableBoolean { get; set; }
+            public byte? NullableByte { get; set; }
+            public char? NullableChar { get; set; }
+            public DateTime? NullableDateTime { get; set; }
+            public DateTimeOffset? NullableDateTimeOffset { get; set; }
+            public decimal? NullableDecimal { get; set; }
+            public double? NullableDouble { get; set; }
+            public Enum1? NullableEnum { get; set; }
+            public Guid? NullableGuid { get; set; }
+            public short? NullableInt16 { get; set; }
+            public int? NullableInt32 { get; set; }
+            public long? NullableInt64 { get; set; }
+            public sbyte? NullableSByte { get; set; }
+            public float? NullableSingle { get; set; }
+            public TimeSpan? NullableTimeSpan { get; set; }
+            public ushort? NullableUInt16 { get; set; }
+            public uint? NullableUInt32 { get; set; }
+            public ulong? NullableUInt64 { get; set; }
+            public int PrivateSetter { get; private set; }
+            public sbyte SByte { get; set; }
+            public float Single { get; set; }
+            public string String { get; set; }
+            public TimeSpan TimeSpan { get; set; }
+            public ushort UInt16 { get; set; }
+            public uint UInt32 { get; set; }
+            public ulong UInt64 { get; set; }
+        }
+
+        private enum Enum1
+        {
+            Default
+        }
+
+        private ModelSnapshot CompileModelSnapshot(string modelSnapshotCode, string modelSnapshotTypeName)
+        {
             var build = new BuildSource
             {
                 References =
@@ -186,14 +311,13 @@ namespace MyNamespace
 
             var assembly = build.BuildInMemory();
 
-            var snapshotType = assembly.GetType("MyNamespace.MySnapshot", throwOnError: true, ignoreCase: false);
+            var snapshotType = assembly.GetType(modelSnapshotTypeName, throwOnError: true, ignoreCase: false);
 
             var contextTypeAttribute = snapshotType.GetTypeInfo().GetCustomAttribute<DbContextAttribute>();
             Assert.NotNull(contextTypeAttribute);
             Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
 
-            var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
-            Assert.Empty(snapshot.Model.GetEntityTypes());
+            return (ModelSnapshot)Activator.CreateInstance(snapshotType);
         }
 
         public class MyContext

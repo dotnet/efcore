@@ -309,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             "new DateTimeOffset(" + Literal(value.DateTime) + ", " + Literal(value.Offset) + ")";
 
         public virtual string Literal(decimal value) => value.ToString(CultureInfo.InvariantCulture) + "m";
-        public virtual string Literal(double value) => value.ToString("R", CultureInfo.InvariantCulture);
+        public virtual string Literal(double value) => EnsureDecimalPlaces(value.ToString("R", CultureInfo.InvariantCulture));
+        private string EnsureDecimalPlaces(string number) => number.IndexOf('.') >= 0 ? number : number + ".0";
         public virtual string Literal(float value) => value.ToString(CultureInfo.InvariantCulture) + "f";
         public virtual string Literal(Guid value) => "new Guid(\"" + value + "\")";
         public virtual string Literal(int value) => value.ToString();
