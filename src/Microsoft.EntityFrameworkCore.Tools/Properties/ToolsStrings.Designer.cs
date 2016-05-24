@@ -76,6 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "projectCommand", "fwlink"), projectCommand, fwlink);
         }
 
+        /// <summary>
+        /// Setting the data directory to '{path}'.
+        /// </summary>
+        public static string LogDataDirectory([CanBeNull] object path)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogDataDirectory", "path"), path);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

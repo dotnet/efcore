@@ -6,28 +6,35 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
-using NuGet.Frameworks;
+using Microsoft.EntityFrameworkCore.Utilities;
+using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class ExecuteCommand
     {
-        private const string FrameworkOptionTemplate = "--framework";
-        private const string ConfigOptionTemplate = "--configuration";
+        private const string AssemblyOptionTemplate = "--assembly";
+        private const string DataDirectoryOptionTemplate = "--data-dir";
+        private const string ProjectDirectoryOptionTemplate = "--project-dir";
+        private const string RootNamespaceOptionTemplate = "--root-namespace";
         private const string VerboseOptionTemplate = "--verbose";
 
         public static IEnumerable<string> CreateArgs(
-            [NotNull] NuGetFramework framework,
-            [NotNull] string configuration,
+            [NotNull] string assembly,
+            [NotNull] string dataDir,
+            [NotNull] string projectDir,
+            [NotNull] string rootNamespace,
             bool verbose)
             => new[]
             {
-                FrameworkOptionTemplate, framework.GetShortFolderName(),
-                ConfigOptionTemplate, configuration,
+                AssemblyOptionTemplate, Check.NotEmpty(assembly, nameof(assembly)),
+                DataDirectoryOptionTemplate, Check.NotEmpty(dataDir, nameof(dataDir)),
+                ProjectDirectoryOptionTemplate, Check.NotEmpty(projectDir, nameof(projectDir)),
+                RootNamespaceOptionTemplate, Check.NotEmpty(rootNamespace, nameof(rootNamespace)),
                 verbose ? VerboseOptionTemplate : string.Empty
             };
 
-        public static CommandLineApplication Create()
+        public static CommandLineApplication Create(string[] args)
         {
             var app = new CommandLineApplication()
             {
@@ -40,16 +47,23 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             app.HelpOption();
             app.VerboseOption();
             app.VersionOption(GetVersion);
+            CommonCommandOptions commonOptions = null;
 
-            var commonOptions = new CommonCommandOptions
+            if (args.Contains(AssemblyOptionTemplate))
             {
-                Framework = app.Option(FrameworkOptionTemplate + " <FRAMEWORK>",
-                    "Target framework to load",
-                    CommandOptionType.SingleValue),
-                Configuration = app.Option(ConfigOptionTemplate + " <CONFIGURATION>",
-                    "Configuration under which to load",
-                    CommandOptionType.SingleValue)
-            };
+                // hidden parameters. Only add these to app for parsing.
+                commonOptions = new CommonCommandOptions
+                {
+                    Assembly = app.Option(AssemblyOptionTemplate + " <ASSEMBLY>",
+                        "The assembly file to load"),
+                    DataDirectory = app.Option(DataDirectoryOptionTemplate + " <DIR>",
+                        "The folder to use as the data directory. If not specified, the runtime output folder is used."),
+                    ProjectDirectory = app.Option(ProjectDirectoryOptionTemplate + " <DIR>",
+                        "The folder to use as the project directory. If not specified, the current working is used."),
+                    RootNamespace = app.Option(RootNamespaceOptionTemplate + " <NAMESPACE>",
+                        "The root namespace of the current project. If not specified, the project name is used.")
+                };
+            }
 
             app.Command("database", c => DatabaseCommand.Configure(c, commonOptions));
             app.Command("dbcontext", c => DbContextCommand.Configure(c, commonOptions));

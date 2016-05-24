@@ -10,8 +10,11 @@
     ],
     "xmlDoc": true,
     "compile": {
-      "include": "../Shared/CodeAnnotations.cs"
-    },
+      "include": [
+        "../Shared/CodeAnnotations.cs",
+        "../Shared/Check.cs"
+      ]
+    }
   },
   "packOptions": {
     "files": {
@@ -22,14 +25,13 @@
   },
   "dependencies": {
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
-    "Microsoft.DotNet.ProjectModel": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
     "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
       "version": "1.0.0-*",
       "type": "build"
-    },
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
+    }
   },
   "configurations": {
     "debug_x86": {
@@ -44,7 +46,7 @@
     }
   },
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "netcoreapp1.0": {
       "imports": "portable-net452+win81",
       "dependencies": {

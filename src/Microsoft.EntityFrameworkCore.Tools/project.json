@@ -24,12 +24,13 @@
         "portable-net451+win8"
       ],
       "dependencies": {
+        "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
+        "Microsoft.DotNet.ProjectModel": "1.0.0-*",
         "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
         "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
           "version": "1.0.0-*",
           "type": "build"
         },
-        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*",
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"

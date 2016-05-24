@@ -9,9 +9,15 @@
       "type": "build",
       "target": "package"
     },
+    "Microsoft.EntityFrameworkCore.Tools.Cli": {
+      "version": "$toolVersion$",
+      "type": "build",
+      "target": "package"
+    },
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
-    }
+    },
+    "Newtonsoft.Json": "8.0.4-*"
   },
   "frameworks": {
     "net451": { }

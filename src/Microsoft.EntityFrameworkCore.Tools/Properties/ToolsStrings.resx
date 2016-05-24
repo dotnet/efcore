@@ -141,4 +141,7 @@
   <data name="ProjectDependencyCommandNotFound" xml:space="preserve">
     <value>Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same. See {fwlink} for more details.</value>
   </data>
+  <data name="LogDataDirectory" xml:space="preserve">
+    <value>Setting the data directory to '{path}'.</value>
+  </data>
 </root>

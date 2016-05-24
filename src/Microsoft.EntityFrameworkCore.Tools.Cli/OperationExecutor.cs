@@ -8,9 +8,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.DotNet.InternalAbstractions;
-using Microsoft.DotNet.ProjectModel;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,33 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             [NotNull] CommonOptions options,
             [CanBeNull] string environment)
         {
-            var projectFile = Path.Combine(Directory.GetCurrentDirectory(), Project.FileName);
-            var project = ProjectReader.GetProject(projectFile);
-
-            var projectConfiguration = options.Configuration ?? Constants.DefaultConfiguration;
-            var projectFramework = options.Framework;
-
-            var projectContext = ProjectContext.Create(project.ProjectFilePath,
-                projectFramework,
-                RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers());
-
-            var runtimeOutputPath = projectContext.GetOutputPaths(projectConfiguration)?.RuntimeOutputPath;
-            if (!string.IsNullOrEmpty(runtimeOutputPath))
+            if (!string.IsNullOrEmpty(options.DataDirectory))
             {
-                Reporter.Verbose.WriteLine(
-                    ToolsCliStrings.LogDataDirectory(runtimeOutputPath));
-                Environment.SetEnvironmentVariable(DataDirEnvName, runtimeOutputPath);
+                Environment.SetEnvironmentVariable(DataDirEnvName, options.DataDirectory);
 #if NET451
-                AppDomain.CurrentDomain.SetData("DataDirectory", runtimeOutputPath);
+                AppDomain.CurrentDomain.SetData("DataDirectory", options.DataDirectory);
 #endif
             }
 
-            var assemblyName = project.GetCompilerOptions(projectFramework, projectConfiguration).OutputName;
-            var projectDir = project.ProjectDirectory;
-            var rootNamespace = project.Name;
-
             var assemblyLoader = new AssemblyLoader(Assembly.Load);
-            var projectAssembly = assemblyLoader.Load(assemblyName);
+            var projectAssembly = assemblyLoader.Load(Path.GetFileNameWithoutExtension(options.Assembly));
 
             _contextOperations = new LazyRef<DbContextOperations>(
                           () => new DbContextOperations(
@@ -65,16 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                               projectAssembly,
                               projectAssembly,
                               environment,
-                              projectDir));
+                              options.ProjectDirectory));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
                     assemblyLoader,
                     projectAssembly,
                     environment,
-                    projectDir,
-                    projectDir,
-                    rootNamespace));
+                    options.ProjectDirectory,
+                    options.ProjectDirectory,
+                    options.RootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
@@ -82,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     assemblyLoader,
                     projectAssembly,
                     environment,
-                    projectDir,
-                    projectDir,
-                    rootNamespace));
+                    options.ProjectDirectory,
+                    options.ProjectDirectory,
+                    options.RootNamespace));
         }
 
         public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, string, bool> confirmCheck)
@@ -95,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             [CanBeNull] string outputDir,
             [CanBeNull] string contextType)
         {
-            if(!string.IsNullOrWhiteSpace(outputDir) && !Path.IsPathRooted(outputDir))
+            if (!string.IsNullOrWhiteSpace(outputDir) && !Path.IsPathRooted(outputDir))
             {
                 // relative paths adjusted to current working directory, not project directory
                 // PowerShell adjusts the cwd when executing dotnet-ef.
