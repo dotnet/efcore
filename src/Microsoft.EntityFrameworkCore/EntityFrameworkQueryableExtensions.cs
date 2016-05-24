@@ -2677,7 +2677,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public static Task ForEachAsync<T>(
+        public static async Task ForEachAsync<T>(
             [NotNull] this IQueryable<T> source,
             [NotNull] Action<T> action,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -2685,7 +2685,13 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(action, nameof(action));
 
-            return source.AsAsyncEnumerable().ForEachAsync(action, cancellationToken);
+            using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
+            {
+                while (await asyncEnumerator.MoveNext(cancellationToken))
+                {
+                    action(asyncEnumerator.Current);
+                }
+            }
         }
 
         #endregion
