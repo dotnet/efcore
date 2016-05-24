@@ -887,12 +887,11 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
 }
 
 function GetProperty($properties, $propertyName) {
-    $property = $properties.Item($propertyName)
-    if (!$property) {
+    try {
+        return $properties.Item($propertyName).Value
+    } catch {
         return $null
     }
-
-    return $property.Value
 }
 
 function GetProjectItem($project, $path) {
