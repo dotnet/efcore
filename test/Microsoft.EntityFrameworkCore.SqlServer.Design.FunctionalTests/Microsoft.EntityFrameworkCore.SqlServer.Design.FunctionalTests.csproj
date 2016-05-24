@@ -77,6 +77,7 @@
     <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOneSeparateFKPrincipal.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\PrimaryKeyWithSequence.expected" />
     <None Include="ReverseEngineering\Expected\AllFluentApi\PropertyConfiguration.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -128,6 +129,7 @@
     <None Include="ReverseEngineering\Expected\Attributes\OneToOneSeparateFKPrincipal.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ReverseEngineering\Expected\Attributes\PrimaryKeyWithSequence.expected" />
     <None Include="ReverseEngineering\Expected\Attributes\PropertyConfiguration.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

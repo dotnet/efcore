@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
                 "OneToOneSeparateFKPrincipal",
                 "OneToOneFKToUniqueKeyDependent",
                 "OneToOneFKToUniqueKeyPrincipal",
+                "PrimaryKeyWithSequence",
                 "UnmappablePKColumn",
                 "TableWithUnmappablePrimaryKeyColumn",
                 "selfreferencing"
@@ -81,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "OneToOnePrincipal.expected",
             "OneToOneSeparateFKDependent.expected",
             "OneToOneSeparateFKPrincipal.expected",
+            "PrimaryKeyWithSequence.expected",
             "PropertyConfiguration.expected",
             "SelfReferencing.expected",
             "Test_Spaces_Keywords_Table.expected",
