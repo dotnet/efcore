@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             var stringBuilder = new StringBuilder();
-            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex);
+            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex - 1);
             for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
                 CommandResultSet[i] = resultSetMapping;

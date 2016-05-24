@@ -60,6 +60,67 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
+            AssertDatabaseState(clientOrder, expectedBlogs, optionsBuilder);
+        }
+
+        [Fact]
+        public void Inserts_and_updates_are_batched_correctly()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(_testStore.Connection);
+
+            var expectedBlogs = new List<Blog>();
+            using (var context = new BloggingContext(_serviceProvider, optionsBuilder.Options))
+            {
+                context.Database.EnsureCreated();
+                var owner1 = new Owner {Name = "0"};
+                var owner2 = new Owner {Name = "1" };
+                context.Owners.Add(owner1);
+                context.Owners.Add(owner2);
+
+                var blog1 = new Blog
+                {
+                    Id = Guid.NewGuid(),
+                    Owner = owner1,
+                    Order = 1
+                };
+
+                context.Blogs.Add(blog1);
+                expectedBlogs.Add(blog1);
+
+                context.SaveChanges();
+
+                owner2.Name = "2";
+
+                blog1.Order = 0;
+                var blog2 = new Blog
+                {
+                    Id = Guid.NewGuid(),
+                    Owner = owner1,
+                    Order = 1
+                };
+
+                context.Blogs.Add(blog2);
+                expectedBlogs.Add(blog2);
+
+                var blog3 = new Blog
+                {
+                    Id = Guid.NewGuid(),
+                    Owner = owner2,
+                    Order = 2
+                };
+
+                context.Blogs.Add(blog3);
+                expectedBlogs.Add(blog3);
+
+                context.SaveChanges();
+            }
+
+            AssertDatabaseState(true, expectedBlogs, optionsBuilder);
+        }
+
+        private void AssertDatabaseState(bool clientOrder, List<Blog> expectedBlogs, DbContextOptionsBuilder optionsBuilder)
+        {
             expectedBlogs = clientOrder
                 ? expectedBlogs.OrderBy(b => b.Order).ToList()
                 : expectedBlogs.OrderBy(b => b.Id).ToList();
@@ -91,6 +152,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                modelBuilder.Entity<Owner>().Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
                 modelBuilder.Entity<Blog>(b =>
                     {
                         b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
@@ -114,6 +176,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public class Owner
         {
             public int Id { get; set; }
+            public string Name { get; set; }
+            public byte[] Version { get; set; }
         }
 
         private readonly SqlServerTestStore _testStore;
