@@ -35,7 +35,7 @@ Register-TabExpansion Use-DbContext @{
     Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
-    about_EntityFramework
+    about_EntityFrameworkCore
 #>
 function Use-DbContext {
     [CmdletBinding(PositionalBinding = $false)]
@@ -106,7 +106,7 @@ Register-TabExpansion Add-Migration @{
 .LINK
     Remove-Migration
     Update-Database
-    about_EntityFramework
+    about_EntityFrameworkCore
 #>
 function Add-Migration {
     [CmdletBinding(PositionalBinding = $false)]
@@ -191,7 +191,7 @@ Register-TabExpansion Update-Database @{
 
 .LINK
     Script-Migration
-    about_EntityFramework
+    about_EntityFrameworkCore
 #>
 function Update-Database {
     [CmdletBinding(PositionalBinding = $false)]
@@ -275,7 +275,7 @@ Register-TabExpansion Script-Migration @{
 
 .LINK
     Update-Database
-    about_EntityFramework
+    about_EntityFrameworkCore
 #>
 function Script-Migration {
     [CmdletBinding(PositionalBinding = $false)]
@@ -373,7 +373,7 @@ Register-TabExpansion Remove-Migration @{
 
 .LINK
     Add-Migration
-    about_EntityFramework
+    about_EntityFrameworkCore
 #>
 function Remove-Migration {
     [CmdletBinding(PositionalBinding = $false)]
@@ -458,7 +458,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
-    about_EntityFramework
+    about_EntityFrameworkCore
 #>
 function Scaffold-DbContext {
     [CmdletBinding(PositionalBinding = $false)]
@@ -814,7 +814,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
         Write-Verbose 'No configuration file found.'
     }
 
-    $domain = [AppDomain]::CreateDomain('EntityFrameworkDesignDomain', $null, $info)
+    $domain = [AppDomain]::CreateDomain('EntityFrameworkCoreDesignDomain', $null, $info)
     if ($dataDirectory) {
         Write-Verbose "Using data directory '$dataDirectory'"
         $domain.SetData('DataDirectory', $dataDirectory)

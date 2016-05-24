@@ -1,12 +1,12 @@
 @{
     # Script module or binary module file associated with this manifest
-    ModuleToProcess = 'EntityFramework.psm1'
+    ModuleToProcess = 'EntityFrameworkCore.psm1'
 
     # Version number of this module.
-    ModuleVersion = '7.0'
+    ModuleVersion = '1.0.0'
 
     # ID used to uniquely identify this module
-    GUID = '06e6973e-66a3-4cfc-9a42-3f7d159e945a'
+    GUID = 'c126fb40-c0f1-43ae-8dd0-06bb50512eb2'
 
     # Author of this module
     Author = 'Entity Framework Team'
@@ -58,14 +58,15 @@
 
     # Functions to export from this module
     FunctionsToExport = (
-        'Use-DbContext',
-        'Add-Migration',
-        'Apply-Migration',
-        'Update-Database',
-        'Script-Migration',
-        'Remove-Migration',
         'Enable-Migrations',
-        'Scaffold-DbContext'
+        'Apply-Migration',
+        
+        'Add-Migration',
+        'Remove-Migration',
+        'Scaffold-DbContext',
+        'Script-Migration',
+        'Update-Database',
+        'Use-DbContext'
     )
 
     # Cmdlets to export from this module

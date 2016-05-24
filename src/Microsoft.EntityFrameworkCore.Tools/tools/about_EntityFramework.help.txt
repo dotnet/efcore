@@ -7,14 +7,14 @@
         |___||_|       /   \\\/\\
 
 TOPIC
-    about_EntityFramework
+    about_EntityFrameworkCore
 
 SHORT DESCRIPTION
-    Provides information about Entity Framework commands.
+    Provides information about Entity Framework Core commands.
 
 LONG DESCRIPTION
-    This topic describes the Entity Framework commands. Entity Framework is Microsoft's recommended data access technology for new
-    applications.
+    This topic describes the Entity Framework Core commands. Entity Framework is Microsoft's recommended data access technology
+    for new applications.
 
     The following Entity Framework cmdlets are included.
 
