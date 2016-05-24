@@ -58,10 +58,8 @@
 
     # Functions to export from this module
     FunctionsToExport = (
-        'Enable-Migrations',
-        'Apply-Migration',
-        
         'Add-Migration',
+        'Enable-Migrations',
         'Remove-Migration',
         'Scaffold-DbContext',
         'Script-Migration',

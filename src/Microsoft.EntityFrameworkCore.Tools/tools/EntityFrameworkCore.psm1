@@ -225,15 +225,6 @@ function Update-Database {
 }
 
 #
-# Apply-Migration (Obsolete)
-#
-
-function Apply-Migration {
-    # TODO: Remove before RTM
-    throw 'Apply-Migration has been removed. Use Update-Database instead.'
-}
-
-#
 # Script-Migration
 #
 
