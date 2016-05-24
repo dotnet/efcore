@@ -111,7 +111,21 @@ if exists (select * from sysobjects where id = object_id('dbo.FilteredOut') and 
 	drop table "dbo"."FilteredOut"
 GO
 
+if exists (select * from sysobjects where id = object_id('dbo.PrimaryKeyWithSequence') and sysstat & 0xf = 3)
+	drop table "dbo"."PrimaryKeyWithSequence"
+GO
+
+if exists (select * from sysobjects where id = object_id('dbo.PrimaryKeyWithSequenceSequence'))
+	drop sequence "dbo"."PrimaryKeyWithSequenceSequence"
+GO
+
 CREATE TYPE TestTypeAlias FROM nvarchar(max)
+GO
+
+CREATE SEQUENCE PrimaryKeyWithSequenceSequence
+AS int
+START WITH 1
+INCREMENT BY 1
 GO
 
 CREATE TABLE "dbo"."AllDataTypes" (
@@ -452,6 +466,14 @@ CREATE TABLE "FilteredOut" (
 	"FilteredOutID" "int" PRIMARY KEY,
 	"Unused1" nvarchar(20) NOT NULL,
 	"Unused2" "int" NOT NULL,
+)
+
+GO
+
+CREATE TABLE PrimaryKeyWithSequence (
+	PrimaryKeyWithSequenceId int DEFAULT(NEXT VALUE FOR PrimaryKeyWithSequenceSequence),
+	OtherColumn nvarchar (20) NOT NULL,
+	PRIMARY KEY (PrimaryKeyWithSequenceId)
 )
 
 GO

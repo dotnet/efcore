@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             // TODO use KeyConvention directly to detect when it will be applied
             var pkColumns = table.Columns.Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
             if (pkColumns.Count != 1
-                || pkColumns[0].SqlServer().IsIdentity)
+                || pkColumns[0].ValueGenerated != null
+                || pkColumns[0].DefaultValue != null)
             {
                 return keyBuilder;
             }

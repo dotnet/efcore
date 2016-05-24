@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class IdentityColumnWithDefaultValue : TestBase<IdentityColumnWithDefaultValue.BlogContext>
+        public class SequenceKeyColumnWithDefaultValue : TestBase<SequenceKeyColumnWithDefaultValue.BlogContext>
         {
             [ConditionalFact]
             [SqlServerCondition(SqlServerCondition.SupportsSequences)]
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class ReadOnlyIdentityColumnWithDefaultValue : TestBase<ReadOnlyIdentityColumnWithDefaultValue.BlogContext>
+        public class ReadOnlySequenceKeyColumnWithDefaultValue : TestBase<ReadOnlySequenceKeyColumnWithDefaultValue.BlogContext>
         {
             [ConditionalFact]
             [SqlServerCondition(SqlServerCondition.SupportsSequences)]
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        public class ReadOnlyIdentityColumnWithDefaultValueThrows : TestBase<ReadOnlyIdentityColumnWithDefaultValueThrows.BlogContext>
+        public class ReadOnlySequenceKeyColumnWithDefaultValueThrows : TestBase<ReadOnlySequenceKeyColumnWithDefaultValueThrows.BlogContext>
         {
             [ConditionalFact]
             [SqlServerCondition(SqlServerCondition.SupportsSequences)]
