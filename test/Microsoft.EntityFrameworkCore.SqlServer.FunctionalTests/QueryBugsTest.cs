@@ -158,11 +158,11 @@ ORDER BY [c].[FirstName], [c].[LastName]
 
 SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Order] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[FirstName], [c].[LastName]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customer] AS [c]
-) AS [c0] ON ([o].[CustomerFirstName] = [c0].[FirstName]) AND ([o].[CustomerLastName] = [c0].[LastName])
-ORDER BY [c0].[FirstName], [c0].[LastName]";
+    WHERE ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName]))
+ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }

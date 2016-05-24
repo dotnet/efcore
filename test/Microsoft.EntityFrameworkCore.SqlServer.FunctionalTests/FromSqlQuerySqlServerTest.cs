@@ -246,13 +246,13 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers""
     ) AS [c]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE [o].[CustomerID] = [c].[CustomerID])
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -270,14 +270,13 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT * FROM ""Customers""
     ) AS [c]
-    WHERE [c].[City] = N'London'
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[City] = N'London') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 

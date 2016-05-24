@@ -29,12 +29,12 @@ ORDER BY [c].[ProductID]
 
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Order Details] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[ProductID]
-    FROM [Products] AS [c]
-) AS [c0] ON [o].[ProductID] = [c0].[ProductID]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [c0].[ProductID]",
+WHERE EXISTS (
+    SELECT 1
+    FROM [Products] AS [c]
+    WHERE [o].[ProductID] = [c].[ProductID])
+ORDER BY [o].[ProductID]",
                 Sql);
         }
 
@@ -49,11 +49,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE [o].[CustomerID] = [c].[CustomerID])
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -69,11 +69,11 @@ ORDER BY [o].[OrderID]
 
 SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM [Order Details] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT [o].[OrderID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o]
-) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-ORDER BY [o1].[OrderID]",
+    WHERE [o0].[OrderID] = [o].[OrderID])
+ORDER BY [o0].[OrderID]",
                 Sql);
         }
 
@@ -128,13 +128,13 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Order Details] AS [od]
     INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE [o0].[CustomerID] = [c].[CustomerID])
+ORDER BY [o0].[CustomerID]",
                 Sql);
         }
 
@@ -151,14 +151,12 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [c].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(2) 1
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-    WHERE [o].[OrderID] = 10248
-    ORDER BY [c].[CustomerID]
-) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([o].[OrderID] = 10248) AND ([o0].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o0].[CustomerID]",
                 Sql);
         }
 
@@ -174,14 +172,12 @@ ORDER BY [o].[OrderID]
 
 SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Order Details] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [o].[OrderID] = 10248
-    ORDER BY [o].[OrderID]
-) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
 INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
-ORDER BY [o1].[OrderID]",
+WHERE EXISTS (
+    SELECT TOP(2) 1
+    FROM [Orders] AS [o]
+    WHERE ([o].[OrderID] = 10248) AND ([o0].[OrderID] = [o].[OrderID]))
+ORDER BY [o0].[OrderID]",
                 Sql);
         }
 
@@ -196,11 +192,11 @@ ORDER BY [o].[OrderID]
 
 SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM [Order Details] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT [o].[OrderID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Orders] AS [o]
-) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-ORDER BY [o1].[OrderID]",
+    WHERE [o0].[OrderID] = [o].[OrderID])
+ORDER BY [o0].[OrderID]",
                 Sql);
         }
 
@@ -215,11 +211,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE [o].[CustomerID] = [c].[CustomerID])
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -330,11 +326,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE [o].[CustomerID] = [c].[CustomerID])
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -354,13 +350,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [c].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(2) 1
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -380,13 +374,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [c].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(2) 1
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -402,12 +394,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -423,12 +414,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -443,21 +433,21 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID], [o].[OrderID]
+    WHERE [o].[CustomerID] = [c].[CustomerID])
+ORDER BY [o].[CustomerID], [o].[OrderID]
 
 SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM [Order Details] AS [o0]
 INNER JOIN (
-    SELECT DISTINCT [c0].[CustomerID], [o].[OrderID]
+    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
     FROM [Orders] AS [o]
-    INNER JOIN (
-        SELECT DISTINCT [c].[CustomerID]
+    WHERE EXISTS (
+        SELECT 1
         FROM [Customers] AS [c]
-    ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+        WHERE [o].[CustomerID] = [c].[CustomerID])
 ) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
 ORDER BY [o1].[CustomerID], [o1].[OrderID]",
                 Sql);
@@ -486,13 +476,12 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c]
     INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o0].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o0].[CustomerID]",
                 Sql);
         }
 
@@ -509,13 +498,12 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customers] AS [c1]
     CROSS JOIN [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -539,16 +527,16 @@ ORDER BY [c1].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c1].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT TOP(@__p_0) [c0].*
         FROM [Customers] AS [c0]
         ORDER BY [c0].[CustomerID]
     ) AS [t]
     CROSS JOIN [Customers] AS [c1]
-) AS [c10] ON [o].[CustomerID] = [c10].[CustomerID]
-ORDER BY [c10].[CustomerID]",
+    WHERE [o].[CustomerID] = [c1].[CustomerID])
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -579,8 +567,8 @@ ORDER BY [t].[CustomerID], [t0].[CustomerID]
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT [t].[CustomerID], [t0].[CustomerID] AS [CustomerID0]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM [Customers] AS [c0]
@@ -592,15 +580,15 @@ INNER JOIN (
         ORDER BY [c2].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
-) AS [t00] ON [o0].[CustomerID] = [t00].[CustomerID0]
-ORDER BY [t00].[CustomerID], [t00].[CustomerID0]
+    WHERE [o0].[CustomerID] = [t0].[CustomerID])
+ORDER BY [o0].[CustomerID]
 
 @__p_0: 2
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [t].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM [Customers] AS [c0]
@@ -612,8 +600,8 @@ INNER JOIN (
         ORDER BY [c2].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
-) AS [t1] ON [o].[CustomerID] = [t1].[CustomerID]
-ORDER BY [t1].[CustomerID]",
+    WHERE [o].[CustomerID] = [t].[CustomerID])
+ORDER BY [o].[CustomerID]",
                     Sql);
             }
         }
@@ -647,8 +635,8 @@ ORDER BY [t].[CustomerID], [t0].[CustomerID]
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o0]
-INNER JOIN (
-    SELECT DISTINCT TOP(@__p_1) [t].[CustomerID], [t0].[CustomerID] AS [CustomerID0]
+WHERE EXISTS (
+    SELECT TOP(@__p_1) 1
     FROM (
         SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM [Customers] AS [c0]
@@ -660,17 +648,16 @@ INNER JOIN (
         ORDER BY [c2].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
-    ORDER BY [t].[CustomerID], [t0].[CustomerID]
-) AS [t00] ON [o0].[CustomerID] = [t00].[CustomerID0]
-ORDER BY [t00].[CustomerID], [t00].[CustomerID0]
+    WHERE [o0].[CustomerID] = [t0].[CustomerID])
+ORDER BY [o0].[CustomerID]
 
 @__p_1: 1
 @__p_0: 2
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT TOP(@__p_1) [t].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(@__p_1) 1
     FROM (
         SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM [Customers] AS [c0]
@@ -682,9 +669,8 @@ INNER JOIN (
         ORDER BY [c2].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
-    ORDER BY [t].[CustomerID]
-) AS [t1] ON [o].[CustomerID] = [t1].[CustomerID]
-ORDER BY [t1].[CustomerID]",
+    WHERE [o].[CustomerID] = [t].[CustomerID])
+ORDER BY [o].[CustomerID]",
                     Sql);
             }
         }
@@ -801,8 +787,8 @@ ORDER BY [t].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT TOP(@__p_1) [t].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(@__p_1) 1
     FROM (
         SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM [Customers] AS [c0]
@@ -814,9 +800,8 @@ INNER JOIN (
         ORDER BY [c2].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
-    ORDER BY [t].[CustomerID]
-) AS [t1] ON [o].[CustomerID] = [t1].[CustomerID]
-ORDER BY [t1].[CustomerID]",
+    WHERE [o].[CustomerID] = [t].[CustomerID])
+ORDER BY [o].[CustomerID]",
                     Sql);
             }
         }
@@ -984,13 +969,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [c].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(2) 1
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -1010,13 +993,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [c].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(2) 1
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE ([c].[CustomerID] = N'ALFKI') AND ([o].[CustomerID] = [c].[CustomerID]))
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -1061,12 +1042,11 @@ ORDER BY [c].[CustomerID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT DISTINCT TOP(@__p_0) [c].[CustomerID]
+WHERE EXISTS (
+    SELECT TOP(@__p_0) 1
     FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0].[CustomerID]",
+    WHERE [o].[CustomerID] = [c].[CustomerID])
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 

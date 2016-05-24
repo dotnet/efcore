@@ -223,14 +223,11 @@ ORDER BY [e].[Species]
 
 SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [e].[Species]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND EXISTS (
+    SELECT TOP(2) 1
     FROM [Animal] AS [e]
-    WHERE [e].[Discriminator] = N'Eagle'
-    ORDER BY [e].[Species]
-) AS [e0] ON [a].[EagleId] = [e0].[Species]
-WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
-ORDER BY [e0].[Species]",
+    WHERE ([e].[Discriminator] = N'Eagle') AND ([a].[EagleId] = [e].[Species]))
+ORDER BY [a].[EagleId]",
                 Sql);
         }
 

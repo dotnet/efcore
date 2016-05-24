@@ -63,12 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ? _projection[0].Type
             : base.Type;
 
-        public virtual SelectExpression Clone([NotNull] string alias)
+        public virtual SelectExpression Clone([CanBeNull] string alias = null)
         {
-            Check.NotNull(alias, nameof(alias));
-
             var selectExpression
-                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext, alias)
+                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext)
                 {
                     _limit = _limit,
                     _offset = _offset,
@@ -77,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     IsProjectStar = IsProjectStar,
                     Predicate = Predicate
                 };
+
+            if (alias != null)
+            {
+                selectExpression.Alias = _queryCompilationContext.CreateUniqueTableAlias(alias);
+            }
 
             selectExpression._projection.AddRange(_projection);
 

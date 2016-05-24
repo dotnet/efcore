@@ -39,16 +39,16 @@ ORDER BY [g].[FullName]
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-INNER JOIN (
-    SELECT DISTINCT [g].[FullName]
+WHERE EXISTS (
+    SELECT 1
     FROM [CogTag] AS [t]
     LEFT JOIN (
         SELECT [g].*
         FROM [Gear] AS [g]
         WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
     ) AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
-) AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
-ORDER BY [g0].[FullName]",
+    WHERE [w].[OwnerFullName] = [g].[FullName])
+ORDER BY [w].[OwnerFullName]",
                 Sql);
         }
 
@@ -68,16 +68,16 @@ ORDER BY [g].[FullName]
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-INNER JOIN (
-    SELECT DISTINCT [g].[FullName]
+WHERE EXISTS (
+    SELECT 1
     FROM [CogTag] AS [t]
     LEFT JOIN (
         SELECT [g].*
         FROM [Gear] AS [g]
         WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
     ) AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
-) AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
-ORDER BY [g0].[FullName]",
+    WHERE [w].[OwnerFullName] = [g].[FullName])
+ORDER BY [w].[OwnerFullName]",
                 Sql);
         }
 
@@ -98,8 +98,8 @@ ORDER BY [s].[Id]
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gear] AS [g0]
-INNER JOIN (
-    SELECT DISTINCT [s].[Id]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
     FROM [CogTag] AS [t]
     LEFT JOIN (
         SELECT [g].*
@@ -107,9 +107,8 @@ INNER JOIN (
         WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
     ) AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
     LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]
-) AS [s0] ON [g0].[SquadId] = [s0].[Id]
-WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [s0].[Id]", Sql);
+    WHERE [g0].[SquadId] = [s].[Id])
+ORDER BY [g0].[SquadId]", Sql);
         }
 
         public override void Include_multiple_one_to_one_optional_and_one_to_one_required()
@@ -141,14 +140,12 @@ ORDER BY [c].[Name]
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gear] AS [g0]
-INNER JOIN (
-    SELECT DISTINCT [c].[Name]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
     FROM [Gear] AS [g]
     INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
-    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-) AS [c0] ON [g0].[AssignedCityName] = [c0].[Name]
-WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [c0].[Name]",
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g0].[AssignedCityName] = [c].[Name]))
+ORDER BY [g0].[AssignedCityName]",
                 Sql);
         }
 
@@ -165,14 +162,12 @@ ORDER BY [c].[Name]
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gear] AS [g0]
-INNER JOIN (
-    SELECT DISTINCT [c].[Name]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
     FROM [Gear] AS [g]
     INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
-    WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] = N'Marcus')
-) AS [c0] ON [g0].[AssignedCityName] = [c0].[Name]
-WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [c0].[Name]",
+    WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] = N'Marcus')) AND ([g0].[AssignedCityName] = [c].[Name]))
+ORDER BY [g0].[AssignedCityName]",
                 Sql);
         }
 
@@ -188,12 +183,11 @@ ORDER BY [g].[FullName]
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-INNER JOIN (
-    SELECT DISTINCT [g].[FullName]
+WHERE EXISTS (
+    SELECT 1
     FROM [Gear] AS [g]
-    WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] = N'Marcus')
-) AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
-ORDER BY [g0].[FullName]",
+    WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[Nickname] = N'Marcus')) AND ([w].[OwnerFullName] = [g].[FullName]))
+ORDER BY [w].[OwnerFullName]",
                 Sql);
         }
 
@@ -279,13 +273,11 @@ ORDER BY [g].[Nickname], [g].[SquadId]
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gear] AS [g0]
-INNER JOIN (
-    SELECT DISTINCT [g].[Nickname], [g].[SquadId]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
     FROM [Gear] AS [g]
-    WHERE [g].[Discriminator] = N'Officer'
-) AS [g1] ON ([g0].[LeaderNickname] = [g1].[Nickname]) AND ([g0].[LeaderSquadId] = [g1].[SquadId])
-WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g1].[Nickname], [g1].[SquadId]",
+    WHERE ([g].[Discriminator] = N'Officer') AND (([g0].[LeaderNickname] = [g].[Nickname]) AND ([g0].[LeaderSquadId] = [g].[SquadId])))
+ORDER BY [g0].[LeaderNickname], [g0].[LeaderSquadId]",
                 Sql);
         }
 
@@ -344,13 +336,12 @@ ORDER BY [g].[FullName]
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-INNER JOIN (
-    SELECT DISTINCT [g].[FullName]
+WHERE EXISTS (
+    SELECT 1
     FROM [Gear] AS [g]
     INNER JOIN [CogTag] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
-    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-) AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
-ORDER BY [g0].[FullName]",
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([w].[OwnerFullName] = [g].[FullName]))
+ORDER BY [w].[OwnerFullName]",
                 Sql);
         }
 
@@ -366,12 +357,12 @@ ORDER BY [g].[FullName]
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-INNER JOIN (
-    SELECT DISTINCT [g].[FullName]
+WHERE EXISTS (
+    SELECT 1
     FROM [CogTag] AS [t]
     INNER JOIN [Gear] AS [g] ON ([t].[GearSquadId] = [g].[SquadId]) AND ([t].[GearNickName] = [g].[Nickname])
-) AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
-ORDER BY [g0].[FullName]",
+    WHERE [w].[OwnerFullName] = [g].[FullName])
+ORDER BY [w].[OwnerFullName]",
                 Sql);
         }
 
@@ -412,15 +403,13 @@ ORDER BY [c].[Name]
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gear] AS [g0]
-INNER JOIN (
-    SELECT DISTINCT [c].[Name]
+WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
     FROM [Gear] AS [g]
     INNER JOIN [CogTag] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
     INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
-    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-) AS [c0] ON [g0].[AssignedCityName] = [c0].[Name]
-WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [c0].[Name]",
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g0].[AssignedCityName] = [c].[Name]))
+ORDER BY [g0].[AssignedCityName]",
                 Sql);
         }
 
@@ -456,16 +445,16 @@ ORDER BY [t].[FullName]
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapon] AS [w]
-INNER JOIN (
-    SELECT DISTINCT [t].[FullName]
+WHERE EXISTS (
+    SELECT 1
     FROM (
         SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
         FROM [Gear] AS [g0]
         WHERE [g0].[Discriminator] = N'Officer'
     ) AS [t]
     INNER JOIN [CogTag] AS [t0] ON ([t].[SquadId] = [t0].[GearSquadId]) AND ([t].[Nickname] = [t0].[GearNickName])
-) AS [t1] ON [w].[OwnerFullName] = [t1].[FullName]
-ORDER BY [t1].[FullName]",
+    WHERE [w].[OwnerFullName] = [t].[FullName])
+ORDER BY [w].[OwnerFullName]",
                 Sql);
         }
 
@@ -485,17 +474,16 @@ ORDER BY [t0].[Nickname], [t0].[SquadId]
 
 SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
 FROM [Gear] AS [g1]
-INNER JOIN (
-    SELECT DISTINCT [t0].[Nickname], [t0].[SquadId]
+WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND EXISTS (
+    SELECT 1
     FROM [CogTag] AS [t]
     INNER JOIN (
         SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
         FROM [Gear] AS [g0]
         WHERE [g0].[Discriminator] = N'Officer'
     ) AS [t0] ON ([t].[GearSquadId] = [t0].[SquadId]) AND ([t].[GearNickName] = [t0].[Nickname])
-) AS [t00] ON ([g1].[LeaderNickname] = [t00].[Nickname]) AND ([g1].[LeaderSquadId] = [t00].[SquadId])
-WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [t00].[Nickname], [t00].[SquadId]",
+    WHERE ([g1].[LeaderNickname] = [t0].[Nickname]) AND ([g1].[LeaderSquadId] = [t0].[SquadId]))
+ORDER BY [g1].[LeaderNickname], [g1].[LeaderSquadId]",
                 Sql);
         }
 
