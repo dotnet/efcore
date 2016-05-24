@@ -52,7 +52,6 @@
   },
   "packInclude": {
     "lib/": "lib/**",
-    "build/": "build/**",
     "tools/": "tools/**"
   }
 }

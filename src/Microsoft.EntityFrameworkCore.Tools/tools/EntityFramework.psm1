@@ -821,6 +821,11 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     }
     try {
         $commandsAssembly = 'Microsoft.EntityFrameworkCore.Tools'
+        $commandsAssemblyFile = Join-Path $startupTargetDir "$commandsAssembly.dll"
+        if (!(Test-Path $commandsAssemblyFile)) {
+            Copy-Item "$PSScriptRoot/../lib/net451/$commandsAssembly.dll" $startupTargetDir
+            $removeCommandsAssembly = $True
+        }
         $operationExecutorTypeName = 'Microsoft.EntityFrameworkCore.Design.OperationExecutor'
         $targetAssemblyName = GetProperty $properties AssemblyName
         $startupAssemblyName = GetProperty $startupProperties AssemblyName
@@ -869,6 +874,9 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     }
     finally {
         [AppDomain]::Unload($domain)
+        if ($removeCommandsAssembly) {
+            Remove-Item $commandsAssemblyFile
+        }
     }
 
     if ($resultHandler.ErrorType) {
