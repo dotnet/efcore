@@ -13,8 +13,7 @@ SHORT DESCRIPTION
     Provides information about Entity Framework Core commands.
 
 LONG DESCRIPTION
-    This topic describes the Entity Framework Core commands. Entity Framework is Microsoft's recommended data access technology
-    for new applications.
+    This topic describes the Entity Framework Core commands. See https://docs.efproject.net for information on Entity Framework Core.
 
     The following Entity Framework cmdlets are included.
 
