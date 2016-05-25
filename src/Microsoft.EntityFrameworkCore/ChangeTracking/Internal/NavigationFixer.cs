@@ -157,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (newValue != null
                 && newTargetEntry == null)
             {
+                stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
                 _attacher.AttachGraph(stateManager.GetOrCreateEntry(newValue), EntityState.Added);
             }
         }
@@ -324,8 +325,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             SetNavigation(entry, dependentToPrincipal, newPrincipalEntry.Entity);
                         }
-                        else if (oldPrincipalEntry == null
-                                 || ReferenceEquals(entry[dependentToPrincipal], oldPrincipalEntry.Entity))
+                        else if (oldPrincipalEntry != null
+                                 && ReferenceEquals(entry[dependentToPrincipal], oldPrincipalEntry.Entity))
                         {
                             SetNavigation(entry, dependentToPrincipal, null);
                         }

@@ -110,9 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Same(category, entry.GetRelationshipSnapshotValue(navigation));
             Assert.Same(category, entry.GetCurrentValue(navigation));
 
-            entity.Category = new NotifyingCategory { Id = 7, PrincipalId = 11 };
+            var newCategory = new NotifyingCategory { Id = 7, PrincipalId = 11 };
+            entity.Category = newCategory;
 
-            Assert.Same(category, entry.GetRelationshipSnapshotValue(navigation));
+            Assert.Same(newCategory, entry.GetRelationshipSnapshotValue(navigation));
             Assert.NotSame(category, entry.GetCurrentValue(navigation));
         }
 
