@@ -23,14 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         public virtual void GenerateLiteral_returns_bool_literal_when_true()
         {
             var literal = CreateSqlGenerationHelper().GenerateLiteral(true);
-            Assert.Equal("1", literal);
+            Assert.Equal("CAST(1 AS BIT)", literal);
         }
 
         [Fact]
         public virtual void GenerateLiteral_returns_bool_literal_when_false()
         {
             var literal = CreateSqlGenerationHelper().GenerateLiteral(false);
-            Assert.Equal("0", literal);
+            Assert.Equal("CAST(0 AS BIT)", literal);
         }
 
         [Fact]

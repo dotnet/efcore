@@ -65,6 +65,65 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public void Project_null_Coalesce_bool_bug_5439()
+        {
+            CreateTestStore(
+                "Repro5439",
+                _fixture.ServiceProvider,
+                (sp, co) => new NullableBoolContext5439(sp),
+                context =>
+                    {
+                        context.AddRange(
+                            new NullableBoolValue { Value = true },
+                            new NullableBoolValue { Value = false },
+                            new NullableBoolValue { Value = null });
+                        context.SaveChanges();
+                    });
+
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .BuildServiceProvider();
+
+            using (var context = new NullableBoolContext5439(serviceProvider))
+            {
+                var query = context.NullableBoolValues.Select(v => v.Value ?? true);
+                var result = query.ToList();
+
+                Assert.Equal(new List<bool> { true, false, true }, result);
+
+                Assert.Equal(
+                    @"SELECT COALESCE([v].[Value], CAST(1 AS BIT)) AS [Coalesce]
+FROM [NullableBoolValues] AS [v]",
+                    TestSqlLoggerFactory.Sql);
+            }
+        }
+
+        private class NullableBoolContext5439 : DbContext
+        {
+            private readonly IServiceProvider _serviceProvider;
+
+            public NullableBoolContext5439(IServiceProvider serviceProvider)
+            {
+                _serviceProvider = serviceProvider;
+            }
+
+            public DbSet<NullableBoolValue> NullableBoolValues { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro5439"))
+                    .UseInternalServiceProvider(_serviceProvider);
+        }
+
+        public class NullableBoolValue
+        {
+            public int Id { get; set; }
+            public bool? Value { get; set; }
+        }
+
+
+        [Fact]
         public async Task First_FirstOrDefault_ix_async_bug_603()
         {
             using (var context = new MyContext603(_fixture.ServiceProvider))

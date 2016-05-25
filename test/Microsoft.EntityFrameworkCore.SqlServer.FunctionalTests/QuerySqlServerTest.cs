@@ -3445,7 +3445,7 @@ WHERE [c].[CustomerID] = N'ALFKI'",
             Assert.Contains(
                     @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (@__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
+WHERE (@__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> CAST(1 AS BIT)) AND ([p].[UnitsInStock] < 20))",
                     Sql);
         }
 
@@ -3459,7 +3459,7 @@ WHERE (@__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[ProductID] < @__productId_0) AND ((@__flag_1 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
+WHERE ([p].[ProductID] < @__productId_0) AND ((@__flag_1 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> CAST(1 AS BIT)) AND ([p].[UnitsInStock] < 20)))",
                     Sql);
         }
 

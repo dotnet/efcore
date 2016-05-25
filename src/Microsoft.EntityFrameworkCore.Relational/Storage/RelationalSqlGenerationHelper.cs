@@ -20,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private const string DateTimeOffsetFormatConst = @"yyyy-MM-dd HH\:mm\:ss.fffffffzzz";
         private const string DateTimeOffsetFormatStringConst = "TIMESTAMP '{0:" + DateTimeOffsetFormatConst + "}'";
 
+        protected virtual string BoolTrueLiteral => "CAST(1 AS BIT)";
+        protected virtual string BoolFalseLiteral => "CAST(0 AS BIT)";
         protected virtual string FloatingPointFormatString => "{0}E0";
         protected virtual string DecimalFormat => DecimalFormatConst;
         protected virtual string DecimalFormatString => DecimalFormatStringConst;
@@ -174,10 +176,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => builder.AppendFormat(CultureInfo.InvariantCulture, FloatingPointFormatString, value);
 
         protected virtual string GenerateLiteralValue(bool value)
-            => value ? "1" : "0";
+            => value ? BoolTrueLiteral : BoolFalseLiteral;
 
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, bool value)
-            => builder.Append(value ? "1" : "0");
+            => builder.Append(value ? BoolTrueLiteral : BoolFalseLiteral);
 
         protected virtual string GenerateLiteralValue(char value)
             => $"'{value}'";

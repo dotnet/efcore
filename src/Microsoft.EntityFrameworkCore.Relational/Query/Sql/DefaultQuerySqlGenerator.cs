@@ -104,8 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual string ConcatOperator => "+";
         protected virtual string TrueLiteral => "1";
         protected virtual string FalseLiteral => "0";
-        protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
-        protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         public virtual Expression VisitSelect(SelectExpression selectExpression)
         {
@@ -824,31 +822,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine();
                 _relationalCommandBuilder.Append("THEN ");
 
-                var constantIfTrue = expression.IfTrue as ConstantExpression;
-
-                if (constantIfTrue != null
-                    && constantIfTrue.Type == typeof(bool))
-                {
-                    _relationalCommandBuilder.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
-                }
-                else
-                {
-                    Visit(expression.IfTrue);
-                }
+                Visit(expression.IfTrue);
 
                 _relationalCommandBuilder.Append(" ELSE ");
 
-                var constantIfFalse = expression.IfFalse as ConstantExpression;
-
-                if (constantIfFalse != null
-                    && constantIfFalse.Type == typeof(bool))
-                {
-                    _relationalCommandBuilder.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
-                }
-                else
-                {
-                    Visit(expression.IfFalse);
-                }
+                Visit(expression.IfFalse);
 
                 _relationalCommandBuilder.AppendLine();
             }
