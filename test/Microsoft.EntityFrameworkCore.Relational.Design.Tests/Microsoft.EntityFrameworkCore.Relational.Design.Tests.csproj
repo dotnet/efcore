@@ -34,6 +34,7 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="CSharpNamerTest.cs" />
     <Compile Include="CSharpUniqueNamerTest.cs" />
+    <Compile Include="CandidateNamingServiceTest.cs" />
     <Compile Include="NullLogger.cs" />
     <Compile Include="RelationalScaffoldingModelFactoryTest.cs" />
     <Compile Include="ScaffoldingMetadataExtenstionsTest.cs" />

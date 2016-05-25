@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public partial class OneToOneFKToUniqueKeyDependent
+    public partial class OneToOneFktoUniqueKeyDependent
     {
-        public int OneToOneFKToUniqueKeyDependentID1 { get; set; }
-        public int OneToOneFKToUniqueKeyDependentID2 { get; set; }
+        public int OneToOneFktoUniqueKeyDependentId1 { get; set; }
+        public int OneToOneFktoUniqueKeyDependentId2 { get; set; }
         public string SomeColumn { get; set; }
-        public int? OneToOneFKToUniqueKeyDependentFK1 { get; set; }
-        public int? OneToOneFKToUniqueKeyDependentFK2 { get; set; }
+        public int? OneToOneFktoUniqueKeyDependentFk1 { get; set; }
+        public int? OneToOneFktoUniqueKeyDependentFk2 { get; set; }
 
-        public virtual OneToOneFKToUniqueKeyPrincipal OneToOneFKToUniqueKeyDependentFK { get; set; }
+        public virtual OneToOneFktoUniqueKeyPrincipal OneToOneFktoUniqueKeyDependentFk { get; set; }
     }
 }

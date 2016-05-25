@@ -19,80 +19,80 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.TimestampColumn).ValueGeneratedOnAddOrUpdate();
             });
 
-            modelBuilder.Entity<MultipleFKsDependent>(entity =>
+            modelBuilder.Entity<MultipleFksDependent>(entity =>
             {
-                entity.Property(e => e.MultipleFKsDependentId).ValueGeneratedNever();
+                entity.Property(e => e.MultipleFksDependentId).ValueGeneratedNever();
             });
 
-            modelBuilder.Entity<MultipleFKsPrincipal>(entity =>
+            modelBuilder.Entity<MultipleFksPrincipal>(entity =>
             {
-                entity.Property(e => e.MultipleFKsPrincipalId).ValueGeneratedNever();
+                entity.Property(e => e.MultipleFksPrincipalId).ValueGeneratedNever();
             });
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 })
+                entity.HasKey(e => new { e.OneToManyDependentId1, e.OneToManyDependentId2 })
                     .HasName("PK_OneToManyDependent");
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 })
+                entity.HasKey(e => new { e.OneToManyPrincipalId1, e.OneToManyPrincipalId2 })
                     .HasName("PK_OneToManyPrincipal");
             });
 
             modelBuilder.Entity<OneToOneDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 })
+                entity.HasKey(e => new { e.OneToOneDependentId1, e.OneToOneDependentId2 })
                     .HasName("PK_OneToOneDependent");
             });
 
-            modelBuilder.Entity<OneToOneFKToUniqueKeyDependent>(entity =>
+            modelBuilder.Entity<OneToOneFktoUniqueKeyDependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 })
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyDependentId1, e.OneToOneFktoUniqueKeyDependentId2 })
                     .HasName("PK_OneToOneFKToUniqueKeyDependent");
 
-                entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyDependentFK1, e.OneToOneFKToUniqueKeyDependentFK2 })
+                entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyDependentFk1, e.OneToOneFktoUniqueKeyDependentFk2 })
                     .HasName("UK_OneToOneFKToUniqueKeyDependent")
                     .IsUnique();
 
-                entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK)
-                    .WithOne(p => p.OneToOneFKToUniqueKeyDependent)
-                    .HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
-                    .HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 })
+                entity.HasOne(d => d.OneToOneFktoUniqueKeyDependentFk)
+                    .WithOne(p => p.OneToOneFktoUniqueKeyDependent)
+                    .HasPrincipalKey<OneToOneFktoUniqueKeyPrincipal>(p => new { p.OneToOneFktoUniqueKeyPrincipalUniqueKey1, p.OneToOneFktoUniqueKeyPrincipalUniqueKey2 })
+                    .HasForeignKey<OneToOneFktoUniqueKeyDependent>(d => new { d.OneToOneFktoUniqueKeyDependentFk1, d.OneToOneFktoUniqueKeyDependentFk2 })
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_OneToOneFKToUniqueKeyDependent");
             });
 
-            modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>
+            modelBuilder.Entity<OneToOneFktoUniqueKeyPrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneFKToUniqueKeyPrincipalID1, e.OneToOneFKToUniqueKeyPrincipalID2 })
+                entity.HasKey(e => new { e.OneToOneFktoUniqueKeyPrincipalId1, e.OneToOneFktoUniqueKeyPrincipalId2 })
                     .HasName("PK_OneToOneFKToUniqueKeyPrincipal");
 
-                entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyPrincipalUniqueKey1, e.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
+                entity.HasIndex(e => new { e.OneToOneFktoUniqueKeyPrincipalUniqueKey1, e.OneToOneFktoUniqueKeyPrincipalUniqueKey2 })
                     .HasName("UK_OneToOneFKToUniqueKeyPrincipal")
                     .IsUnique();
             });
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 })
+                entity.HasKey(e => new { e.OneToOnePrincipalId1, e.OneToOnePrincipalId2 })
                     .HasName("PK_OneToOnePrincipal");
             });
 
-            modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
+            modelBuilder.Entity<OneToOneSeparateFkdependent>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 })
+                entity.HasKey(e => new { e.OneToOneSeparateFkdependentId1, e.OneToOneSeparateFkdependentId2 })
                     .HasName("PK_OneToOneSeparateFKDependent");
 
-                entity.HasIndex(e => new { e.OneToOneSeparateFKDependentFK1, e.OneToOneSeparateFKDependentFK2 })
+                entity.HasIndex(e => new { e.OneToOneSeparateFkdependentFk1, e.OneToOneSeparateFkdependentFk2 })
                     .HasName("UK_OneToOneSeparateFKDependent")
                     .IsUnique();
             });
 
-            modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
+            modelBuilder.Entity<OneToOneSeparateFkprincipal>(entity =>
             {
-                entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 })
+                entity.HasKey(e => new { e.OneToOneSeparateFkprincipalId1, e.OneToOneSeparateFkprincipalId2 })
                     .HasName("PK_OneToOneSeparateFKPrincipal");
             });
 
@@ -107,7 +107,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.RowversionColumn).ValueGeneratedOnAddOrUpdate();
 
-                entity.Property(e => e.SumOfAAndB)
+                entity.Property(e => e.SumOfAandB)
                     .HasComputedColumnSql("[A]+[B]")
                     .ValueGeneratedOnAddOrUpdate();
 
@@ -124,37 +124,37 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<SelfReferencing>(entity =>
             {
-                entity.Property(e => e.SelfReferencingID).ValueGeneratedNever();
+                entity.Property(e => e.SelfReferencingId).ValueGeneratedNever();
             });
 
-            modelBuilder.Entity<Test_Spaces_Keywords_Table>(entity =>
+            modelBuilder.Entity<TestSpacesKeywordsTable>(entity =>
             {
-                entity.Property(e => e.Test_Spaces_Keywords_TableID).ValueGeneratedNever();
+                entity.Property(e => e.TestSpacesKeywordsTableId).ValueGeneratedNever();
             });
 
-            modelBuilder.Entity<UnmappablePKColumn>(entity =>
+            modelBuilder.Entity<UnmappablePkcolumn>(entity =>
             {
-                entity.Property(e => e.UnmappablePKColumnID).ValueGeneratedNever();
+                entity.Property(e => e.UnmappablePkcolumnId).ValueGeneratedNever();
 
                 entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
             });
         }
 
         public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
-        public virtual DbSet<MultipleFKsDependent> MultipleFKsDependent { get; set; }
-        public virtual DbSet<MultipleFKsPrincipal> MultipleFKsPrincipal { get; set; }
+        public virtual DbSet<MultipleFksDependent> MultipleFksDependent { get; set; }
+        public virtual DbSet<MultipleFksPrincipal> MultipleFksPrincipal { get; set; }
         public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
         public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
         public virtual DbSet<OneToOneDependent> OneToOneDependent { get; set; }
-        public virtual DbSet<OneToOneFKToUniqueKeyDependent> OneToOneFKToUniqueKeyDependent { get; set; }
-        public virtual DbSet<OneToOneFKToUniqueKeyPrincipal> OneToOneFKToUniqueKeyPrincipal { get; set; }
+        public virtual DbSet<OneToOneFktoUniqueKeyDependent> OneToOneFktoUniqueKeyDependent { get; set; }
+        public virtual DbSet<OneToOneFktoUniqueKeyPrincipal> OneToOneFktoUniqueKeyPrincipal { get; set; }
         public virtual DbSet<OneToOnePrincipal> OneToOnePrincipal { get; set; }
-        public virtual DbSet<OneToOneSeparateFKDependent> OneToOneSeparateFKDependent { get; set; }
-        public virtual DbSet<OneToOneSeparateFKPrincipal> OneToOneSeparateFKPrincipal { get; set; }
+        public virtual DbSet<OneToOneSeparateFkdependent> OneToOneSeparateFkdependent { get; set; }
+        public virtual DbSet<OneToOneSeparateFkprincipal> OneToOneSeparateFkprincipal { get; set; }
         public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
         public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
-        public virtual DbSet<Test_Spaces_Keywords_Table> Test_Spaces_Keywords_Table { get; set; }
-        public virtual DbSet<UnmappablePKColumn> UnmappablePKColumn { get; set; }
+        public virtual DbSet<TestSpacesKeywordsTable> TestSpacesKeywordsTable { get; set; }
+        public virtual DbSet<UnmappablePkcolumn> UnmappablePkcolumn { get; set; }
 
         // Unable to generate entity type for table 'dbo.TableWithUnmappablePrimaryKeyColumn'. Please see the warning messages.
     }

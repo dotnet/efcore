@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -727,24 +728,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
                 ef1 =>
                     {
                         Assert.Equal("E F", ef1.Relational().TableName);
-                        Assert.Equal("E_f", ef1.Name);
+                        Assert.Equal("EF", ef1.Name);
                         Assert.Collection(ef1.GetProperties(),
                             id => { Assert.Equal("Id", id.Name); },
                             s1 =>
                                 {
-                                    Assert.Equal("San_itized", s1.Name);
+                                    Assert.Equal("SanItized", s1.Name);
                                     Assert.Equal("San itized", s1.Relational().ColumnName);
                                 },
                             s2 =>
                                 {
-                                    Assert.Equal("San_itized1", s2.Name);
+                                    Assert.Equal("SanItized1", s2.Name);
                                     Assert.Equal("San+itized", s2.Relational().ColumnName);
                                 });
                     },
                 ef2 =>
                     {
                         Assert.Equal("E+F", ef2.Relational().TableName);
-                        Assert.Equal("E_f1", ef2.Name);
+                        Assert.Equal("EF1", ef2.Name);
                         var id = Assert.Single(ef2.GetProperties());
                         Assert.Equal("Id", id.Name);
                         Assert.Equal("Id", id.Relational().ColumnName);
@@ -785,7 +786,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
             [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory,
                 new TestTypeMapper(),
-                new FakeDatabaseModelFactory())
+                new FakeDatabaseModelFactory(), 
+                new CandidateNamingService())
         {
         }
     }

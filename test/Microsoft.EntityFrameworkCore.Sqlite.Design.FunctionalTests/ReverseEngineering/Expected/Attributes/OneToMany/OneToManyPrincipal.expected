@@ -12,14 +12,14 @@ namespace E2E.Sqlite
             OneToManyDependent = new HashSet<OneToManyDependent>();
         }
 
-        [Column(TypeName = "INT")]
-        public long OneToManyPrincipalID1 { get; set; }
-        [Column(TypeName = "INT")]
-        public long OneToManyPrincipalID2 { get; set; }
+        [Column("OneToManyPrincipalID1", TypeName = "INT")]
+        public long OneToManyPrincipalId1 { get; set; }
+        [Column("OneToManyPrincipalID2", TypeName = "INT")]
+        public long OneToManyPrincipalId2 { get; set; }
         [Required]
         public string Other { get; set; }
 
-        [InverseProperty("OneToManyDependentFK")]
+        [InverseProperty("OneToManyDependentFk")]
         public virtual ICollection<OneToManyDependent> OneToManyDependent { get; set; }
     }
 }

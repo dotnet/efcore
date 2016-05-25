@@ -5,12 +5,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2ETest.Namespace
 {
-    public partial class UnmappablePKColumn
+    [Table("UnmappablePKColumn")]
+    public partial class UnmappablePkcolumn
     {
-        public int UnmappablePKColumnID { get; set; }
+        [Column("UnmappablePKColumnID")]
+        public int UnmappablePkcolumnId { get; set; }
         [Required]
+        [Column("AColumn")]
         [MaxLength(20)]
-        public string AColumn { get; set; }
+        public string Acolumn { get; set; }
         public int ValueGeneratedOnAddColumn { get; set; }
     }
 }

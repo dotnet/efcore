@@ -5,18 +5,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2ETest.Namespace
 {
-    public partial class OneToOneFKToUniqueKeyDependent
+    [Table("OneToOneFKToUniqueKeyDependent")]
+    public partial class OneToOneFktoUniqueKeyDependent
     {
-        public int OneToOneFKToUniqueKeyDependentID1 { get; set; }
-        public int OneToOneFKToUniqueKeyDependentID2 { get; set; }
+        [Column("OneToOneFKToUniqueKeyDependentID1")]
+        public int OneToOneFktoUniqueKeyDependentId1 { get; set; }
+        [Column("OneToOneFKToUniqueKeyDependentID2")]
+        public int OneToOneFktoUniqueKeyDependentId2 { get; set; }
         [Required]
         [MaxLength(20)]
         public string SomeColumn { get; set; }
         [Required]
-        public int? OneToOneFKToUniqueKeyDependentFK1 { get; set; }
+        [Column("OneToOneFKToUniqueKeyDependentFK1")]
+        public int? OneToOneFktoUniqueKeyDependentFk1 { get; set; }
         [Required]
-        public int? OneToOneFKToUniqueKeyDependentFK2 { get; set; }
+        [Column("OneToOneFKToUniqueKeyDependentFK2")]
+        public int? OneToOneFktoUniqueKeyDependentFk2 { get; set; }
 
-        public virtual OneToOneFKToUniqueKeyPrincipal OneToOneFKToUniqueKeyDependentFK { get; set; }
+        public virtual OneToOneFktoUniqueKeyPrincipal OneToOneFktoUniqueKeyDependentFk { get; set; }
     }
 }

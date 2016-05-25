@@ -7,20 +7,20 @@ namespace E2E.Sqlite
 {
     public partial class OneToManyDependent
     {
-        [Column(TypeName = "INT")]
-        public long OneToManyDependentID1 { get; set; }
-        [Column(TypeName = "INT")]
-        public long OneToManyDependentID2 { get; set; }
+        [Column("OneToManyDependentID1", TypeName = "INT")]
+        public long OneToManyDependentId1 { get; set; }
+        [Column("OneToManyDependentID2", TypeName = "INT")]
+        public long OneToManyDependentId2 { get; set; }
         [Required]
         [Column(TypeName = "VARCHAR")]
         public string SomeDependentEndColumn { get; set; }
-        [Column(TypeName = "INT")]
-        public long? OneToManyDependentFK1 { get; set; }
-        [Column(TypeName = "INT")]
-        public long? OneToManyDependentFK2 { get; set; }
+        [Column("OneToManyDependentFK1", TypeName = "INT")]
+        public long? OneToManyDependentFk1 { get; set; }
+        [Column("OneToManyDependentFK2", TypeName = "INT")]
+        public long? OneToManyDependentFk2 { get; set; }
 
-        [ForeignKey("OneToManyDependentFK1,OneToManyDependentFK2")]
+        [ForeignKey("OneToManyDependentFk1,OneToManyDependentFk2")]
         [InverseProperty("OneToManyDependent")]
-        public virtual OneToManyPrincipal OneToManyDependentFK { get; set; }
+        public virtual OneToManyPrincipal OneToManyDependentFk { get; set; }
     }
 }

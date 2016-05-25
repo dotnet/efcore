@@ -7,7 +7,8 @@ namespace E2ETest.Namespace
 {
     public partial class AllDataTypes
     {
-        public int AllDataTypesID { get; set; }
+        [Column("AllDataTypesID")]
+        public int AllDataTypesId { get; set; }
         [Column("bigintColumn")]
         public long BigintColumn { get; set; }
         [Column("bitColumn")]

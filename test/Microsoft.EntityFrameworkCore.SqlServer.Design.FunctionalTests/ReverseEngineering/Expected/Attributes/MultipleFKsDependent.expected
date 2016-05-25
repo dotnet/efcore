@@ -5,24 +5,29 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2ETest.Namespace
 {
-    public partial class MultipleFKsDependent
+    [Table("MultipleFKsDependent")]
+    public partial class MultipleFksDependent
     {
-        public int MultipleFKsDependentId { get; set; }
+        [Column("MultipleFKsDependentId")]
+        public int MultipleFksDependentId { get; set; }
         [Required]
         [MaxLength(20)]
         public string AnotherColumn { get; set; }
-        public int RelationAId { get; set; }
-        public int? RelationBId { get; set; }
-        public int? RelationCId { get; set; }
+        [Column("RelationAId")]
+        public int RelationAid { get; set; }
+        [Column("RelationBId")]
+        public int? RelationBid { get; set; }
+        [Column("RelationCId")]
+        public int? RelationCid { get; set; }
 
-        [ForeignKey("RelationAId")]
-        [InverseProperty("MultipleFKsDependentRelationA")]
-        public virtual MultipleFKsPrincipal RelationA { get; set; }
-        [ForeignKey("RelationBId")]
-        [InverseProperty("MultipleFKsDependentRelationB")]
-        public virtual MultipleFKsPrincipal RelationB { get; set; }
-        [ForeignKey("RelationCId")]
-        [InverseProperty("MultipleFKsDependentRelationC")]
-        public virtual MultipleFKsPrincipal RelationC { get; set; }
+        [ForeignKey("RelationAid")]
+        [InverseProperty("MultipleFksDependentRelationA")]
+        public virtual MultipleFksPrincipal RelationA { get; set; }
+        [ForeignKey("RelationBid")]
+        [InverseProperty("MultipleFksDependentRelationB")]
+        public virtual MultipleFksPrincipal RelationB { get; set; }
+        [ForeignKey("RelationCid")]
+        [InverseProperty("MultipleFksDependentRelationC")]
+        public virtual MultipleFksPrincipal RelationC { get; set; }
     }
 }

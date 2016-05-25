@@ -7,8 +7,10 @@ namespace E2ETest.Namespace
 {
     public partial class OneToOnePrincipal
     {
-        public int OneToOnePrincipalID1 { get; set; }
-        public int OneToOnePrincipalID2 { get; set; }
+        [Column("OneToOnePrincipalID1")]
+        public int OneToOnePrincipalId1 { get; set; }
+        [Column("OneToOnePrincipalID2")]
+        public int OneToOnePrincipalId2 { get; set; }
         [Required]
         [MaxLength(20)]
         public string SomeOneToOnePrincipalColumn { get; set; }
