@@ -249,4 +249,7 @@ Change your target project to the migrations project by using the Package Manage
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>No parameterless constructor was found on '{contextType}'. Either add a parameterless constructor to '{contextType}' or add an implementation of 'IDbContextFactory&lt;{contextType}&gt;' in the same assembly as '{contextType}'.</value>
   </data>
+  <data name="LogNotExistDatabase" xml:space="preserve">
+    <value>Cannot drop '{name}'. Are you sure it exists?</value>
+  </data>
 </root>
