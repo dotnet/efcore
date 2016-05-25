@@ -200,6 +200,38 @@ ORDER BY [o0].[OrderID]",
                 Sql);
         }
 
+        public override void Include_collection_order_by_collection_column()
+        {
+            base.Include_collection_order_by_collection_column();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'W' + N'%'
+ORDER BY (
+    SELECT TOP(1) [oo].[OrderDate]
+    FROM [Orders] AS [oo]
+    WHERE [c].[CustomerID] = [oo].[CustomerID]
+    ORDER BY [oo].[OrderDate] DESC
+) DESC, [c].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT TOP(1) (
+        SELECT TOP(1) [oo].[OrderDate]
+        FROM [Orders] AS [oo]
+        WHERE [c].[CustomerID] = [oo].[CustomerID]
+        ORDER BY [oo].[OrderDate] DESC
+    ) AS [c0_0], [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'W' + N'%'
+    ORDER BY [c0_0] DESC, [c].[CustomerID]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0_0] DESC, [c0].[CustomerID]",
+                Sql);
+        }
+
         public override void Include_collection_order_by_key()
         {
             base.Include_collection_order_by_key();
@@ -312,6 +344,36 @@ INNER JOIN (
     ORDER BY [c].[CompanyName] DESC, [c].[CustomerID]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[CompanyName] DESC, [c0].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_collection_order_by_subquery()
+        {
+            base.Include_collection_order_by_subquery();
+
+            Assert.Equal(
+                @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+ORDER BY (
+    SELECT TOP(1) [oo].[OrderDate]
+    FROM [Orders] AS [oo]
+    WHERE [c].[CustomerID] = [oo].[CustomerID]
+), [c].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT TOP(1) (
+        SELECT TOP(1) [oo].[OrderDate]
+        FROM [Orders] AS [oo]
+        WHERE [c].[CustomerID] = [oo].[CustomerID]
+    ) AS [c0_0], [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = N'ALFKI'
+    ORDER BY [c0_0], [c].[CustomerID]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0_0], [c0].[CustomerID]", 
                 Sql);
         }
 
