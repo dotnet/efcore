@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     internal static class CoreLoggerExtensions
     {
         public static void LogInformation<TState>(
-            this ILogger logger, InMemoryLoggingEventId eventId, TState state, Func<TState, string> formatter)
+            this ILogger logger, InMemoryEventId eventId, TState state, Func<TState, string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Information))
             {

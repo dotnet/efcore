@@ -1228,6 +1228,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingRelationshipNavigation", "newPrincipalEntityType", "newPrincipalNavigation", "newDependentEntityType", "newDependentNavigation", "existingPrincipalEntityType", "existingPrincipalNavigation", "existingDependentEntityType", "existingDependentNavigation"), newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);
         }
 
+        /// <summary>
+        /// Warning as error exception for warning '{eventId}': {message}
+        /// </summary>
+        public static string WarningAsError([CanBeNull] object eventId, [CanBeNull] object message)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WarningAsError", "eventId", "message"), eventId, message);
+        }
+
+        /// <summary>
+        /// {message} This warning can be configured using DbContextOptionsBuilder.ConfigureWarnings with event id '{eventId}'.
+        /// </summary>
+        public static string WarningLogTemplate([CanBeNull] object message, [CanBeNull] object eventId)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("WarningLogTemplate", "message", "eventId"), message, eventId);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -44,18 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     });
         }
 
-        public virtual TBuilder SuppressAmbientTransactionWarning()
-            => SetOption(e => e.ThrowOnAmbientTransaction = false);
-
         public virtual TBuilder UseRelationalNulls()
             => SetOption(e => e.UseRelationalNulls = true);
-
-        public virtual TBuilder QueryClientEvaluationBehavior(QueryClientEvaluationBehavior queryClientEvaluationBehavior)
-        {
-            queryClientEvaluationBehavior.Validate();
-
-            return SetOption(e => e.QueryClientEvaluationBehavior = queryClientEvaluationBehavior);
-        }
 
         protected virtual TBuilder SetOption([NotNull] Action<TExtension> setAction)
         {

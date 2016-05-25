@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     internal static class CoreLoggerExtensions
     {
         public static void LogError<TState>(
-            this ILogger logger, CoreLoggingEventId eventId, Func<TState> state, Exception exception, Func<Exception, string> formatter)
+            this ILogger logger, CoreEventId eventId, Func<TState> state, Exception exception, Func<Exception, string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Error))
             {
@@ -19,20 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        public static void LogDebug(this ILogger logger, CoreLoggingEventId eventId, Func<string> formatter)
+        public static void LogDebug(this ILogger logger, CoreEventId eventId, Func<string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 logger.Log<object>(LogLevel.Debug, (int)eventId, null, null, (_, __) => formatter());
             }
         }
-
-        public static void LogWarning(this ILogger logger, CoreLoggingEventId eventId, Func<string> formatter)
+        
+        public static void LogWarning(this ILogger logger, CoreEventId eventId, Func<string> formatter)
         {
-            if (logger.IsEnabled(LogLevel.Warning))
-            {
-                logger.Log<object>(LogLevel.Warning, (int)eventId, null, null, (_, __) => formatter());
-            }
+            // Always call Log for Warnings because Warnings as Errors should work even
+            // if LogLevel.Warning is not enabled.
+            logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
         }
     }
 }

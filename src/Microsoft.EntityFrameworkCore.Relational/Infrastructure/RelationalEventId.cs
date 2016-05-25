@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
-    public enum RelationalLoggingEventId
+    public enum RelationalEventId
     {
         ExecutedCommand = 1,
         CreatingDatabase,
@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ClosingConnection,
         BeginningTransaction,
         CommittingTransaction,
-        RollingbackTransaction
+        RollingbackTransaction,
+        QueryClientEvaluationWarning,
+        PossibleUnintendedUseOfEqualsWarning,
+        AmbientTransactionWarning
     }
 }

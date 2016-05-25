@@ -3,10 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public enum QueryClientEvaluationBehavior
+    public enum WarningBehavior
     {
-        Allow,
-        Warn,
+        Log,
+        Ignore,
         Throw
     }
 }

@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
 
             logger.LogInformation<object>(
-                InMemoryLoggingEventId.SavedChanges,
+                InMemoryEventId.SavedChanges,
                 rowsAffected,
                 InMemoryStrings.LogSavedChanges);
 

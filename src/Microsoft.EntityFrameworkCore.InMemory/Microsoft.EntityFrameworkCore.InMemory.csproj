@@ -62,7 +62,7 @@
     <Compile Include="Extensions\InMemoryServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\Internal\InMemoryLoggerExtensions.cs" />
     <Compile Include="Infrastructure\InMemoryDbContextOptionsBuilder.cs" />
-    <Compile Include="Infrastructure\InMemoryLoggingEventId.cs" />
+    <Compile Include="Infrastructure\InMemoryEventId.cs" />
     <Compile Include="Infrastructure\Internal\InMemoryModelSource.cs" />
     <Compile Include="Infrastructure\Internal\InMemoryOptionsExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

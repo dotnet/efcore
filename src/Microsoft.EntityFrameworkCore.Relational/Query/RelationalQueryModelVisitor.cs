@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientSelectMany)
             {
-                CheckClientEval(fromClause);
+                WarnClientEval(fromClause);
             }
         }
 
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientJoin)
             {
-                CheckClientEval(joinClause);
+                WarnClientEval(joinClause);
             }
         }
 
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientFilter)
             {
-                CheckClientEval(whereClause.Predicate);
+                WarnClientEval(whereClause.Predicate);
 
                 base.VisitWhereClause(whereClause, queryModel, index);
             }
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientOrderBy)
             {
-                CheckClientEval(orderByClause);
+                WarnClientEval(orderByClause);
 
                 base.VisitOrderByClause(orderByClause, queryModel, index);
             }
@@ -813,24 +813,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (RequiresClientResultOperator)
             {
-                CheckClientEval(resultOperator);
+                WarnClientEval(resultOperator);
             }
         }
 
-        protected virtual void CheckClientEval([NotNull] object expression)
+        protected virtual void WarnClientEval([NotNull] object expression)
         {
             Check.NotNull(expression, nameof(expression));
 
-            var relationalOptionsExtension = RelationalOptionsExtension.Extract(ContextOptions);
-
-            switch (relationalOptionsExtension.QueryClientEvaluationBehavior)
-            {
-                case QueryClientEvaluationBehavior.Throw:
-                    throw new InvalidOperationException(RelationalStrings.ClientEvalDisabled(expression));
-                case QueryClientEvaluationBehavior.Warn:
-                    QueryCompilationContext.Logger.LogWarning(RelationalStrings.ClientEvalWarning(expression));
-                    break;
-            }
+            QueryCompilationContext.Logger.LogWarning(
+                RelationalEventId.QueryClientEvaluationWarning,
+                () => RelationalStrings.ClientEvalWarning(expression));
         }
 
         private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase

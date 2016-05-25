@@ -74,5 +74,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging()
             => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging();
+
+        public new virtual DbContextOptionsBuilder<TContext> ConfigureWarnings(
+            [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
+            => (DbContextOptionsBuilder<TContext>)base.ConfigureWarnings(warningsConfigurationBuilderAction);
     }
 }

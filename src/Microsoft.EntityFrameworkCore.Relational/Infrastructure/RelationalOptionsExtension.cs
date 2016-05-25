@@ -18,8 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _commandTimeout;
         private int? _maxBatchSize;
         private bool _useRelationalNulls;
-        private QueryClientEvaluationBehavior _queryClientEvaluationBehavior;
-        private bool? _throwOnAmbientTransaction;
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
         private string _migrationsHistoryTableSchema;
@@ -39,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _commandTimeout = copyFrom._commandTimeout;
             _maxBatchSize = copyFrom._maxBatchSize;
             _useRelationalNulls = copyFrom._useRelationalNulls;
-            _queryClientEvaluationBehavior = copyFrom._queryClientEvaluationBehavior;
-            _throwOnAmbientTransaction = copyFrom._throwOnAmbientTransaction;
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
             _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
@@ -106,18 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             get { return _useRelationalNulls; }
             set { _useRelationalNulls = value; }
-        }
-
-        public virtual QueryClientEvaluationBehavior QueryClientEvaluationBehavior
-        {
-            get { return _queryClientEvaluationBehavior; }
-            set { _queryClientEvaluationBehavior = value; }
-        }
-
-        public virtual bool? ThrowOnAmbientTransaction
-        {
-            get { return _throwOnAmbientTransaction; }
-            set { _throwOnAmbientTransaction = value; }
         }
 
         public virtual string MigrationsAssembly

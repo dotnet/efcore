@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 logger.Log(
                     LogLevel.Information,
-                    (int)RelationalLoggingEventId.ExecutedCommand,
+                    (int)RelationalEventId.ExecutedCommand,
                     logData,
                     null,
                     (state, _) =>
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public static void LogInformation<TState>(
-            this ILogger logger, RelationalLoggingEventId eventId, TState state, Func<TState, string> formatter)
+            this ILogger logger, RelationalEventId eventId, TState state, Func<TState, string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public static void LogDebug(
-            this ILogger logger, RelationalLoggingEventId eventId, Func<string> formatter)
+            this ILogger logger, RelationalEventId eventId, Func<string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
@@ -255,12 +255,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public static void LogDebug<TState>(
-            this ILogger logger, RelationalLoggingEventId eventId, TState state, Func<TState, string> formatter)
+            this ILogger logger, RelationalEventId eventId, TState state, Func<TState, string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 logger.Log(LogLevel.Debug, (int)eventId, state, null, (s, __) => formatter(s));
             }
+        }
+
+        public static void LogWarning(this ILogger logger, RelationalEventId eventId, Func<string> formatter)
+        {
+            // Always call Log for Warnings because Warnings as Errors should work even
+            // if LogLevel.Warning is not enabled.
+            logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
         }
 
         private static long DeriveTimespan(long startTimestamp, long currentTimestamp)

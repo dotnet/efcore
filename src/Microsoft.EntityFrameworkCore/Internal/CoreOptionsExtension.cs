@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private ILoggerFactory _loggerFactory;
         private IMemoryCache _memoryCache;
         private bool _isSensitiveDataLoggingEnabled;
+        private WarningsConfiguration _warningsConfiguration;
 
         /// <summary>
         ///     <para>
@@ -47,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _loggerFactory = copyFrom.LoggerFactory;
             _memoryCache = copyFrom.MemoryCache;
             _isSensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
+            _warningsConfiguration = copyFrom.WarningsConfiguration;
         }
 
         /// <summary>
@@ -93,6 +95,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             get { return _internalServiceProvider; }
             [param: CanBeNull] set { _internalServiceProvider = value; }
+        }
+
+        public virtual WarningsConfiguration WarningsConfiguration
+        {
+            get { return _warningsConfiguration; }
+            [param: CanBeNull] set { _warningsConfiguration = value; }
         }
 
         /// <summary>

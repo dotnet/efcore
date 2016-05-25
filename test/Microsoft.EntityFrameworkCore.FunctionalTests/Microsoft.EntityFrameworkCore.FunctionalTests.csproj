@@ -38,6 +38,7 @@
     <Compile Include="CustomValueGeneratorTest.cs" />
     <Compile Include="DatabaseErrorLogStateTest.cs" />
     <Compile Include="ModelSourceTest.cs" />
+    <Compile Include="WarningsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

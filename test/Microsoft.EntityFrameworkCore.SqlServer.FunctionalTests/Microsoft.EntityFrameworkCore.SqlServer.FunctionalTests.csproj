@@ -136,6 +136,8 @@
     <Compile Include="Utilities\SqlServerTestStore.cs" />
     <Compile Include="Utilities\TestEnvironment.cs" />
     <Compile Include="Utilities\TestSqlServerModelSource.cs" />
+    <Compile Include="WarningsSqlServerFixture.cs" />
+    <Compile Include="WarningsSqlServerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.json">

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     Values that are used as the eventId when logging messages from this assembly via <see cref="ILogger" />.
     /// </summary>
-    public enum CoreLoggingEventId
+    public enum CoreEventId
     {
         /// <summary>
         ///     An error occurred while accessing the database.
@@ -38,6 +38,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     A query specified an Include operation that was ignored because the included navigation was not reachable in the final query result.
         /// </summary>
-        IncludeIgnored
+        IncludeIgnoredWarning,
+
+        /// <summary>
+        ///     A warning that sensitive data logging is enabled.
+        /// </summary>
+        SensitiveDataLoggingEnabledWarning,
+
+        /// <summary>
+        ///     A warning during model validation.
+        /// </summary>
+        ModelValidationWarning
     }
 }

@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
-    public enum InMemoryLoggingEventId
+    public enum InMemoryEventId
     {
         SavedChanges = 1
     }

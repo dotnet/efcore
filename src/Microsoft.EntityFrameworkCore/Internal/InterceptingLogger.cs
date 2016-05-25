@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -11,14 +12,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class InterceptingLogger<T> : ILogger<T>
     {
         private readonly ILogger _logger;
+        private readonly WarningsConfiguration _warningsConfiguration;
 
         public InterceptingLogger(
             [NotNull] IDbContextServices contextServices,
-            [NotNull] IServiceProvider serviceProvider)
+            [NotNull] IServiceProvider serviceProvider,
+            [CanBeNull] IDbContextOptions contextOptions)
         {
             _logger = (contextServices.LoggerFactory
                        ?? serviceProvider.GetRequiredService<ILoggerFactory>())
                 .CreateLogger(typeof(T).DisplayName());
+
+            _warningsConfiguration
+                = contextOptions
+                    ?.FindExtension<CoreOptionsExtension>()
+                    ?.WarningsConfiguration;
         }
 
         public virtual void Log<TState>(
@@ -27,7 +35,31 @@ namespace Microsoft.EntityFrameworkCore.Internal
             TState state,
             Exception exception,
             Func<TState, Exception, string> formatter)
-            => _logger.Log(logLevel, eventId, state, exception, formatter);
+        {
+            if (logLevel == LogLevel.Warning
+                && state != null
+                && _warningsConfiguration != null)
+            {
+                var warningBehavior = _warningsConfiguration.GetBehavior(state);
+
+                if (warningBehavior == WarningBehavior.Throw)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.WarningAsError($"{state.GetType().Name}.{state}", formatter(state, exception)));
+                }
+
+                if (warningBehavior == WarningBehavior.Log
+                    && IsEnabled(logLevel))
+                {
+                    _logger.Log(logLevel, eventId, state, exception, 
+                        (s, _) => CoreStrings.WarningLogTemplate(formatter(s, _), $"{state.GetType().Name}.{state}"));
+                }
+            }
+            else if (IsEnabled(logLevel))
+            {
+                _logger.Log(logLevel, eventId, state, exception, formatter);
+            }
+        }
 
         public virtual bool IsEnabled(LogLevel logLevel)
             => _logger.IsEnabled(logLevel);

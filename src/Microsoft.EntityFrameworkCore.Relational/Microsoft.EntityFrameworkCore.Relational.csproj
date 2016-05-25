@@ -76,7 +76,7 @@
     <Compile Include="Migrations\MigrationCommandListBuilder.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\RelationalServiceCollectionExtensions.cs" />
-    <Compile Include="Infrastructure\RelationalLoggingEventId.cs" />
+    <Compile Include="Infrastructure\RelationalEventId.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
     <Compile Include="Internal\RelationalDiagnostics.cs" />
     <Compile Include="Internal\RelationalDiagnosticSourceAfterMessage.cs" />
@@ -177,8 +177,6 @@
       <DependentUpon>RelationalStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="QueryClientEvaluationBehavior.cs" />
-    <Compile Include="QueryClientEvaluationBehaviorExtensions.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\AggregateExpression.cs" />
     <Compile Include="Query\Expressions\AliasExpression.cs" />
@@ -374,6 +372,7 @@
     <Compile Include="Update\UpdateSqlGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\DiscriminatorValueGenerator.cs" />
     <Compile Include="ValueGeneration\RelationalValueGeneratorSelector.cs" />
+    <Compile Include="WarningConfigurationBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\RelationalStrings.resx">

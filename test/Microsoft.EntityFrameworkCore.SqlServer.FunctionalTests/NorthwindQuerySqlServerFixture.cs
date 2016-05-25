@@ -3,9 +3,9 @@
 
 using System;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,9 +34,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         protected DbContextOptions BuildOptions()
-            => new DbContextOptionsBuilder()
-                .EnableSensitiveDataLogging()
-                .UseInternalServiceProvider(_serviceProvider)
+            => ConfigureOptions(
+                new DbContextOptionsBuilder()
+                    .EnableSensitiveDataLogging()
+                    .UseInternalServiceProvider(_serviceProvider))
                 .UseSqlServer(
                     _testStore.ConnectionString,
                     b =>
@@ -44,6 +45,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             ConfigureOptions(b);
                             b.ApplyConfiguration();
                         }).Options;
+
+        protected virtual DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder)
+            => dbContextOptionsBuilder;
 
         protected virtual void ConfigureOptions(SqlServerDbContextOptionsBuilder sqlServerDbContextOptionsBuilder)
         {

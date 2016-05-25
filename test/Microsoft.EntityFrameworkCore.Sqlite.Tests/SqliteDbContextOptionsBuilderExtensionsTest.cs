@@ -33,17 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests
         }
 
         [Fact]
-        public void Can_add_extension_with_ambient_transaction_warning_suppressed()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite("Database=Crunchie", b => b.SuppressAmbientTransactionWarning());
-
-            var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
-
-            Assert.Equal(false, extension.ThrowOnAmbientTransaction);
-        }
-
-        [Fact]
         public void Can_add_extension_with_connection_string()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

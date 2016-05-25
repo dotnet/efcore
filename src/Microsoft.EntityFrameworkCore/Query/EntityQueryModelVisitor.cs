@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 QueryCompilationContext.Logger
                     .LogDebug(
-                        CoreLoggingEventId.CompilingQueryModel,
+                        CoreEventId.CompilingQueryModel,
                         () => CoreStrings.LogCompilingQueryModel(queryModel));
 
                 _blockTaskExpressions = false;
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 QueryCompilationContext.Logger
                     .LogDebug(
-                        CoreLoggingEventId.CompilingQueryModel,
+                        CoreEventId.CompilingQueryModel,
                         () => CoreStrings.LogCompilingQueryModel(queryModel));
 
                 _blockTaskExpressions = false;
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             QueryCompilationContext.Logger
                 .LogDebug(
-                    CoreLoggingEventId.OptimizedQueryModel,
+                    CoreEventId.OptimizedQueryModel,
                     () => CoreStrings.LogOptimizedQueryModel(queryModel));
         }
 
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     QueryCompilationContext.Logger
                         .LogDebug(
-                            CoreLoggingEventId.IncludingNavigation,
+                            CoreEventId.IncludingNavigation,
                             () => CoreStrings.LogIncludingNavigation(includeSpecification));
 
                     IncludeNavigations(
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     QueryCompilationContext.Logger
                         .LogWarning(
-                            CoreLoggingEventId.IncludeIgnored,
+                            CoreEventId.IncludeIgnoredWarning,
                             () => CoreStrings.LogIgnoredInclude(includeSpecification));
                 }
             }
@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var queryExecutor = queryExecutorExpression.Compile();
 
             QueryCompilationContext.Logger.LogDebug(
-                CoreLoggingEventId.QueryPlan,
+                CoreEventId.QueryPlan,
                 () =>
                     {
                         var queryPlan = _expressionPrinter.Print(queryExecutorExpression);

@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             _exceptionInterceptor._logger
                                 .LogError(
-                                    CoreLoggingEventId.DatabaseError,
+                                    CoreEventId.DatabaseError,
                                     () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
                                     exception,
                                     e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));

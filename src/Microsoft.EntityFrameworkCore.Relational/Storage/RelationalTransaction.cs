@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void Commit()
         {
             _logger.LogDebug(
-                RelationalLoggingEventId.CommittingTransaction,
+                RelationalEventId.CommittingTransaction,
                 () => RelationalStrings.RelationalLoggerCommittingTransaction);
 
             _dbTransaction.Commit();
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void Rollback()
         {
             _logger.LogDebug(
-                RelationalLoggingEventId.RollingbackTransaction,
+                RelationalEventId.RollingbackTransaction,
                 () => RelationalStrings.RelationalLoggerRollingbackTransaction);
 
             _dbTransaction.Rollback();

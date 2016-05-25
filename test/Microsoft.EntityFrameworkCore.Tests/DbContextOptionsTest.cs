@@ -13,6 +13,17 @@ namespace Microsoft.EntityFrameworkCore.Tests
     public class DbContextOptionsTest
     {
         [Fact]
+        public void Warnings_can_be_configured()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .ConfigureWarnings(c => c.Default(WarningBehavior.Throw));
+
+            var warningConfiguration = optionsBuilder.Options.FindExtension<CoreOptionsExtension>().WarningsConfiguration;
+
+            Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
+        }
+        
+        [Fact]
         public void Model_can_be_set_explicitly_in_options()
         {
             var model = new Model();

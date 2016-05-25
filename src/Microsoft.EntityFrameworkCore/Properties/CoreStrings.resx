@@ -573,4 +573,10 @@
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
     <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>
   </data>
+  <data name="WarningAsError" xml:space="preserve">
+    <value>Warning as error exception for warning '{eventId}': {message}</value>
+  </data>
+  <data name="WarningLogTemplate" xml:space="preserve">
+    <value>{message} This warning can be configured using DbContextOptionsBuilder.ConfigureWarnings with event id '{eventId}'.</value>
+  </data>
 </root>

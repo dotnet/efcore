@@ -4,7 +4,9 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -46,8 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                             Expression.Convert(argument, unwrappedArgumentType));
                     }
 
-                    _logger.LogInformation(
-                        RelationalStrings.PossibleUnintendedUseOfEquals(
+                    _logger.LogWarning(
+                        RelationalEventId.PossibleUnintendedUseOfEqualsWarning,
+                        () => RelationalStrings.PossibleUnintendedUseOfEquals(
                             methodCallExpression.Object.ToString(),
                             argument.ToString()));
 

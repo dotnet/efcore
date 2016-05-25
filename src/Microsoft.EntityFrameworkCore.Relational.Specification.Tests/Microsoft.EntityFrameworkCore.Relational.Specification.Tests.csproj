@@ -64,6 +64,7 @@
     <Compile Include="TransactionFixtureBase.cs" />
     <Compile Include="TransactionTestBase.cs" />
     <Compile Include="UpdatesRelationalTestBase.cs" />
+    <Compile Include="WarningsTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore
             catch (Exception exception)
             {
                 _logger.LogError(
-                    CoreLoggingEventId.DatabaseError,
+                    CoreEventId.DatabaseError,
                     () => new DatabaseErrorLogState(GetType()),
                     exception,
                     e => CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, e));
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore
             catch (Exception exception)
             {
                 _logger.LogError(
-                    CoreLoggingEventId.DatabaseError,
+                    CoreEventId.DatabaseError,
                     () => new DatabaseErrorLogState(GetType()),
                     exception,
                     e => CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, e));

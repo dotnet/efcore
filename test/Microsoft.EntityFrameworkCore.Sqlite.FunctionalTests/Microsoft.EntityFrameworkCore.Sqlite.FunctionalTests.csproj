@@ -88,6 +88,8 @@
     <Compile Include="UpdatesSqliteFixture.cs" />
     <Compile Include="UpdatesSqliteTest.cs" />
     <Compile Include="Utilities\SqliteVersionConditionAttribute.cs" />
+    <Compile Include="WarningsSqliteFixture.cs" />
+    <Compile Include="WarningsSqliteTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="northwind.db">
