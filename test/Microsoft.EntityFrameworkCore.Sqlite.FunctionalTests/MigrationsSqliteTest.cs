@@ -78,8 +78,10 @@ DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = ''00000000000002_Migration2'';
 ');
 
-INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
-VALUES ('00000000000003_Migration3', '7.0.0-test');
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"", ""DownScript"")
+VALUES ('00000000000003_Migration3', '7.0.0-test', 'DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = ''00000000000003_Migration3'';
+');
 
 ",
                 Sql);

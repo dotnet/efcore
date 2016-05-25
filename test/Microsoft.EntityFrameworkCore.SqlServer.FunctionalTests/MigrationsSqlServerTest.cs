@@ -110,8 +110,10 @@ DROP DATABASE TransactionSuppressed;
 
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+VALUES (N'00000000000003_Migration3', N'7.0.0-test', N'DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N''00000000000003_Migration3'';
+');
 
 GO
 
@@ -191,8 +193,10 @@ GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+    VALUES (N'00000000000003_Migration3', N'7.0.0-test', N'DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N''00000000000003_Migration3'';
+    ');
 END;
 
 GO
