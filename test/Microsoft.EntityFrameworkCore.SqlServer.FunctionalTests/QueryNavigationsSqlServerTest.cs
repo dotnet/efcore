@@ -759,6 +759,48 @@ WHERE EXISTS (
                 Sql);
         }
 
+        public override void Where_subquery_on_navigation2()
+        {
+            base.Where_subquery_on_navigation2();
+
+            Assert.Equal(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT [o].[OrderID], [o].[ProductID]
+        FROM [Order Details] AS [o]
+        WHERE [p].[ProductID] = [o].[ProductID]
+    ) AS [t00]
+    INNER JOIN (
+        SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
+        FROM [Order Details] AS [o0]
+        ORDER BY [o0].[OrderID] DESC, [o0].[ProductID]
+    ) AS [t1] ON ([t00].[OrderID] = [t1].[OrderID]) AND ([t00].[ProductID] = [t1].[ProductID]))",
+                Sql);
+        }
+
+        public override void Where_subquery_on_navigation_client_eval()
+        {
+            base.Where_subquery_on_navigation_client_eval();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+
+SELECT [o3].[OrderID]
+FROM [Orders] AS [o3]
+
+SELECT [o2].[CustomerID], [o2].[OrderID]
+FROM [Orders] AS [o2]
+
+SELECT [o3].[OrderID]
+FROM [Orders] AS [o3]",
+                Sql);
+
+        }
+
         public override void Navigation_in_subquery_referencing_outer_query()
         {
             base.Navigation_in_subquery_referencing_outer_query();

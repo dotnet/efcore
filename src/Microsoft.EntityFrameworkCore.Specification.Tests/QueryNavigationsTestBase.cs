@@ -677,6 +677,33 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 1);
         }
 
+        [ConditionalFact]
+        public virtual void Where_subquery_on_navigation2()
+        {
+            AssertQuery<Product, OrderDetail, Product>(
+                (ps, ods) => from p in ps
+                             where p.OrderDetails.Contains(ods.OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault())
+                             select p,
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_subquery_on_navigation_client_eval()
+        {
+            AssertQuery<Customer, Order, Customer>(
+                (cs, os) => from c in cs
+                            where c.Orders.Select(o => o.OrderID)
+                                .Contains(
+                                    os.OrderByDescending(o => ClientMethod(o.OrderID)).Select(o => o.OrderID).FirstOrDefault())
+                            select c,
+                entryCount: 1);
+        }
+
+        private int ClientMethod(int argument)
+        {
+            return argument;
+        }
+
         // issue #4547
         ////[ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query()

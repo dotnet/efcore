@@ -727,39 +727,36 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var subQueryModel = expression.QueryModel;
 
             if (subQueryModel.IsIdentityQuery()
-                && subQueryModel.ResultOperators.Count == 1)
+                && subQueryModel.ResultOperators.Count == 1
+                && subQueryModel.ResultOperators.First() is ContainsResultOperator)
             {
-                var contains = subQueryModel.ResultOperators.First() as ContainsResultOperator;
+                var contains = (ContainsResultOperator)subQueryModel.ResultOperators.First();
+                var fromExpression = subQueryModel.MainFromClause.FromExpression;
 
-                if (contains != null)
+                if (fromExpression.NodeType == ExpressionType.Parameter
+                    || fromExpression.NodeType == ExpressionType.Constant
+                    || fromExpression.NodeType == ExpressionType.ListInit
+                    || fromExpression.NodeType == ExpressionType.NewArrayInit)
                 {
-                    var fromExpression = subQueryModel.MainFromClause.FromExpression;
+                    var memberItem = contains.Item as MemberExpression;
 
-                    if (fromExpression.NodeType == ExpressionType.Parameter
-                        || fromExpression.NodeType == ExpressionType.Constant
-                        || fromExpression.NodeType == ExpressionType.ListInit
-                        || fromExpression.NodeType == ExpressionType.NewArrayInit)
+                    if (memberItem != null)
                     {
-                        var memberItem = contains.Item as MemberExpression;
+                        var aliasExpression = VisitMember(memberItem) as AliasExpression;
 
-                        if (memberItem != null)
-                        {
-                            var aliasExpression = VisitMember(memberItem) as AliasExpression;
+                        return aliasExpression != null
+                            ? new InExpression(aliasExpression, new[] { fromExpression })
+                            : null;
+                    }
 
-                            return aliasExpression != null
-                                ? new InExpression(aliasExpression, new[] { fromExpression })
-                                : null;
-                        }
+                    var methodCallItem = contains.Item as MethodCallExpression;
 
-                        var methodCallItem = contains.Item as MethodCallExpression;
+                    if (methodCallItem != null
+                        && EntityQueryModelVisitor.IsPropertyMethod(methodCallItem.Method))
+                    {
+                        var aliasExpression = (AliasExpression)VisitMethodCall(methodCallItem);
 
-                        if (methodCallItem != null
-                            && EntityQueryModelVisitor.IsPropertyMethod(methodCallItem.Method))
-                        {
-                            var aliasExpression = (AliasExpression)VisitMethodCall(methodCallItem);
-
-                            return new InExpression(aliasExpression, new[] { fromExpression });
-                        }
+                        return new InExpression(aliasExpression, new[] { fromExpression });
                     }
                 }
             }
@@ -793,19 +790,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         var selectExpression = queryModelVisitor.Queries.First();
 
                         selectExpression.Alias = string.Empty; // anonymous
-
-                        var containsResultOperator
-                            = subQueryModel.ResultOperators.LastOrDefault() as ContainsResultOperator;
-
-                        if (containsResultOperator != null)
-                        {
-                            var itemExpression = Visit(containsResultOperator.Item) as AliasExpression;
-
-                            if (itemExpression != null)
-                            {
-                                return new InExpression(itemExpression, selectExpression);
-                            }
-                        }
 
                         return selectExpression;
                     }

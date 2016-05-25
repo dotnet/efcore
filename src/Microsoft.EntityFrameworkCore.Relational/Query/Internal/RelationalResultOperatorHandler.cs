@@ -220,7 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 = handlerContext.SqlTranslatingExpressionVisitorFactory
                     .Create(
                         handlerContext.QueryModelVisitor,
-                        handlerContext.SelectExpression);
+                        handlerContext.SelectExpression, 
+                        bindParentQueries: true);
 
             var itemResultOperator = (ContainsResultOperator)handlerContext.ResultOperator;
 
@@ -303,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return TransformClientExpression<bool>(handlerContext);
             }
 
-            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleCount(HandlerContext handlerContext)
