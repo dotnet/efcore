@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.Local_array();
 
             Assert.Equal(
-                @"@__get_Item_0: ALFKI (Size = 4000)
+                @"@__get_Item_0: ALFKI (Size = 450)
 
 SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -54,7 +54,7 @@ WHERE [c].[CustomerID] = [c].[CustomerID]",
             base.Entity_equality_local();
 
             Assert.Equal(
-                @"@__local_0_CustomerID: ANATR (Nullable = false) (Size = 4000)
+                @"@__local_0_CustomerID: ANATR (Nullable = false) (Size = 450)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -744,7 +744,7 @@ WHERE [c].[City] = @__city_0",
             base.Where_subquery_closure_via_query_cache();
 
             Assert.Equal(
-                @"@__customerID_0: ALFKI (Size = 4000)
+                @"@__customerID_0: ALFKI (Size = 450)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -753,7 +753,7 @@ WHERE EXISTS (
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))
 
-@__customerID_0: ANATR (Size = 4000)
+@__customerID_0: ANATR (Size = 450)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -4886,13 +4886,13 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')",
             base.Contains_with_local_list_inline_closure_mix();
 
             Assert.Equal(
-                @"@__id_0: ALFKI (Size = 4000)
+                @"@__id_0: ALFKI (Size = 450)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', @__id_0)
 
-@__id_0: ANATR (Size = 4000)
+@__id_0: ANATR (Size = 450)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -5362,7 +5362,7 @@ FROM [Orders] AS [o]",
 
             Assert.Equal(
                 @"@__NewLine_0: 
- (Size = 4000)
+ (Size = 450)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]

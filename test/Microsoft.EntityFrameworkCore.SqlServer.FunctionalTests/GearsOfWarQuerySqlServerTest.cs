@@ -1019,7 +1019,7 @@ WHERE 'Unknown' = [c].[Location]",
             base.Non_unicode_parameter_is_used_for_non_unicode_column();
 
             Assert.Equal(
-                @"@__value_0: Unknown (Size = 8000) (DbType = AnsiString)
+                @"@__value_0: Unknown (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location]
 FROM [City] AS [c]

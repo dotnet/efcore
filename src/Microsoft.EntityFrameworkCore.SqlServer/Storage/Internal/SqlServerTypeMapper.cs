@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new RelationalTypeMapping("time", typeof(TimeSpan));
 
         private readonly RelationalTypeMapping _xml
-            = new RelationalTypeMapping("xml", typeof(string));
+            = new SqlServerMaxLengthMapping("xml", typeof(string), dbType: null, unicode: true, size: null);
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;

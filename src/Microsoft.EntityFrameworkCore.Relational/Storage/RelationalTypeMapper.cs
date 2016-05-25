@@ -73,13 +73,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     return null;
                 }
 
-                var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
-                int size;
-                if (closeParen > openParen
-                    && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out size)
-                    && mapping.Size != size)
+                if (mapping.ClrType == typeof(string)
+                    || mapping.ClrType == typeof(byte[]))
                 {
-                    return mapping.CreateCopy(storeType, size);
+                    var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
+                    int size;
+                    if (closeParen > openParen
+                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out size)
+                        && mapping.Size != size)
+                    {
+                        return mapping.CreateCopy(storeType, size);
+                    }
                 }
             }
 

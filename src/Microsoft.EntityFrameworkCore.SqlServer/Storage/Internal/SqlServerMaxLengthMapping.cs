@@ -10,8 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class SqlServerMaxLengthMapping : RelationalTypeMapping
     {
-        private readonly int _maxSpecificSize;
-
         public SqlServerMaxLengthMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
@@ -28,15 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             int? size,
             bool hasNonDefaultUnicode = false,
             bool hasNonDefaultSize = false)
-            : base(storeType, clrType, dbType, unicode, size, hasNonDefaultUnicode, hasNonDefaultSize)
+            : base(storeType, clrType, dbType, unicode, CalculateSize(unicode, size), hasNonDefaultUnicode, hasNonDefaultSize)
         {
-            _maxSpecificSize =
-                (dbType == System.Data.DbType.AnsiString)
-                || (dbType == System.Data.DbType.AnsiStringFixedLength)
-                || (dbType == System.Data.DbType.Binary)
-                    ? 8000
-                    : 4000;
         }
+
+        private static int CalculateSize(bool unicode, int? size)
+            => unicode
+                ? size.HasValue && size < 4000 ? size.Value : 4000
+                : size.HasValue && size < 8000 ? size.Value : 8000;
 
         public override RelationalTypeMapping CreateCopy(string storeType, int? size)
             => new SqlServerMaxLengthMapping(
@@ -50,14 +47,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         protected override void ConfigureParameter(DbParameter parameter)
         {
-            // For strings and byte arrays, set the max length to 8000 bytes if the data will
-            // fit so as to avoid query cache fragmentation by setting lots of differet Size
-            // values otherwise always set to -1 (unbounded) to avoid SQL client size inference.
+            // For strings and byte arrays, set the max length to the size facet if specififed, or
+            // 8000 bytes if no size facet specified, if the data will fit so as to avoid query cache
+            // fragmentation by setting lots of differet Size values otherwise always set to 
+            // -1 (unbounded) to avoid SQL client size inference.
 
-            var length = (parameter.Value as string)?.Length ?? (parameter.Value as byte[])?.Length;
+            var value = parameter.Value;
+            var length = (value as string)?.Length ?? (value as byte[])?.Length;
 
-            parameter.Size = length != null && length <= _maxSpecificSize
-                ? _maxSpecificSize
+            parameter.Size = value == null || value == DBNull.Value || (length != null && length <= Size.Value)
+                ? Size.Value
                 : -1;
         }
     }
