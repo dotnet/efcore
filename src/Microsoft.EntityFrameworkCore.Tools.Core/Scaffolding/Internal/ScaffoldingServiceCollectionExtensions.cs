@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             => serviceCollection.AddSingleton<IFileService, FileSystemFileService>()
                 .AddSingleton<ReverseEngineeringGenerator>()
                 .AddSingleton<ScaffoldingUtilities>()
+                .AddSingleton<CandidateNamingService>()
                 .AddSingleton<CSharpUtilities>()
                 .AddSingleton<ConfigurationFactory>()
                 .AddSingleton<DbContextWriter>()

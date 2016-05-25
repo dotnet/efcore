@@ -7,13 +7,15 @@ namespace E2ETest.Namespace
 {
     public partial class OneToOneDependent
     {
-        public int OneToOneDependentID1 { get; set; }
-        public int OneToOneDependentID2 { get; set; }
+        [Column("OneToOneDependentID1")]
+        public int OneToOneDependentId1 { get; set; }
+        [Column("OneToOneDependentID2")]
+        public int OneToOneDependentId2 { get; set; }
         [Required]
         [MaxLength(20)]
         public string SomeDependentEndColumn { get; set; }
 
-        [ForeignKey("OneToOneDependentID1,OneToOneDependentID2")]
+        [ForeignKey("OneToOneDependentId1,OneToOneDependentId2")]
         [InverseProperty("OneToOneDependent")]
         public virtual OneToOnePrincipal OneToOneDependentNavigation { get; set; }
     }

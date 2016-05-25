@@ -12,13 +12,15 @@ namespace E2ETest.Namespace
             OneToManyDependent = new HashSet<OneToManyDependent>();
         }
 
-        public int OneToManyPrincipalID1 { get; set; }
-        public int OneToManyPrincipalID2 { get; set; }
+        [Column("OneToManyPrincipalID1")]
+        public int OneToManyPrincipalId1 { get; set; }
+        [Column("OneToManyPrincipalID2")]
+        public int OneToManyPrincipalId2 { get; set; }
         [Required]
         [MaxLength(20)]
         public string Other { get; set; }
 
-        [InverseProperty("OneToManyDependentFK")]
+        [InverseProperty("OneToManyDependentFk")]
         public virtual ICollection<OneToManyDependent> OneToManyDependent { get; set; }
     }
 }

@@ -7,19 +7,21 @@ namespace E2ETest.Namespace
 {
     public partial class SelfReferencing
     {
-        public int SelfReferencingID { get; set; }
+        [Column("SelfReferencingID")]
+        public int SelfReferencingId { get; set; }
         [Required]
         [MaxLength(20)]
         public string Name { get; set; }
         [Required]
         [MaxLength(100)]
         public string Description { get; set; }
-        public int? SelfReferenceFK { get; set; }
+        [Column("SelfReferenceFK")]
+        public int? SelfReferenceFk { get; set; }
 
-        [ForeignKey("SelfReferenceFK")]
-        [InverseProperty("InverseSelfReferenceFKNavigation")]
-        public virtual SelfReferencing SelfReferenceFKNavigation { get; set; }
-        [InverseProperty("SelfReferenceFKNavigation")]
-        public virtual ICollection<SelfReferencing> InverseSelfReferenceFKNavigation { get; set; }
+        [ForeignKey("SelfReferenceFk")]
+        [InverseProperty("InverseSelfReferenceFkNavigation")]
+        public virtual SelfReferencing SelfReferenceFkNavigation { get; set; }
+        [InverseProperty("SelfReferenceFkNavigation")]
+        public virtual ICollection<SelfReferencing> InverseSelfReferenceFkNavigation { get; set; }
     }
 }

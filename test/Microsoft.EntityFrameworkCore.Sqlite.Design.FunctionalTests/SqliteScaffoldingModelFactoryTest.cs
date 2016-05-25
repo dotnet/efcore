@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             var serviceProvider = new SqliteDesignTimeServices()
                 .ConfigureDesignTimeServices(
-                    new ServiceCollection().AddLogging())
+                    new ServiceCollection().AddScaffolding().AddLogging())
                 .AddSingleton<IFileService, FileSystemFileService>()
                 .BuildServiceProvider();
 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         {
             var entityType = GetModel(@"CREATE TABLE ""Column Types"" (
                                         col1 text PRIMARY KEY,
-                                        col2 unsigned big int );").FindEntityType("Column_Types");
+                                        col2 unsigned big int );").FindEntityType("ColumnTypes");
 
             Assert.NotNull(entityType);
             Assert.Equal("Column Types", entityType.Sqlite().TableName);

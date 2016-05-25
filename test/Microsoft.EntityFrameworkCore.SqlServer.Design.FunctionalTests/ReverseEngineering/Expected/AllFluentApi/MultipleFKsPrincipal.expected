@@ -3,20 +3,20 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public partial class MultipleFKsPrincipal
+    public partial class MultipleFksPrincipal
     {
-        public MultipleFKsPrincipal()
+        public MultipleFksPrincipal()
         {
-            MultipleFKsDependentRelationA = new HashSet<MultipleFKsDependent>();
-            MultipleFKsDependentRelationB = new HashSet<MultipleFKsDependent>();
-            MultipleFKsDependentRelationC = new HashSet<MultipleFKsDependent>();
+            MultipleFksDependentRelationA = new HashSet<MultipleFksDependent>();
+            MultipleFksDependentRelationB = new HashSet<MultipleFksDependent>();
+            MultipleFksDependentRelationC = new HashSet<MultipleFksDependent>();
         }
 
-        public int MultipleFKsPrincipalId { get; set; }
+        public int MultipleFksPrincipalId { get; set; }
         public string SomePrincipalColumn { get; set; }
 
-        public virtual ICollection<MultipleFKsDependent> MultipleFKsDependentRelationA { get; set; }
-        public virtual ICollection<MultipleFKsDependent> MultipleFKsDependentRelationB { get; set; }
-        public virtual ICollection<MultipleFKsDependent> MultipleFKsDependentRelationC { get; set; }
+        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationA { get; set; }
+        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationB { get; set; }
+        public virtual ICollection<MultipleFksDependent> MultipleFksDependentRelationC { get; set; }
     }
 }

@@ -5,20 +5,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2ETest.Namespace
 {
-    public partial class OneToOneSeparateFKDependent
+    [Table("OneToOneSeparateFKDependent")]
+    public partial class OneToOneSeparateFkdependent
     {
-        public int OneToOneSeparateFKDependentID1 { get; set; }
-        public int OneToOneSeparateFKDependentID2 { get; set; }
+        [Column("OneToOneSeparateFKDependentID1")]
+        public int OneToOneSeparateFkdependentId1 { get; set; }
+        [Column("OneToOneSeparateFKDependentID2")]
+        public int OneToOneSeparateFkdependentId2 { get; set; }
         [Required]
         [MaxLength(20)]
         public string SomeDependentEndColumn { get; set; }
         [Required]
-        public int? OneToOneSeparateFKDependentFK1 { get; set; }
+        [Column("OneToOneSeparateFKDependentFK1")]
+        public int? OneToOneSeparateFkdependentFk1 { get; set; }
         [Required]
-        public int? OneToOneSeparateFKDependentFK2 { get; set; }
+        [Column("OneToOneSeparateFKDependentFK2")]
+        public int? OneToOneSeparateFkdependentFk2 { get; set; }
 
-        [ForeignKey("OneToOneSeparateFKDependentFK1,OneToOneSeparateFKDependentFK2")]
-        [InverseProperty("OneToOneSeparateFKDependent")]
-        public virtual OneToOneSeparateFKPrincipal OneToOneSeparateFKDependentFK { get; set; }
+        [ForeignKey("OneToOneSeparateFkdependentFk1,OneToOneSeparateFkdependentFk2")]
+        [InverseProperty("OneToOneSeparateFkdependent")]
+        public virtual OneToOneSeparateFkprincipal OneToOneSeparateFkdependentFk { get; set; }
     }
 }

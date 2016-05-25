@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         protected virtual ILogger Logger { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
+        protected virtual CandidateNamingService CandidateNamingService { get; }
 
         private Dictionary<TableModel, CSharpUniqueNamer<ColumnModel>> _columnNamers;
         private readonly TableModel _nullTable = new TableModel();
@@ -37,14 +38,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public RelationalScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IDatabaseModelFactory databaseModelFactory)
+            [NotNull] IDatabaseModelFactory databaseModelFactory,
+            [NotNull] CandidateNamingService candidateNamingService)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
+            Check.NotNull(candidateNamingService, nameof(candidateNamingService));
 
             Logger = loggerFactory.CreateCommandsLogger();
             TypeMapper = typeMapper;
+            CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;
         }
 
@@ -80,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            _tableNamer = new CSharpUniqueNamer<TableModel>(t => CSharpUtilities.Pascalize(t.Name));
+            _tableNamer = new CSharpUniqueNamer<TableModel>(t => CandidateNamingService.GenerateCandidateIdentifier(t.Name));
             _columnNamers = new Dictionary<TableModel, CSharpUniqueNamer<ColumnModel>>();
 
             VisitDatabaseModel(modelBuilder, databaseModel);
@@ -107,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             {
                 _columnNamers.Add(table,
                     new CSharpUniqueNamer<ColumnModel>(
-                        c => CSharpUtilities.Pascalize(c.Name), usedNames));
+                        c => CandidateNamingService.GenerateCandidateIdentifier(c.Name), usedNames));
             }
 
             return _columnNamers[table].GetName(column);
@@ -569,10 +573,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            var modelUtilities = new ModelUtilities();
             var dependentEndExistingIdentifiers = ExistingIdentifiers(foreignKey.DeclaringEntityType);
             var dependentEndNavigationPropertyCandidateName =
-                modelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
+                CandidateNamingService.GetDependentEndCandidateNavigationPropertyName(foreignKey);
             var dependentEndNavigationPropertyName =
                 CSharpUtilities.Instance.GenerateCSharpIdentifier(
                     dependentEndNavigationPropertyCandidateName,
@@ -587,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     CultureInfo.CurrentCulture,
                     SelfReferencingPrincipalEndNavigationNamePattern,
                     dependentEndNavigationPropertyName)
-                : modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(
+                : CandidateNamingService.GetPrincipalEndCandidateNavigationPropertyName(
                     foreignKey, dependentEndNavigationPropertyName);
             var principalEndNavigationPropertyName =
                 CSharpUtilities.Instance.GenerateCSharpIdentifier(

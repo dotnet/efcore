@@ -7,16 +7,20 @@ namespace E2ETest.Namespace
 {
     public partial class OneToManyDependent
     {
-        public int OneToManyDependentID1 { get; set; }
-        public int OneToManyDependentID2 { get; set; }
+        [Column("OneToManyDependentID1")]
+        public int OneToManyDependentId1 { get; set; }
+        [Column("OneToManyDependentID2")]
+        public int OneToManyDependentId2 { get; set; }
         [Required]
         [MaxLength(20)]
         public string SomeDependentEndColumn { get; set; }
-        public int? OneToManyDependentFK2 { get; set; }
-        public int? OneToManyDependentFK1 { get; set; }
+        [Column("OneToManyDependentFK2")]
+        public int? OneToManyDependentFk2 { get; set; }
+        [Column("OneToManyDependentFK1")]
+        public int? OneToManyDependentFk1 { get; set; }
 
-        [ForeignKey("OneToManyDependentFK1,OneToManyDependentFK2")]
+        [ForeignKey("OneToManyDependentFk1,OneToManyDependentFk2")]
         [InverseProperty("OneToManyDependent")]
-        public virtual OneToManyPrincipal OneToManyDependentFK { get; set; }
+        public virtual OneToManyPrincipal OneToManyDependentFk { get; set; }
     }
 }

@@ -5,12 +5,12 @@ namespace E2ETest.Namespace
 {
     public partial class SelfReferencing
     {
-        public int SelfReferencingID { get; set; }
+        public int SelfReferencingId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int? SelfReferenceFK { get; set; }
+        public int? SelfReferenceFk { get; set; }
 
-        public virtual SelfReferencing SelfReferenceFKNavigation { get; set; }
-        public virtual ICollection<SelfReferencing> InverseSelfReferenceFKNavigation { get; set; }
+        public virtual SelfReferencing SelfReferenceFkNavigation { get; set; }
+        public virtual ICollection<SelfReferencing> InverseSelfReferenceFkNavigation { get; set; }
     }
 }

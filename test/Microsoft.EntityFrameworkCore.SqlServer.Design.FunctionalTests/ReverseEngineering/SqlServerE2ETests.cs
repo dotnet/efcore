@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
             "OneToOneSeparateFKPrincipal.expected",
             "PropertyConfiguration.expected",
             "SelfReferencing.expected",
-            "Test_Spaces_Keywords_Table.expected",
+            "TestSpacesKeywordsTable.expected",
             "UnmappablePKColumn.expected"
         };
 

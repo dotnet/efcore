@@ -15,8 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public SqliteScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IDatabaseModelFactory databaseModelFactory)
-            : base(loggerFactory, typeMapper, databaseModelFactory)
+            [NotNull] IDatabaseModelFactory databaseModelFactory,
+            [NotNull] CandidateNamingService candidateNamingService)
+            : base(loggerFactory, typeMapper, databaseModelFactory, candidateNamingService)
         {
         }
 

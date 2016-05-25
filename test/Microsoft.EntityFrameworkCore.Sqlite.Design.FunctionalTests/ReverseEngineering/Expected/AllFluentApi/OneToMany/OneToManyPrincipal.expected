@@ -10,8 +10,8 @@ namespace E2E.Sqlite
             OneToManyDependent = new HashSet<OneToManyDependent>();
         }
 
-        public long OneToManyPrincipalID1 { get; set; }
-        public long OneToManyPrincipalID2 { get; set; }
+        public long OneToManyPrincipalId1 { get; set; }
+        public long OneToManyPrincipalId2 { get; set; }
         public string Other { get; set; }
 
         public virtual ICollection<OneToManyDependent> OneToManyDependent { get; set; }

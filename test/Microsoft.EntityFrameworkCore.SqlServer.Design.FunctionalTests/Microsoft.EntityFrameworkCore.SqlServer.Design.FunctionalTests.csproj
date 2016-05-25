@@ -86,7 +86,7 @@
     <None Include="ReverseEngineering\Expected\AllFluentApi\SqlServerReverseEngineerTestE2EContext.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\Test_Spaces_Keywords_Table.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\TestSpacesKeywordsTable.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\AllFluentApi\UnmappablePKColumn.expected">
@@ -134,7 +134,7 @@
     <None Include="ReverseEngineering\Expected\Attributes\SelfReferencing.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\Attributes\Test_Spaces_Keywords_Table.expected">
+    <None Include="ReverseEngineering\Expected\Attributes\TestSpacesKeywordsTable.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\Attributes\UnmappablePKColumn.expected">

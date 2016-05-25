@@ -10,8 +10,8 @@ namespace E2ETest.Namespace
             OneToManyDependent = new HashSet<OneToManyDependent>();
         }
 
-        public int OneToManyPrincipalID1 { get; set; }
-        public int OneToManyPrincipalID2 { get; set; }
+        public int OneToManyPrincipalId1 { get; set; }
+        public int OneToManyPrincipalId2 { get; set; }
         public string Other { get; set; }
 
         public virtual ICollection<OneToManyDependent> OneToManyDependent { get; set; }

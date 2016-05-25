@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public partial class OneToOneSeparateFKPrincipal
+    public partial class OneToOneSeparateFkprincipal
     {
-        public int OneToOneSeparateFKPrincipalID1 { get; set; }
-        public int OneToOneSeparateFKPrincipalID2 { get; set; }
-        public string SomeOneToOneSeparateFKPrincipalColumn { get; set; }
+        public int OneToOneSeparateFkprincipalId1 { get; set; }
+        public int OneToOneSeparateFkprincipalId2 { get; set; }
+        public string SomeOneToOneSeparateFkprincipalColumn { get; set; }
 
-        public virtual OneToOneSeparateFKDependent OneToOneSeparateFKDependent { get; set; }
+        public virtual OneToOneSeparateFkdependent OneToOneSeparateFkdependent { get; set; }
     }
 }

@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public partial class MultipleFKsDependent
+    public partial class MultipleFksDependent
     {
-        public int MultipleFKsDependentId { get; set; }
+        public int MultipleFksDependentId { get; set; }
         public string AnotherColumn { get; set; }
-        public int RelationAId { get; set; }
-        public int? RelationBId { get; set; }
-        public int? RelationCId { get; set; }
+        public int RelationAid { get; set; }
+        public int? RelationBid { get; set; }
+        public int? RelationCid { get; set; }
 
-        public virtual MultipleFKsPrincipal RelationA { get; set; }
-        public virtual MultipleFKsPrincipal RelationB { get; set; }
-        public virtual MultipleFKsPrincipal RelationC { get; set; }
+        public virtual MultipleFksPrincipal RelationA { get; set; }
+        public virtual MultipleFksPrincipal RelationB { get; set; }
+        public virtual MultipleFksPrincipal RelationC { get; set; }
     }
 }
