@@ -90,13 +90,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return expression;
         }
 
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            return node.NodeType == ExpressionType.Coalesce
+                ? base.VisitBinary(node)
+                : node;
+        }
+
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            Visit(node.IfTrue);
+            Visit(node.IfFalse);
+
+            return node;
+        }
+
         // Prune these nodes...
 
         protected override Expression VisitMember(MemberExpression node) => node;
-
-        protected override Expression VisitConditional(ConditionalExpression node) => node;
-
-        protected override Expression VisitBinary(BinaryExpression node) => node;
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression node) => node;
 

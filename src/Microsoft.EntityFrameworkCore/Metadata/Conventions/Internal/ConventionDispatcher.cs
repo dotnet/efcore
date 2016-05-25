@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -41,11 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotEmpty(ignoredMemberName, nameof(ignoredMemberName));
 
-            foreach (var entityTypeMemberIgnoredConvention in _conventionSet.EntityTypeMemberIgnoredConventions)
+            foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
-                if (!entityTypeMemberIgnoredConvention.Apply(entityTypeBuilder, ignoredMemberName))
+                foreach (var entityTypeMemberIgnoredConvention in _conventionSet.EntityTypeMemberIgnoredConventions)
                 {
-                    break;
+                    if (!entityTypeMemberIgnoredConvention.Apply(entityType.Builder, ignoredMemberName))
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -190,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual void OnNavigationRemoved(
             [NotNull] InternalEntityTypeBuilder sourceEntityTypeBuilder,
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
-            [NotNull] string navigationName)
+            [NotNull] string navigationName,
+            [CanBeNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(sourceEntityTypeBuilder, nameof(sourceEntityTypeBuilder));
             Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder));
@@ -198,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var navigationConvention in _conventionSet.NavigationRemovedConventions)
             {
-                if (!navigationConvention.Apply(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName))
+                if (!navigationConvention.Apply(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, propertyInfo))
                 {
                     break;
                 }

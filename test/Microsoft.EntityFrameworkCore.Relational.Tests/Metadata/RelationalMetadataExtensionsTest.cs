@@ -3,6 +3,8 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -146,15 +148,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().ComputedValueSql);
+            Assert.Null(property.Relational().ComputedColumnSql);
 
-            property.Relational().ComputedValueSql = "newsequentialid()";
+            property.Relational().ComputedColumnSql = "newsequentialid()";
 
-            Assert.Equal("newsequentialid()", property.Relational().ComputedValueSql);
+            Assert.Equal("newsequentialid()", property.Relational().ComputedColumnSql);
 
-            property.Relational().ComputedValueSql = null;
+            property.Relational().ComputedColumnSql = null;
 
-            Assert.Null(property.Relational().ComputedValueSql);
+            Assert.Null(property.Relational().ComputedColumnSql);
         }
 
         [Fact]
@@ -218,6 +220,50 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             Assert.Equal(RelationalStrings.IncorrectDefaultValueType(guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => property.Relational().DefaultValue = guid).Message);
+        }
+
+        [Theory]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValue), nameof(RelationalPropertyAnnotations.DefaultValueSql))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValue), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValueSql), nameof(RelationalPropertyAnnotations.DefaultValue))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValueSql), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
+        [InlineData(nameof(RelationalPropertyAnnotations.ComputedColumnSql), nameof(RelationalPropertyAnnotations.DefaultValue))]
+        [InlineData(nameof(RelationalPropertyAnnotations.ComputedColumnSql), nameof(RelationalPropertyAnnotations.DefaultValueSql))]
+        public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var propertyBuilder = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name);
+
+            ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "first");
+
+            Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Name), firstConfiguration),
+                Assert.Throws<InvalidOperationException>(() =>
+                ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "second")).Message);
+        }
+
+        protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)
+        {
+            var propertyAnnotations = property.Relational();
+            switch (configuration)
+            {
+                case nameof(RelationalPropertyAnnotations.DefaultValue):
+                    property.ValueGenerated = ValueGenerated.OnAdd;
+                    propertyAnnotations.DefaultValue = value;
+                    break;
+                case nameof(RelationalPropertyAnnotations.DefaultValueSql):
+                    property.ValueGenerated = ValueGenerated.OnAdd;
+                    propertyAnnotations.DefaultValueSql = value;
+                    break;
+                case nameof(RelationalPropertyAnnotations.ComputedColumnSql):
+                    property.ValueGenerated = ValueGenerated.OnAdd;
+                    propertyAnnotations.ComputedColumnSql = value;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         [Fact]

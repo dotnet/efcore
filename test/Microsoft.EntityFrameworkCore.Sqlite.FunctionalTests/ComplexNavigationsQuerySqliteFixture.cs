@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                                 ComplexNavigationsModelInitializer.Seed(context);
                             }
 
-                            TestSqlLoggerFactory.SqlStatements.Clear();
+                            TestSqlLoggerFactory.Reset();
                         }
                     });
 

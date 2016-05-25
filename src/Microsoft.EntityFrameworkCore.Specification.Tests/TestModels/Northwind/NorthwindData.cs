@@ -18,6 +18,51 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
 {
     public static class NorthwindData
     {
+        static NorthwindData()
+        {
+            _customers = CreateCustomers();
+            _employees = CreateEmployees();
+            _products = CreateProducts();
+            _orders = CreateOrders();
+            _orderDetails = CreateOrderDetails();
+
+            foreach (var customer in _customers)
+            {
+                customer.Orders = new List<Order>();
+            }
+
+            foreach (var product in _products)
+            {
+                product.OrderDetails = new List<OrderDetail>();
+            }
+
+            foreach (var order in _orders)
+            {
+                order.OrderDetails = new List<OrderDetail>();
+
+                var customer = _customers.Where(c => c.CustomerID == order.CustomerID).First();
+                order.Customer = customer;
+                customer.Orders.Add(order);
+            }
+
+            foreach (var orderDetail in _orderDetails)
+            {
+                var order = _orders.Where(o => o.OrderID == orderDetail.OrderID).First();
+                orderDetail.Order = order;
+                order.OrderDetails.Add(orderDetail);
+
+                var product = _products.Where(p => p.ProductID == orderDetail.ProductID).First();
+                orderDetail.Product = product;
+                product.OrderDetails.Add(orderDetail);
+            }
+
+            foreach (var employee in _employees)
+            {
+                var manager = _employees.Where(e => employee.ReportsTo == e.EmployeeID).FirstOrDefault();
+                employee.Manager = manager;
+            }
+        }
+
         public static IQueryable<T> Set<T>()
         {
             if (typeof(T) == typeof(Customer))
@@ -138,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
 
         #region Customers
 
-        private static readonly Customer[] _customers = CreateCustomers();
+        private static readonly Customer[] _customers;
 
         public static Customer[] CreateCustomers()
             => new[]
@@ -1423,7 +1468,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind
 
         #region Employees
 
-        private static readonly Employee[] _employees = CreateEmployees();
+        private static readonly Employee[] _employees;
 
         public static Employee[] CreateEmployees()
             => new[]
@@ -1652,7 +1697,7 @@ Winchester Way",
 
         #region Products
 
-        private static readonly Product[] _products = CreateProducts();
+        private static readonly Product[] _products;
 
         public static Product[] CreateProducts()
             => new[]
@@ -2664,7 +2709,7 @@ Winchester Way",
 
         #region Orders
 
-        private static readonly Order[] _orders = CreateOrders();
+        private static readonly Order[] _orders;
 
         public static Order[] CreateOrders()
             => new[]
@@ -16785,7 +16830,7 @@ Winchester Way",
 
         #region OrderDetails
 
-        private static readonly OrderDetail[] _orderDetails = CreateOrderDetails();
+        private static readonly OrderDetail[] _orderDetails;
 
         public static OrderDetail[] CreateOrderDetails()
             => new[]

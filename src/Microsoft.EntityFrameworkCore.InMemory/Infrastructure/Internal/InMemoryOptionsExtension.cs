@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     public class InMemoryOptionsExtension : IDbContextOptionsExtension
     {
         private bool _ignoreTransactions;
+        private string _storeName;
 
         public InMemoryOptionsExtension()
         {
@@ -18,12 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         public InMemoryOptionsExtension([NotNull] InMemoryOptionsExtension copyFrom)
         {
             _ignoreTransactions = copyFrom._ignoreTransactions;
+            _storeName = copyFrom._storeName;
         }
 
         public virtual bool IgnoreTransactions
         {
             get { return _ignoreTransactions; }
             set { _ignoreTransactions = value; }
+        }
+
+        public virtual string StoreName
+        {
+            get { return _storeName; }
+            [param: NotNull] set { _storeName = value; }
         }
 
         public virtual void ApplyServices(IServiceCollection services)

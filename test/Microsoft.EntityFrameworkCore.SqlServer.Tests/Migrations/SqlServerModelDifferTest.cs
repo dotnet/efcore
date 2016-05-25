@@ -662,9 +662,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 modelBuilder => modelBuilder.ForSqlServerHasSequence("Tango", "dbo"),
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(2, operations.Count);
 
-                        var operation = Assert.IsType<CreateSequenceOperation>(operations[0]);
+                        Assert.IsType<EnsureSchemaOperation>(operations[0]);
+
+                        var operation = Assert.IsType<CreateSequenceOperation>(operations[1]);
                         Assert.Equal("Tango", operation.Name);
                         Assert.Equal("dbo", operation.Schema);
                     });

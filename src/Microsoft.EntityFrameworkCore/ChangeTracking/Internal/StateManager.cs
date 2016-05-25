@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private IIdentityMap _identityMap0;
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
+        private bool _needsUnsubscribe;
 
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
@@ -102,8 +103,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     : _model.FindEntityType(clrType),
                 entity, valueBuffer);
 
-            _subscriber.SnapshotAndSubscribe(newEntry);
-
             foreach (var key in baseEntityType.GetKeys())
             {
                 GetOrCreateIdentityMap(key).AddOrUpdate(newEntry);
@@ -112,6 +111,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _entityReferenceMap[entity] = newEntry;
 
             newEntry.MarkUnchangedFromQuery();
+
+            if (_subscriber.SnapshotAndSubscribe(newEntry))
+            {
+                _needsUnsubscribe = true;
+            }
 
             return newEntry;
         }
@@ -223,13 +227,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 GetOrCreateIdentityMap(key).Add(entry);
             }
 
-            _subscriber.SnapshotAndSubscribe(entry);
+            if (_subscriber.SnapshotAndSubscribe(entry))
+            {
+                _needsUnsubscribe = true;
+            }
 
             return entry;
         }
 
         public virtual void StopTracking(InternalEntityEntry entry)
         {
+            if (_needsUnsubscribe)
+            {
+                _subscriber.Unsubscribe(entry);
+            }
+
             var mapKey = entry.Entity ?? entry;
             _entityReferenceMap.Remove(mapKey);
 
@@ -257,6 +269,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             _referencedUntrackedEntities.Value.Add(keyValuePair.Key, newList);
                         }
                     }
+                }
+            }
+        }
+
+        public virtual void Unsubscribe()
+        {
+            if (_needsUnsubscribe)
+            {
+                foreach (var entry in Entries)
+                {
+                    _subscriber.Unsubscribe(entry);
                 }
             }
         }

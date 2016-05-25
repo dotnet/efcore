@@ -5,7 +5,7 @@ namespace Microsoft.Extensions.Logging
 {
     internal static class LoggingExtensions
     {
-        public const string CommandsLoggerName = "Microsoft.EntityFrameworkCore.Commands";
+        public const string CommandsLoggerName = "Microsoft.EntityFrameworkCore.Tools";
 
         public static ILogger CreateCommandsLogger(this ILoggerFactory loggerFactory)
             => loggerFactory.CreateLogger(CommandsLoggerName);

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.Models.Orders;
 using Xunit;
@@ -19,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Insert(IMetricCollector collector)
+        [BenchmarkVariation("Sync", false)]
+        [BenchmarkVariation("Async", true)]
+        public async Task Insert(IMetricCollector collector, bool async)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -29,7 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
                     context.Customers.AddRange(customers);
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);
@@ -38,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Update(IMetricCollector collector)
+        [BenchmarkVariation("Sync", false)]
+        [BenchmarkVariation("Async", true)]
+        public async Task Update(IMetricCollector collector, bool async)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -50,7 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
                     }
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);
@@ -59,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Delete(IMetricCollector collector)
+        [BenchmarkVariation("Sync", false)]
+        [BenchmarkVariation("Async", true)]
+        public async Task Delete(IMetricCollector collector, bool async)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -68,7 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
                     context.Customers.RemoveRange(context.Customers.ToList());
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);
@@ -77,7 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Mixed(IMetricCollector collector)
+        [BenchmarkVariation("Sync", false)]
+        [BenchmarkVariation("Async", true)]
+        public async Task Mixed(IMetricCollector collector, bool async)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -99,7 +114,9 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.UpdatePipeline
                     }
 
                     collector.StartCollection();
-                    var records = context.SaveChanges();
+                    var records = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
                     collector.StopCollection();
 
                     Assert.Equal(1000, records);

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -2123,13 +2124,23 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous operation.
         ///     The task result contains a <see cref="List{T}" /> that contains elements from the input sequence.
         /// </returns>
-        public static Task<List<TSource>> ToListAsync<TSource>(
+        public static async Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, nameof(source));
 
-            return source.AsAsyncEnumerable().ToList(cancellationToken);
+            var list = new List<TSource>();
+
+            using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
+            {
+                while (await asyncEnumerator.MoveNext(cancellationToken))
+                {
+                    list.Add(asyncEnumerator.Current);
+                }
+            }
+
+            return list;
         }
 
         /// <summary>
@@ -2152,13 +2163,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous operation.
         ///     The task result contains an array that contains elements from the input sequence.
         /// </returns>
-        public static Task<TSource[]> ToArrayAsync<TSource>(
+        public static async Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, nameof(source));
 
-            return source.AsAsyncEnumerable().ToArray(cancellationToken);
+            return (await source.ToListAsync(cancellationToken)).ToArray();
         }
 
         #endregion
@@ -2349,45 +2360,6 @@ namespace Microsoft.EntityFrameworkCore
 
             IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetEnumerator()
                 => ((IAsyncEnumerable<TEntity>)_queryable).GetEnumerator();
-        }
-
-        #endregion
-
-        #region AsAsyncEnumerable
-
-        /// <summary>
-        ///     Provides an <see cref="IAsyncEnumerable{T}" /> that allows asynchronous enumeration
-        ///     of the query. This method is typically not used in application code. <see cref="ForEachAsync{T}" />
-        ///     provides a simple way to asynchronously enumerate the results of a query.
-        /// </summary>
-        /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source" />.
-        /// </typeparam>
-        /// <param name="source">
-        ///     An <see cref="IQueryable{T}" /> to create the <see cref="IAsyncEnumerable{T}" /> from.
-        /// </param>
-        /// <returns>
-        ///     An object to asynchronously enumerate the results.
-        /// </returns>
-        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source)
-        {
-            Check.NotNull(source, nameof(source));
-
-            var enumerable = source as IAsyncEnumerable<TSource>;
-
-            if (enumerable != null)
-            {
-                return enumerable;
-            }
-
-            var entityQueryableAccessor = source as IAsyncEnumerableAccessor<TSource>;
-
-            if (entityQueryableAccessor != null)
-            {
-                return entityQueryableAccessor.AsyncEnumerable;
-            }
-
-            throw new InvalidOperationException(CoreStrings.IQueryableNotAsync(typeof(TSource)));
         }
 
         #endregion
@@ -2705,7 +2677,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public static Task ForEachAsync<T>(
+        public static async Task ForEachAsync<T>(
             [NotNull] this IQueryable<T> source,
             [NotNull] Action<T> action,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -2713,7 +2685,13 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(action, nameof(action));
 
-            return source.AsAsyncEnumerable().ForEachAsync(action, cancellationToken);
+            using (var asyncEnumerator = source.AsAsyncEnumerable().GetEnumerator())
+            {
+                while (await asyncEnumerator.MoveNext(cancellationToken))
+                {
+                    action(asyncEnumerator.Current);
+                }
+            }
         }
 
         #endregion

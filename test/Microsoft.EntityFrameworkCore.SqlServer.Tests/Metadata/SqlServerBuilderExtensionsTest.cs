@@ -124,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .HasComputedColumnSql("CherryCoke");
 
-            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().ComputedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedColumnSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().ComputedColumnSql);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .HasComputedColumnSql("CherryCoke");
 
-            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
-            Assert.Equal("VanillaCoke", property.SqlServer().ComputedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedColumnSql);
+            Assert.Equal("VanillaCoke", property.SqlServer().ComputedColumnSql);
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
@@ -196,6 +196,189 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
             Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_overrides_default_sql_and_computed_column_sql()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServerHasComputedColumnSql("0")
+                .ForSqlServerHasDefaultValueSql("1")
+                .ForSqlServerHasDefaultValue(2);
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Equal(2, property.SqlServer().DefaultValue);
+            Assert.Null(property.SqlServer().DefaultValueSql);
+            Assert.Null(property.SqlServer().ComputedColumnSql);
+        }
+
+        [Fact]
+        public void Setting_column_default_sql_overrides_default_value_and_computed_column_sql()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServerHasComputedColumnSql("0")
+                .ForSqlServerHasDefaultValue(2)
+                .ForSqlServerHasDefaultValueSql("1");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Equal("1", property.SqlServer().DefaultValueSql);
+            Assert.Null(property.SqlServer().DefaultValue);
+            Assert.Null(property.SqlServer().ComputedColumnSql);
+        }
+
+        [Fact]
+        public void Setting_computed_column_sql_overrides_default_value_and_column_default_sql()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServerHasDefaultValueSql("1")
+                .ForSqlServerHasDefaultValue(2)
+                .ForSqlServerHasComputedColumnSql("0");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Equal("0", property.SqlServer().ComputedColumnSql);
+            Assert.Null(property.SqlServer().DefaultValueSql);
+            Assert.Null(property.SqlServer().DefaultValue);
+        }
+
+        [Fact]
+        public void Setting_SqlServer_default_sql_is_higher_priority_than_relational_default_values()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServerHasDefaultValueSql("1")
+                .HasComputedColumnSql("0")
+                .HasDefaultValue(2);
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Equal("1", property.SqlServer().DefaultValueSql);
+            Assert.Equal(2, property.Relational().DefaultValue);
+            Assert.Null(property.SqlServer().DefaultValue);
+            Assert.Null(property.Relational().ComputedColumnSql);
+            Assert.Null(property.SqlServer().ComputedColumnSql);
+        }
+
+        [Fact]
+        public void Setting_SqlServer_default_value_is_higher_priority_than_relational_default_values()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServerHasDefaultValue(2)
+                .HasDefaultValueSql("1")
+                .HasComputedColumnSql("0");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Equal(2, property.SqlServer().DefaultValue);
+            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(property.SqlServer().DefaultValueSql);
+            Assert.Equal("0", property.Relational().ComputedColumnSql);
+            Assert.Null(property.SqlServer().ComputedColumnSql);
+        }
+
+        [Fact]
+        public void Setting_SqlServer_computed_column_sql_is_higher_priority_than_relational_default_values()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServerHasComputedColumnSql("0")
+                .HasDefaultValue(2)
+                .HasDefaultValueSql("1");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Null(property.Relational().ComputedColumnSql);
+            Assert.Equal("0", property.SqlServer().ComputedColumnSql);
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.SqlServer().DefaultValue);
+            Assert.Equal("1", property.Relational().DefaultValueSql);
+            Assert.Null(property.SqlServer().DefaultValueSql);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_does_not_set_identity_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .HasDefaultValue(1);
+
+            var model = modelBuilder.Model;
+            var property = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Null(property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_sql_does_not_set_identity_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .HasDefaultValueSql("1");
+
+            var model = modelBuilder.Model;
+            var property = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Null(property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_SqlServer_identity_column_is_higher_priority_than_relational_default_values()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseSqlServerIdentityColumn()
+                .HasDefaultValue(1)
+                .HasDefaultValueSql("1")
+                .HasComputedColumnSql("0");
+
+            var model = modelBuilder.Model;
+            var property = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.SqlServer().DefaultValue);
+            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(property.SqlServer().DefaultValueSql);
+            Assert.Equal("0", property.Relational().ComputedColumnSql);
+            Assert.Null(property.SqlServer().ComputedColumnSql);
         }
 
         [Fact]
@@ -606,6 +789,41 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Setting_SqlServer_identities_for_model_is_lower_priority_than_relational_default_values()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>(eb =>
+                    {
+                        eb.Property(e => e.Id).HasDefaultValue(1);
+                        eb.Property(e => e.Name).HasComputedColumnSql("Default");
+                        eb.Property(e => e.Offset).HasDefaultValueSql("Now");
+                    });
+
+            modelBuilder.ForSqlServerUseIdentityColumns();
+
+            var model = modelBuilder.Model;
+            var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+            Assert.Null(idProperty.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
+            Assert.Equal(1, idProperty.Relational().DefaultValue);
+            Assert.Equal(1, idProperty.SqlServer().DefaultValue);
+
+            var nameProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Name));
+            Assert.Null(nameProperty.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerated.OnAddOrUpdate, nameProperty.ValueGenerated);
+            Assert.Equal("Default", nameProperty.Relational().ComputedColumnSql);
+            Assert.Equal("Default", nameProperty.SqlServer().ComputedColumnSql);
+
+            var offsetProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Offset));
+            Assert.Null(offsetProperty.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGenerated.OnAdd, offsetProperty.ValueGenerated);
+            Assert.Equal("Now", offsetProperty.Relational().DefaultValueSql);
+            Assert.Equal("Now", offsetProperty.SqlServer().DefaultValueSql);
+        }
+
+        [Fact]
         public void Can_set_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -799,27 +1017,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
 
         [Fact]
         public void Can_set_identities_for_property()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .UseSqlServerIdentityColumn();
-
-            var model = modelBuilder.Model;
-            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
-
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Null(property.SqlServer().HiLoSequenceName);
-
-            Assert.Null(model.Relational().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
-            Assert.Null(model.SqlServer().FindSequence(SqlServerModelAnnotations.DefaultHiLoSequenceName));
-        }
-
-        [Fact]
-        public void Can_set_identities_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 

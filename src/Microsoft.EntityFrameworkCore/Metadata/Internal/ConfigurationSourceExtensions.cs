@@ -37,6 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
+        public static bool OverridesStrictly(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource)
+            => newConfigurationSource.Overrides(oldConfigurationSource) && newConfigurationSource != oldConfigurationSource;
+
         [ContractAnnotation("left:notnull => notnull;right:notnull => notnull")]
         public static ConfigurationSource? Max(this ConfigurationSource? left, ConfigurationSource? right)
         {

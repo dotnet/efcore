@@ -87,6 +87,7 @@
     <Compile Include="TransactionSqliteTest.cs" />
     <Compile Include="UpdatesSqliteFixture.cs" />
     <Compile Include="UpdatesSqliteTest.cs" />
+    <Compile Include="Utilities\SqliteVersionConditionAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="northwind.db">

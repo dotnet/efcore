@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                             NullSemanticsModelInitializer.Seed(context);
                         }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
+                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

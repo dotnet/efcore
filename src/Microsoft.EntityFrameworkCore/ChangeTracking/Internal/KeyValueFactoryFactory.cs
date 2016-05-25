@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -22,22 +23,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var principalKeyValueFactory
                 = new SimplePrincipalKeyValueFactory<TKey>(key.Properties.Single().GetPropertyAccessors());
 
-            foreach (var foreignKey in key.FindReferencingForeignKeys())
+            foreach (var foreignKey in key.GetReferencingForeignKeys())
             {
                 var dependentKeyValueFactory = dependentFactory.CreateSimple<TKey>(foreignKey);
 
-                var factorySource = foreignKey as IDependentKeyValueFactorySource;
-                if (factorySource != null)
-                {
-                    factorySource.DependentKeyValueFactory = dependentKeyValueFactory;
-                }
-
-                var mapSource = foreignKey as IDependentsMapFactorySource;
-                if (mapSource != null)
-                {
-                    mapSource.DependentsMapFactory = () => new DependentsMap<TKey>(
-                        foreignKey, principalKeyValueFactory, dependentKeyValueFactory);
-                }
+                SetFactories(
+                    foreignKey,
+                    dependentKeyValueFactory,
+                    () => new DependentsMap<TKey>(foreignKey, principalKeyValueFactory, dependentKeyValueFactory));
             }
 
             return principalKeyValueFactory;
@@ -48,25 +41,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependentFactory = new DependentKeyValueFactoryFactory();
             var principalKeyValueFactory = new CompositePrincipalKeyValueFactory(key);
 
-            foreach (var foreignKey in key.FindReferencingForeignKeys())
+            foreach (var foreignKey in key.GetReferencingForeignKeys())
             {
                 var dependentKeyValueFactory = dependentFactory.CreateComposite(foreignKey);
 
-                var factorySource = foreignKey as IDependentKeyValueFactorySource;
-                if (factorySource != null)
-                {
-                    factorySource.DependentKeyValueFactory = dependentKeyValueFactory;
-                }
-
-                var mapSource = foreignKey as IDependentsMapFactorySource;
-                if (mapSource != null)
-                {
-                    mapSource.DependentsMapFactory = () => new DependentsMap<object[]>(
-                        foreignKey, principalKeyValueFactory, dependentKeyValueFactory);
-                }
+                SetFactories(
+                    foreignKey,
+                    dependentKeyValueFactory,
+                    () => new DependentsMap<object[]>(foreignKey, principalKeyValueFactory, dependentKeyValueFactory));
             }
 
             return principalKeyValueFactory;
+        }
+
+        private static void SetFactories(
+            IForeignKey foreignKey,
+            object dependentKeyValueFactory,
+            Func<IDependentsMap> dependentsMapFactory)
+        {
+            var conreteForeignKey = foreignKey.AsForeignKey();
+
+            conreteForeignKey.DependentKeyValueFactory = dependentKeyValueFactory;
+            conreteForeignKey.DependentsMapFactory = dependentsMapFactory;
         }
     }
 }

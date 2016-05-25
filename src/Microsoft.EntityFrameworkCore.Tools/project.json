@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0-preview2-*",
+  "description": "Command line tools for Entity Framework.",
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "outputName": "dotnet-ef",
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
+    "nowarn": [
+      "CS1591"
+    ],
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
+  },
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "portable-net451+win8"
+      ],
+      "dependencies": {
+        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
+          "version": "1.0.0-*",
+          "type": "build"
+        },
+        "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*",
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      }
+    },
+    "net451": {
+      "dependencies": {
+        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.Extensions.DotnetToolDispatcher.Sources": {
+          "version": "1.0.0-*",
+          "type": "build"
+        }
+      },
+      "buildOptions": {
+        "outputName": "Microsoft.EntityFrameworkCore.Tools",
+        "emitEntryPoint": false
+      }
+    }
+  },
+  "packInclude": {
+    "lib/": "lib/**",
+    "tools/": "tools/**"
+  }
+}

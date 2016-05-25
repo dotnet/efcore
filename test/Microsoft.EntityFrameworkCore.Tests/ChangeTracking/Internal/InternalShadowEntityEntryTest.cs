@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -56,11 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entityType3.GetOrSetPrimaryKey(entityType3.AddProperty("Id", typeof(int)));
             var property6 = entityType3.AddProperty("Name", typeof(string));
             property6.IsConcurrencyToken = true;
+            entityType3.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
             var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
             entityType4.GetOrSetPrimaryKey(entityType4.AddProperty("Id", typeof(int)));
             var property8 = entityType4.AddProperty("Name", typeof(string));
             property8.IsConcurrencyToken = true;
+            entityType4.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity).FullName);
             entityType5.HasBaseType(someSimpleEntityType);

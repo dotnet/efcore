@@ -26,33 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design
         }
 
         [Fact]
-        public void It_adds_reads_nav_prop_names()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-            IMutableForeignKey fk = null;
-            modelBuilder.Entity("A", b =>
-                {
-                    b.Property<int>("Id");
-                    var key = b.HasKey("Id");
-                    var fkProp = b.Property<int>("ParentId");
-                    fk = b.Metadata.AddForeignKey(fkProp.Metadata, key.Metadata, b.Metadata);
-                });
-
-            Assert.Null(fk.Scaffolding().DependentEndNavigation);
-            Assert.Null(fk.Scaffolding().PrincipalEndNavigation);
-
-            fk.Scaffolding().PrincipalEndNavigation = "PrincipalEnd";
-            fk.Scaffolding().DependentEndNavigation = "DependentEnd";
-            Assert.Equal("PrincipalEnd", fk.Scaffolding().PrincipalEndNavigation);
-            Assert.Equal("DependentEnd", fk.Scaffolding().DependentEndNavigation);
-
-            fk.Scaffolding().PrincipalEndNavigation = null;
-            fk.Scaffolding().DependentEndNavigation = null;
-            Assert.Null(fk.Scaffolding().DependentEndNavigation);
-            Assert.Null(fk.Scaffolding().PrincipalEndNavigation);
-        }
-
-        [Fact]
         public void It_sets_gets_entity_type_errors()
         {
             var model = new Model();

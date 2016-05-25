@@ -1,20 +1,24 @@
 {
-  "compilationOptions": {
+  "buildOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
+    "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {
-    "netstandardapp1.5": {
+    "netcoreapp1.0": {
       "imports": [
         "dnxcore50",
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*",
-        "dotnet-test-xunit": "1.0.0-dev-*"
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
       }
     },
     "net451": {}

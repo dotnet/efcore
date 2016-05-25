@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
     public class SqlServerRequiredAttribute : Attribute, ITestCondition
     {
         public bool IsMet => PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase)
-                             || !BenchmarkConfig.Instance.BenchmarkDatabaseInstance.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);
+                             || !BenchmarkConfig.Instance.BenchmarkDatabase.Contains("(localdb)");
 
         public string SkipReason => "Must configured an external SQL Server to run the tests on this platform";
     }

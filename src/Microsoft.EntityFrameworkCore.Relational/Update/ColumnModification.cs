@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -13,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Update
     {
         private string _parameterName;
         private string _originalParameterName;
-        private string _outputParameterName;
         private readonly Func<string> _generateParameterName;
 
         public ColumnModification(
@@ -24,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isRead,
             bool isWrite,
             bool isKey,
-            bool isCondition)
+            bool isCondition, 
+            bool isConcurrencyToken)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(property, nameof(property));
@@ -39,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             IsWrite = isWrite;
             IsKey = isKey;
             IsCondition = isCondition;
+            IsConcurrencyToken = isConcurrencyToken;
         }
 
         public virtual IUpdateEntry Entry { get; }
@@ -51,22 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         public virtual bool IsCondition { get; }
 
+        public virtual bool IsConcurrencyToken { get; }
+
         public virtual bool IsKey { get; }
 
+        public virtual bool UseOriginalValueParameter => IsCondition && IsConcurrencyToken;
+
+        public virtual bool UseCurrentValueParameter => IsWrite || (IsCondition && !IsConcurrencyToken);
+
         public virtual string ParameterName
-            => IsWrite
-                ? LazyInitializer.EnsureInitialized(ref _parameterName, _generateParameterName)
-                : null;
+            => _parameterName ?? (_parameterName = _generateParameterName());
 
         public virtual string OriginalParameterName
-            => IsCondition
-                ? LazyInitializer.EnsureInitialized(ref _originalParameterName, _generateParameterName)
-                : null;
-
-        public virtual string OutputParameterName
-            => IsRead
-                ? LazyInitializer.EnsureInitialized(ref _outputParameterName, _generateParameterName)
-                : null;
+            => _originalParameterName ?? (_originalParameterName = _generateParameterName());
 
         public virtual string ColumnName { get; }
 

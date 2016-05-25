@@ -92,6 +92,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             return rowNumberExpression;
         }
 
+        public virtual Expression VisitDatePartExpression(DatePartExpression datePartExpression)
+        {
+            Check.NotNull(datePartExpression, nameof(datePartExpression));
+
+            Sql.Append("DATEPART(")
+                .Append(datePartExpression.DatePart)
+                .Append(", ");
+            Visit(datePartExpression.Argument);
+            Sql.Append(")");
+            return datePartExpression;
+        }
+
         public override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             if (sqlFunctionExpression.FunctionName.StartsWith("@@", StringComparison.Ordinal))

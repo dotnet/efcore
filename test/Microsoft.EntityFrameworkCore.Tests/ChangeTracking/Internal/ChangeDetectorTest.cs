@@ -7,9 +7,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -36,9 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_snapshots_original_and_FK_value_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
-            var entity = new ProductWithChanging { DependentId = 77 };
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var entity = new NotifyingProduct { DependentId = 77 };
             var entry = CreateInternalEntry(contextServices, entity);
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.False(entry.HasRelationshipSnapshot);
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             entity.DependentId = 777;
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(property));
+            Assert.Equal(777, entry.GetRelationshipSnapshotValue(property)); // Because is now changed
             Assert.Equal(77, entry.GetOriginalValue(property));
             Assert.Equal(777, entry.GetCurrentValue(property));
         }
@@ -65,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_does_not_snapshot_original_values_for_properties_with_no_original_value_tracking()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
-            var entity = new ProductWithChanging { Name = "Cheese" };
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var entity = new NotifyingProduct { Name = "Cheese" };
             var entry = CreateInternalEntry(contextServices, entity);
 
             Assert.False(entry.EntityType.UseEagerSnapshots());
@@ -78,23 +79,22 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 .PropertyChanging(entry, property);
 
             Assert.Equal("Cheese", entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal("Cheese", entry.GetOriginalValue(property));
             Assert.Equal("Cheese", entry.GetCurrentValue(property));
 
             entity.Name = "Pickle";
 
             Assert.Equal("Pickle", entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal("Pickle", entry.GetOriginalValue(property));
             Assert.Equal("Pickle", entry.GetCurrentValue(property));
         }
 
         [Fact]
         public void PropertyChanging_snapshots_reference_navigations_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
-            var category = new CategoryWithChanging();
-            var entity = new ProductWithChanging { Category = category };
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var category = new NotifyingCategory();
+            var entity = new NotifyingProduct { Category = category };
             var entry = CreateInternalEntry(contextServices, entity);
+            entry.SetEntityState(EntityState.Added);
 
             Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.False(entry.HasRelationshipSnapshot);
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             Assert.Same(category, entry.GetRelationshipSnapshotValue(navigation));
             Assert.Same(category, entry.GetCurrentValue(navigation));
 
-            entity.Category = new CategoryWithChanging();
+            entity.Category = new NotifyingCategory { Id = 7, PrincipalId = 11 };
 
             Assert.Same(category, entry.GetRelationshipSnapshotValue(navigation));
             Assert.NotSame(category, entry.GetCurrentValue(navigation));
@@ -119,9 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         [Fact]
         public void PropertyChanging_snapshots_PK_for_relationships_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
-            var entity = new ProductWithChanging { Id = 77 };
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
+            var id = Guid.NewGuid();
+            var entity = new NotifyingProduct { Id = id };
             var entry = CreateInternalEntry(contextServices, entity);
+            entry.SetEntityState(EntityState.Added);
 
             Assert.False(entry.EntityType.UseEagerSnapshots());
             Assert.False(entry.HasRelationshipSnapshot);
@@ -134,15 +136,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             Assert.True(entry.HasRelationshipSnapshot);
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal(77, entry.GetOriginalValue(property));
-            Assert.Equal(77, entry.GetCurrentValue(property));
+            Assert.Equal(id, entry.GetRelationshipSnapshotValue(property));
+            Assert.Equal(id, entry.GetCurrentValue(property));
 
-            entity.Id = 777;
+            var newId = Guid.NewGuid();
+            entity.Id = newId;
 
-            Assert.Equal(77, entry.GetRelationshipSnapshotValue(property));
-            Assert.Equal(777, entry.GetOriginalValue(property));
-            Assert.Equal(777, entry.GetCurrentValue(property));
+            Assert.Equal(newId, entry.GetRelationshipSnapshotValue(property)); // Because now changed.
+            Assert.Equal(newId, entry.GetCurrentValue(property));
         }
 
         [Fact]
@@ -169,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
 
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
             var product = new ProductWithChanged { Id = 1, Name = "Oculus Rift" };
@@ -177,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             product.Name = "Gear VR";
 
-            changeDetector.DetectChanges(entry);
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
@@ -719,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             product.Id = 78;
 
-            changeDetector.DetectChanges(entry);
+            changeDetector.DetectChanges(stateManager);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -742,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             product.DependentId = 78;
 
-            changeDetector.DetectChanges(entry);
+            changeDetector.DetectChanges(stateManager);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -766,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             product.Category = new CategoryWithChanged { Id = 2 };
 
-            changeDetector.DetectChanges(entry);
+            changeDetector.DetectChanges(stateManager);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -795,49 +797,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var product3 = new ProductWithChanged { Id = 3, DependentId = 77 };
             category.Products.Add(product3);
-
-            changeDetector.DetectChanges(entry);
-
-            // TODO: DetectChanges is actually used here until INotifyCollectionChanged is supported (Issue #445)
-
-            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
-
-            Assert.Same(entry, testListener.CollectionChange.Item1);
-            Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
-            Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
-            Assert.Empty(testListener.CollectionChange.Item4);
-
-            Assert.Null(testListener.KeyChange);
-            Assert.Null(testListener.ReferenceChange);
-        }
-
-        [Fact]
-        public void Change_detection_still_happens_for_non_notifying_collections_on_notifying_entities()
-        {
-            var contextServices = CreateContextServices(BuildModelWithChanged());
-
-            var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
-            var stateManager = contextServices.GetRequiredService<IStateManager>();
-
-            var product1 = new ProductWithChanged { Id = 1, DependentId = 77 };
-            var product2 = new ProductWithChanged { Id = 2, DependentId = 77 };
-            var category = new CategoryWithChanged
-            {
-                Id = 77,
-                Products = new List<ProductWithChanged> { product1, product2 }
-            };
-            var entry = stateManager.GetOrCreateEntry(category);
-            entry.SetEntityState(EntityState.Unchanged);
-
-            var product3 = new ProductWithChanged { Id = 3, DependentId = 77 };
-            category.Products.Add(product3);
-
-            changeDetector.DetectChanges(entry);
-
-            var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
-
-            Assert.Same(product3, testAttacher.Attached.Item1.Entity);
-            Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1258,9 +1217,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var product3 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             category.Products.Add(product3);
 
-            // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)
-            changeDetector.DetectChanges(entry);
-
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
@@ -1290,9 +1246,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             product2.Category = category;
 
             category.Products.Remove(product1);
-
-            // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)
-            changeDetector.DetectChanges(entry);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1382,9 +1335,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             var product3 = new NotifyingProduct { Tag = new NotifyingProductTag() };
             category.Products.Add(product3);
-
-            // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)
-            changeDetector.DetectChanges(entry);
 
             var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
 
@@ -1708,7 +1658,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildNotifyingModel()
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder()
+                .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
             builder.Entity<NotifyingProduct>(b =>
                 {
@@ -1734,45 +1685,6 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             builder.Entity<NotifyingPerson>()
                 .HasOne(e => e.Husband).WithOne(e => e.Wife)
                 .HasForeignKey<NotifyingPerson>(e => e.HusbandId);
-
-            return builder.Model;
-        }
-
-        private class CategoryWithChanging : INotifyPropertyChanging
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            public virtual ICollection<ProductWithChanging> Products { get; } = new ObservableCollection<ProductWithChanging>();
-
-            // Actual implementation not needed for tests
-#pragma warning disable 67
-            public event PropertyChangingEventHandler PropertyChanging;
-#pragma warning restore 67
-        }
-
-        private class ProductWithChanging : INotifyPropertyChanging
-        {
-            public int Id { get; set; }
-            public int? DependentId { get; set; }
-            public string Name { get; set; }
-
-            public virtual CategoryWithChanging Category { get; set; }
-
-            // Actual implementation not needed for tests
-#pragma warning disable 67
-            public event PropertyChangingEventHandler PropertyChanging;
-#pragma warning restore 67
-        }
-
-        private static IModel BuildModelWithChanging()
-        {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
-
-            builder.Entity<ProductWithChanging>();
-            builder.Entity<CategoryWithChanging>()
-                .HasMany(e => e.Products).WithOne(e => e.Category)
-                .HasForeignKey(e => e.DependentId);
 
             return builder.Model;
         }
@@ -1806,7 +1718,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
         private static IModel BuildModelWithChanged()
         {
-            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder()
+                .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
             builder.Entity<ProductWithChanged>();
             builder.Entity<CategoryWithChanged>()
@@ -1848,14 +1761,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             public Tuple<InternalEntityEntry, IProperty, IReadOnlyList<IKey>, IReadOnlyList<IForeignKey>, object, object> KeyChange { get; set; }
             public Tuple<InternalEntityEntry, INavigation, object, object> ReferenceChange { get; set; }
-            public Tuple<InternalEntityEntry, INavigation, ISet<object>, ISet<object>> CollectionChange { get; set; }
+            public Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
 
             public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
             {
                 ReferenceChange = Tuple.Create(entry, navigation, oldValue, newValue);
             }
 
-            public void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+            public void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
             {
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);
             }

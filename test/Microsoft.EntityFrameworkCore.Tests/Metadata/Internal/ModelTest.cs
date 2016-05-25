@@ -5,13 +5,40 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
 {
     public class ModelTest
     {
+        [Fact]
+        public void Use_of_custom_IModel_throws()
+        {
+            Assert.Equal(
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IModel_throws), nameof(IModel), "IModelProxy"),
+                Assert.Throws<NotSupportedException>(() => Mock.Of<IModel>().AsModel()).Message);
+        }
+
+        [Fact]
+        public void Snapshot_change_tracking_is_used_by_default()
+        {
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().ChangeTrackingStrategy);
+            Assert.Equal(ChangeTrackingStrategy.Snapshot, new Model().GetChangeTrackingStrategy());
+        }
+
+        [Fact]
+        public void Change_tracking_strategy_can_be_changed()
+        {
+            var model = new Model { ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications };
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, model.ChangeTrackingStrategy);
+
+            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, model.GetChangeTrackingStrategy());
+        }
+
         [Fact]
         public void Can_add_and_remove_entity_by_type()
         {

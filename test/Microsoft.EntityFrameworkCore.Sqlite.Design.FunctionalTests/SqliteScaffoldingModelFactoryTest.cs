@@ -49,11 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
             Assert.NotNull(entityType);
             Assert.Equal("Column Types", entityType.Sqlite().TableName);
 
-            Assert.Equal("text", entityType.FindProperty("col1").Sqlite().ColumnType);
-            Assert.Equal(typeof(string), entityType.FindProperty("col1").ClrType);
+            Assert.Equal("text", entityType.FindProperty("Col1").Sqlite().ColumnType);
+            Assert.Equal(typeof(string), entityType.FindProperty("Col1").ClrType);
 
-            Assert.Equal("unsigned big int", entityType.FindProperty("col2").Sqlite().ColumnType);
-            Assert.Equal(typeof(long?), entityType.FindProperty("col2").ClrType);
+            Assert.Equal("unsigned big int", entityType.FindProperty("Col2").Sqlite().ColumnType);
+            Assert.Equal(typeof(long?), entityType.FindProperty("Col2").ClrType);
         }
 
         [Fact]
@@ -70,11 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             Assert.NotNull(entityType);
 
-            Assert.Equal("\"dev\"", entityType.FindProperty("occupation").Sqlite().DefaultValueSql);
-            Assert.Equal("2", entityType.FindProperty("pay").Sqlite().DefaultValueSql);
-            Assert.Equal("current_timestamp", entityType.FindProperty("hiredate").Sqlite().DefaultValueSql);
-            Assert.Equal("100 + 19.4", entityType.FindProperty("iq").Sqlite().DefaultValueSql);
-            Assert.Null(entityType.FindProperty("name").Sqlite().DefaultValueSql);
+            Assert.Equal("\"dev\"", entityType.FindProperty("Occupation").Sqlite().DefaultValueSql);
+            Assert.Equal("2", entityType.FindProperty("Pay").Sqlite().DefaultValueSql);
+            Assert.Equal("current_timestamp", entityType.FindProperty("Hiredate").Sqlite().DefaultValueSql);
+            Assert.Equal("100 + 19.4", entityType.FindProperty("Iq").Sqlite().DefaultValueSql);
+            Assert.Null(entityType.FindProperty("Name").Sqlite().DefaultValueSql);
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         public void It_gets_unique_indexes()
         {
             var sql = "CREATE TABLE t (Id int, AltId int PRIMARY KEY, Unique(id))";
-            var entityType = GetModel(sql).FindEntityType("t");
+            var entityType = GetModel(sql).FindEntityType("T");
 
             var idx = entityType.GetIndexes().Last();
             Assert.True(idx.IsUnique);
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_gets_indexes()
         {
-            var entityType = GetModel("CREATE TABLE t (Id int, A text PRIMARY KEY); CREATE INDEX idx_1 on t (id, a);").FindEntityType("t");
+            var entityType = GetModel("CREATE TABLE t (Id int, A text PRIMARY KEY); CREATE INDEX idx_1 on t (id, a);").FindEntityType("T");
 
             var idx = entityType.GetIndexes().Last();
             Assert.False(idx.IsUnique);
@@ -157,13 +157,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests
 
             var propList = new List<Property>
             {
-                (Property)children.FindProperty("ParentId_A"),
-                (Property)children.FindProperty("ParentId_B")
+                (Property)children.FindProperty("ParentIdA"),
+                (Property)children.FindProperty("ParentIdB")
             };
             var principalKey = children.FindForeignKeys(propList.AsReadOnly()).SingleOrDefault().PrincipalKey;
             Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
-            Assert.Equal("Id_A", principalKey.Properties[0].Name);
-            Assert.Equal("Id_B", principalKey.Properties[1].Name);
+            Assert.Equal("IdA", principalKey.Properties[0].Name);
+            Assert.Equal("IdB", principalKey.Properties[1].Name);
         }
 
         [Fact]

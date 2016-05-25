@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             commandBuilder.ParameterBuilder.AddParameter(
                 "InvariantName",
                 "Name",
-                typeof(string),
-                unicode: true);
+                new RelationalTypeMapping("nvarchar(100)", typeof(string)),
+                nullable: true);
 
             var command = commandBuilder.Build();
 

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -74,6 +73,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         public override void AddColumnOperation_with_maxLength()
         {
             base.AddColumnOperation_with_maxLength();
+
+            Assert.Equal(
+                "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(30);" + EOL,
+                Sql);
+        }
+
+        public override void AddColumnOperation_with_maxLength_on_derived()
+        {
+            base.AddColumnOperation_with_maxLength_on_derived();
 
             Assert.Equal(
                 "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(30);" + EOL,
@@ -311,28 +319,26 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
                 {
-                    { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string)) }
+                    { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string), dbType: null, unicode: true, size: null) }
                 };
 
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _simpleMappings;
 
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
                 => _simpleNameMappings;
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-            public override RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
+            public override RelationalTypeMapping FindMapping(Type clrType)
                 => clrType == typeof(string)
-                    ? (unicode
-                        ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
-                        : new RelationalTypeMapping("varchar(max)", typeof(string), unicode: false))
-                    : base.FindMapping(clrType, unicode);
+                    ? new RelationalTypeMapping("nvarchar(max)", typeof(string), dbType: null, unicode: true, size: null)
+                    : base.FindMapping(clrType);
 
-            protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
+            protected override RelationalTypeMapping FindCustomMapping(IProperty property)
                 => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
-                    ? new RelationalTypeMapping((unicode ? "nvarchar(" : "varchar(") + property.GetMaxLength() + ")", typeof(string))
-                    : base.FindCustomMapping(property, unicode);
+                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string), dbType: null, unicode: true, size: property.GetMaxLength())
+                    : base.FindCustomMapping(property);
         }
 
         private class ConcreteMigrationSqlGenerator : MigrationsSqlGenerator
@@ -346,31 +352,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
             {
             }
 
-            protected override void Generate(RenameTableOperation operation, IModel model, RelationalCommandListBuilder builder)
+            protected override void Generate(RenameTableOperation operation, IModel model, MigrationCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(DropIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+            protected override void Generate(DropIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(RenameSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
+            protected override void Generate(RenameSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(RenameColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
+            protected override void Generate(RenameColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(EnsureSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
+            protected override void Generate(EnsureSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(RenameIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+            protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(AlterColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
+            protected override void Generate(AlterColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
             {
             }
         }

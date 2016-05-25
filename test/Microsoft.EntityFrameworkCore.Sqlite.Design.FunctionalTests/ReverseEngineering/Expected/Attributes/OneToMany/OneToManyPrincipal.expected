@@ -12,7 +12,9 @@ namespace E2E.Sqlite
             OneToManyDependent = new HashSet<OneToManyDependent>();
         }
 
+        [Column(TypeName = "INT")]
         public long OneToManyPrincipalID1 { get; set; }
+        [Column(TypeName = "INT")]
         public long OneToManyPrincipalID2 { get; set; }
         [Required]
         public string Other { get; set; }

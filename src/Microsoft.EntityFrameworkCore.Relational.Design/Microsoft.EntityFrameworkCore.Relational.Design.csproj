@@ -67,7 +67,6 @@
     <Compile Include="Internal\CSharpUtilities.cs" />
     <Compile Include="Internal\DbDataReaderExtension.cs" />
     <Compile Include="Internal\ModelUtilities.cs" />
-    <Compile Include="Internal\DesignTimeEnvironment.cs" />
     <Compile Include="IScaffoldingModelFactory.cs" />
     <Compile Include="Metadata\ColumnModel.cs" />
     <Compile Include="Metadata\DatabaseModel.cs" />
@@ -77,7 +76,6 @@
     <Compile Include="Metadata\IndexModel.cs" />
     <Compile Include="Metadata\Internal\ScaffoldingAnnotationNames.cs" />
     <Compile Include="Metadata\Internal\ScaffoldingFullAnnotationNames.cs" />
-    <Compile Include="Metadata\ScaffoldingForeignKeyAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingMetadataExtensions.cs" />
     <Compile Include="Metadata\ScaffoldingModelAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingPropertyAnnotations.cs" />
@@ -89,7 +87,9 @@
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="RelationalScaffoldingModelFactory.cs" />
+    <Compile Include="ScaffoldingTypeMapper.cs" />
     <Compile Include="TableSelectionSet.cs" />
+    <Compile Include="TypeScaffoldingInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">

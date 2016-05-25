@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-    internal class CSharpUtilities
+    public class CSharpUtilities
     {
         private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>
         {
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers,
             [NotNull] Func<string, ICollection<string>, string> uniquifier)
         {
-            Check.NotEmpty(identifier, nameof(identifier));
+            Check.NotNull(identifier, nameof(identifier));
             Check.NotNull(uniquifier, nameof(uniquifier));
 
             var proposedIdentifier =
@@ -391,6 +391,49 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             return false;
+        }
+
+        private static readonly char[] _wordSeparators = new char[] { '_', '-' };
+        /// <summary>
+        /// Attempts to produce a Pascal case identifier by splitting the input
+        /// identifier into words using '-' and '_' as separator characters. A
+        /// "word" which contains only upper case characters will then be converted
+        /// to lower case. Then, always, the first character of each "word" is
+        /// converted to upper case.
+        /// </summary>
+        /// <param name="identifier"> the initial identifier </param>
+        /// <returns> the Pascal-cased identifier </returns>
+        public static string Pascalize([NotNull] string identifier)
+        {
+            Check.NotEmpty(identifier, nameof(identifier));
+
+            string result = string.Empty;
+            var words = identifier.Split(_wordSeparators, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in words)
+            {
+                var firstCharacter = Char.ToUpperInvariant(word[0]);
+                var restOfWord = word.Substring(1);
+                result += IsAllUpperCase(word)
+                    ? firstCharacter + restOfWord.ToLowerInvariant()
+                    : firstCharacter + restOfWord;
+            }
+
+            return result;
+        }
+
+        private static bool IsAllUpperCase([NotNull] string word)
+        {
+            Check.NotEmpty(word, nameof(word));
+
+            foreach (char c in word)
+            {
+                if (Char.IsLower(c))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

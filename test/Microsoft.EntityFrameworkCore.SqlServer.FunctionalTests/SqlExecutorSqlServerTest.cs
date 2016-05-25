@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.Executes_stored_procedure_with_parameter();
 
             Assert.Equal(
-                @"@CustomerID: ALFKI
+                @"@CustomerID: ALFKI (Nullable = false) (Size = 5)
 
 [dbo].[CustOrderHist] @CustomerID",
                 Sql);
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             base.Executes_stored_procedure_with_generated_parameter();
 
             Assert.Equal(
-                @"@p0: ALFKI
+                @"@p0: ALFKI (Size = 4000)
 
 [dbo].[CustOrderHist] @CustomerID = @p0",
                 Sql);

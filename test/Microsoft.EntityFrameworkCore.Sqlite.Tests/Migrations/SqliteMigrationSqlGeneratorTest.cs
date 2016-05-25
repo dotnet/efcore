@@ -215,6 +215,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_maxLength_on_derived()
+        {
+            base.AddColumnOperation_with_maxLength_on_derived();
+
+            // See issue #3698
+            Assert.Equal(
+                "ALTER TABLE \"Person\" ADD \"Name\" TEXT;" + EOL,
+                Sql);
+        }
+
         [Fact]
         public override void AddColumnOperation_with_computed_column_SQL()
         {

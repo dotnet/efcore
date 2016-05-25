@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                     new ContainsTranslator(),
                     new EndsWithTranslator(),
                     new EqualsTranslator(logger),
+                    new IsNullOrEmptyTranslator(),
                     new StartsWithTranslator()
                 };
         }

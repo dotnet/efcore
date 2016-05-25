@@ -165,11 +165,20 @@
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
     <value>The provider for the source IQueryable doesn't implement IAsyncQueryProvider. Only providers that implement IEntityQueryProvider can be used for Entity Framework asynchronous operations.</value>
   </data>
-  <data name="EagerOriginalValuesRequired" xml:space="preserve">
-    <value>Lazy original value tracking cannot be turned on for entity type '{entityType}'. Entities that do not implement both INotifyPropertyChanging and INotifyPropertyChanged require original values to be stored eagerly in order to correct detect changes made to entities.</value>
+  <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
+    <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface.</value>
+  </data>
+  <data name="NonNotifyingCollection" xml:space="preserve">
+    <value>The collection type being used for navigation property '{navigation}' on entity type '{entityType}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.</value>
+  </data>
+  <data name="ResetNotSupported" xml:space="preserve">
+    <value>'ObservableCollection&lt;T&gt;.Clear()' is not supported because it uses the 'INotifyCollectionChanged' 'Reset' operation, which does not supply the items removed. Either use multiple calls to 'Remove' or use a notifying collection that supports 'Clear', such as 'Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet&lt;T&gt;'.</value>
   </data>
   <data name="OriginalValueNotTracked" xml:space="preserve">
-    <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.</value>
+    <value>The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.</value>
+  </data>
+  <data name="ObservableCollectionReentrancy" xml:space="preserve">
+    <value>Cannot change ObservableHashSet during a CollectionChanged event.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The property '{entityType}.{property}' is annotated with backing field '{field}' but that field cannot be found.</value>
@@ -230,9 +239,6 @@
   </data>
   <data name="DuplicateNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
-  </data>
-  <data name="NavigationOnShadowEntity" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.</value>
   </data>
   <data name="NoClrNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.</value>
@@ -480,6 +486,9 @@
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
   </data>
+  <data name="CustomMetadata" xml:space="preserve">
+    <value>The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.</value>
+  </data>
   <data name="InvalidMemberInitBinding" xml:space="preserve">
     <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
   </data>
@@ -545,5 +554,20 @@
   </data>
   <data name="TempValue" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
+  </data>
+  <data name="DatabaseGeneratedNull" xml:space="preserve">
+    <value>The database generated a null value for non-nullable property '{property}' of entity type '{entityType}'. Ensure value generation configuration in the database matches the configuration in the model.</value>
+  </data>
+  <data name="MoreThanOneElement" xml:space="preserve">
+    <value>Sequence contains more than one element</value>
+  </data>
+  <data name="NoElements" xml:space="preserve">
+    <value>Sequence contains no elements</value>
+  </data>
+  <data name="NoParameterlessConstructor" xml:space="preserve">
+    <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
+  </data>
+  <data name="LogIgnoredInclude" xml:space="preserve">
+    <value>The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.</value>
   </data>
 </root>

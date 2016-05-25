@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             EnsureNoShadowKeys(model);
             EnsureNonNullPrimaryKeys(model);
             EnsureClrInheritance(model);
+            EnsureChangeTrackingStrategy(model);
         }
 
         protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
@@ -96,6 +98,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             validEntityTypes.Add(entityType);
+        }
+
+        protected virtual void EnsureChangeTrackingStrategy([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            var detectChangesNeeded = false;
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
+                if (changeTrackingStrategy == ChangeTrackingStrategy.Snapshot)
+                {
+                    detectChangesNeeded = true;
+                }
+
+                var errorMessage = entityType.CheckChangeTrackingStrategy(changeTrackingStrategy);
+                if (errorMessage != null)
+                {
+                    ShowError(errorMessage);
+                }
+            }
+
+            if (!detectChangesNeeded)
+            {
+                (model as IMutableModel)?.GetOrAddAnnotation(ChangeDetector.SkipDetectChangesAnnotation, "true");
+            }
         }
 
         protected virtual void ShowError([NotNull] string message)

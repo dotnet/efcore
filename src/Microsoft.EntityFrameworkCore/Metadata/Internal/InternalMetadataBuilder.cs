@@ -32,9 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return true;
                 }
 
-                var existingConfigurationSource = existingAnnotation.GetConfigurationSource();
-                if (!configurationSource.Overrides(existingConfigurationSource)
-                    || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource))
+                if (!CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource))
                 {
                     return false;
                 }
@@ -55,6 +53,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (value != null)
             {
                 Metadata.AddAnnotation(name, value, configurationSource);
+            }
+
+            return true;
+        }
+
+        public virtual bool CanSetAnnotation([NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+        {
+            var existingAnnotation = Metadata.FindAnnotation(name);
+            if (existingAnnotation != null)
+            {
+                return CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource: true);
+            }
+
+            return true;
+        }
+
+        private bool CanSetAnnotationValue(
+            ConventionalAnnotation annotation, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
+        {
+            if (annotation.Value.Equals(value))
+            {
+                return true;
+            }
+
+            var existingConfigurationSource = annotation.GetConfigurationSource();
+            if (!configurationSource.Overrides(existingConfigurationSource)
+                || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource))
+            {
+                return false;
             }
 
             return true;

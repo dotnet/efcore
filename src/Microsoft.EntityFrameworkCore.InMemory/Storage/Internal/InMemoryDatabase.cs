@@ -24,17 +24,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public InMemoryDatabase(
             [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
-            [NotNull] IInMemoryStore store,
+            [NotNull] IInMemoryStoreSource storeSource,
             [NotNull] IDbContextOptions options,
             [NotNull] ILogger<InMemoryDatabase> logger)
             : base(queryCompilationContextFactory)
         {
             Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
-            Check.NotNull(store, nameof(store));
+            Check.NotNull(storeSource, nameof(storeSource));
             Check.NotNull(options, nameof(options));
             Check.NotNull(logger, nameof(logger));
 
-            _store = store;
+            _store = storeSource.GetStore(options);
             _logger = logger;
         }
 

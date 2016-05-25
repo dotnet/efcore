@@ -1,23 +1,28 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc3-*",
   "description": "Entity Framework is Microsoft's recommended data access technology for new applications.",
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    },
+    "embed": {
+      "includeFiles": "Properties/Microsoft.EntityFrameworkCore.rd.xml"
+    }
   },
   "dependencies": {
     "Ix-Async": "1.2.5",
     "Microsoft.Extensions.Caching.Memory": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
     "Microsoft.Extensions.Logging": "1.0.0-*",
-    "Remotion.Linq": "2.0.2"
+    "Remotion.Linq": "2.0.2",
+    "System.Collections.Immutable": "1.1.37"
   },
-  "compile": "../Shared/*.cs",
-  "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.rd.xml",
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
@@ -38,36 +43,6 @@
         "System.ObjectModel": "4.0.12-*",
         "System.Reflection.Extensions": "4.0.1-*",
         "System.Reflection.TypeExtensions": "4.1.0-*"
-      }
-    },
-    "netcore50": {
-      "dependencies": {
-        "Microsoft.NETCore.Platforms": {
-          "type": "build",
-          "version": "1.0.1-*"
-        },
-        "System.Collections.Concurrent": "4.0.10",
-        "System.ComponentModel.Annotations": "4.0.10",
-        "System.Linq.Queryable": "4.0.0",
-        "System.ObjectModel": "4.0.10",
-        "System.Reflection.Extensions": "4.0.0",
-        "System.Reflection.TypeExtensions": "4.0.0",
-        "System.Runtime": {
-          "type": "build",
-          "version": "4.0.20"
-        },
-        "System.Dynamic.Runtime": {
-          "type": "build",
-          "version": "4.0.10"
-        },
-        "System.Runtime.WindowsRuntime": {
-          "type": "build",
-          "version": "4.0.10"
-        },
-        "System.Runtime.Extensions": {
-          "type": "build",
-          "version": "4.0.10"
-        }
       }
     }
   }

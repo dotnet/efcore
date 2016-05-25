@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
         public Profile()
         {
             var connectionString
-                = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=Perf_Query_Simple;Integrated Security=True;MultipleActiveResultSets=true;";
+                = $@"{BenchmarkConfig.Instance.BenchmarkDatabase}Database=Perf_Query_Simple;";
 
             _context = new OrdersContext(connectionString);
 

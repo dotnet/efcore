@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
@@ -157,11 +158,11 @@ ORDER BY [c].[FirstName], [c].[LastName]
 
 SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Order] AS [o]
-INNER JOIN (
-    SELECT DISTINCT [c].[FirstName], [c].[LastName]
+WHERE EXISTS (
+    SELECT 1
     FROM [Customer] AS [c]
-) AS [c0] ON ([o].[CustomerFirstName] = [c0].[FirstName]) AND ([o].[CustomerLastName] = [c0].[LastName])
-ORDER BY [c0].[FirstName], [c0].[LastName]";
+    WHERE ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName]))
+ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }
@@ -433,8 +434,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
                 const string expectedSql
-                    = @"@__firstName_0: Foo
-@__8__locals1_details_LastName_1: Bar
+                    = @"@__firstName_0: Foo (Size = 4000)
+@__8__locals1_details_LastName_1: Bar (Size = 4000)
 
 SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
@@ -623,6 +624,436 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                     });
         }
 
+        [Fact]
+        public void ThenInclude_with_interface_navigations_3409()
+        {
+            CreateDatabase3409();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var context = new MyContext3409(serviceProvider))
+            {
+                var results = context.Parents
+                    .Include(p => p.ChildCollection)
+                    .ThenInclude(c => c.SelfReferenceCollection)
+                    .ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(1, results[0].ChildCollection.Count);
+                Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
+            }
+
+            using (var context = new MyContext3409(serviceProvider))
+            {
+                var results = context.Children
+                    .Include(c => c.SelfReferenceBackNavigation)
+                    .ThenInclude(c => c.ParentBackNavigation)
+                    .ToList();
+
+                Assert.Equal(3, results.Count);
+                Assert.Equal(2, results.Count(c => c.SelfReferenceBackNavigation != null));
+                Assert.Equal(1, results.Count(c => c.ParentBackNavigation != null));
+            }
+        }
+
+        public class MyContext3409 : DbContext
+        {
+            public DbSet<Parent3409> Parents { get; set; }
+            public DbSet<Child3409> Children { get; set; }
+
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext3409(IServiceProvider serviceProvider)
+            {
+                _serviceProvider = serviceProvider;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3409"))
+                    .UseInternalServiceProvider(_serviceProvider);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Parent3409>()
+                    .HasMany(p => (ICollection<Child3409>)p.ChildCollection)
+                    .WithOne(c => (Parent3409)c.ParentBackNavigation);
+
+                modelBuilder.Entity<Child3409>()
+                    .HasMany(c => (ICollection<Child3409>)c.SelfReferenceCollection)
+                    .WithOne(c => (Child3409)c.SelfReferenceBackNavigation);
+            }
+        }
+
+        public interface IParent3409
+        {
+            int Id { get; set; }
+
+            ICollection<IChild3409> ChildCollection { get; set; }
+        }
+
+        public interface IChild3409
+        {
+            int Id { get; set; }
+
+            int? ParentBackNavigationId { get; set; }
+            IParent3409 ParentBackNavigation { get; set; }
+
+            ICollection<IChild3409> SelfReferenceCollection { get; set; }
+            int? SelfReferenceBackNavigationId { get; set; }
+            IChild3409 SelfReferenceBackNavigation { get; set; }
+        }
+
+        public class Parent3409 : IParent3409
+        {
+            public int Id { get; set; }
+
+            public ICollection<IChild3409> ChildCollection { get; set; }
+        }
+
+        public class Child3409 : IChild3409
+        {
+            public int Id { get; set; }
+
+            public int? ParentBackNavigationId { get; set; }
+            public IParent3409 ParentBackNavigation { get; set; }
+
+            public ICollection<IChild3409> SelfReferenceCollection { get; set; }
+            public int? SelfReferenceBackNavigationId { get; set; }
+            public IChild3409 SelfReferenceBackNavigation { get; set; }
+        }
+
+        private void CreateDatabase3409()
+        {
+            CreateTestStore(
+                "Repro3409",
+                _fixture.ServiceProvider,
+                (sp, co) => new MyContext3409(sp),
+                context =>
+                    {
+                        var parent1 = new Parent3409();
+
+                        var child1 = new Child3409();
+                        var child2 = new Child3409();
+                        var child3 = new Child3409();
+
+                        parent1.ChildCollection = new List<IChild3409> { child1 };
+                        child1.SelfReferenceCollection = new List<IChild3409> { child2, child3 };
+
+                        context.Parents.AddRange(parent1);
+                        context.Children.AddRange(child1, child2, child3);
+
+                        context.SaveChanges();
+                    });
+        }
+
+        [Fact]
+        public virtual void Repro3101_simple_coalesce1()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                            join eRoot in ctx.Entities
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select eRootJoined ?? eVersion;
+
+                var result = query.ToList();
+                Assert.True(result.All(e => e.Children.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Repro3101_simple_coalesce2()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities
+                            join eRoot in ctx.Entities.Include(e => e.Children)
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select eRootJoined ?? eVersion;
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count(e => e.Children.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Repro3101_simple_coalesce3()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                            join eRoot in ctx.Entities.Include(e => e.Children)
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select eRootJoined ?? eVersion;
+
+                var result = query.ToList();
+                Assert.True(result.All(e => e.Children.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Repro3101_complex_coalesce1()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                            join eRoot in ctx.Entities
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select new { One = 1, Coalesce = eRootJoined ?? eVersion };
+
+                var result = query.ToList();
+                Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Repro3101_complex_coalesce2()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities
+                            join eRoot in ctx.Entities.Include(e => e.Children)
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Repro3101_nested_coalesce1()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities
+                            join eRoot in ctx.Entities.Include(e => e.Children)
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+
+                var result = query.ToList();
+                Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Repro3101_nested_coalesce2()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                            join eRoot in ctx.Entities
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+
+                var result = query.ToList();
+                Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Repro3101_conditional()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities.Include(e => e.Children)
+                            join eRoot in ctx.Entities
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select eRootJoined != null ? eRootJoined : eVersion;
+
+                var result = query.ToList();
+                Assert.True(result.All(e => e.Children.Count > 0));
+            }
+        }
+
+
+        [Fact]
+        public virtual void Repro3101_coalesce_tracking()
+        {
+            CreateDatabase3101();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3101(serviceProvider))
+            {
+                var query = from eVersion in ctx.Entities
+                            join eRoot in ctx.Entities
+                            on eVersion.RootEntityId equals (int?)eRoot.Id
+                            into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
+
+                var result = query.ToList();
+
+                var foo = ctx.ChangeTracker.Entries().ToList();
+                Assert.True(ctx.ChangeTracker.Entries().Count() > 0);
+            }
+        }
+
+        private void CreateDatabase3101()
+        {
+            CreateTestStore(
+                "Repro3101",
+                _fixture.ServiceProvider,
+                (sp, co) => new MyContext3101(sp),
+                context =>
+                {
+                    var c11 = new Child3101 { Name = "c11" };
+                    var c12 = new Child3101 { Name = "c12" };
+                    var c13 = new Child3101 { Name = "c13" };
+                    var c21 = new Child3101 { Name = "c21" };
+                    var c22 = new Child3101 { Name = "c22" };
+                    var c31 = new Child3101 { Name = "c31" };
+                    var c32 = new Child3101 { Name = "c32" };
+
+                    context.Children.AddRange(c11, c12, c13, c21, c22, c31, c32);
+
+                    var e1 = new Entity3101 { Id = 1, Children = new[] { c11, c12, c13 } };
+                    var e2 = new Entity3101 { Id = 2, Children = new[] { c21, c22 } };
+                    var e3 = new Entity3101 { Id = 3, Children = new[] { c31, c32 } };
+
+                    e2.RootEntity = e1;
+
+                    context.Entities.AddRange(e1, e2, e3);
+                    context.SaveChanges();
+                });
+        }
+
+        public class MyContext3101 : DbContext
+        {
+            private readonly IServiceProvider _serviceProvider;
+
+            public MyContext3101(IServiceProvider serviceProvider)
+            {
+                _serviceProvider = serviceProvider;
+            }
+
+            public DbSet<Entity3101> Entities { get; set; }
+
+            public DbSet<Child3101> Children { get; set; }
+
+
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3101"));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Entity3101>().Property(e => e.Id).ValueGeneratedNever();
+            }
+        }
+
+        public class Entity3101
+        {
+            public Entity3101()
+            {
+                this.Children = new Collection<Child3101>();
+            }
+
+            public int Id { get; set; }
+
+            public int? RootEntityId { get; set; }
+
+            public Entity3101 RootEntity { get; set; }
+
+            public ICollection<Child3101> Children { get; set; }
+        }
+
+        public class Child3101
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
         private static void CreateTestStore<TContext>(
             string databaseName,
             IServiceProvider serviceProvider,
@@ -643,7 +1074,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                             contextInitializer(context);
                         }
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
+                        TestSqlLoggerFactory.Reset();
                     }
                 });
         }

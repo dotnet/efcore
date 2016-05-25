@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -1013,7 +1012,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var principalType = model.FindEntityType(typeof(Customer));
                 var principalProperty = principalType.FindProperty("AlternateKey");
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
-                var expectedDependentProperties = dependentType.GetProperties().Where(p => !((IProperty)p).IsShadowProperty).ToList();
+                var expectedDependentProperties = dependentType.GetProperties().Where(p => !p.IsShadowProperty).ToList();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
@@ -2543,14 +2542,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Same(fk, principalType.GetNavigations().Single(n => n.Name == nameof(Hob.Nob)).ForeignKey);
                 Assert.True(fk.IsUnique);
 
-                var otherFk1 = dependentType.GetNavigations().Single(n => n.Name == nameof(Nob.Hobs)).ForeignKey;
-                Assert.False(otherFk1.IsUnique);
-                var otherFk2 = principalType.GetNavigations().Single(n => n.Name == nameof(Hob.Nobs)).ForeignKey;
-                Assert.False(otherFk2.IsUnique);
-                Assert.NotSame(otherFk1, otherFk2);
+                // TODO: verify Hobs <-> Nobs
 
-                Assert.Equal(1, dependentType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
-                Assert.Equal(1, principalType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
+                Assert.Equal(0, dependentType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
+                Assert.Equal(0, principalType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -3202,6 +3197,78 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Null(fk.DependentToPrincipal);
                 Assert.False(fk.Properties.Single().IsShadowProperty);
                 Assert.Equal(OneToOnePrincipalEntity.EntityMatchingProperty.Name, fk.Properties.Single().Name);
+            }
+
+            [Fact] // Issue #3376
+            public virtual void Can_use_self_referencing_overlapping_FK_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Node>(b =>
+                    {
+                        b.HasKey(e => new { e.ListId, e.PreviousNodeId });
+                        b.HasOne(e => e.NextNode)
+                            .WithOne(e => e.PreviousNode)
+                            .HasForeignKey<Node>(e => new { e.ListId, e.NextNodeId });
+                    });
+
+                var contextOptions = new DbContextOptionsBuilder()
+                    .UseModel(modelBuilder.Model)
+                    .UseInMemoryDatabase()
+                    .Options;
+
+                using (var context = new DbContext(contextOptions))
+                {
+                    var node1 = context.Add(new Node { ListId = 90, PreviousNodeId = 77 }).Entity;
+                    var node2 = context.Add(new Node { ListId = 90, PreviousNodeId = 78 }).Entity;
+                    var node3 = context.Add(new Node { ListId = 90, PreviousNodeId = 79 }).Entity;
+
+                    node1.NextNode = node2;
+                    node3.PreviousNode = node2;
+
+                    context.SaveChanges();
+
+                    AssertGraph(node1, node2, node3);
+                }
+
+                using (var context = new DbContext(contextOptions))
+                {
+                    var node1 = context.Set<Node>().Single(e => e.PreviousNodeId == 77);
+                    var node2 = context.Set<Node>().Single(e => e.PreviousNodeId == 78);
+                    var node3 = context.Set<Node>().Single(e => e.PreviousNodeId == 79);
+
+                    AssertGraph(node1, node2, node3);
+                }
+            }
+
+            private static void AssertGraph(Node node1, Node node2, Node node3)
+            {
+                Assert.Null(node1.PreviousNode);
+                Assert.Same(node1, node2.PreviousNode);
+                Assert.Same(node2, node1.NextNode);
+                Assert.Same(node2, node3.PreviousNode);
+                Assert.Same(node3, node2.NextNode);
+                Assert.Null(node3.NextNode);
+
+                Assert.Equal(77, node1.PreviousNodeId);
+                Assert.Equal(78, node2.PreviousNodeId);
+                Assert.Equal(79, node3.PreviousNodeId);
+                Assert.Equal(90, node1.ListId);
+                Assert.Equal(90, node2.ListId);
+                Assert.Equal(90, node3.ListId);
+                Assert.Equal(78, node1.NextNodeId);
+                Assert.Equal(79, node2.NextNodeId);
+                Assert.Equal(0, node3.NextNodeId);
+            }
+
+            private class Node
+            {
+                public int ListId { get; set; }
+                public int PreviousNodeId { get; set; }
+                public int NextNodeId { get; set; }
+
+                public Node PreviousNode { get; set; }
+                public Node NextNode { get; set; }
             }
         }
     }

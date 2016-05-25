@@ -30,11 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
-            => new AsyncQueryingEnumerable(
-                (RelationalQueryContext)queryContext,
-                shaperCommandContext,
-                queryIndex: null)
-                .Select(vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
+            => AsyncLinqOperatorProvider.
+                _Select(new AsyncQueryingEnumerable(
+                    (RelationalQueryContext)queryContext,
+                    shaperCommandContext,
+                    queryIndex: null),
+                    vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
 
         public virtual MethodInfo DefaultIfEmptyShapedQueryMethod => _defaultIfEmptyShapedQueryMethodInfo;
 
@@ -48,12 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
-            => new DefaultIfEmptyAsyncEnumerable(
-                new AsyncQueryingEnumerable(
-                    (RelationalQueryContext)queryContext,
-                    shaperCommandContext,
-                    queryIndex: null))
-                .Select(vb => shaper.Shape(queryContext, vb));
+            => AsyncLinqOperatorProvider.
+                _Select(
+                    new DefaultIfEmptyAsyncEnumerable(
+                        new AsyncQueryingEnumerable(
+                            (RelationalQueryContext)queryContext,
+                            shaperCommandContext,
+                            queryIndex: null)),
+                    vb => shaper.Shape(queryContext, vb));
 
         private sealed class DefaultIfEmptyAsyncEnumerable : IAsyncEnumerable<ValueBuffer>
         {
@@ -80,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    if (!await _enumerator.MoveNext())
+                    if (!await _enumerator.MoveNext(cancellationToken))
                     {
                         return false;
                     }
@@ -169,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<TSource, TElement> elementSelector)
             => new GroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
 
-        private class GroupByAsyncEnumerable<TSource, TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
+        private sealed class GroupByAsyncEnumerable<TSource, TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
         {
             private readonly IAsyncEnumerable<TSource> _source;
             private readonly Func<TSource, TKey> _keySelector;
@@ -187,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public IAsyncEnumerator<IGrouping<TKey, TElement>> GetEnumerator() => new GroupByAsyncEnumerator(this);
 
-            private class GroupByAsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
+            private sealed class GroupByAsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
             {
                 private readonly GroupByAsyncEnumerable<TSource, TKey, TElement> _groupByAsyncEnumerable;
                 private readonly IEqualityComparer<TKey> _comparer;
@@ -208,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (_sourceEnumerator == null)
                     {
                         _sourceEnumerator = _groupByAsyncEnumerable._source.GetEnumerator();
-                        _hasNext = await _sourceEnumerator.MoveNext();
+                        _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
                     }
 
                     if (_hasNext)
@@ -219,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         while (true)
                         {
-                            _hasNext = await _sourceEnumerator.MoveNext();
+                            _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
 
                             if (!_hasNext)
                             {
@@ -303,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 outerGroupJoinInclude,
                 innerGroupJoinInclude);
 
-        private class GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> : IAsyncEnumerable<TResult>
+        private sealed class GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> : IAsyncEnumerable<TResult>
         {
             private readonly RelationalQueryContext _queryContext;
             private readonly IAsyncEnumerable<ValueBuffer> _source;
@@ -313,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly Func<TOuter, IAsyncEnumerable<TInner>, TResult> _resultSelector;
             private readonly AsyncGroupJoinInclude _outerGroupJoinInclude;
             private readonly AsyncGroupJoinInclude _innerGroupJoinInclude;
+            private readonly bool _hasOuters;
 
             public GroupJoinAsyncEnumerable(
                 RelationalQueryContext queryContext,
@@ -332,17 +336,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _resultSelector = resultSelector;
                 _outerGroupJoinInclude = outerGroupJoinInclude;
                 _innerGroupJoinInclude = innerGroupJoinInclude;
+                _hasOuters = (_innerShaper as EntityShaper)?.ValueBufferOffset > 0;
             }
 
             public IAsyncEnumerator<TResult> GetEnumerator() => new GroupJoinAsyncEnumerator(this);
 
-            private class GroupJoinAsyncEnumerator : IAsyncEnumerator<TResult>
+            private sealed class GroupJoinAsyncEnumerator : IAsyncEnumerator<TResult>
             {
                 private readonly GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> _groupJoinAsyncEnumerable;
                 private readonly IEqualityComparer<TKey> _comparer;
 
                 private IAsyncEnumerator<ValueBuffer> _sourceEnumerator;
                 private bool _hasNext;
+                private TOuter _nextOuter;
 
                 public GroupJoinAsyncEnumerator(
                     GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> groupJoinAsyncEnumerable)
@@ -360,14 +366,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _groupJoinAsyncEnumerable._outerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
                         _groupJoinAsyncEnumerable._innerGroupJoinInclude?.Initialize(_groupJoinAsyncEnumerable._queryContext);
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
-                        _hasNext = await _sourceEnumerator.MoveNext();
+                        _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
+                        _nextOuter = default(TOuter);
                     }
 
                     if (_hasNext)
                     {
                         var outer
-                            = _groupJoinAsyncEnumerable._outerShaper
-                                .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
+                            = Equals(_nextOuter, default(TOuter))
+                                ? _groupJoinAsyncEnumerable._outerShaper
+                                    .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current)
+                                : _nextOuter;
+
+                        _nextOuter = default(TOuter);
 
                         if (_groupJoinAsyncEnumerable._outerGroupJoinInclude != null)
                         {
@@ -386,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 = _groupJoinAsyncEnumerable._resultSelector(
                                     outer, AsyncLinqOperatorProvider.ToAsyncEnumerable(inners));
 
-                            _hasNext = await _sourceEnumerator.MoveNext();
+                            _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
 
                             return true;
                         }
@@ -402,11 +413,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         while (true)
                         {
-                            _hasNext = await _sourceEnumerator.MoveNext();
+                            _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
 
                             if (!_hasNext)
                             {
                                 break;
+                            }
+
+                            if (_groupJoinAsyncEnumerable._hasOuters)
+                            {
+                                _nextOuter
+                                    = _groupJoinAsyncEnumerable._outerShaper
+                                        .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
+
+                                if (!Equals(outer, _nextOuter))
+                                {
+                                    break;
+                                }
+
+                                _nextOuter = default(TOuter);
                             }
 
                             inner
@@ -520,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ValueBuffer, object> materializer)
             => new ReferenceRelatedEntitiesLoader(valueBufferOffset, queryIndex, materializer);
 
-        private class ReferenceRelatedEntitiesLoader : IAsyncRelatedEntitiesLoader
+        private sealed class ReferenceRelatedEntitiesLoader : IAsyncRelatedEntitiesLoader
         {
             private readonly int _valueBufferOffset;
             private readonly int _queryIndex;
@@ -546,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new EntityLoadInfo(valueBuffer, _materializer));
             }
 
-            private class AsyncEnumerableAdapter<T> : IAsyncEnumerable<T>
+            private sealed class AsyncEnumerableAdapter<T> : IAsyncEnumerable<T>
             {
                 private readonly T _value;
 
@@ -557,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public IAsyncEnumerator<T> GetEnumerator() => new AsyncEnumeratorAdapter(_value);
 
-                private class AsyncEnumeratorAdapter : IAsyncEnumerator<T>
+                private sealed class AsyncEnumeratorAdapter : IAsyncEnumerator<T>
                 {
                     private readonly T _value;
                     private bool _hasNext = true;
@@ -633,9 +658,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IAsyncEnumerable<EntityLoadInfo> Load(QueryContext queryContext, IIncludeKeyComparer keyComparer)
             {
                 return
-                    _includeCollectionIterator
-                        .GetRelatedValues(keyComparer)
-                        .Select(vr => new EntityLoadInfo(vr, _materializer));
+                    AsyncLinqOperatorProvider
+                        ._Select(
+                            _includeCollectionIterator.GetRelatedValues(keyComparer),
+                            vr => new EntityLoadInfo(vr, _materializer));
             }
 
             public void Dispose() => _includeCollectionIterator?.Dispose();

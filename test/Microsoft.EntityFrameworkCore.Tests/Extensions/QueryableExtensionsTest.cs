@@ -7,11 +7,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Moq;
 using Xunit;
 
+// ReSharper disable RedundantArgumentDefaultValue
 namespace Microsoft.EntityFrameworkCore.Tests.Extensions
 {
     public class QueryableExtensionsTest
@@ -208,8 +210,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(new CancellationToken()));
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(e => true));
             await SourceNonAsyncQueryableTest(() => Source().FirstOrDefaultAsync(e => true, new CancellationToken()));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => { }));
-            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e => { }, new CancellationToken()));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e =>
+                {
+                }));
+            await SourceNonAsyncEnumerableTest<int>(() => Source().ForEachAsync(e =>
+                {
+                }, new CancellationToken()));
             await SourceNonAsyncEnumerableTest<int>(() => Source().LoadAsync());
             await SourceNonAsyncEnumerableTest<int>(() => Source().LoadAsync(new CancellationToken()));
             await SourceNonAsyncQueryableTest(() => Source().LongCountAsync());
@@ -261,29 +267,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
                 Assert.Throws<InvalidOperationException>(() => Source().AsAsyncEnumerable()).Message);
         }
 
-        private static IQueryable<T> Source<T>()
-        {
-            return new Mock<IQueryable<T>>().Object;
-        }
+        private static IQueryable<T> Source<T>() => new Mock<IQueryable<T>>().Object;
 
-        private static IQueryable<int> Source()
-        {
-            return Source<int>();
-        }
+        private static IQueryable<int> Source() => Source<int>();
 
-        private static async Task SourceNonAsyncQueryableTest(Func<Task> test)
-        {
+        private static async Task SourceNonAsyncQueryableTest(Func<Task> test) =>
             Assert.Equal(
                 CoreStrings.IQueryableProviderNotAsync,
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
-        }
 
         private static async Task SourceNonAsyncEnumerableTest<T>(Func<Task> test)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IQueryableNotAsync(typeof(T)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
-        }
 
         [Fact]
         public async Task Extension_methods_validate_arguments()
@@ -437,10 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Extensions
         }
 
         private static async Task ArgumentNullTest(string paramName, Func<Task> test)
-        {
-            Assert.Equal(paramName,
-                (await Assert.ThrowsAsync<ArgumentNullException>(test)).ParamName);
-        }
+            => Assert.Equal(paramName, (await Assert.ThrowsAsync<ArgumentNullException>(test)).ParamName);
 
         // ReSharper restore MethodSupportsCancellation
     }

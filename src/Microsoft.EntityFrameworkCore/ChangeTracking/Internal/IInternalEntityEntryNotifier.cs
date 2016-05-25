@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         void NavigationCollectionChanged(
             [NotNull] InternalEntityEntry entry,
             [NotNull] INavigation navigation,
-            [NotNull] ISet<object> added,
-            [NotNull] ISet<object> removed);
+            [NotNull] IEnumerable<object> added,
+            [NotNull] IEnumerable<object> removed);
 
         void KeyPropertyChanged(
             [NotNull] InternalEntityEntry entry,

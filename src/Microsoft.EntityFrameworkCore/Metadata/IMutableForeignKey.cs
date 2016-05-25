@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -63,6 +64,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableNavigation HasDependentToPrincipal([CanBeNull] string name);
 
         /// <summary>
+        ///     Sets the navigation property on the dependent entity type that points to the principal entity.
+        /// </summary>
+        /// <param name="property">
+        ///     The navigation property on the dependent type. Passing null will result in there being
+        ///     no navigation property defined.
+        /// </param>
+        /// <returns> The newly created navigation property. </returns>
+        IMutableNavigation HasDependentToPrincipal([CanBeNull] PropertyInfo property);
+
+        /// <summary>
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="name">
@@ -71,6 +82,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created navigation property. </returns>
         IMutableNavigation HasPrincipalToDependent([CanBeNull] string name);
+
+        /// <summary>
+        ///     Sets the navigation property on the principal entity type that points to the dependent entity.
+        /// </summary>
+        /// <param name="property">
+        ///     The name of the navigation property on the principal type. Passing null will result in there being
+        ///     no navigation property defined.
+        /// </param>
+        /// <returns> The newly created navigation property. </returns>
+        IMutableNavigation HasPrincipalToDependent([CanBeNull] PropertyInfo property);
 
         /// <summary>
         ///     Gets or sets a value indicating whether the values assigned to the foreign key properties are unique.

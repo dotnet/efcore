@@ -57,6 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
             }
 
+            var constructorInfo = entityType.ClrType.GetDeclaredConstructor(null);
+
+            if (constructorInfo == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+            }
+
             var instanceVariable = Expression.Variable(entityType.ClrType, "instance");
 
             var blockExpressions
@@ -64,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Expression.Assign(
                         instanceVariable,
-                        Expression.New(entityType.ClrType.GetDeclaredConstructor(null)))
+                        Expression.New(constructorInfo))
                 };
 
             blockExpressions.AddRange(

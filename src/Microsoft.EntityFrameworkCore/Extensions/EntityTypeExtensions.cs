@@ -171,18 +171,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the foreign keys for. </param>
         /// <returns> The foreign keys that reference the given entity type. </returns>
         public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var referencingForeignKeyMetadata = entityType as IReferencingForeignKeyMetadata;
-            if (referencingForeignKeyMetadata != null)
-            {
-                return referencingForeignKeyMetadata.ReferencingForeignKeys;
-            }
-
-            return entityType.Model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
-                .Where(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType));
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetReferencingForeignKeys();
 
         /// <summary>
         ///     Gets a navigation property on the given entity type. Returns null if no navigation property is found.
@@ -218,18 +207,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get navigation properties for. </param>
         /// <returns> All navigation properties on the given entity type. </returns>
         public static IEnumerable<INavigation> GetNavigations([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var fastEntityType = entityType as ICanGetNavigations;
-            if (fastEntityType != null)
-            {
-                return fastEntityType.GetNavigations();
-            }
-
-            return entityType.BaseType?.GetNavigations().Concat(entityType.GetDeclaredNavigations())
-                   ?? entityType.GetDeclaredNavigations();
-        }
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().GetNavigations();
 
         /// <summary>
         ///     <para>
@@ -263,5 +241,9 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.FindIndex(new[] { property });
         }
+
+        public static ChangeTrackingStrategy GetChangeTrackingStrategy(
+            [NotNull] this IEntityType entityType)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy;
     }
 }

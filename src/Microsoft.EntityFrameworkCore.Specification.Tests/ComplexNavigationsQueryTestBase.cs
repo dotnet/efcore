@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public void Dispose() => TestStore.Dispose();
 
-        //[ConditionalFact] #5043
+        [ConditionalFact] 
         public virtual void Entity_equality_empty()
         {
             using (var context = CreateContext())
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
-        //[ConditionalFact] #5043
+        [ConditionalFact] 
         public virtual void Key_equality_when_sentinel_ef_property()
         {
             using (var context = CreateContext())
@@ -60,6 +60,88 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var result = query.ToList();
 
                 Assert.Equal(0, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_required()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<int>(l.OneToOne_Required_FK, "Id") > 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(3, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_nested()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<int>(EF.Property<Level2>(l, "OneToOne_Required_FK"), "Id") == 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_and_member_expression1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<Level2>(l, "OneToOne_Required_FK").Id == 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_using_property_method_and_member_expression2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Where(l => EF.Property<int>(l.OneToOne_Required_FK, "Id") == 7);
+
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_navigation_converted_to_FK()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelTwo.Where(l => l.OneToOne_Required_FK_Inverse == new Level1 { Id = 1 });
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Key_equality_two_conditions_on_same_navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.Where(l => l.OneToOne_Required_FK == new Level2 { Id = 1 }
+                    || l.OneToOne_Required_FK == new Level2 { Id = 2 });
+
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
             }
         }
 
@@ -381,6 +463,20 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 {
                     Assert.True(expected.Contains(resultItem));
                 }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Navigation_inside_method_call_translated_to_join()
+        {
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            where e1.OneToOne_Required_FK.Name.StartsWith("L")
+                            select e1;
+
+                var result = query.ToList();
             }
         }
 
@@ -1745,6 +1841,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Include(e => e.OneToOne_Optional_FK)
                     .ToList()
                     .OrderBy(e => e?.OneToOne_Optional_FK?.Name)
+                    .ThenBy(e => e.Id)
                     .Select(e => e.Id)
                     .ToList();
             }
@@ -1753,7 +1850,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                var query = context.LevelOne.OrderBy(e => e.OneToOne_Optional_FK.Name).Select(e => e.Id);
+                var query = context.LevelOne.OrderBy(e => e.OneToOne_Optional_FK.Name).ThenBy(e => e.Id).Select(e => e.Id);
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);
@@ -1776,7 +1873,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 expected = (from l1 in l1s
                             join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.DefaultIfEmpty()
-                            orderby l2 == null ? null : l2.Name
+                            orderby l2 == null ? null : l2.Name, l1.Id
                             select l1.Id).ToList();
             }
 
@@ -1787,7 +1884,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 var query = from l1 in context.LevelOne
                             join l2 in context.LevelTwo on l1.Id equals l2.Level1_Optional_Id into groupJoin
                             from l2 in groupJoin.DefaultIfEmpty()
-                            orderby l2 == null ? null : l2.Name
+                            orderby l2 == null ? null : l2.Name, l1.Id
                             select l1.Id;
 
                 var result = query.ToList();
@@ -2267,6 +2364,68 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var query = context.LevelOne.SelectMany(l1 => l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK));
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_navigation_property_to_collection()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(l1 => l1.OneToOne_Required_FK)
+                    .ThenInclude(l1 => l1.OneToMany_Optional)
+                    .ToList()
+                    .Where(l1 => l1?.OneToOne_Required_FK.OneToMany_Optional?.Count > 0)
+                    .Select(e => e?.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.Where(l1 => l1.OneToOne_Required_FK.OneToMany_Optional.Count > 0);
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]?.Name));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_navigation_property_to_collection_of_original_entity_type()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = context.LevelTwo
+                    .Include(l2 => l2.OneToMany_Required_Inverse)
+                    .ThenInclude(l1 => l1.OneToMany_Optional)
+                    .ToList()
+                    .Where(l2 => l2?.OneToMany_Required_Inverse.OneToMany_Optional?.Count() > 0)
+                    .Select(e => e?.Name)
+                    .ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelTwo.Where(l2 => l2.OneToMany_Required_Inverse.OneToMany_Optional.Count() > 0);
                 var result = query.ToList();
 
                 Assert.Equal(expected.Count, result.Count);

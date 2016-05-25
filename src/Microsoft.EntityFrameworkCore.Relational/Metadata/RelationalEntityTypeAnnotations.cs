@@ -115,6 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         protected virtual bool SetDiscriminatorProperty([CanBeNull] IProperty value)
+            => SetDiscriminatorProperty(value, DiscriminatorProperty?.ClrType);
+
+        protected virtual bool SetDiscriminatorProperty([CanBeNull] IProperty value, [CanBeNull] Type oldDiscriminatorType)
         {
             if (value != null)
             {
@@ -131,15 +134,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             }
 
-            foreach (var derivedType in EntityType.GetDerivedTypes())
+            if (value == null
+                || value.ClrType != oldDiscriminatorType)
             {
-                GetAnnotations(derivedType).DiscriminatorValue = null;
+                foreach (var derivedType in EntityType.GetDerivedTypesInclusive())
+                {
+                    GetAnnotations(derivedType).DiscriminatorValue = null;
+                }
             }
 
             return Annotations.SetAnnotation(
                 RelationalFullAnnotationNames.Instance.DiscriminatorProperty,
                 ProviderFullAnnotationNames?.DiscriminatorProperty,
                 value?.Name);
+        }
+
+        protected virtual ConfigurationSource? GetDiscriminatorPropertyConfigurationSource()
+        {
+            var entityType = EntityType as EntityType;
+            var annotation = (ProviderFullAnnotationNames == null ? null : entityType?.FindAnnotation(ProviderFullAnnotationNames?.DiscriminatorProperty))
+                             ?? entityType?.FindAnnotation(RelationalFullAnnotationNames.Instance.DiscriminatorProperty);
+            return annotation?.GetConfigurationSource();
         }
 
         public virtual object DiscriminatorValue
@@ -173,6 +188,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 (RelationalFullAnnotationNames.Instance.DiscriminatorValue,
                     ProviderFullAnnotationNames?.DiscriminatorValue,
                     value);
+        }
+
+        protected virtual ConfigurationSource? GetDiscriminatorValueConfigurationSource()
+        {
+            var entityType = EntityType as EntityType;
+            var annotation = (ProviderFullAnnotationNames == null ? null : entityType?.FindAnnotation(ProviderFullAnnotationNames?.DiscriminatorValue))
+                             ?? entityType?.FindAnnotation(RelationalFullAnnotationNames.Instance.DiscriminatorValue);
+            return annotation?.GetConfigurationSource();
         }
     }
 }

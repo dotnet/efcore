@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
 
                 using (collector.StartCollection())
                 {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
 
                 using (collector.StartCollection())
                 {
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
 
                 using (collector.StartCollection())
                 {
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
 
                 using (collector.StartCollection())
                 {
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())

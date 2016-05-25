@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -14,8 +15,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
-        public override Guid Next() => Guid.NewGuid();
+        public override Guid Next(EntityEntry entry) => Guid.NewGuid();
 
         /// <summary>
         ///     Gets a value indicating whether the values generated are temporary or permanent. This implementation

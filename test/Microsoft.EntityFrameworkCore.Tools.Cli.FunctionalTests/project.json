@@ -1,0 +1,43 @@
+{
+  "buildOptions": {
+    "keyFile": "../../tools/Key.snk",
+    "copyToOutput": {
+      "include": "TestProjects/"
+    },
+    "compile": {
+      "include": "**/*.cs",
+      "exclude": [
+        "obj",
+        "bin",
+        "TestProjects/"
+      ]
+    }
+  },
+  "dependencies": {
+    "dotnet-test-xunit": "1.0.0-*",
+    "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
+    "xunit": "2.1.0"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50",
+        "portable-net452+win81"
+      ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "precompile": "clean-assets %compile:OutputDir%"
+  },
+  "publishOptions": {
+    "include": "TestProjects/"
+  }
+}

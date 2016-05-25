@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -14,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
     {
         private readonly DbContextOptions _options;
         private readonly SqlServerTestStore _testStore;
+        private readonly TestSqlLoggerFactory _testSqlLoggerFactory = new TestSqlLoggerFactory();
 
         public BuiltInDataTypesSqlServerFixture()
         {
@@ -22,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
                 .BuildServiceProvider();
 
             _options = new DbContextOptionsBuilder()

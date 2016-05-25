@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
             var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, null, OneToOnePrincipal.NavigationProperty, ConfigurationSource.Convention)
+            principalEntityBuilder.Relationship(dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(dependentEntityBuilder, new RelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
@@ -76,10 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
             var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, null, OneToOnePrincipal.NavigationProperty, ConfigurationSource.Convention)
+            principalEntityBuilder.Relationship(dependentEntityBuilder,  OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
-            principalEntityBuilder.Relationship(dependentEntityBuilder, null, OneToOneDependent.NavigationProperty, ConfigurationSource.Convention)
+            dependentEntityBuilder.Relationship(principalEntityBuilder, OneToOneDependent.NavigationProperty, null, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(dependentEntityBuilder, new RelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
             var dependentEntityBuilder = principalEntityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
 
-            dependentEntityBuilder.Relationship(principalEntityBuilder, null, OneToOnePrincipal.NavigationProperty, ConfigurationSource.Explicit)
+            principalEntityBuilder.Relationship(dependentEntityBuilder, OneToOnePrincipal.NavigationProperty, null, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(dependentEntityBuilder, new RelationshipDiscoveryConvention().Apply(dependentEntityBuilder));
@@ -584,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             var derivedBuilder = modelBuilder.Entity(typeof(DerivedOne), ConfigurationSource.Explicit);
             derivedBuilder.HasBaseType(baseBuilder.Metadata, ConfigurationSource.Convention);
 
-            entityBuilder.Relationship(baseBuilder, null, nameof(Base.BaseNavigation), ConfigurationSource.Convention);
+            baseBuilder.Relationship(entityBuilder, nameof(Base.BaseNavigation), null, ConfigurationSource.Convention);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 

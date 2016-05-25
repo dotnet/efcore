@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ValueGeneration
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                var generatedValue = sequentialGuidIdentityGenerator.Next();
+                var generatedValue = sequentialGuidIdentityGenerator.Next(null);
 
                 values.Add(generatedValue);
             }

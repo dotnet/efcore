@@ -1,8 +1,18 @@
+use namespace="System.IO"
+use namespace="System.IO.Compression"
+use namespace="System.Linq"
+
+default CONFIGURATION_LOCAL='${E("Configuration")}'
+default BASE_DIR_LOCAL='${Directory.GetCurrentDirectory()}'
+default BUILD_DIR_LOCAL='${Path.Combine(BASE_DIR_LOCAL, "artifacts", "build")}'
+default TOOL_PACKAGE_NAME='Microsoft.EntityFrameworkCore.Tools'
+default CLI_TOOL_PROJECT_NAME='Microsoft.EntityFrameworkCore.Tools.Cli'
+default TOOL_EXE_NAME='${CLI_TOOL_PROJECT_NAME}.exe'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
 var AUTHORS='Microsoft Open Technologies, Inc.'
-
+-BuildQuality = '';
 use-standard-lifecycle
 k-standard-goals
 
@@ -17,11 +27,122 @@ k-standard-goals
     // produce .NET Core test artifacts for testing
     var testProjects = Files.Include("test/Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests/project.json")
     .Include("test/Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests/project.json");
-    var tfm = "netstandardapp1.5";
+    var tfm = "netcoreapp1.0";
     foreach (var projectFile in testProjects)
     {
       var projectName = Path.GetFileName(Path.GetDirectoryName(projectFile));
       var output = Path.Combine(Directory.GetCurrentDirectory(), "artifacts/tests", projectName, tfm);
       Dotnet(string.Format("publish --configuration Release --output {0} --framework {1} {2}", output, tfm, projectFile));
     }
+  }
+
+#repack-tools target='compile' if='Directory.Exists("src")'
+  @{
+      // copies the net451 target for UWP, minus the dependency on CLI tooling
+      var projectNupkg = Files
+        .Include(Path.Combine(BUILD_DIR_LOCAL, TOOL_PACKAGE_NAME + ".1.*.nupkg")) // Assuming the package version starts with 1.
+        .Where(path => !path.EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(f => f)    // On local builds multiple nupkgs are generated.
+        .First();
+      
+      Log.Info("Repacking Nupkg: " + projectNupkg);
+
+       var extractToDirectory = projectNupkg + "-temp";
+      ZipFile.ExtractToDirectory(projectNupkg, extractToDirectory);
+
+      var nuspecFile = Files.Include(Path.Combine(extractToDirectory, "*.nuspec")).First();
+      var nuspec = new List<string>(File.ReadAllLines(nuspecFile));
+      var dependencies = Array.FindIndex<string>(nuspec.ToArray(), l => l.Contains("<dependencies>")) + 1;
+
+      var uap = nuspec.SkipWhile(l => !l.Contains("<group targetFramework=\".NETFramework4.5.1"))
+            .TakeWhile(l => !l.Contains("</group>"))
+            .Where(l => !l.Contains(CLI_TOOL_PROJECT_NAME))
+            .ToList();
+
+      uap[0] = uap[0].Replace(".NETFramework4.5.1", ".NETCore5.0");
+      uap.Add("      </group>");
+
+      nuspec.InsertRange(dependencies, uap);
+
+      File.WriteAllLines(nuspecFile, nuspec);
+
+      // repack
+      var nugetExePath = Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe");
+      var nuspecPath = Path.Combine(extractToDirectory, TOOL_PACKAGE_NAME + ".nuspec");
+      ExecClr(nugetExePath, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
+      
+      try
+      {
+          // Delete temporary directory we used to repack.
+          Directory.Delete(extractToDirectory, true);
+      }
+      catch
+      {
+          // Don't care if we couldn't delete the temp directory.
+      }
+   }
+
+#repack-cli-tools target='compile' if='Directory.Exists("src")'
+  @{    
+      if (string.IsNullOrEmpty(CONFIGURATION_LOCAL))
+      {
+          CONFIGURATION_LOCAL = "Debug";
+      }
+      
+      // Forcing to lower to match the entry in the sources project.json.
+      var configurationX86 = CONFIGURATION_LOCAL.ToLower() + "_x86";
+      
+      var projectNupkg = Files
+          .Include(Path.Combine(BUILD_DIR_LOCAL, CLI_TOOL_PROJECT_NAME + ".1.*.nupkg")) // Assuming the package version starts with 1.
+          .Where(path => !path.EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase))
+          .OrderByDescending(f => f)    // On local builds multiple nupkgs are generated.
+          .First();
+      
+      Log.Info("Repacking Nupkg: " + projectNupkg);
+      
+      var extractToDirectory = projectNupkg + "-temp";
+      ZipFile.ExtractToDirectory(projectNupkg, extractToDirectory);
+
+      // don't want the exe in the "lib" folder
+      File.Delete(Path.Combine(extractToDirectory, "lib/net451", TOOL_EXE_NAME));
+      File.Delete(Path.Combine(extractToDirectory, "lib/net451", CLI_TOOL_PROJECT_NAME + ".xml"));
+
+      var projectDirectory = Path.Combine(BASE_DIR_LOCAL, "src", CLI_TOOL_PROJECT_NAME);
+      var projectFilePath = Path.Combine(projectDirectory, "project.json");
+      var projectFile = Files.Include(projectFilePath).Single();
+      
+      // Generate the x86 exe variation for the nupkg.
+      DotnetBuild(projectFile, configurationX86, "net451");
+      
+      var runtimesDirectory = Path.Combine(extractToDirectory, "runtimes");
+      var win7x86Directory = Path.Combine(runtimesDirectory, "win7-x86", "lib", "net451");
+      var win7x64Directory = Path.Combine(runtimesDirectory, "win7-x64", "lib", "net451");
+      Directory.CreateDirectory(win7x86Directory);
+      Directory.CreateDirectory(win7x64Directory);
+      
+      var binDirectory = Path.Combine(projectDirectory, "bin");
+      var x86OutputPath = Path.Combine(binDirectory, configurationX86, "net451");
+      var x86ExePath = Path.Combine(x86OutputPath, TOOL_EXE_NAME);
+      var x86ExeDestinationPath = Path.Combine(win7x86Directory, TOOL_EXE_NAME);
+      File.Copy(x86ExePath, x86ExeDestinationPath);
+      
+      var x64OutputPath = Path.Combine(binDirectory, CONFIGURATION_LOCAL, "net451");
+      var x64ExePath = Path.Combine(x64OutputPath, TOOL_EXE_NAME);
+      var x64ExeDestinationPath = Path.Combine(win7x64Directory, TOOL_EXE_NAME);
+      File.Copy(x64ExePath, x64ExeDestinationPath);
+      
+      // repack
+      var nugetExePath = Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe");
+      var nuspecPath = Path.Combine(extractToDirectory, CLI_TOOL_PROJECT_NAME + ".nuspec");
+      ExecClr(nugetExePath, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
+      
+      try
+      {
+          // Delete temporary directory we used to repack.
+          Directory.Delete(extractToDirectory, true);
+      }
+      catch
+      {
+          // Don't care if we couldn't delete the temp directory.
+      }
   }

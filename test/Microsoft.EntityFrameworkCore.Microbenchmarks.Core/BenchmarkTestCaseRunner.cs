@@ -9,7 +9,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
 using Microsoft.Extensions.Configuration;
 #endif
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 runSummary.Aggregate(iterationSummary);
             }
 
-            if (runSummary.Failed != 0)
+            if (runSummary.Failed != 0 || runSummary.Skipped != 0)
             {
                 _diagnosticMessageSink.OnMessage(new DiagnosticMessage($"No valid results for {TestCase.DisplayName}. {runSummary.Failed} of {TestCase.Iterations + TestCase.WarmupIterations} iterations failed."));
             }
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
 
         private static string GetMachineName()
         {
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
             var config = new ConfigurationBuilder()
                 .SetBasePath(".")
                 .AddEnvironmentVariables()

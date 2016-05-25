@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Text;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IRelationalDatabaseCreator _databaseCreator;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+        private readonly IMigrationCommandExecutor _migrationCommandExecutor;
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly ILogger _logger;
@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IDatabaseCreator databaseCreator,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
+            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] ILogger<Migrator> logger,
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
+            Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(logger, nameof(logger));
@@ -55,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
             _migrationsSqlGenerator = migrationsSqlGenerator;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
+            _migrationCommandExecutor = migrationCommandExecutor;
             _connection = connection;
             _sqlGenerationHelper = sqlGenerationHelper;
             _logger = logger;
@@ -75,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var command = _rawSqlCommandBuilder.Build(_historyRepository.GetCreateScript());
 
-                Execute(new[] { command });
+                command.ExecuteNonQuery(_connection);
             }
 
-            var commands = GetMigrationCommands(_historyRepository.GetAppliedMigrations(), targetMigration);
-            foreach (var command in commands)
+            var commandLists = GetMigrationCommandLists(_historyRepository.GetAppliedMigrations(), targetMigration);
+            foreach (var commandList in commandLists)
             {
-                Execute(command());
+                _migrationCommandExecutor.ExecuteNonQuery(commandList(), _connection);
             }
         }
 
@@ -101,21 +104,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var command = _rawSqlCommandBuilder.Build(_historyRepository.GetCreateScript());
 
-                await ExecuteAsync(
-                    new[] { command },
-                    cancellationToken);
+                await command.ExecuteNonQueryAsync(_connection, cancellationToken: cancellationToken);
             }
 
-            var commands = GetMigrationCommands(
+            var commandLists = GetMigrationCommandLists(
                 await _historyRepository.GetAppliedMigrationsAsync(cancellationToken),
                 targetMigration);
-            foreach (var command in commands)
+
+            foreach (var commandList in commandLists)
             {
-                await ExecuteAsync(command(), cancellationToken);
+                await _migrationCommandExecutor.ExecuteNonQueryAsync(commandList(), _connection, cancellationToken);
             }
         }
 
-        private IEnumerable<Func<IReadOnlyList<IRelationalCommand>>> GetMigrationCommands(
+        private IEnumerable<Func<IReadOnlyList<MigrationCommand>>> GetMigrationCommandLists(
             IReadOnlyList<HistoryRow> appliedMigrationEntries,
             string targetMigration = null)
         {
@@ -132,29 +134,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var index = i;
                 yield return () =>
-                    {
-                        _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
+                {
+                    _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
 
-                        return GenerateDownSql(
-                            migration,
-                            index != migrationsToRevert.Count - 1
-                                ? migrationsToRevert[index + 1]
-                                : null);
-                    };
+                    return GenerateDownSql(
+                        migration,
+                        index != migrationsToRevert.Count - 1
+                            ? migrationsToRevert[index + 1]
+                            : null);
+                };
             }
 
             for (var i = 0; i < migrationsToApply.Count; i++)
             {
                 var migration = migrationsToApply[i];
 
+                var index = i;
                 yield return () =>
-                    {
-                        _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+                {
+                    _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
 
                     return GenerateUpSql(
                         migration,
-                        i != migrationsToApply.Count - 1
-                            ? migrationsToApply[i + 1]
+                        index != migrationsToApply.Count - 1
+                            ? migrationsToApply[index + 1]
                             : null);
                 };
             }
@@ -296,60 +299,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return builder.ToString();
         }
 
-        protected virtual IReadOnlyList<IRelationalCommand> GenerateUpSql(
+        protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration, [CanBeNull] Migration previousMigration)
+        {
+            Check.NotNull(migration, nameof(migration));
+
+            var insertCommand = _rawSqlCommandBuilder.Build(
+                _historyRepository.GetInsertScript(
+                    new HistoryRow(
+                        migration.GetId(),
+                        ProductInfo.GetVersion(),
+                        AppendScript(GenerateDownSql(migration, previousMigration)))));
+
+            return _migrationsSqlGenerator
+                .Generate(migration.UpOperations, migration.TargetModel)
+                .Concat(new[] { new MigrationCommand(insertCommand) })
+                .ToList();
+        }
+
+        protected virtual IReadOnlyList<MigrationCommand> GenerateDownSql(
             [NotNull] Migration migration,
             [CanBeNull] Migration previousMigration)
         {
             Check.NotNull(migration, nameof(migration));
 
-            var commands = new List<IRelationalCommand>();
-            commands.AddRange(_migrationsSqlGenerator.Generate(migration.UpOperations, migration.TargetModel));
-            commands.Add(
-                _rawSqlCommandBuilder.Build(
-                    _historyRepository.GetInsertScript(
-                        new HistoryRow(
-                            migration.GetId(),
-                            ProductInfo.GetVersion(),
-                            AppendScript(GenerateDownSql(migration, previousMigration))))));
+            var deleteCommand = _rawSqlCommandBuilder.Build(
+                _historyRepository.GetDeleteScript(migration.GetId()));
 
-            return commands;
+            return _migrationsSqlGenerator
+                .Generate(migration.DownOperations, previousMigration?.TargetModel)
+                .Concat(new[] { new MigrationCommand(deleteCommand) })
+                .ToList();
         }
 
-        protected virtual IReadOnlyList<IRelationalCommand> GenerateDownSql(
-            [NotNull] Migration migration,
-            [CanBeNull] Migration previousMigration)
-        {
-            Check.NotNull(migration, nameof(migration));
 
-            var commands = new List<IRelationalCommand>();
-            commands.AddRange(_migrationsSqlGenerator.Generate(migration.DownOperations, previousMigration?.TargetModel));
-            commands.Add(
-                _rawSqlCommandBuilder.Build(_historyRepository.GetDeleteScript(migration.GetId())));
-
-            return commands;
-        }
-
-        private void Execute(IEnumerable<IRelationalCommand> relationalCommands)
-        {
-            using (var transaction = _connection.BeginTransaction())
-            {
-                relationalCommands.ExecuteNonQuery(_connection);
-
-                transaction.Commit();
-            }
-        }
-
-        private string AppendScript(IReadOnlyList<IRelationalCommand> downCommands) => new StringBuilder().AppendJoin(downCommands.Select(t => t.CommandText), "").ToString();
-
-        private async Task ExecuteAsync(
-            IEnumerable<IRelationalCommand> relationalCommands,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            using (var transaction = await _connection.BeginTransactionAsync(cancellationToken))
-            {
-                await relationalCommands.ExecuteNonQueryAsync(_connection, cancellationToken);
-                transaction.Commit();
-            }
-        }
+        private string AppendScript(IReadOnlyList<MigrationCommand> downCommands) => new StringBuilder().AppendJoin(downCommands.Select(t => t.CommandText), "").ToString();
     }
 }

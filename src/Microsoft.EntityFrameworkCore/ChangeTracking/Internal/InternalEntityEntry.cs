@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -50,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private bool PrepareForAdd(EntityState newState)
         {
-            if ((newState != EntityState.Added)
-                || (EntityState == EntityState.Added))
+            if (newState != EntityState.Added
+                || EntityState == EntityState.Added)
             {
                 return false;
             }
@@ -73,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges)
         {
             // Prevent temp values from becoming permanent values
-            if ((oldState == EntityState.Added)
-                && (newState != EntityState.Added)
-                && (newState != EntityState.Detached))
+            if (oldState == EntityState.Added
+                && newState != EntityState.Added
+                && newState != EntityState.Detached)
             {
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var property in EntityType.GetProperties())
@@ -117,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             StateManager.Notify.StateChanging(this, newState);
 
-            if ((newState == EntityState.Unchanged)
-                && (oldState == EntityState.Modified))
+            if (newState == EntityState.Unchanged
+                && oldState == EntityState.Modified)
             {
                 if (acceptChanges)
                 {
@@ -194,7 +196,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 MarkAsTemporary(property, isTemporary: false);
 
-                SetOriginalValue(property, this[property]);
+                var index = property.GetOriginalValueIndex();
+                if (index != -1)
+                {
+                    SetOriginalValue(property, this[property], index);
+                }
             }
 
             if (currentState != EntityState.Modified
@@ -261,7 +267,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return;
             }
 
-            _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isTemporary);
+            var index = property.GetIndex();
+            _stateData.FlagProperty(index, PropertyFlag.TemporaryOrModified, isTemporary);
+            _stateData.FlagProperty(index, PropertyFlag.Unknown, isFlagged: false);
         }
 
         protected virtual void MarkShadowPropertiesNotSet([NotNull] IEntityType entityType)
@@ -346,10 +354,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void SetCurrentValue(IPropertyBase propertyBase, object value)
             => this[propertyBase] = value;
 
-        public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
+        public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value, int index = -1)
         {
             EnsureOriginalValues();
-            _originalValues.SetValue((IProperty)propertyBase, value);
+            _originalValues.SetValue((IProperty)propertyBase, value, index);
         }
 
         public virtual void SetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
@@ -373,6 +381,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _relationshipsSnapshot = new RelationshipsSnapshot(this);
             }
         }
+
+        public virtual bool HasOriginalValuesSnapshot => !_originalValues.IsEmpty;
 
         public virtual bool HasRelationshipSnapshot => !_relationshipsSnapshot.IsEmpty;
 
@@ -445,6 +455,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         StateManager.Notify.PropertyChanging(this, propertyBase);
                         WritePropertyValue(propertyBase, value);
+
+                        if (propertyIndex.HasValue)
+                        {
+                            _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Unknown, isFlagged: false);
+                        }
+
                         StateManager.Notify.PropertyChanged(this, propertyBase, setModified);
                     }
                 }
@@ -604,13 +620,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        public virtual void DiscardStoreGeneratedValues() => _storeGeneratedValues = new StoreGeneratedValues();
+        public virtual void DiscardStoreGeneratedValues()
+        {
+            if (!_storeGeneratedValues.IsEmpty)
+            {
+                var storeGeneratedValues = _storeGeneratedValues;
+                _storeGeneratedValues = new StoreGeneratedValues();
+
+                foreach (var property in EntityType.GetProperties())
+                {
+                    object value;
+                    if (storeGeneratedValues.TryGetValue(property, out value))
+                    {
+                        StateManager.Notify.PropertyChanged(this, property, setModified: false);
+                    }
+                }
+            }
+        }
 
         public virtual bool IsStoreGenerated(IProperty property)
-            => (property.ValueGenerated != ValueGenerated.Never)
-               && (((EntityState == EntityState.Added)
+            => property.ValueGenerated != ValueGenerated.Never
+               && ((EntityState == EntityState.Added
                     && (property.IsStoreGeneratedAlways || IsTemporaryOrDefault(property)))
-                   || ((property.ValueGenerated == ValueGenerated.OnAddOrUpdate) && (EntityState == EntityState.Modified) && (property.IsStoreGeneratedAlways || !IsModified(property))));
+                   || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate && EntityState == EntityState.Modified && (property.IsStoreGeneratedAlways || !IsModified(property))));
 
         private bool IsTemporaryOrDefault(IProperty property)
             => HasTemporaryValue(property)
@@ -619,5 +651,56 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
 
         public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
+
+        public virtual void HandleINotifyPropertyChanging([NotNull] object sender, [NotNull] PropertyChangingEventArgs eventArgs)
+        {
+            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            {
+                StateManager.Notify.PropertyChanging(this, propertyBase);
+            }
+        }
+
+        public virtual void HandleINotifyPropertyChanged([NotNull] object sender, [NotNull] PropertyChangedEventArgs eventArgs)
+        {
+            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            {
+                StateManager.Notify.PropertyChanged(this, propertyBase, setModified: true);
+            }
+        }
+
+        public virtual void HandleINotifyCollectionChanged([NotNull] object sender, [NotNull] NotifyCollectionChangedEventArgs eventArgs)
+        {
+            var navigation = EntityType.GetNavigations().FirstOrDefault(n => n.IsCollection() && this[n] == sender);
+            if (navigation != null)
+            {
+                switch (eventArgs.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        StateManager.Notify.NavigationCollectionChanged(
+                            this,
+                            navigation,
+                            eventArgs.NewItems.OfType<object>(),
+                            Enumerable.Empty<object>());
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        StateManager.Notify.NavigationCollectionChanged(
+                            this,
+                            navigation,
+                            Enumerable.Empty<object>(),
+                            eventArgs.OldItems.OfType<object>());
+                        break;
+                    case NotifyCollectionChangedAction.Replace:
+                        StateManager.Notify.NavigationCollectionChanged(
+                            this,
+                            navigation,
+                            eventArgs.NewItems.OfType<object>(),
+                            eventArgs.OldItems.OfType<object>());
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        throw new InvalidOperationException(CoreStrings.ResetNotSupported);
+                    // Note: ignoring Move since index not important
+                }
+            }
+        }
     }
 }

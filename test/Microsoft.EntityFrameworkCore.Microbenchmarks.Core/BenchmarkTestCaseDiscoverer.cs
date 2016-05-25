@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 .Select(a => new
                 {
                     Name = a.GetNamedArgument<string>(nameof(BenchmarkVariationAttribute.VariationName)),
+                    Iterations = a.GetNamedArgument<int?>(nameof(BenchmarkVariationAttribute.Iterations)),
                     TestMethodArguments = a.GetNamedArgument<object[]>(nameof(BenchmarkVariationAttribute.Data))
                 })
                 .ToList();
@@ -33,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 variations.Add(new
                 {
                     Name = "Default",
+                    Iterations = (int?)null,
                     TestMethodArguments = new object[0]
                 });
             }
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 if (BenchmarkConfig.Instance.RunIterations)
                 {
                     tests.Add(new BenchmarkTestCase(
-                        factAttribute.GetNamedArgument<int>(nameof(BenchmarkAttribute.Iterations)),
+                        variation.Iterations ?? factAttribute.GetNamedArgument<int>(nameof(BenchmarkAttribute.Iterations)),
                         factAttribute.GetNamedArgument<int>(nameof(BenchmarkAttribute.WarmupIterations)),
                         variation.Name,
                         _diagnosticMessageSink,

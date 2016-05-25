@@ -77,6 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return collection;
         }
 
+        public virtual object GetOrCreate(object instance) => GetOrCreateCollection(instance);
+
         private TCollection GetOrCreateCollection(object instance)
         {
             var collection = _getCollection((TEntity)instance);

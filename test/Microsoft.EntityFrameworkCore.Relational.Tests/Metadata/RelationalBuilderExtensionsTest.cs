@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedColumnSql);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
-            Assert.Equal("CherryCoke", property.Relational().ComputedValueSql);
+            Assert.Equal("CherryCoke", property.Relational().ComputedColumnSql);
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
@@ -160,6 +160,63 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             Assert.Equal(typeof(ulong), property.Relational().DefaultValue.GetType());
             Assert.Equal((ulong)2, property.Relational().DefaultValue);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        }
+
+        [Fact]
+        public void Setting_column_default_value_overrides_default_sql_and_computed_column_sql()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .HasComputedColumnSql("0")
+                .HasDefaultValueSql("1")
+                .HasDefaultValue(2);
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Equal(2, property.Relational().DefaultValue);
+            Assert.Null(property.Relational().DefaultValueSql);
+            Assert.Null(property.Relational().ComputedColumnSql);
+        }
+
+        [Fact]
+        public void Setting_column_default_sql_value_overrides_default_value_and_computed_column_sql()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .HasDefaultValue(2)
+                .HasComputedColumnSql("0")
+                .HasDefaultValueSql("1");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Equal("1", property.Relational().DefaultValueSql);
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.Relational().ComputedColumnSql);
+        }
+
+        [Fact]
+        public void Setting_computed_column_sql_overrides_default_sql_and_column_default_value()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .HasDefaultValueSql("1")
+                .HasDefaultValue(2)
+                .HasComputedColumnSql("0");
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+
+            Assert.Equal("0", property.Relational().ComputedColumnSql);
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(property.Relational().DefaultValueSql);
         }
 
         [Fact]

@@ -13,35 +13,71 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         public static readonly RelationalTypeMapping NullMapping = new RelationalTypeMapping("NULL");
 
-        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, [CanBeNull] DbType? storeType, bool unicode = true)
-            : this(defaultTypeName, clrType, unicode)
+        public RelationalTypeMapping(
+            [NotNull] string storeType,
+            [NotNull] Type clrType)
+            : this(storeType, clrType, dbType: null)
         {
-            StoreType = storeType;
         }
 
-        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, bool unicode = true)
-            : this(defaultTypeName)
+        public RelationalTypeMapping(
+            [NotNull] string storeType,
+            [NotNull] Type clrType,
+            [CanBeNull] DbType? dbType)
+            : this(storeType, clrType, dbType, unicode: false, size: null)
+        {
+        }
+
+        public RelationalTypeMapping(
+            [NotNull] string storeType,
+            [NotNull] Type clrType,
+            [CanBeNull] DbType? dbType,
+            bool unicode,
+            int? size,
+            bool hasNonDefaultUnicode = false,
+            bool hasNonDefaultSize = false)
+            : this(storeType)
         {
             Check.NotNull(clrType, nameof(clrType));
 
             ClrType = clrType;
+            DbType = dbType;
             IsUnicode = unicode;
+            Size = size;
+            HasNonDefaultUnicode = hasNonDefaultUnicode;
+            HasNonDefaultSize = hasNonDefaultSize;
         }
 
-        private RelationalTypeMapping([NotNull] string defaultTypeName)
+        private RelationalTypeMapping([NotNull] string storeType)
         {
-            Check.NotEmpty(defaultTypeName, nameof(defaultTypeName));
+            Check.NotEmpty(storeType, nameof(storeType));
 
-            DefaultTypeName = defaultTypeName;
+            StoreType = storeType;
         }
 
-        public virtual string DefaultTypeName { get; }
+        public virtual RelationalTypeMapping CreateCopy([NotNull] string storeType, int? size)
+            => new RelationalTypeMapping(
+                storeType, 
+                ClrType, 
+                DbType, 
+                IsUnicode, 
+                size, 
+                HasNonDefaultUnicode, 
+                hasNonDefaultSize: size != Size);
 
-        public virtual DbType? StoreType { get; }
+        public virtual string StoreType { get; }
 
         public virtual Type ClrType { get; }
 
+        public virtual DbType? DbType { get; }
+
         public virtual bool IsUnicode { get; }
+
+        public virtual int? Size { get; }
+
+        public virtual bool HasNonDefaultUnicode { get; }
+
+        public virtual bool HasNonDefaultSize { get; }
 
         public virtual DbParameter CreateParameter(
             [NotNull] DbCommand command,
@@ -61,9 +97,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 parameter.IsNullable = nullable.Value;
             }
 
-            if (StoreType.HasValue)
+            if (DbType.HasValue)
             {
-                parameter.DbType = StoreType.Value;
+                parameter.DbType = DbType.Value;
+            }
+
+            if (Size.HasValue)
+            {
+                parameter.Size = Size.Value;
             }
 
             ConfigureParameter(parameter);

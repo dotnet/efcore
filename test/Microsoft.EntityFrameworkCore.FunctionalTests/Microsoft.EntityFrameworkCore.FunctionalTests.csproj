@@ -35,6 +35,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomValueGeneratorTest.cs" />
     <Compile Include="DatabaseErrorLogStateTest.cs" />
     <Compile Include="ModelSourceTest.cs" />
   </ItemGroup>

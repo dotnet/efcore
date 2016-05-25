@@ -7,7 +7,9 @@ namespace E2E.Sqlite
 {
     public partial class Dependent
     {
+        [Column(TypeName = "INT")]
         public long Id { get; set; }
+        [Column(TypeName = "INT")]
         public long PrincipalId { get; set; }
 
         [ForeignKey("PrincipalId")]

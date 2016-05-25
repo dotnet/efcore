@@ -39,6 +39,28 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Can_use_is_kiwi_with_other_predicate()
+        {
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().Where(a => a is Kiwi && a.CountryId == 1).ToList();
+
+                Assert.Equal(1, animals.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_is_kiwi_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Animal>().Select(a => a is Kiwi).ToList();
+
+                Assert.Equal(2, animals.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Can_use_of_type_bird()
         {
             using (var context = CreateContext())

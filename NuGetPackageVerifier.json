@@ -4,8 +4,6 @@
             "AdxVerificationCompositeRule"
         ],
         "packages": {
-            "dotnet-ef": { },
-            "Microsoft.EntityFrameworkCore.Commands": { },
             "Microsoft.EntityFrameworkCore": { },
             "Microsoft.EntityFrameworkCore.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.InMemory": { },
@@ -16,7 +14,10 @@
             "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.Sqlite": { },
-            "Microsoft.EntityFrameworkCore.Sqlite.Design": { }
+            "Microsoft.EntityFrameworkCore.Sqlite.Design": { },
+            "Microsoft.EntityFrameworkCore.Tools": { },
+            "Microsoft.EntityFrameworkCore.Tools.Cli": { },
+            "Microsoft.EntityFrameworkCore.Tools.Core": { }
         }
     },
     "Default": { // Rules to run for packages not listed in any other set.

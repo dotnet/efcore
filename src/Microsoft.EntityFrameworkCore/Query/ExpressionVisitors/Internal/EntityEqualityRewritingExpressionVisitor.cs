@@ -38,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
+             var newBinaryExpression = (BinaryExpression)base.VisitBinary(binaryExpression);
+
             if (binaryExpression.NodeType == ExpressionType.Equal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
-                var newBinaryExpression = (BinaryExpression)base.VisitBinary(binaryExpression);
-
                 var constantExpression = newBinaryExpression.Left.RemoveConvert() as ConstantExpression;
 
                 if (constantExpression != null
@@ -75,32 +75,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return binaryExpression;
+            return newBinaryExpression;
         }
 
         private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)
         {
             return properties.Count == 1
-                ? CreatePropertyExpression(target, properties[0])
+                ? EntityQueryModelVisitor.CreatePropertyExpression(target, properties[0])
                 : Expression.New(
                     CompositeKey.CompositeKeyCtor,
                     Expression.NewArrayInit(
                         typeof(object),
                         properties
-                            .Select(p => Expression.Convert(CreatePropertyExpression(target, p), typeof(object)))
+                            .Select(p => Expression.Convert(EntityQueryModelVisitor.CreatePropertyExpression(target, p), typeof(object)))
                             .Cast<Expression>()
                             .ToArray()));
         }
-
-        private static readonly MethodInfo _efPropertyMethod
-            = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
-
-        private static Expression CreatePropertyExpression(Expression target, IProperty property)
-            => Expression.Call(
-                null,
-                _efPropertyMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
-                target,
-                Expression.Constant(property.Name));
 
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {

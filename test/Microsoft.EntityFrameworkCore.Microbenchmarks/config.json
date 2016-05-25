@@ -4,7 +4,7 @@
     "resultDatabases": {
       "local": "Server=(localdb)\\mssqllocaldb;Database=Benchmarks;Trusted_Connection=True;"
     },
-    "benchmarkDatabaseInstance": "(localdb)\\mssqllocaldb",
+    "benchmarkDatabase": "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true;",
     "productReportingVersion": "EF Core"
   }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(ChangedOnlyEntity).FullName);
-            entityType.UseEagerSnapshots = true;
+            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
 
             AllOriginalValuesTest(model, entityType, new ChangedOnlyEntity { Id = 1, Name = "Kool" });
         }
@@ -125,12 +126,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             entityType3.GetOrSetPrimaryKey(property6);
             var property7 = entityType3.AddProperty("Name", typeof(string), shadow: false);
             property7.IsConcurrencyToken = true;
+            entityType3.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
             var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
             var property8 = entityType4.AddProperty("Id", typeof(int), shadow: false);
             entityType4.GetOrSetPrimaryKey(property8);
             var property9 = entityType4.AddProperty("Name", typeof(string), shadow: false);
             property9.IsConcurrencyToken = true;
+            entityType4.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
             entityType5.HasBaseType(someSimpleEntityType);

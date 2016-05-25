@@ -61,5 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         DbContext Context { get; }
 
         bool? SingleQueryMode { get; set; }
+
+        void Unsubscribe();
     }
 }

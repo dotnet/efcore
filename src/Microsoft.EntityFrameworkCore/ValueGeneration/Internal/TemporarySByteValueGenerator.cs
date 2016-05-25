@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
@@ -9,6 +10,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
     {
         private int _current = sbyte.MinValue;
 
-        public override sbyte Next() => (sbyte)Interlocked.Increment(ref _current);
+        public override sbyte Next(EntityEntry entry) => (sbyte)Interlocked.Increment(ref _current);
     }
 }

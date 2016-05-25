@@ -62,49 +62,157 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override void IncludeNavigations(
             IncludeSpecification includeSpecification,
             Type resultType,
-            LambdaExpression accessorLambda,
+            Expression accessorExpression,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
-            Check.NotNull(accessorLambda, nameof(accessorLambda));
 
-            MethodInfo includeMethod;
+            var includeExpressionVisitor = new InMemoryIncludeExpressionVisitor(
+                _materializerFactory,
+                QueryCompilationContext,
+                LinqOperatorProvider,
+                includeSpecification,
+                accessorExpression,
+                querySourceRequiresTracking);
 
-            var resultItemTypeInfo = resultType.GetTypeInfo();
+            Expression = includeExpressionVisitor.Visit(Expression);
+        }
 
-            if (resultItemTypeInfo.IsGenericType
-                && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                    || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
+        private sealed class InMemoryIncludeExpressionVisitor : ExpressionVisitorBase
+        {
+            private readonly IncludeSpecification _includeSpecification;
+            private readonly IMaterializerFactory _materializerFactory;
+            private readonly QueryCompilationContext _queryCompilationContext;
+            private readonly ILinqOperatorProvider _linqOperatorProvider;
+            private readonly Expression _accessorExpression;
+            private readonly bool _querySourceRequiresTracking;
+
+            public InMemoryIncludeExpressionVisitor(
+                [NotNull] IMaterializerFactory materializerFactory,
+                [NotNull] QueryCompilationContext queryCompilationContext,
+                [NotNull] ILinqOperatorProvider linqOperatorProvider,
+                [NotNull] IncludeSpecification includeSpecification,
+                [NotNull] Expression accessorExpression,
+                bool querySourceRequiresTracking)
             {
-                includeMethod
-                    = _includeGroupedMethodInfo.MakeGenericMethod(
-                        resultType.GenericTypeArguments[0],
-                        resultType.GenericTypeArguments[1]);
-            }
-            else
-            {
-                includeMethod = _includeMethodInfo.MakeGenericMethod(resultType);
+                _materializerFactory = materializerFactory;
+                _queryCompilationContext = queryCompilationContext;
+                _linqOperatorProvider = linqOperatorProvider;
+                _includeSpecification = includeSpecification;
+                _accessorExpression = accessorExpression;
+                _querySourceRequiresTracking = querySourceRequiresTracking;
             }
 
-            Expression
-                = Expression.Call(
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (node.Method.MethodIsClosedFormOf(_linqOperatorProvider.Select))
+                {
+                    var selectorIncludeInjectingVisitor = new SelectorIncludeInjectingExpressionVisitor(
+                        _includeSpecification, 
+                        _materializerFactory, 
+                        _queryCompilationContext, 
+                        _accessorExpression, 
+                        _querySourceRequiresTracking);
+
+                    var newSelector = selectorIncludeInjectingVisitor.Visit(node.Arguments[1]);
+
+                    return node.Update(node.Object, new[] { node.Arguments[0], newSelector });
+                }
+
+                if (node.Method.MethodIsClosedFormOf(EntityQueryMethodInfo) || node.Method.MethodIsClosedFormOf(OfTypeMethodInfo))
+                {
+                    return ApplyTopLevelInclude(node);
+                }
+
+                return base.VisitMethodCall(node);
+            }
+
+            private Expression ApplyTopLevelInclude(MethodCallExpression methodCallExpression)
+            {
+                var elementType = methodCallExpression.Type.GetGenericArguments().First();
+                var includeMethod = _includeMethodInfo.MakeGenericMethod(elementType);
+
+                var result = Expression.Call(
                     includeMethod,
                     QueryContextParameter,
-                    Expression,
-                    Expression.Constant(includeSpecification),
-                    accessorLambda,
+                    methodCallExpression,
+                    Expression.Constant(_includeSpecification),
                     Expression.Constant(
-                        includeSpecification.NavigationPath
+                        _includeSpecification.NavigationPath
                             .Select(n =>
-                                {
-                                    var targetType = n.GetTargetType();
-                                    var materializer = _materializerFactory.CreateMaterializer(targetType);
+                            {
+                                var targetType = n.GetTargetType();
+                                var materializer = _materializerFactory.CreateMaterializer(targetType);
 
-                                    return new RelatedEntitiesLoader(targetType, materializer.Compile());
-                                })
+                                return new RelatedEntitiesLoader(targetType, materializer.Compile());
+                            })
                             .ToArray()),
-                    Expression.Constant(querySourceRequiresTracking));
+                    Expression.Constant(_querySourceRequiresTracking));
+
+                return result;
+            }
+
+            private class SelectorIncludeInjectingExpressionVisitor : ExpressionVisitorBase
+            {
+                private readonly IncludeSpecification _includeSpecification;
+                private readonly IMaterializerFactory _materializerFactory;
+                private readonly QueryCompilationContext _queryCompilationContext;
+                private readonly Expression _accessorExpression;
+                private readonly bool _querySourceRequiresTracking;
+
+                public SelectorIncludeInjectingExpressionVisitor(
+                    [NotNull] IncludeSpecification includeSpecification,
+                    [NotNull] IMaterializerFactory materializerFactory,
+                    [NotNull] QueryCompilationContext queryCompilationContext,
+                    [NotNull] Expression accessorExpression,
+                    bool querySourceRequiresTracking)
+                {
+                    _includeSpecification = includeSpecification;
+                    _materializerFactory = materializerFactory;
+                    _queryCompilationContext = queryCompilationContext;
+                    _accessorExpression = accessorExpression;
+                    _querySourceRequiresTracking = querySourceRequiresTracking;
+                }
+
+                public override Expression Visit([CanBeNull] Expression node)
+                {
+                    if (node == _accessorExpression)
+                    {
+                        var includeMethod = _includeSpecification.IsEnumerableTarget
+                            ? _includeCollectionMethodInfo.MakeGenericMethod(node.Type)
+                            : _includeEntityMethodInfo.MakeGenericMethod(node.Type);
+
+                        var result = Expression.Call(
+                            includeMethod,
+                            QueryContextParameter,
+                            node,
+                            Expression.Constant(_includeSpecification),
+                            Expression.Constant(
+                                _includeSpecification.NavigationPath
+                                    .Select(n =>
+                                    {
+                                        var targetType = n.GetTargetType();
+                                        var materializer = _materializerFactory.CreateMaterializer(targetType);
+
+                                        return new RelatedEntitiesLoader(targetType, materializer.Compile());
+                                    })
+                                    .ToArray()),
+                            Expression.Constant(_querySourceRequiresTracking));
+
+                        return result;
+                    }
+
+                    return base.Visit(node);
+                }
+
+                protected override Expression VisitLambda<T>(Expression<T> node)
+                {
+                    var newBody = Visit(node.Body);
+
+                    return node.Update(newBody, node.Parameters);
+                }
+            }
         }
 
         private sealed class RelatedEntitiesLoader : IRelatedEntitiesLoader
@@ -134,6 +242,54 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        private static readonly MethodInfo _includeEntityMethodInfo
+            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IncludeEntity));
+
+        private static readonly MethodInfo _includeCollectionMethodInfo
+            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IncludeCollection));
+
+        private static TEntity IncludeEntity<TEntity>(
+            QueryContext queryContext,
+            TEntity source,
+            IncludeSpecification includeSpecification,
+            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            bool querySourceRequiresTracking)
+        {
+            queryContext.QueryBuffer
+                .Include(
+                    queryContext,
+                    source,
+                    includeSpecification.NavigationPath,
+                    relatedEntitiesLoaders,
+                    querySourceRequiresTracking);
+
+            return source;
+        }
+
+        [UsedImplicitly]
+        private static TEntity IncludeCollection<TEntity>(
+            QueryContext queryContext,
+            TEntity source,
+            IncludeSpecification includeSpecification,
+            IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
+            bool querySourceRequiresTracking)
+        {
+            foreach (var entity in (IEnumerable)source)
+            {
+                queryContext.QueryBuffer
+                    .Include(
+                        queryContext,
+                        entity,
+                        includeSpecification.NavigationPath,
+                        relatedEntitiesLoaders,
+                        querySourceRequiresTracking);
+            }
+
+            return source;
+        }
+
         private static readonly MethodInfo _includeMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(Include));
@@ -143,17 +299,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             IEnumerable<TResult> source,
             IncludeSpecification includeSpecification,
-            Func<TResult, object> accessorLambda,
             IReadOnlyList<IRelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             foreach (var result in source)
             {
-                var entityOrCollection = accessorLambda.Invoke(result);
-
                 if (includeSpecification.IsEnumerableTarget)
                 {
-                    foreach (var entity in (IEnumerable)entityOrCollection)
+                    foreach (var entity in (IEnumerable)result)
                     {
                         queryContext.QueryBuffer
                             .Include(
@@ -169,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     queryContext.QueryBuffer
                         .Include(
                             queryContext,
-                            entityOrCollection,
+                            result,
                             includeSpecification.NavigationPath,
                             relatedEntitiesLoaders,
                             querySourceRequiresTracking);
@@ -177,29 +330,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 yield return result;
             }
-        }
-
-        private static readonly MethodInfo _includeGroupedMethodInfo
-            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IncludeGrouped));
-
-        [UsedImplicitly]
-        private static IEnumerable<IGrouping<TKey, TOut>> IncludeGrouped<TKey, TOut>(
-            QueryContext queryContext,
-            IEnumerable<IGrouping<TKey, TOut>> groupings,
-            IncludeSpecification includeSpecification,
-            Func<TOut, object> accessorLambda,
-            IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
-            bool querySourceRequiresTracking)
-        {
-            return groupings.Select(g =>
-                new IncludeGrouping<TKey, TOut>(
-                    queryContext,
-                    g,
-                    includeSpecification.NavigationPath,
-                    accessorLambda,
-                    relatedEntitiesLoaders,
-                    querySourceRequiresTracking));
         }
 
         private class IncludeGrouping<TKey, TOut> : IGrouping<TKey, TOut>
@@ -251,6 +381,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public static readonly MethodInfo EntityQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(EntityQuery));
+
+        public static readonly MethodInfo OfTypeMethodInfo
+            = typeof(Enumerable).GetTypeInfo()
+            .GetDeclaredMethod(nameof(Enumerable.OfType));
 
         [UsedImplicitly]
         private static IEnumerable<TEntity> EntityQuery<TEntity>(

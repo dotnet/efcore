@@ -28,6 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core.Models.AdventureWor
 
         public bool IsMet => _databaseExists.Value;
 
-        public string SkipReason => $"AdventureWorks2014 database does not exist on {BenchmarkConfig.Instance.BenchmarkDatabaseInstance}. Download the AdventureWorks backup from https://msftdbprodsamples.codeplex.com/downloads/get/880661 and restore it to {BenchmarkConfig.Instance.BenchmarkDatabaseInstance} to enable these tests.";
+        public string SkipReason => $"AdventureWorks2014 database does not exist. Download the AdventureWorks backup from https://msftdbprodsamples.codeplex.com/downloads/get/880661 and restore it to enable these tests.";
     }
 }

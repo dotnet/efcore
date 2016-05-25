@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -20,30 +22,44 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public object GetValue(InternalEntityEntry entry, IProperty property)
             {
-                if (IsEmpty)
-                {
-                    return entry[property];
-                }
-
                 var index = property.GetOriginalValueIndex();
 
-                return index != -1 ? _values[index] : entry[property];
+                if (index == -1)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName()));
+                }
+
+                return IsEmpty ? entry[property] : _values[index];
             }
 
             public T GetValue<T>(InternalEntityEntry entry, IProperty property, int index)
-                => IsEmpty
-                    ? entry.GetCurrentValue<T>(property)
-                    : _values.GetValue<T>(index);
+            {
+                if (index == -1)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName()));
+                }
 
-            public void SetValue(IProperty property, object value)
+                return IsEmpty ? entry.GetCurrentValue<T>(property) : _values.GetValue<T>(index);
+            }
+
+            public void SetValue(IProperty property, object value, int index)
             {
                 Debug.Assert(!IsEmpty);
 
-                var index = property.GetOriginalValueIndex();
-                if (index != -1)
+                if (index == -1)
                 {
-                    _values[index] = value;
+                    index = property.GetOriginalValueIndex();
+
+                    if (index == -1)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName()));
+                    }
                 }
+
+                _values[index] = value;
             }
 
             public void RejectChanges(InternalEntityEntry entry)

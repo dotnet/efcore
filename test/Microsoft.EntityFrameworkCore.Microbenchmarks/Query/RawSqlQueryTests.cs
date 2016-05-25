@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Core;
 using Microsoft.EntityFrameworkCore.Microbenchmarks.Models.Orders;
 using Xunit;
@@ -19,9 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
-        public void SelectAll(IMetricCollector collector, bool tracking, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
+        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
+        public async Task SelectAll(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -33,7 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                 {
                     for (var i = 0; i < queriesPerIteration; i++)
                     {
-                        query.ToList();
+                        if (async)
+                        {
+                            await query.ToListAsync();
+                        }
+                        else
+                        {
+                            query.ToList();
+                        }
                     }
                 }
 
@@ -43,9 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
-        public void SelectParameterized(IMetricCollector collector, bool tracking, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
+        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
+        public async Task SelectParameterized(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -57,7 +69,14 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                 {
                     for (var i = 0; i < queriesPerIteration; i++)
                     {
-                        query.ToList();
+                        if (async)
+                        {
+                            await query.ToListAsync();
+                        }
+                        else
+                        {
+                            query.ToList();
+                        }
                     }
                 }
 
@@ -67,9 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
-        public void SelectComposed(IMetricCollector collector, bool tracking, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
+        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
+        public async Task SelectComposed(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -83,7 +104,14 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                 {
                     for (var i = 0; i < queriesPerIteration; i++)
                     {
-                        query.ToList();
+                        if (async)
+                        {
+                            await query.ToListAsync();
+                        }
+                        else
+                        {
+                            query.ToList();
+                        }
                     }
                 }
 
@@ -93,9 +121,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On (1 query)", true, 1)]
-        [BenchmarkVariation("Tracking Off (10 queries)", false, 10)]
-        public void StoredProcedure(IMetricCollector collector, bool tracking, int queriesPerIteration)
+        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
+        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
+        public async Task StoredProcedure(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -107,7 +137,14 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Query
                 {
                     for (var i = 0; i < queriesPerIteration; i++)
                     {
-                        query.ToList();
+                        if (async)
+                        {
+                            await query.ToListAsync();
+                        }
+                        else
+                        {
+                            query.ToList();
+                        }
                     }
                 }
 

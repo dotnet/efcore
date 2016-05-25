@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
@@ -10,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
     {
         private long _current;
 
-        public override TValue Next() => (TValue)Convert.ChangeType(Interlocked.Increment(ref _current), typeof(TValue));
+        public override TValue Next(EntityEntry entry) 
+            => (TValue)Convert.ChangeType(Interlocked.Increment(ref _current), typeof(TValue));
 
         public override bool GeneratesTemporaryValues => false;
     }

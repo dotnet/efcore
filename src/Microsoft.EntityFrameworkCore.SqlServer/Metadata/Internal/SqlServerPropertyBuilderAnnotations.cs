@@ -14,16 +14,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
+        private InternalPropertyBuilder PropertyBuilder => ((Property)Property).Builder;
+        protected override bool ShouldThrowOnConflict => false;
+
 #pragma warning disable 109
         public new virtual bool ColumnName([CanBeNull] string value) => SetColumnName(value);
 
         public new virtual bool ColumnType([CanBeNull] string value) => SetColumnType(value);
 
-        public new virtual bool DefaultValueSql([CanBeNull] string value) => SetDefaultValueSql(value);
+        public new virtual bool DefaultValueSql([CanBeNull] string value)
+        {
+            PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+            return SetDefaultValueSql(value);
+        }
 
-        public new virtual bool ComputedValueSql([CanBeNull] string value) => SetComputedValueSql(value);
+        public new virtual bool ComputedColumnSql([CanBeNull] string value)
+        {
+            PropertyBuilder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.Convention);
+            return SetComputedColumnSql(value);
+        }
 
-        public new virtual bool DefaultValue([CanBeNull] object value) => SetDefaultValue(value);
+        public new virtual bool DefaultValue([CanBeNull] object value)
+        {
+            PropertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+            return SetDefaultValue(value);
+        }
 
         public new virtual bool HiLoSequenceName([CanBeNull] string value) => SetHiLoSequenceName(value);
 

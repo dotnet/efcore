@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
         }
 
-        public override IReadOnlyList<IRelationalCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
+        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
             => base.Generate(LiftForeignKeyOperations(operations), model);
 
         private static IReadOnlyList<MigrationOperation> LiftForeignKeyOperations(IReadOnlyList<MigrationOperation> migrationOperations)
@@ -54,17 +54,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             return operations.AsReadOnly();
         }
 
-        protected override void Generate(DropIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(DropIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
             builder
                 .Append("DROP INDEX ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
+                .EndCommand();
         }
 
-        protected override void Generate(RenameTableOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(RenameTableOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -75,11 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append("ALTER TABLE ")
                     .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" RENAME TO ")
-                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.NewName));
+                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.NewName))
+                    .AppendLine(SqlGenerationHelper.StatementTerminator)
+                    .EndCommand();
             }
         }
 
-        protected override void Generate(CreateTableOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(CreateTableOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -115,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             string computedColumnSql,
             IAnnotatable annotatable,
             IModel model,
-            RelationalCommandListBuilder builder)
+            MigrationCommandListBuilder builder)
         {
             base.ColumnDefinition(
                 schema, table, name, clrType, type, nullable,
@@ -144,52 +148,52 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         #region Invalid migration operations
 
         // These operations can be accomplished instead with a table-rebuild
-        protected override void Generate(AddForeignKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(AddForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(AddPrimaryKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(AddPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(AddUniqueConstraintOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(AddUniqueConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(DropColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropForeignKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(DropForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropPrimaryKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(DropPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropUniqueConstraintOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(DropUniqueConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(RenameColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(RenameColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(RenameIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(AlterColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(AlterColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
@@ -198,12 +202,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #region Invalid schema operations
 
-        protected override void Generate(EnsureSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(EnsureSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.SchemasNotSupported);
         }
 
-        protected override void Generate(DropSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(DropSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.SchemasNotSupported);
         }
@@ -213,27 +217,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         #region Sequences not supported
 
         // SQLite does not have sequences
-        protected override void Generate(RestartSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(RestartSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
-        protected override void Generate(CreateSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(CreateSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
-        protected override void Generate(RenameSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(RenameSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
-        protected override void Generate(AlterSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(AlterSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
-        protected override void Generate(DropSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
+        protected override void Generate(DropSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }

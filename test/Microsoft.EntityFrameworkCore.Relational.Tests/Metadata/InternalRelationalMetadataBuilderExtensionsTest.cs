@@ -87,37 +87,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
                 .Property("Id", typeof(int), ConfigurationSource.Convention);
 
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splew"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasComputedValueSql("3"));
             Assert.Equal("Splew", propertyBuilder.Metadata.Relational().ColumnName);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
             Assert.Equal("int", propertyBuilder.Metadata.Relational().ColumnType);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
             Assert.Equal(1, propertyBuilder.Metadata.Relational().DefaultValue);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
             Assert.Equal("2", propertyBuilder.Metadata.Relational().DefaultValueSql);
-            Assert.Equal("3", propertyBuilder.Metadata.Relational().ComputedValueSql);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasComputedColumnSql("3"));
+            Assert.Equal("3", propertyBuilder.Metadata.Relational().ComputedColumnSql);
 
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnName("Splow"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnType("varchar"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValue(0));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValueSql("NULL"));
-            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasComputedValueSql("runthis()"));
-            Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
-            Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
-            Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
-            Assert.Equal("NULL", propertyBuilder.Metadata.Relational().DefaultValueSql);
-            Assert.Equal("runthis()", propertyBuilder.Metadata.Relational().ComputedValueSql);
-
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splod"));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
-            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasComputedValueSql("3"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnType("varchar"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
             Assert.Equal("varchar", propertyBuilder.Metadata.Relational().ColumnType);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValue(0));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
             Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValueSql("NULL"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
             Assert.Equal("NULL", propertyBuilder.Metadata.Relational().DefaultValueSql);
-            Assert.Equal("runthis()", propertyBuilder.Metadata.Relational().ComputedValueSql);
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasComputedColumnSql("runthis()"));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasComputedColumnSql("3"));
+            Assert.Equal("runthis()", propertyBuilder.Metadata.Relational().ComputedColumnSql);
         }
 
         [Fact]
@@ -281,6 +275,50 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Empty(typeBuilder.Metadata.GetProperties());
+        }
+
+        [Fact]
+        public void Changing_discriminator_type_removes_values()
+        {
+            var typeBuilder = CreateBuilder().Entity("Splot", ConfigurationSource.Convention);
+            var derivedTypeBuilder = typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention);
+            derivedTypeBuilder.HasBaseType(typeBuilder.Metadata, ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator());
+            Assert.Equal(1, typeBuilder.Metadata.GetDeclaredProperties().Count());
+            Assert.Equal(0, derivedTypeBuilder.Metadata.GetDeclaredProperties().Count());
+
+            var discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
+                .HasDiscriminator("Splowed", typeof(int));
+            Assert.NotNull(discriminatorBuilder.HasValue("Splot", 1));
+            Assert.NotNull(discriminatorBuilder.HasValue("Splow", 2));
+            Assert.NotNull(discriminatorBuilder.HasValue("Splod", 3));
+            
+            discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
+                .HasDiscriminator("Splowed", typeof(string));
+            Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Null(typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                .Metadata.Relational().DiscriminatorValue);
+            Assert.Null( typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                .Metadata.Relational().DiscriminatorValue);
+            Assert.NotNull(discriminatorBuilder.HasValue("Splot", "4"));
+            Assert.NotNull(discriminatorBuilder.HasValue("Splow", "5"));
+            Assert.NotNull(discriminatorBuilder.HasValue("Splod", "6"));
+            
+            discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
+                .HasDiscriminator("Splotted", typeof(string));
+            Assert.Equal("4", typeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Equal("5", typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal("6", typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                .Metadata.Relational().DiscriminatorValue);
+
+            discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(typeof(int));
+            Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Null(typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                .Metadata.Relational().DiscriminatorValue);
+            Assert.Null(typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                .Metadata.Relational().DiscriminatorValue);
         }
 
         [Fact]

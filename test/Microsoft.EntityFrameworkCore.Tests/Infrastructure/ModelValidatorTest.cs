@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -189,6 +190,112 @@ namespace Microsoft.EntityFrameworkCore.Tests.Infrastructure
             entityGeneric.HasBaseType(entityAbstract);
 
             VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), model);
+        }
+
+        [Theory]
+        [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+        [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+        [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+        public virtual void Detects_non_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(NonNotifyingEntity));
+            var id = entityType.AddProperty("Id");
+            entityType.SetPrimaryKey(id);
+
+            model.ChangeTrackingStrategy = changeTrackingStrategy;
+
+            VerifyError(
+                CoreStrings.ChangeTrackingInterfaceMissing("NonNotifyingEntity", changeTrackingStrategy, "INotifyPropertyChanged"), 
+                model);
+        }
+
+        [Theory]
+        [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+        [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+        public virtual void Detects_changed_only_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
+            var id = entityType.AddProperty("Id");
+            entityType.SetPrimaryKey(id);
+
+            model.ChangeTrackingStrategy = changeTrackingStrategy;
+
+            VerifyError(
+                CoreStrings.ChangeTrackingInterfaceMissing("ChangedOnlyEntity", changeTrackingStrategy, "INotifyPropertyChanging"),
+                model);
+        }
+
+        [Theory]
+        [InlineData(ChangeTrackingStrategy.Snapshot)]
+        [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+        [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+        [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+        public virtual void Passes_for_fully_notifying_entities(ChangeTrackingStrategy changeTrackingStrategy)
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(FullNotificationEntity));
+            var id = entityType.AddProperty("Id");
+            entityType.SetPrimaryKey(id);
+
+            model.ChangeTrackingStrategy = changeTrackingStrategy;
+
+            Validate(model);
+        }
+
+        [Theory]
+        [InlineData(ChangeTrackingStrategy.Snapshot)]
+        [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+        public virtual void Passes_for_changed_only_entities_with_snapshot_or_changed_only_tracking(ChangeTrackingStrategy changeTrackingStrategy)
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(ChangedOnlyEntity));
+            var id = entityType.AddProperty("Id");
+            entityType.SetPrimaryKey(id);
+
+            model.ChangeTrackingStrategy = changeTrackingStrategy;
+
+            Validate(model);
+        }
+
+        [Fact]
+        public virtual void Passes_for_non_notifying_entities_with_snapshot_tracking()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(NonNotifyingEntity));
+            var id = entityType.AddProperty("Id");
+            entityType.SetPrimaryKey(id);
+
+            model.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+
+            Validate(model);
+        }
+
+        // INotify interfaces not really implemented; just marking the classes to test metadata construction
+        private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+
+#pragma warning disable 67
+            public event PropertyChangingEventHandler PropertyChanging;
+            public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 67
+        }
+
+        // INotify interfaces not really implemented; just marking the classes to test metadata construction
+        private class ChangedOnlyEntity : INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+
+#pragma warning disable 67
+            public event PropertyChangedEventHandler PropertyChanged;
+#pragma warning restore 67
+        }
+
+        private class NonNotifyingEntity
+        {
+            public int Id { get; set; }
         }
 
         protected virtual void SetBaseType(EntityType entityType, EntityType baseEntityType) => entityType.HasBaseType(baseEntityType);

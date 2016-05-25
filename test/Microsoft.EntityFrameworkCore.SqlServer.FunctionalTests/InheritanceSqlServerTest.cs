@@ -30,6 +30,31 @@ ORDER BY [t].[Species]",
             Assert.Equal(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND ([a].[Discriminator] = N'Kiwi')",
+                Sql);
+        }
+
+        public override void Can_use_is_kiwi_with_other_predicate()
+        {
+            base.Can_use_is_kiwi_with_other_predicate();
+
+            Assert.Equal(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND (([a].[Discriminator] = N'Kiwi') AND ([a].[CountryId] = 1))",
+                Sql);
+        }
+
+        public override void Can_use_is_kiwi_in_projection()
+        {
+            base.Can_use_is_kiwi_in_projection();
+
+            Assert.Equal(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn], CASE
+    WHEN [a].[Discriminator] = N'Kiwi'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')",
                 Sql);
         }
@@ -198,14 +223,11 @@ ORDER BY [e].[Species]
 
 SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-INNER JOIN (
-    SELECT DISTINCT TOP(2) [e].[Species]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle') AND EXISTS (
+    SELECT TOP(2) 1
     FROM [Animal] AS [e]
-    WHERE [e].[Discriminator] = N'Eagle'
-    ORDER BY [e].[Species]
-) AS [e0] ON [a].[EagleId] = [e0].[Species]
-WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
-ORDER BY [e0].[Species]",
+    WHERE ([e].[Discriminator] = N'Eagle') AND ([a].[EagleId] = [e].[Species]))
+ORDER BY [a].[EagleId]",
                 Sql);
         }
 
@@ -274,11 +296,11 @@ FROM (
 FROM [Country] AS [c]
 WHERE [c].[Id] = 1
 
-@p0: Apteryx owenii
+@p0: Apteryx owenii (Nullable = false) (Size = 4000)
 @p1: 1
-@p2: Kiwi
-@p3: Little spotted kiwi
-@p4: 
+@p2: Kiwi (Nullable = false) (Size = 4000)
+@p3: Little spotted kiwi (Size = 4000)
+@p4:  (Size = -1) (DbType = String)
 @p5: True
 @p6: North
 
@@ -290,19 +312,19 @@ SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%' + N'owenii'
 
-@p0: Apteryx owenii
-@p1: Aquila chrysaetos canadensis
+@p1: Apteryx owenii (Nullable = false) (Size = 4000)
+@p0: Aquila chrysaetos canadensis (Size = 4000)
 
 SET NOCOUNT ON;
-UPDATE [Animal] SET [EagleId] = @p1
-WHERE [Species] = @p0;
+UPDATE [Animal] SET [EagleId] = @p0
+WHERE [Species] = @p1;
 SELECT @@ROWCOUNT;
 
 SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
 WHERE ([k].[Discriminator] = N'Kiwi') AND [k].[Species] LIKE N'%' + N'owenii'
 
-@p0: Apteryx owenii
+@p0: Apteryx owenii (Nullable = false) (Size = 4000)
 
 SET NOCOUNT ON;
 DELETE FROM [Animal]

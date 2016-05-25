@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
@@ -72,6 +72,28 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
         public virtual void AddColumnOperation_with_maxLength()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_maxLength_on_derived()
+            => Generate(
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity("Person");
+                        modelBuilder.Entity("SpecialPerson", b =>
+                            {
+                                b.HasBaseType("Person");
+                                b.Property<string>("Name").HasMaxLength(30);
+                            });
+
+                        modelBuilder.Entity("MoreSpecialPerson").HasBaseType("SpecialPerson");
+                    },
                 new AddColumnOperation
                 {
                     Table = "Person",

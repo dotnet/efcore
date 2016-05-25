@@ -90,12 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var parameterCount = 0;
             foreach (var columnModification in modificationCommand.ColumnModifications)
             {
-                if (columnModification.ParameterName != null)
+                if (columnModification.UseCurrentValueParameter)
                 {
                     parameterCount++;
                 }
 
-                if (columnModification.OriginalParameterName != null)
+                if (columnModification.UseOriginalValueParameter)
                 {
                     parameterCount++;
                 }

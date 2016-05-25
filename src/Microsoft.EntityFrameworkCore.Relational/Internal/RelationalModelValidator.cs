@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class RelationalModelValidator : LoggingModelValidator
     {
-        private readonly IRelationalAnnotationProvider _relationalExtensions;
-        private readonly IRelationalTypeMapper _typeMapper;
+        protected virtual IRelationalAnnotationProvider RelationalExtensions { get; }
+        protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         public RelationalModelValidator(
             [NotNull] ILogger<RelationalModelValidator> loggerFactory,
@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IRelationalTypeMapper typeMapper)
             : base(loggerFactory)
         {
-            _relationalExtensions = relationalExtensions;
-            _typeMapper = typeMapper;
+            RelationalExtensions = relationalExtensions;
+            TypeMapper = typeMapper;
         }
 
         public override void Validate(IModel model)
@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 foreach (var property in entityType.GetProperties())
                 {
-                    var dataType = _relationalExtensions.For(property).ColumnType;
+                    var dataType = RelationalExtensions.For(property).ColumnType;
                     if (dataType != null)
                     {
-                        _typeMapper.ValidateTypeName(dataType);
+                        TypeMapper.ValidateTypeName(dataType);
                     }
                 }
             }
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var tables = new HashSet<string>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.BaseType == null))
             {
-                var annotations = _relationalExtensions.For(entityType);
+                var annotations = RelationalExtensions.For(entityType);
 
                 var name = annotations.Schema + "." + annotations.TableName;
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var groupedEntityTypes = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                var annotations = _relationalExtensions.For(entityType);
+                var annotations = RelationalExtensions.For(entityType);
                 var tableName = annotations.Schema + "." + annotations.TableName;
                 if (!groupedEntityTypes.ContainsKey(tableName))
                 {
@@ -89,16 +89,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 foreach (var property in properties)
                 {
-                    var propertyAnnotations = _relationalExtensions.For(property);
+                    var propertyAnnotations = RelationalExtensions.For(property);
                     var columnName = propertyAnnotations.ColumnName;
                     IProperty duplicateProperty;
                     if (propertyTypeMappings.TryGetValue(columnName, out duplicateProperty))
                     {
-                        var previousAnnotations = _relationalExtensions.For(duplicateProperty);
+                        var previousAnnotations = RelationalExtensions.For(duplicateProperty);
                         var currentTypeString = propertyAnnotations.ColumnType
-                                                ?? _typeMapper.GetMapping(property).DefaultTypeName;
+                                                ?? TypeMapper.GetMapping(property).StoreType;
                         var previousTypeString = previousAnnotations.ColumnType
-                                                 ?? _typeMapper.GetMapping(duplicateProperty).DefaultTypeName;
+                                                 ?? TypeMapper.GetMapping(duplicateProperty).StoreType;
                         if (!currentTypeString.Equals(previousTypeString, StringComparison.OrdinalIgnoreCase))
                         {
                             ShowError(RelationalStrings.DuplicateColumnName(
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 table));
                         }
 
-                        var currentComputedValueSql = propertyAnnotations.ComputedValueSql ?? "";
-                        var previousComputedValueSql = previousAnnotations.ComputedValueSql ?? "";
-                        if (!currentComputedValueSql.Equals(previousComputedValueSql, StringComparison.OrdinalIgnoreCase))
+                        var currentComputedColumnSql = propertyAnnotations.ComputedColumnSql ?? "";
+                        var previousComputedColumnSql = previousAnnotations.ComputedColumnSql ?? "";
+                        if (!currentComputedColumnSql.Equals(previousComputedColumnSql, StringComparison.OrdinalIgnoreCase))
                         {
                             ShowError(RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
                                 duplicateProperty.DeclaringEntityType.DisplayName(),
@@ -134,8 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                 property.Name,
                                 columnName,
                                 table,
-                                previousComputedValueSql,
-                                currentComputedValueSql));
+                                previousComputedColumnSql,
+                                currentComputedColumnSql));
                         }
 
                         var currentDefaultValue = propertyAnnotations.DefaultValue;
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private void ValidateDiscriminator(IEntityType entityType)
         {
-            var annotations = _relationalExtensions.For(entityType);
+            var annotations = RelationalExtensions.For(entityType);
             if (annotations.DiscriminatorProperty == null)
             {
                 ShowError(RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (rootEntityType.ClrType?.IsInstantiable() == true)
             {
                 ValidateDiscriminator(rootEntityType);
-                discriminatorValues[_relationalExtensions.For(rootEntityType).DiscriminatorValue] = rootEntityType;
+                discriminatorValues[RelationalExtensions.For(rootEntityType).DiscriminatorValue] = rootEntityType;
             }
 
             foreach (var derivedType in derivedTypes)
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 ValidateDiscriminator(derivedType);
 
-                var discriminatorValue = _relationalExtensions.For(derivedType).DiscriminatorValue;
+                var discriminatorValue = RelationalExtensions.For(derivedType).DiscriminatorValue;
                 IEntityType duplicateEntityType;
                 if (discriminatorValues.TryGetValue(discriminatorValue, out duplicateEntityType))
                 {

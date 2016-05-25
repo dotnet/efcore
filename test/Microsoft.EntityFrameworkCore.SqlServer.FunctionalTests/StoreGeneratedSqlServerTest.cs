@@ -2,9 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
@@ -14,6 +20,48 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         public StoreGeneratedSqlServerTest(StoreGeneratedSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact]
+        public virtual void Exception_in_SaveChanges_causes_store_values_to_be_reverted()
+        {
+            using (var context = CreateContext())
+            {
+                var entities = new List<Darwin>();
+                for (var i = 0; i < 1000; i++)
+                {
+                    entities.Add(new Darwin());
+                }
+                entities.Add(new Darwin { Id = 1777 });
+
+                context.AddRange(entities);
+
+                var identityMap = entities.ToDictionary(e => e.Id, e => e);
+
+                var stateManager = context.GetService<IStateManager>();
+                var key = context.Model.FindEntityType(typeof(Darwin)).FindPrimaryKey();
+
+                foreach (var entity in entities)
+                {
+                    Assert.Same(
+                        entity,
+                        stateManager.TryGetEntry(key, new ValueBuffer(new object[] { entity.Id, entity.Name }), false).Entity);
+                }
+
+                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+
+                foreach (var entity in entities)
+                {
+                    Assert.Same(entity, identityMap[entity.Id]);
+                }
+
+                foreach (var entity in entities)
+                {
+                    Assert.Same(
+                        entity,
+                        stateManager.TryGetEntry(key, new ValueBuffer(new object[] { entity.Id, entity.Name }), false).Entity);
+                }
+            }
         }
 
         public class StoreGeneratedSqlServerFixture : StoreGeneratedFixtureBase
@@ -35,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                     {
                         var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName))
+                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.MaxBatchSize(1))
                             .UseInternalServiceProvider(_serviceProvider);
 
                         using (var context = new StoreGeneratedContext(optionsBuilder.Options))

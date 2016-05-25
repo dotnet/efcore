@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -13,21 +12,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalTypeMapper : IRelationalTypeMapper
     {
-        private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedStringMappings
-            = new ConcurrentDictionary<int, RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<string, RelationalTypeMapping> _explicitMappings
+            = new ConcurrentDictionary<string, RelationalTypeMapping>();
 
-        private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedBinaryMappings
-            = new ConcurrentDictionary<int, RelationalTypeMapping>();
+        protected abstract IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings();
 
-        protected abstract IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings();
-
-        // Note that these names should just be prefixes and not have any qualifiers in parenthesis
-        protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings();
+        protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings();
 
         // Not using IRelationalAnnotationProvider here because type mappers are Singletons
         protected abstract string GetColumnType([NotNull] IProperty property);
 
-        public virtual void ValidateTypeName(string typeName)
+        public virtual void ValidateTypeName(string storeType)
         {
         }
 
@@ -35,111 +30,101 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            RelationalTypeMapping mapping = null;
+            var storeType = GetColumnType(property);
 
-            var typeName = GetColumnType(property);
-            if (typeName != null)
-            {
-                var paren = typeName.IndexOf("(", StringComparison.Ordinal);
-                GetSimpleNameMappings().TryGetValue((paren >= 0 ? typeName.Substring(0, paren) : typeName).ToLowerInvariant(), out mapping);
-            }
-
-            return mapping
+            return (storeType != null ? FindMapping(storeType) : null)
                    ?? FindCustomMapping(property)
                    ?? FindMapping(property.ClrType);
         }
 
-        public virtual RelationalTypeMapping FindMapping(Type clrType, bool unicode = true)
+        public virtual RelationalTypeMapping FindMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));
 
             RelationalTypeMapping mapping;
-            return GetSimpleMappings().TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping)
+            return GetClrTypeMappings().TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping)
                 ? mapping
                 : null;
         }
 
-        public virtual RelationalTypeMapping FindMapping(string typeName)
+        public virtual RelationalTypeMapping FindMapping(string storeType)
         {
-            Check.NotNull(typeName, nameof(typeName));
+            Check.NotNull(storeType, nameof(storeType));
+
+            return _explicitMappings.GetOrAdd(storeType, CreateMappingFromStoreType);
+        }
+
+        protected virtual RelationalTypeMapping CreateMappingFromStoreType([NotNull] string storeType)
+        {
+            Check.NotNull(storeType, nameof(storeType));
 
             RelationalTypeMapping mapping;
-            return GetSimpleNameMappings().TryGetValue(typeName, out mapping)
-                ? mapping
-                : null;
-        }
-
-        protected virtual RelationalTypeMapping GetCustomMapping([NotNull] IProperty property, bool unicode = true)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var mapping = FindCustomMapping(property, unicode);
-
-            if (mapping != null)
+            if (GetStoreTypeMappings().TryGetValue(storeType, out mapping)
+                && mapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
             {
                 return mapping;
             }
 
-            throw new InvalidOperationException(RelationalStrings.UnsupportedType(property.ClrType.Name));
+            var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
+            if (openParen > 0)
+            {
+                if (!GetStoreTypeMappings().TryGetValue(storeType.Substring(0, openParen), out mapping))
+                {
+                    return null;
+                }
+
+                var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
+                int size;
+                if (closeParen > openParen
+                    && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out size)
+                    && mapping.Size != size)
+                {
+                    return mapping.CreateCopy(storeType, size);
+                }
+            }
+
+            return mapping?.CreateCopy(storeType, mapping.Size);
         }
 
-        protected virtual RelationalTypeMapping FindCustomMapping([NotNull] IProperty property, bool unicode = true) => null;
+        protected virtual RelationalTypeMapping FindCustomMapping([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var clrType = property.ClrType.UnwrapNullableType();
+
+            return clrType == typeof(string)
+                ? GetStringMapping(property)
+                : clrType == typeof(byte[])
+                    ? GetByteArrayMapping(property)
+                    : null;
+        }
+
+        public virtual IByteArrayRelationalTypeMapper ByteArrayMapper => null;
+
+        public virtual IStringRelationalTypeMapper StringMapper => null;
+
+        protected virtual RelationalTypeMapping GetStringMapping([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            // TODO: Use unicode-ness defined in property metadata
+            return StringMapper?.FindMapping(
+                true,
+                RequiresKeyMapping(property),
+                property.GetMaxLength());
+        }
+
+        protected virtual RelationalTypeMapping GetByteArrayMapping([NotNull] IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return ByteArrayMapper?.FindMapping(
+                property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate,
+                RequiresKeyMapping(property),
+                property.GetMaxLength());
+        }
 
         protected virtual bool RequiresKeyMapping([NotNull] IProperty property)
             => property.IsKey() || property.IsForeignKey();
-
-        protected virtual RelationalTypeMapping GetStringMapping(
-            [NotNull] IProperty property,
-            int maxBoundedLength,
-            [NotNull] Func<int, RelationalTypeMapping> boundedMapping,
-            [NotNull] RelationalTypeMapping unboundedMapping,
-            [NotNull] RelationalTypeMapping defaultMapping,
-            [CanBeNull] RelationalTypeMapping keyMapping = null)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(defaultMapping, nameof(defaultMapping));
-
-            var maxLength = property.GetMaxLength();
-
-            return maxLength.HasValue
-                ? maxLength <= maxBoundedLength
-                    ? _boundedStringMappings.GetOrAdd(maxLength.Value, boundedMapping)
-                    : unboundedMapping
-                : ((keyMapping != null)
-                   && RequiresKeyMapping(property)
-                    ? keyMapping
-                    : defaultMapping);
-        }
-
-        protected virtual RelationalTypeMapping GetByteArrayMapping(
-            [NotNull] IProperty property,
-            int maxBoundedLength,
-            [NotNull] Func<int, RelationalTypeMapping> boundedMapping,
-            [NotNull] RelationalTypeMapping unboundedMapping,
-            [NotNull] RelationalTypeMapping defaultMapping,
-            [CanBeNull] RelationalTypeMapping keyMapping = null,
-            [CanBeNull] RelationalTypeMapping rowVersionMapping = null)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(defaultMapping, nameof(defaultMapping));
-
-            if (property.IsConcurrencyToken
-                && (property.ValueGenerated == ValueGenerated.OnAddOrUpdate)
-                && (rowVersionMapping != null))
-            {
-                return rowVersionMapping;
-            }
-
-            var maxLength = property.GetMaxLength();
-
-            return maxLength.HasValue
-                ? maxLength <= maxBoundedLength
-                    ? _boundedBinaryMappings.GetOrAdd(maxLength.Value, boundedMapping)
-                    : unboundedMapping
-                : ((keyMapping != null)
-                   && RequiresKeyMapping(property)
-                    ? keyMapping
-                    : defaultMapping);
-        }
     }
 }

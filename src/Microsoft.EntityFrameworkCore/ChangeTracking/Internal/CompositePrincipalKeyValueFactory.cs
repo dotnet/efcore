@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 for (var i = 0; i < x.Length; i++)
                 {
-                    if (!x[i].Equals(y[i]))
+                    if (!Equals(x[i], y[i]))
                     {
                         return false;
                     }

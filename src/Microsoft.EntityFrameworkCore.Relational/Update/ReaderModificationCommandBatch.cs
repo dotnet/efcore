@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
-                if (columnModification.ParameterName != null)
+                if (columnModification.UseCurrentValueParameter)
                 {
                     commandBuilder.AddParameter(
                         columnModification.ParameterName,
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         columnModification.Value);
                 }
 
-                if (columnModification.OriginalParameterName != null)
+                if (columnModification.UseOriginalValueParameter)
                 {
                     commandBuilder.AddParameter(
                         columnModification.OriginalParameterName,

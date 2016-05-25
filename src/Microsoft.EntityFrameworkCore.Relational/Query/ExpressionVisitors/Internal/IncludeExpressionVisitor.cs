@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     var joinExpression
                         = canProduceInnerJoin
                             ? selectExpression.AddInnerJoin(joinedTableExpression)
-                            : selectExpression.AddOuterJoin(joinedTableExpression);
+                            : selectExpression.AddLeftOuterJoin(joinedTableExpression);
 
                     var oldPredicate = selectExpression.Predicate;
 
@@ -274,6 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             ? selectExpression.Tables[0]
                             : selectExpression.Tables.Last(t => t.QuerySource == querySource);
 
+                    var canGenerateExists = !IsOrderingOnNonPrincipalKeyProperties(selectExpression.OrderBy, navigation.ForeignKey.PrincipalKey.Properties);
+
                     foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
                     {
                         selectExpression
@@ -306,27 +308,73 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     querySource),
                                 querySource: null);
 
-                    var innerJoinSelectExpression
-                        = selectExpression.Clone(
-                            selectExpression.OrderBy
-                                .Select(o => o.Expression)
-                                .Last(o => o.IsAliasWithColumnExpression())
-                                .TryGetColumnExpression().TableAlias);
+                    if (canGenerateExists)
+                    {
+                        var subqueryExpression = selectExpression.Clone();
+                        subqueryExpression.ClearProjection();
+                        subqueryExpression.ClearOrderBy();
+                        subqueryExpression.IsProjectStar = false;
 
-                    innerJoinSelectExpression.ClearProjection();
+                        var subqueryTable
+                            = subqueryExpression.Tables.Count == 1
+                              && subqueryExpression.Tables
+                                  .OfType<SelectExpression>()
+                                  .Any(s => s.Tables.Any(t => t.QuerySource == querySource))
+                                // true when select is wrapped e.g. when RowNumber paging is enabled
+                                ? subqueryExpression.Tables[0]
+                                : subqueryExpression.Tables.Last(t => t.QuerySource == querySource);
 
-                    var innerJoinExpression = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);
+                        var existsPredicateExpression = new ExistsExpression(subqueryExpression);
 
-                    LiftOrderBy(innerJoinSelectExpression, targetSelectExpression, innerJoinExpression);
+                        AddToPredicate(targetSelectExpression, existsPredicateExpression);
 
-                    innerJoinSelectExpression.IsDistinct = true;
+                        AddToPredicate(subqueryExpression, BuildJoinEqualityExpression(navigation, targetTableExpression, subqueryTable, querySource));
 
-                    innerJoinExpression.Predicate
-                        = BuildJoinEqualityExpression(
-                            navigation,
-                            targetTableExpression,
-                            innerJoinExpression,
-                            querySource);
+                        subqueryExpression.Predicate
+                            = compositePredicateExpressionVisitor
+                                .Visit(subqueryExpression.Predicate);
+
+                        var pkPropertiesToFkPropertiesMap = navigation.ForeignKey.PrincipalKey.Properties
+                            .Zip(navigation.ForeignKey.Properties, (k, v) => new { PkProperty = k, FkProperty = v })
+                            .ToDictionary(x => x.PkProperty, x => x.FkProperty);
+
+                        foreach (var ordering in selectExpression.OrderBy)
+                        {
+                            // ReSharper disable once PossibleNullReferenceException
+                            var principalKeyProperty = ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression).Property;
+                            var referencedForeignKeyProperty = pkPropertiesToFkPropertiesMap[principalKeyProperty];
+                            targetSelectExpression
+                               .AddToOrderBy(
+                                   _relationalAnnotationProvider.For(referencedForeignKeyProperty).ColumnName,
+                                   referencedForeignKeyProperty,
+                                   targetTableExpression,
+                                   ordering.OrderingDirection);
+                        }
+                    }
+                    else
+                    {
+                        var innerJoinSelectExpression
+                           = selectExpression.Clone(
+                               selectExpression.OrderBy
+                                   .Select(o => o.Expression)
+                                   .Last(o => o.IsAliasWithColumnExpression())
+                                   .TryGetColumnExpression().TableAlias);
+
+                        innerJoinSelectExpression.ClearProjection();
+
+                        var innerJoinExpression = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);
+
+                        LiftOrderBy(innerJoinSelectExpression, targetSelectExpression, innerJoinExpression);
+
+                        innerJoinSelectExpression.IsDistinct = true;
+
+                        innerJoinExpression.Predicate
+                            = BuildJoinEqualityExpression(
+                                navigation,
+                                targetTableExpression,
+                                innerJoinExpression,
+                                querySource);
+                    }
 
                     targetSelectExpression.Predicate
                         = compositePredicateExpressionVisitor
@@ -516,6 +564,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return joinExpression != null
                 ? ExtractProjections(joinExpression.TableExpression)
                 : Enumerable.Empty<Expression>();
+        }
+
+        private void AddToPredicate(SelectExpression selectExpression, Expression predicateToAdd)
+            => selectExpression.Predicate
+                = selectExpression.Predicate == null
+                    ? predicateToAdd
+                    : Expression.AndAlso(selectExpression.Predicate, predicateToAdd);
+
+        private bool IsOrderingOnNonPrincipalKeyProperties(IReadOnlyList<Ordering> orderings, IReadOnlyList<IProperty> properties)
+        {
+            foreach (var ordering in orderings)
+            {
+                var property = ((ordering.Expression as AliasExpression)?.Expression as ColumnExpression)?.Property;
+                if (!properties.Contains(property))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -4,7 +4,7 @@ os:
   - linux
   # - osx CoreCLR does not support OS X 10.9 (yet)
 mono:
-  - 4.0.5
+  - beta
 addons:
   apt:
     packages:
@@ -20,8 +20,6 @@ branches:
     - release
     - dev
     - /^(.*\/)?ci-.*$/
-# before_install:
-#   - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi
 env: KOREBUILD_TEST_SKIPMONO=1
 script:
   - ./build.sh --quiet verify

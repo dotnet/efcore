@@ -25,8 +25,8 @@ FROM [Engines] AS [e]",
 
             Assert.Contains(
                 @"SET NOCOUNT ON;
-UPDATE [Engines] SET [Name] = @p2
-WHERE [Id] = @p0 AND [EngineSupplierId] = @p1 AND [Name] = @p3;
+UPDATE [Engines] SET [Name] = @p0
+WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3;
 SELECT @@ROWCOUNT;",
                 Sql);
         }

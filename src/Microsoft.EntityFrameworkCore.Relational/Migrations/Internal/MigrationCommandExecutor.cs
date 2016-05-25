@@ -1,0 +1,109 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
+{
+    public class MigrationCommandExecutor : IMigrationCommandExecutor
+    {
+        public virtual void ExecuteNonQuery(
+            IEnumerable<MigrationCommand> migrationCommands,
+            IRelationalConnection connection)
+        {
+            Check.NotNull(migrationCommands, nameof(migrationCommands));
+            Check.NotNull(connection, nameof(connection));
+
+            connection.Open();
+
+            try
+            {
+                IDbContextTransaction transaction = null;
+
+                try
+                {
+                    foreach (var command in migrationCommands)
+                    {
+                        if (transaction == null
+                            && !command.TransactionSuppressed)
+                        {
+                            transaction = connection.BeginTransaction();
+                        }
+
+                        if (transaction != null
+                            && command.TransactionSuppressed)
+                        {
+                            transaction.Commit();
+                            transaction.Dispose();
+                            transaction = null;
+                        }
+
+                        command.ExecuteNonQuery(connection);
+                    }
+
+                    transaction?.Commit();
+                }
+                finally
+                {
+                    transaction?.Dispose();
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
+        public virtual async Task ExecuteNonQueryAsync(
+            IEnumerable<MigrationCommand> migrationCommands,
+            IRelationalConnection connection,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(migrationCommands, nameof(migrationCommands));
+            Check.NotNull(connection, nameof(connection));
+
+            await connection.OpenAsync(cancellationToken);
+
+            try
+            {
+                IDbContextTransaction transaction = null;
+
+                try
+                {
+                    foreach (var command in migrationCommands)
+                    {
+                        if (transaction == null
+                            && !command.TransactionSuppressed)
+                        {
+                            transaction = await connection.BeginTransactionAsync(cancellationToken);
+                        }
+
+                        if (transaction != null
+                            && command.TransactionSuppressed)
+                        {
+                            transaction.Commit();
+                            transaction.Dispose();
+                            transaction = null;
+                        }
+
+                        await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken);
+                    }
+
+                    transaction?.Commit();
+                }
+                finally
+                {
+                    transaction?.Dispose();
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+    }
+}

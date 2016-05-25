@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -232,26 +233,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void IncludeNavigations(
             IncludeSpecification includeSpecification,
             Type resultType,
-            LambdaExpression accessorLambda,
+            Expression accessorExpression,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(includeSpecification, nameof(includeSpecification));
             Check.NotNull(resultType, nameof(resultType));
 
-            Expression
-                = _includeExpressionVisitorFactory
-                    .Create(
-                        includeSpecification.QuerySource,
-                        includeSpecification.NavigationPath,
-                        QueryCompilationContext,
-                        _navigationIndexMap[includeSpecification],
-                        querySourceRequiresTracking)
-                    .Visit(Expression);
+            var includeExpressionVisitor = _includeExpressionVisitorFactory.Create(
+                includeSpecification.QuerySource,
+                includeSpecification.NavigationPath,
+                QueryCompilationContext,
+                _navigationIndexMap[includeSpecification],
+                querySourceRequiresTracking);
+
+            Expression = includeExpressionVisitor.Visit(Expression);
         }
 
         public override void VisitQueryModel(QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
+
+            var typeIsExpressionTranslatingVisitor = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model, _relationalAnnotationProvider);
+            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
 
             base.VisitQueryModel(queryModel);
 
@@ -464,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var joinExpression
                             = !outerJoin
                                 ? previousSelectExpression.AddInnerJoin(tableExpression, projection)
-                                : previousSelectExpression.AddOuterJoin(tableExpression, projection);
+                                : previousSelectExpression.AddLeftOuterJoin(tableExpression, projection);
 
                         joinExpression.Predicate = predicate;
 
@@ -769,6 +772,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                         break;
                     }
 
+                    if (sqlOrderingExpression.IsComparisonOperation()
+                        || sqlOrderingExpression.IsLogicalOperation())
+                    {
+                        sqlOrderingExpression = Expression.Condition(
+                            sqlOrderingExpression,
+                            Expression.Constant(true, typeof(bool)),
+                            Expression.Constant(false, typeof(bool)));
+                    }
+
                     orderings.Add(
                         new Ordering(
                             sqlOrderingExpression,
@@ -818,6 +830,57 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case QueryClientEvaluationBehavior.Warn:
                     QueryCompilationContext.Logger.LogWarning(RelationalStrings.ClientEvalWarning(expression));
                     break;
+            }
+        }
+
+        private class TypeIsExpressionTranslatingVisitor : ExpressionVisitorBase
+        {
+            private readonly IModel _model;
+            private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
+
+            public TypeIsExpressionTranslatingVisitor(IModel model, IRelationalAnnotationProvider relationalAnnotationProvider)
+            {
+                _model = model;
+                _relationalAnnotationProvider = relationalAnnotationProvider;
+            }
+
+            protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+            {
+                if (typeBinaryExpression.NodeType != ExpressionType.TypeIs)
+                {
+                    return base.VisitTypeBinary(typeBinaryExpression);
+                }
+
+                var entityType = _model.FindEntityType(typeBinaryExpression.TypeOperand);
+
+                if (entityType == null)
+                {
+                    return base.VisitTypeBinary(typeBinaryExpression);
+                }
+
+                var concreteEntityTypes
+                    = entityType.GetConcreteTypesInHierarchy().ToArray();
+
+                if (concreteEntityTypes.Length != 1
+                    || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
+                {
+                    var discriminatorProperty
+                        = _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
+
+                    var discriminatorPropertyExpression = CreatePropertyExpression(typeBinaryExpression.Expression, discriminatorProperty);
+
+                    var discriminatorPredicate
+                        = concreteEntityTypes
+                            .Select(concreteEntityType =>
+                                Expression.Equal(
+                                    discriminatorPropertyExpression,
+                                    Expression.Constant(_relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue)))
+                            .Aggregate((current, next) => Expression.OrElse(next, current));
+
+                    return discriminatorPredicate;
+                }
+
+                return Expression.Constant(true, typeof(bool));
             }
         }
 

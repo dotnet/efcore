@@ -72,7 +72,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+        public virtual void NavigationReferenceChanged(
+            InternalEntityEntry entry,
+            INavigation navigation,
+            object oldValue,
+            object newValue)
         {
             if (_navigationListeners == null)
             {
@@ -85,7 +89,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        public virtual void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
+        public virtual void NavigationCollectionChanged(
+            InternalEntityEntry entry,
+            INavigation navigation,
+            IEnumerable<object> added,
+            IEnumerable<object> removed)
         {
             if (_navigationListeners == null)
             {

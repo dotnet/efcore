@@ -33,6 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     An execution expression was calculated by compiling a LINQ query.
         /// </summary>
-        QueryPlan
+        QueryPlan,
+
+        /// <summary>
+        ///     A query specified an Include operation that was ignored because the included navigation was not reachable in the final query result.
+        /// </summary>
+        IncludeIgnored
     }
 }

@@ -13,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
     {
         private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("just_string(2000)", typeof(string));
         private static readonly RelationalTypeMapping _unboundedString = new RelationalTypeMapping("just_string(max)", typeof(string));
-        private static readonly RelationalTypeMapping _stringKey = new RelationalSizedTypeMapping("just_string(450)", typeof(string), unicode: true, size: 450);
+        private static readonly RelationalTypeMapping _stringKey = new RelationalTypeMapping("just_string(450)", typeof(string), dbType: null, unicode: true, size: 450);
         private static readonly RelationalTypeMapping _unboundedBinary = new RelationalTypeMapping("just_binary(max)", typeof(byte[]), DbType.Binary);
         private static readonly RelationalTypeMapping _binary = new RelationalTypeMapping("just_binary(max)", typeof(byte[]), DbType.Binary);
-        private static readonly RelationalTypeMapping _binaryKey = new RelationalSizedTypeMapping("just_binary(900)", typeof(byte[]), DbType.Binary, unicode: true, size: 900);
-        private static readonly RelationalTypeMapping _rowversion = new RelationalSizedTypeMapping("rowversion", typeof(byte[]), DbType.Binary, unicode: true, size: 8);
+        private static readonly RelationalTypeMapping _binaryKey = new RelationalTypeMapping("just_binary(900)", typeof(byte[]), DbType.Binary, unicode: true, size: 900);
+        private static readonly RelationalTypeMapping _rowversion = new RelationalTypeMapping("rowversion", typeof(byte[]), DbType.Binary, unicode: true, size: 8);
         private static readonly RelationalTypeMapping _defaultIntMapping = new RelationalTypeMapping("default_int_mapping", typeof(int));
         private static readonly RelationalTypeMapping _someIntMapping = new RelationalTypeMapping("some_int_mapping", typeof(int));
 
@@ -38,27 +38,52 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 { "some_binary(max)", _binary }
             };
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+        public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
+            = new ByteArrayRelationalTypeMapper(
+                2000,
+                _binary,
+                _unboundedBinary,
+                _binaryKey,
+                _rowversion, size => new RelationalTypeMapping(
+                    "just_binary(" + size + ")",
+                    typeof(byte[]),
+                    DbType.Binary,
+                    unicode: false,
+                    size: size,
+                    hasNonDefaultUnicode: false,
+                    hasNonDefaultSize: true));
+
+        public override IStringRelationalTypeMapper StringMapper { get; }
+            = new StringRelationalTypeMapper(
+                2000,
+                _string,
+                _unboundedString,
+                _stringKey,
+                size => new RelationalTypeMapping(
+                    "just_string(" + size + ")",
+                    typeof(string),
+                    dbType: DbType.AnsiString,
+                    unicode: false,
+                    size: size,
+                    hasNonDefaultUnicode: true,
+                    hasNonDefaultSize: true),
+                2000,
+                _string,
+                _unboundedString,
+                _stringKey,
+                size => new RelationalTypeMapping(
+                    "just_string(" + size + ")",
+                    typeof(string),
+                    dbType: null,
+                    unicode: true,
+                    size: size,
+                    hasNonDefaultUnicode: false,
+                    hasNonDefaultSize: true));
+
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _simpleNameMappings;
-
-        protected override RelationalTypeMapping FindCustomMapping(IProperty property, bool unicode = true)
-        {
-            var clrType = property.ClrType.UnwrapNullableType();
-
-            return clrType == typeof(string)
-                ? GetByteArrayMapping(
-                    property, 2000,
-                    l => new RelationalSizedTypeMapping("just_string(" + l + ")", typeof(string), unicode: true, size: l),
-                    _unboundedString, _string, _stringKey)
-                : clrType == typeof(byte[])
-                    ? GetByteArrayMapping(
-                        property, 2000,
-                        l => new RelationalSizedTypeMapping("just_binary(" + l + ")", typeof(string), unicode: true, size: l),
-                        _unboundedBinary, _binary, _binaryKey, _rowversion)
-                    : base.FindCustomMapping(property, unicode);
-        }
     }
 }

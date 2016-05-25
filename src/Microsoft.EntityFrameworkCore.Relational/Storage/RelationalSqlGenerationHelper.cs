@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             { DbType.Int16, "smallint" },
             { DbType.Int32, "int" },
             { DbType.Int64, "bigint" },
-            { DbType.String, "nvarchar" }
+            { DbType.String, "nvarchar" },
+            { DbType.Date, "date" }
         };
 
         public virtual string StatementTerminator => ";";
@@ -49,24 +50,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void GenerateParameterName(StringBuilder builder, string name)
             => builder.Append("@").Append(name);
 
-        public virtual string GenerateLiteral(object value, bool unicode = true)
+        public virtual string GenerateLiteral(object value, RelationalTypeMapping typeMapping = null)
         {
             if (value != null)
             {
                 var s = value as string;
-                return s != null ? GenerateLiteralValue(s, unicode) : GenerateLiteralValue((dynamic)value);
+                return s != null ? GenerateLiteralValue(s, typeMapping) : GenerateLiteralValue((dynamic)value);
             }
             return "NULL";
         }
 
-        public virtual void GenerateLiteral(StringBuilder builder, object value, bool unicode = true)
+        public virtual void GenerateLiteral(StringBuilder builder, object value, RelationalTypeMapping typeMapping = null)
         {
             if (value != null)
             {
                 var s = value as string;
                 if (s != null)
                 {
-                    GenerateLiteralValue(builder, s, unicode);
+                    GenerateLiteralValue(builder, s, typeMapping);
                 }
                 else
                 {
@@ -184,10 +185,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, char value)
             => builder.Append("'").Append(value).Append("'");
 
-        protected virtual string GenerateLiteralValue([NotNull] string value, bool unicode = true)
+        protected virtual string GenerateLiteralValue([NotNull] string value, [CanBeNull] RelationalTypeMapping typeMapping)
             => $"'{EscapeLiteral(Check.NotNull(value, nameof(value)))}'";
 
-        protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, [NotNull] string value, bool unicode = true)
+        protected virtual void GenerateLiteralValue([NotNull] StringBuilder builder, [NotNull] string value, [CanBeNull] RelationalTypeMapping typeMapping)
         {
             builder.Append("'");
             EscapeLiteral(builder, value);

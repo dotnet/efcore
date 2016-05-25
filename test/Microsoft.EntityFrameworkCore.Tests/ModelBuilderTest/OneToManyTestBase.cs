@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
@@ -340,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentType = model.FindEntityType(typeof(Pickle));
                 var principalType = model.FindEntityType(typeof(BigMak));
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.Single().Name == "BurgerId");
-                fk.HasDependentToPrincipal(null);
+                fk.HasDependentToPrincipal((string)null);
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -1945,6 +1948,113 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).FindProperty("MyShadowFk").IsNullable);
                 Assert.Equal(typeof(int?), modelBuilder.Model.FindEntityType(typeof(Order)).FindProperty("MyShadowFk").ClrType);
+            }
+
+            [Fact] // Issue #3376
+            public virtual void Can_use_self_referencing_overlapping_FK_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<ModifierGroupHeader>()
+                    .HasKey(x => new { x.GroupHeaderId, x.AccountId });
+
+                modelBuilder.Entity<ModifierGroupHeader>()
+                    .HasOne(x => x.ModifierGroupHeader2)
+                    .WithMany(x => x.ModifierGroupHeader1)
+                    .HasForeignKey(x => new { x.LinkedGroupHeaderId, x.AccountId });
+
+                var contextOptions = new DbContextOptionsBuilder()
+                    .UseModel(modelBuilder.Model)
+                    .UseInMemoryDatabase()
+                    .Options;
+
+                using (var context = new DbContext(contextOptions))
+                {
+                    var parent = context.Add(new ModifierGroupHeader { GroupHeaderId = 77, AccountId = 90 }).Entity;
+                    var child1 = context.Add(new ModifierGroupHeader { GroupHeaderId = 78, AccountId = 90 }).Entity;
+                    var child2 = context.Add(new ModifierGroupHeader { GroupHeaderId = 79, AccountId = 90 }).Entity;
+
+                    child1.ModifierGroupHeader2 = parent;
+                    child2.ModifierGroupHeader2 = parent;
+
+                    context.SaveChanges();
+
+                    AssertGraph(parent, child1, child2);
+                }
+
+                using (var context = new DbContext(contextOptions))
+                {
+                    var parent = context.Set<ModifierGroupHeader>().Single(e => e.GroupHeaderId == 77);
+                    var child1 = context.Set<ModifierGroupHeader>().Single(e => e.GroupHeaderId == 78);
+                    var child2 = context.Set<ModifierGroupHeader>().Single(e => e.GroupHeaderId == 79);
+
+                    AssertGraph(parent, child1, child2);
+                }
+            }
+
+            private static void AssertGraph(
+                ModifierGroupHeader parent,
+                ModifierGroupHeader child1,
+                ModifierGroupHeader child2)
+            {
+                Assert.Equal(new[] { child1, child2 }, parent.ModifierGroupHeader1.ToArray());
+                Assert.Same(parent, child1.ModifierGroupHeader2);
+                Assert.Same(parent, child2.ModifierGroupHeader2);
+
+                Assert.Equal(77, parent.GroupHeaderId);
+                Assert.Equal(78, child1.GroupHeaderId);
+                Assert.Equal(79, child2.GroupHeaderId);
+                Assert.Equal(90, parent.AccountId);
+                Assert.Equal(90, child1.AccountId);
+                Assert.Equal(90, child2.AccountId);
+                Assert.Null(parent.LinkedGroupHeaderId);
+                Assert.Equal(77, child1.LinkedGroupHeaderId);
+                Assert.Equal(77, child2.LinkedGroupHeaderId);
+            }
+
+            [Table("ModifierGroupHeader")]
+            private class ModifierGroupHeader
+            {
+                [Key]
+                [Column(Order = 0)]
+                public int GroupHeaderId { get; set; }
+
+                [Key]
+                [Column(Order = 1)]
+                [DatabaseGenerated(DatabaseGeneratedOption.None)]
+                public int AccountId { get; set; }
+
+                [Required]
+                [StringLength(50)]
+                public string GroupBatchName { get; set; }
+
+                [StringLength(200)]
+                public string GroupBatchNameAlt { get; set; }
+
+                public int MaxModifierSelectCount { get; set; }
+
+                public int? LinkedGroupHeaderId { get; set; }
+
+                public bool Enabled { get; set; }
+
+                public DateTime CreatedDate { get; set; }
+
+                [Required]
+                [StringLength(50)]
+                public string CreatedBy { get; set; }
+
+                public DateTime ModifiedDate { get; set; }
+
+                [Required]
+                [StringLength(50)]
+                public string ModifiedBy { get; set; }
+
+                public bool? IsFollowSet { get; set; }
+
+                public virtual ICollection<ModifierGroupHeader> ModifierGroupHeader1 { get; set; }
+                    = new HashSet<ModifierGroupHeader>();
+
+                public virtual ModifierGroupHeader ModifierGroupHeader2 { get; set; }
             }
         }
     }

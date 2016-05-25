@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
@@ -76,12 +77,45 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model)
             => SetOption(e => e.Model = Check.NotNull(model, nameof(model)));
 
+        /// <summary>
+        ///     Sets the <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
+        ///     for logging done by this context.
+        /// </summary>
+        /// <param name="loggerFactory"> The logger factory to be used. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
             => SetOption(e => e.LoggerFactory = loggerFactory);
 
+        /// <summary>
+        ///     Sets the <see cref="IMemoryCache" /> to be used for query caching by this context. EF will
+        ///     create and manage a memory cache if none is specified.
+        /// </summary>
+        /// <param name="memoryCache"> The memory cache to be used. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
             => SetOption(e => e.MemoryCache = memoryCache);
 
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="IServiceProvider" /> that the context should resolve all of its services from. EF will
+        ///         create and manage a service provider if none is specified.
+        ///     </para>
+        ///     <para>
+        ///         The service provider must contain all the services required by Entity Framework (and the database being
+        ///         used). The Entity Framework services can be registered using the
+        ///         <see cref="Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServiceCollectionExtensions.AddEntityFramework(IServiceCollection)" /> 
+        ///         method. Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
+        ///         services required. For example, the Microsoft SQL Server provider includes an AddEntityFrameworkSqlServer() method
+        ///         to add the required services.
+        ///     </para>
+        ///     <para>
+        ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
+        ///         <see cref="DbContextOptions{TContext}" /> registered, then this will be used as the options for
+        ///         this context instance.
+        ///     </para>
+        /// </summary>
+        /// <param name="serviceProvider"> The service provider to be used. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
             => SetOption(e => e.InternalServiceProvider = serviceProvider);
 

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -53,23 +54,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures this as a one-to-many relationship.
         /// </summary>
-        /// <param name="reference">
+        /// <param name="navigationName">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string reference = null)
-            => new ReferenceCollectionBuilder(WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))));
+        public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string navigationName = null)
+            => new ReferenceCollectionBuilder(WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
         /// </summary>
-        /// <param name="reference">
+        /// <param name="navigationName">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
-            => Builder.DependentToPrincipal(reference, ConfigurationSource.Explicit);
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
+            => Builder.DependentToPrincipal(navigationName, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
+        /// </summary>
+        /// <param name="navigationProperty">
+        ///     The reference navigation property on the other end of this relationship.
+        ///     If null, there is no navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> The internal builder to further configure the relationship. </returns>
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
+            => Builder.DependentToPrincipal(navigationProperty, ConfigurationSource.Explicit);
     }
 }

@@ -39,6 +39,7 @@
     <Compile Include="TestLogger.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="project.json" />
     <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\Comment.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -58,7 +59,7 @@
     <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users_Groups.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\UsersGroups.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\Dependent.expected">
@@ -109,7 +110,7 @@
     <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\Users.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\Users_Groups.expected">
+    <None Include="ReverseEngineering\Expected\Attributes\ManyToMany\UsersGroups.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\Attributes\NoPrincipalPk\Dependent.expected">
@@ -144,10 +145,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Commands\Microsoft.EntityFrameworkCore.Commands.csproj">
-      <Project>{1731bb70-07e9-4a96-85fc-e731276ef4bc}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Commands</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.csproj">
       <Project>{a0b496fe-1e59-4262-a5f5-101cbba42738}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests</Name>
@@ -175,6 +172,10 @@
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Sqlite\Microsoft.EntityFrameworkCore.Sqlite.csproj">
       <Project>{a257c01b-bb91-44ba-831c-1e04f7800ac8}</Project>
       <Name>Microsoft.EntityFrameworkCore.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Tools.Core\Microsoft.EntityFrameworkCore.Tools.Core.csproj">
+      <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
+      <Name>Microsoft.EntityFrameworkCore.Tools.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>

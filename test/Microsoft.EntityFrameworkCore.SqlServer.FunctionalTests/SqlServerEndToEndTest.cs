@@ -6,9 +6,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -560,7 +563,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
+            {
+                if (typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
+                {
+                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+                }
+                else if(typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
+                {
+                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+                }
+                modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
+            }
 
             public DbSet<TBlog> Blogs { get; set; }
         }

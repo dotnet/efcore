@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         bool Contains([NotNull] object instance, [NotNull] object value);
         void Remove([NotNull] object instance, [NotNull] object value);
         object Create([NotNull] IEnumerable<object> values);
+        object GetOrCreate([NotNull] object instance);
         Type CollectionType { get; }
     }
 }

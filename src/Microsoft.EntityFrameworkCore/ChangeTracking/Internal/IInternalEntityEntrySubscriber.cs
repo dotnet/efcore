@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public interface IInternalEntityEntrySubscriber
     {
-        InternalEntityEntry SnapshotAndSubscribe([NotNull] InternalEntityEntry entry);
+        bool SnapshotAndSubscribe([NotNull] InternalEntityEntry entry);
+        void Unsubscribe([NotNull] InternalEntityEntry entry);
     }
 }

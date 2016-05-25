@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0-rc3-*",
+  "description": "Shared components for Entity Framework design-time tools.",
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk",
+    "nowarn": [
+      "CS1591"
+    ],
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    }
+  },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*"
+  },
+  "frameworks": {
+    "net451": { },
+    "netstandard1.3": {
+      "imports": [
+        "portable-net452+win81"
+      ],
+      "dependencies": {
+        "System.Collections.NonGeneric": "4.0.1-*",
+        "System.IO": "4.1.0-*",
+        "System.IO.FileSystem": "4.0.1-*"
+      }
+    }
+  }
+}

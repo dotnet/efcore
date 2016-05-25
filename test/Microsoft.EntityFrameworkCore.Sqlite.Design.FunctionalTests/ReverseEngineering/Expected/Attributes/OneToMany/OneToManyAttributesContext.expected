@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -17,26 +18,12 @@ namespace E2E.Sqlite
             {
                 entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 })
                     .HasName("sqlite_autoindex_OneToManyDependent_1");
-
-                entity.Property(e => e.OneToManyDependentID1).HasColumnType("INT");
-
-                entity.Property(e => e.OneToManyDependentID2).HasColumnType("INT");
-
-                entity.Property(e => e.OneToManyDependentFK1).HasColumnType("INT");
-
-                entity.Property(e => e.OneToManyDependentFK2).HasColumnType("INT");
-
-                entity.Property(e => e.SomeDependentEndColumn).HasColumnType("VARCHAR");
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
                 entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 })
                     .HasName("sqlite_autoindex_OneToManyPrincipal_1");
-
-                entity.Property(e => e.OneToManyPrincipalID1).HasColumnType("INT");
-
-                entity.Property(e => e.OneToManyPrincipalID2).HasColumnType("INT");
             });
         }
 

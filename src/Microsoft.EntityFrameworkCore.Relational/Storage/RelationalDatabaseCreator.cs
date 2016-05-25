@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -21,21 +20,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator)
+            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
+            [NotNull] IMigrationCommandExecutor migrationCommandExecutor)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
+            Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
 
             Model = model;
             Connection = connection;
             _modelDiffer = modelDiffer;
             _migrationsSqlGenerator = migrationsSqlGenerator;
+            MigrationCommandExecutor = migrationCommandExecutor;
         }
 
         protected virtual IModel Model { get; }
         protected virtual IRelationalConnection Connection { get; }
+
+        protected virtual IMigrationCommandExecutor MigrationCommandExecutor { get; }
 
         public abstract bool Exists();
 
@@ -69,30 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public virtual void CreateTables()
-        {
-            var commands = GetCreateTablesCommands();
-
-            using (var transaction = Connection.BeginTransaction())
-            {
-                commands.ExecuteNonQuery(Connection);
-
-                transaction.Commit();
-            }
-        }
+            => MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Connection);
 
         public virtual async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var commands = GetCreateTablesCommands();
+            => await MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateTablesCommands(), Connection, cancellationToken);
 
-            using (var transaction = await Connection.BeginTransactionAsync(cancellationToken))
-            {
-                await commands.ExecuteNonQueryAsync(Connection, cancellationToken);
-
-                transaction.Commit();
-            }
-        }
-
-        protected virtual IEnumerable<IRelationalCommand> GetCreateTablesCommands()
+        protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands()
             => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
 
         protected abstract bool HasTables();

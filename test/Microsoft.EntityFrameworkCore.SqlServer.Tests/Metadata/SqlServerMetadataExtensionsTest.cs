@@ -190,27 +190,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Null(property.Relational().ComputedValueSql);
-            Assert.Null(property.SqlServer().ComputedValueSql);
-            Assert.Null(((IProperty)property).SqlServer().ComputedValueSql);
+            Assert.Null(property.Relational().ComputedColumnSql);
+            Assert.Null(property.SqlServer().ComputedColumnSql);
+            Assert.Null(((IProperty)property).SqlServer().ComputedColumnSql);
 
-            property.Relational().ComputedValueSql = "newsequentialid()";
+            property.Relational().ComputedColumnSql = "newsequentialid()";
 
-            Assert.Equal("newsequentialid()", property.Relational().ComputedValueSql);
-            Assert.Equal("newsequentialid()", property.SqlServer().ComputedValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().ComputedValueSql);
+            Assert.Equal("newsequentialid()", property.Relational().ComputedColumnSql);
+            Assert.Equal("newsequentialid()", property.SqlServer().ComputedColumnSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().ComputedColumnSql);
 
-            property.SqlServer().ComputedValueSql = "expressyourself()";
+            property.SqlServer().ComputedColumnSql = "expressyourself()";
 
-            Assert.Equal("newsequentialid()", property.Relational().ComputedValueSql);
-            Assert.Equal("expressyourself()", property.SqlServer().ComputedValueSql);
-            Assert.Equal("expressyourself()", ((IProperty)property).SqlServer().ComputedValueSql);
+            Assert.Equal("newsequentialid()", property.Relational().ComputedColumnSql);
+            Assert.Equal("expressyourself()", property.SqlServer().ComputedColumnSql);
+            Assert.Equal("expressyourself()", ((IProperty)property).SqlServer().ComputedColumnSql);
 
-            property.SqlServer().ComputedValueSql = null;
+            property.SqlServer().ComputedColumnSql = null;
 
-            Assert.Equal("newsequentialid()", property.Relational().ComputedValueSql);
-            Assert.Equal("newsequentialid()", property.SqlServer().ComputedValueSql);
-            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().ComputedValueSql);
+            Assert.Equal("newsequentialid()", property.Relational().ComputedColumnSql);
+            Assert.Equal("newsequentialid()", property.SqlServer().ComputedColumnSql);
+            Assert.Equal("newsequentialid()", ((IProperty)property).SqlServer().ComputedColumnSql);
         }
 
         [Fact]
@@ -244,6 +244,60 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Metadata
             Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
             Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
             Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+        }
+
+        [Theory]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValue), nameof(RelationalPropertyAnnotations.DefaultValueSql))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValue), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValue), nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValueSql), nameof(RelationalPropertyAnnotations.DefaultValue))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValueSql), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
+        [InlineData(nameof(RelationalPropertyAnnotations.DefaultValueSql), nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy))]
+        [InlineData(nameof(RelationalPropertyAnnotations.ComputedColumnSql), nameof(RelationalPropertyAnnotations.DefaultValue))]
+        [InlineData(nameof(RelationalPropertyAnnotations.ComputedColumnSql), nameof(RelationalPropertyAnnotations.DefaultValueSql))]
+        [InlineData(nameof(RelationalPropertyAnnotations.ComputedColumnSql), nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy))]
+        [InlineData(nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy), nameof(RelationalPropertyAnnotations.DefaultValue))]
+        [InlineData(nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy), nameof(RelationalPropertyAnnotations.DefaultValueSql))]
+        [InlineData(nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy), nameof(RelationalPropertyAnnotations.ComputedColumnSql))]
+        public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var propertyBuilder = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id);
+
+            ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "1");
+
+            Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Id), firstConfiguration),
+                Assert.Throws<InvalidOperationException>(() =>
+                    ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2")).Message);
+        }
+
+        protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)
+        {
+            var propertyAnnotations = property.SqlServer();
+            switch (configuration)
+            {
+                case nameof(RelationalPropertyAnnotations.DefaultValue):
+                    property.ValueGenerated = ValueGenerated.OnAdd;
+                    propertyAnnotations.DefaultValue = int.Parse(value);
+                    break;
+                case nameof(RelationalPropertyAnnotations.DefaultValueSql):
+                    property.ValueGenerated = ValueGenerated.OnAdd;
+                    propertyAnnotations.DefaultValueSql = value;
+                    break;
+                case nameof(RelationalPropertyAnnotations.ComputedColumnSql):
+                    property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
+                    propertyAnnotations.ComputedColumnSql = value;
+                    break;
+                case nameof(SqlServerPropertyAnnotations.ValueGenerationStrategy):
+                    property.ValueGenerated = ValueGenerated.OnAdd;
+                    propertyAnnotations.ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         [Fact]

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -13,10 +14,6 @@ namespace E2E.Sqlite
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Dependent>(entity =>
-            {
-                entity.Property(e => e.PrincipalId).HasColumnType("INT");
-            });
         }
 
         public virtual DbSet<Dependent> Dependent { get; set; }

@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
                 public override void Dispose()
                 {
-                    _serviceProvider.GetRequiredService<IInMemoryStore>().Clear();
+                    _serviceProvider.GetRequiredService<IInMemoryStoreSource>().GetGlobalStore().Clear();
 
                     base.Dispose();
                 }

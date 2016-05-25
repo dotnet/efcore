@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -10,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
+        private readonly TemporaryNumberValueGeneratorFactory _numberFactory
+            = new TemporaryNumberValueGeneratorFactory();
+
         public RelationalValueGeneratorSelector(
             [NotNull] IValueGeneratorCache cache,
             [NotNull] IRelationalAnnotationProvider relationalExtensions)
@@ -31,6 +35,39 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 && (RelationalExtensions.For(property.DeclaringEntityType).DiscriminatorProperty == property))
             {
                 return new DiscriminatorValueGenerator(RelationalExtensions.For(entityType).DiscriminatorValue);
+            }
+
+            if (property.ValueGenerated != ValueGenerated.Never)
+            {
+                var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+
+                if (propertyType.IsInteger()
+                    || (propertyType == typeof(decimal))
+                    || (propertyType == typeof(float))
+                    || (propertyType == typeof(double)))
+                {
+                    return _numberFactory.Create(property);
+                }
+
+                if (propertyType == typeof(string))
+                {
+                    return new StringValueGenerator(generateTemporaryValues: true);
+                }
+
+                if (propertyType == typeof(byte[]))
+                {
+                    return new BinaryValueGenerator(generateTemporaryValues: true);
+                }
+
+                if (propertyType == typeof(DateTime))
+                {
+                    return new TemporaryDateTimeOffsetValueGenerator();
+                }
+
+                if (propertyType == typeof(DateTimeOffset))
+                {
+                    return new TemporaryDateTimeOffsetValueGenerator();
+                }
             }
 
             return base.Create(property, entityType);

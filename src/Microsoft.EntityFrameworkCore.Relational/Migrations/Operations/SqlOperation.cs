@@ -8,5 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     public class SqlOperation : MigrationOperation
     {
         public virtual string Sql { get; [param: NotNull] set; }
+        public virtual bool SuppressTransaction { get; set; }
     }
 }

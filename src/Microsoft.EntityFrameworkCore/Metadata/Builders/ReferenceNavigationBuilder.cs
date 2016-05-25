@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -90,15 +91,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithMany" /> is called.
         /// </summary>
-        /// <param name="collection">
+        /// <param name="navigationName">
         ///     The name of the collection navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] string collection)
+        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] string navigationName)
             => Builder.RelatedEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
-                .PrincipalToDependent(collection, ConfigurationSource.Explicit);
+                .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Returns the internal builder to be used when <see cref="WithMany" /> is called.
+        /// </summary>
+        /// <param name="navigationProperty">
+        ///     The collection navigation property on the other end of this relationship.
+        ///     If null, there is no navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> The internal builder to further configure the relationship. </returns>
+        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] PropertyInfo navigationProperty)
+            => Builder.RelatedEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
+                .IsUnique(false, ConfigurationSource.Explicit)
+                .PrincipalToDependent(navigationProperty, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures this as a one-to-one relationship.
@@ -117,22 +131,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
         /// </summary>
-        /// <param name="reference">
+        /// <param name="navigationName">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
+            => WithOneBuilder(PropertyIdentity.Create(navigationName));
+
+        /// <summary>
+        ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
+        /// </summary>
+        /// <param name="navigationProperty">
+        ///     The reference navigation property on the other end of this relationship.
+        ///     If null, there is no navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> The internal builder to further configure the relationship. </returns>
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
+            => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
+
+        private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
         {
-            if (Builder.Metadata.IsSelfReferencing()
-                && (reference != null)
-                && (ReferenceName == reference))
+            var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
+            var referenceName = reference.Name;
+            if (builder.Metadata.IsSelfReferencing()
+                && referenceName != null
+                && ReferenceName == referenceName)
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateNavigation(
-                    reference, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
+                    referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
             }
 
-            var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
             var pointsToPrincipal = !builder.Metadata.IsSelfReferencing()
                                     && (!builder.Metadata.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
                                         || !builder.Metadata.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
@@ -141,9 +170,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                                             && builder.Metadata.PrincipalToDependent != null
                                             && builder.Metadata.PrincipalToDependent.Name == ReferenceName));
 
-            return pointsToPrincipal
-                ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit)
-                : builder.PrincipalToDependent(reference, ConfigurationSource.Explicit);
+            var referenceProperty = reference.Property;
+            if (referenceProperty != null)
+            {
+                return pointsToPrincipal
+                    ? builder.DependentToPrincipal(referenceProperty, ConfigurationSource.Explicit)
+                    : builder.PrincipalToDependent(referenceProperty, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                return pointsToPrincipal
+                    ? builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
+                    : builder.PrincipalToDependent(reference.Name, ConfigurationSource.Explicit);
+            }
         }
     }
 }

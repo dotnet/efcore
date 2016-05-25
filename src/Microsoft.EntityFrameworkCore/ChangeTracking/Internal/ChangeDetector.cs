@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ChangeDetector : IChangeDetector
     {
+        public const string SkipDetectChangesAnnotation = "ChangeDetector.SkipDetectChanges";
+
         private bool _suspended;
 
         public virtual void Suspend() => _suspended = true;
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase, bool setModified)
         {
-            if (_suspended)
+            if (_suspended || entry.EntityState == EntityState.Detached)
             {
                 return;
             }
@@ -37,24 +39,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else
             {
-                var navigation = propertyBase as INavigation;
-                if (navigation != null)
+                if (propertyBase.GetRelationshipIndex() != -1)
                 {
-                    DetectNavigationChange(entry, navigation);
+                    var navigation = propertyBase as INavigation;
+                    if (navigation != null)
+                    {
+                        DetectNavigationChange(entry, navigation);
+                    }
                 }
             }
         }
 
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
-            if (_suspended)
+            if (_suspended || entry.EntityState == EntityState.Detached)
             {
                 return;
             }
 
             if (!entry.EntityType.UseEagerSnapshots())
             {
-                entry.EnsureOriginalValues();
+                var asProperty = propertyBase as IProperty;
+                if (asProperty != null
+                    && asProperty.GetOriginalValueIndex() != -1)
+                {
+                    entry.EnsureOriginalValues();
+                }
 
                 if (propertyBase.GetRelationshipIndex() != -1)
                 {
@@ -65,26 +75,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         public virtual void DetectChanges(IStateManager stateManager)
         {
-            foreach (var entry in stateManager.Entries.Where(e => e.EntityState != EntityState.Detached).ToList())
+            if (stateManager.Context.Model[SkipDetectChangesAnnotation] == null)
             {
-                DetectChanges(entry);
+                foreach (var entry in stateManager.Entries.Where(
+                    e => e.EntityState != EntityState.Detached
+                         && e.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot).ToList())
+                {
+                    DetectChanges(entry);
+                }
             }
         }
 
         public virtual void DetectChanges(InternalEntityEntry entry)
         {
-            DetectPropertyChanges(entry);
-            DetectRelationshipChanges(entry);
-        }
-
-        private static void DetectPropertyChanges(InternalEntityEntry entry)
-        {
             var entityType = entry.EntityType;
-
-            if (entityType.HasPropertyChangedNotifications())
-            {
-                return;
-            }
 
             foreach (var property in entityType.GetProperties())
             {
@@ -94,42 +98,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     entry.SetPropertyModified(property);
                 }
             }
-        }
 
-        private void DetectRelationshipChanges(InternalEntityEntry entry)
-        {
-            var entityType = entry.EntityType;
-
-            if (!entityType.HasPropertyChangedNotifications())
+            foreach (var property in entityType.GetProperties())
             {
-                DetectKeyChanges(entry);
+                DetectKeyChange(entry, property);
             }
 
             if (entry.HasRelationshipSnapshot)
-            {
-                DetectNavigationChanges(entry);
-            }
-        }
-
-        private void DetectKeyChanges(InternalEntityEntry entry)
-        {
-            var entityType = entry.EntityType;
-
-            if (!entityType.HasPropertyChangedNotifications())
-            {
-                foreach (var property in entityType.GetProperties())
-                {
-                    DetectKeyChange(entry, property);
-                }
-            }
-        }
-
-        private void DetectNavigationChanges(InternalEntityEntry entry)
-        {
-            var entityType = entry.EntityType;
-
-            if (!entityType.HasPropertyChangedNotifications()
-                || entityType.GetNavigations().Any(n => n.IsNonNotifyingCollection(entry)))
             {
                 foreach (var navigation in entityType.GetNavigations())
                 {
@@ -149,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    var keys = property.FindContainingKeys().ToList();
-                    var foreignKeys = property.FindContainingForeignKeys().ToList();
+                    var keys = property.GetContainingKeys().ToList();
+                    var foreignKeys = property.GetContainingForeignKeys().ToList();
 
                     entry.StateManager.Notify.KeyPropertyChanged(entry, property, keys, foreignKeys, snapshotValue, currentValue);
                 }

@@ -16,15 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void Parameters_return_set_values()
         {
+            var property = new Model().AddEntityType(typeof(object)).AddProperty("Kake", typeof(string));
+
             var columnModification = new ColumnModification(
-                CreateInternalEntryMock(Mock.Of<IProperty>()).Object,
+                CreateInternalEntryMock(property).Object,
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyAnnotations>().Object,
                 new ParameterNameGenerator().GenerateNext,
                 isRead: true,
                 isWrite: true,
                 isKey: true,
-                isCondition: true);
+                isCondition: true,
+                isConcurrencyToken: false);
 
             Assert.Null(columnModification.ColumnName);
             Assert.True(columnModification.IsRead);
@@ -33,13 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.True(columnModification.IsCondition);
             Assert.Equal("p0", columnModification.ParameterName);
             Assert.Equal("p1", columnModification.OriginalParameterName);
-            Assert.Equal("p2", columnModification.OutputParameterName);
         }
 
         [Fact]
         public void Get_Value_delegates_to_Entry()
         {
-            var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());
+            var property = new Model().AddEntityType(typeof(object)).AddProperty("Kake", typeof(string));
+
+            var internalEntryMock = CreateInternalEntryMock(property);
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
                 new Mock<IProperty>().Object,
@@ -48,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 isRead: false,
                 isWrite: false,
                 isKey: false,
-                isCondition: false);
+                isCondition: false,
+                isConcurrencyToken: false);
 
             var value = columnModification.Value;
 
@@ -58,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
         [Fact]
         public void Set_Value_delegates_to_Entry()
         {
-            var property = new Mock<IProperty>().Object;
+            var property = new Model().AddEntityType(typeof(object)).AddProperty("Kake", typeof(string));
+
             var internalEntryMock = CreateInternalEntryMock(property);
             var columnModification = new ColumnModification(
                 internalEntryMock.Object,
@@ -68,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 isRead: false,
                 isWrite: false,
                 isKey: false,
-                isCondition: false);
+                isCondition: false,
+                isConcurrencyToken: false);
             var value = new object();
 
             columnModification.Value = value;
@@ -76,12 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             internalEntryMock.Verify(m => m.SetCurrentValue(property, It.IsAny<object>()), Times.Once);
         }
 
-        private static Mock<InternalEntityEntry> CreateInternalEntryMock(IProperty property)
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock(Property property)
         {
-            var entityTypeMock = new Mock<IEntityType>();
+            var entityTypeMock = new Mock<EntityType>("Entity", new Model(), ConfigurationSource.Explicit);
             entityTypeMock.Setup(e => e.GetProperties()).Returns(new[] { property });
 
-            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
+            entityTypeMock.Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
 
             var internalEntryMock = new Mock<InternalEntityEntry>(
                 Mock.Of<IStateManager>(), entityTypeMock.Object);

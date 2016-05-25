@@ -1,21 +1,25 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.0-rc3-*",
   "description": "Microsoft SQL Server data store for Entity Framework.",
-  "compilationOptions": {
+  "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "compile": {
+      "include": "../Shared/*.cs"
+    },
+    "embed": {
+      "includeFiles": "Properties/Microsoft.EntityFrameworkCore.SqlServer.rd.xml"
+    }
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
-  "compile": "../Shared/*.cs",
-  "resourceFiles": "Properties/Microsoft.EntityFrameworkCore.SqlServer.rd.xml",
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "netstandard1.3": {
       "imports": [
         "portable-net452+win81"

@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6
     public class InitializationTests : IClassFixture<AdventureWorksFixture>
     {
         [Benchmark]
-#if NETSTANDARDAPP1_5
+        [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
+#if NET451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
-        [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
         public void CreateAndDisposeUnusedContext(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
@@ -27,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6
 
         [Benchmark]
         [AdventureWorksDatabaseRequired]
-#if NETSTANDARDAPP1_5
+        [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
+#if NET451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
-        [BenchmarkVariation("Warm (100 instances)", false, 100)]
         public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
@@ -38,10 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6
 
         [Benchmark]
         [AdventureWorksDatabaseRequired]
-#if NETSTANDARDAPP1_5
+        [BenchmarkVariation("Warm (100 instances)", false, 100)]
+#if NET451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
-        [BenchmarkVariation("Warm (100 instances)", false, 100)]
         public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));

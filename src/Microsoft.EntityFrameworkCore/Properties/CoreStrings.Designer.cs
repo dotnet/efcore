@@ -141,19 +141,43 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Lazy original value tracking cannot be turned on for entity type '{entityType}'. Entities that do not implement both INotifyPropertyChanging and INotifyPropertyChanged require original values to be stored eagerly in order to correct detect changes made to entities.
+        /// The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy but does not implement the required '{notificationInterface}' interface.
         /// </summary>
-        public static string EagerOriginalValuesRequired([CanBeNull] object entityType)
+        public static string ChangeTrackingInterfaceMissing([CanBeNull] object entityType, [CanBeNull] object changeTrackingStrategy, [CanBeNull] object notificationInterface)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EagerOriginalValuesRequired", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ChangeTrackingInterfaceMissing", "entityType", "changeTrackingStrategy", "notificationInterface"), entityType, changeTrackingStrategy, notificationInterface);
         }
 
         /// <summary>
-        /// The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. To access all original values set 'UseLazyOriginalValues' to false on the entity type.
+        /// The collection type being used for navigation property '{navigation}' on entity type '{entityType}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.
+        /// </summary>
+        public static string NonNotifyingCollection([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object changeTrackingStrategy)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NonNotifyingCollection", "navigation", "entityType", "changeTrackingStrategy"), navigation, entityType, changeTrackingStrategy);
+        }
+
+        /// <summary>
+        /// 'ObservableCollection&lt;T&gt;.Clear()' is not supported because it uses the 'INotifyCollectionChanged' 'Reset' operation, which does not supply the items removed. Either use multiple calls to 'Remove' or use a notifying collection that supports 'Clear', such as 'Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet&lt;T&gt;'.
+        /// </summary>
+        public static string ResetNotSupported
+        {
+            get { return GetString("ResetNotSupported"); }
+        }
+
+        /// <summary>
+        /// The original value for property '{property}' of entity type '{entityType}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.
         /// </summary>
         public static string OriginalValueNotTracked([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("OriginalValueNotTracked", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// Cannot change ObservableHashSet during a CollectionChanged event.
+        /// </summary>
+        public static string ObservableCollectionReentrancy
+        {
+            get { return GetString("ObservableCollectionReentrancy"); }
         }
 
         /// <summary>
@@ -227,15 +251,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
-
-        /// <summary>
-        /// The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
-        /// </summary>
-        public static string TempValue([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("TempValue", "property", "entityType"), property, entityType);
-        }
-
 
         /// <summary>
         /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
@@ -323,14 +338,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string DuplicateNavigation([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateNavigation", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.
-        /// </summary>
-        public static string NavigationOnShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationOnShadowEntity", "navigation", "entityType"), navigation, entityType);
         }
 
         /// <summary>
@@ -990,6 +997,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// The extension method ‘{method}’ is being used with a custom implementation of ‘{interfaceType}’. Use of custom implementations of the Entity Framework metadata interfaces is not supported. Consider deriving from ‘{concreteType}’ instead. Please contact the Entity Framework team if you have a compelling case for a custom implementation of the metadata interfaces so that we can consider ways to achieve this.
+        /// </summary>
+        public static string CustomMetadata([CanBeNull] object method, [CanBeNull] object interfaceType, [CanBeNull] object concreteType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CustomMetadata", "method", "interfaceType", "concreteType"), method, interfaceType, concreteType);
+        }
+
+        /// <summary>
         /// Unhandled operation: MemberInitExpression binding is not a MemberAssignment
         /// </summary>
         public static string InvalidMemberInitBinding
@@ -1155,6 +1170,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NoPropertyType([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoPropertyType", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' has a temporary value. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.
+        /// </summary>
+        public static string TempValue([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TempValue", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The database generated a null value for non-nullable property '{property}' of entity type '{entityType}'. Ensure value generation configuration in the database matches the configuration in the model.
+        /// </summary>
+        public static string DatabaseGeneratedNull([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseGeneratedNull", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// Sequence contains more than one element
+        /// </summary>
+        public static string MoreThanOneElement
+        {
+            get { return GetString("MoreThanOneElement"); }
+        }
+
+        /// <summary>
+        /// Sequence contains no elements
+        /// </summary>
+        public static string NoElements
+        {
+            get { return GetString("NoElements"); }
+        }
+
+        /// <summary>
+        /// A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.
+        /// </summary>
+        public static string NoParameterlessConstructor([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoParameterlessConstructor", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The Include operation for navigation: '{navigation}' was ignored because the target navigation is not reachable in the final query results.
+        /// </summary>
+        public static string LogIgnoredInclude([CanBeNull] object navigation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "navigation"), navigation);
         }
 
         private static string GetString(string name, params string[] formatterNames)

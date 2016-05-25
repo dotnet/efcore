@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .AddSingleton<MigrationsAnnotationProvider>()
                     .AddScoped<RelationalModelValidator>()
                     .AddScoped<IMigrator, Migrator>()
+                    .AddScoped<IMigrationCommandExecutor, MigrationCommandExecutor>()
                     .AddScoped<IMigrationsAssembly, MigrationsAssembly>()
                     .AddScoped<RelationalDatabase>()
                     .AddScoped<BatchExecutor>()

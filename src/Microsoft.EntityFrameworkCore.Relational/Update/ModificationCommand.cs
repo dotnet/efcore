@@ -95,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 foreach (var property in entityType.GetProperties())
                 {
                     var isKey = property.IsPrimaryKey();
-                    var isCondition = !adding && (isKey || property.IsConcurrencyToken);
+                    var isConcurrencyToken = property.IsConcurrencyToken;
+                    var isCondition = !adding && (isKey || isConcurrencyToken);
                     var readValue = entry.IsStoreGenerated(property);
                     var writeValue = !readValue && (adding || entry.IsModified(property));
 
@@ -121,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             readValue,
                             writeValue,
                             isKey,
-                            isCondition));
+                            isCondition,
+                            isConcurrencyToken));
                     }
                 }
             }

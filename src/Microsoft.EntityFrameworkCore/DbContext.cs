@@ -347,14 +347,20 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual void Dispose()
         {
-            _disposed = true;
-            _serviceScope?.Dispose();
-            _setInitializer = null;
-            _changeTracker = null;
-            _stateManager = null;
-            _changeDetector = null;
-            _graphAttacher = null;
-            _model = null;
+            if (!_disposed)
+            {
+                _disposed = true;
+
+                _stateManager?.Unsubscribe();
+
+                _serviceScope?.Dispose();
+                _setInitializer = null;
+                _changeTracker = null;
+                _stateManager = null;
+                _changeDetector = null;
+                _graphAttacher = null;
+                _model = null;
+            }
         }
 
         /// <summary>

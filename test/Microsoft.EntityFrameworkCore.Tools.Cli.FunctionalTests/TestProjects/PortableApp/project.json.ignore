@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0-*"
+    },
+    "Microsoft.EntityFrameworkCore.Tools": {
+      "version": "$toolVersion$",
+      "type": "build",
+      "target": "package"
+    },
+    "Microsoft.EntityFrameworkCore.Tools.Cli": {
+      "version": "$toolVersion$",
+      "type": "build",
+      "target": "package"
+    },
+    "Microsoft.EntityFrameworkCore.Tools.Core": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite": {
+      "target": "project"
+    },
+    "Newtonsoft.Json": "7.0.1"
+  },
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "portable-net451+win8"
+      ]
+    }
+  },
+  "tools": {
+    "Microsoft.EntityFrameworkCore.Tools": {
+      "version": "$toolVersion$",
+      "imports": [
+        "portable-net451+win8"
+      ]
+    }
+  }
+}

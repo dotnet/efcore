@@ -208,6 +208,13 @@ namespace Microsoft.EntityFrameworkCore
             return this;
         }
 
+        public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
+        {
+            Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;
+
+            return this;
+        }
+
         private InternalModelBuilder Builder => this.GetInfrastructure();
     }
 }

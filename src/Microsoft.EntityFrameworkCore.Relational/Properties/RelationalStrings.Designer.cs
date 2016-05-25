@@ -436,6 +436,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnNameDefaultSqlMismatch", "entityType1", "property1", "entityType2", "property2", "columnName", "table", "value1", "value2"), entityType1, property1, entityType2, property2, columnName, table, value1, value2);
         }
 
+        /// <summary>
+        /// {conflictingConfiguration} cannot be set for '{property}', because {existingConfiguration} is already set.
+        /// </summary>
+        public static string ConflictingColumnServerGeneration([CanBeNull] object conflictingConfiguration, [CanBeNull] object property, [CanBeNull] object existingConfiguration)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingColumnServerGeneration", "conflictingConfiguration", "property", "existingConfiguration"), conflictingConfiguration, property, existingConfiguration);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

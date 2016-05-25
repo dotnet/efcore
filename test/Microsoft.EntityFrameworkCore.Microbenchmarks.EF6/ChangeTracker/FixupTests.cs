@@ -10,6 +10,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
 {
     [SqlServerRequired]
+    [SkipForNonBenchmarkTestRuns("Test takes a long time to execute, only run during benchmark collection runs.")]
     public class FixupTests : IClassFixture<FixupTests.FixupFixture>
     {
         private readonly FixupFixture _fixture;
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AddChildren(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -28,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: false);
                 customers.ForEach(c => context.Customers.Attach(c));
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         //       only happens during SaveChanges for EF6.x (not during Add)
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AttachChildren(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -58,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
                 customers.ForEach(c => context.Customers.Attach(c));
 
                 Assert.All(orders, o => Assert.Null(o.Customer));
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AttachParents(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -85,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
                 orders.ForEach(o => context.Orders.Attach(o));
 
                 Assert.All(customers, c => Assert.Null(c.Orders));
@@ -99,11 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
                     }
                 }
 
-                Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
+                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
         }
 
-        [Benchmark]
+        [Benchmark(Iterations = 1)]
         public void QueryChildren(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -114,13 +115,13 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
                 var orders = context.Orders.ToList();
                 collector.StopCollection();
 
-                Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());
+                Assert.Equal(5000, context.ChangeTracker.Entries<Customer>().Count());
+                Assert.Equal(10000, context.ChangeTracker.Entries<Order>().Count());
                 Assert.All(orders, o => Assert.NotNull(o.Customer));
             }
         }
 
-        [Benchmark]
+        [Benchmark(Iterations = 1)]
         public void QueryParents(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -131,16 +132,16 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
                 var customers = context.Customers.ToList();
                 collector.StopCollection();
 
-                Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());
-                Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
+                Assert.Equal(5000, context.ChangeTracker.Entries<Customer>().Count());
+                Assert.Equal(10000, context.ChangeTracker.Entries<Order>().Count());
+                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
         }
 
         public class FixupFixture : OrdersFixture
         {
             public FixupFixture()
-                : base("Perf_ChangeTracker_Fixup_EF6", 0, 1000, 1, 0)
+                : base("Perf_ChangeTracker_Fixup_EF6", 0, 5000, 2, 0)
             {
             }
         }

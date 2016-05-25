@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -15,97 +16,218 @@ namespace E2ETest.Namespace
         {
             modelBuilder.Entity<AllDataTypes>(entity =>
             {
-                entity.Property(e => e.binary111Column).HasColumnType("binary(111)");
+                entity.Property(e => e.BigintColumn).HasColumnName("bigintColumn");
 
-                entity.Property(e => e.binaryColumn).HasColumnType("binary(1)");
+                entity.Property(e => e.Binary111Column)
+                    .HasColumnName("binary111Column")
+                    .HasColumnType("binary(111)");
 
-                entity.Property(e => e.binaryVarying133Column).HasMaxLength(133);
+                entity.Property(e => e.BinaryColumn)
+                    .HasColumnName("binaryColumn")
+                    .HasColumnType("binary(1)");
 
-                entity.Property(e => e.binaryVaryingColumn).HasMaxLength(1);
+                entity.Property(e => e.BinaryVarying133Column)
+                    .HasColumnName("binaryVarying133Column")
+                    .HasMaxLength(133);
 
-                entity.Property(e => e.char10Column).HasColumnType("char(10)");
+                entity.Property(e => e.BinaryVaryingColumn)
+                    .HasColumnName("binaryVaryingColumn")
+                    .HasMaxLength(1);
 
-                entity.Property(e => e.charColumn).HasColumnType("char(1)");
+                entity.Property(e => e.BinaryVaryingMaxColumn).HasColumnName("binaryVaryingMaxColumn");
 
-                entity.Property(e => e.charVarying144Column).HasColumnType("varchar(144)");
+                entity.Property(e => e.BitColumn).HasColumnName("bitColumn");
 
-                entity.Property(e => e.charVaryingColumn).HasColumnType("varchar(1)");
+                entity.Property(e => e.Char10Column)
+                    .HasColumnName("char10Column")
+                    .HasColumnType("char(10)");
 
-                entity.Property(e => e.charVaryingMaxColumn).HasColumnType("varchar(max)");
+                entity.Property(e => e.CharColumn)
+                    .HasColumnName("charColumn")
+                    .HasColumnType("char(1)");
 
-                entity.Property(e => e.character155Column).HasColumnType("char(155)");
+                entity.Property(e => e.CharVarying144Column)
+                    .HasColumnName("charVarying144Column")
+                    .HasColumnType("varchar(144)");
 
-                entity.Property(e => e.characterColumn).HasColumnType("char(1)");
+                entity.Property(e => e.CharVaryingColumn)
+                    .HasColumnName("charVaryingColumn")
+                    .HasColumnType("varchar(1)");
 
-                entity.Property(e => e.characterVarying166Column).HasColumnType("varchar(166)");
+                entity.Property(e => e.CharVaryingMaxColumn)
+                    .HasColumnName("charVaryingMaxColumn")
+                    .HasColumnType("varchar(max)");
 
-                entity.Property(e => e.characterVaryingColumn).HasColumnType("varchar(1)");
+                entity.Property(e => e.Character155Column)
+                    .HasColumnName("character155Column")
+                    .HasColumnType("char(155)");
 
-                entity.Property(e => e.characterVaryingMaxColumn).HasColumnType("varchar(max)");
+                entity.Property(e => e.CharacterColumn)
+                    .HasColumnName("characterColumn")
+                    .HasColumnType("char(1)");
 
-                entity.Property(e => e.dateColumn).HasColumnType("date");
+                entity.Property(e => e.CharacterVarying166Column)
+                    .HasColumnName("characterVarying166Column")
+                    .HasColumnType("varchar(166)");
 
-                entity.Property(e => e.datetime24Column).HasColumnType("datetime2(4)");
+                entity.Property(e => e.CharacterVaryingColumn)
+                    .HasColumnName("characterVaryingColumn")
+                    .HasColumnType("varchar(1)");
 
-                entity.Property(e => e.datetimeColumn).HasColumnType("datetime");
+                entity.Property(e => e.CharacterVaryingMaxColumn)
+                    .HasColumnName("characterVaryingMaxColumn")
+                    .HasColumnType("varchar(max)");
 
-                entity.Property(e => e.datetimeoffset5Column).HasColumnType("datetimeoffset(5)");
+                entity.Property(e => e.DateColumn)
+                    .HasColumnName("dateColumn")
+                    .HasColumnType("date");
 
-                entity.Property(e => e.decimalColumn).HasColumnType("decimal");
+                entity.Property(e => e.Datetime24Column)
+                    .HasColumnName("datetime24Column")
+                    .HasColumnType("datetime2(4)");
 
-                entity.Property(e => e.imageColumn).HasColumnType("image");
+                entity.Property(e => e.Datetime2Column).HasColumnName("datetime2Column");
 
-                entity.Property(e => e.moneyColumn).HasColumnType("money");
+                entity.Property(e => e.DatetimeColumn)
+                    .HasColumnName("datetimeColumn")
+                    .HasColumnType("datetime");
 
-                entity.Property(e => e.nationalCharVarying177Column).HasMaxLength(177);
+                entity.Property(e => e.Datetimeoffset5Column)
+                    .HasColumnName("datetimeoffset5Column")
+                    .HasColumnType("datetimeoffset(5)");
 
-                entity.Property(e => e.nationalCharVaryingColumn).HasMaxLength(1);
+                entity.Property(e => e.DatetimeoffsetColumn).HasColumnName("datetimeoffsetColumn");
 
-                entity.Property(e => e.nationalCharacter171Column).HasColumnType("nchar(171)");
+                entity.Property(e => e.DecimalColumn)
+                    .HasColumnName("decimalColumn")
+                    .HasColumnType("decimal");
 
-                entity.Property(e => e.nationalCharacterColumn).HasColumnType("nchar(1)");
+                entity.Property(e => e.FloatColumn).HasColumnName("floatColumn");
 
-                entity.Property(e => e.nationalCharacterVarying188Column).HasMaxLength(188);
+                entity.Property(e => e.ImageColumn)
+                    .HasColumnName("imageColumn")
+                    .HasColumnType("image");
 
-                entity.Property(e => e.nationalCharacterVaryingColumn).HasMaxLength(1);
+                entity.Property(e => e.IntColumn).HasColumnName("intColumn");
 
-                entity.Property(e => e.nchar99Column).HasColumnType("nchar(99)");
+                entity.Property(e => e.MoneyColumn)
+                    .HasColumnName("moneyColumn")
+                    .HasColumnType("money");
 
-                entity.Property(e => e.ncharColumn).HasColumnType("nchar(1)");
+                entity.Property(e => e.NationalCharVarying177Column)
+                    .HasColumnName("nationalCharVarying177Column")
+                    .HasMaxLength(177);
 
-                entity.Property(e => e.ntextColumn).HasColumnType("ntext");
+                entity.Property(e => e.NationalCharVaryingColumn)
+                    .HasColumnName("nationalCharVaryingColumn")
+                    .HasMaxLength(1);
 
-                entity.Property(e => e.numericColumn).HasColumnType("numeric");
+                entity.Property(e => e.NationalCharVaryingMaxColumn).HasColumnName("nationalCharVaryingMaxColumn");
 
-                entity.Property(e => e.nvarchar100Column).HasMaxLength(100);
+                entity.Property(e => e.NationalCharacter171Column)
+                    .HasColumnName("nationalCharacter171Column")
+                    .HasColumnType("nchar(171)");
 
-                entity.Property(e => e.nvarcharColumn).HasMaxLength(1);
+                entity.Property(e => e.NationalCharacterColumn)
+                    .HasColumnName("nationalCharacterColumn")
+                    .HasColumnType("nchar(1)");
 
-                entity.Property(e => e.smalldatetimeColumn).HasColumnType("smalldatetime");
+                entity.Property(e => e.NationalCharacterVarying188Column)
+                    .HasColumnName("nationalCharacterVarying188Column")
+                    .HasMaxLength(188);
 
-                entity.Property(e => e.smallmoneyColumn).HasColumnType("smallmoney");
+                entity.Property(e => e.NationalCharacterVaryingColumn)
+                    .HasColumnName("nationalCharacterVaryingColumn")
+                    .HasMaxLength(1);
 
-                entity.Property(e => e.textColumn).HasColumnType("text");
+                entity.Property(e => e.NationalCharacterVaryingMaxColumn).HasColumnName("nationalCharacterVaryingMaxColumn");
 
-                entity.Property(e => e.time4Column).HasColumnType("time(4)");
+                entity.Property(e => e.Nchar99Column)
+                    .HasColumnName("nchar99Column")
+                    .HasColumnType("nchar(99)");
 
-                entity.Property(e => e.timestampColumn)
+                entity.Property(e => e.NcharColumn)
+                    .HasColumnName("ncharColumn")
+                    .HasColumnType("nchar(1)");
+
+                entity.Property(e => e.NtextColumn)
+                    .HasColumnName("ntextColumn")
+                    .HasColumnType("ntext");
+
+                entity.Property(e => e.NumericColumn)
+                    .HasColumnName("numericColumn")
+                    .HasColumnType("numeric");
+
+                entity.Property(e => e.Nvarchar100Column)
+                    .HasColumnName("nvarchar100Column")
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.NvarcharColumn)
+                    .HasColumnName("nvarcharColumn")
+                    .HasMaxLength(1);
+
+                entity.Property(e => e.NvarcharMaxColumn).HasColumnName("nvarcharMaxColumn");
+
+                entity.Property(e => e.RealColumn).HasColumnName("realColumn");
+
+                entity.Property(e => e.SmalldatetimeColumn)
+                    .HasColumnName("smalldatetimeColumn")
+                    .HasColumnType("smalldatetime");
+
+                entity.Property(e => e.SmallintColumn).HasColumnName("smallintColumn");
+
+                entity.Property(e => e.SmallmoneyColumn)
+                    .HasColumnName("smallmoneyColumn")
+                    .HasColumnType("smallmoney");
+
+                entity.Property(e => e.TextColumn)
+                    .HasColumnName("textColumn")
+                    .HasColumnType("text");
+
+                entity.Property(e => e.Time4Column)
+                    .HasColumnName("time4Column")
+                    .HasColumnType("time(4)");
+
+                entity.Property(e => e.TimeColumn).HasColumnName("timeColumn");
+
+                entity.Property(e => e.TimestampColumn)
+                    .HasColumnName("timestampColumn")
                     .HasColumnType("timestamp")
                     .ValueGeneratedOnAddOrUpdate();
 
-                entity.Property(e => e.typeAliasColumn).HasColumnType("TestTypeAlias");
+                entity.Property(e => e.TinyintColumn).HasColumnName("tinyintColumn");
 
-                entity.Property(e => e.varbinary123Column).HasMaxLength(123);
+                entity.Property(e => e.TypeAliasColumn)
+                    .HasColumnName("typeAliasColumn")
+                    .HasColumnType("TestTypeAlias");
 
-                entity.Property(e => e.varbinaryColumn).HasMaxLength(1);
+                entity.Property(e => e.UniqueidentifierColumn).HasColumnName("uniqueidentifierColumn");
 
-                entity.Property(e => e.varchar66Column).HasColumnType("varchar(66)");
+                entity.Property(e => e.Varbinary123Column)
+                    .HasColumnName("varbinary123Column")
+                    .HasMaxLength(123);
 
-                entity.Property(e => e.varcharColumn).HasColumnType("varchar(1)");
+                entity.Property(e => e.VarbinaryColumn)
+                    .HasColumnName("varbinaryColumn")
+                    .HasMaxLength(1);
 
-                entity.Property(e => e.varcharMaxColumn).HasColumnType("varchar(max)");
+                entity.Property(e => e.VarbinaryMaxColumn).HasColumnName("varbinaryMaxColumn");
 
-                entity.Property(e => e.xmlColumn).HasColumnType("xml");
+                entity.Property(e => e.Varchar66Column)
+                    .HasColumnName("varchar66Column")
+                    .HasColumnType("varchar(66)");
+
+                entity.Property(e => e.VarcharColumn)
+                    .HasColumnName("varcharColumn")
+                    .HasColumnType("varchar(1)");
+
+                entity.Property(e => e.VarcharMaxColumn)
+                    .HasColumnName("varcharMaxColumn")
+                    .HasColumnType("varchar(max)");
+
+                entity.Property(e => e.XmlColumn)
+                    .HasColumnName("xmlColumn")
+                    .HasColumnType("xml");
             });
 
             modelBuilder.Entity<MultipleFKsDependent>(entity =>
@@ -330,11 +452,17 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.@Multiple_At_Symbols_In_Column).HasColumnName("@Multiple@At@Symbols@In@Column");
 
+                entity.Property(e => e.Abstract).HasColumnName("abstract");
+
+                entity.Property(e => e.Class).HasColumnName("class");
+
                 entity.Property(e => e.Commas_In_Column).HasColumnName("Commas,In,Column");
 
                 entity.Property(e => e.Spaces_In_Column).HasColumnName("Spaces In Column");
 
                 entity.Property(e => e.Tabs_In_Column).HasColumnName("Tabs\tIn\tColumn");
+
+                entity.Property(e => e.Volatile).HasColumnName("volatile");
 
                 entity.Property(e => e._Backslashes_In_Column).HasColumnName("\\Backslashes\\In\\Column");
 
@@ -343,12 +471,6 @@ namespace E2ETest.Namespace
                 entity.Property(e => e._Double_Quotes_Column).HasColumnName("\"Double\"Quotes\"Column");
 
                 entity.Property(e => e._Exclamation_Mark_Column).HasColumnName("!Exclamation!Mark!Column");
-
-                entity.Property(e => e._abstract).HasColumnName("abstract");
-
-                entity.Property(e => e._class).HasColumnName("class");
-
-                entity.Property(e => e._volatile).HasColumnName("volatile");
             });
 
             modelBuilder.Entity<UnmappablePKColumn>(entity =>

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
             _discriminator = discriminator;
         }
 
-        protected override object NextValue() => _discriminator;
+        protected override object NextValue(EntityEntry entry) => _discriminator;
 
         public override bool GeneratesTemporaryValues => false;
     }

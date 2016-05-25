@@ -1,21 +1,23 @@
 {
   "dependencies": {
+    "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*",
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "xunit": "2.1.0"
   },
-  "testRunner": "xunit",
   "frameworks": {
-    "netstandardapp1.5": {
+    "netcoreapp1.0": {
       "imports": [
         "dnxcore50",
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.NETCore.Platforms": "1.0.1-*",
-        "System.Data.SqlClient": "4.1.0-*",
-        "dotnet-test-xunit": "1.0.0-dev-*"
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        },
+        "System.Data.SqlClient": "4.1.0-*"
       }
     },
     "net451": {

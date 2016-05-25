@@ -22,6 +22,21 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
     public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
+        private class Context
+        {
+            public readonly Dictionary<string, object> Arguments = new Dictionary<string, object>();
+        }
+
+        [ConditionalFact]
+        public virtual void Local_array()
+        {
+            var context = new Context();
+            context.Arguments.Add("customerId", "ALFKI");
+
+            AssertQuery<Customer>(cs =>
+                cs.Single(c => c.CustomerID == (string)context.Arguments["customerId"]));
+        }
+
         [ConditionalFact]
         public virtual void Entity_equality_self()
         {
@@ -758,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             using (var context = CreateContext())
             {
-                Assert.Throws<NotImplementedException>(() =>
+                Assert.Throws<InvalidOperationException>(() =>
                     context.Set<Customer>()
                         .Where(c => c.City == city.Throw().InstanceFieldValue)
                         .ToList());
@@ -1042,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 entryCount: 5);
         }
 
-        // [ConditionalFact] issue #3208
+        [ConditionalFact]
         public virtual void Where_equals_on_null_nullable_int_types()
         {
             int? nullableIntPrm = null;
@@ -1096,6 +1111,91 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(
                 cs => cs.Where(c => DateTime.UtcNow != myDatetime),
                 entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_date_component()
+        {
+            var myDatetime = new DateTime(1998, 5, 4);
+            AssertQuery<Order>(
+                oc => oc.Where(o =>
+                o.OrderDate.Value.Date == myDatetime),
+                entryCount: 3);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Where_datetime_year_component()
+        {
+            AssertQuery<Order>(
+               oc => oc.Where(o =>
+               o.OrderDate.Value.Year == 1998),
+               entryCount: 270);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_month_component()
+        {
+            AssertQuery<Order>(
+                oc => oc.Where(o =>
+                o.OrderDate.Value.Month == 4),
+                entryCount: 105);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_dayOfYear_component()
+        {
+            AssertQuery<Order>(
+                oc => oc.Where(o =>
+                o.OrderDate.Value.DayOfYear == 68),
+                entryCount: 3);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Where_datetime_day_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Day == 4),
+              entryCount: 27);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_hour_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Hour == 14),
+              entryCount: 0);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Where_datetime_minute_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Minute == 23),
+              entryCount: 0);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_second_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Second == 44),
+              entryCount: 0);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetime_millisecond_component()
+        {
+            AssertQuery<Order>(
+              oc => oc.Where(o =>
+              o.OrderDate.Value.Millisecond == 88),
+              entryCount: 0);
         }
 
         [ConditionalFact]
@@ -1522,6 +1622,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_default()
+        {
+            var parameter = Expression.Parameter(typeof(Customer), "c");
+
+            var defaultExpression =
+                Expression.Lambda<Func<Customer, bool>>(
+                    Expression.Equal(
+                        Expression.Property(
+                            parameter,
+                            "Fax"),
+                        Expression.Default(typeof(string))),
+                    parameter);
+
+            AssertQuery<Customer>(
+                es => es.Where(defaultExpression),
+                entryCount: 22);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_expression_invoke()
+        {
+            Expression<Func<Customer, bool>> expression = c => c.CustomerID == "ALFKI";
+            var parameter = Expression.Parameter(typeof(Customer), "c");
+
+            AssertQuery<Customer>(
+                cs => cs.Where(
+                    Expression.Lambda<Func<Customer, bool>>(Expression.Invoke(expression, parameter), parameter)),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Where_concat_string_int_comparison1()
         {
             var i = 10;
@@ -1674,6 +1805,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == "London").Select(c => c.CompanyName));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_Is_on_same_type()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c is Customer),
+                entryCount: 91);
         }
 
         [ConditionalFact]
@@ -2015,12 +2154,78 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Where_query_composition_entity_equality()
+        public virtual void Where_query_composition_entity_equality_one_element_SingleOrDefault()
         {
             AssertQuery<Employee>(
                 es =>
                     from e1 in es
                     where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_one_element_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_SingleOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.SingleOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_Single()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from e1 in ctx.Set<Employee>()
+                            where ctx.Set<Employee>().Single(e2 => e2.EmployeeID == 42) == new Employee()
+                            select e1;
+
+                Assert.Throws<InvalidOperationException>(() => query.ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_no_elements_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID == 42) == new Employee()
+                    select e1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_multiple_elements_SingleOrDefault()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from e1 in ctx.Set<Employee>()
+                            where ctx.Set<Employee>().SingleOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
+                            select e1;
+
+                Assert.Throws<InvalidOperationException>(() => query.ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_query_composition_entity_equality_multiple_elements_FirstOrDefault()
+        {
+            AssertQuery<Employee>(
+                es =>
+                    from e1 in es
+                    where es.FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee()
                     select e1);
         }
 
@@ -2932,6 +3137,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 assertOrder: true);
         }
 
+        [ConditionalFact]
+        public virtual void Let_any_subquery_anonymous()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                let hasOrders = os.Any(o => o.CustomerID == c.CustomerID)
+                select new { c, hasOrders });
+        }
+
         // TODO: Need to figure out how to do this 
         //        [ConditionalFact]
         //        public virtual void GroupBy_anonymous()
@@ -2961,6 +3175,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         //                    .Select(g => g.OrderBy(a => a.CustomerID)),
         //                assertOrder: true);
         //        }
+
+        [ConditionalFact]
+        public virtual void GroupBy_join_default_if_empty_anonymous()
+        {
+            AssertQuery<Order, OrderDetail>((os, ods) =>
+                (from order in os
+                 join orderDetail in ods on order.OrderID equals orderDetail.OrderID into orderJoin
+                 from orderDetail in orderJoin.DefaultIfEmpty()
+                 group new
+                 {
+                     orderDetail.ProductID,
+                     orderDetail.Quantity,
+                     orderDetail.UnitPrice
+                 } by new
+                 {
+                     order.OrderID,
+                     order.OrderDate
+                 })
+                    .Where(x => x.Key.OrderID == 10248),
+                asserter: (l2oResults, efResults) =>
+                    {
+                        var l2oGroup = l2oResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+                        var efGroup = efResults.Cast<IGrouping<dynamic, dynamic>>().Single();
+
+                        Assert.Equal(l2oGroup.Key, efGroup.Key);
+
+                        Assert.Equal(
+                            l2oGroup.OrderBy(element => element.ProductID),
+                            efGroup.OrderBy(element => element.ProductID));
+                    });
+        }
 
         [ConditionalFact]
         public virtual void GroupBy_SelectMany()
@@ -3465,13 +3710,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         [ConditionalFact]
         public virtual void OrderBy_Count_with_predicate_client_eval_mixed()
         {
-            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Count(o => ClientEvalPredicateStateless()));
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Count(o => ClientEvalPredicate(o)));
         }
 
         [ConditionalFact]
         public virtual void OrderBy_Where_Count_with_predicate_client_eval()
         {
-            AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicateStateless()).Count(o => ClientEvalPredicate(o)));
+            AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)).Count(o => ClientEvalPredicate(o)));
         }
 
         [ConditionalFact]
@@ -3480,7 +3725,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count(o => o.CustomerID != "ALFKI"));
         }
 
-        [ConditionalFact]
+        //TODO: The function translated to SQL and due to being integer represent the column number
+        //[ConditionalFact]
         public virtual void OrderBy_client_Take()
         {
             AssertQuery<Employee>(es => es.OrderBy(o => ClientEvalSelectorStateless()).Take(10), entryCount: 9);
@@ -3492,6 +3738,35 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Employee>(
                 es => es.OrderBy(e => e.EmployeeID - e.EmployeeID),
                 entryCount: 9);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_condition_comparison()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitsInStock > 0).ThenBy(p => p.ProductID),
+                assertOrder: true,
+                entryCount: 77);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_ternary_conditions()
+        {
+            AssertQuery<Product>(
+                ps => ps.OrderBy(p => p.UnitsInStock > 10 ? p.ProductID > 40 : p.ProductID <= 40).ThenBy(p => p.ProductID),
+                assertOrder: true,
+                entryCount: 77);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_any()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.OrderBy(p => p.Orders.Any(o => o.OrderID > 11000)).ThenBy(p => p.CustomerID).ToList();
+
+                Assert.Equal(91, query.Count);
+            }
         }
 
         public static bool ClientEvalPredicateStateless() => true;
@@ -4272,6 +4547,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void GroupJoin_simple3()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                select new { o.OrderID });
+        }
+
+        [ConditionalFact]
         public virtual void GroupJoin_simple_ordering()
         {
             AssertQuery<Customer, Order>((cs, os) =>
@@ -4587,6 +4872,83 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     "ari",
                     context.Set<Customer>().Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)).First());
             }
+        }
+
+        [ConditionalFact]
+        public virtual void IsNullOrEmpty_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.IsNullOrEmpty(c.Region)),
+                entryCount: 60);
+        }
+
+        [ConditionalFact]
+        public virtual void IsNullOrEmpty_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Customer>()
+                    .Select(c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
+                    .ToList();
+
+                Assert.Equal(91, query.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void IsNullOrWhiteSpace_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.IsNullOrWhiteSpace(c.Region)),
+                entryCount: 60);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimStart_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimStart() == "Owner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimStart_with_arguments_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimStart('O', 'w') == "ner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimEnd_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimEnd() == "Owner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void TrimEnd_with_arguments_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.TrimEnd('e', 'r') == "Own"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void Trim_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.Trim() == "Owner"),
+                entryCount: 17);
+        }
+
+        [ConditionalFact]
+        public virtual void Trim_with_arguments_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactTitle.Trim('O', 'r') == "wne"),
+                entryCount: 17);
         }
 
         [ConditionalFact]
@@ -5104,6 +5466,110 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void DateTime_parse_is_parameterized()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.OrderDate > DateTime.Parse("1/1/1998 12:00:00 PM")),
+                entryCount: 267);
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_1()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random().Next())
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_2()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random().Next(5))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_3()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random().Next(0, 10))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_4()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random(15).Next())
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_5()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random(15).Next(5))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Random_next_is_not_funcletized_6()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders
+                    .Where(o => o.OrderID > new Random(15).Next(0, 10))
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Environment_newline_is_funcletized()
+        {
+            using (var context = CreateContext())
+            {
+                AssertQuery<Customer>(
+                    cs => cs.Where(c => c.CustomerID.Contains(Environment.NewLine)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void String_concat_with_navigation1()
+        {
+            using (var context = CreateContext())
+            {
+                AssertQuery<Order>(
+                    os => os.Select(o => o.CustomerID + " " + o.Customer.City));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void String_concat_with_navigation2()
+        {
+            using (var context = CreateContext())
+            {
+                AssertQuery<Order>(
+                    os => os.Select(o => o.Customer.City + " " + o.Customer.City));
+            }
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
@@ -5211,9 +5677,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             int entryCount = 0,
             Action<IList<object>, IList<object>> asserter = null)
             where TItem : class
-        {
-            AssertQuery(query, query, assertOrder, entryCount, asserter);
-        }
+                => AssertQuery(query, query, assertOrder, entryCount, asserter);
 
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, object> query,
@@ -5313,9 +5777,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
+                var expected = l2oQuery(NorthwindData.Set<TItem>()).ToArray();
+                var actual = efQuery(context.Set<TItem>()).ToArray();
+
                 TestHelpers.AssertResults(
-                    l2oQuery(NorthwindData.Set<TItem>()).ToArray(),
-                    efQuery(context.Set<TItem>()).ToArray(),
+                    expected,
+                    actual,
                     assertOrder,
                     asserter);
 

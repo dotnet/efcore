@@ -131,6 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
                 => new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasMany(typeof(TRelatedEntity), collection?.GetPropertyAccess().Name));
+
+            public override TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
+                => Wrap(EntityTypeBuilder.HasChangeTrackingStrategy(changeTrackingStrategy));
         }
 
         protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>

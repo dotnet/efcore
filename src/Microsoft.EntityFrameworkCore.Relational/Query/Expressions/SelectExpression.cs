@@ -63,12 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             ? _projection[0].Type
             : base.Type;
 
-        public virtual SelectExpression Clone([NotNull] string alias)
+        public virtual SelectExpression Clone([CanBeNull] string alias = null)
         {
-            Check.NotNull(alias, nameof(alias));
-
             var selectExpression
-                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext, alias)
+                = new SelectExpression(_querySqlGeneratorFactory, _queryCompilationContext)
                 {
                     _limit = _limit,
                     _offset = _offset,
@@ -77,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     IsProjectStar = IsProjectStar,
                     Predicate = Predicate
                 };
+
+            if (alias != null)
+            {
+                selectExpression.Alias = _queryCompilationContext.CreateUniqueTableAlias(alias);
+            }
 
             selectExpression._projection.AddRange(_projection);
 
@@ -679,14 +682,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return innerJoinExpression;
         }
 
-        public virtual JoinExpressionBase AddOuterJoin([NotNull] TableExpressionBase tableExpression)
+        public virtual JoinExpressionBase AddLeftOuterJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            return AddOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
+            return AddLeftOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
         }
 
-        public virtual JoinExpressionBase AddOuterJoin(
+        public virtual JoinExpressionBase AddLeftOuterJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {

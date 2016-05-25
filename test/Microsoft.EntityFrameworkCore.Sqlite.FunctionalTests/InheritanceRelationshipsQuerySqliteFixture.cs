@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
                                 InheritanceRelationshipsModelInitializer.Seed(context);
                             }
 
-                            TestSqlLoggerFactory.SqlStatements.Clear();
+                            TestSqlLoggerFactory.Reset();
                         }
                     });
     }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -19,8 +20,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
+        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
         /// <returns> The value to be assigned to a property. </returns>
-        public override Guid Next()
+        public override Guid Next(EntityEntry entry)
         {
             var guidBytes = Guid.NewGuid().ToByteArray();
             var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));

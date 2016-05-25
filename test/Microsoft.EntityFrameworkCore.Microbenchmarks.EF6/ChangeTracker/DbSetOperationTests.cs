@@ -9,6 +9,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
 {
     [SqlServerRequired]
+    [SkipForNonBenchmarkTestRuns("Test takes a long time to execute, only run during benchmark collection runs.")]
     public class DbSetOperationTests : IClassFixture<DbSetOperationTests.DbSetOperationFixture>
     {
         private readonly DbSetOperationFixture _fixture;
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Add(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
 
                 using (collector.StartCollection())
                 {
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void AddRange(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
 
                 using (collector.StartCollection())
                 {
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Attach(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -66,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
 
                 using (collector.StartCollection())
                 {
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         //       API for bulk attach in EF6.x
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Remove(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -90,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
                 customers.ForEach(c => context.Customers.Attach(c));
 
                 using (collector.StartCollection())
@@ -104,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void RemoveRange(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -112,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
                 customers.ForEach(c => context.Customers.Attach(c));
 
                 using (collector.StartCollection())
@@ -123,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges On", iterations: 1, data: new object[] { true })]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Update(IMetricCollector collector, bool autoDetectChanges)
         {
@@ -131,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
                 customers.ForEach(c => context.Customers.Attach(c));
 
                 using (collector.StartCollection())

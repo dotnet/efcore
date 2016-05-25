@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
         }
 
         private static object CreateAndUseFactory(IProperty property) 
-            => new InMemoryIntegerValueGeneratorFactory().Create(property).Next();
+            => new InMemoryIntegerValueGeneratorFactory().Create(property).Next(null);
 
         [Fact]
         public void Throws_for_non_integer_property()

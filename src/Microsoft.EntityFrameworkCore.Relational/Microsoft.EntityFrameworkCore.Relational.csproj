@@ -65,13 +65,15 @@
       <Link>StringBuilderExtensions.cs</Link>
     </Compile>
     <Compile Include="Extensions\DbCommandLogData.cs" />
-    <Compile Include="Extensions\MethodInfoExtensions.cs" />
+    <Compile Include="Extensions\DbParameterLogData.cs" />
     <Compile Include="Extensions\RelationalExpressionExtensions.cs" />
     <Compile Include="Extensions\RelationalLoggerExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Infrastructure\Internal\RelationalModelSource.cs" />
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
-    <Compile Include="Infrastructure\RelationalCommandListBuilder.cs" />
+    <Compile Include="Migrations\IMigrationCommandExecutor.cs" />
+    <Compile Include="Migrations\Internal\MigrationCommandExecutor.cs" />
+    <Compile Include="Migrations\MigrationCommandListBuilder.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\RelationalServiceCollectionExtensions.cs" />
     <Compile Include="Infrastructure\RelationalLoggingEventId.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="Migrations\Migration.cs" />
     <Compile Include="Migrations\MigrationAttribute.cs" />
     <Compile Include="Migrations\MigrationBuilder.cs" />
+    <Compile Include="Migrations\MigrationCommand.cs" />
     <Compile Include="Migrations\MigrationsAnnotationProvider.cs" />
     <Compile Include="Migrations\MigrationsAssemblyExtensions.cs" />
     <Compile Include="Migrations\MigrationsSqlGenerator.cs" />
@@ -206,6 +209,7 @@
     <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
+    <Compile Include="Query\ExpressionTranslators\IsNullOrEmptyTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\ContainsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\EndsWithTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\EqualsTranslator.cs" />
@@ -299,14 +303,15 @@
     <Compile Include="RelationalQueryableExtensions.cs" />
     <Compile Include="RelationalReferenceCollectionBuilderExtensions.cs" />
     <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />
+    <Compile Include="Storage\ByteArrayRelationalTypeMapper.cs" />
     <Compile Include="Storage\DbContextTransactionExtensions.cs" />
+    <Compile Include="Storage\IByteArrayRelationalTypeMapper.cs" />
     <Compile Include="Storage\Internal\CompositeRelationalParameter.cs" />
     <Compile Include="Storage\Internal\DynamicRelationalParameter.cs" />
     <Compile Include="Storage\Internal\RawSqlCommandBuilder.cs" />
     <Compile Include="Storage\Internal\RelationalCommand.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilder.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilderFactory.cs" />
-    <Compile Include="Storage\Internal\RelationalCommandExtensions.cs" />
     <Compile Include="Storage\Internal\RelationalParameterBuilder.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
@@ -328,6 +333,7 @@
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\ISqlGenerationHelper.cs" />
+    <Compile Include="Storage\IStringRelationalTypeMapper.cs" />
     <Compile Include="Storage\ParameterNameGenerator.cs" />
     <Compile Include="Storage\ParameterNameGeneratorFactory.cs" />
     <Compile Include="Storage\RawSqlCommand.cs" />
@@ -337,12 +343,12 @@
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
     <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
     <Compile Include="Storage\RelationalDataReader.cs" />
-    <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
     <Compile Include="Storage\RelationalSqlGenerationHelper.cs" />
     <Compile Include="Storage\RelationalTransaction.cs" />
     <Compile Include="Storage\RelationalTypeMapper.cs" />
     <Compile Include="Storage\RelationalTypeMapperExtensions.cs" />
     <Compile Include="Storage\RelationalTypeMapping.cs" />
+    <Compile Include="Storage\StringRelationalTypeMapper.cs" />
     <Compile Include="Storage\TypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\UntypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Update\AffectedCountModificationCommandBatch.cs" />

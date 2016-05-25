@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.SqlAzure
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+    [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureBatchingTest : IClassFixture<BatchingSqlAzureFixture>
     {
         private readonly BatchingSqlAzureFixture _fixture;

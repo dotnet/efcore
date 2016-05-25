@@ -13,13 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         [Fact]
         public void Does_simple_mapping_from_CLR_type()
         {
-            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int)).DefaultTypeName);
+            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int)).StoreType);
         }
 
         [Fact]
         public void Does_simple_mapping_from_nullable_CLR_type()
         {
-            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int?)).DefaultTypeName);
+            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int?)).StoreType);
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetTypeMapping(typeof(string));
 
-            Assert.Equal("just_string(2000)", mapping.DefaultTypeName);
+            Assert.Equal("just_string(2000)", mapping.StoreType);
         }
 
         [Fact]
@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetTypeMapping(typeof(string), 666);
 
-            Assert.Equal("just_string(666)", mapping.DefaultTypeName);
-            Assert.Equal(666, ((RelationalSizedTypeMapping)mapping).Size);
+            Assert.Equal("just_string(666)", mapping.StoreType);
+            Assert.Equal(666, mapping.Size);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetTypeMapping(typeof(string), 2020);
 
-            Assert.Equal("just_string(max)", mapping.DefaultTypeName);
+            Assert.Equal("just_string(max)", mapping.StoreType);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetTypeMapping(typeof(byte[]));
 
-            Assert.Equal("just_binary(max)", mapping.DefaultTypeName);
+            Assert.Equal("just_binary(max)", mapping.StoreType);
         }
 
         [Fact]
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetTypeMapping(typeof(byte[]), 777);
 
-            Assert.Equal("just_binary(777)", mapping.DefaultTypeName);
-            Assert.Equal(777, ((RelationalSizedTypeMapping)mapping).Size);
+            Assert.Equal("just_binary(777)", mapping.StoreType);
+            Assert.Equal(777, mapping.Size);
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetTypeMapping(typeof(byte[]), 2020);
 
-            Assert.Equal("just_binary(max)", mapping.DefaultTypeName);
+            Assert.Equal("just_binary(max)", mapping.StoreType);
         }
 
         private static RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
@@ -86,13 +86,13 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         [Fact]
         public void Does_simple_mapping_from_name()
         {
-            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").DefaultTypeName);
+            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").StoreType);
         }
 
         [Fact]
         public void Does_default_mapping_for_unrecognized_store_type()
         {
-            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").DefaultTypeName);
+            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").StoreType);
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetNamedMapping(typeof(string), "some_string(max)");
 
-            Assert.Equal("just_string(2000)", mapping.DefaultTypeName);
+            Assert.Equal("just_string(2000)", mapping.StoreType);
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetNamedMapping(typeof(string), "some_string(666)");
 
-            Assert.Equal("just_string(2000)", mapping.DefaultTypeName);
+            Assert.Equal("just_string(2000)", mapping.StoreType);
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         {
             var mapping = GetNamedMapping(typeof(byte[]), "some_binary(max)");
 
-            Assert.Equal("just_binary(max)", mapping.DefaultTypeName);
+            Assert.Equal("just_binary(max)", mapping.StoreType);
         }
 
         private static RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)

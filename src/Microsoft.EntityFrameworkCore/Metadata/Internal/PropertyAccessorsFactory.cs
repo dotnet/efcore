@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -51,15 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                var propertyInfoAccessor = propertyBase as IPropertyPropertyInfoAccessor;
-                var property = propertyInfoAccessor != null
-                    ? propertyInfoAccessor.PropertyInfo
-                    : entityClrType.GetAnyProperty(propertyBase.Name);
                 currentValueExpression = Expression.Property(
                     Expression.Convert(
                         Expression.Property(entryParameter, "Entity"),
                         entityClrType),
-                    property);
+                    propertyBase.GetPropertyInfo());
             }
 
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
@@ -85,15 +82,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
                 originalValuesIndex >= 0
-                    ? Expression.Call(
+                    ? (Expression)Expression.Call(
                         entryParameter,
                         InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
                         Expression.Constant(property),
                         Expression.Constant(originalValuesIndex))
-                    : Expression.Call(
-                        entryParameter,
-                        InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
-                        Expression.Constant(property)),
+                    : Expression.Block(
+                        Expression.Throw(Expression.Constant(
+                            new InvalidOperationException(
+                                CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
+                        Expression.Constant(default(TProperty), typeof(TProperty))),
                 entryParameter)
                 .Compile();
         }

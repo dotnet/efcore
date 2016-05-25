@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.Select(entityType.FindProperty("NullableULong"), entityType));
             Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.Select(entityType.FindProperty("NullableUShort"), entityType));
             Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("NullableSByte"), entityType));
-            Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
+            Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
             Assert.IsType<GuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
-            Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
+            Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
         }
 
         [Fact]

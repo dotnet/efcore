@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
-#if NETSTANDARDAPP1_5
+#if NETCOREAPP1_0
 using System.Threading;
 #endif
 
@@ -60,6 +60,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public virtual void Query_with_ignored_include_should_log_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Customers
+                        .Include(c => c.Orders)
+                        .Select(c => c.CustomerID)
+                        .ToList();
+
+                Assert.NotNull(customers);
+                Assert.Contains(CoreStrings.LogIgnoredInclude("c.Orders"), TestSqlLoggerFactory.Log);
+            }
+        }
+
+        [Fact]
         public virtual void Include_navigation()
         {
             using (var context = CreateContext())
@@ -72,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 Assert.NotNull(customers);
                 Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer]) => Include([c].Orders)'
     Optimized query model: 'value(Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1[Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer])'
-    Including navigation: 'Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind.Customer.Orders'
+    Including navigation: 'c.Orders'
     TRACKED: True
 (QueryContext queryContext) => IEnumerable<Customer> _Include(
     queryContext: (RelationalQueryContext) queryContext, 

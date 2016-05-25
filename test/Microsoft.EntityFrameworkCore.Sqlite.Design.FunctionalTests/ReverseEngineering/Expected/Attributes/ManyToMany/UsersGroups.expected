@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace E2E.Sqlite
+{
+    [Table("Users_Groups")]
+    public partial class UsersGroups
+    {
+        public string Id { get; set; }
+        [Required]
+        public string UserId { get; set; }
+        [Required]
+        public string GroupId { get; set; }
+
+        [ForeignKey("GroupId")]
+        [InverseProperty("UsersGroups")]
+        public virtual Groups Group { get; set; }
+        [ForeignKey("UserId")]
+        [InverseProperty("UsersGroups")]
+        public virtual Users User { get; set; }
+    }
+}

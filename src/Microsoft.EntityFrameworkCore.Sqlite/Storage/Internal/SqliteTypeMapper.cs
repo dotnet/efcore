@@ -14,18 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private static readonly RelationalTypeMapping _real = new RelationalTypeMapping("REAL", typeof(double));
         private static readonly RelationalTypeMapping _blob = new RelationalTypeMapping("BLOB", typeof(byte[]));
         private static readonly RelationalTypeMapping _text = new RelationalTypeMapping("TEXT", typeof(string));
-        private static readonly RelationalTypeMapping _default = _text;
 
-        private readonly Dictionary<string, RelationalTypeMapping> _simpleNameMappings;
-
-        private readonly Dictionary<Type, RelationalTypeMapping> _simpleMappings;
+        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+        private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
         public SqliteTypeMapper()
         {
-            _simpleNameMappings
+            _storeTypeMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase);
 
-            _simpleMappings
+            _clrTypeMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(string), _text },
@@ -48,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(float), _real },
                     { typeof(Guid), _blob }
                 };
+
         }
 
         protected override string GetColumnType(IProperty property) => property.Sqlite().ColumnType;
@@ -57,26 +56,26 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     It uses the same heuristics from
         ///     <see href="https://www.sqlite.org/datatype3.html">"2.1 Determination of Column Affinity"</see>
         /// </summary>
-        public override RelationalTypeMapping FindMapping(string typeName)
+        public override RelationalTypeMapping FindMapping(string storeType)
         {
-            Check.NotNull(typeName, nameof(typeName));
+            Check.NotNull(storeType, nameof(storeType));
 
-            if (typeName.Length == 0)
+            if (storeType.Length == 0)
             {
                 // This may seem odd, but it's okay because we are matching SQLite's loose typing.
-                return _default;
+                return _text;
             }
 
             foreach (var rules in _typeRules)
             {
-                var mapping = rules(typeName);
+                var mapping = rules(storeType);
                 if (mapping != null)
                 {
                     return mapping;
                 }
             }
 
-            return _default;
+            return _text;
         }
 
         private readonly Func<string, RelationalTypeMapping>[] _typeRules =
@@ -94,10 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private static bool Contains(string haystack, string needle)
             => haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
-            => _simpleMappings;
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
+            => _clrTypeMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
-            => _simpleNameMappings;
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+            => _storeTypeMappings;
     }
 }

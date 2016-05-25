@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -12,8 +13,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
-    public class ForeignKey
-        : ConventionalAnnotatable, IMutableForeignKey, IDependentKeyValueFactorySource, IDependentsMapFactorySource
+    public class ForeignKey : ConventionalAnnotatable, IMutableForeignKey
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
@@ -109,53 +109,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
-        {
-            var oldNavigation = DependentToPrincipal;
-            if (name == oldNavigation?.Name)
-            {
-                UpdateDependentToPrincipalConfigurationSource(configurationSource);
-                return oldNavigation;
-            }
+            => Navigation(PropertyIdentity.Create(name), configurationSource, runConventions, pointsToPrincipal: true);
 
-            if (oldNavigation != null)
-            {
-                Debug.Assert(oldNavigation.Name != null);
-                DeclaringEntityType.RemoveNavigation(oldNavigation.Name);
-            }
-
-            Navigation navigation = null;
-            if (name != null)
-            {
-                navigation = DeclaringEntityType.AddNavigation(name, this, pointsToPrincipal: true);
-            }
-
-            DependentToPrincipal = navigation;
-            UpdateDependentToPrincipalConfigurationSource(configurationSource);
-
-            if (runConventions)
-            {
-                if (oldNavigation != null)
-                {
-                    Debug.Assert(oldNavigation.Name != null);
-                    DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                        DeclaringEntityType.Builder,
-                        PrincipalEntityType.Builder,
-                        oldNavigation.Name);
-                }
-
-                if (navigation != null)
-                {
-                    navigation = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation)
-                        ?.Metadata.DependentToPrincipal;
-                }
-            }
-
-            return navigation ?? oldNavigation;
-        }
+        public virtual Navigation HasDependentToPrincipal(
+            [CanBeNull] PropertyInfo property,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+            => Navigation(PropertyIdentity.Create(property), configurationSource, runConventions, pointsToPrincipal: true);
 
         public virtual ConfigurationSource? GetDependentToPrincipalConfigurationSource() => _dependentToPrincipalConfigurationSource;
 
-        private void UpdateDependentToPrincipalConfigurationSource(ConfigurationSource configurationSource)
+        public virtual void UpdateDependentToPrincipalConfigurationSource(ConfigurationSource? configurationSource)
             => _dependentToPrincipalConfigurationSource = configurationSource.Max(_dependentToPrincipalConfigurationSource);
 
         public virtual Navigation PrincipalToDependent { get; private set; }
@@ -165,54 +129,112 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
             bool runConventions = true)
+            => Navigation(PropertyIdentity.Create(name), configurationSource, runConventions, pointsToPrincipal: false);
+
+        public virtual Navigation HasPrincipalToDependent(
+            [CanBeNull] PropertyInfo property,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
+            => Navigation(PropertyIdentity.Create(property), configurationSource, runConventions, pointsToPrincipal: false);
+
+        public virtual ConfigurationSource? GetPrincipalToDependentConfigurationSource() => _principalToDependentConfigurationSource;
+
+        public virtual void UpdatePrincipalToDependentConfigurationSource(ConfigurationSource? configurationSource)
+            => _principalToDependentConfigurationSource = configurationSource.Max(_principalToDependentConfigurationSource);
+
+        private Navigation Navigation(
+            PropertyIdentity? propertyIdentity,
+            ConfigurationSource configurationSource,
+            bool runConventions,
+            bool pointsToPrincipal)
         {
-            var oldNavigation = PrincipalToDependent;
+            var name = propertyIdentity?.Name;
+            var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
             if (name == oldNavigation?.Name)
             {
-                UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                if (pointsToPrincipal)
+                {
+                    UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                }
+                else
+                {
+                    UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                }
                 return oldNavigation;
             }
 
             if (oldNavigation != null)
             {
                 Debug.Assert(oldNavigation.Name != null);
-                PrincipalEntityType.RemoveNavigation(oldNavigation.Name);
+                if (pointsToPrincipal)
+                {
+                    DeclaringEntityType.RemoveNavigation(oldNavigation.Name);
+                }
+                else
+                {
+                    PrincipalEntityType.RemoveNavigation(oldNavigation.Name);
+                }
             }
 
             Navigation navigation = null;
-            if (name != null)
+            var property = propertyIdentity?.Property;
+            if (property != null)
             {
-                navigation = PrincipalEntityType.AddNavigation(name, this, pointsToPrincipal: false);
+                navigation = pointsToPrincipal
+                    ? DeclaringEntityType.AddNavigation(property, this, pointsToPrincipal: true)
+                    : PrincipalEntityType.AddNavigation(property, this, pointsToPrincipal: false);
+            }
+            else if (name != null)
+            {
+                navigation = pointsToPrincipal
+                    ? DeclaringEntityType.AddNavigation(name, this, pointsToPrincipal: true)
+                    : PrincipalEntityType.AddNavigation(name, this, pointsToPrincipal: false);
             }
 
-            PrincipalToDependent = navigation;
-            UpdatePrincipalToDependentConfigurationSource(configurationSource);
+            if (pointsToPrincipal)
+            {
+                DependentToPrincipal = navigation;
+                UpdateDependentToPrincipalConfigurationSource(configurationSource);
+            }
+            else
+            {
+                PrincipalToDependent = navigation;
+                UpdatePrincipalToDependentConfigurationSource(configurationSource);
+            }
 
             if (runConventions)
             {
                 if (oldNavigation != null)
                 {
                     Debug.Assert(oldNavigation.Name != null);
-                    DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
-                        PrincipalEntityType.Builder,
-                        DeclaringEntityType.Builder,
-                        oldNavigation.Name);
+
+                    if (pointsToPrincipal)
+                    {
+                        DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                            DeclaringEntityType.Builder,
+                            PrincipalEntityType.Builder,
+                            oldNavigation.Name,
+                            oldNavigation.PropertyInfo);
+                    }
+                    else
+                    {
+                        DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                            PrincipalEntityType.Builder,
+                            DeclaringEntityType.Builder,
+                            oldNavigation.Name,
+                            oldNavigation.PropertyInfo);
+                    }
                 }
 
                 if (navigation != null)
                 {
-                    navigation = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation)
-                        ?.Metadata.PrincipalToDependent;
+                    var builder = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation);
+                    navigation = pointsToPrincipal ? builder?.Metadata.DependentToPrincipal : builder?.Metadata.PrincipalToDependent;
                 }
             }
 
             return navigation ?? oldNavigation;
         }
-
-        public virtual ConfigurationSource? GetPrincipalToDependentConfigurationSource() => _principalToDependentConfigurationSource;
-
-        private void UpdatePrincipalToDependentConfigurationSource(ConfigurationSource configurationSource)
-            => _principalToDependentConfigurationSource = configurationSource.Max(_principalToDependentConfigurationSource);
 
         public virtual bool IsUnique
         {
@@ -324,10 +346,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         INavigation IForeignKey.DependentToPrincipal => DependentToPrincipal;
         IMutableNavigation IMutableForeignKey.DependentToPrincipal => DependentToPrincipal;
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
+        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(PropertyInfo property) => HasDependentToPrincipal(property);
 
         INavigation IForeignKey.PrincipalToDependent => PrincipalToDependent;
         IMutableNavigation IMutableForeignKey.PrincipalToDependent => PrincipalToDependent;
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
+        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(PropertyInfo property) => HasPrincipalToDependent(property);
 
         public override string ToString()
             => $"'{DeclaringEntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";
@@ -335,8 +359,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
-            [CanBeNull] string navigationToPrincipalName,
-            [CanBeNull] string navigationToDependentName,
+            [CanBeNull] PropertyInfo navigationToPrincipal,
+            [CanBeNull] PropertyInfo navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? unique,
@@ -346,36 +370,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
-            if (!string.IsNullOrEmpty(navigationToDependentName)
-                && !Navigation.IsCompatible(
-                    navigationToDependentName,
-                    principalEntityType,
-                    dependentEntityType,
-                    !unique,
-                    shouldThrow))
+            if (navigationToPrincipal != null
+                && !Internal.Navigation.IsCompatible(
+                    navigationToPrincipal,
+                    dependentEntityType.ClrType,
+                    principalEntityType.ClrType,
+                    shouldBeCollection: false,
+                    shouldThrow: shouldThrow))
             {
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(navigationToPrincipalName)
-                && !Navigation.IsCompatible(
-                    navigationToPrincipalName,
-                    dependentEntityType,
-                    principalEntityType,
-                    false,
-                    shouldThrow))
+            if (navigationToDependent != null
+                && !Internal.Navigation.IsCompatible(
+                    navigationToDependent,
+                    principalEntityType.ClrType,
+                    dependentEntityType.ClrType,
+                    shouldBeCollection: !unique,
+                    shouldThrow: shouldThrow))
             {
                 return false;
             }
 
-            if ((dependentProperties != null)
+            if (dependentProperties != null
                 && !CanPropertiesBeRequired(dependentProperties, required, dependentEntityType, true))
             {
                 return false;
             }
 
-            if ((principalProperties != null)
-                && (dependentProperties != null)
+            if (principalProperties != null
+                && dependentProperties != null
                 && !AreCompatible(
                     principalProperties,
                     dependentProperties,
@@ -387,16 +411,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return true;
-        }
-
-        public virtual bool IsCompatible([NotNull] EntityType principalType, [NotNull] EntityType dependentType, bool? unique)
-        {
-            Check.NotNull(principalType, nameof(principalType));
-            Check.NotNull(dependentType, nameof(dependentType));
-
-            return ((unique == null) || (IsUnique == unique))
-                   && (PrincipalEntityType == principalType)
-                   && (DeclaringEntityType == dependentType);
         }
 
         public static bool CanPropertiesBeRequired(
@@ -479,9 +493,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
-        public virtual object DependentKeyValueFactory { get; set; }
+        public virtual object DependentKeyValueFactory { get; [param: NotNull] set; }
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
-        public virtual Func<IDependentsMap> DependentsMapFactory { get; set; }
+        public virtual Func<IDependentsMap> DependentsMapFactory { get; [param: NotNull] set; }
     }
 }
