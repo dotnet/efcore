@@ -16,10 +16,6 @@ addons:
     - libssl-dev
     - libunwind8
     - zlib1g
-before_install:
-  - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi
-before_script:
-  - sqlite3 -version
 branches:
   only:
     - master

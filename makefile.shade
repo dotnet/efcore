@@ -1,70 +1,9 @@
-use assembly='System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
-use assembly='System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
-use namespace='System.IO.Compression'
-use namespace='System.Net.Http'
-
 var VERSION='0.1'
 var FULL_VERSION='0.1'
 var AUTHORS='.NET Foundation'
 
 use-standard-lifecycle
 k-standard-goals
-
-var sqliteDllPath='src/Microsoft.Data.Sqlite/runtimes/win7-x86/native/sqlite3.dll'
-#sqlite-download target='initialize' if='!File.Exists(sqliteDllPath)'
-    @{
-        DownloadAndExtract(
-            "https://www.sqlite.org/2016/sqlite-dll-win32-x86-3110000.zip",
-            Tuple.Create("sqlite3.dll", sqliteDllPath));
-        DownloadAndExtract(
-            "https://www.sqlite.org/2016/sqlite-dll-win64-x64-3110000.zip",
-            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win7-x64/native/sqlite3.dll"),
-            Tuple.Create("sqlite3.dll", "test/Microsoft.Data.Sqlite.Tests/sqlite3.dll"));
-        DownloadAndExtract(
-            "https://www.sqlite.org/2016/sqlite-uwp-3110000.vsix",
-            Tuple.Create(
-                "Redist/Retail/x86/sqlite3.dll",
-                "src/Microsoft.Data.Sqlite/build/netcore50/win10-x86/native/sqlite3.dll"),
-            Tuple.Create(
-                "Redist/Retail/x64/sqlite3.dll",
-                "src/Microsoft.Data.Sqlite/build/netcore50/win10-x64/native/sqlite3.dll"),
-            Tuple.Create(
-                "Redist/Retail/ARM/sqlite3.dll",
-                "src/Microsoft.Data.Sqlite/build/netcore50/win10-arm/native/sqlite3.dll"));
-    }
-
-functions
-    @{
-        void DownloadAndExtract(
-            string uri,
-            params Tuple<string, string>[] files)
-        {
-            var tmpFile = "temp.zip";
-            using (var webClient = new WebClient())
-            {
-                webClient.DownloadFile(uri, tmpFile);
-            }
-            using (var fileStream = new FileStream(tmpFile, FileMode.Open))
-            using (var archive = new ZipArchive(fileStream))
-            {
-                foreach (var file in files)
-                {
-                    var entry = archive.GetEntry(file.Item1);
-                    if (entry == null)
-                        throw new FileNotFoundException("Could not find file '" + file.Item1 + "'.");
-
-                    Directory.CreateDirectory(Path.GetDirectoryName(file.Item2));
-
-                    using (var entryStream = entry.Open())
-                    using (var dllStream = File.OpenWrite(file.Item2))
-                    {
-                        entryStream.CopyTo(dllStream);
-                    }
-                }
-            }
-            File.Delete(tmpFile);
-        }
-    }
 
 #win10-test target='test' if='!IsLinux && File.Exists(@"C:\Windows\System32\winsqlite3.dll")'
     @{

@@ -1,6 +1,8 @@
 ﻿{
   "dependencies": {
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.0.0",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
+    "sqlite": "3.12.2-*",
+    "System.Data.Common": "4.0.1-*",
     "xunit": "2.1.0",
     "xunit.runner.visualstudio": "2.1.0"
   },

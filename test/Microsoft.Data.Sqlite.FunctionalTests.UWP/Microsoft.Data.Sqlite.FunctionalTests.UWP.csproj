@@ -18,7 +18,6 @@
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <UnitTestPlatformVersion Condition="'$(UnitTestPlatformVersion)' == ''">14.0</UnitTestPlatformVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
-    <SqliteDll>$(MSBuildProjectDirectory)\..\..\src\Microsoft.Data.Sqlite\build\netcore50\win10-$(Platform)\native\sqlite3.dll</SqliteDll>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -106,22 +105,13 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <Content Include="$(SqliteDll)">
-      <Visible>False</Visible>
-    </Content>
     <Content Include="Assets\logo.png" />
     <Reference Include="Microsoft.Data.Sqlite">
-      <HintPath>..\..\src\Microsoft.Data.Sqlite\bin\$(Configuration)\netcore50\Microsoft.Data.Sqlite.dll</HintPath>
+      <HintPath>..\..\src\Microsoft.Data.Sqlite\bin\$(Configuration)\netstandard1.3\Microsoft.Data.Sqlite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-  <PropertyGroup>
-    <BuildDependsOn>CheckPackageReferences;$(BuildDependsOn)</BuildDependsOn>
-  </PropertyGroup>
-  <Target Name="CheckPackageReferences">
-    <Error Text="sqlite3.dll not found. Run 'build initialize' to install." Condition="!Exists('$(SqliteDll)')" />
-  </Target>
 </Project>

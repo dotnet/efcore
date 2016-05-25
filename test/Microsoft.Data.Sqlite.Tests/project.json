@@ -1,10 +1,7 @@
 {
   "buildOptions": {
     "warningsAsErrors": true,
-    "keyFile": "../../tools/Key.snk",
-    "copyToOutput": {
-      "include": "sqlite3.dll"
-    }
+    "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
@@ -34,8 +31,5 @@
         "System.Threading.Tasks": ""
       }
     }
-  },
-  "publishOptions": {
-    "include": "sqlite3.dll"
   }
 }
