@@ -2,7 +2,10 @@
 
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
   <Library>
-    <!-- TODO optimize this for types that actually need reflection -->
     <Assembly Name="Microsoft.EntityFrameworkCore" Dynamic="Required All" />
+
+    <Assembly Name="System.Collections.NonGeneric">
+      <Type Name="System.Collections.ArrayList" Dynamic="Required All"/>
+    </Assembly>
   </Library>
 </Directives>
