@@ -670,14 +670,10 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
 
     $arguments += $args
 
-    # TODO better json output parsing so we don't need to suppress verbose output
     if ($json) {
-        $arguments += ,"--json"
+        $arguments += ,"--json-delimited"
     } 
-    else {
-        $arguments += ,"--verbose"
-    }
-    
+
     $arguments = $arguments | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
     
     $command = "ef $($arguments -join ' ')"
@@ -696,15 +692,15 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
             }
             throw $verboseOutput
         }
-        $output = $output -join [Environment]::NewLine
 
-        Write-Debug $output
         if ($json) {
             Write-Debug "Parsing json output"
-            # TODO trim the output of dotnet-build
-            $match = [regex]::Match($output, "\[|\{")
-            $output = $output.Substring($match.Index) | ConvertFrom-Json
+            Write-Debug $($output -join [Environment]::NewLine)
+            $startLine = $output.IndexOf("//BEGIN") + 1
+            $endLine = $output.IndexOf("//END") - 1
+            $output = $output[$startLine..$endLine] -join [Environment]::NewLine | ConvertFrom-Json
         } else {
+            $output = $output -join [Environment]::NewLine
             Write-Verbose $output
         }
 

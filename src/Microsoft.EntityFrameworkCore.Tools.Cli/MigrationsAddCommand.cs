@@ -3,10 +3,8 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
-using Newtonsoft.Json;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -28,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
             var json = command.JsonOption();
+            var jsonDelimited = command.JsonDelimitedOption();
 
             command.HelpOption();
             command.VerboseOption();
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 {
                     if (string.IsNullOrEmpty(name.Value))
                     {
-                        Reporter.Error.WriteLine(("Missing required argument '" + name.Name + "'").Bold().Red());
+                        ConsoleCommandLogger.Error(("Missing required argument '" + name.Name + "'").Bold().Red());
                         command.ShowHelp();
 
                         return 1;
@@ -48,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                         outputDir.Value(),
                         context.Value(),
                         environment.Value(),
-                        json.HasValue()
-                            ? (Action<MigrationFiles>)ReportJson
+                        json.HasValue() || jsonDelimited.HasValue()
+                            ? ReportJson(jsonDelimited.HasValue())
                             : null);
                 });
         }
@@ -66,14 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             reporter?.Invoke(files);
 
-            Reporter.Error.WriteLine("Done. To undo this action, use 'dotnet ef migrations remove'");
+            ConsoleCommandLogger.Output("Done. To undo this action, use 'dotnet ef migrations remove'");
 
             return 0;
         }
 
-        private static void ReportJson(MigrationFiles files)
-        {
-            Reporter.Output.WriteLine(JsonConvert.SerializeObject(files, Formatting.Indented));
-        }
+        private static Action<MigrationFiles> ReportJson(bool delimited)
+            => files => ConsoleCommandLogger.Json(files, delimited);
     }
 }

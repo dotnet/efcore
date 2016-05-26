@@ -1,18 +1,24 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.EntityFrameworkCore.Utilities;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class ExecuteCommand
     {
+        private static readonly Assembly ThisAssembly = typeof(ExecuteCommand).GetTypeInfo().Assembly;
+        private static readonly string AssemblyVersion = ThisAssembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? ThisAssembly.GetName().Version.ToString();
+        
+        private const string DispatcherVersionArgumentName = "--dispatcher-version";
         private const string AssemblyOptionTemplate = "--assembly";
         private const string DataDirectoryOptionTemplate = "--data-dir";
         private const string ProjectDirectoryOptionTemplate = "--project-dir";
@@ -27,15 +33,49 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             bool verbose)
             => new[]
             {
+                DispatcherVersionArgumentName, AssemblyVersion,
                 AssemblyOptionTemplate, Check.NotEmpty(assembly, nameof(assembly)),
                 DataDirectoryOptionTemplate, Check.NotEmpty(dataDir, nameof(dataDir)),
                 ProjectDirectoryOptionTemplate, Check.NotEmpty(projectDir, nameof(projectDir)),
                 RootNamespaceOptionTemplate, Check.NotEmpty(rootNamespace, nameof(rootNamespace)),
                 verbose ? VerboseOptionTemplate : string.Empty
             };
-
-        public static CommandLineApplication Create(string[] args)
+            
+        private static void EnsureValidDispatchRecipient(ref string[] args)
         {
+            if (!args.Contains(DispatcherVersionArgumentName, StringComparer.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var dispatcherArgumentIndex = Array.FindIndex(
+                args,
+                (value) => string.Equals(value, DispatcherVersionArgumentName, StringComparison.OrdinalIgnoreCase));
+            var dispatcherArgumentValueIndex = dispatcherArgumentIndex + 1;
+            if (dispatcherArgumentValueIndex < args.Length)
+            {
+                var dispatcherVersion = args[dispatcherArgumentValueIndex];
+
+                if (string.Equals(dispatcherVersion, AssemblyVersion, StringComparison.Ordinal))
+                {
+                    // Remove dispatcher arguments from
+                    var preDispatcherArgument = args.Take(dispatcherArgumentIndex);
+                    var postDispatcherArgument = args.Skip(dispatcherArgumentIndex + 2);
+                    var newProgramArguments = preDispatcherArgument.Concat(postDispatcherArgument);
+                    args = newProgramArguments.ToArray();
+                    return;
+                }
+            }
+
+            // Could not validate the dispatchers version.
+            throw new InvalidOperationException(
+                $"Could not invoke tool {GetToolName()}. Ensure it has matching versions in the project.json's 'dependencies' and 'tools' sections.");
+        }
+
+        public static CommandLineApplication Create(ref string[] args)
+        {
+            EnsureValidDispatchRecipient(ref args);
+            
             var app = new CommandLineApplication()
             {
                 // Technically, the real "dotnet-ef.dll" is in Microsoft.EntityFrameworkCore.Tools,
@@ -87,14 +127,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             const string White = "\x1b[37m";
             const string Default = "\x1b[39m";
 
-            Reporter.Output.WriteLine();
-            Reporter.Output.WriteLine(@"                     _/\__       ".Insert(21, Bold + White));
-            Reporter.Output.WriteLine(@"               ---==/    \\      ");
-            Reporter.Output.WriteLine(@"         ___  ___   |.    \|\    ".Insert(26, Bold).Insert(21, Normal).Insert(20, Bold + White).Insert(9, Normal + Magenta));
-            Reporter.Output.WriteLine(@"        | __|| __|  |  )   \\\   ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
-            Reporter.Output.WriteLine(@"        | _| | _|   \_/ |  //|\\ ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
-            Reporter.Output.WriteLine(@"        |___||_|       /   \\\/\\".Insert(33, Normal + Default).Insert(23, Bold + White).Insert(8, Normal + Magenta));
-            Reporter.Output.WriteLine();
+            ConsoleCommandLogger.Output("");
+            ConsoleCommandLogger.Output(@"                     _/\__       ".Insert(21, Bold + White));
+            ConsoleCommandLogger.Output(@"               ---==/    \\      ");
+            ConsoleCommandLogger.Output(@"         ___  ___   |.    \|\    ".Insert(26, Bold).Insert(21, Normal).Insert(20, Bold + White).Insert(9, Normal + Magenta));
+            ConsoleCommandLogger.Output(@"        | __|| __|  |  )   \\\   ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
+            ConsoleCommandLogger.Output(@"        | _| | _|   \_/ |  //|\\ ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
+            ConsoleCommandLogger.Output(@"        |___||_|       /   \\\/\\".Insert(33, Normal + Default).Insert(23, Bold + White).Insert(8, Normal + Magenta));
+            ConsoleCommandLogger.Output("");
         }
 
         private static string GetVersion()

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
@@ -61,15 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             if (string.IsNullOrEmpty(output))
             {
-                Reporter.Output.WriteLine(sql);
+                ConsoleCommandLogger.Output(sql);
             }
             else
             {
-                Reporter.Verbose.WriteLine("Writing SQL script to '" + output + "'".Bold().Black());
+                ConsoleCommandLogger.Verbose("Writing SQL script to '" + output + "'".Bold().Black());
                 File.WriteAllText(output, sql, Encoding.UTF8);
 
-                // TODO https://github.com/aspnet/EntityFramework/issues/4771
-                // Reporter.Error.WriteLine("Done");
+                ConsoleCommandLogger.Output("Done");
             }
 
             return 0;

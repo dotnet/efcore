@@ -1,15 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.Extensions.CommandLineUtils;
 using System.Linq;
-using Newtonsoft.Json;
+using JetBrains.Annotations;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -23,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
             var json = command.JsonOption();
+            var jsonDelimited = command.JsonDelimitedOption();
 
             command.HelpOption();
             command.VerboseOption();
@@ -30,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.OnExecute(
                 () => Execute(commonOptions.Value(),
                     environment.Value(),
-                    json.HasValue()
-                        ? (Action<IEnumerable<Type>>)ReportJsonResults
+                    json.HasValue() || jsonDelimited.HasValue()
+                        ? ReportJsonResults(jsonDelimited.HasValue())
                         : ReportResults)
                 );
         }
@@ -48,25 +45,26 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             return 0;
         }
 
-        private static void ReportJsonResults(IEnumerable<Type> contextTypes)
-        {
-            var typeNames = contextTypes.Select(t => new { fullName = t.FullName }).ToArray();
+        private static Action<IEnumerable<Type>> ReportJsonResults(bool delimited)
+            => contextTypes =>
+            {
+                var typeNames = contextTypes.Select(t => new { fullName = t.FullName }).ToArray();
 
-            Reporter.Output.WriteLine(JsonConvert.SerializeObject(typeNames, Formatting.Indented));
-        }
+                ConsoleCommandLogger.Json(typeNames, delimited);
+            };
 
         private static void ReportResults(IEnumerable<Type> contextTypes)
         {
             var any = false;
             foreach (var contextType in contextTypes)
             {
-                Reporter.Output.WriteLine(contextType.FullName as string);
+                ConsoleCommandLogger.Output(contextType.FullName as string);
                 any = true;
             }
 
             if (!any)
             {
-                Reporter.Error.WriteLine("No DbContext was found");
+                ConsoleCommandLogger.Error("No DbContext was found");
             }
         }
     }

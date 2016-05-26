@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                             return true;
                         }
 
-                        Reporter.Output.WriteLine(
+                        ConsoleCommandLogger.Output(
                             $"Are you sure you want to drop the database '{database}' on server '{dataSource}'? (y/N)");
                         var readedKey = Console.ReadKey().KeyChar;
 

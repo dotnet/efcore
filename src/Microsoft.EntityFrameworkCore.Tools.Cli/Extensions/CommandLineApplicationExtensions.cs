@@ -33,6 +33,9 @@ namespace Microsoft.Extensions.CommandLineUtils
         public static CommandOption JsonOption(this CommandLineApplication command)
             => command.Option("--json", "Use json output");
 
+        public static CommandOption JsonDelimitedOption(this CommandLineApplication command)
+            => command.Option("--json-delimited", "Use json output wrapped by '//BEGIN' and '//END'");
+
         public static CommandOption VersionOption(
             this CommandLineApplication command,
             Func<string> shortFormVersionGetter)

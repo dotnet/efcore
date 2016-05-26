@@ -80,14 +80,16 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
       <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
     </Content>
-    <Content Include="tools\about_EntityFramework.help.txt" />
+    <Content Include="tools\about_EntityFrameworkCore.help.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build\netcore50\Microsoft.EntityFrameworkCore.Tools.props" />
     <None Include="build\netcore50\Microsoft.EntityFrameworkCore.Tools.targets" />
     <None Include="project.json" />
-    <None Include="tools\EntityFramework.psd1" />
-    <None Include="tools\EntityFramework.psm1" />
+    <None Include="tools\EntityFrameworkCore.PowerShell2.psd1" />
+    <None Include="tools\EntityFrameworkCore.PowerShell2.psm1" />
+    <None Include="tools\EntityFrameworkCore.psd1" />
+    <None Include="tools\EntityFrameworkCore.psm1" />
     <None Include="tools\init.ps1" />
     <None Include="tools\install.ps1" />
   </ItemGroup>

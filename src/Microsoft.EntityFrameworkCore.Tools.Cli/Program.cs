@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -15,13 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
     {
         public static int Main([NotNull] string[] args)
         {
-            HandleVerboseOption(ref args);
-            DebugHelper.HandleDebugSwitch(ref args);
+            ConsoleCommandLogger.IsVerbose = HandleVerboseOption(ref args);
+            HandleDebugSwitch(ref args);
 
             try
             {
-                DotnetToolDispatcher.EnsureValidDispatchRecipient(ref args, ExecuteCommand.GetToolName());
-                return ExecuteCommand.Create(args).Execute(args);
+                return ExecuteCommand.Create(ref args).Execute(args);
             }
             catch (Exception ex)
             {
@@ -33,24 +31,38 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
                 if (!(ex is OperationException))
                 {
-                    Reporter.Error.WriteLine(ex.ToString());
+                    ConsoleCommandLogger.Error(ex.ToString());
                 }
 
-                Reporter.Error.WriteLine(ex.Message.Bold().Red());
+                ConsoleCommandLogger.Error(ex.Message.Bold().Red());
                 return 1;
             }
         }
 
-        private static void HandleVerboseOption(ref string[] args)
+        private static bool HandleVerboseOption(ref string[] args)
         {
             for (var i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-v" || args[i] == "--verbose")
                 {
-                    Environment.SetEnvironmentVariable(CommandContext.Variables.Verbose, bool.TrueString);
                     args = args.Take(i).Concat(args.Skip(i + 1)).ToArray();
+                    return true;
+                }
+            }
+            return false;
+        }
 
-                    return;
+        [Conditional("DEBUG")]
+        private static void HandleDebugSwitch(ref string[] args)
+        {
+            for (var i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--debug")
+                {
+                    args = args.Take(i).Concat(args.Skip(i + 1)).ToArray();
+                    Console.WriteLine("Waiting for debugger to attach. Press ENTER to continue");
+                    Console.WriteLine($"Process ID: {Process.GetCurrentProcess().Id}");
+                    Console.ReadLine();
                 }
             }
         }

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.Cli;
 using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.Extensions.Internal;
 using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -135,15 +134,21 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                     rootNamespace: projectFile.Name,
                                     verbose: isVerbose)
                                 .Concat(app.RemainingArguments);
+                                
+                    var buildBasePath = buildBasePathOption.Value();
+                    if (buildBasePath != null && !Path.IsPathRooted(buildBasePath))
+                    {
+                        // ProjectDependenciesCommandFactory cannot handle relative build base paths.
+                        buildBasePath = Path.Combine(Directory.GetCurrentDirectory(), buildBasePath);
+                    }
 
-                    return DotnetToolDispatcher.CreateDispatchCommand(
-                            dispatchArgs,
+                    return new ProjectDependenciesCommandFactory(
                             framework,
                             configuration,
-                            outputPath: outputOption.Value(),
-                            buildBasePath: buildBasePathOption.Value(),
-                            projectDirectory: projectFile.ProjectDirectory,
-                            toolName: ProjectDependencyToolName)
+                            outputOption.Value(),
+                            buildBasePath,
+                            projectFile.ProjectDirectory)
+                        .Create(ProjectDependencyToolName, dispatchArgs, framework, configuration)
                         .ForwardStdErr()
                         .ForwardStdOut()
                         .Execute()

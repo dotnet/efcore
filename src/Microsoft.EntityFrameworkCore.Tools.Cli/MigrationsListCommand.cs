@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.EntityFrameworkCore.Design;
-using Newtonsoft.Json;
 using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -25,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
             var json = command.JsonOption();
+            var jsonDelimited = command.JsonDelimitedOption();
 
             command.HelpOption();
             command.VerboseOption();
@@ -33,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 () => Execute(commonOptions.Value(),
                     context.Value(),
                     environment.Value(),
-                    json.HasValue()
-                        ? (Action<IEnumerable<MigrationInfo>>)ReportJsonResults
+                    json.HasValue() || jsonDelimited.HasValue()
+                        ? ReportJsonResults(jsonDelimited.HasValue())
                         : ReportResults));
         }
 
@@ -51,34 +50,35 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             return 0;
         }
 
-        private static void ReportJsonResults(IEnumerable<MigrationInfo> migrations)
-        {
-            var nameGroups = migrations.GroupBy(m => m.Name).ToList();
-            var output = migrations.Select(
-                m => new
-                {
-                    id = m.Id,
-                    name = m.Name,
-                    safeName = nameGroups.Count(g => g.Key == m.Name) == 1
-                        ? m.Name
-                        : m.Id
-                }).ToArray();
+        private static Action<IEnumerable<MigrationInfo>> ReportJsonResults(bool delimited)
+            => migrations =>
+            {
+                var nameGroups = migrations.GroupBy(m => m.Name).ToList();
+                var output = migrations.Select(
+                    m => new
+                    {
+                        id = m.Id,
+                        name = m.Name,
+                        safeName = nameGroups.Count(g => g.Key == m.Name) == 1
+                            ? m.Name
+                            : m.Id
+                    }).ToArray();
 
-            Reporter.Output.Write(JsonConvert.SerializeObject(output, Formatting.Indented));
-        }
+                ConsoleCommandLogger.Json(output, delimited);
+            };
 
         private static void ReportResults(IEnumerable<MigrationInfo> migrations)
         {
             var any = false;
             foreach (var migration in migrations)
             {
-                Reporter.Output.WriteLine(migration.Id as string);
+                ConsoleCommandLogger.Output(migration.Id as string);
                 any = true;
             }
 
             if (!any)
             {
-                Reporter.Error.WriteLine("No migrations were found");
+                ConsoleCommandLogger.Error("No migrations were found");
             }
         }
     }

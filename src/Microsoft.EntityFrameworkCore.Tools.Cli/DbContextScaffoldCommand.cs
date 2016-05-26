@@ -1,11 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Microsoft.DotNet.Cli.Utils;
-using Microsoft.Extensions.CommandLineUtils;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -55,14 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 {
                     if (string.IsNullOrEmpty(connection.Value))
                     {
-                        Reporter.Error.WriteLine(("Missing required argument '" + connection.Name + "'").Bold().Red());
+                        ConsoleCommandLogger.Error(("Missing required argument '" + connection.Name + "'").Bold().Red());
                         command.ShowHelp();
 
                         return Task.FromResult(1);
                     }
                     if (string.IsNullOrEmpty(provider.Value))
                     {
-                        Reporter.Error.WriteLine(("Missing required argument '" + provider.Name + "'").Bold().Red());
+                        ConsoleCommandLogger.Error(("Missing required argument '" + provider.Name + "'").Bold().Red());
                         command.ShowHelp();
 
                         return Task.FromResult(1);
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     dataAnnotations,
                     force);
 
-            Reporter.Error.WriteLine("Done");
+            ConsoleCommandLogger.Output("Done");
 
             return 0;
         }
