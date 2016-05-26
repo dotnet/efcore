@@ -704,6 +704,38 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                     });
         }
 
+        [Fact]
+        public void Alter_column_rowversion()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Version");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Version")
+                            .ValueGeneratedOnAddOrUpdate()
+                            .IsConcurrencyToken();
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Version", operation.Name);
+                    Assert.True(operation.IsRowVersion);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
         protected override MigrationsModelDiffer CreateModelDiffer()

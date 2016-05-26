@@ -88,6 +88,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_unicode_no_model()
+        {
+            base.AddColumnOperation_with_unicode_no_model();
+
+            Assert.Equal(
+                "ALTER TABLE [Person] ADD [Name] varchar(max);" + EOL,
+                Sql);
+        }
+
         public override void AddColumnOperation_with_maxLength()
         {
             base.AddColumnOperation_with_maxLength();
@@ -103,6 +112,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
 
             Assert.Equal(
                 "ALTER TABLE [Person] ADD [Name] nvarchar(30);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public override void AddColumnOperation_with_rowversion_overridden()
+        {
+            base.AddColumnOperation_with_rowversion_overridden();
+
+            Assert.Equal(
+                "ALTER TABLE [Person] ADD [RowVersion] rowversion;" + EOL,
+                Sql);
+        }
+
+        public override void AddColumnOperation_with_rowversion_no_model()
+        {
+            base.AddColumnOperation_with_rowversion_no_model();
+
+            Assert.Equal(
+                "ALTER TABLE [Person] ADD [RowVersion] rowversion;" + EOL,
                 Sql);
         }
 

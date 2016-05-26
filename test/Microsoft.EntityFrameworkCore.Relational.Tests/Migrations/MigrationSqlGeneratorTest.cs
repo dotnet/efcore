@@ -79,6 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_maxLength_overridden()
+        {
+            base.AddColumnOperation_with_maxLength_overridden();
+
+            Assert.Equal(
+                "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(32);" + EOL,
+                Sql);
+        }
+
         public override void AddColumnOperation_with_maxLength_on_derived()
         {
             base.AddColumnOperation_with_maxLength_on_derived();

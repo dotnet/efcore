@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
         public virtual Type ClrType { get; [param: NotNull] set; }
         public virtual string ColumnType { get; [param: CanBeNull] set; }
+        public virtual bool? IsUnicode { get; [param: CanBeNull] set; }
+        public virtual int? MaxLength { get; [param: CanBeNull] set; }
+        public virtual bool IsRowVersion { get; set; }
         public virtual bool IsNullable { get; set; }
         public virtual object DefaultValue { get; [param: CanBeNull] set; }
         public virtual string DefaultValueSql { get; [param: CanBeNull] set; }

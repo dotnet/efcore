@@ -466,6 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                           // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
+                // TODO: Set IsUnicode with #3420
                 var alterColumnOperation = new AlterColumnOperation
                 {
                     Schema = sourceEntityTypeAnnotations.Schema,
@@ -473,6 +474,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Name = sourceAnnotations.ColumnName,
                     ClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType(),
                     ColumnType = targetAnnotations.ColumnType,
+                    MaxLength = target.GetMaxLength(),
+                    IsRowVersion = target.ClrType == typeof(byte[])
+                        && target.IsConcurrencyToken
+                        && target.ValueGenerated == ValueGenerated.OnAddOrUpdate,
                     IsNullable = isTargetColumnNullable,
                     DefaultValue = targetAnnotations.DefaultValue,
                     DefaultValueSql = targetAnnotations.DefaultValueSql,
@@ -494,6 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var targetEntityTypeAnnotations = Annotations.For(
                 diffContext.FindSource(target.DeclaringEntityType.RootType()));
 
+            // TODO: Set IsUnicode with #3420
             var operation = new AddColumnOperation
             {
                 Schema = targetEntityTypeAnnotations.Schema,
@@ -501,6 +507,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Name = targetAnnotations.ColumnName,
                 ClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType(),
                 ColumnType = targetAnnotations.ColumnType,
+                MaxLength = target.GetMaxLength(),
+                IsRowVersion = target.ClrType == typeof(byte[])
+                    && target.IsConcurrencyToken
+                    && target.ValueGenerated == ValueGenerated.OnAddOrUpdate,
                 IsNullable = target.IsColumnNullable(),
                 DefaultValue = targetAnnotations.DefaultValue
                                ?? (inline || target.IsColumnNullable()

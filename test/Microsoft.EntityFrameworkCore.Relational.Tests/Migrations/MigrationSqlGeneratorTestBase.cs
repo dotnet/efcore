@@ -69,6 +69,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 });
 
         [Fact]
+        public virtual void AddColumnOperation_with_unicode_overridden()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name"),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsUnicode = false,
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_unicode_no_model()
+            => Generate(
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsUnicode = false,
+                    IsNullable = true
+                });
+
+        [Fact]
         public virtual void AddColumnOperation_with_maxLength()
             => Generate(
                 modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
@@ -77,6 +102,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Table = "Person",
                     Name = "Name",
                     ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_maxLength_overridden()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 32,
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_maxLength_no_model()
+            => Generate(
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
                     IsNullable = true
                 });
 
@@ -99,6 +150,31 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Table = "Person",
                     Name = "Name",
                     ClrType = typeof(string),
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_rowversion_overridden()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<byte[]>("RowVersion"),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "RowVersion",
+                    ClrType = typeof(byte[]),
+                    IsRowVersion = true,
+                    IsNullable = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_rowversion_no_model()
+            => Generate(
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "RowVersion",
+                    ClrType = typeof(byte[]),
+                    IsRowVersion = true,
                     IsNullable = true
                 });
 

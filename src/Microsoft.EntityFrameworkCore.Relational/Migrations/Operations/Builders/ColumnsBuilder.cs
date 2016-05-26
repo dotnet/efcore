@@ -19,7 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
             [CanBeNull] string type = null,
-            [CanBeNull] string name = null,
+            [CanBeNull] bool? unicode = null,
+            [CanBeNull] int? maxLength = null,
+            bool rowVersion = false,
+            [CanBeNull] string name = null,            
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
@@ -32,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
                 Name = name,
                 ClrType = typeof(T),
                 ColumnType = type,
+                IsUnicode = unicode,
+                MaxLength = maxLength,
+                IsRowVersion = rowVersion,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,

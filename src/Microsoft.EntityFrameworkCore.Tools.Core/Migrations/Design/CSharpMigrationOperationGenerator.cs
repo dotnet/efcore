@@ -97,6 +97,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(_code.Literal(operation.ColumnType));
                 }
 
+                if (operation.IsUnicode == false)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("unicode: false");
+                }
+
+                if (operation.MaxLength.HasValue)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("maxLength: ")
+                        .Append(_code.Literal(operation.MaxLength.Value));
+                }
+
+                if (operation.IsRowVersion)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("rowVersion: true");
+                }
+
                 builder.AppendLine(",")
                     .Append("nullable: ")
                     .Append(_code.Literal(operation.IsNullable));
@@ -310,6 +332,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder.AppendLine(",")
                         .Append("type: ")
                         .Append(_code.Literal(operation.ColumnType));
+                }
+
+                if (operation.IsUnicode == false)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("unicode: false");
+                }
+
+                if (operation.MaxLength.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("maxLength: ")
+                        .Append(_code.Literal(operation.MaxLength.Value));
+                }
+
+                if (operation.IsRowVersion)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("rowVersion: true");
                 }
 
                 builder.AppendLine(",")
@@ -597,6 +640,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 .Append("type: ")
                                 .Append(_code.Literal(column.ColumnType))
                                 .Append(", ");
+                        }
+
+                        if (column.IsUnicode == false)
+                        {
+                            builder.Append("unicode: false, ");
+                        }
+
+                        if (column.MaxLength.HasValue)
+                        {
+                            builder
+                                .Append("maxLength: ")
+                                .Append(_code.Literal(column.MaxLength.Value))
+                                .Append(", ");
+                        }
+
+                        if (column.IsRowVersion)
+                        {
+                            builder.Append("rowVersion: true, ");
                         }
 
                         builder.Append("nullable: ")

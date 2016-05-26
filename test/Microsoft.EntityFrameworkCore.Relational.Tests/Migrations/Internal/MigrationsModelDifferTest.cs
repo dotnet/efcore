@@ -600,6 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
                         Assert.Equal("Toad", operation.Table);
                         Assert.Equal("Name", operation.Name);
+                        Assert.Equal(30, operation.MaxLength);
                         Assert.True(operation.IsDestructiveChange);
                     });
         }

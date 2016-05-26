@@ -584,6 +584,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.Name,
                     operation.ClrType,
                     operation.ColumnType,
+                    operation.IsUnicode,
+                    operation.MaxLength,
+                    operation.IsRowVersion,
                     operation.IsNullable,
                     operation.DefaultValue,
                     operation.DefaultValueSql,
@@ -598,6 +601,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string name,
             [NotNull] Type clrType,
             [CanBeNull] string type,
+            [CanBeNull] bool? unicode,
+            [CanBeNull] int? maxLength,
+            bool rowVersion,
             bool nullable,
             [CanBeNull] object defaultValue,
             [CanBeNull] string defaultValueSql,
@@ -611,18 +617,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(annotatable, nameof(annotatable));
             Check.NotNull(builder, nameof(builder));
 
-            if (type == null)
-            {
-                var property = FindProperty(model, schema, table, name);
-                type = property != null
-                    ? TypeMapper.GetMapping(property).StoreType
-                    : TypeMapper.GetMapping(clrType).StoreType;
-            }
-
             builder
                 .Append(SqlGenerationHelper.DelimitIdentifier(name))
                 .Append(" ")
-                .Append(type);
+                .Append(type ?? GetColumnType(schema, table, name, clrType, unicode, maxLength, rowVersion, model));
 
             if (!nullable)
             {
@@ -630,6 +628,43 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             DefaultValue(defaultValue, defaultValueSql, builder);
+        }
+
+        protected virtual string GetColumnType(
+            [CanBeNull] string schema,
+            [NotNull] string table,
+            [NotNull] string name,
+            [NotNull] Type clrType,
+            [CanBeNull] bool? unicode,
+            [CanBeNull] int? maxLength,
+            bool rowVersion,
+            [CanBeNull] IModel model)
+        {
+            Check.NotEmpty(table, nameof(table));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(clrType, nameof(clrType));
+
+            var keyOrIndex = false;
+
+            var property = FindProperty(model, schema, table, name);
+            if (property != null)
+            {
+                // TODO: Allow unicode to be overridden with #3420
+                if (maxLength == property.GetMaxLength()
+                    && rowVersion == (property.IsConcurrencyToken && (property.ValueGenerated == ValueGenerated.OnAddOrUpdate)))
+                {
+                    return TypeMapper.GetMapping(property).StoreType;
+                }
+
+                keyOrIndex = property.IsKey() || property.IsForeignKey();
+            }
+
+            return (clrType == typeof(string)
+                ? TypeMapper.StringMapper?.FindMapping(unicode ?? true, keyOrIndex, maxLength)?.StoreType
+                : clrType == typeof(byte[])
+                    ? TypeMapper.ByteArrayMapper?.FindMapping(rowVersion, keyOrIndex, maxLength)?.StoreType
+                    : null)
+                ?? TypeMapper.GetMapping(clrType).StoreType;
         }
 
         protected virtual void DefaultValue(

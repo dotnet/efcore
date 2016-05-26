@@ -52,6 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
                     Table = "Post",
                     ClrType = typeof(int),
                     ColumnType = "int",
+                    IsUnicode = false,
+                    MaxLength = 30,
+                    IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1
                 },
@@ -60,6 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
+                "    unicode: false," + EOL +
+                "    maxLength: 30," + EOL +
+                "    rowVersion: true," + EOL +
                 "    nullable: true," + EOL +
                 "    defaultValue: 1);",
                 o =>
@@ -389,6 +395,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
                     Table = "Post",
                     ClrType = typeof(int),
                     ColumnType = "int",
+                    IsUnicode = false,
+                    MaxLength = 30,
+                    IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1
                 },
@@ -397,6 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
+                "    unicode: false," + EOL +
+                "    maxLength: 30," + EOL +
+                "    rowVersion: true," + EOL +
                 "    nullable: true," + EOL +
                 "    defaultValue: 1);",
                 o =>
@@ -744,6 +756,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
                             Table = "Post",
                             ClrType = typeof(int),
                             ColumnType = "int",
+                            IsUnicode = false,
+                            MaxLength = 30,
+                            IsRowVersion = true,
                             IsNullable = true,
                             DefaultValue = 1
                         }
@@ -754,7 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", nullable: true, defaultValue: 1)" + EOL +
+                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +

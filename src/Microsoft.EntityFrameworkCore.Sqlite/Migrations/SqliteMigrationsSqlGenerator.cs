@@ -113,6 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             string name,
             Type clrType,
             string type,
+            bool? unicode,
+            int? maxLength,
+            bool rowVersion,
             bool nullable,
             object defaultValue,
             string defaultValueSql,
@@ -122,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder)
         {
             base.ColumnDefinition(
-                schema, table, name, clrType, type, nullable,
+                schema, table, name, clrType, type, unicode, maxLength, rowVersion, nullable,
                 defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
             var inlinePk = annotatable[SqliteFullAnnotationNames.Instance.InlinePrimaryKey] as bool?;
