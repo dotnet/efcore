@@ -20,6 +20,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     Entity Framework LINQ related extension methods.
+    /// </summary>
     public static class EntityFrameworkQueryableExtensions
     {
         #region Any/All

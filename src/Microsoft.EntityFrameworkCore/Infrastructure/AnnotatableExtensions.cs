@@ -8,8 +8,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
+    /// <summary>
+    ///     Extension methods for <see cref="IAnnotatable"/>.
+    /// </summary>
     public static class AnnotatableExtensions
     {
+        /// <summary>
+        ///     Gets the annotation with the given name, throwing if it does not exist.
+        /// </summary>
+        /// <param name="annotatable"> The object to find the annotation on. </param>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns> The annotation with the specified name. </returns>
         public static IAnnotation GetAnnotation([NotNull] this IAnnotatable annotatable, [NotNull] string annotationName)
         {
             Check.NotNull(annotatable, nameof(annotatable));

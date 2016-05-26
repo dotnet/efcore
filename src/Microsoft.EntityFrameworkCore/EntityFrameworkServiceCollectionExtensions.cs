@@ -98,9 +98,9 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         This overload has an <paramref name="optionsAction"/> that provides the applications <see cref="IServiceProvider"/>.
-        ///         This is useful if you want to setup EF to resolve its internal services from the primary application service provider.
-        ///         By default, we recommend using the other overload, which allows EF to create and maintain its own <see cref="IServiceProvider"/>
-        ///         for internal EF services.
+        ///         This is useful if you want to setup Entity Framework to resolve its internal services from the primary application service provider.
+        ///         By default, we recommend using the other overload, which allows Entity Framework to create and maintain its own <see cref="IServiceProvider"/>
+        ///         for internal Entity Framework services.
         ///     </para>
         /// </summary>
         /// <example>

@@ -24,6 +24,12 @@ namespace Microsoft.EntityFrameworkCore
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
 
+        /// <summary>
+        ///     Gets the default change tracking strategy being used for entities in the model. This strategy indicates how the
+        ///     context detects changes to properties for an instance of an entity type.
+        /// </summary>
+        /// <param name="model"> The model to get the default change tracking strategy for. </param>
+        /// <returns> The change tracking strategy. </returns>
         public static ChangeTrackingStrategy GetChangeTrackingStrategy(
             [NotNull] this IModel model)
             => Check.NotNull(model, nameof(model)).AsModel().ChangeTrackingStrategy;

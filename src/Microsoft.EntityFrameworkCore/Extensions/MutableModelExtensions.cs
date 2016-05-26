@@ -41,7 +41,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The existing or newly created entity type. </returns>
         public static IMutableEntityType GetOrAddEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).FindEntityType(type) ?? model.AddEntityType(type);
-        
+
+        /// <summary>
+        ///     Removes an entity type from the model.
+        /// </summary>
+        /// <param name="model"> The model to remove the entity type from. </param>
+        /// <param name="type"> The entity type to be removed. </param>
+        /// <returns> The entity type that was removed. </returns>
         public static IMutableEntityType RemoveEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
         {
             Check.NotNull(model, nameof(model));

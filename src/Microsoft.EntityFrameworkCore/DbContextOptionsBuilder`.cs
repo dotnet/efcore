@@ -57,12 +57,30 @@ namespace Microsoft.EntityFrameworkCore
         public new virtual DbContextOptionsBuilder<TContext> UseModel([NotNull] IModel model)
             => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
 
+        /// <summary>
+        ///     Sets the <see cref="ILoggerFactory"/> used for logging information from the context.
+        /// </summary>
+        /// <param name="loggerFactory"> The <see cref="ILoggerFactory"/> to be used. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
 
+        /// <summary>
+        ///     Sets the <see cref="IMemoryCache"/> used to cache information such as query translations. If none is specified, then
+        ///     Entity Framework will maintain its own internal <see cref="IMemoryCache"/>.
+        /// </summary>
+        /// <param name="memoryCache"> The <see cref="IMemoryCache"/> to be used. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
             => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
 
+        /// <summary>
+        ///     Sets the <see cref="IServiceProvider"/> that the context will resolve its internal services from. If none is specified, then
+        ///     Entity Framework will maintain its own internal <see cref="IServiceProvider"/>. By default, we recommend allowing Entity Framework
+        ///     to create and maintain its own <see cref="IServiceProvider"/> for internal services.
+        /// </summary>
+        /// <param name="serviceProvider"> The <see cref="IServiceProvider"/> to be used. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
 

@@ -229,6 +229,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 inverted: Builder.Metadata.DeclaringEntityType.Name != dependentEntityTypeName,
                 foreignKeySet: true);
 
+        /// <summary>
+        ///     Sets the entity type that is the dependent of the relationship.
+        /// </summary>
+        /// <param name="dependentEntityTypeName">
+        ///     The name of the dependent entity type.
+        /// </param>
+        /// <returns> The builder being used to configure this relationship. </returns>
         protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] string dependentEntityTypeName)
         {
             var entityType = ResolveEntityType(dependentEntityTypeName);
@@ -243,6 +250,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return Builder.RelatedEntityTypes(GetOtherEntityType(entityType), entityType, ConfigurationSource.Explicit);
         }
 
+        /// <summary>
+        ///     Sets the entity type that is the dependent of the relationship.
+        /// </summary>
+        /// <param name="dependentEntityType">
+        ///     The dependent entity type.
+        /// </param>
+        /// <returns> The builder being used to configure this relationship. </returns>
         protected virtual InternalRelationshipBuilder SetDependentEntityType([NotNull] Type dependentEntityType)
         {
             var entityType = ResolveEntityType(dependentEntityType);
@@ -301,6 +315,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
                 principalKeySet: true);
 
+        /// <summary>
+        ///     Sets the entity type that is the principal of the relationship.
+        /// </summary>
+        /// <param name="principalEntityTypeName">
+        ///     The name of the principal entity type.
+        /// </param>
+        /// <returns> The builder being used to configure this relationship. </returns>
         protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] string principalEntityTypeName)
         {
             var entityType = ResolveEntityType(principalEntityTypeName);
@@ -315,6 +336,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return Builder.RelatedEntityTypes(entityType, GetOtherEntityType(entityType), ConfigurationSource.Explicit);
         }
 
+        /// <summary>
+        ///     Sets the entity type that is the principal of the relationship.
+        /// </summary>
+        /// <param name="principalEntityType">
+        ///     The principal entity type.
+        /// </param>
+        /// <returns> The builder being used to configure this relationship. </returns>
         protected virtual InternalRelationshipBuilder SetPrincipalEntityType([NotNull] Type principalEntityType)
         {
             var entityType = ResolveEntityType(principalEntityType);

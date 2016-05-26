@@ -25,12 +25,50 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public abstract class ModelSource : IModelSource
     {
         private readonly ConcurrentDictionary<object, IModel> _models = new ConcurrentDictionary<object, IModel>();
+
+        /// <summary>
+        ///     Gets the <see cref="IDbSetFinder"/> that will locate the <see cref="DbSet{TEntity}"/> properties
+        ///     on the derived context.
+        /// </summary>
         protected virtual IDbSetFinder SetFinder { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="ICoreConventionSetBuilder"/> that will build the conventions to be used 
+        ///     to build the model.
+        /// </summary>
         protected virtual ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 
+        /// <summary>
+        ///     Gets the <see cref="IModelCustomizer"/> that will perform additional configuration of the model
+        ///     in addition to what is discovered by convention.
+        /// </summary>
         protected virtual IModelCustomizer ModelCustomizer { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="IModelCacheKeyFactory"/> that will create keys used to store and lookup models
+        ///     the model cache.
+        /// </summary>
         protected virtual IModelCacheKeyFactory ModelCacheKeyFactory { get; }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModelSource"/> class.
+        /// </summary>
+        /// <param name="setFinder">
+        ///     The <see cref="IDbSetFinder"/> that will locate the <see cref="DbSet{TEntity}"/> properties
+        ///     on the derived context.
+        /// </param>
+        /// <param name="coreConventionSetBuilder">
+        ///     The <see cref="ICoreConventionSetBuilder"/> that will build the conventions to be used 
+        ///     to build the model.
+        /// </param>
+        /// <param name="modelCustomizer">
+        ///     The <see cref="IModelCustomizer"/> that will perform additional configuration of the model
+        ///     in addition to what is discovered by convention.
+        /// </param>
+        /// <param name="modelCacheKeyFactory">
+        ///     The <see cref="IModelCacheKeyFactory"/> that will create keys used to store and lookup models
+        ///     the model cache.
+        /// </param>
         protected ModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
         {
             Check.NotNull(setFinder, nameof(setFinder));

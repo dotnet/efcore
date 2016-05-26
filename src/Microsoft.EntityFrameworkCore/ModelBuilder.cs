@@ -191,6 +191,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the model that were added by convention.
         /// </summary>
         /// <typeparam name="TEntity"> The  entity type to be removed from the model. </typeparam>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
         public virtual ModelBuilder Ignore<TEntity>() where TEntity : class
             => Ignore(typeof(TEntity));
 
@@ -199,6 +202,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the model that were added by convention.
         /// </summary>
         /// <param name="type"> The entity type to be removed from the model. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
         public virtual ModelBuilder Ignore([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -208,6 +214,14 @@ namespace Microsoft.EntityFrameworkCore
             return this;
         }
 
+        /// <summary>
+        ///     Configures the default <see cref="ChangeTrackingStrategy"/> to be used for this model.
+        ///     This strategy indicates how the context detects changes to properties for an instance of an entity type.
+        /// </summary>
+        /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
             Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;

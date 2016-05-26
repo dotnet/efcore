@@ -9,11 +9,30 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
+    /// <summary>
+    ///     <para>
+    ///         A wrapping logger for which logging of sensitive data can be enabled or disabled.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <typeparam name="T"> The type who's name is used for the logger category name. </typeparam>
     public class SensitiveDataLogger<T> : ISensitiveDataLogger<T>
     {
         private readonly ILogger<T> _logger;
         private readonly CoreOptionsExtension _coreOptionsExtension;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SensitiveDataLogger{T}"/> class.
+        /// </summary>
+        /// <param name="logger">
+        ///     The underlying logger to which logging information should be written.
+        /// </param>
+        /// <param name="contextOptions">
+        ///     The options for the context that this logger is being used with.
+        /// </param>
         public SensitiveDataLogger(
             [NotNull] ILogger<T> logger, [CanBeNull] IDbContextOptions contextOptions)
         {
@@ -25,6 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .FirstOrDefault();
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether sensitive information should be written to the underlying logger.
+        /// </summary>
         public virtual bool LogSensitiveData
         {
             get

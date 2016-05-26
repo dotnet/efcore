@@ -75,6 +75,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private readonly IReadOnlyDictionary<Type, IDbContextOptionsExtension> _extensions;
 
+        /// <summary>
+        ///     The type of context that these options are for. Will return <see cref="DbContext"/> if the
+        ///     options are not built for a specific derived context.
+        /// </summary>
         public abstract Type ContextType { get; }
     }
 }

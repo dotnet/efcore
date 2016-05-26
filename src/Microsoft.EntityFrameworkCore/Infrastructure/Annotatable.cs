@@ -49,6 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return AddAnnotation(name, annotation);
         }
 
+        /// <summary>
+        ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
+        /// </summary>
+        /// <param name="name"> The key of the annotation to be added. </param>
+        /// <param name="annotation"> The annotation to be added. </param>
+        /// <returns> The added annotation. </returns>
         protected virtual Annotation AddAnnotation([NotNull] string name, [NotNull] Annotation annotation)
         {
             var previousLength = _annotations.Value.Count;
@@ -62,6 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             return annotation;
         }
 
+        /// <summary>
+        ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an 
+        ///     annotation with the specified name already exists. 
+        /// </summary>
+        /// <param name="name"> The key of the annotation to be added. </param>
+        /// <param name="annotation"> The annotation to be set. </param>
+        /// <returns> The annotation that was set. </returns>
         protected virtual Annotation SetAnnotation([NotNull] string name, [NotNull] Annotation annotation)
         {
             _annotations.Value[name] = annotation;
@@ -153,6 +166,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
+        /// <summary>
+        ///     Creates a new annotation.
+        /// </summary>
+        /// <param name="name"> The key of the annotation. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <returns> The newly created annotation. </returns>
         protected virtual Annotation CreateAnnotation([NotNull] string name, [NotNull] object value)
             => new Annotation(name, value);
 

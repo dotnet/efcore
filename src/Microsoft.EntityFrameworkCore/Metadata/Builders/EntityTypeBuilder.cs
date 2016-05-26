@@ -384,6 +384,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationProperty, ConfigurationSource.Explicit);
 
+        /// <summary>
+        ///     Configures the <see cref="ChangeTrackingStrategy"/> to be used for this entity type.
+        ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
+        /// </summary>
+        /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
             Builder.Metadata.ChangeTrackingStrategy = changeTrackingStrategy;

@@ -242,6 +242,12 @@ namespace Microsoft.EntityFrameworkCore
             return entityType.FindIndex(new[] { property });
         }
 
+        /// <summary>
+        ///     Gets the change tracking strategy being used for this entity type. This strategy indicates how the
+        ///     context detects changes to properties for an instance of the entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the change tracking strategy for. </param>
+        /// <returns> The change tracking strategy. </returns>
         public static ChangeTrackingStrategy GetChangeTrackingStrategy(
             [NotNull] this IEntityType entityType)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy;
