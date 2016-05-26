@@ -97,25 +97,29 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     }
                 }
 
+                var projectContext = ProjectContext.Create(
+                    projectFile.ProjectFilePath,
+                    framework,
+                    RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers());
+
+                var outputPaths = projectContext
+                    .GetOutputPaths(configuration, buildBasePathOption.Value(), outputOption.Value());
+
                 // TODO remove when https://github.com/dotnet/cli/issues/2645 is resolved
                 Func<bool> isClassLibrary = () =>
                 {
-                    var projectContext = ProjectContext.Create(
-                        projectFile.ProjectFilePath,
-                        framework,
-                        RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers());
-
-                    var runtimeFiles = projectContext
-                        .GetOutputPaths(configuration, buildBasePathOption.Value(), outputOption.Value())
-                        ?.RuntimeFiles;
-
-                    return runtimeFiles == null
+                    return outputPaths.RuntimeFiles == null
                         || (
                             framework.IsDesktop()
-                                ? !Directory.Exists(runtimeFiles.BasePath)
-                                : !File.Exists(runtimeFiles.RuntimeConfigJson) || !File.Exists(runtimeFiles.DepsJson)
+                                ? !Directory.Exists(outputPaths.RuntimeFiles.BasePath)
+                                : !File.Exists(outputPaths.RuntimeFiles.RuntimeConfigJson) || !File.Exists(outputPaths.RuntimeFiles.DepsJson)
                             );
                 };
+
+                Reporter.Verbose.WriteLine(ToolsStrings.LogDataDirectory(outputPaths.RuntimeOutputPath));
+
+                var assembly = Path.Combine(outputPaths.RuntimeOutputPath,
+                    projectFile.GetCompilerOptions(framework, configuration).OutputName + ".dll");
 
                 Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectDependencyToolName, projectFile.Name));
 
@@ -124,7 +128,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     bool isVerbose;
                     bool.TryParse(Environment.GetEnvironmentVariable(CommandContext.Variables.Verbose), out isVerbose);
                     var dispatchArgs = ExecuteCommand
-                                .CreateArgs(framework, configuration, isVerbose)
+                                .CreateArgs(
+                                    assembly: assembly,
+                                    dataDir: outputPaths.RuntimeOutputPath,
+                                    projectDir: projectFile.ProjectDirectory,
+                                    rootNamespace: projectFile.Name,
+                                    verbose: isVerbose)
                                 .Concat(app.RemainingArguments);
 
                     return DotnetToolDispatcher.CreateDispatchCommand(

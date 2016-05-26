@@ -2,22 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Extensions.CommandLineUtils;
-using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class CommonCommandOptions
     {
-        public CommandOption Framework { get; set; }
-        public CommandOption Configuration { get; set; }
+        public CommandOption Assembly { get; set; }
+        public CommandOption DataDirectory { get; set; }
+        public CommandOption ProjectDirectory { get; set; }
+        public CommandOption RootNamespace { get; set; }
 
         public CommonOptions Value()
             => new CommonOptions
             {
-                Framework = Framework.HasValue()
-                    ? NuGetFramework.Parse(Framework.Value())
-                    : null,
-                Configuration = Configuration.Value()
+                Assembly = Assembly.Value(),
+                DataDirectory = DataDirectory.Value(),
+                ProjectDirectory = ProjectDirectory.Value(),
+                RootNamespace = RootNamespace.Value()
             };
     }
 }

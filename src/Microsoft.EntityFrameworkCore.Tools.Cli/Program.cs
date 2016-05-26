@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             try
             {
                 DotnetToolDispatcher.EnsureValidDispatchRecipient(ref args, ExecuteCommand.GetToolName());
-                return ExecuteCommand.Create().Execute(args);
+                return ExecuteCommand.Create(args).Execute(args);
             }
             catch (Exception ex)
             {
