@@ -388,6 +388,15 @@ namespace E2ETest.Namespace
                     .HasMaxLength(20);
             });
 
+            modelBuilder.Entity<PrimaryKeyWithSequence>(entity =>
+            {
+                entity.Property(e => e.PrimaryKeyWithSequenceId).HasDefaultValueSql("NEXT VALUE FOR [PrimaryKeyWithSequenceSequence]");
+
+                entity.Property(e => e.OtherColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
+            });
+
             modelBuilder.Entity<PropertyConfiguration>(entity =>
             {
                 entity.HasIndex(e => new { e.A, e.B })
@@ -483,6 +492,8 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
             });
+
+            modelBuilder.HasSequence<int>("PrimaryKeyWithSequenceSequence");
         }
 
         public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
@@ -496,6 +507,7 @@ namespace E2ETest.Namespace
         public virtual DbSet<OneToOnePrincipal> OneToOnePrincipal { get; set; }
         public virtual DbSet<OneToOneSeparateFKDependent> OneToOneSeparateFKDependent { get; set; }
         public virtual DbSet<OneToOneSeparateFKPrincipal> OneToOneSeparateFKPrincipal { get; set; }
+        public virtual DbSet<PrimaryKeyWithSequence> PrimaryKeyWithSequence { get; set; }
         public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
         public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
         public virtual DbSet<Test_Spaces_Keywords_Table> Test_Spaces_Keywords_Table { get; set; }
