@@ -34,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             _startupAssemblyName = startupAssembly.GetName().Name;
 
-            _startupType = startupAssembly.DefinedTypes.Where(t => t.Name == "Startup" + _environment)
-                .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "Startup"))
-                .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "Program"))
-                .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "App"))
+            _startupType = startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup" + _environment)
+                .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup"))
+                .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Program"))
+                .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "App"))
                 .Select(t => t.AsType())
                 .FirstOrDefault();
         }

@@ -211,8 +211,20 @@ namespace System
         }
 
         public static IEnumerable<TypeInfo> GetConstructableTypes(this Assembly assembly)
-            => assembly.DefinedTypes.Where(
+            => assembly.GetLoadableDefinedTypes().Where(
                 t => !t.IsAbstract
                      && !t.IsGenericTypeDefinition);
+
+        public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(this Assembly assembly)
+        {
+            try
+            {
+                return assembly.DefinedTypes;
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo);
+            }
+        }
     }
 }
