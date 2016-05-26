@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -133,25 +134,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var index = i;
                 yield return () =>
-                    {
-                        _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
+                {
+                    _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
 
-                        return GenerateDownSql(
-                            migration,
-                            index != migrationsToRevert.Count - 1
-                                ? migrationsToRevert[index + 1]
-                                : null);
-                    };
+                    return GenerateDownSql(
+                        migration,
+                        index != migrationsToRevert.Count - 1
+                            ? migrationsToRevert[index + 1]
+                            : null);
+                };
             }
 
-            foreach (var migration in migrationsToApply)
+            for (var i = 0; i < migrationsToApply.Count; i++)
             {
-                yield return () =>
-                    {
-                        _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+                var migration = migrationsToApply[i];
 
-                        return GenerateUpSql(migration);
-                    };
+                var index = i;
+                yield return () =>
+                {
+                    _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+
+                    return GenerateUpSql(
+                        migration,
+                        index != migrationsToApply.Count - 1
+                            ? migrationsToApply[index + 1]
+                            : null);
+                };
             }
         }
 
@@ -259,11 +267,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            foreach (var migration in migrationsToApply)
+            for (var i = 0; i < migrationsToApply.Count; i++)
             {
+                var migration = migrationsToApply[i];
+                var previousMigration = i != migrationsToApply.Count - 1
+                    ? migrationsToApply[i + 1]
+                    : null;
+
                 _logger.LogDebug(RelationalStrings.GeneratingUp(migration.GetId()));
 
-                foreach (var command in GenerateUpSql(migration))
+                foreach (var command in GenerateUpSql(migration, previousMigration))
                 {
                     if (idempotent)
                     {
@@ -286,12 +299,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return builder.ToString();
         }
 
-        protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration)
+        protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration, [CanBeNull] Migration previousMigration)
         {
             Check.NotNull(migration, nameof(migration));
 
-            var insertCommand =_rawSqlCommandBuilder.Build(
-                _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())));
+            var insertCommand = _rawSqlCommandBuilder.Build(
+                _historyRepository.GetInsertScript(
+                    new HistoryRow(
+                        migration.GetId(),
+                        ProductInfo.GetVersion(),
+                        AppendScript(GenerateDownSql(migration, previousMigration)))));
 
             return _migrationsSqlGenerator
                 .Generate(migration.UpOperations, migration.TargetModel)
@@ -313,5 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(new[] { new MigrationCommand(deleteCommand) })
                 .ToList();
         }
+
+
+        private string AppendScript(IReadOnlyList<MigrationCommand> downCommands) => new StringBuilder().AppendJoin(downCommands.Select(t => t.CommandText), "").ToString();
     }
 }

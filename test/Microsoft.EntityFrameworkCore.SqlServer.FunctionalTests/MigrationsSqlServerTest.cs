@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
+        [DownScript] nvarchar(max) NOT NULL,
         [ProductVersion] nvarchar(32) NOT NULL,
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
@@ -45,6 +46,7 @@ GO
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
+        [DownScript] nvarchar(max) NOT NULL,
         [ProductVersion] nvarchar(32) NOT NULL,
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
@@ -65,6 +67,7 @@ GO
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
+        [DownScript] nvarchar(max) NOT NULL,
         [ProductVersion] nvarchar(32) NOT NULL,
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
@@ -79,8 +82,11 @@ CREATE TABLE [Table1] (
 
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+VALUES (N'00000000000001_Migration1', N'7.0.0-test', N'DROP TABLE [Table1];
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N''00000000000001_Migration1'';
+');
 
 GO
 
@@ -88,8 +94,11 @@ EXEC sp_rename N'Table1', N'Table2';
 
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+VALUES (N'00000000000002_Migration2', N'7.0.0-test', N'EXEC sp_rename N''Table2'', N''Table1'';
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N''00000000000002_Migration2'';
+');
 
 GO
 
@@ -101,8 +110,10 @@ DROP DATABASE TransactionSuppressed;
 
 GO
 
-INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+VALUES (N'00000000000003_Migration3', N'7.0.0-test', N'DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N''00000000000003_Migration3'';
+');
 
 GO
 
@@ -119,6 +130,7 @@ GO
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
+        [DownScript] nvarchar(max) NOT NULL,
         [ProductVersion] nvarchar(32) NOT NULL,
         CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
     );
@@ -138,8 +150,11 @@ GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+    VALUES (N'00000000000001_Migration1', N'7.0.0-test', N'DROP TABLE [Table1];
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N''00000000000001_Migration1'';
+    ');
 END;
 
 GO
@@ -153,8 +168,11 @@ GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+    VALUES (N'00000000000002_Migration2', N'7.0.0-test', N'EXEC sp_rename N''Table2'', N''Table1'';
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N''00000000000002_Migration2'';
+    ');
 END;
 
 GO
@@ -175,8 +193,10 @@ GO
 
 IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000003_Migration3')
 BEGIN
-    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-    VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion], [DownScript])
+    VALUES (N'00000000000003_Migration3', N'7.0.0-test', N'DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N''00000000000003_Migration3'';
+    ');
 END;
 
 GO

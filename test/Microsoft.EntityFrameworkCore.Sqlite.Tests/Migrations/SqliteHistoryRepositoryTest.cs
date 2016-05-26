@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
             Assert.Equal(
                 "CREATE TABLE \"__EFMigrationsHistory\" (" + EOL +
                 "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY," + EOL +
+                "    \"DownScript\" TEXT NOT NULL," + EOL +
                 "    \"ProductVersion\" TEXT NOT NULL" + EOL +
                 ");" + EOL,
                 sql);
@@ -43,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
             Assert.Equal(
                 "CREATE TABLE IF NOT EXISTS \"__EFMigrationsHistory\" (" + EOL +
                 "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK___EFMigrationsHistory\" PRIMARY KEY," + EOL +
+                "    \"DownScript\" TEXT NOT NULL," + EOL +
                 "    \"ProductVersion\" TEXT NOT NULL" + EOL +
                 ");" + EOL,
                 sql);
@@ -63,11 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         public void GetInsertScript_works()
         {
             var sql = CreateHistoryRepository().GetInsertScript(
-                new HistoryRow("Migration1", "7.0.0"));
+                new HistoryRow("Migration1", "7.0.0", "Sample Down Script"));
 
             Assert.Equal(
-                "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\")" + EOL +
-                "VALUES ('Migration1', '7.0.0');" + EOL,
+                "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\", \"DownScript\")" + EOL +
+                "VALUES ('Migration1', '7.0.0', 'Sample Down Script');" + EOL,
                 sql);
         }
 
