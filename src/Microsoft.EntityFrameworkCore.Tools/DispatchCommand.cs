@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     }
                     else if (framework.IsDesktop() && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
-                        Reporter.Error.WriteLine(ToolsStrings.DesktopCommandsRequiresWindows(framework.GetShortFolderName());
+                        Reporter.Error.WriteLine(ToolsStrings.DesktopCommandsRequiresWindows(framework.GetShortFolderName()));
                     }
                     else
                     {
