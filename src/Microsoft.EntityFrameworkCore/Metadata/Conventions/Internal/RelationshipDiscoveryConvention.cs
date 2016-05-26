@@ -404,17 +404,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 var entityTypeBuilder = entityType.Builder;
                 var navigationCandidates = GetNavigationCandidates(entityTypeBuilder);
+                var targetType = navigation.GetTargetType().ClrType;
                 var candidate = navigationCandidates.Keys.FirstOrDefault(p => p.Name == navigation.Name);
-                if (candidate == null)
+                if (candidate != null)
                 {
-                    continue;
+                    navigationCandidates = navigationCandidates.Remove(candidate);
+                    SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
                 }
 
-                var candidateTarget = navigationCandidates[candidate];
-                navigationCandidates = navigationCandidates.Remove(candidate);
-                SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
                 // Only run the convention if an ambiguity might have been removed
-                if (navigationCandidates.ContainsValue(candidateTarget))
+                if (navigationCandidates.ContainsValue(targetType))
                 {
                     Apply(entityTypeBuilder);
                 }

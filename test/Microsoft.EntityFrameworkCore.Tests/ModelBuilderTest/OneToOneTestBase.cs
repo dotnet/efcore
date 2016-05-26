@@ -2508,7 +2508,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Overrides_existing_many_to_one_relationship()
+            public virtual void Throws_on_existing_many_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
@@ -2517,19 +2517,78 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 var dependentType = model.FindEntityType(typeof(Nob));
                 var principalType = model.FindEntityType(typeof(Hob));
 
+                Assert.Equal(CoreStrings.ConflictingRelationshipNavigation(
+                    principalType.DisplayName(),
+                    nameof(Hob.Nob),
+                    dependentType.DisplayName(),
+                    nameof(Nob.Hob),
+                    dependentType.DisplayName(),
+                    nameof(Nob.Hobs),
+                    principalType.DisplayName(),
+                    nameof(Hob.Nob)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)).Message);
+            }
+
+            [Fact]
+            public virtual void Removes_existing_unidirectional_many_to_one_relationship()
+            {
+                var modelBuilder = HobNobBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs);
+                
+                modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany();
+
+                var dependentType = model.FindEntityType(typeof(Nob));
+                var principalType = model.FindEntityType(typeof(Hob));
+                var principalKey = principalType.GetKeys().Single();
+                var dependentKey = dependentType.GetKeys().Single();
+
                 modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
 
                 var fk = dependentType.GetNavigations().Single(n => n.Name == nameof(Nob.Hob)).ForeignKey;
                 Assert.Same(fk, principalType.GetNavigations().Single(n => n.Name == nameof(Hob.Nob)).ForeignKey);
                 Assert.True(fk.IsUnique);
+
+                Assert.Equal(0, dependentType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
+                Assert.Equal(0, principalType.GetForeignKeys().Count(foreignKey => foreignKey != fk));
+                Assert.Same(principalKey, principalType.GetKeys().Single());
+                Assert.Same(dependentKey, dependentType.GetKeys().Single());
+                Assert.Same(principalKey, principalType.FindPrimaryKey());
+                Assert.Same(dependentKey, dependentType.FindPrimaryKey());
             }
 
             [Fact]
-            public virtual void Finds_and_removes_existing_one_to_many_relationship()
+            public virtual void Throws_on_existing_one_to_many_relationship()
             {
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob);
+
+                var dependentType = model.FindEntityType(typeof(Nob));
+                var principalType = model.FindEntityType(typeof(Hob));
+
+                Assert.Equal(CoreStrings.ConflictingRelationshipNavigation(
+                    principalType.DisplayName(),
+                    nameof(Hob.Nob),
+                    dependentType.DisplayName(),
+                    nameof(Nob.Hob),
+                    principalType.DisplayName(),
+                    nameof(Hob.Nobs),
+                    dependentType.DisplayName(),
+                    nameof(Nob.Hob)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)).Message);
+            }
+
+            [Fact]
+            public virtual void Removes_existing_unidirectional_one_to_many_relationship()
+            {
+                var modelBuilder = HobNobBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob);
+                
+                modelBuilder.Entity<Hob>().HasMany<Nob>().WithOne(e => e.Hob);
 
                 var dependentType = model.FindEntityType(typeof(Nob));
                 var principalType = model.FindEntityType(typeof(Hob));

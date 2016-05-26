@@ -97,9 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] string navigationName)
-            => Builder.RelatedEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
-                .IsUnique(false, ConfigurationSource.Explicit)
-                .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
+            => WithManyBuilder(PropertyIdentity.Create(navigationName));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithMany" /> is called.
@@ -110,9 +108,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => Builder.RelatedEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
-                .IsUnique(false, ConfigurationSource.Explicit)
-                .PrincipalToDependent(navigationProperty, ConfigurationSource.Explicit);
+            => WithManyBuilder(PropertyIdentity.Create(navigationProperty));
+
+        private InternalRelationshipBuilder WithManyBuilder(PropertyIdentity collection)
+        {
+            var builder = Builder.RelatedEntityTypes(RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit);
+            var collectionName = collection.Name;
+            if (builder.Metadata.IsUnique
+                && builder.Metadata.PrincipalToDependent != null
+                && builder.Metadata.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                && collectionName != null)
+            {
+                ThrowForConflictingNavigation(builder.Metadata, collectionName, newToPrincipal: false);
+            }
+
+            builder = builder.IsUnique(false, ConfigurationSource.Explicit);
+
+            if (collectionName != null
+                && builder.Metadata.PrincipalToDependent != null
+                && builder.Metadata.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                && builder.Metadata.PrincipalToDependent.Name != collectionName)
+            {
+                ThrowForConflictingNavigation(builder.Metadata, collectionName, newToPrincipal: false);
+            }
+
+            var collectionProperty = collection.Property;
+            if (collectionProperty != null)
+            {
+                return builder.PrincipalToDependent(collectionProperty, ConfigurationSource.Explicit);
+            }
+
+            return builder.PrincipalToDependent(collection.Name, ConfigurationSource.Explicit);
+        }
 
         /// <summary>
         ///     Configures this as a one-to-one relationship.
@@ -152,8 +179,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
         {
-            var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
             var referenceName = reference.Name;
+            if (!Builder.Metadata.IsUnique
+                && Builder.Metadata.PrincipalToDependent != null
+                && Builder.Metadata.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                && referenceName != null)
+            {
+                ThrowForConflictingNavigation(Builder.Metadata, referenceName, false);
+            }
+
+            var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
             if (builder.Metadata.IsSelfReferencing()
                 && referenceName != null
                 && ReferenceName == referenceName)
@@ -170,6 +205,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                                             && builder.Metadata.PrincipalToDependent != null
                                             && builder.Metadata.PrincipalToDependent.Name == ReferenceName));
 
+            if (referenceName != null
+                && ((pointsToPrincipal
+                     && builder.Metadata.DependentToPrincipal != null
+                     && builder.Metadata.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
+                     && builder.Metadata.DependentToPrincipal.Name != referenceName)
+                    || (!pointsToPrincipal
+                        && builder.Metadata.PrincipalToDependent != null
+                        && builder.Metadata.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                        && builder.Metadata.PrincipalToDependent.Name != referenceName)))
+            {
+                ThrowForConflictingNavigation(builder.Metadata, referenceName, pointsToPrincipal);
+            }
+
             var referenceProperty = reference.Property;
             if (referenceProperty != null)
             {
@@ -183,6 +231,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     ? builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
                     : builder.PrincipalToDependent(reference.Name, ConfigurationSource.Explicit);
             }
+        }
+
+        private void ThrowForConflictingNavigation(ForeignKey foreingKey, string newInverseName, bool newToPrincipal)
+        {
+            throw new InvalidOperationException(CoreStrings.ConflictingRelationshipNavigation(
+                foreingKey.PrincipalEntityType.DisplayName(),
+                newToPrincipal ? foreingKey.PrincipalToDependent.Name : newInverseName,
+                foreingKey.DeclaringEntityType.DisplayName(),
+                newToPrincipal ? newInverseName : foreingKey.DependentToPrincipal.Name,
+                foreingKey.PrincipalEntityType.DisplayName(),
+                foreingKey.PrincipalToDependent.Name,
+                foreingKey.DeclaringEntityType.DisplayName(),
+                foreingKey.DependentToPrincipal.Name));
         }
     }
 }

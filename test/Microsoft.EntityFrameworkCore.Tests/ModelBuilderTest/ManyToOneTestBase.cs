@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -1351,13 +1352,40 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Finds_and_removes_existing_one_to_one_relationship()
+            public virtual void Throws_on_existing_one_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Nob>()
                     .HasOne(e => e.Hob).WithOne(e => e.Nob)
                     .HasForeignKey<Nob>(e => new { e.HobId1, e.HobId2 });
+
+                var dependentType = model.FindEntityType(typeof(Hob));
+                var principalType = model.FindEntityType(typeof(Nob));
+
+                Assert.Equal(CoreStrings.ConflictingRelationshipNavigation(
+                    principalType.DisplayName(),
+                    nameof(Nob.Hobs),
+                    dependentType.DisplayName(),
+                    nameof(Hob.Nob),
+                    principalType.DisplayName(),
+                    nameof(Nob.Hob),
+                    dependentType.DisplayName(),
+                    nameof(Hob.Nob)),
+                    Assert.Throws<InvalidOperationException>(() =>
+                        modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)).Message);
+            }
+
+            [Fact]
+            public virtual void Removes_existing_unidirectional_one_to_one_relationship()
+            {
+                var modelBuilder = HobNobBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Nob>()
+                    .HasOne(e => e.Hob).WithOne(e => e.Nob)
+                    .HasForeignKey<Nob>(e => new { e.HobId1, e.HobId2 });
+
+                modelBuilder.Entity<Nob>().HasOne<Hob>().WithOne(e => e.Nob);
 
                 var dependentType = model.FindEntityType(typeof(Hob));
                 var principalType = model.FindEntityType(typeof(Nob));

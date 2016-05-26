@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -71,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
-            => Builder.DependentToPrincipal(navigationName, ConfigurationSource.Explicit);
+            => WithOneBuilder(PropertyIdentity.Create(navigationName));
 
         /// <summary>
         ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
@@ -82,6 +84,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyInfo navigationProperty)
-            => Builder.DependentToPrincipal(navigationProperty, ConfigurationSource.Explicit);
+            => WithOneBuilder(PropertyIdentity.Create(navigationProperty));
+
+        private InternalRelationshipBuilder WithOneBuilder([CanBeNull] PropertyIdentity reference)
+        {
+            var foreingKey = Builder.Metadata;
+            var referenceName = reference.Name;
+            if (referenceName != null
+                && foreingKey.DependentToPrincipal != null
+                && foreingKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
+                && foreingKey.DependentToPrincipal.Name != referenceName)
+            {
+                throw new InvalidOperationException(CoreStrings.ConflictingRelationshipNavigation(
+                    foreingKey.PrincipalEntityType.DisplayName(),
+                    foreingKey.PrincipalToDependent.Name,
+                    foreingKey.DeclaringEntityType.DisplayName(),
+                    referenceName,
+                    foreingKey.PrincipalEntityType.DisplayName(),
+                    foreingKey.PrincipalToDependent.Name,
+                    foreingKey.DeclaringEntityType.DisplayName(),
+                    foreingKey.DependentToPrincipal.Name));
+            }
+
+            return reference.Property == null
+                ? Builder.DependentToPrincipal(reference.Name, ConfigurationSource.Explicit)
+                : Builder.DependentToPrincipal(reference.Property, ConfigurationSource.Explicit);
+        }
     }
 }

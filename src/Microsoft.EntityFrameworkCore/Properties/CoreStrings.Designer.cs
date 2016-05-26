@@ -1220,6 +1220,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("LogIgnoredInclude", "navigation"), navigation);
         }
 
+        /// <summary>
+        /// Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.
+        /// </summary>
+        public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalEntityType, [CanBeNull] object newPrincipalNavigation, [CanBeNull] object newDependentEntityType, [CanBeNull] object newDependentNavigation, [CanBeNull] object existingPrincipalEntityType, [CanBeNull] object existingPrincipalNavigation, [CanBeNull] object existingDependentEntityType, [CanBeNull] object existingDependentNavigation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingRelationshipNavigation", "newPrincipalEntityType", "newPrincipalNavigation", "newDependentEntityType", "newDependentNavigation", "existingPrincipalEntityType", "existingPrincipalNavigation", "existingDependentEntityType", "existingDependentNavigation"), newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
