@@ -75,6 +75,30 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Then_include_collection_order_by_collection_column()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .ThenInclude(o => o.OrderDetails)
+                        .Where(c => c.CustomerID.StartsWith("W"))
+                        .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate)
+                        .FirstOrDefault();
+
+                Assert.NotNull(customer);
+                Assert.Equal("WHITC", customer.CustomerID);
+                Assert.NotNull(customer.Orders);
+                Assert.Equal(14, customer.Orders.Count);
+                Assert.NotNull(customer.Orders.First().OrderDetails);
+                Assert.Equal(2, customer.Orders.First().OrderDetails.Count);
+                Assert.NotNull(customer.Orders.Last().OrderDetails);
+                Assert.Equal(3, customer.Orders.Last().OrderDetails.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Then_include_property_expression_invalid()
         {
             var anonymousType = new { Customer = default(Customer), OrderDetails = default(ICollection<OrderDetail>) }.GetType();

@@ -788,22 +788,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             if (columnExpression != null)
             {
-                return new ColumnExpression(columnExpression.Name, columnExpression.Property, tableExpression);
+                return columnExpression.Property == null
+                    ? new ColumnExpression(columnExpression.Name, columnExpression.Type, tableExpression)
+                    : new ColumnExpression(columnExpression.Name, columnExpression.Property, tableExpression);
             }
 
             var aliasExpression = expression as AliasExpression;
 
             if (aliasExpression != null)
             {
-                var newAliasExpression
-                    = new AliasExpression(
-                        aliasExpression.Alias,
-                        UpdateColumnExpression(aliasExpression.Expression, tableExpression))
-                    {
-                        SourceMember = aliasExpression.SourceMember
-                    };
+                var selectExpression = aliasExpression.Expression as SelectExpression;
+                if (selectExpression != null)
+                {
+                    return new ColumnExpression(aliasExpression.Alias, selectExpression.Type, tableExpression);
+                }
 
-                return newAliasExpression;
+                return new AliasExpression(
+                    aliasExpression.Alias,
+                    UpdateColumnExpression(aliasExpression.Expression, tableExpression))
+                {
+                    SourceMember = aliasExpression.SourceMember
+                };
             }
 
             switch (expression.NodeType)
