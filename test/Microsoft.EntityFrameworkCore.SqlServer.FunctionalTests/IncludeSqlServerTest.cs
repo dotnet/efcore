@@ -356,24 +356,26 @@ ORDER BY [c0].[CompanyName] DESC, [c0].[CustomerID]",
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY (
-    SELECT TOP(1) [oo].[OrderDate]
-    FROM [Orders] AS [oo]
-    WHERE [c].[CustomerID] = [oo].[CustomerID]
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[EmployeeID]
 ), [c].[CustomerID]
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o0]
 INNER JOIN (
     SELECT DISTINCT TOP(1) (
-        SELECT TOP(1) [oo].[OrderDate]
-        FROM [Orders] AS [oo]
-        WHERE [c].[CustomerID] = [oo].[CustomerID]
+        SELECT TOP(1) [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[EmployeeID]
     ) AS [c0_0], [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
     ORDER BY [c0_0], [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0_0], [c0].[CustomerID]", 
+) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0_0], [c0].[CustomerID]",
                 Sql);
         }
 

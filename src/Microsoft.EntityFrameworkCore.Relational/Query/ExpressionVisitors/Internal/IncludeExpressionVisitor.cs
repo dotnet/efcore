@@ -360,9 +360,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                    .Last(o => o.IsAliasWithColumnExpression())
                                    .TryGetColumnExpression().TableAlias);
 
-                    innerJoinSelectExpression.ClearProjection();
-                    
-                    var innerJoinExpression = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);
+                        innerJoinSelectExpression.ClearProjection();
+
+                        var innerJoinExpression = targetSelectExpression.AddInnerJoin(innerJoinSelectExpression);
 
                         LiftOrderBy(innerJoinSelectExpression, targetSelectExpression, innerJoinExpression);
 
@@ -426,18 +426,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             SelectExpression targetSelectExpression,
             TableExpressionBase innerJoinExpression)
         {
-            var needOrderingChanges = innerJoinSelectExpression.OrderBy
+            var needOrderingChanges
+                = innerJoinSelectExpression.OrderBy
                 .Any(x => x.Expression is SelectExpression || x.Expression.IsAliasWithColumnExpression());
 
-            IEnumerable<Ordering> orderings;
+            var orderings = innerJoinSelectExpression.OrderBy.ToList();
             if (needOrderingChanges)
             {
-                orderings = innerJoinSelectExpression.OrderBy.ToList();
                 innerJoinSelectExpression.ClearOrderBy();
-            }
-            else
-            {
-                orderings = innerJoinSelectExpression.OrderBy;
             }
 
             foreach (var ordering in orderings)
@@ -460,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                var index = orderingExpression is SelectExpression 
+                var index = orderingExpression is SelectExpression
                     ? innerJoinSelectExpression.AddAliasToProjection(innerJoinSelectExpression.Alias + "_" + innerJoinSelectExpression.Projection.Count, orderingExpression)
                     : innerJoinSelectExpression.AddToProjection(orderingExpression);
 
@@ -477,8 +473,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 targetSelectExpression.AddToOrderBy(new Ordering(newExpression, ordering.OrderingDirection));
             }
 
-            if (innerJoinSelectExpression.Limit == null
-                && innerJoinSelectExpression.Offset == null)
+            if ((innerJoinSelectExpression.Limit == null)
+                && (innerJoinSelectExpression.Offset == null))
             {
                 innerJoinSelectExpression.ClearOrderBy();
             }

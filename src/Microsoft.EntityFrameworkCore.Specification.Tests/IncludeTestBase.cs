@@ -489,8 +489,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         .FirstOrDefault();
 
                 Assert.NotNull(customer);
+                Assert.Equal("WHITC", customer.CustomerID);
                 Assert.NotNull(customer.Orders);
-                Assert.NotEmpty(customer.Orders);
+                Assert.Equal(14, customer.Orders.Count);
             }
         }
 
@@ -595,12 +596,12 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     = context.Set<Customer>()
                         .Include(c => c.Orders)
                         .Where(c => c.CustomerID == "ALFKI")
-                        .OrderBy(c => c.Orders.Select(oo => oo.OrderDate).FirstOrDefault())
+                        .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault())
                         .FirstOrDefault();
 
                 Assert.NotNull(customer);
                 Assert.NotNull(customer.Orders);
-                Assert.NotEmpty(customer.Orders);
+                Assert.Equal(6, customer.Orders.Count);
             }
         }
 
