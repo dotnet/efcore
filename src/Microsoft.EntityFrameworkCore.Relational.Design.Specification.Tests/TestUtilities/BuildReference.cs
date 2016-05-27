@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-#if NETSTANDARD1_3
+#if NETSTANDARD1_6
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 #endif
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 {
     public class BuildReference
     {
-#if NETSTANDARD1_3
+#if NETSTANDARD1_6
         private static readonly DependencyContext DefaultDependencyContext =
             DependencyContext.Load(typeof(BuildReference).GetTypeInfo().Assembly);
 #endif
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Te
 
         public static BuildReference ByName(string name, bool copyLocal = false, Assembly depContextAssembly = null)
         {
-#if NETSTANDARD1_3
+#if NETSTANDARD1_6
             var depContext = depContextAssembly == null
                 ? DefaultDependencyContext
                 : DependencyContext.Load(depContextAssembly);
