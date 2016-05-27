@@ -22,7 +22,7 @@ namespace Microsoft.Data.Sqlite.Utilities
                 return Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
                     ?.GetRuntimeProperty("Current").GetValue(null);
             }
-            catch (TargetInvocationException ex) when (ex.InnerException?.HResult == -2147009196)
+            catch
             {
                 // Ignore "The process has no package identity."
                 return null;
