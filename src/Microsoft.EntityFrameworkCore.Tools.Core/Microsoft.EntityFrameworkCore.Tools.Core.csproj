@@ -114,6 +114,7 @@
     <Compile Include="Scaffolding\Internal\ScaffoldingServiceCollectionExtensions.cs" />
     <Compile Include="Scaffolding\Internal\ScaffoldingUtilities.cs" />
     <Compile Include="Scaffolding\Internal\StringBuilderCodeWriter.cs" />
+    <Compile Include="Utilities\Internal\JsonUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore.Tools.Core.Utilities.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 {
                     Console.WriteLine("//BEGIN");
                 }
-                Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+                Console.WriteLine(JsonUtility.Serialize(result));
                 if (delimited)
                 {
                     Console.WriteLine("//END");

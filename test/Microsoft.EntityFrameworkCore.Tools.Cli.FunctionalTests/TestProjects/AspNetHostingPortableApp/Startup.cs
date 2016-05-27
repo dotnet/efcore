@@ -20,7 +20,7 @@ namespace AspNetHostingPortableApp
         
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkSqlite()
+            services
                 .AddDbContext<TestContext>(o => o.UseSqlite(_config["TestContext"]))
                 .AddDbContext<LibraryContext>(o => o.UseSqlite(_config["LibraryContext"], b => b.MigrationsAssembly("AspNetApp")));
         }
