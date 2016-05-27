@@ -80,18 +80,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model,
                 builder);
 
+            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+
             if ((operation.DefaultValue != null)
                 || (operation.DefaultValueSql != null))
             {
                 builder
-                    .AppendLine(";")
                     .Append("ALTER TABLE ")
                     .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                     .Append(" ADD");
                 DefaultValue(operation.DefaultValue, operation.DefaultValueSql, builder);
                 builder
                     .Append(" FOR ")
-                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
+                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .AppendLine(SqlGenerationHelper.StatementTerminator);
             }
 
             EndStatement(builder);
@@ -126,7 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var separate = false;
             var name = operation.Name;
             if (operation.NewName != null)
             {
@@ -141,17 +142,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 Rename(qualifiedName.ToString(), operation.NewName, builder);
 
-                separate = true;
                 name = operation.NewName;
             }
 
             if (operation.NewSchema != null)
             {
-                if (separate)
-                {
-                    builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-                }
-
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
             }
 
@@ -166,7 +161,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var separate = false;
             var name = operation.Name;
             if (operation.NewName != null)
             {
@@ -181,17 +175,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 Rename(qualifiedName.ToString(), operation.NewName, builder);
 
-                separate = true;
                 name = operation.NewName;
             }
 
             if (operation.NewSchema != null)
             {
-                if (separate)
-                {
-                    builder.AppendLine(SqlGenerationHelper.StatementTerminator);
-                }
-
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
             }
 
@@ -223,6 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
+            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
+
             EndStatement(builder);
         }
 
@@ -241,7 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(SqlGenerationHelper.GenerateLiteral(operation.Name))
                 .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append("')");
+                .Append("')")
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder);
         }
@@ -262,7 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .EndCommand(suppressTransaction: true)
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" SET READ_COMMITTED_SNAPSHOT ON')");
+                .Append(" SET READ_COMMITTED_SNAPSHOT ON')")
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder, suppressTransaction: true);
         }
@@ -283,7 +275,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true)
                 .Append("DROP DATABASE ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder, suppressTransaction: true);
         }
@@ -300,7 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("DROP INDEX ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                 .Append(" ON ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
 
             EndStatement(builder);
         }
@@ -463,6 +457,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(", ")
                     .Append(SqlGenerationHelper.GenerateLiteral(type));
             }
+
+            builder.AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         protected virtual void Transfer(
@@ -479,7 +475,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("ALTER SCHEMA ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(newSchema))
                 .Append(" TRANSFER ")
-                .Append(SqlGenerationHelper.DelimitIdentifier(name, schema));
+                .Append(SqlGenerationHelper.DelimitIdentifier(name, schema))
+                .AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
         protected override void IndexTraits(MigrationOperation operation, IModel model, MigrationCommandListBuilder builder)
