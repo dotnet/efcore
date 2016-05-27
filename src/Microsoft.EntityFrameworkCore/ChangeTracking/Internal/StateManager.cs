@@ -296,13 +296,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             danglers.Add(Tuple.Create(navigation, referencedFromEntry));
         }
 
-        public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers(object referencedEntity)
+        public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers(object referencedEntity, bool clear)
         {
             IList<Tuple<INavigation, InternalEntityEntry>> danglers;
             if (_referencedUntrackedEntities.HasValue
                 && _referencedUntrackedEntities.Value.TryGetValue(referencedEntity, out danglers))
             {
-                _referencedUntrackedEntities.Value.Remove(referencedEntity);
+                if (clear)
+                {
+                    _referencedUntrackedEntities.Value.Remove(referencedEntity);
+                }
                 return danglers;
             }
 

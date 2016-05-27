@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         void RecordReferencedUntrackedEntity([NotNull] object referencedEntity, [NotNull] INavigation navigation, [NotNull] InternalEntityEntry referencedFromEntry);
 
-        IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers([NotNull] object referencedEntity);
+        IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers([NotNull] object referencedEntity, bool clear);
 
         InternalEntityEntry GetPrincipal([NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey);
 

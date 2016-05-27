@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -48,34 +47,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (property == foreignKey.Properties[propertyIndex])
                     {
-                        object valueToPropagate = null;
-
-                        foreach (var navigation in entityType.GetNavigations()
-                            .Concat(foreignKey.PrincipalEntityType.GetNavigations())
-                            .Where(n => n.ForeignKey == foreignKey)
-                            .Distinct())
+                        InternalEntityEntry principalEntry = null;
+                        var principal = foreignKey.DependentToPrincipal?.GetGetter().GetClrValue(entry.Entity);
+                        if (principal != null)
                         {
-                            var principal = TryFindPrincipal(stateManager, navigation, entry.Entity);
-
-                            if (principal != null)
+                            principalEntry = stateManager.GetOrCreateEntry(principal);
+                        }
+                        else if (foreignKey.PrincipalToDependent != null)
+                        {
+                            foreach (var danglerEntry in stateManager.GetRecordedReferers(entry.Entity, clear: false))
                             {
-                                var principalEntry = stateManager.GetOrCreateEntry(principal);
-                                var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-
-                                var principalValue = principalEntry[principalProperty];
-                                if (!principalProperty.ClrType.IsDefaultValue(principalValue))
+                                if (danglerEntry.Item1 == foreignKey.PrincipalToDependent)
                                 {
-                                    valueToPropagate = principalValue;
+                                    principalEntry = danglerEntry.Item2;
                                     break;
                                 }
                             }
                         }
 
-                        if (valueToPropagate != null)
+                        if (principalEntry != null)
                         {
-                            entry[property] = valueToPropagate;
-                            return true;
+                            var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
+                            var principalValue = principalEntry[principalProperty];
+                            if (!principalProperty.ClrType.IsDefaultValue(principalValue))
+                            {
+                                entry[property] = principalValue;
+                                return true;
+                            }
                         }
+
+                        break;
                     }
                 }
             }
@@ -90,34 +91,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (generationProperty != null)
             {
                 return _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType);
-            }
-
-            return null;
-        }
-
-        private static object TryFindPrincipal(IStateManager stateManager, INavigation navigation, object dependentEntity)
-        {
-            if (navigation.IsDependentToPrincipal())
-            {
-                return navigation.GetGetter().GetClrValue(dependentEntity);
-            }
-
-            // TODO: Perf
-            foreach (var principalEntry in stateManager.Entries.Where(
-                e => e.EntityState != EntityState.Detached
-                     && navigation.ForeignKey.PrincipalEntityType.IsAssignableFrom(e.EntityType)))
-            {
-                if (navigation.IsCollection())
-                {
-                    if (navigation.GetCollectionAccessor().Contains(principalEntry.Entity, dependentEntity))
-                    {
-                        return principalEntry.Entity;
-                    }
-                }
-                else if (navigation.GetGetter().GetClrValue(principalEntry.Entity) == dependentEntity)
-                {
-                    return principalEntry.Entity;
-                }
             }
 
             return null;
