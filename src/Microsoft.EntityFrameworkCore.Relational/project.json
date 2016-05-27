@@ -45,7 +45,7 @@
         "Microsoft.CSharp": "4.0.1-*",
         "System.Data.Common": "4.0.1-*",
         "System.Diagnostics.DiagnosticSource": "4.0.0-*",
-        "System.Text.RegularExpressions": "4.0.12-*"
+        "System.Text.RegularExpressions": "4.1.0-*"
       }
     }
   }
