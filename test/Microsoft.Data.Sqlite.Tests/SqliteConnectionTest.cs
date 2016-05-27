@@ -400,8 +400,7 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [ConditionalFact]
-        [OSSkipCondition(OperatingSystems.MacOSX, SkipReason = "libsqlite on OSX 10.10 is compiled without ability to load extensions")]
+        [Fact]
         public void EnableExtensions_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
