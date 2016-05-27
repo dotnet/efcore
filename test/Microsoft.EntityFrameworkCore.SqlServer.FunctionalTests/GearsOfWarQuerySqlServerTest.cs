@@ -920,6 +920,16 @@ ORDER BY [ct1].[GearNickName], [ct1].[GearSquadId]",
                 Sql);
         }
 
+        public override void Optional_Navigation_Null_Coalesce_To_Clr_Type()
+        {
+            base.Optional_Navigation_Null_Coalesce_To_Clr_Type();
+
+            Assert.Equal(@"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [w.SynergyWith].[Id], [w.SynergyWith].[AmmunitionType], [w.SynergyWith].[IsAutomatic], [w.SynergyWith].[Name], [w.SynergyWith].[OwnerFullName], [w.SynergyWith].[SynergyWithId]
+FROM [Weapon] AS [w]
+LEFT JOIN [Weapon] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[Id]
+ORDER BY [w].[SynergyWithId]", Sql);
+        }
+
         public override void Singleton_Navigation_With_Member_Access()
         {
             base.Singleton_Navigation_With_Member_Access();

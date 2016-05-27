@@ -892,6 +892,22 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Optional_Navigation_Null_Coalesce_To_Clr_Type()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Weapons.Select(w =>
+                    new Weapon
+                    {
+                        IsAutomatic = (bool?)w.SynergyWith.IsAutomatic ?? false
+                    });
+                var result = query.First();
+
+                Assert.False(result.IsAutomatic);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Client()
         {
             using (var context = CreateContext())

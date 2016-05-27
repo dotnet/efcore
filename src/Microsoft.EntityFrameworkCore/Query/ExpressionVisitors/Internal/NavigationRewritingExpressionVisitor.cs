@@ -316,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             if (node.NodeType != ExpressionType.ArrayIndex
+                && node.NodeType != ExpressionType.Coalesce
                 && newLeft != null
                 && newRight != null
                 && newLeft.Type != newRight.Type)
