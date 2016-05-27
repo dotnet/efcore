@@ -43,7 +43,7 @@
       ],
       "dependencies": {
         "Microsoft.CSharp": "4.0.1-*",
-        "System.Data.Common": "4.0.1-*",
+        "System.Data.Common": "4.1.0-*",
         "System.Diagnostics.DiagnosticSource": "4.0.0-*",
         "System.Text.RegularExpressions": "4.1.0-*"
       }
