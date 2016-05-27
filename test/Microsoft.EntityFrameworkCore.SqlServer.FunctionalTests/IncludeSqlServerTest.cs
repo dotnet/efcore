@@ -228,7 +228,7 @@ INNER JOIN (
     WHERE [c].[CustomerID] LIKE N'W' + N'%'
     ORDER BY [c0_0] DESC, [c].[CustomerID]
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0_0] DESC, [c0].[CustomerID]",
+ORDER BY [c0].[c0_0] DESC, [c0].[CustomerID]",
                 Sql);
         }
 
@@ -374,8 +374,8 @@ INNER JOIN (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
     ORDER BY [c0_0], [c].[CustomerID]
-) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-ORDER BY [c0_0], [c0].[CustomerID]",
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[c0_0], [c0].[CustomerID]", 
                 Sql);
         }
 
@@ -1177,6 +1177,56 @@ INNER JOIN (
 ORDER BY [c0].[ContactName], [c0].[CustomerID]",
                     Sql);
             }
+        }
+
+        public override void Then_include_collection_order_by_collection_column()
+        {
+            base.Then_include_collection_order_by_collection_column();
+            Assert.Equal(
+    @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'W' + N'%'
+ORDER BY (
+    SELECT TOP(1) [oo].[OrderDate]
+    FROM [Orders] AS [oo]
+    WHERE [c].[CustomerID] = [oo].[CustomerID]
+    ORDER BY [oo].[OrderDate] DESC
+) DESC, [c].[CustomerID]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT DISTINCT TOP(1) (
+        SELECT TOP(1) [oo].[OrderDate]
+        FROM [Orders] AS [oo]
+        WHERE [c].[CustomerID] = [oo].[CustomerID]
+        ORDER BY [oo].[OrderDate] DESC
+    ) AS [c0_0], [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'W' + N'%'
+    ORDER BY [c0_0] DESC, [c].[CustomerID]
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+ORDER BY [c0].[c0_0] DESC, [c0].[CustomerID], [o].[OrderID]
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+INNER JOIN (
+    SELECT DISTINCT [c0].[c0_0], [c0].[CustomerID], [o].[OrderID]
+    FROM [Orders] AS [o]
+    INNER JOIN (
+        SELECT DISTINCT TOP(1) (
+            SELECT TOP(1) [oo].[OrderDate]
+            FROM [Orders] AS [oo]
+            WHERE [c].[CustomerID] = [oo].[CustomerID]
+            ORDER BY [oo].[OrderDate] DESC
+        ) AS [c0_0], [c].[CustomerID]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'W' + N'%'
+        ORDER BY [c0_0] DESC, [c].[CustomerID]
+    ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+) AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
+ORDER BY [o1].[c0_0] DESC, [o1].[CustomerID], [o1].[OrderID]",
+    Sql);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

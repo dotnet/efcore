@@ -66,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         protected virtual bool Equals([NotNull] ColumnExpression other)
-            => _property.Equals(other._property)
+            => ((_property == null && other._property == null) || (_property != null && _property.Equals(other._property)))
+               && Type == other.Type
                && _tableExpression.Equals(other._tableExpression);
 
         public override bool Equals([CanBeNull] object obj)
