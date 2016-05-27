@@ -154,31 +154,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                 });
 
         [Fact]
-        public virtual void AddColumnOperation_with_rowversion_overridden()
-            => Generate(
-                modelBuilder => modelBuilder.Entity("Person").Property<byte[]>("RowVersion"),
-                new AddColumnOperation
-                {
-                    Table = "Person",
-                    Name = "RowVersion",
-                    ClrType = typeof(byte[]),
-                    IsRowVersion = true,
-                    IsNullable = true
-                });
-
-        [Fact]
-        public virtual void AddColumnOperation_with_rowversion_no_model()
-            => Generate(
-                new AddColumnOperation
-                {
-                    Table = "Person",
-                    Name = "RowVersion",
-                    ClrType = typeof(byte[]),
-                    IsRowVersion = true,
-                    IsNullable = true
-                });
-
-        [Fact]
         public virtual void AddForeignKeyOperation_with_name()
             => Generate(
                 new AddForeignKeyOperation

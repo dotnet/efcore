@@ -116,18 +116,36 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
-        public override void AddColumnOperation_with_rowversion_overridden()
+        public virtual void AddColumnOperation_with_rowversion_overridden()
         {
-            base.AddColumnOperation_with_rowversion_overridden();
+            Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<byte[]>("RowVersion"),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "RowVersion",
+                    ClrType = typeof(byte[]),
+                    IsRowVersion = true,
+                    IsNullable = true
+                });
 
             Assert.Equal(
                 "ALTER TABLE [Person] ADD [RowVersion] rowversion;" + EOL,
                 Sql);
         }
 
-        public override void AddColumnOperation_with_rowversion_no_model()
+        [Fact]
+        public virtual void AddColumnOperation_with_rowversion_no_model()
         {
-            base.AddColumnOperation_with_rowversion_no_model();
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "RowVersion",
+                    ClrType = typeof(byte[]),
+                    IsRowVersion = true,
+                    IsNullable = true
+                });
 
             Assert.Equal(
                 "ALTER TABLE [Person] ADD [RowVersion] rowversion;" + EOL,
