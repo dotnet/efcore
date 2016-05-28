@@ -481,14 +481,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             KeyBuildersSnapshot detachedKeys = null;
             var changedRelationships = new List<InternalRelationshipBuilder>();
             IReadOnlyList<RelationshipSnapshot> relationshipsToBeRemoved = new List<RelationshipSnapshot>();
+            // We use at least DataAnnotation as ConfigurationSource while removing to allow us
+            // to remove metadata object which were defined in derived type
+            // while corresponding annotations were present on properties in base type.
+            var configurationSourceForRemoval = ConfigurationSource.DataAnnotation.Max(configurationSource);
             if (baseEntityType != null)
             {
-                if (Metadata.GetDeclaredKeys().Any(k => !configurationSource.Overrides(k.GetConfigurationSource())))
+                if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())))
                 {
                     return null;
                 }
 
-                relationshipsToBeRemoved = FindConflictingRelationships(baseEntityType, configurationSource);
+                relationshipsToBeRemoved = FindConflictingRelationships(baseEntityType, configurationSourceForRemoval);
                 if (relationshipsToBeRemoved == null)
                 {
                     return null;
@@ -499,19 +503,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                  && fk.Properties.Any(p => baseEntityType.FindProperty(p.Name)?.IsKey() == true)).ToList();
 
                 if (foreignKeysUsingKeyProperties.Any(fk =>
-                    !configurationSource.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
+                    !configurationSourceForRemoval.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
                 {
                     return null;
                 }
 
                 changedRelationships.AddRange(
                     foreignKeysUsingKeyProperties.Select(foreignKeyUsingKeyProperties =>
-                        foreignKeyUsingKeyProperties.Builder.HasForeignKey(null, configurationSource, runConventions: false)));
+                        foreignKeyUsingKeyProperties.Builder.HasForeignKey(null, configurationSourceForRemoval, runConventions: false)));
 
                 foreach (var relationshipToBeRemoved in relationshipsToBeRemoved)
                 {
                     var removedConfigurationSource = relationshipToBeRemoved.ForeignKey.DeclaringEntityType.Builder
-                        .RemoveForeignKey(relationshipToBeRemoved.ForeignKey, configurationSource, runConventions: false);
+                        .RemoveForeignKey(relationshipToBeRemoved.ForeignKey, configurationSourceForRemoval, runConventions: false);
                     Debug.Assert(removedConfigurationSource.HasValue);
                 }
 

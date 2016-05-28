@@ -239,6 +239,38 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(nameof(SpecialBookLabel.BookLabel), fk.DependentToPrincipal.Name);
                 Assert.Equal(new[] { fk }, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
             }
+
+            [Fact]
+            public virtual void Can_remove_objects_in_derived_type_which_was_set_using_data_annotation_while_setting_base_type_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                var derivedEntityType = modelBuilder.Entity<DerivedTypeWithKeyAnnotation>().Metadata;
+                var baseEntityType = (EntityType)modelBuilder.Entity<BaseTypeWithKeyAnnotation>().Metadata;
+
+                Assert.Equal(baseEntityType, derivedEntityType.BaseType);
+                Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.GetPrimaryKeyConfigurationSource());
+                Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.FindNavigation(nameof(BaseTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
+                Assert.Equal(ConfigurationSource.Convention, baseEntityType.GetBaseTypeConfigurationSource());
+            }
+
+            [Fact]
+            public virtual void Cannot_remove_objects_in_derived_type_which_was_set_using_explicit_while_setting_base_type_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                var derivedEntityTypeBuilder = modelBuilder.Entity<DerivedTypeWithKeyAnnotation>();
+                derivedEntityTypeBuilder.HasKey(e => e.MyPrimaryKey);
+                derivedEntityTypeBuilder.HasOne(e => e.Navigation).WithOne().HasForeignKey<DerivedTypeWithKeyAnnotation>(e => e.MyPrimaryKey);
+                var derivedEntityType = (EntityType)derivedEntityTypeBuilder.Metadata;
+                var baseEntityType = (EntityType)modelBuilder.Entity<BaseTypeWithKeyAnnotation>().Metadata;
+
+                Assert.Null(derivedEntityType.BaseType);
+                Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.GetPrimaryKeyConfigurationSource());
+                Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.FindNavigation(nameof(BaseTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
+                Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.FindNavigation(nameof(DerivedTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
+                Assert.Equal(ConfigurationSource.Explicit, derivedEntityType.GetPrimaryKeyConfigurationSource());
+            }
         }
     }
 }

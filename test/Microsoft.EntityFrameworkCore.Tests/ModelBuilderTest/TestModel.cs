@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
@@ -520,6 +521,25 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             [NotMapped]
             public OneToOnePrincipalEntityWithAnnotation NavOneToOnePrincipalEntityWithAnnotation { get; set; }
+        }
+
+        protected class BaseTypeWithKeyAnnotation
+        {
+            [Key]
+            public int MyPrimaryKey { get; set; }
+            public int AnotherKey { get; set; }
+
+            public int ForeignKeyProperty { get; set; }
+
+            [ForeignKey("ForeignKeyProperty")]
+            public PrincipalTypeWithKeyAnnotation Navigation { get; set; }
+        }
+
+        protected class DerivedTypeWithKeyAnnotation : BaseTypeWithKeyAnnotation { }
+
+        protected class PrincipalTypeWithKeyAnnotation
+        {
+            public int Id { get; set; }
         }
     }
 }
