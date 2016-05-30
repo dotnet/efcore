@@ -11,9 +11,10 @@ namespace Microsoft.EntityFrameworkCore
     public static class WarningConfigurationBuilderExtensions
     {
         public static WarningsConfigurationBuilder Throw(
-            this WarningsConfigurationBuilder warningsConfigurationBuilder,
+            [NotNull] this WarningsConfigurationBuilder warningsConfigurationBuilder,
             [NotNull] params RelationalEventId[] relationalEventIds)
         {
+            Check.NotNull(warningsConfigurationBuilder, nameof(warningsConfigurationBuilder));
             Check.NotNull(relationalEventIds, nameof(relationalEventIds));
 
             warningsConfigurationBuilder.Configuration
@@ -23,9 +24,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public static WarningsConfigurationBuilder Log(
-            this WarningsConfigurationBuilder warningsConfigurationBuilder,
+            [NotNull] this WarningsConfigurationBuilder warningsConfigurationBuilder,
             [NotNull] params RelationalEventId[] relationalEventIds)
         {
+            Check.NotNull(warningsConfigurationBuilder, nameof(warningsConfigurationBuilder));
             Check.NotNull(relationalEventIds, nameof(relationalEventIds));
 
             warningsConfigurationBuilder.Configuration
@@ -35,9 +37,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public static WarningsConfigurationBuilder Ignore(
-            this WarningsConfigurationBuilder warningsConfigurationBuilder,
+            [NotNull] this WarningsConfigurationBuilder warningsConfigurationBuilder,
             [NotNull] params RelationalEventId[] relationalEventIds)
         {
+            Check.NotNull(warningsConfigurationBuilder, nameof(warningsConfigurationBuilder));
             Check.NotNull(relationalEventIds, nameof(relationalEventIds));
 
             warningsConfigurationBuilder.Configuration
