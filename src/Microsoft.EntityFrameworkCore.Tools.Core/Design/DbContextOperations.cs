@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 if (types.Count == 0)
                 {
-                    throw new OperationException(ToolsCoreStrings.NoContext);
+                    throw new OperationException(ToolsCoreStrings.NoContext(_assembly.GetName().Name));
                 }
                 if (types.Count == 1)
                 {
