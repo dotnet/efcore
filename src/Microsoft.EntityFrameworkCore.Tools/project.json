@@ -43,8 +43,10 @@
       }
     }
   },
-  "packInclude": {
-    "lib/": "lib/**",
-    "tools/": "tools/**"
+  "packOptions": {
+    "files": [
+      "lib/",
+      "tools/"
+    ]
   }
 }
