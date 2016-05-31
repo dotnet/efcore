@@ -579,4 +579,7 @@
   <data name="WarningLogTemplate" xml:space="preserve">
     <value>{message} This warning can be configured using DbContextOptionsBuilder.ConfigureWarnings with event id '{eventId}'.</value>
   </data>
+  <data name="NoProviderConfiguredFailedToResolveService" xml:space="preserve">
+    <value>Unable to resolve service for type '{service}'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.</value>
+  </data>
 </root>

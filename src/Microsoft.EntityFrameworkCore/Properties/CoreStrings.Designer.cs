@@ -1244,6 +1244,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("WarningLogTemplate", "message", "eventId"), message, eventId);
         }
 
+        /// <summary>
+        /// Unable to resolve service for type '{service}'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions&lt;TContext&gt; object in its constructor and passes it to the base constructor for DbContext.
+        /// </summary>
+        public static string NoProviderConfiguredFailedToResolveService([CanBeNull] object service)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoProviderConfiguredFailedToResolveService", "service"), service);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

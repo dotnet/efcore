@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var service = accessor.Instance.GetService<TService>();
             if (service == null)
             {
-                throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
+                throw new InvalidOperationException(CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(TService).FullName));
             }
 
             return service;
