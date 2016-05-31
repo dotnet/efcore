@@ -8,7 +8,12 @@
       "EF",
       "Data",
       "O/RM"
-    ]
+    ],
+    "files": {
+      "mappings": {
+        "lib/net451/": "lib/net451/*"
+      }
+    }
   },
   "buildOptions": {
     "emitEntryPoint": true,
@@ -24,13 +29,6 @@
         "../Shared/Check.cs",
         "../Shared/LoggingExtensions.cs"
       ]
-    }
-  },
-  "packOptions": {
-    "files": {
-      "mappings": {
-        "lib/net451/": "lib/net451/*"
-      }
     }
   },
   "dependencies": {
