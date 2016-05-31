@@ -1229,15 +1229,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Warning as error exception for warning '{eventId}': {message}
+        /// Warning as error exception for warning '{eventId}': {message} To suppress this Exception use the DbContextOptionsBuilder.ConfigureWarnings API. ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.
         /// </summary>
-        public static string WarningAsError([CanBeNull] object eventId, [CanBeNull] object message)
+        public static string WarningAsErrorTemplate([CanBeNull] object eventId, [CanBeNull] object message)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("WarningAsError", "eventId", "message"), eventId, message);
+            return string.Format(CultureInfo.CurrentCulture, GetString("WarningAsErrorTemplate", "eventId", "message"), eventId, message);
         }
 
         /// <summary>
-        /// {message} This warning can be configured using DbContextOptionsBuilder.ConfigureWarnings with event id '{eventId}'.
+        /// {message} To configure this warning use the DbContextOptionsBuilder.ConfigureWarnings API (event id '{eventId}'). ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.
         /// </summary>
         public static string WarningLogTemplate([CanBeNull] object message, [CanBeNull] object eventId)
         {

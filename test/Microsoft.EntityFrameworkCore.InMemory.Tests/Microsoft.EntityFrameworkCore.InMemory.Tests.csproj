@@ -60,7 +60,6 @@
     <Compile Include="InMemoryDatabaseCreatorTest.cs" />
     <Compile Include="InMemoryDatabaseProviderTest.cs" />
     <Compile Include="InMemoryDatabaseTest.cs" />
-    <Compile Include="InMemoryDbContextOptionsExtensionsTest.cs" />
     <Compile Include="InMemoryServiceCollectionExtensionsTest.cs" />
     <Compile Include="InMemoryIntegerValueGeneratorFactoryTest.cs" />
     <Compile Include="InMemoryIntegerValueGeneratorTest.cs" />

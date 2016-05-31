@@ -24,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore
             extension.ConnectionString = connectionString;
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
+            ConfigureWarnings(optionsBuilder);
+
             sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
 
             return optionsBuilder;
@@ -40,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore
             var extension = GetOrCreateExtension(optionsBuilder);
             extension.Connection = connection;
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+            ConfigureWarnings(optionsBuilder);
 
             sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
 
@@ -69,6 +73,16 @@ namespace Microsoft.EntityFrameworkCore
             return existingExtension != null
                 ? new SqliteOptionsExtension(existingExtension)
                 : new SqliteOptionsExtension();
+        }
+
+        private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Set warnings defaults
+            optionsBuilder.ConfigureWarnings(w =>
+                {
+                    w.Configuration.TryAddExplicit(
+                        RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw);
+                });
         }
     }
 }

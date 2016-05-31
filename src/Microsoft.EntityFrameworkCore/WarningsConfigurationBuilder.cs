@@ -11,7 +11,12 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class WarningsConfigurationBuilder
     {
-        public virtual WarningsConfiguration Configuration { get; } = new WarningsConfiguration();
+        public WarningsConfigurationBuilder([CanBeNull] WarningsConfiguration warningsConfiguration)
+        {
+            Configuration = warningsConfiguration ?? new WarningsConfiguration();
+        }
+
+        public virtual WarningsConfiguration Configuration { get; }
 
         public virtual WarningsConfigurationBuilder Default(WarningBehavior warningBehavior)
         {

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.WarningAsError(
+                Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                     $"{nameof(RelationalEventId)}.{nameof(RelationalEventId.QueryClientEvaluationWarning)}",
                     RelationalStrings.ClientEvalWarning("[c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(

@@ -1,66 +1,53 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class InMemoryTransactionManager : IDbContextTransactionManager
     {
-        private readonly bool _ignoreTransactions;
+        private static readonly InMemoryTransaction _stubTransaction = new InMemoryTransaction();
 
-        public InMemoryTransactionManager([NotNull] IDbContextOptions options)
+        private readonly ILogger<InMemoryTransactionManager> _logger;
+
+        public InMemoryTransactionManager([NotNull] ILogger<InMemoryTransactionManager> logger)
         {
-            Check.NotNull(options, nameof(options));
+            Check.NotNull(logger, nameof(logger));
 
-            var optionsExtension = options.Extensions.OfType<InMemoryOptionsExtension>().FirstOrDefault();
-            if (optionsExtension != null)
-            {
-                _ignoreTransactions = optionsExtension.IgnoreTransactions;
-            }
+            _logger = logger;
         }
 
         public virtual IDbContextTransaction BeginTransaction()
         {
-            if (!_ignoreTransactions)
-            {
-                throw new InvalidOperationException(InMemoryStrings.TransactionsNotSupported);
-            }
-            return new InMemoryTransaction();
+            LogWarning();
+
+            return _stubTransaction;
         }
 
-        public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<IDbContextTransaction> BeginTransactionAsync(
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (!_ignoreTransactions)
-            {
-                throw new InvalidOperationException(InMemoryStrings.TransactionsNotSupported);
-            }
+            LogWarning();
 
-            return Task.FromResult<IDbContextTransaction>(new InMemoryTransaction());
+            return Task.FromResult<IDbContextTransaction>(_stubTransaction);
         }
 
-        public virtual void CommitTransaction()
-        {
-            if (!_ignoreTransactions)
-            {
-                throw new InvalidOperationException(InMemoryStrings.TransactionsNotSupported);
-            }
-        }
+        public virtual void CommitTransaction() => LogWarning();
 
-        public virtual void RollbackTransaction()
+        public virtual void RollbackTransaction() => LogWarning();
+
+        private void LogWarning()
         {
-            if (!_ignoreTransactions)
-            {
-                throw new InvalidOperationException(InMemoryStrings.TransactionsNotSupported);
-            }
+            _logger.LogWarning(
+                InMemoryEventId.TransactionIgnoredWarning,
+                () => InMemoryStrings.TransactionsNotSupported);
         }
     }
 }

@@ -31,8 +31,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             WarningBehavior warningBehavior;
             return _explicitBehaviors.TryGetValue(eventId, out warningBehavior)
-                ? warningBehavior
-                : DefaultBehavior;
+                       ? warningBehavior
+                       : DefaultBehavior;
+        }
+
+        public virtual void TryAddExplicit([NotNull] object eventId, WarningBehavior warningBehavior)
+        {
+            Check.NotNull(eventId, nameof(eventId));
+
+            if (!_explicitBehaviors.ContainsKey(eventId))
+            {
+                _explicitBehaviors[eventId] = warningBehavior;
+            }
         }
     }
 }

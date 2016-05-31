@@ -45,14 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 if (warningBehavior == WarningBehavior.Throw)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.WarningAsError($"{state.GetType().Name}.{state}", formatter(state, exception)));
+                        CoreStrings.WarningAsErrorTemplate(
+                            $"{state.GetType().Name}.{state}", formatter(state, exception)));
                 }
 
                 if (warningBehavior == WarningBehavior.Log
                     && IsEnabled(logLevel))
                 {
                     _logger.Log(logLevel, eventId, state, exception, 
-                        (s, _) => CoreStrings.WarningLogTemplate(formatter(s, _), $"{state.GetType().Name}.{state}"));
+                        (s, _) => CoreStrings.WarningLogTemplate(
+                            formatter(s, _), $"{state.GetType().Name}.{state}"));
                 }
             }
             else if (IsEnabled(logLevel))

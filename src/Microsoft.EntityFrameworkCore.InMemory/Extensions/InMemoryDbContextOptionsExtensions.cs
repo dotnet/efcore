@@ -12,29 +12,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public static class InMemoryDbContextOptionsExtensions
     {
-        public static DbContextOptionsBuilder UseInMemoryDatabase(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [CanBeNull] string databaseName,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
-        {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
-            var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>();
-            extension = extension != null
-                ? new InMemoryOptionsExtension(extension)
-                : new InMemoryOptionsExtension();
-
-            if (databaseName != null)
-            {
-                extension.StoreName = databaseName;
-            }
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-
-            inMemoryOptionsAction?.Invoke(new InMemoryDbContextOptionsBuilder(optionsBuilder));
-
-            return optionsBuilder;
-        }
-
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [CanBeNull] string databaseName,
@@ -45,11 +22,25 @@ namespace Microsoft.EntityFrameworkCore
 
         public static DbContextOptionsBuilder UseInMemoryDatabase(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [CanBeNull] string databaseName,
             [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new InMemoryOptionsExtension());
+            var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>();
+
+            extension = extension != null
+                ? new InMemoryOptionsExtension(extension)
+                : new InMemoryOptionsExtension();
+
+            if (databaseName != null)
+            {
+                extension.StoreName = databaseName;
+            }
+
+            ConfigureWarnings(optionsBuilder);
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             inMemoryOptionsAction?.Invoke(new InMemoryDbContextOptionsBuilder(optionsBuilder));
 
@@ -62,5 +53,30 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, inMemoryOptionsAction);
+
+        public static DbContextOptionsBuilder UseInMemoryDatabase(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+        {
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+            ConfigureWarnings(optionsBuilder);
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new InMemoryOptionsExtension());
+
+            inMemoryOptionsAction?.Invoke(new InMemoryDbContextOptionsBuilder(optionsBuilder));
+
+            return optionsBuilder;
+        }
+
+        private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Set warnings defaults
+            optionsBuilder.ConfigureWarnings(w =>
+                {
+                    w.Configuration.TryAddExplicit(
+                        InMemoryEventId.TransactionIgnoredWarning, WarningBehavior.Throw);
+                });
+        }
     }
 }
