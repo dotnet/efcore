@@ -220,6 +220,35 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
         }
 
         [Fact]
+        public void Default_alternate_key_name_is_based_on_key_column_names()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasAlternateKey(e => e.Name);
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+            var key = entityType.FindKey(entityType.FindProperty(nameof(Customer.Name)));
+
+            Assert.Equal("AK_Customer_Name", key.Relational().Name);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .HasColumnName("Pie");
+
+            Assert.Equal("AK_Customer_Pie", key.Relational().Name);
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasAlternateKey(e => e.Name)
+                .HasName("KeyLimePie");
+
+            Assert.Equal("KeyLimePie", key.Relational().Name);
+        }
+
+        [Fact]
         public void Can_set_key_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -232,6 +261,24 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
             Assert.Equal("KeyLimePie", key.Relational().Name);
+        }
+
+        [Fact]
+        public void Default_foreign_key_name_is_based_on_fk_column_names()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer).HasForeignKey(e => e.CustomerId);
+
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+
+            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
+
+            modelBuilder
+                .Entity<Order>().Property(e => e.CustomerId).HasColumnName("CID");
+
+            Assert.Equal("FK_Order_Customer_CID", foreignKey.Relational().Name);
         }
 
         [Fact]
@@ -338,6 +385,27 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Metadata
             var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
+        }
+
+        [Fact]
+        public void Default_index_name_is_based_on_index_column_names()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal("IX_Customer_Id", index.Relational().Name);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .HasColumnName("Eendax");
+
+            Assert.Equal("IX_Customer_Eendax", index.Relational().Name);
         }
 
         [Fact]

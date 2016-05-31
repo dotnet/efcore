@@ -2500,9 +2500,11 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         }),
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(3, operations.Count);
 
-                        Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+                        Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
+                        Assert.IsType<RenameColumnOperation>(operations[2]);
                     });
         }
 
@@ -2530,9 +2532,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         }),
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(2, operations.Count);
 
                         Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.IsType<RenameIndexOperation>(operations[1]);
                     });
         }
 
@@ -2682,8 +2685,12 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                         }),
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
-                        Assert.IsType<RenameColumnOperation>(operations[0]);
+                        Assert.Equal(4, operations.Count);
+
+                        Assert.IsType<DropForeignKeyOperation>(operations[0]);
+                        Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                        Assert.IsType<RenameColumnOperation>(operations[2]);
+                        Assert.IsType<RenameIndexOperation>(operations[3]);
                     });
         }
 
@@ -4033,7 +4040,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     Assert.Equal(2, operations.Count);
 
                     var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
-                    Assert.Equal("FK_Table_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
+                    Assert.Equal("FK_Table_ReferencedTable_RenamedForeignId", addForeignKeyOperation.Name);
                     Assert.Equal(new[] { "ForeignId" }, addForeignKeyOperation.Columns);
 
                     Assert.IsType<RenameColumnOperation>(operations[1]);
@@ -4230,7 +4237,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 
                     var addUniqueConstraintOperation = Assert.IsType<AddUniqueConstraintOperation>(operations[0]);
                     Assert.Equal(new[] { "AlternateId" }, addUniqueConstraintOperation.Columns);
-                    Assert.Equal("AK_Table_AlternateId", addUniqueConstraintOperation.Name);
+                    Assert.Equal("AK_Table_RenamedAlternateId", addUniqueConstraintOperation.Name);
 
                     Assert.IsType<RenameColumnOperation>(operations[1]);
                 });
@@ -4375,7 +4382,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
 
                     var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
                     Assert.Equal(new[] { "Value" }, createIndexOperation.Columns);
-                    Assert.Equal("IX_Table_Value", createIndexOperation.Name);
+                    Assert.Equal("IX_Table_RenamedValue", createIndexOperation.Name);
 
                     Assert.IsType<RenameColumnOperation>(operations[1]);
                 });

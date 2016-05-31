@@ -35,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
             => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
 
+        protected virtual IRelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property)
+            => new RelationalPropertyAnnotations(property, ProviderFullAnnotationNames);
+
         public virtual string Name
         {
             get
@@ -52,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
-            => GetDefaultForeignKeyName(GetAnnotations(Index.DeclaringEntityType).TableName, Index.Properties.Select(p => p.Name));
+            => GetDefaultForeignKeyName(
+                GetAnnotations(Index.DeclaringEntityType).TableName,
+                Index.Properties.Select(p => GetAnnotations(p).ColumnName));
 
         public static string GetDefaultForeignKeyName(
             [NotNull] string tableName,

@@ -35,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual IRelationalEntityTypeAnnotations GetAnnotations([NotNull] IEntityType entityType)
             => new RelationalEntityTypeAnnotations(entityType, ProviderFullAnnotationNames);
 
+        protected virtual IRelationalPropertyAnnotations GetAnnotations([NotNull] IProperty property)
+            => new RelationalPropertyAnnotations(property, ProviderFullAnnotationNames);
+
         public virtual string Name
         {
             get
@@ -58,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return GetDefaultForeignKeyName(
                 GetAnnotations(ForeignKey.DeclaringEntityType).TableName,
                 GetAnnotations(ForeignKey.PrincipalEntityType).TableName,
-                ForeignKey.Properties.Select(p => p.Name));
+                ForeignKey.Properties.Select(p => GetAnnotations(p).ColumnName));
         }
 
         public static string GetDefaultForeignKeyName(
