@@ -150,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                     Table = "Person",
                     Name = "Name",
                     ClrType = typeof(string),
+                    MaxLength = 30,
                     IsNullable = true
                 });
 
@@ -362,18 +363,21 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations
                         new AddColumnOperation
                         {
                             Name = "Id",
+                            Table = "People",
                             ClrType = typeof(int),
                             IsNullable = false
                         },
                         new AddColumnOperation
                         {
                             Name = "EmployerId",
+                            Table = "People",
                             ClrType = typeof(int),
                             IsNullable = true
                         },
                         new AddColumnOperation
                         {
                             Name = "SSN",
+                            Table = "People",
                             ClrType = typeof(string),
                             ColumnType = "char(11)",
                             IsNullable = true
