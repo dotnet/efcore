@@ -193,7 +193,7 @@
     <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
   <data name="AmbientTransaction" xml:space="preserve">
-    <value>An ambient transaction has been detected. Connections opened by Entity Framework will not be enlisted in ambient transactions. To suppress this warning call SuppressAmbientTransactionWarning() when overriding DbContext.OnConfiguring.</value>
+    <value>An ambient transaction has been detected. Entity Framework Core does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
   </data>
   <data name="PossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method Equals(object) for arguments of different types: '{left}', '{right}'. This comparison will always return 'false'.</value>

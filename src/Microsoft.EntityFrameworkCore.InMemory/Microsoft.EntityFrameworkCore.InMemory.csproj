@@ -98,6 +98,7 @@
     <Compile Include="ValueGeneration\Internal\InMemoryIntegerValueGeneratorFactory.cs" />
     <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorSelector.cs" />
+    <Compile Include="WarningConfigurationBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\InMemoryStrings.resx">

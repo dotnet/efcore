@@ -32,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore
             extension.ConnectionString = connectionString;
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
+            ConfigureWarnings(optionsBuilder);
+
             sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
 
             return optionsBuilder;
@@ -60,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore
             var extension = GetOrCreateExtension(optionsBuilder);
             extension.Connection = connection;
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+            ConfigureWarnings(optionsBuilder);
 
             sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
 
@@ -107,6 +111,16 @@ namespace Microsoft.EntityFrameworkCore
             return existing != null
                 ? new SqlServerOptionsExtension(existing)
                 : new SqlServerOptionsExtension();
+        }
+
+        private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Set warnings defaults
+            optionsBuilder.ConfigureWarnings(w =>
+                {
+                    w.Configuration.TryAddExplicit(
+                        RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw);
+                });
         }
     }
 }

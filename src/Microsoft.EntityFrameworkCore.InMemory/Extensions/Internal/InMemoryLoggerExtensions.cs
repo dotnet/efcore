@@ -18,5 +18,12 @@ namespace Microsoft.EntityFrameworkCore
                 logger.Log(LogLevel.Information, (int)eventId, state, null, (s, _) => formatter(s));
             }
         }
+
+        public static void LogWarning(this ILogger logger, InMemoryEventId eventId, Func<string> formatter)
+        {
+            // Always call Log for Warnings because Warnings as Errors should work even
+            // if LogLevel.Warning is not enabled.
+            logger.Log<object>(LogLevel.Warning, (int)eventId, eventId, null, (_, __) => formatter());
+        }
     }
 }

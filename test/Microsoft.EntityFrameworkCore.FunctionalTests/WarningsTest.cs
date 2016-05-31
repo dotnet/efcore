@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 //context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
 
                 Assert.Equal(
-                    CoreStrings.WarningAsError(
+                    CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(CoreEventId)}.{nameof(CoreEventId.IncludeIgnoredWarning)}",
                         CoreStrings.LogIgnoredInclude("e.Nav")),
                     Assert.Throws<InvalidOperationException>(()
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = new WarningAsErrorContext(CoreEventId.IncludeIgnoredWarning))
             {
                 Assert.Equal(
-                    CoreStrings.WarningAsError(
+                    CoreStrings.WarningAsErrorTemplate(
                         $"{nameof(CoreEventId)}.{nameof(CoreEventId.IncludeIgnoredWarning)}",
                         CoreStrings.LogIgnoredInclude("e.Nav")),
                     Assert.Throws<InvalidOperationException>(()

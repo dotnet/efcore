@@ -17,8 +17,5 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkInMemoryDatabase().AddRelational();
-
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase(b => b.IgnoreTransactions());
     }
 }

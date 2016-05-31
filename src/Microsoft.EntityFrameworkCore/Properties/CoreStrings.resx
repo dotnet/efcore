@@ -573,11 +573,11 @@
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
     <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>
   </data>
-  <data name="WarningAsError" xml:space="preserve">
-    <value>Warning as error exception for warning '{eventId}': {message}</value>
+  <data name="WarningAsErrorTemplate" xml:space="preserve">
+    <value>Warning as error exception for warning '{eventId}': {message} To suppress this Exception use the DbContextOptionsBuilder.ConfigureWarnings API. ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.</value>
   </data>
   <data name="WarningLogTemplate" xml:space="preserve">
-    <value>{message} This warning can be configured using DbContextOptionsBuilder.ConfigureWarnings with event id '{eventId}'.</value>
+    <value>{message} To configure this warning use the DbContextOptionsBuilder.ConfigureWarnings API (event id '{eventId}'). ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
     <value>Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>

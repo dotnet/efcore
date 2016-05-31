@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Tests
@@ -17,12 +18,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
+            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 Assert.Throws<InvalidOperationException>(
-                    () => transactionManager.BeginTransaction()).Message);
+                () => transactionManager.BeginTransaction()).Message);
         }
 
         [Fact]
@@ -31,12 +32,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
+            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () => await transactionManager.BeginTransactionAsync())).Message);
+                     async () => await transactionManager.BeginTransactionAsync())).Message);
         }
 
         [Fact]
@@ -45,12 +46,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
+            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 Assert.Throws<InvalidOperationException>(
-                    () => transactionManager.CommitTransaction()).Message);
+                () => transactionManager.CommitTransaction()).Message);
         }
 
         [Fact]
@@ -59,64 +60,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Tests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase();
 
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
+            var transactionManager = new InMemoryTransactionManager(new FakeLogger());
 
             Assert.Equal(
                 InMemoryStrings.TransactionsNotSupported,
                 Assert.Throws<InvalidOperationException>(
-                    () => transactionManager.RollbackTransaction()).Message);
+                () => transactionManager.RollbackTransaction()).Message);
         }
 
-        [Fact]
-        public void Does_not_throw_on_BeginTransaction_when_transactions_ignored()
+        private class FakeLogger : ILogger<InMemoryTransactionManager>
         {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase(b => b.IgnoreTransactions());
-
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
-
-            using (var transaction = transactionManager.BeginTransaction())
+            public void Log<TState>(
+                LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
-                transaction.Commit();
-                transaction.Rollback();
+                throw new InvalidOperationException(formatter(state, exception));
             }
-        }
 
-        [Fact]
-        public async Task Does_not_throw_on_BeginTransactionAsync_when_transactions_ignored()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase(b => b.IgnoreTransactions());
+            public bool IsEnabled(LogLevel logLevel) => true;
 
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
-
-            using (var transaction = await transactionManager.BeginTransactionAsync())
-            {
-                transaction.Commit();
-                transaction.Rollback();
-            }
-        }
-
-        [Fact]
-        public void Does_not_throw_on_CommitTransaction_when_transactions_ignored()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase(b => b.IgnoreTransactions());
-
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
-
-            transactionManager.CommitTransaction();
-        }
-
-        [Fact]
-        public void Does_not_throw_on_RollbackTransaction_when_transactions_ignored()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase(b => b.IgnoreTransactions());
-
-            var transactionManager = new InMemoryTransactionManager(optionsBuilder.Options);
-
-            transactionManager.RollbackTransaction();
+            public IDisposable BeginScope<TState>(TState state) => null;
         }
     }
 }

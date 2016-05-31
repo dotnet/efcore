@@ -134,7 +134,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(warningsConfigurationBuilderAction, nameof(warningsConfigurationBuilderAction));
 
-            var warningConfigurationBuilder = new WarningsConfigurationBuilder();
+            var warningConfigurationBuilder
+                = new WarningsConfigurationBuilder(
+                    Options.FindExtension<CoreOptionsExtension>()?.WarningsConfiguration);
 
             warningsConfigurationBuilderAction(warningConfigurationBuilder);
 
@@ -165,8 +167,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var extension
                 = existingExtension != null
-                    ? new CoreOptionsExtension(existingExtension)
-                    : new CoreOptionsExtension();
+                      ? new CoreOptionsExtension(existingExtension)
+                      : new CoreOptionsExtension();
 
             setAction(extension);
 

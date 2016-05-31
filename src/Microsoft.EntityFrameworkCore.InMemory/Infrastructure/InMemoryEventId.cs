@@ -5,6 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public enum InMemoryEventId
     {
-        SavedChanges = 1
+        SavedChanges = 1,
+        TransactionIgnoredWarning
     }
 }
