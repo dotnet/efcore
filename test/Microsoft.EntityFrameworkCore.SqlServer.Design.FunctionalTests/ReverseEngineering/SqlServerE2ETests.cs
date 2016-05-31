@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         };
 
         [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [UseCulture("en-US")]
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
@@ -139,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests.Reverse
         }
 
         [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [UseCulture("en-US")]
         public void E2ETest_AllFluentApi()
         {
