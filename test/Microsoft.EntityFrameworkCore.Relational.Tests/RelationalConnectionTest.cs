@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             using (var context = new ConstructorTestContext1A(options))
             {
                 Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
+                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
                 Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
+                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
             using (var context = new ConstructorTestContextNoConfiguration())
             {
                 Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
+                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
 
                 Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
+                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(IRelationalConnection).FullName),
                     Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
             }
         }
