@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (_disposed)
                 {
-                    throw new ObjectDisposedException(GetType().Name);
+                    throw new ObjectDisposedException(GetType().Name, CoreStrings.ContextDisposed);
                 }
                 return (_contextServices ?? (_contextServices = InitializeServices())).InternalServiceProvider;
             }
