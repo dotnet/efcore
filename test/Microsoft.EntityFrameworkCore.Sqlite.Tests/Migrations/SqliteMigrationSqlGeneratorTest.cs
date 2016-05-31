@@ -262,55 +262,55 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         public override void AddForeignKeyOperation_with_name()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddForeignKeyOperation_with_name());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
         }
 
         public override void AddForeignKeyOperation_without_name()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddForeignKeyOperation_without_name());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
         }
 
         public override void AddForeignKeyOperation_without_principal_columns()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddForeignKeyOperation_without_name());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
         }
 
         public override void AddPrimaryKeyOperation_with_name()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddPrimaryKeyOperation_with_name());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddPrimaryKeyOperation)), ex.Message);
         }
 
         public override void AddPrimaryKeyOperation_without_name()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddPrimaryKeyOperation_without_name());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddPrimaryKeyOperation)), ex.Message);
         }
 
         public override void AddUniqueConstraintOperation_with_name()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddUniqueConstraintOperation_with_name());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddUniqueConstraintOperation)), ex.Message);
         }
 
         public override void AddUniqueConstraintOperation_without_name()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddUniqueConstraintOperation_without_name());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddUniqueConstraintOperation)), ex.Message);
         }
 
         public override void AlterColumnOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
         }
 
         public override void AlterColumnOperation_without_column_type()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation_without_column_type());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
         }
 
         public override void AlterSequenceOperation_with_minValue_and_maxValue()
@@ -355,13 +355,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         public override void DropColumnOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.DropColumnOperation());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropColumnOperation)), ex.Message);
         }
 
         public override void DropForeignKeyOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.DropForeignKeyOperation());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropForeignKeyOperation)), ex.Message);
         }
 
         public override void DropIndexOperation()
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         public override void DropPrimaryKeyOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.DropPrimaryKeyOperation());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropPrimaryKeyOperation)), ex.Message);
         }
 
         public override void DropSequenceOperation()
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
         public override void DropUniqueConstraintOperation()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.DropUniqueConstraintOperation());
-            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(DropUniqueConstraintOperation)), ex.Message);
         }
     }
 }

@@ -13,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// SQLite does not support this migration operation. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
+        /// SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
-        public static string InvalidMigrationOperation
+        public static string InvalidMigrationOperation([CanBeNull] object operation)
         {
-            get { return GetString("InvalidMigrationOperation"); }
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidMigrationOperation", "operation"), operation);
         }
 
         /// <summary>
