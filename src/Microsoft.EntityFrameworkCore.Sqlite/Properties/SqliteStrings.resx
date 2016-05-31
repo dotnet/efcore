@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="InvalidMigrationOperation" xml:space="preserve">
-    <value>SQLite does not support this migration operation. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
+    <value>SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
   <data name="MigrationScriptGenerationNotSupported" xml:space="preserve">
     <value>Generating idempotent scripts for migration is not currently supported by SQLite. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
