@@ -33,8 +33,7 @@
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
-    "Newtonsoft.Json": "8.0.3"
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*"
   },
   "configurations": {
     "debug_x86": {
