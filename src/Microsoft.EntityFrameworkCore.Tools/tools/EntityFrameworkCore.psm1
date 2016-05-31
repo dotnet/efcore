@@ -1002,6 +1002,6 @@ function GetProviders($projectName) {
 
 function Hint-Upgrade ($name) {
     if (Get-Module | ? Name -eq EntityFramework) {
-        Write-Warning "Executing the Entity Framework Core version of '$name'. Run 'EntityFramework\$name' to execute for EF 6 and earlier."
+        Write-Warning "Both Entity Framework Core and Entity Framework 6.x commands are installed. The Entity Framework Core version is executing. You can fully qualify the command to select which one to execute, 'EntityFramework\$name' for EF6.x and 'EntityFrameworkCore\$name' for EF Core."
     }
 }
