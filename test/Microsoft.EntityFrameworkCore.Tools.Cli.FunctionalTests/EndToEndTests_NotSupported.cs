@@ -1,9 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.IO;
-using Microsoft.Extensions.PlatformAbstractions;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
@@ -13,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
         [Fact(Skip = SkipReason)]
         public void Unsupported_MigrationsOnDesktopClassLibrary()
         {
-            if (!PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return;
             }

@@ -1,10 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.PlatformAbstractions;
+using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
         {
             // TODO use xunit helpers from SpecTests. Currently this causes re-compilation of the test graph
             // because of the pre-compile script on this project
-            if (PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 AddAndApplyMigrationImpl("DesktopApp", "TestContext", "Initial");
             }
