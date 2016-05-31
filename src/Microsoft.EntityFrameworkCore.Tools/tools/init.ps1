@@ -8,7 +8,7 @@ if ($PSVersionTable.PSVersion.Major -lt 3) {
     # import a "dummy" module that contains matching functions that throw on PS2
     Import-Module ([System.IO.Path]::Combine($toolsPath, "EntityFrameworkCore.PowerShell2.psd1")) -DisableNameChecking
     
-    throw "EF commands do not support PowerShell version $($PSVersionTable.PSVersion). Please upgrade PowerShell to 3.0 or greater and restart Visual Studio."
+    throw "EF Core commands do not support PowerShell version $($PSVersionTable.PSVersion). Please upgrade PowerShell to 3.0 or greater and restart Visual Studio."
 } else {
     
     if (Get-Module | ? Name -eq EntityFrameworkCore) {

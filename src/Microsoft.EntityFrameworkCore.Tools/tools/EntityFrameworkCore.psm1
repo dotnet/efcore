@@ -119,6 +119,7 @@ function Add-Migration {
         [string] $StartupProject,
         [string] $Environment)
 
+    Hint-Upgrade $MyInvocation.MyCommand
     $values = ProcessCommonParameters $StartupProject $Project $Context
     $dteStartupProject = $values.StartupProject
     $dteProject = $values.Project
@@ -203,6 +204,7 @@ function Update-Database {
         [string] $StartupProject,
         [string] $Environment)
 
+    Hint-Upgrade $MyInvocation.MyCommand
     $values = ProcessCommonParameters $StartupProject $Project $Context
     $dteStartupProject = $values.StartupProject
     $dteProject = $values.Project
@@ -512,6 +514,7 @@ function Scaffold-DbContext {
 
 function Enable-Migrations {
     # TODO: Link to some docs on the changes to Migrations
+    Hint-Upgrade $MyInvocation.MyCommand
     Write-Warning 'Enable-Migrations is obsolete. Use Add-Migration to start using Migrations.'
 }
 
@@ -997,3 +1000,8 @@ function GetProviders($projectName) {
     return Get-Package -ProjectName $projectName | select -ExpandProperty Id
 }
 
+function Hint-Upgrade ($name) {
+    if (Get-Module | ? Name -eq EntityFramework) {
+        Write-Warning "Both Entity Framework Core and Entity Framework 6.x commands are installed. The Entity Framework Core version is executing. You can fully qualify the command to select which one to execute, 'EntityFramework\$name' for EF6.x and 'EntityFrameworkCore\$name' for EF Core."
+    }
+}
