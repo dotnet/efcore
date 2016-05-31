@@ -130,7 +130,7 @@
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.</value>
   </data>
   <data name="NoContext" xml:space="preserve">
-    <value>No DbContext was found. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
+    <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
   </data>
   <data name="NoContextWithName" xml:space="preserve">
     <value>No DbContext named '{name}' was found.</value>
