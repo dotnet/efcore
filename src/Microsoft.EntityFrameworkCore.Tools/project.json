@@ -8,6 +8,10 @@
       "EF",
       "Data",
       "O/RM"
+    ],
+    "files": [
+      "lib/",
+      "tools/"
     ]
   },
   "buildOptions": {
@@ -51,11 +55,5 @@
         "emitEntryPoint": false
       }
     }
-  },
-  "packOptions": {
-    "files": [
-      "lib/",
-      "tools/"
-    ]
   }
 }
