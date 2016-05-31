@@ -1993,6 +1993,24 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 modelBuilder.Entity<Omega>().HasOne(e => e.Kappa).WithMany();
 
                 Assert.Equal("KappaId", modelBuilder.Model.FindEntityType(typeof(Omega)).FindNavigation(nameof(Omega.Kappa)).ForeignKey.Properties.Single().Name);
+
+            }
+
+            public virtual void RemoveKey_does_not_add_back_foreign_key_pointing_to_the_same_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var entityTypeBuilder = modelBuilder.Entity<Alpha>();
+
+                Assert.Equal(nameof(Alpha.Id), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
+
+                entityTypeBuilder.Property(e => e.Id).IsRequired(false);
+
+                Assert.Null(entityTypeBuilder.Metadata.FindPrimaryKey());
+
+                entityTypeBuilder.HasKey(e => e.AnotherId);
+
+                Assert.Equal(nameof(Alpha.AnotherId), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
+
             }
 
             [Fact] // Issue #3376

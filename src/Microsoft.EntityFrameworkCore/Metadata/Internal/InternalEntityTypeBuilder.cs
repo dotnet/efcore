@@ -137,9 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            foreach (var foreignKey in key.GetReferencingForeignKeys().ToList())
+            var referencingForeignKeys = key.GetReferencingForeignKeys().ToList();
+
+            foreach (var foreignKey in referencingForeignKeys)
             {
-                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource, runConventions);
+                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource, runConventions: false);
                 Debug.Assert(removed.HasValue);
             }
 
@@ -149,6 +151,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
             Debug.Assert(removedKey == key);
+
+            foreach (var foreignKey in referencingForeignKeys)
+            {
+                Metadata.Model.ConventionDispatcher.OnForeignKeyRemoved(foreignKey.DeclaringEntityType.Builder, foreignKey);
+            }
 
             RemoveShadowPropertiesIfUnused(key.Properties);
             foreach (var property in key.Properties)

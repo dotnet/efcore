@@ -469,7 +469,7 @@
     <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.</value>
   </data>
   <data name="NavigationNotAdded" xml:space="preserve">
-    <value>Unable to determine the relationship represented by navigation property '{entityType}.{navigation} of type '{propertyType}'. Either manually configure the relationship, or ignore this property from the model.</value>
+    <value>Unable to determine the relationship represented by navigation property '{entityType}.{navigation}' of type '{propertyType}'. Either manually configure the relationship, or ignore this property from the model.</value>
   </data>
   <data name="PropertyNotAdded" xml:space="preserve">
     <value>The property '{entityType}.{property}' could not be mapped, because it is of type '{propertyType}' which is not a supported primitive type or a valid entity type. Either explicitly map this property, or ignore it.</value>

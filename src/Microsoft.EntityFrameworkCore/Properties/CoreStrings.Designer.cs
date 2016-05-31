@@ -949,7 +949,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Unable to determine the relationship represented by navigation property '{entityType}.{navigation} of type '{propertyType}'. Either manually configure the relationship, or ignore this property from the model.
+        /// Unable to determine the relationship represented by navigation property '{entityType}.{navigation}' of type '{propertyType}'. Either manually configure the relationship, or ignore this property from the model.
         /// </summary>
         public static string NavigationNotAdded([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object propertyType)
         {

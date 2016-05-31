@@ -362,7 +362,8 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
         protected class Alpha
         {
-            public int Id { get; set; }
+            public int? Id { get; set; }
+            public int AnotherId { get; set; }
 
             public Delta NavDelta { get; set; }
             public IList<Epsilon> Epsilons { get; set; }
