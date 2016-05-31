@@ -1,6 +1,15 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "Shared components for Entity Framework design-time tools.",
+  "description": "Shared components for Entity Framework Core tools.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM"
+    ]
+  },
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",

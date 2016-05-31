@@ -1,6 +1,16 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "Design-time Entity Framework functionality for SQLite",
+  "description": "Design-time Entity Framework Core functionality for SQLite",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM",
+      "SQLite"
+    ]
+  },
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",

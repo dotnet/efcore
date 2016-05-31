@@ -1,6 +1,15 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "Shared Design-time Entity Framework components for relational data stores.",
+  "description": "Shared design-time Entity Framework Core components for relational database providers.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM"
+    ]
+  },
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
@@ -16,7 +25,7 @@
     "Microsoft.EntityFrameworkCore.Relational": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {},
+    "net451": { },
     "netstandard1.3": {
       "imports": [
         "portable-net452+win81"

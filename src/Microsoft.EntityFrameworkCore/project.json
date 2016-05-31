@@ -1,6 +1,15 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "Entity Framework is Microsoft's recommended data access technology for new applications.",
+  "description": "Entity Framework Core is a lightweight and extensible version of the popular Entity Framework data access technology.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM"
+    ]
+  },
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",

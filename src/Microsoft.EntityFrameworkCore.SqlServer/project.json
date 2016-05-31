@@ -1,6 +1,16 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "Microsoft SQL Server data store for Entity Framework.",
+  "description": "Microsoft SQL Server database provider for Entity Framework Core.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM",
+      "SQL Server"
+    ]
+  },
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",

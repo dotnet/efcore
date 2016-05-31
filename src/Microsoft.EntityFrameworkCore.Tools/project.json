@@ -1,6 +1,15 @@
 {
   "version": "1.0.0-preview2-*",
-  "description": "Command line tools for Entity Framework.",
+  "description": "Command line tools for Entity Framework Core.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM"
+    ]
+  },
   "buildOptions": {
     "emitEntryPoint": true,
     "outputName": "dotnet-ef",

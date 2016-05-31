@@ -1,6 +1,15 @@
 {
   "version": "1.0.0-preview2-*",
-  "description": "Components for Entity Framework Commands on .NET Core CLI",
+  "description": "Components for Entity Framework Core Commands on .NET Core CLI",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM"
+    ]
+  },
   "buildOptions": {
     "emitEntryPoint": true,
     "warningsAsErrors": true,

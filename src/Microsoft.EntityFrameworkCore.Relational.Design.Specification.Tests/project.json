@@ -1,6 +1,15 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "Reusable Microsoft.EntityFrameworkCore.Relational.Design functional tests for provider writers.",
+  "description": "Shared design-time test suite for Entity Framework Core relational database providers.",
+  "packOptions": {
+    "tags": [
+      "Entity Framework",
+      "Entity Framework Core",
+      "EF",
+      "Data",
+      "O/RM"
+    ]
+  },
   "buildOptions": {
     "keyFile": "../../tools/Key.snk",
     "nowarn": [
