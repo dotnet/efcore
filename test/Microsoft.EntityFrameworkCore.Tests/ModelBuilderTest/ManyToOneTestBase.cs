@@ -1636,6 +1636,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.False(property.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
+
+            [Fact]
+            public virtual void One_to_many_relationship_has_no_ambiguity_explicit()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Kappa>().Ignore(e => e.Omegas);
+                modelBuilder.Entity<Kappa>().HasMany<Omega>().WithOne(e => e.Kappa);
+
+                Assert.Equal("KappaId", modelBuilder.Model.FindEntityType(typeof(Omega)).FindNavigation(nameof(Omega.Kappa)).ForeignKey.Properties.Single().Name);
+            }
         }
     }
 }

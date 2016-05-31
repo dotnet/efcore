@@ -366,6 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => relatedEntityType.Builder
                 .Relationship(Builder, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
+                .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
 
         /// <summary>

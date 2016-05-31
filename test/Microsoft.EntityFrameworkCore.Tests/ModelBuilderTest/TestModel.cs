@@ -441,8 +441,10 @@ namespace Microsoft.EntityFrameworkCore.Tests
         protected class Kappa
         {
             public int KappaId { get; set; }
+            public int OmegaId { get; set; }
 
             public Alpha Alpha { get; set; }
+            public IList<Omega> Omegas { get; set; }
         }
 
         protected class Iota
@@ -451,6 +453,14 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
             public Theta FirstTheta { get; set; }
             public Theta SecondTheta { get; set; }
+        }
+
+        protected class Omega
+        {
+            public int Id { get; set; }
+            public int KappaId { get; set; }
+
+            public Kappa Kappa { get; set; }
         }
 
         protected interface IEntityBase

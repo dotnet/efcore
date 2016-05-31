@@ -50,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                && !foreignKey.IsSelfReferencing())
+                && !foreignKey.IsSelfReferencing()
+                && (foreignKey.PrincipalToDependent?.IsCollection() != true))
             {
                 var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
                 if (candidatePropertiesOnPrincipal != null

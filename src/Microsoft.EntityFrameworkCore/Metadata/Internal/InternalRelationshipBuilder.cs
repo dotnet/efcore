@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (shouldBeUnique.HasValue)
             {
-                builder = builder.IsUnique(shouldBeUnique.Value, configurationSource.Value, false);
+                builder = builder.IsUnique(shouldBeUnique.Value, configurationSource.Value, runConventions: false);
             }
 
             if (navigationToPrincipal != null)

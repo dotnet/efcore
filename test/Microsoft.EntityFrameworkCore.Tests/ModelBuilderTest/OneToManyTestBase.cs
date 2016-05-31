@@ -1975,6 +1975,26 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 Assert.Equal(typeof(int?), modelBuilder.Model.FindEntityType(typeof(Order)).FindProperty("MyShadowFk").ClrType);
             }
 
+            [Fact]
+            public virtual void One_to_many_relationship_has_no_ambiguity_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Alpha>();
+                modelBuilder.Entity<Kappa>();
+
+                Assert.Equal("KappaId", modelBuilder.Model.FindEntityType(typeof(Kappa)).FindNavigation(nameof(Kappa.Omegas)).ForeignKey.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void One_to_many_relationship_has_no_ambiguity_explicit()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Kappa>().Ignore(e => e.Omegas);
+                modelBuilder.Entity<Omega>().HasOne(e => e.Kappa).WithMany();
+
+                Assert.Equal("KappaId", modelBuilder.Model.FindEntityType(typeof(Omega)).FindNavigation(nameof(Omega.Kappa)).ForeignKey.Properties.Single().Name);
+            }
+
             [Fact] // Issue #3376
             public virtual void Can_use_self_referencing_overlapping_FK_PK()
             {
