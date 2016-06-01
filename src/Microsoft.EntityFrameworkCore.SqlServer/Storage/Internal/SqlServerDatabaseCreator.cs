@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
@@ -80,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private bool Exists(bool retryOnNotExists)
         {
             var retryCount = 0;
+            var giveUp = DateTime.UtcNow + TimeSpan.FromMinutes(1);
             while (true)
             {
                 try
@@ -96,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         return false;
                     }
 
-                    if (!RetryOnExistsFailure(e, ref retryCount))
+                    if (DateTime.UtcNow > giveUp
+                        || !RetryOnExistsFailure(e, ref retryCount))
                     {
                         throw;
                     }
@@ -154,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             // And (Number 4060):
             //   System.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The
             //   login failed.
-            if (((exception.Number == 233) || (exception.Number == -2) || (exception.Number == 4060))
-                && (++retryCount < 30))
+            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060)
+                && ++retryCount < 30)
             {
                 ClearPool();
                 Thread.Sleep(100);
