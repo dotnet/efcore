@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
             var json = command.JsonOption();
-            var jsonDelimited = command.JsonDelimitedOption();
 
             command.HelpOption();
             command.VerboseOption();
@@ -32,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 () => Execute(commonOptions.Value(),
                     context.Value(),
                     environment.Value(),
-                    json.HasValue() || jsonDelimited.HasValue()
-                        ? ReportJsonResults(jsonDelimited.HasValue())
+                    json.HasValue()
+                        ? (Action<IEnumerable<MigrationInfo>>)ReportJsonResults
                         : ReportResults));
         }
 
@@ -50,22 +49,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             return 0;
         }
 
-        private static Action<IEnumerable<MigrationInfo>> ReportJsonResults(bool delimited)
-            => migrations =>
-            {
-                var nameGroups = migrations.GroupBy(m => m.Name).ToList();
-                var output = migrations.Select(
-                    m => new
-                    {
-                        id = m.Id,
-                        name = m.Name,
-                        safeName = nameGroups.Count(g => g.Key == m.Name) == 1
-                            ? m.Name
-                            : m.Id
-                    }).ToArray();
+        private static void ReportJsonResults(IEnumerable<MigrationInfo> migrations)
+        {
+            var nameGroups = migrations.GroupBy(m => m.Name).ToList();
+            var output = migrations.Select(
+                m => new
+                {
+                    id = m.Id,
+                    name = m.Name,
+                    safeName = nameGroups.Count(g => g.Key == m.Name) == 1
+                        ? m.Name
+                        : m.Id
+                }).ToArray();
 
-                ConsoleCommandLogger.Json(output, delimited);
-            };
+            ConsoleCommandLogger.Json(output);
+        }
 
         private static void ReportResults(IEnumerable<MigrationInfo> migrations)
         {
