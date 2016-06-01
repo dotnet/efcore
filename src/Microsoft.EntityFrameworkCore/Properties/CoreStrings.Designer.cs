@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.
+        /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. When adding new entities, for most key types a unique temporary key value will be created if no key is set (i.e. if the key property is assigned the default value for its type). If you are explicitly setting key values for new entities, ensure they do not collide with existing entities or temporary values generated for other new entities. When attaching existing entities, ensure that only one entity instance with a given key value is attached to the context.
         /// </summary>
         public static string IdentityConflict([CanBeNull] object entityType)
         {
@@ -1242,6 +1242,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string WarningLogTemplate([CanBeNull] object message, [CanBeNull] object eventId)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("WarningLogTemplate", "message", "eventId"), message, eventId);
+        }
+
+        /// <summary>
+        /// Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
+        /// </summary>
+        public static string ContextDisposed
+        {
+            get { return GetString("ContextDisposed"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)
