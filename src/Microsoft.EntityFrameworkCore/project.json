@@ -1,10 +1,10 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "Entity Framework Core is a lightweight and extensible version of the popular Entity Framework data access technology.",
+  "description": "Entity Framework Core is a lightweight and extensible version of the popular Entity Framework data access technology.\r\n\r\nCommonly Used Types:\r\nMicrosoft.EntityFrameworkCore.DbContext\r\nMicrosoft.EntityFrameworkCore.DbSet",
   "packOptions": {
     "tags": [
-      "Entity Framework",
       "Entity Framework Core",
+      "entity-framework-core",
       "EF",
       "Data",
       "O/RM"

@@ -3,8 +3,8 @@
   "description": "Shared components for Entity Framework Core tools.",
   "packOptions": {
     "tags": [
-      "Entity Framework",
       "Entity Framework Core",
+      "entity-framework-core",
       "EF",
       "Data",
       "O/RM"

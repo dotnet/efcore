@@ -3,8 +3,8 @@
   "description": "Design-time Entity Framework Core Functionality for Microsoft SQL Server.",
   "packOptions": {
     "tags": [
-      "Entity Framework",
       "Entity Framework Core",
+      "entity-framework-core",
       "EF",
       "Data",
       "O/RM",

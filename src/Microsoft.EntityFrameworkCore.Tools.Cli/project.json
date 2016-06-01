@@ -3,8 +3,8 @@
   "description": "Components for Entity Framework Core Commands on .NET Core CLI",
   "packOptions": {
     "tags": [
-      "Entity Framework",
       "Entity Framework Core",
+      "entity-framework-core",
       "EF",
       "Data",
       "O/RM"

@@ -3,8 +3,8 @@
   "description": "Microsoft SQL Server database provider for Entity Framework Core.",
   "packOptions": {
     "tags": [
-      "Entity Framework",
       "Entity Framework Core",
+      "entity-framework-core",
       "EF",
       "Data",
       "O/RM",

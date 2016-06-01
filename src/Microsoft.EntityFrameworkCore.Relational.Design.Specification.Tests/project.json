@@ -3,8 +3,8 @@
   "description": "Shared design-time test suite for Entity Framework Core relational database providers.",
   "packOptions": {
     "tags": [
-      "Entity Framework",
       "Entity Framework Core",
+      "entity-framework-core",
       "EF",
       "Data",
       "O/RM"

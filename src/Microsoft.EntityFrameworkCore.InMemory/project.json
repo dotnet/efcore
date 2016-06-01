@@ -1,14 +1,14 @@
 {
   "version": "1.0.0-rc3-*",
-  "description": "In memory database provider for Entity Framework Core (to be used for testing purposes).",
+  "description": "In-memory database provider for Entity Framework Core (to be used for testing purposes).",
   "packOptions": {
     "tags": [
-      "Entity Framework",
       "Entity Framework Core",
+      "entity-framework-core",
       "EF",
       "Data",
       "O/RM",
-      "In Memory"
+      "In-Memory"
     ]
   },
   "buildOptions": {
