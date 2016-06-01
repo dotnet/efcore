@@ -16,26 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
-            modelBuilder.Entity<Chassis>(b =>
-                {
-                    b.HasKey(c => c.TeamId);
-                    b.Property(e => e.Version)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                });
-
-            modelBuilder.Entity<Driver>(b =>
-                {
-                    b.Property(e => e.Version)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                });
-
-            modelBuilder.Entity<Engine>(b =>
-                {
-                    b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
-                    b.Property(e => e.Name).IsConcurrencyToken();
-                });
+            modelBuilder.Entity<Chassis>().HasKey(c => c.TeamId);
 
             // TODO: Complex type
             // .Property(c => c.StorageLocation);
@@ -45,40 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Gearbox>();
 
-            // TODO: Complex type
-            //builder
-            //    .ComplexType<Location>()
-            //    .Properties(ps =>
-            //        {
-            //            // TODO: Use lambda expression
-            //            ps.Property<double>("Latitude", concurrencyToken: true);
-            //            // TODO: Use lambda expression
-            //            ps.Property<double>("Longitude", concurrencyToken: true);
-            //        });
-
-            modelBuilder.Entity<Sponsor>(b =>
-                {
-                    b.Property(e => e.Version)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                });
-
-            // TODO: Complex type
-            //builder
-            //    .ComplexType<SponsorDetails>()
-            //    .Properties(ps =>
-            //        {
-            //            ps.Property(s => s.Days);
-            //            ps.Property(s => s.Space);
-            //        });
             modelBuilder.Ignore<SponsorDetails>();
 
             modelBuilder.Entity<Team>(b =>
                 {
-                    b.Property(t => t.Version)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-
                     b.HasOne(e => e.Gearbox).WithOne().HasForeignKey<Team>(e => e.GearboxId);
                     b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
                 });

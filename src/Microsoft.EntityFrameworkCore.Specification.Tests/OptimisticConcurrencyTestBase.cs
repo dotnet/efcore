@@ -105,8 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             result.Add(entityType.FindProperty("Poles"), driver.Poles);
             result.Add(entityType.FindProperty("Races"), driver.Races);
             result.Add(entityType.FindProperty("TeamId"), driver.TeamId);
-            result.Add(entityType.FindProperty("Version"), driver.Version);
             result.Add(entityType.FindProperty("Wins"), driver.Wins);
+
+
             return result;
         }
 
@@ -131,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateF1Context())
             {
                 var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(1, driver.Version[0]);
+                Assert.NotEqual(1, context.Entry(driver).Property<byte[]>("Version").CurrentValue[0]);
                 driver.Podiums = StorePodiums;
-                firstVersion = driver.Version;
+                firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
                 await context.SaveChangesAsync();
             }
 
@@ -141,18 +142,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateF1Context())
             {
                 var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(firstVersion, driver.Version);
+                Assert.NotEqual(firstVersion, context.Entry(driver).Property<byte[]>("Version").CurrentValue);
                 Assert.Equal(StorePodiums, driver.Podiums);
 
-                secondVersion = driver.Version;
-                driver.Version = firstVersion;
+                secondVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
+                context.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
                 await context.SaveChangesAsync();
             }
 
             using (var validationContext = CreateF1Context())
             {
                 var driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
-                Assert.Equal(secondVersion, driver.Version);
+                Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
                 Assert.Equal(StorePodiums, driver.Podiums);
             }
         }

@@ -59,5 +59,64 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             context.Database.UseTransaction(testStore.Transaction);
             return context;
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Chassis>(b =>
+            {
+                b.Property<byte[]>("Version")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
+            });
+
+            modelBuilder.Entity<Driver>(b =>
+            {
+                b.Property<byte[]>("Version")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
+            });
+
+            modelBuilder.Entity<Engine>(b =>
+            {
+                b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
+                b.Property(e => e.Name).IsConcurrencyToken();
+            });
+
+            // TODO: Complex type
+            //builder
+            //    .ComplexType<Location>()
+            //    .Properties(ps =>
+            //        {
+            //            // TODO: Use lambda expression
+            //            ps.Property<double>("Latitude", concurrencyToken: true);
+            //            // TODO: Use lambda expression
+            //            ps.Property<double>("Longitude", concurrencyToken: true);
+            //        });
+
+            modelBuilder.Entity<Sponsor>(b =>
+            {
+                b.Property<byte[]>("Version")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
+            });
+
+            // TODO: Complex type
+            //builder
+            //    .ComplexType<SponsorDetails>()
+            //    .Properties(ps =>
+            //        {
+            //            ps.Property(s => s.Days);
+            //            ps.Property(s => s.Space);
+            //        });
+
+            modelBuilder.Entity<Team>(b =>
+            {
+                b.Property<byte[]>("Version")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
+            });
+        }
     }
 }
