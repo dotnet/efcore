@@ -657,8 +657,6 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
         throw "Cannot execute this command because 'Microsoft.EntityFrameworkCore.Tools' is not installed in project '$projectName'. Add 'Microsoft.EntityFrameworkCore.Tools' to the 'tools' section in project.json. See http://go.microsoft.com/fwlink/?LinkId=798221 for more details."
     }
 
-    $output = $null
-
     $config = $project.ConfigurationManager.ActiveConfiguration.ConfigurationName
     $arguments = "--configuration", $config
     Write-Debug "Using configuration $config"
@@ -675,39 +673,49 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
 
     if ($json) {
         $arguments += ,"--json"
-    } 
+    }
 
-    $arguments = $arguments | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
-    
+    if ($PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent) {
+        $arguments += ,"--verbose"
+    }
+
+    $arguments = $arguments | ? { $_ } | % { "'$($_ -replace "'", "''" )'" }
+
+    $output = $null
+
     $command = "ef $($arguments -join ' ')"
     try {
         Write-Verbose "Working directory: $fullPath"
         Push-Location $fullPath
         $ErrorActionPreference='SilentlyContinue'
         Write-Verbose "Executing command: dotnet $command"
-        $output = Invoke-Expression "& '$dotnet' $command" -ErrorVariable verboseOutput
+        # TODO don't use invoke-expression.
+        # This will require running dotnet-build as a separate command because build
+        # warnings still appear in stderr
+        $stdout = Invoke-Expression "& '$dotnet' $command" -ErrorVariable stderr
         $exit = $LASTEXITCODE
+        $stdout | Out-String | Write-Verbose
         Write-Debug "Finish executing command with code $exit"
         if ($exit -ne 0) {
-            if (!($verboseOutput) -and $output) {
+            if (!($stderr)) {
+                if (!($stdout)) {
+                    # This should never happen
+                    throw "An unexpected error occurred."
+                }
                 # most often occurs when Microsoft.EntityFrameworkCore.Tools didn't install
-                throw $output
+                throw $stdout
             }
-            throw $verboseOutput
+            throw $stderr
         }
 
         if ($json) {
             Write-Debug "Parsing json output"
-            Write-Debug $($output -join [Environment]::NewLine)
-            $startLine = $output.IndexOf("//BEGIN") + 1
-            $endLine = $output.IndexOf("//END") - 1
-            $output = $output[$startLine..$endLine] -join [Environment]::NewLine | ConvertFrom-Json
+            $startLine = $stdout.IndexOf("//BEGIN") + 1
+            $endLine = $stdout.IndexOf("//END") - 1
+            $output = $stdout[$startLine..$endLine] -join [Environment]::NewLine | ConvertFrom-Json
         } else {
-            $output = $output -join [Environment]::NewLine
+            $output = $stdout -join [Environment]::NewLine
         }
-
-        # dotnet commands log verbose output to stderr
-        Write-Verbose $($verboseOutput -join [Environment]::NewLine)
     }
     finally {
         $ErrorActionPreference='Stop'
