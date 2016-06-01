@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 "-e|--environment <environment>",
                 "The environment to use. If omitted, \"Development\" is used.");
             var json = command.JsonOption();
-            var jsonDelimited = command.JsonDelimitedOption();
 
             command.HelpOption();
             command.VerboseOption();
@@ -27,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             command.OnExecute(
                 () => Execute(commonOptions.Value(),
                     environment.Value(),
-                    json.HasValue() || jsonDelimited.HasValue()
-                        ? ReportJsonResults(jsonDelimited.HasValue())
+                    json.HasValue()
+                        ? (Action<IEnumerable<Type>>)ReportJsonResults
                         : ReportResults)
                 );
         }
@@ -45,13 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             return 0;
         }
 
-        private static Action<IEnumerable<Type>> ReportJsonResults(bool delimited)
-            => contextTypes =>
-            {
-                var typeNames = contextTypes.Select(t => new { fullName = t.FullName }).ToArray();
+        private static void ReportJsonResults(IEnumerable<Type> contextTypes)
+        {
+            var typeNames = contextTypes.Select(t => new { fullName = t.FullName }).ToArray();
 
-                ConsoleCommandLogger.Json(typeNames, delimited);
-            };
+            ConsoleCommandLogger.Json(typeNames);
+        }
 
         private static void ReportResults(IEnumerable<Type> contextTypes)
         {

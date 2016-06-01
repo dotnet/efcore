@@ -37,19 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             }
         }
 
-        public static void Json(object result, bool delimited)
+        public static void Json(object result)
         {
             lock (_lock)
             {
-                if (delimited)
-                {
-                    Console.WriteLine("//BEGIN");
-                }
+                Console.WriteLine("//BEGIN");
                 Console.WriteLine(JsonUtility.Serialize(result));
-                if (delimited)
-                {
-                    Console.WriteLine("//END");
-                }
+                Console.WriteLine("//END");
             }
         }
 

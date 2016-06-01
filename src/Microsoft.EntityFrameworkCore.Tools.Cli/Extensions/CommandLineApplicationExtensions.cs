@@ -31,10 +31,7 @@ namespace Microsoft.Extensions.CommandLineUtils
             => command.Option("-v|--verbose", "Enable verbose output");
 
         public static CommandOption JsonOption(this CommandLineApplication command)
-            => command.Option("--json", "Use json output");
-
-        public static CommandOption JsonDelimitedOption(this CommandLineApplication command)
-            => command.Option("--json-delimited", "Use json output wrapped by '//BEGIN' and '//END'");
+            => command.Option("--json", "Use json output. JSON is wrapped by '//BEGIN' and '//END'");
 
         public static CommandOption VersionOption(
             this CommandLineApplication command,

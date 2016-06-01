@@ -674,7 +674,7 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
     $arguments += $args
 
     if ($json) {
-        $arguments += ,"--json-delimited"
+        $arguments += ,"--json"
     } 
 
     $arguments = $arguments | ? { $_ } | % { if  ($_ -like '* *') { "'$_'" } else { $_ } }
@@ -704,7 +704,6 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
             $output = $output[$startLine..$endLine] -join [Environment]::NewLine | ConvertFrom-Json
         } else {
             $output = $output -join [Environment]::NewLine
-            Write-Verbose $output
         }
 
         # dotnet commands log verbose output to stderr
