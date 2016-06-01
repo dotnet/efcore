@@ -697,7 +697,11 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
         $stdout | Out-String | Write-Verbose
         Write-Debug "Finish executing command with code $exit"
         if ($exit -ne 0) {
-            if (!($stderr) -and $stdout) {
+            if (!($stderr)) {
+                if (!($stdout)) {
+                    # This should never happen
+                    throw "An unexpected error occurred."
+                }
                 # most often occurs when Microsoft.EntityFrameworkCore.Tools didn't install
                 throw $stdout
             }
