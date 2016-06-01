@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 {
     public class InterceptingLogger<T> : ILogger<T>
     {
+        private static readonly string _name = typeof(T).DisplayName();
+
         private readonly ILogger _logger;
         private readonly WarningsConfiguration _warningsConfiguration;
 
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             _logger = (contextServices.LoggerFactory
                        ?? serviceProvider.GetRequiredService<ILoggerFactory>())
-                .CreateLogger(typeof(T).DisplayName());
+                .CreateLogger(_name);
 
             _warningsConfiguration
                 = contextOptions
