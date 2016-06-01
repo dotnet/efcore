@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static bool IsAliasWithColumnExpression([NotNull] this Expression expression)
             => (expression as AliasExpression)?.Expression is ColumnExpression;
 
+        public static bool IsAliasWithSelectExpression([NotNull] this Expression expression)
+            => (expression as AliasExpression)?.Expression is SelectExpression;
+
         public static bool HasColumnExpression([CanBeNull] this AliasExpression aliasExpression)
             => aliasExpression?.Expression is ColumnExpression;
 

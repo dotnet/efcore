@@ -428,7 +428,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var needOrderingChanges
                 = innerJoinSelectExpression.OrderBy
-                .Any(x => x.Expression is SelectExpression || x.Expression.IsAliasWithColumnExpression());
+                .Any(x => x.Expression is SelectExpression
+                || x.Expression.IsAliasWithColumnExpression()
+                || x.Expression.IsAliasWithSelectExpression());
 
             var orderings = innerJoinSelectExpression.OrderBy.ToList();
             if (needOrderingChanges)
@@ -445,7 +447,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (aliasExpression?.Alias != null)
                 {
                     var columnExpression = aliasExpression.TryGetColumnExpression();
-
                     if (columnExpression != null)
                     {
                         orderingExpression
