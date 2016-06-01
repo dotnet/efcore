@@ -5238,8 +5238,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                                from c in context.Set<Customer>()
                                where o.CustomerID == c.CustomerID
                                select c
-                               ).First()
-                           ).First()
+                               ).FirstOrDefault()
+                           ).FirstOrDefault()
                            .City == "Seattle"
                        select od)
                         .Take(2)

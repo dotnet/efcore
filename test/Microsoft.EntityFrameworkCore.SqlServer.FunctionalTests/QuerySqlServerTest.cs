@@ -315,8 +315,8 @@ FROM [Order Details] AS [od]
 SELECT [o0].[OrderID], [o0].[CustomerID]
 FROM [Orders] AS [o0]
 
-SELECT [c0].[CustomerID], [c0].[City]
-FROM [Customers] AS [c0]",
+SELECT [c2].[CustomerID], [c2].[City]
+FROM [Customers] AS [c2]",
                 Sql);
         }
 
@@ -324,15 +324,20 @@ FROM [Customers] AS [c0]",
         {
             base.Select_Where_Subquery_Deep_First();
 
-            Assert.StartsWith(
-                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+            Assert.Equal(
+                @"@__p_0: 2
+
+SELECT TOP(@__p_0) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-
-SELECT [o0].[OrderID], [o0].[CustomerID]
-FROM [Orders] AS [o0]
-
-SELECT [c0].[CustomerID], [c0].[City]
-FROM [Customers] AS [c0]",
+WHERE (
+    SELECT TOP(1) (
+        SELECT TOP(1) [c].[City]
+        FROM [Customers] AS [c]
+        WHERE [o].[CustomerID] = [c].[CustomerID]
+    )
+    FROM [Orders] AS [o]
+    WHERE [od].[OrderID] = [o].[OrderID]
+) = N'Seattle'",
                 Sql);
         }
 

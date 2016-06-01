@@ -56,6 +56,86 @@ FROM [Orders] AS [o]
                 Sql);
         }
 
+        public override void Select_collection_FirstOrDefault_project_single_column1()
+        {
+            base.Select_collection_FirstOrDefault_project_single_column1();
+
+            Assert.Equal(
+                @"@__p_0: 2
+
+SELECT (
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [t].[CustomerID] = [o].[CustomerID]
+)
+FROM (
+    SELECT TOP(@__p_0) [c0].*
+    FROM [Customers] AS [c0]
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_collection_FirstOrDefault_project_single_column2()
+        {
+            base.Select_collection_FirstOrDefault_project_single_column2();
+
+            Assert.Equal(
+                @"@__p_0: 2
+
+SELECT (
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [t].[CustomerID] = [o].[CustomerID]
+)
+FROM (
+    SELECT TOP(@__p_0) [c0].*
+    FROM [Customers] AS [c0]
+) AS [t]",
+                Sql);
+        }
+
+        public override void Select_collection_FirstOrDefault_project_anonymous_type()
+        {
+            base.Select_collection_FirstOrDefault_project_anonymous_type();
+
+            Assert.StartsWith(
+                @"@__p_0: 2
+
+SELECT [t].[CustomerID]
+FROM (
+    SELECT TOP(@__p_0) [c0].*
+    FROM [Customers] AS [c0]
+) AS [t]
+
+SELECT [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+
+SELECT [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Select_collection_FirstOrDefault_project_entity()
+        {
+            base.Select_collection_FirstOrDefault_project_entity();
+
+            Assert.StartsWith(
+                @"@__p_0: 2
+
+SELECT [t].[CustomerID]
+FROM (
+    SELECT TOP(@__p_0) [c0].*
+    FROM [Customers] AS [c0]
+) AS [t]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
         public override void Skip_Select_Navigation()
         {
             base.Skip_Select_Navigation();

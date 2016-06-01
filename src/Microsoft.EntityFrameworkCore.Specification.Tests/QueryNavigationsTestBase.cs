@@ -113,6 +113,35 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                     .Select(c => c.Orders.FirstOrDefault()));
         }
 
+
+        [ConditionalFact]
+        public virtual void Select_collection_FirstOrDefault_project_single_column1()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Take(2).Select(c => c.Orders.FirstOrDefault().CustomerID));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_collection_FirstOrDefault_project_single_column2()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Take(2).Select(c => c.Orders.Select(o => o.CustomerID).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_collection_FirstOrDefault_project_anonymous_type()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Take(2).Select(c => c.Orders.Select(o => new { o.CustomerID, o.OrderID }).FirstOrDefault()));
+        }
+
+        [ConditionalFact]
+        public virtual void Select_collection_FirstOrDefault_project_entity()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Take(2).Select(c => c.Orders.FirstOrDefault()));
+        }
+
         [ConditionalFact]
         public virtual void Skip_Select_Navigation()
         {

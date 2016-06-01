@@ -728,6 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var subQueryModel = expression.QueryModel;
 
+            var subQueryOutputDataInfo = subQueryModel.GetOutputDataInfo();
             if (subQueryModel.IsIdentityQuery()
                 && subQueryModel.ResultOperators.Count == 1
                 && subQueryModel.ResultOperators.First() is ContainsResultOperator)
@@ -762,10 +763,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     }
                 }
             }
-            else if (!(subQueryModel.GetOutputDataInfo() is StreamedSequenceInfo))
+            else if (!(subQueryOutputDataInfo is StreamedSequenceInfo))
             {
+                var streamedSingleValueInfo = subQueryOutputDataInfo as StreamedSingleValueInfo;
+                var streamedSingleValueSupportedType = streamedSingleValueInfo != null
+                    && _relationalTypeMapper.FindMapping(streamedSingleValueInfo.DataType.UnwrapNullableType().UnwrapEnumType()) != null;
+
                 if (_inProjection
-                    && !(subQueryModel.GetOutputDataInfo() is StreamedScalarValueInfo))
+                    && !(subQueryOutputDataInfo is StreamedScalarValueInfo) 
+                    && !streamedSingleValueSupportedType)
                 {
                     return null;
                 }
