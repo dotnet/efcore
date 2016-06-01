@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
@@ -17,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
         public void ConfigureDesignTimeServices_uses_Development_environment_when_unspecified()
         {
             var services = new ServiceCollection();
-            var startup = CreateStartupInvoker(environment: null);
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(StartupDevelopment)),
+                environment: null);
 
             startup.ConfigureDesignTimeServices(services);
 
@@ -25,11 +28,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
             Assert.Equal("Development", service.Value);
         }
 
+        private class StartupDevelopment
+        {
+            public void ConfigureDevelopmentServices(IServiceCollection services)
+                => services.AddSingleton(new TestService("Development"));
+
+            public void ConfigureDesignTimeServices(IServiceCollection services)
+                => services.AddSingleton(new TestService("Development"));
+        }
+
         [Fact]
         public void ConfigureDesignTimeServices_invokes_static_methods()
         {
             var services = new ServiceCollection();
-            var startup = CreateStartupInvoker("Static");
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(StartupStatic)),
+                "Static");
 
             startup.ConfigureDesignTimeServices(services);
 
@@ -37,10 +51,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
             Assert.Equal("Static", service.Value);
         }
 
+        private class StartupStatic
+        {
+            public static void ConfigureServices(IServiceCollection services)
+                => services.AddSingleton(new TestService("Static"));
+
+            public static void ConfigureDesignTimeServices(IServiceCollection services)
+                => services.AddSingleton(new TestService("Static"));
+        }
+
         [Fact]
         public void ConfigureDesignTimeServices_is_noop_when_not_found()
         {
-            var startup = CreateStartupInvoker("Unknown");
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(),
+                "Unknown");
 
             startup.ConfigureDesignTimeServices(new ServiceCollection());
         }
@@ -48,7 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
         [Fact]
         public void ConfigureServices_uses_Development_environment_when_unspecified()
         {
-            var startup = CreateStartupInvoker(environment: null);
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(StartupDevelopment)),
+                environment: null);
 
             var services = startup.ConfigureServices();
 
@@ -59,7 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
         [Fact]
         public void ConfigureServices_is_noop_when_not_found()
         {
-            var startup = CreateStartupInvoker("Unknown");
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(),
+                "Unknown");
 
             var services = startup.ConfigureServices();
 
@@ -69,7 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
         [Fact]
         public void ConfigureServices_invokes_static_methods()
         {
-            var startup = CreateStartupInvoker("Static");
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(StartupStatic)),
+                "Static");
 
             var services = startup.ConfigureServices();
 
@@ -80,7 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
         [Fact]
         public void ConfigureServices_invokes_method_with_alternative_signature()
         {
-            var startup = CreateStartupInvoker("Alternative");
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(StartupAlternative)),
+                "Alternative");
 
             var services = startup.ConfigureServices();
 
@@ -88,9 +121,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
             Assert.Equal("Alternative", service.Value);
         }
 
-        private StartupInvoker CreateStartupInvoker(string environment)
+        private class StartupAlternative
+        {
+            public IServiceProvider ConfigureServices()
+                => new ServiceCollection()
+                    .AddSingleton(new TestService("Alternative"))
+                    .BuildServiceProvider();
+        }
+
+        private StartupInvoker CreateStartupInvoker(Assembly assembly, string environment)
             => new StartupInvoker(
-                typeof(StartupInvokerTest).GetTypeInfo().Assembly,
+                assembly,
                 environment,
                 "Irrelevant");
 
@@ -98,7 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
         public void ConfigureDesignTimeServices_works_on_other_types()
         {
             var services = new ServiceCollection();
-            var startup = CreateStartupInvoker(environment: null);
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(NotStartup)),
+                environment: null);
 
             startup.ConfigureDesignTimeServices(typeof(NotStartup), services);
 
@@ -136,41 +179,39 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
             private void ConfigureInjectedServices(IServiceCollection services)
                 => services.AddSingleton(new TestService("Injected"));
         }
-    }
 
-    public class StartupDevelopment
-    {
-        public void ConfigureDevelopmentServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Development"));
-
-        public void ConfigureDesignTimeServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Development"));
-    }
-
-    public class StartupStatic
-    {
-        public static void ConfigureServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Static"));
-
-        public static void ConfigureDesignTimeServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Static"));
-    }
-
-    public class StartupAlternative
-    {
-        public IServiceProvider ConfigureServices()
-            => new ServiceCollection()
-                .AddSingleton(new TestService("Alternative"))
-                .BuildServiceProvider();
-    }
-
-    public class TestService
-    {
-        public TestService(string value)
+        [Fact]
+        public void ConfigureDesignTimeServices_works_on_IStartup_implementations()
         {
-            Value = value;
+            var startup = CreateStartupInvoker(
+                MockAssembly.Create(typeof(MyStartup)),
+                environment: null);
+
+            var services = startup.ConfigureServices();
+            var service = services.GetRequiredService<TestService>();
+
+            Assert.Equal("MyStartup", service.Value);
         }
 
-        public string Value { get; }
+        private class MyStartup : IStartup
+        {
+            public void Configure(IApplicationBuilder app)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IServiceProvider ConfigureServices(IServiceCollection services)
+                => services.AddSingleton(new TestService("MyStartup")).BuildServiceProvider();
+        }
+
+        public class TestService
+        {
+            public TestService(string value)
+            {
+                Value = value;
+            }
+
+            public string Value { get; }
+        }
     }
 }

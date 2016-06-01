@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             _startupAssemblyName = startupAssembly.GetName().Name;
 
-            _startupType = startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup" + _environment)
+            _startupType = startupAssembly.GetLoadableDefinedTypes().Where(t => typeof(IStartup).IsAssignableFrom(t.AsType()))
+                .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup" + _environment))
                 .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Startup"))
                 .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "Program"))
                 .Concat(startupAssembly.GetLoadableDefinedTypes().Where(t => t.Name == "App"))
