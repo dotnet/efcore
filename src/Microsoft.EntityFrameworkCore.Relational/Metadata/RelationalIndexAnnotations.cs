@@ -55,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
-            => GetDefaultForeignKeyName(
+            => GetDefaultIndexName(
                 GetAnnotations(Index.DeclaringEntityType).TableName,
                 Index.Properties.Select(p => GetAnnotations(p).ColumnName));
 
-        public static string GetDefaultForeignKeyName(
+        public static string GetDefaultIndexName(
             [NotNull] string tableName,
             [NotNull] IEnumerable<string> propertyNames)
         {

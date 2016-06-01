@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                             .GetDefaultKeyName(
                                 entityType.Relational().TableName,
                                 true, /* is primary key */
-                                key.Properties.Select(p => p.Name)))
+                                key.Properties.Select(p => p.Relational().ColumnName)))
                     {
                         keyFluentApi.HasAttributeEquivalent = true;
 

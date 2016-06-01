@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     RelationalForeignKeyAnnotations.GetDefaultForeignKeyName(
                         foreignKey.DeclaringEntityType.Relational().TableName,
                         foreignKey.PrincipalEntityType.Relational().TableName,
-                        foreignKey.Properties.Select(p => p.Name)))
+                        foreignKey.Properties.Select(p => p.Relational().ColumnName)))
                 {
                     sb.AppendLine();
                     var hasConstraintMethodName = foreignKey.IsUnique
