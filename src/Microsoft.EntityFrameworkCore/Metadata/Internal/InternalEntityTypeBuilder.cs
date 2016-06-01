@@ -12,17 +12,33 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerDisplay("{Metadata,nq}")]
     public class InternalEntityTypeBuilder : InternalMetadataItemBuilder<EntityType>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalEntityTypeBuilder([NotNull] EntityType metadata, [NotNull] InternalModelBuilder modelBuilder)
             : base(metadata, modelBuilder)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => PrimaryKey(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
             => PrimaryKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
@@ -85,12 +101,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => HasKeyInternal(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
             => HasKeyInternal(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<Property> properties, ConfigurationSource? configurationSource)
             => HasKeyInternal(properties, configurationSource);
 
@@ -128,6 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return key?.Builder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? RemoveKey(
             [NotNull] Key key, ConfigurationSource configurationSource, bool runConventions = true)
         {
@@ -237,13 +269,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new KeyBuildersSnapshot(detachedKeys, primaryKey);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalPropertyBuilder Property(
             [NotNull] string propertyName, [NotNull] Type propertyType, ConfigurationSource configurationSource)
             => Property(propertyName, propertyType, clrProperty: null, configurationSource: configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] string propertyName, ConfigurationSource configurationSource)
             => Property(propertyName, null, clrProperty: null, configurationSource: configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
             => Property(clrProperty.Name, clrProperty.PropertyType, clrProperty: clrProperty, configurationSource: configurationSource);
 
@@ -350,15 +394,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                    && (canOverrideSameSource || (configurationSource != currentConfigurationSource));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
             => !IsIgnored(navigationName, configurationSource: configurationSource)
                && !Metadata.FindNavigationsInHierarchy(navigationName).Any();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool CanAddOrReplaceNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
             => !IsIgnored(navigationName, configurationSource: configurationSource)
                && Metadata.FindNavigationsInHierarchy(navigationName).All(n =>
                    n.ForeignKey.Builder.CanSetNavigation((string)null, n.IsDependentToPrincipal(), configurationSource));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsIgnored([NotNull] string name, ConfigurationSource? configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -383,6 +439,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool CanRemoveForeignKey([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
             Debug.Assert(foreignKey.DeclaringEntityType == Metadata);
@@ -391,6 +451,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return configurationSource.Overrides(currentConfigurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
         {
             var ignoredConfigurationSource = Metadata.FindIgnoredMemberConfigurationSource(name);
@@ -429,6 +493,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Unignore([NotNull] string memberName)
         {
             var entityType = Metadata;
@@ -444,6 +512,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder HasBaseType([CanBeNull] Type baseEntityType, ConfigurationSource configurationSource)
         {
             if (baseEntityType == null)
@@ -457,6 +529,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : HasBaseType(baseType.Metadata, configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder HasBaseType([CanBeNull] string baseEntityTypeName, ConfigurationSource configurationSource)
         {
             if (baseEntityTypeName == null)
@@ -470,6 +546,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : HasBaseType(baseType.Metadata, configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder HasBaseType([CanBeNull] EntityType baseEntityType, ConfigurationSource configurationSource)
         {
             if (Metadata.BaseType == baseEntityType)
@@ -783,9 +863,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new RelationshipBuilderSnapshot(relationshipBuilder, relationshipConfigurationSource.Value);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? RemoveForeignKey([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
             => RemoveForeignKey(foreignKey, configurationSource, runConventions: true);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? RemoveForeignKey([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource, bool runConventions)
         {
             Debug.Assert(foreignKey.DeclaringEntityType == Metadata);
@@ -834,6 +922,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             RemoveKey(key, ConfigurationSource.Convention);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void RemoveShadowPropertiesIfUnused([NotNull] IReadOnlyList<Property> properties)
         {
             foreach (var property in properties.ToList())
@@ -871,9 +963,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Debug.Assert(removedProperty == property);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
             => HasIndex(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
@@ -916,6 +1016,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return existingIndex.Builder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
         {
             var currentConfigurationSource = index.GetConfigurationSource();
@@ -972,6 +1076,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new IndexBuildersSnapshot(detachedIndexes);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<string> propertyNames,
@@ -990,6 +1098,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<string> propertyNames,
@@ -1009,6 +1121,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] Type principalClrType,
             [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
@@ -1027,6 +1143,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] Type principalClrType,
             [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
@@ -1046,6 +1166,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             [NotNull] IReadOnlyList<Property> dependentProperties,
@@ -1055,6 +1179,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 null,
                 configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             [NotNull] IReadOnlyList<Property> dependentProperties,
@@ -1109,6 +1237,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return value;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] string navigationToTargetName,
@@ -1120,6 +1252,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 PropertyIdentity.Create(inverseNavigationName),
                 configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] PropertyInfo navigationToTarget,
@@ -1237,22 +1373,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return newRelationship;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] EntityType principalEntityType,
             ConfigurationSource configurationSource)
             => RelationshipInternal(principalEntityType.Builder, null, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] EntityType principalEntityType,
             [NotNull] Key principalKey,
             ConfigurationSource configurationSource)
             => RelationshipInternal(principalEntityType.Builder, principalKey, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             ConfigurationSource configurationSource)
             => RelationshipInternal(principalEntityTypeBuilder, null, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             [NotNull] Key principalKey,
@@ -1291,6 +1443,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return newRelationship;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Navigation(
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] string navigationName,
@@ -1301,6 +1457,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 null,
                 configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Navigation(
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [CanBeNull] PropertyInfo navigationProperty,
@@ -1312,6 +1472,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 null,
                 configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder CreateForeignKey(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
@@ -1424,6 +1588,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<Property> GetOrCreateProperties(
             [CanBeNull] IEnumerable<string> propertyNames,
             ConfigurationSource configurationSource,
@@ -1482,6 +1650,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return list;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<Property> GetOrCreateProperties([CanBeNull] IEnumerable<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
             if (clrProperties == null)
@@ -1508,6 +1680,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return list;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<Property> GetActualProperties([CanBeNull] IEnumerable<Property> properties, ConfigurationSource? configurationSource)
         {
             if (properties == null)

@@ -20,8 +20,16 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class AsyncLinqOperatorProvider : ILinqOperatorProvider
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo ToEnumerable => _toEnumerable;
 
         private static readonly MethodInfo _toEnumerable
@@ -49,6 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TResult>)this).GetEnumerator();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo ToOrdered => _toOrdered;
 
         private static readonly MethodInfo _toOrdered
@@ -91,6 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IAsyncEnumerable<T> source, Type contextType, ILogger logger, QueryContext queryContext)
             => new ExceptionInterceptor<T>(source, contextType, logger, queryContext);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
         private sealed class ExceptionInterceptor<T> : IAsyncEnumerable<T>
@@ -203,6 +219,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 });
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo TrackEntities => _trackEntities;
 
         private static readonly MethodInfo _trackGroupedEntities
@@ -227,6 +247,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     entityAccessors));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo TrackGroupedEntities => _trackGroupedEntities;
 
         internal class TrackingGrouping<TKey, TOut, TIn> : IGrouping<TKey, TOut>
@@ -286,6 +310,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         internal static IAsyncEnumerable<T> _ToSequence<T>(Task<T> task)
             => new TaskResultAsyncEnumerable<T>(task);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo ToSequence => _toSequence;
 
         private static readonly MethodInfo _toQueryable
@@ -323,6 +351,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo ToQueryable => _toQueryable;
 
         private static readonly MethodInfo _selectMany
@@ -337,6 +369,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<TSource, TCollection, TResult> resultSelector)
             => source.SelectMany(collectionSelector, resultSelector);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo SelectMany => _selectMany;
 
         private static readonly MethodInfo _join
@@ -353,6 +389,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<TOuter, TInner, TResult> resultSelector)
             => outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Join => _join;
 
         private static readonly MethodInfo _groupJoin
@@ -369,12 +409,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
             => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo GroupJoin => _groupJoin;
 
         private static readonly MethodInfo _select
             = typeof(AsyncLinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Select));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         // ReSharper disable once InconsistentNaming
         public static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             [NotNull] IAsyncEnumerable<TSource> source, [NotNull] Func<TSource, TResult> selector)
@@ -417,6 +465,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Select => _select;
 
         private static readonly MethodInfo _orderBy
@@ -431,6 +483,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ? source.OrderBy(expression)
                 : source.OrderByDescending(expression);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo OrderBy => _orderBy;
 
         private static readonly MethodInfo _thenBy
@@ -445,6 +501,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ? source.ThenBy(expression)
                 : source.ThenByDescending(expression);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo ThenBy => _thenBy;
 
         private static readonly MethodInfo _where
@@ -456,6 +516,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static IAsyncEnumerable<TSource> _Where<TSource>(
             IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate) => source.Where(predicate);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Where => _where;
 
         // Result operators
@@ -475,6 +539,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Any => _any;
         
         private static readonly MethodInfo _all 
@@ -500,6 +568,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return true;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo All => _all;
         
         private static readonly MethodInfo _cast = GetMethod("Cast");
@@ -529,6 +601,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             throw new InvalidOperationException(CoreStrings.NoElements);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo First => _first;
 
         private static readonly MethodInfo _firstOrDefault
@@ -551,13 +627,46 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return default(TSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo FirstOrDefault => _firstOrDefault;
-        
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Cast => _cast;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Count => _count;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Contains => _contains;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo DefaultIfEmpty => _defaultIfEmpty;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo DefaultIfEmptyArg => _defaultIfEmptyArg;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Distinct => _distinct;
         
         private static readonly MethodInfo _groupBy
@@ -638,6 +747,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo GroupBy => _groupBy;
 
         private static readonly MethodInfo _last 
@@ -667,6 +780,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             throw new InvalidOperationException(CoreStrings.NoElements);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Last => _last;
 
         private static readonly MethodInfo _lastOrDefault
@@ -696,6 +813,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return default(TSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo LastOrDefault => _lastOrDefault;
 
         private static readonly MethodInfo _longCount = GetMethod("LongCount");
@@ -703,7 +824,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly MethodInfo _skip = GetMethod("Skip", 1);
         private static readonly MethodInfo _take = GetMethod("Take", 1);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo LongCount => _longCount;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo OfType => _ofType;
 
         private static readonly MethodInfo _single 
@@ -733,6 +863,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             throw new InvalidOperationException(CoreStrings.MoreThanOneElement);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Single => _single;
 
         private static readonly MethodInfo _singleOrDefault
@@ -762,11 +896,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             throw new InvalidOperationException(CoreStrings.MoreThanOneElement);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo SingleOrDefault => _singleOrDefault;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Skip => _skip;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Take => _take;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo GetAggregateMethod(string methodName, Type elementType)
         {
             Check.NotEmpty(methodName, nameof(methodName));
@@ -786,14 +937,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .MakeGenericMethod(elementType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Type MakeSequenceType(Type elementType)
             => typeof(IAsyncEnumerable<>)
                 .MakeGenericType(Check.NotNull(elementType, nameof(elementType)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly MethodInfo ToAsyncEnumerableMethod
             = typeof(AsyncLinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod(nameof(ToAsyncEnumerable));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IAsyncEnumerable<T> ToAsyncEnumerable<T>([NotNull] IEnumerable<T> source)
         {
             Check.NotNull(source, nameof(source));
@@ -841,9 +1004,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly MethodInfo _intersect = GetMethod("Intersect", 1);
         private static readonly MethodInfo _union = GetMethod("Union", 1);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Concat => _concat;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Except => _except;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Intersect => _intersect;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MethodInfo Union => _union;
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)

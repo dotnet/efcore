@@ -13,10 +13,18 @@ using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
         private static readonly TypeInfo _queryableTypeInfo = typeof(IQueryable).GetTypeInfo();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static Expression ExtractParameters(
             [NotNull] Expression expression,
             [NotNull] QueryContext queryContext,
@@ -46,6 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _logger = logger;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Expression ExtractParameters([NotNull] Expression expression)
         {
             var oldPartialEvaluationInfo = _partialEvaluationInfo;
@@ -64,6 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             var methodInfo = methodCallExpression.Method;
@@ -139,6 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return methodCallExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             if (!_partialEvaluationInfo.IsEvaluatableExpression(memberExpression))
@@ -157,6 +177,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return ExtractParameters(queryable.Expression);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => !_inLambda
                && _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
@@ -164,6 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ? TryExtractParameter(constantExpression)
                 : constantExpression;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             var oldInLambda = _inLambda;
@@ -180,6 +208,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             var newExpression = base.VisitUnary(unaryExpression);
@@ -250,6 +282,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static object Evaluate([CanBeNull] Expression expression, [CanBeNull] out string parameterName)
         {
             parameterName = null;

@@ -7,14 +7,26 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerDisplay("{Metadata,nq}")]
     public class InternalIndexBuilder : InternalMetadataItemBuilder<Index>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalIndexBuilder([NotNull] Index index, [NotNull] InternalModelBuilder modelBuilder)
             : base(index, modelBuilder)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsUnique(bool isUnique, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsUniqueConfigurationSource())
@@ -27,6 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalIndexBuilder Attach(ConfigurationSource configurationSource)
         {
             var entityTypeBuilder = Metadata.DeclaringEntityType.Builder;

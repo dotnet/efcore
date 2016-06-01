@@ -8,16 +8,28 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SimpleNullableDependentKeyValueFactory<TKey> : IDependentKeyValueFactory<TKey>
         where TKey : struct
     {
         private readonly PropertyAccessors _propertyAccessors;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SimpleNullableDependentKeyValueFactory([NotNull] PropertyAccessors propertyAccessors)
         {
             _propertyAccessors = propertyAccessors;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool TryCreateFromBuffer(ValueBuffer valueBuffer, out TKey key)
         {
             var value = _propertyAccessors.ValueBufferGetter(valueBuffer);
@@ -30,12 +42,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return true;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool TryCreateFromCurrentValues(InternalEntityEntry entry, out TKey key)
             => HandleNullableValue(((Func<InternalEntityEntry, TKey?>)_propertyAccessors.CurrentValueGetter)(entry), out key);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool TryCreateFromOriginalValues(InternalEntityEntry entry, out TKey key)
             => HandleNullableValue(((Func<InternalEntityEntry, TKey?>)_propertyAccessors.OriginalValueGetter)(entry), out key);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool TryCreateFromRelationshipSnapshot(InternalEntityEntry entry, out TKey key)
             => HandleNullableValue(((Func<InternalEntityEntry, TKey?>)_propertyAccessors.RelationshipSnapshotGetter)(entry), out key);
 

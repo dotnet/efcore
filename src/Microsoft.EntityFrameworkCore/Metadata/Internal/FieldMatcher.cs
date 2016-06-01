@@ -6,8 +6,16 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class FieldMatcher : IFieldMatcher
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual FieldInfo TryMatchFieldName(
             IProperty property, PropertyInfo propertyInfo, Dictionary<string, FieldInfo> declaredFields)
         {

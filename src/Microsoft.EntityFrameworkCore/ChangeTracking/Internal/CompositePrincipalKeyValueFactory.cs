@@ -13,10 +13,18 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class CompositePrincipalKeyValueFactory : IPrincipalKeyValueFactory<object[]>
     {
         private readonly IReadOnlyList<IProperty> _properties;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public CompositePrincipalKeyValueFactory([NotNull] IKey key)
         {
             _properties = key.Properties;
@@ -28,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : new CompositeComparer();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object CreateFromBuffer(ValueBuffer valueBuffer)
         {
             var values = new object[_properties.Count];
@@ -44,12 +56,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return values;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object[] CreateFromCurrentValues(InternalEntityEntry entry)
             => CreateFromEntry(entry, (e, p) => e.GetCurrentValue(p));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object[] CreateFromOriginalValues(InternalEntityEntry entry)
             => CreateFromEntry(entry, (e, p) => e.GetOriginalValue(p));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object[] CreateFromRelationshipSnapshot(InternalEntityEntry entry)
             => CreateFromEntry(entry, (e, p) => e.GetRelationshipSnapshotValue(p));
 
@@ -68,6 +92,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return values;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEqualityComparer<object[]> EqualityComparer { get; }
 
         private sealed class CompositeComparer : IEqualityComparer<object[]>

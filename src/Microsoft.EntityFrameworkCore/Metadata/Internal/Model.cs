@@ -13,6 +13,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class Model : ConventionalAnnotatable, IMutableModel
     {
         private readonly SortedDictionary<string, EntityType> _entityTypes
@@ -24,11 +28,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<string, ConfigurationSource> _ignoredEntityTypeNames
             = new Dictionary<string, ConfigurationSource>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Model()
             : this(new ConventionSet())
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Model([NotNull] ConventionSet conventions)
         {
             ConventionDispatcher = new ConventionDispatcher(conventions);
@@ -36,14 +48,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConventionDispatcher.OnModelInitialized(Builder);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ChangeTrackingStrategy ChangeTrackingStrategy { get; set; } 
             = ChangeTrackingStrategy.Snapshot;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConventionDispatcher ConventionDispatcher { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalModelBuilder Builder { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<EntityType> GetEntityTypes() => _entityTypes.Values;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType AddEntityType(
             [NotNull] string name,
             // ReSharper disable once MethodOverloadWithOptionalParameter
@@ -56,6 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddEntityType(entityType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType AddEntityType(
             [NotNull] Type type,
             // ReSharper disable once MethodOverloadWithOptionalParameter
@@ -81,12 +118,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType GetOrAddEntityType([NotNull] Type type)
             => FindEntityType(type) ?? AddEntityType(type);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType GetOrAddEntityType([NotNull] string name)
             => FindEntityType(name) ?? AddEntityType(name);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType FindEntityType([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -97,6 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : FindEntityType(type.DisplayName());
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType FindEntityType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -107,6 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] Type type)
         {
             var entityType = FindEntityType(type);
@@ -115,6 +172,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : RemoveEntityType(entityType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType RemoveEntityType([NotNull] string name)
         {
             var entityType = FindEntityType(name);
@@ -158,12 +219,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return entityType;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Ignore([NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(type, nameof(type));
             Ignore(type.DisplayName(), configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(name, nameof(name));
@@ -177,6 +246,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _ignoredEntityTypeNames[name] = configurationSource;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? FindIgnoredEntityTypeConfigurationSource([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -184,6 +257,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return FindIgnoredEntityTypeConfigurationSource(type.DisplayName());
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? FindIgnoredEntityTypeConfigurationSource([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -197,18 +274,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Unignore([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
             Unignore(type.DisplayName());
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Unignore([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
             _ignoredEntityTypeNames.Remove(name);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalModelBuilder Validate() => ConventionDispatcher.OnModelBuilt(Builder);
 
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);

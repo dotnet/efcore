@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InternalEntityEntryNotifier : IInternalEntityEntryNotifier
     {
         private readonly IEntityStateListener[] _entityStateListeners;
@@ -15,6 +19,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly INavigationListener[] _navigationListeners;
         private readonly IKeyListener[] _keyListeners;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalEntityEntryNotifier(
             [CanBeNull] IEnumerable<IEntityStateListener> entityStateListeners,
             [CanBeNull] IEnumerable<IPropertyListener> propertyListeners,
@@ -46,6 +54,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
         {
             if (_entityStateListeners == null)
@@ -59,6 +71,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup, bool fromQuery)
         {
             if (_entityStateListeners == null)
@@ -72,6 +88,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void NavigationReferenceChanged(
             InternalEntityEntry entry,
             INavigation navigation,
@@ -89,6 +109,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void NavigationCollectionChanged(
             InternalEntityEntry entry,
             INavigation navigation,
@@ -106,6 +130,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,
@@ -125,6 +153,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
         {
             if (_propertyListeners == null)
@@ -138,6 +170,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
         {
             if (_propertyListeners == null)

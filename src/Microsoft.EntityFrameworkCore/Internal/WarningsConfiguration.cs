@@ -7,13 +7,25 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class WarningsConfiguration
     {
         private readonly Dictionary<object, WarningBehavior> _explicitBehaviors
             = new Dictionary<object, WarningBehavior>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual WarningBehavior DefaultBehavior { get; set; } = WarningBehavior.Log;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddExplicit(
             [NotNull] IEnumerable<object> eventIds, WarningBehavior warningBehavior)
         {
@@ -25,6 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual WarningBehavior GetBehavior([NotNull] object eventId)
         {
             Check.NotNull(eventId, nameof(eventId));
@@ -35,6 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                        : DefaultBehavior;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void TryAddExplicit([NotNull] object eventId, WarningBehavior warningBehavior)
         {
             Check.NotNull(eventId, nameof(eventId));

@@ -8,14 +8,26 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerDisplay("{Metadata,nq}")]
     public class InternalPropertyBuilder : InternalMetadataItemBuilder<Property>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder)
             : base(property, modelBuilder)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsRequired(bool isRequired, ConfigurationSource configurationSource)
         {
             if (CanSetRequired(isRequired, configurationSource))
@@ -36,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool CanSetRequired(bool isRequired, ConfigurationSource? configurationSource)
             => ((Metadata.IsNullable == !isRequired)
                 || (configurationSource.HasValue &&
@@ -44,9 +60,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                    || Metadata.ClrType.IsNullableType()
                    || (configurationSource == ConfigurationSource.Explicit)); // let it throw for Explicit
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool HasMaxLength(int maxLength, ConfigurationSource configurationSource)
             => HasAnnotation(CoreAnnotationNames.MaxLengthAnnotation, maxLength, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsConcurrencyToken(bool concurrencyToken, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsConcurrencyTokenConfigurationSource())
@@ -59,6 +83,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool ReadOnlyAfterSave(bool isReadOnlyAfterSave, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsReadOnlyAfterSaveConfigurationSource())
@@ -71,6 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool ReadOnlyBeforeSave(bool isReadOnlyBeforeSave, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsReadOnlyBeforeSaveConfigurationSource())
@@ -83,6 +115,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool RequiresValueGenerator(bool generateValue, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetRequiresValueGeneratorConfigurationSource())
@@ -95,6 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool ValueGenerated(ValueGenerated valueGenerated, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetValueGeneratedConfigurationSource())
@@ -115,6 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalPropertyBuilder Attach(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder, ConfigurationSource configurationSource)
         {

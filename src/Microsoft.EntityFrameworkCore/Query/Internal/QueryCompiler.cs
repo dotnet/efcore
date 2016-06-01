@@ -25,6 +25,10 @@ using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class QueryCompiler : IQueryCompiler
     {
         private static MethodInfo CompileQueryMethod { get; }
@@ -44,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private INodeTypeProvider _nodeTypeProvider;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public QueryCompiler(
             [NotNull] IQueryContextFactory queryContextFactory,
             [NotNull] ICompiledQueryCache compiledQueryCache,
@@ -69,8 +77,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _contextType = currentContext.Context.GetType();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IDatabase Database => _database;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual TResult Execute<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
@@ -82,6 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return CompileQuery<TResult>(query)(queryContext);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
@@ -93,6 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return CompileAsyncQuery<TResult>(query)(queryContext);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
         {
             Check.NotNull(query, nameof(query));
@@ -120,6 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Expression ExtractParameters([NotNull] Expression query, [NotNull] QueryContext queryContext)
         {
             Check.NotNull(query, nameof(query));
@@ -129,6 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 .ExtractParameters(query, queryContext, _evaluatableExpressionFilter, _logger);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));
@@ -185,6 +217,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         });
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));

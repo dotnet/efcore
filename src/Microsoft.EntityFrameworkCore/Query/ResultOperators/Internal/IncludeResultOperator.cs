@@ -16,10 +16,18 @@ using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class IncludeResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
         private List<PropertyInfo> _chainedNavigationProperties;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IncludeResultOperator([NotNull] MemberExpression navigationPropertyPath)
         {
             NavigationPropertyPath = navigationPropertyPath;
@@ -34,13 +42,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
                    ?? GetQuerySource((MemberExpression)expressionWithoutConvert);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IQuerySource QuerySource { get; set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual QueryModel QueryModel { get; set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MemberExpression NavigationPropertyPath { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<PropertyInfo> ChainedNavigationProperties => _chainedNavigationProperties;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AppendToNavigationPath([NotNull] IReadOnlyList<PropertyInfo> propertyInfos)
         {
             if (_chainedNavigationProperties == null)
@@ -51,6 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             _chainedNavigationProperties.AddRange(propertyInfos);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string ToString()
             => "Include("
                + NavigationPropertyPath
@@ -59,16 +92,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
                    : string.Empty)
                + ")";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override ResultOperatorBase Clone(CloneContext cloneContext)
             => new IncludeResultOperator(NavigationPropertyPath)
             {
                 _chainedNavigationProperties = _chainedNavigationProperties
             };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input) => input;
     }
 }

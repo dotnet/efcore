@@ -13,6 +13,10 @@ using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RequiresMaterializationExpressionVisitor : ExpressionVisitorBase
     {
         private readonly IModel _model;
@@ -22,6 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private QueryModel _queryModel;
         private Expression _selector;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RequiresMaterializationExpressionVisitor(
             [NotNull] IModel model,
             [NotNull] EntityQueryModelVisitor queryModelVisitor)
@@ -30,6 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _queryModelVisitor = queryModelVisitor;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ISet<IQuerySource> FindQuerySourcesRequiringMaterialization([NotNull] QueryModel queryModel)
         {
             _queryModel = queryModel;
@@ -44,6 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return querySources;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression expression)
         {
@@ -65,6 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMember(MemberExpression node)
         {
             var newExpression = base.VisitMember(node);
@@ -86,6 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return newExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var newExpression = base.VisitMethodCall(node);
@@ -104,6 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return newExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
         {
             var oldParentSelector = _selector;
@@ -141,6 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var oldParentSelector = _selector;

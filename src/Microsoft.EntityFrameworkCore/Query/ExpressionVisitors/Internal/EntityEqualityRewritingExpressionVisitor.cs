@@ -16,10 +16,18 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class EntityEqualityRewritingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly IModel _model;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public EntityEqualityRewritingExpressionVisitor([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -27,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _model = model;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Rewrite([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -34,6 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             queryModel.TransformExpressions(Visit);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
@@ -92,6 +108,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             .ToArray()));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
             Check.NotNull(subQueryExpression, nameof(subQueryExpression));

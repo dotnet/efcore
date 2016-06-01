@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
         private static readonly MethodInfo _readValue
@@ -20,17 +24,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private readonly IMemberMapper _memberMapper;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public EntityMaterializerSource([NotNull] IMemberMapper memberMapper)
         {
             _memberMapper = memberMapper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index)
             => Expression.Convert(CreateReadValueCallExpression(valueBuffer, index), type);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index)
             => Expression.Call(valueBuffer, _readValue, Expression.Constant(index));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
             Expression valueBufferExpression,

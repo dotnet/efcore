@@ -8,8 +8,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class StringLengthAttributeConvention : PropertyAttributeConvention<StringLengthAttribute>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, StringLengthAttribute attribute, PropertyInfo clrProperty)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));

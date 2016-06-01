@@ -12,7 +12,8 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     Used to store the options specified via <see cref="DbContextOptionsBuilder" /> that are applicable to all databases.
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class CoreOptionsExtension : IDbContextOptionsExtension
     {
@@ -24,23 +25,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private WarningsConfiguration _warningsConfiguration;
 
         /// <summary>
-        ///     <para>
-        ///         Initializes a new instance of the <see cref="CoreOptionsExtension" /> class.
-        ///     </para>
-        ///     <para>
-        ///         This type is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CoreOptionsExtension()
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CoreOptionsExtension" /> class with the same options as an
-        ///     existing instance.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="copyFrom"> The <see cref="CoreOptionsExtension" /> to copy options from. </param>
         public CoreOptionsExtension([NotNull] CoreOptionsExtension copyFrom)
         {
             _internalServiceProvider = copyFrom.InternalServiceProvider;
@@ -52,10 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether application data can be included in exception messages, logging, etc.
-        ///     This can include the values assigned to properties of your entity instances, parameter values for commands being
-        ///     sent to the database, and other such data. You should only enable this flag if you have the appropriate security
-        ///     measures in place based on the sensitivity of this data.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsSensitiveDataLoggingEnabled
         {
@@ -64,14 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether a warning has been logged that <see cref="IsSensitiveDataLoggingEnabled" />
-        ///     is enabled. This is used internally by EF to ensure the warning is only displayed once per context type.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool SensitiveDataLoggingWarned { get; set; }
 
         /// <summary>
-        ///     Gets or sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
-        ///     will not be run.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IModel Model
         {
@@ -79,24 +72,40 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [param: CanBeNull] set { _model = value; }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ILoggerFactory LoggerFactory
         {
             get { return _loggerFactory; }
             [param: CanBeNull] set { _loggerFactory = value; }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IMemoryCache MemoryCache
         {
             get { return _memoryCache; }
             [param: CanBeNull] set { _memoryCache = value; }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceProvider InternalServiceProvider
         {
             get { return _internalServiceProvider; }
             [param: CanBeNull] set { _internalServiceProvider = value; }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual WarningsConfiguration WarningsConfiguration
         {
             get { return _warningsConfiguration; }
@@ -104,11 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     Adds the services required to make the selected options work. This is used when there is no external <see cref="IServiceProvider" />
-        ///     and EF is maintaining its own service provider internally. Since all the core services are already added to the service provider,
-        ///     this method does nothing.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="builder"> The builder to add services to. </param>
         public virtual void ApplyServices(IServiceCollection builder)
         {
         }

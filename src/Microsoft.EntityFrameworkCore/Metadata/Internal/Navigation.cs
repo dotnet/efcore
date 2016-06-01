@@ -11,12 +11,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
     public class Navigation : PropertyBase, IMutableNavigation
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor _collectionAccessor;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Navigation([NotNull] PropertyInfo navigationProperty, [NotNull] ForeignKey foreignKey)
             : base(Check.NotNull(navigationProperty, nameof(navigationProperty)).Name, navigationProperty)
         {
@@ -25,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ForeignKey = foreignKey;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Navigation([NotNull] string navigationName, [NotNull] ForeignKey foreignKey)
             : base(navigationName, null)
         {
@@ -33,15 +45,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ForeignKey = foreignKey;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey ForeignKey { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override EntityType DeclaringEntityType
             => this.IsDependentToPrincipal()
                 ? ForeignKey.DeclaringEntityType
                 : ForeignKey.PrincipalEntityType;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string ToString() => DeclaringEntityType + "." + Name;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyInfo GetClrProperty(
             [NotNull] string navigationName,
             [NotNull] EntityType sourceType,
@@ -58,6 +86,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigationProperty;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool IsCompatible(
             [NotNull] string navigationName,
             [CanBeNull] PropertyInfo navigationProperty,
@@ -89,6 +121,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return IsCompatible(navigationProperty, sourceType.ClrType, targetClrType, shouldBeCollection, shouldThrow);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool IsCompatible(
             [NotNull] PropertyInfo navigationProperty,
             [NotNull] Type sourceClrType,
@@ -141,12 +177,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Navigation FindInverse()
             => (Navigation)((INavigation)this).FindInverse();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType GetTargetType()
             => (EntityType)((INavigation)this).GetTargetType();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IClrCollectionAccessor CollectionAccessor
             => NonCapturingLazyInitializer.EnsureInitialized(ref _collectionAccessor, this, n => new ClrCollectionAccessorFactory().Create(n));
 

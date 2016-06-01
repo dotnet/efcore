@@ -10,13 +10,25 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ServiceProviderCache
     {
         private readonly ConcurrentDictionary<long, IServiceProvider> _configurations
             = new ConcurrentDictionary<long, IServiceProvider>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options)
         {
             // Decided that this hashing algorithm is robust enough. See issue #762.

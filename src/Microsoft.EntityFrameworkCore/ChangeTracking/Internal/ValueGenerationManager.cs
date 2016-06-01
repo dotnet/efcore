@@ -9,11 +9,19 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ValueGenerationManager : IValueGenerationManager
     {
         private readonly IValueGeneratorSelector _valueGeneratorSelector;
         private readonly IKeyPropagator _keyPropagator;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ValueGenerationManager(
             [NotNull] IValueGeneratorSelector valueGeneratorSelector,
             [NotNull] IKeyPropagator keyPropagator)
@@ -22,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _keyPropagator = keyPropagator;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Generate(InternalEntityEntry entry)
         {
             var entityEntry = new EntityEntry(entry);
@@ -51,6 +63,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool MayGetTemporaryValue(IProperty property, IEntityType entityType)
             => property.RequiresValueGenerator
                && _valueGeneratorSelector.Select(property, entityType).GeneratesTemporaryValues;

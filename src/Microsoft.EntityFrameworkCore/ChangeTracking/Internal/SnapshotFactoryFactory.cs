@@ -13,8 +13,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public abstract class SnapshotFactoryFactory
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
         {
             if (GetPropertyCount(entityType) == 0)
@@ -27,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .Compile();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Expression CreateConstructorExpression(
             [NotNull] IEntityType entityType,
             [CanBeNull] ParameterExpression parameter)
@@ -136,6 +148,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : constructorExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
             [CanBeNull] ParameterExpression parameter, [NotNull] IProperty property)
             => Expression.Call(
@@ -143,10 +159,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
                 Expression.Constant(property.GetShadowIndex()));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract int GetPropertyIndex([NotNull] IPropertyBase propertyBase);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract int GetPropertyCount([NotNull] IEntityType entityType);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual bool UseEntityVariable => true;
 
         private static readonly MethodInfo _snapshotCollectionMethod

@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ExpressionPrinter : ExpressionVisitor, IExpressionPrinter
     {
         private IndentedStringBuilder _stringBuilder;
@@ -39,16 +43,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { ExpressionType.Or, " | " }
         };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected static Action<IndentedStringBuilder, string> Append
         {
             get { return (sb, s) => sb.Append(s); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected static Action<IndentedStringBuilder, string> AppendLine
         {
             get { return (sb, s) => sb.AppendLine(s); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Print(Expression expression)
         {
             _stringBuilder = new IndentedStringBuilder();
@@ -65,6 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual List<IConstantPrinter> GetConstantPrinters()
             => new List<IConstantPrinter>
             {
@@ -73,8 +93,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 new DefaultConstantPrinter()
             };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool TrackedQuery { get; private set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Expression Visit([NotNull] Expression node)
         {
             switch (node.NodeType)
@@ -165,6 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
         {
             Visit(node.Left);
@@ -195,6 +227,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitBlock(BlockExpression node)
         {
             _stringBuilder.AppendLine();
@@ -234,6 +270,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConditional(ConditionalExpression node)
         {
             Visit(node.Test);
@@ -249,6 +289,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConstant(ConstantExpression node)
         {
             foreach (var constantPrinter in _constantPrinters)
@@ -262,6 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitGoto(GotoExpression node)
         {
             _stringBuilder.AppendLine("return (" + node.Target.Type.DisplayName(fullName: false) + ")" + node.Target + " {");
@@ -275,6 +323,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitLabel(LabelExpression node)
         {
             _stringBuilder.Append(node.Target.ToString());
@@ -282,6 +334,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             _stringBuilder.Append("(");
@@ -309,6 +365,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node.Expression != null)
@@ -325,6 +385,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             _stringBuilder.Append("new " + node.Type.DisplayName(fullName: false));
@@ -354,6 +418,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var simpleMethods = new List<string>
@@ -420,6 +488,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitNew(NewExpression node)
         {
             _stringBuilder.Append("new ");
@@ -441,6 +513,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
             var appendAction = node.Expressions.Count > 1 ? AppendLine : Append;
@@ -460,6 +536,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitParameter(ParameterExpression node)
         {
             if (_parametersInScope.ContainsKey(node))
@@ -474,6 +554,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitUnary(UnaryExpression node)
         {
             if (node.NodeType == ExpressionType.Convert)
@@ -498,6 +582,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitDefault(DefaultExpression node)
         {
             _stringBuilder.Append("default(" + node.Type + ")");
@@ -505,6 +593,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual string PostProcess([NotNull] string queryPlan)
         {
             var processedPlan = queryPlan
@@ -518,8 +610,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private void UnhandledExpressionType(ExpressionType expressionType)
             => _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected interface IConstantPrinter
         {
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             bool TryPrintConstant([NotNull] object value, [NotNull] IndentedStringBuilder stringBuilder);
         }
 

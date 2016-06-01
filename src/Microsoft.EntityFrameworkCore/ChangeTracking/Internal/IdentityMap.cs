@@ -12,12 +12,20 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class IdentityMap<TKey> : IIdentityMap
     {
         private readonly Dictionary<TKey, InternalEntityEntry> _identityMap;
         private readonly IList<IForeignKey> _foreignKeys;
         private Dictionary<IForeignKey, IDependentsMap> _dependentMaps;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IdentityMap(
             [NotNull] IKey key,
             [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
@@ -36,16 +44,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IPrincipalKeyValueFactory<TKey> PrincipalKeyValueFactory { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IKey Key { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Contains(ValueBuffer valueBuffer)
         {
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
             return key != null && _identityMap.ContainsKey((TKey)key);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Contains(IForeignKey foreignKey, ValueBuffer valueBuffer)
         {
             TKey key;
@@ -53,6 +77,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                    && _identityMap.ContainsKey(key);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry TryGetEntry(ValueBuffer valueBuffer, bool throwOnNullKey)
         {
             InternalEntityEntry entry;
@@ -65,6 +93,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return key != null && _identityMap.TryGetValue((TKey)key, out entry) ? entry : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry TryGetEntry(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
         {
             TKey key;
@@ -75,6 +107,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry TryGetEntryUsingRelationshipSnapshot(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
         {
             TKey key;
@@ -85,12 +121,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddOrUpdate(InternalEntityEntry entry)
             => AddInternal(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Add(InternalEntityEntry entry)
             => Add(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void Add([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
         {
             InternalEntityEntry existingEntry;
@@ -125,6 +173,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDependentsMap GetDependentsMap(IForeignKey foreignKey)
         {
             if (_dependentMaps == null)
@@ -148,6 +200,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return map;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDependentsMap FindDependentsMap(IForeignKey foreignKey)
         {
             IDependentsMap map;
@@ -157,12 +213,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Remove(InternalEntityEntry entry)
             => Remove(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void RemoveUsingRelationshipSnapshot(InternalEntityEntry entry)
             => Remove(PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(entry), entry);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void Remove([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
         {
             _identityMap.Remove(key);

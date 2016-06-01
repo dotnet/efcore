@@ -10,9 +10,22 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public interface IAsyncQueryProvider : IQueryProvider
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         IAsyncEnumerable<TResult> ExecuteAsync<TResult>([NotNull] Expression expression);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         Task<TResult> ExecuteAsync<TResult>([NotNull] Expression expression, CancellationToken cancellationToken);
     }
 }

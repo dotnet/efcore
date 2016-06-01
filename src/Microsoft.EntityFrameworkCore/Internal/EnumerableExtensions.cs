@@ -10,14 +10,26 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerStepThrough]
     public static class EnumerableExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IOrderedEnumerable<TSource> OrderByOrdinal<TSource>(
             [NotNull] this IEnumerable<TSource> source,
             [NotNull] Func<TSource, string> keySelector)
             => source.OrderBy(keySelector, StringComparer.Ordinal);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IEnumerable<T> Distinct<T>(
             [NotNull] this IEnumerable<T> source,
             [NotNull] Func<T, T, bool> comparer)
@@ -39,11 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             public int GetHashCode(T obj) => 0;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static string Join(
             [NotNull] this IEnumerable<object> source,
             [NotNull] string separator = ", ")
             => string.Join(separator, source);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool StructuralSequenceEqual<TSource>(
             [NotNull] this IEnumerable<TSource> first,
             [NotNull] IEnumerable<TSource> second)

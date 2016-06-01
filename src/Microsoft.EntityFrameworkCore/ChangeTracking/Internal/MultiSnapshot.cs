@@ -7,10 +7,18 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public struct MultiSnapshot : ISnapshot
     {
         private readonly ISnapshot[] _snapshots;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public MultiSnapshot([NotNull] ISnapshot[] snapshots)
         {
             _snapshots = snapshots;
@@ -19,9 +27,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         internal static readonly ConstructorInfo Constructor
             = typeof(MultiSnapshot).GetDeclaredConstructor(new[] { typeof(ISnapshot[]) });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public T GetValue<T>(int index)
             => _snapshots[index / Snapshot.MaxGenericTypes].GetValue<T>(index % Snapshot.MaxGenericTypes);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public object this[int index]
         {
             get { return _snapshots[index / Snapshot.MaxGenericTypes][index % Snapshot.MaxGenericTypes]; }

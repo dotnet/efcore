@@ -6,10 +6,18 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class TemporaryULongValueGenerator : TemporaryNumberValueGenerator<ulong>
     {
         private long _current = long.MinValue + 1000;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override ulong Next(EntityEntry entry) => (ulong)Interlocked.Increment(ref _current);
     }
 }

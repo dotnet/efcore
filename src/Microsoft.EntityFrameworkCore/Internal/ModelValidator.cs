@@ -14,8 +14,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public abstract class ModelValidator : IModelValidator
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Validate(IModel model)
         {
             EnsureNoShadowEntities(model);
@@ -25,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             EnsureChangeTrackingStrategy(model);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
         {
             var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType());
@@ -34,6 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
         {
             var messages = KeyConvention.GetShadowKeyExceptionMessage(model, key => key.Properties.Any(p => p.IsShadowProperty));
@@ -48,6 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureNonNullPrimaryKeys([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -59,6 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureClrInheritance([NotNull] IModel model)
         {
             var validEntityTypes = new HashSet<IEntityType>();
@@ -100,6 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             validEntityTypes.Add(entityType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureChangeTrackingStrategy([NotNull] IModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -126,11 +154,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void ShowError([NotNull] string message)
         {
             throw new InvalidOperationException(message);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract void ShowWarning([NotNull] string message);
     }
 }

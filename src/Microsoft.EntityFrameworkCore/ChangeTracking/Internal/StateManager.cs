@@ -15,6 +15,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class StateManager : IStateManager
     {
         private readonly Dictionary<object, InternalEntityEntry> _entityReferenceMap
@@ -35,6 +39,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IDatabase _database;
         private readonly IConcurrencyDetector _concurrencyDetector;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public StateManager(
             [NotNull] IInternalEntityEntryFactory factory,
             [NotNull] IInternalEntityEntrySubscriber subscriber,
@@ -55,12 +63,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Context = currentContext.Context;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool? SingleQueryMode { get; set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IInternalEntityEntryNotifier Notify { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IValueGenerationManager ValueGeneration { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry GetOrCreateEntry(object entity)
         {
             var entry = TryGetEntry(entity);
@@ -82,8 +106,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return entry;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void BeginTrackingQuery() => SingleQueryMode = SingleQueryMode == null;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry StartTrackingFromQuery(
             IEntityType baseEntityType,
             object entity,
@@ -120,9 +152,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return newEntry;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
             => GetOrCreateIdentityMap(key).TryGetEntry(valueBuffer, throwOnNullKey);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry TryGetEntry(object entity)
         {
             InternalEntityEntry entry;
@@ -198,8 +238,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return identityMap;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry StartTracking(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
@@ -235,6 +283,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return entry;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void StopTracking(InternalEntityEntry entry)
         {
             if (_needsUnsubscribe)
@@ -273,6 +325,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Unsubscribe()
         {
             if (_needsUnsubscribe)
@@ -284,6 +340,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void RecordReferencedUntrackedEntity(
             object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry)
         {
@@ -296,6 +356,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             danglers.Add(Tuple.Create(navigation, referencedFromEntry));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers(object referencedEntity, bool clear)
         {
             IList<Tuple<INavigation, InternalEntityEntry>> danglers;
@@ -312,12 +376,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return Enumerable.Empty<Tuple<INavigation, InternalEntityEntry>>();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
             => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntry(foreignKey, dependentEntry);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
             => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntryUsingRelationshipSnapshot(foreignKey, dependentEntry);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void UpdateIdentityMap(InternalEntityEntry entry, IKey key)
         {
             if (entry.EntityState == EntityState.Detached)
@@ -335,6 +411,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             identityMap.Add(entry);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void UpdateDependentMap(InternalEntityEntry entry, IForeignKey foreignKey)
         {
             if (entry.EntityState == EntityState.Detached)
@@ -347,6 +427,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ?.Update(entry);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependents(
             InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
@@ -356,6 +440,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : Enumerable.Empty<InternalEntityEntry>();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
             InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
@@ -365,6 +453,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : Enumerable.Empty<InternalEntityEntry>();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
             var navigation = foreignKey.PrincipalToDependent;
@@ -391,6 +483,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return ((IEnumerable<object>)navigationValue).Select(TryGetEntry).Where(e => e != null);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             var entriesToSave = GetEntriesToSave();
@@ -442,6 +538,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .ToList();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -472,6 +572,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual int SaveChanges(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave)
         {
@@ -481,6 +585,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual async Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -491,6 +599,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AcceptAllChanges()
         {
             var changedEntries = Entries
@@ -510,6 +622,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual DbContext Context { get; }
     }
 }

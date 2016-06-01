@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
     public class Property : PropertyBase, IMutableProperty
     {
@@ -26,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _requiresValueGeneratorConfigurationSource;
         private ConfigurationSource? _valueGeneratedConfigurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Property(
             [NotNull] string name,
             [NotNull] Type clrType,
@@ -41,6 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Initialize(declaringEntityType, configurationSource);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Property(
             [NotNull] PropertyInfo propertyInfo,
             [NotNull] EntityType declaringEntityType,
@@ -61,22 +73,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override EntityType DeclaringEntityType { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalPropertyBuilder Builder { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
         // Needed for a workaround before reference counting is implemented
         // Issue #214
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = configurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Type ClrType { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsNullable
         {
             get
@@ -87,6 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set { SetIsNullable(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetIsNullable(bool nullable, ConfigurationSource configurationSource)
         {
             if (nullable)
@@ -114,11 +158,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool DefaultIsNullable => ClrType.IsNullableType();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _isNullableConfigurationSource;
 
         private void UpdateIsNullableConfigurationSource(ConfigurationSource configurationSource)
             => _isNullableConfigurationSource = configurationSource.Max(_isNullableConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ValueGenerated ValueGenerated
         {
             get
@@ -130,6 +182,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set { SetValueGenerated(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
             _flags &= ~(int)PropertyFlags.ValueGenerated;
@@ -146,11 +202,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetValueGeneratedConfigurationSource() => _valueGeneratedConfigurationSource;
 
         private void UpdateValueGeneratedConfigurationSource(ConfigurationSource configurationSource)
             => _valueGeneratedConfigurationSource = configurationSource.Max(_valueGeneratedConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsReadOnlyBeforeSave
         {
             get
@@ -161,6 +226,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set { SetIsReadOnlyBeforeSave(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetIsReadOnlyBeforeSave(bool readOnlyBeforeSave, ConfigurationSource configurationSource)
         {
             SetFlag(readOnlyBeforeSave, PropertyFlags.IsReadOnlyBeforeSave);
@@ -171,11 +240,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (ValueGenerated == ValueGenerated.OnAddOrUpdate)
                && !IsStoreGeneratedAlways;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetIsReadOnlyBeforeSaveConfigurationSource() => _isReadOnlyBeforeSaveConfigurationSource;
 
         private void UpdateIsReadOnlyBeforeSaveConfigurationSource(ConfigurationSource configurationSource)
             => _isReadOnlyBeforeSaveConfigurationSource = configurationSource.Max(_isReadOnlyBeforeSaveConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsReadOnlyAfterSave
         {
             get
@@ -186,6 +263,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set { SetIsReadOnlyAfterSave(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetIsReadOnlyAfterSave(bool readOnlyAfterSave, ConfigurationSource configurationSource)
         {
             if (!readOnlyAfterSave
@@ -202,11 +283,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !IsStoreGeneratedAlways)
                || Keys != null;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetIsReadOnlyAfterSaveConfigurationSource() => _isReadOnlyAfterSaveConfigurationSource;
 
         private void UpdateIsReadOnlyAfterSaveConfigurationSource(ConfigurationSource configurationSource)
             => _isReadOnlyAfterSaveConfigurationSource = configurationSource.Max(_isReadOnlyAfterSaveConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool RequiresValueGenerator
         {
             get
@@ -217,6 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set { SetRequiresValueGenerator(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetRequiresValueGenerator(bool requiresValueGenerator, ConfigurationSource configurationSource)
         {
             SetFlag(requiresValueGenerator, PropertyFlags.RequiresValueGenerator);
@@ -224,13 +317,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static bool DefaultRequiresValueGenerator => false;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetRequiresValueGeneratorConfigurationSource() => _requiresValueGeneratorConfigurationSource;
 
         private void UpdateRequiresValueGeneratorConfigurationSource(ConfigurationSource configurationSource)
             => _requiresValueGeneratorConfigurationSource = configurationSource.Max(_requiresValueGeneratorConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsShadowProperty => PropertyInfo == null;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsConcurrencyToken
         {
             get
@@ -241,6 +347,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set { SetIsConcurrencyToken(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetIsConcurrencyToken(bool concurrencyToken, ConfigurationSource configurationSource)
         {
             if (IsConcurrencyToken != concurrencyToken)
@@ -253,11 +363,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static bool DefaultIsConcurrencyToken => false;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource() => _isConcurrencyTokenConfigurationSource;
 
         private void UpdateIsConcurrencyTokenConfigurationSource(ConfigurationSource configurationSource)
             => _isConcurrencyTokenConfigurationSource = configurationSource.Max(_isConcurrencyTokenConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsStoreGeneratedAlways
         {
             get
@@ -268,6 +387,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set { SetIsStoreGeneratedAlways(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetIsStoreGeneratedAlways(bool storeGeneratedAlways, ConfigurationSource configurationSource)
         {
             if (IsStoreGeneratedAlways != storeGeneratedAlways)
@@ -280,17 +403,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private bool DefaultStoreGeneratedAlways => (ValueGenerated == ValueGenerated.OnAddOrUpdate) && IsConcurrencyToken;
+      
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetIsStoreGeneratedAlwaysConfigurationSource() => _isStoreGeneratedAlwaysConfigurationSource;
 
         private void UpdateIsStoreGeneratedAlwaysConfigurationSource(ConfigurationSource configurationSource)
             => _isStoreGeneratedAlwaysConfigurationSource = configurationSource.Max(_isStoreGeneratedAlwaysConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetContainingForeignKeys()
             => ((IProperty)this).GetContainingForeignKeys().Cast<ForeignKey>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Key> GetContainingKeys()
             => ((IProperty)this).GetContainingKeys().Cast<Key>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Index> GetContainingIndexes()
             => ((IProperty)this).GetContainingIndexes().Cast<Index>();
 
@@ -331,6 +471,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             StoreGeneratedAlways = 3 << 13
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool AreCompatible([NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
         {
             Check.NotNull(properties, nameof(properties));
@@ -342,9 +486,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && (entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IKey PrimaryKey { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<IKey> Keys { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<IForeignKey> ForeignKeys { get; [param: CanBeNull] set; }
+      
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<IIndex> Indexes { get; [param: CanBeNull] set; }
     }
 }

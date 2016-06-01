@@ -10,12 +10,20 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DatabaseProviderSelector : IDatabaseProviderSelector
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IDbContextOptions _contextOptions;
         private readonly IDatabaseProvider[] _providers;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public DatabaseProviderSelector(
             [NotNull] IServiceProvider serviceProvider,
             [NotNull] IDbContextOptions contextOptions,
@@ -26,6 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _providers = providers?.ToArray() ?? new IDatabaseProvider[0];
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDatabaseProviderServices SelectServices()
         {
             var configured = _providers.Where(f => f.IsConfigured(_contextOptions)).ToArray();

@@ -10,16 +10,28 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class KeyPropagator : IKeyPropagator
     {
         private readonly IValueGeneratorSelector _valueGeneratorSelector;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public KeyPropagator(
             [NotNull] IValueGeneratorSelector valueGeneratorSelector)
         {
             _valueGeneratorSelector = valueGeneratorSelector;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void PropagateValue(InternalEntityEntry entry, IProperty property)
         {
             Debug.Assert(property.IsForeignKey());

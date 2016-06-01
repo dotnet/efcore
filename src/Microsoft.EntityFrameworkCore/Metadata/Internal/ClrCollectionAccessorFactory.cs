@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ClrCollectionAccessorFactory
     {
         private static readonly MethodInfo _genericCreate
@@ -20,6 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static readonly MethodInfo _create
             = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateCollection));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global

@@ -7,11 +7,19 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class EntityResultFindingExpressionVisitorFactory : IEntityResultFindingExpressionVisitorFactory
     {
         private readonly IModel _model;
         private readonly IEntityTrackingInfoFactory _entityTrackingInfoFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public EntityResultFindingExpressionVisitorFactory(
             [NotNull] IModel model,
             [NotNull] IEntityTrackingInfoFactory entityTrackingInfoFactory)
@@ -20,6 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _entityTrackingInfoFactory = entityTrackingInfoFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityResultFindingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
             => new EntityResultFindingExpressionVisitor(
                 _model,

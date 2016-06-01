@@ -14,6 +14,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InternalDbSet<TEntity>
         : DbSet<TEntity>, IQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
         where TEntity : class
@@ -21,6 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly DbContext _context;
         private readonly LazyRef<EntityQueryable<TEntity>> _entityQueryable;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalDbSet([NotNull] DbContext context)
         {
             Check.NotNull(context, nameof(context));
@@ -34,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     () => new EntityQueryable<TEntity>(_context.GetService<IAsyncQueryProvider>()));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalDbSet([NotNull] IQueryable<TEntity> source, [NotNull] DbSet<TEntity> dbSet)
         {
             Check.NotNull(source, nameof(source));
@@ -43,43 +55,91 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(() => (EntityQueryable<TEntity>)source);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override EntityEntry<TEntity> Add(TEntity entity)
             => _context.Add(Check.NotNull(entity, nameof(entity)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override EntityEntry<TEntity> Attach(TEntity entity)
             => _context.Attach(Check.NotNull(entity, nameof(entity)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override EntityEntry<TEntity> Remove(TEntity entity)
             => _context.Remove(Check.NotNull(entity, nameof(entity)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override EntityEntry<TEntity> Update(TEntity entity)
             => _context.Update(Check.NotNull(entity, nameof(entity)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void AddRange(params TEntity[] entities)
             // ReSharper disable once CoVariantArrayConversion
             => _context.AddRange(Check.NotNull(entities, nameof(entities)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void AttachRange(params TEntity[] entities)
             // ReSharper disable once CoVariantArrayConversion
             => _context.AttachRange(Check.NotNull(entities, nameof(entities)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void RemoveRange(params TEntity[] entities)
             // ReSharper disable once CoVariantArrayConversion
             => _context.RemoveRange(Check.NotNull(entities, nameof(entities)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void UpdateRange(params TEntity[] entities)
             // ReSharper disable once CoVariantArrayConversion
             => _context.UpdateRange(Check.NotNull(entities, nameof(entities)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void AddRange(IEnumerable<TEntity> entities)
             => _context.AddRange(Check.NotNull(entities, nameof(entities)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void AttachRange(IEnumerable<TEntity> entities)
             => _context.AttachRange(Check.NotNull(entities, nameof(entities)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void RemoveRange(IEnumerable<TEntity> entities)
             => _context.RemoveRange(Check.NotNull(entities, nameof(entities)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void UpdateRange(IEnumerable<TEntity> entities)
             => _context.UpdateRange(Check.NotNull(entities, nameof(entities)));
 

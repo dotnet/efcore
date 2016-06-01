@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ConcurrencyDetector : IConcurrencyDetector, IDisposable
     {
         private readonly IDisposable _disposer;
@@ -16,11 +20,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private int _inCriticalSection;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ConcurrencyDetector()
         {
             _disposer = new Disposer(this);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDisposable EnterCriticalSection()
         {
             if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
@@ -38,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _inCriticalSection = 0;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual async Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken)
         {
             await _semaphore.WaitAsync(cancellationToken);
@@ -75,6 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             public void Dispose() => _concurrencyDetector.ExitCriticalSection();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Dispose() => _semaphore.Dispose();
     }
 }

@@ -16,6 +16,10 @@ using Remotion.Linq.Transformations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class QueryOptimizer : SubQueryFromClauseFlattener, IQueryOptimizer
     {
         private class FromClauseData : IFromClause
@@ -46,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Optimize(
             IReadOnlyCollection<IQueryAnnotation> queryAnnotations,
             QueryModel queryModel)
@@ -55,6 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             VisitQueryModel(queryModel);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
             var subQueryExpression = joinClause.InnerSequence as SubQueryExpression;
@@ -82,6 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             base.VisitJoinClause(joinClause, queryModel, index);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void FlattenSubQuery(
             [NotNull] SubQueryExpression subQueryExpression,
             [NotNull] IFromClause fromClause,
@@ -153,6 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             if (resultOperator is ValueFromSequenceResultOperatorBase

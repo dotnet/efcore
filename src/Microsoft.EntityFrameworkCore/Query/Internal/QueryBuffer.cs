@@ -17,6 +17,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class QueryBuffer : IQueryBuffer
     {
         private readonly IStateManager _stateManager;
@@ -29,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ConditionalWeakTable<object, object> _valueBuffers
             = new ConditionalWeakTable<object, object>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public QueryBuffer(
             [NotNull] IStateManager stateManager,
             [NotNull] IChangeDetector changeDetector)
@@ -37,6 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _changeDetector = changeDetector;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object GetEntity(
             IKey key, EntityLoadInfo entityLoadInfo, bool queryStateManager, bool throwOnNullKey)
         {
@@ -86,6 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return entity;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object GetPropertyValue(object entity, IProperty property)
         {
             var entry = _stateManager.TryGetEntry(entity);
@@ -105,6 +121,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return valueBuffer[property.GetIndex()];
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void StartTracking(object entity, EntityTrackingInfo entityTrackingInfo)
         {
             object boxedValueBuffer;
@@ -125,6 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Include(
             QueryContext queryContext,
             object entity,
@@ -182,6 +206,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 queryStateManager);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Task IncludeAsync(
             QueryContext queryContext,
             object entity,

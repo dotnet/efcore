@@ -8,6 +8,10 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DbSetSource : IDbSetSource
     {
         private static readonly MethodInfo _genericCreate
@@ -17,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly ConcurrentDictionary<Type, Func<DbContext, object>> _cache
             = new ConcurrentDictionary<Type, Func<DbContext, object>>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object Create(DbContext context, Type type)
             => _cache.GetOrAdd(
                 type,

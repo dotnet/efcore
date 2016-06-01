@@ -7,20 +7,44 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public static class PropertyBaseExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static int GetStoreGeneratedIndex([NotNull] this IPropertyBase propertyBase)
             => propertyBase.GetPropertyIndexes().StoreGenerationIndex;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static int GetRelationshipIndex([NotNull] this IPropertyBase propertyBase)
             => propertyBase.GetPropertyIndexes().RelationshipIndex;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static int GetIndex([NotNull] this IPropertyBase property)
             => property.GetPropertyIndexes().Index;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyIndexes GetPropertyIndexes([NotNull] this IPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().PropertyIndexes;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyIndexes CalculateIndexes([NotNull] this IEntityType entityType, [NotNull] IPropertyBase propertyBase)
         {
             var index = 0;
@@ -88,18 +112,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static void TrySetIndexes(IPropertyBase propertyBase, PropertyIndexes indexes)
             => propertyBase.AsPropertyBase().PropertyIndexes = indexes;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyAccessors GetPropertyAccessors([NotNull] this IPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().Accessors;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IClrPropertyGetter GetGetter([NotNull] this IPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().Getter;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IClrPropertySetter GetSetter([NotNull] this IPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().Setter;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyInfo GetPropertyInfo([NotNull] this IPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().PropertyInfo;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyBase AsPropertyBase([NotNull] this IPropertyBase propertyBase, [NotNull] [CallerMemberName] string methodName = "")
             => propertyBase.AsConcreteMetadataType<IPropertyBase, PropertyBase>(methodName);
     }

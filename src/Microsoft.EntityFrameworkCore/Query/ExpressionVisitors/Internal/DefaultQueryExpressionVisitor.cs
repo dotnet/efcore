@@ -11,10 +11,18 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DefaultQueryExpressionVisitor : ExpressionVisitorBase
     {
         private readonly EntityQueryModelVisitor _entityQueryModelVisitor;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public DefaultQueryExpressionVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
         {
             Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor));
@@ -22,8 +30,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _entityQueryModelVisitor = entityQueryModelVisitor;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityQueryModelVisitor QueryModelVisitor => _entityQueryModelVisitor;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -35,10 +51,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return queryModelVisitor.Expression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual EntityQueryModelVisitor CreateQueryModelVisitor()
             => QueryModelVisitor.QueryCompilationContext
                 .CreateQueryModelVisitor(_entityQueryModelVisitor);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitParameter(ParameterExpression node)
         {
             if (node.Name
@@ -53,6 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly MethodInfo GetParameterValueMethodInfo
             = typeof(DefaultQueryExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));

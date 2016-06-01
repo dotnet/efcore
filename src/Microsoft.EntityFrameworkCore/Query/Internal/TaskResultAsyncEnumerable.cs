@@ -10,10 +10,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public sealed class TaskResultAsyncEnumerable<T> : IAsyncEnumerable<T>
     {
         private readonly Task<T> _task;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public TaskResultAsyncEnumerable([NotNull] Task<T> task)
         {
             Check.NotNull(task, nameof(task));
@@ -21,6 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _task = task;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IAsyncEnumerator<T> GetEnumerator() => new Enumerator(_task);
 
         private sealed class Enumerator : IAsyncEnumerator<T>

@@ -9,8 +9,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class NullableKeyIdentityMap<TKey> : IdentityMap<TKey>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public NullableKeyIdentityMap(
             [NotNull] IKey key,
             [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
@@ -18,6 +26,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Add(InternalEntityEntry entry)
         {
             var key = PrincipalKeyValueFactory.CreateFromCurrentValues(entry);
@@ -30,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Add(key, entry);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void RemoveUsingRelationshipSnapshot(InternalEntityEntry entry)
         {
             var key = PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(entry);

@@ -11,9 +11,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public abstract class NavigationAttributeNavigationConvention<TAttribute> : INavigationConvention
         where TAttribute : Attribute
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
@@ -35,8 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return relationshipBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public abstract InternalRelationshipBuilder Apply([NotNull] InternalRelationshipBuilder relationshipBuilder, [NotNull] Navigation navigation, [NotNull] TAttribute attribute);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>([NotNull] EntityType entityType, [NotNull] string propertyName)
             where TCustomAttribute : Attribute
         {

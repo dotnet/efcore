@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : ConventionalAnnotatable, IMutableIndex
     {
@@ -17,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Index(
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] EntityType declaringEntityType,
@@ -33,21 +41,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Builder = new InternalIndexBuilder(this, declaringEntityType.Model.Builder);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<Property> Properties { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType DeclaringEntityType { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalIndexBuilder Builder { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsUnique
         {
             get { return _isUnique ?? DefaultIsUnique; }
             set { SetIsUnique(value, ConfigurationSource.Explicit); }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetIsUnique(bool unique, ConfigurationSource configurationSource)
         {
             _isUnique = unique;
@@ -55,6 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private bool DefaultIsUnique => false;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetIsUniqueConfigurationSource() => _isUniqueConfigurationSource;
 
         private void UpdateIsUniqueConfigurationSource(ConfigurationSource configurationSource)
@@ -68,6 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsInUse() => DeclaringEntityType.FindForeignKeysInHierarchy(Properties).Any();
     }
 }

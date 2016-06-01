@@ -9,13 +9,25 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DependentKeyValueFactoryFactory
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDependentKeyValueFactory<TKey> Create<TKey>([NotNull] IForeignKey foreignKey)
             => foreignKey.Properties.Count == 1
                 ? CreateSimple<TKey>(foreignKey)
                 : (IDependentKeyValueFactory<TKey>)CreateComposite(foreignKey);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDependentKeyValueFactory<TKey> CreateSimple<TKey>([NotNull] IForeignKey foreignKey)
         {
             var dependentProperty = foreignKey.Properties.Single();
@@ -45,6 +57,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return new SimpleNonNullableDependentKeyValueFactory<TKey>(propertyAccessors);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDependentKeyValueFactory<object[]> CreateComposite([NotNull] IForeignKey foreignKey)
             => new CompositeDependentValueFactory(foreignKey);
     }

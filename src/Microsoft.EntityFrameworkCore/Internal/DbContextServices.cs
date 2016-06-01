@@ -12,6 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DbContextServices : IDbContextServices
     {
         private IServiceProvider _scopedProvider;
@@ -21,6 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private LazyRef<IDatabaseProviderServices> _providerServices;
         private bool _inOnModelCreating;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDbContextServices Initialize(
             IServiceProvider scopedProvider,
             IDbContextOptions contextOptions,
@@ -60,21 +68,45 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ICurrentDbContext CurrentContext => _currentContext;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IModel Model => CoreOptions?.Model ?? _modelFromSource.Value;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ILoggerFactory LoggerFactory
             => CoreOptions?.LoggerFactory ?? _scopedProvider?.GetRequiredService<ILoggerFactory>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IMemoryCache MemoryCache
             => CoreOptions?.MemoryCache ?? _scopedProvider?.GetRequiredService<IMemoryCache>();
 
         private CoreOptionsExtension CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDbContextOptions ContextOptions => _contextOptions;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDatabaseProviderServices DatabaseProviderServices
         {
             get
@@ -87,6 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceProvider InternalServiceProvider => _scopedProvider;
     }
 }

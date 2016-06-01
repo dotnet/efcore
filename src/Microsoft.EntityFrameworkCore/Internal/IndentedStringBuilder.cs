@@ -8,6 +8,10 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class IndentedStringBuilder
     {
         private const byte IndentSize = 4;
@@ -17,17 +21,33 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private readonly StringBuilder _stringBuilder = new StringBuilder();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IndentedStringBuilder()
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IndentedStringBuilder([NotNull] IndentedStringBuilder from)
         {
             _indent = from._indent;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int Length => _stringBuilder.Length;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IndentedStringBuilder Append([NotNull] object o)
         {
             DoIndent();
@@ -37,6 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IndentedStringBuilder AppendLine()
         {
             AppendLine(string.Empty);
@@ -44,6 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IndentedStringBuilder AppendLine([NotNull] object o)
         {
             var value = o.ToString();
@@ -60,6 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IndentedStringBuilder AppendLines([NotNull] object o)
         {
             using (var reader = new StringReader(o.ToString()))
@@ -74,6 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IndentedStringBuilder Clear()
         {
             _stringBuilder.Clear();
@@ -81,12 +117,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IndentedStringBuilder IncrementIndent()
         {
             _indent++;
             return this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IndentedStringBuilder DecrementIndent()
         {
             if (_indent > 0)
@@ -96,8 +140,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDisposable Indent() => new Indenter(this);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string ToString() => _stringBuilder.ToString();
 
         private void DoIndent()

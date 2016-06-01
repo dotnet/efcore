@@ -13,9 +13,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerStepThrough]
     public static class ExpressionExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
@@ -54,6 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return propertyInfo;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
@@ -71,6 +83,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return propertyPaths;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         private static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
             this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
@@ -100,6 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return propertyPath != null ? new[] { propertyPath } : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         private static PropertyInfo MatchSimplePropertyAccess(
             this Expression parameterExpression, Expression propertyAccessExpression)
         {
@@ -108,6 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return (propertyInfos != null) && (propertyInfos.Length == 1) ? propertyInfos[0] : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static PropertyInfo[] GetComplexPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
@@ -154,6 +178,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return propertyInfos.ToArray();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static Expression RemoveConvert([CanBeNull] this Expression expression)
         {
             while ((expression != null)
@@ -166,6 +194,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return expression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static TExpression GetRootExpression<TExpression>([NotNull] this Expression expression)
             where TExpression : Expression
         {
@@ -178,6 +210,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return expression as TExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool IsLogicalOperation([NotNull] this Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -186,6 +222,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                    || (expression.NodeType == ExpressionType.OrElse);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool IsComparisonOperation([NotNull] this Expression expression)
         {
             Check.NotNull(expression, nameof(expression));

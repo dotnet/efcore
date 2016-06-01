@@ -6,10 +6,22 @@ using System.Collections.Generic;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ForeignKeyComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly ForeignKeyComparer Instance = new ForeignKeyComparer();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int Compare(IForeignKey x, IForeignKey y)
         {
             var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
@@ -27,9 +39,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return StringComparer.Ordinal.Compare(x.PrincipalEntityType.Name, y.PrincipalEntityType.Name);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Equals(IForeignKey x, IForeignKey y)
             => Compare(x, y) == 0;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int GetHashCode(IForeignKey obj) =>
             unchecked(
                 (((PropertyListComparer.Instance.GetHashCode(obj.PrincipalKey.Properties) * 397)

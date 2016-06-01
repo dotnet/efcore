@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
         where TEntity : class
         where TCollection : class, ICollection<TElement>
@@ -18,8 +22,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Func<TEntity, Action<TEntity, TCollection>, TCollection> _createAndSetCollection;
         private readonly Func<TCollection> _createCollection;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Type CollectionType => typeof(TCollection);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ClrICollectionAccessor(
             [NotNull] string propertyName,
             [NotNull] Func<TEntity, TCollection> getCollection,
@@ -34,6 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _createCollection = createCollection;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Add(object instance, object value)
         {
             var collection = GetOrCreateCollection(instance);
@@ -47,6 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddRange(object instance, IEnumerable<object> values)
         {
             var collection = GetOrCreateCollection(instance);
@@ -60,6 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object Create(IEnumerable<object> values)
         {
             if (_createCollection == null)
@@ -77,6 +101,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return collection;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object GetOrCreate(object instance) => GetOrCreateCollection(instance);
 
         private TCollection GetOrCreateCollection(object instance)
@@ -101,6 +129,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return collection;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Contains(object instance, object value)
         {
             var collection = _getCollection((TEntity)instance);
@@ -108,6 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return (collection != null) && collection.Contains((TElement)value);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Remove(object instance, object value)
             => _getCollection((TEntity)instance)?.Remove((TElement)value);
     }

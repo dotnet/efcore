@@ -14,6 +14,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class EntityType : ConventionalAnnotatable, IMutableEntityType
     {
         private readonly SortedSet<ForeignKey> _foreignKeys
@@ -49,12 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Func<ISnapshot> _emptyShadowValuesFactory;
 
         /// <summary>
-        ///     Creates a new metadata object representing an entity type that will participate in shadow-state
-        ///     such that there is no underlying .NET type corresponding to this metadata object.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="name">The name of the shadow-state entity type.</param>
-        /// <param name="model">The model associated with this entity type.</param>
-        /// <param name="configurationSource">The configuration source that added this entity type.</param>
         public EntityType([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
             : this(model, configurationSource)
         {
@@ -67,6 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 #endif
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public EntityType([NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
             : this(model, configurationSource)
         {
@@ -92,17 +97,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private string DebugName { get; set; }
 #endif
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder Builder { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Gets the associated .NET type.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type ClrType => _typeOrName as Type;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Model Model { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType BaseType => _baseType;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void HasBaseType(
             [CanBeNull] EntityType entityType,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
@@ -189,14 +211,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetBaseTypeConfigurationSource() => _baseTypeConfigurationSource;
 
         private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
             => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
 
         private readonly List<EntityType> _directlyDerivedTypes = new List<EntityType>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<EntityType> GetDirectlyDerivedTypes() => _directlyDerivedTypes;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<EntityType> GetDerivedTypes()
         {
             var derivedTypes = new List<EntityType>();
@@ -213,6 +248,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return derivedTypes;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<EntityType> GetDerivedTypesInclusive()
             => new[] { this }.Concat(GetDerivedTypes());
 
@@ -232,8 +271,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return false;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType RootType() => (EntityType)((IEntityType)this).RootType();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Name
         {
             get
@@ -246,13 +293,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string ToString() => Name;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ChangeTrackingStrategy ChangeTrackingStrategy
         {
             get { return _changeTrackingStrategy ?? Model.ChangeTrackingStrategy; }
@@ -272,9 +335,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #region Primary and Candidate Keys
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key SetPrimaryKey([CanBeNull] Property property)
             => SetPrimaryKey(property == null ? null : new[] { property });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key SetPrimaryKey(
             [CanBeNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit,
@@ -333,17 +404,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return _primaryKey;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key GetOrSetPrimaryKey([NotNull] Property property)
             => GetOrSetPrimaryKey(new[] { property });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key GetOrSetPrimaryKey([NotNull] IReadOnlyList<Property> properties)
             => FindPrimaryKey(properties) ?? SetPrimaryKey(properties);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key FindPrimaryKey()
             => _baseType?.FindPrimaryKey() ?? FindDeclaredPrimaryKey();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key FindDeclaredPrimaryKey() => _primaryKey;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key FindPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
             Check.HasNoNulls(properties, nameof(properties));
@@ -363,14 +454,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetPrimaryKeyConfigurationSource() => _primaryKeyConfigurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         private void UpdatePrimaryKeyConfigurationSource(ConfigurationSource configurationSource)
             => _primaryKeyConfigurationSource = configurationSource.Max(_primaryKeyConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key AddKey([NotNull] Property property, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => AddKey(new[] { property }, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key AddKey([NotNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
@@ -429,15 +536,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return Model.ConventionDispatcher.OnKeyAdded(key.Builder)?.Metadata;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key GetOrAddKey([NotNull] Property property)
             => GetOrAddKey(new[] { property });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key GetOrAddKey([NotNull] IReadOnlyList<Property> properties)
             => FindKey(properties)
                ?? AddKey(properties);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key FindKey([NotNull] IProperty property) => FindKey(new[] { property });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key FindKey([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.HasNoNulls(properties, nameof(properties));
@@ -446,8 +569,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return FindDeclaredKey(properties) ?? _baseType?.FindKey(properties);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Key> GetDeclaredKeys() => _keys.Values;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Key FindDeclaredKey([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -458,6 +589,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         // ReSharper disable once MethodOverloadWithOptionalParameter
         public virtual Key RemoveKey([NotNull] IReadOnlyList<IProperty> properties, bool runConventions = true)
         {
@@ -509,12 +644,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Key> GetKeys() => _baseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
 
         #endregion
 
         #region Foreign Keys
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey AddForeignKey(
             [NotNull] Property property,
             [NotNull] Key principalKey,
@@ -522,6 +665,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => AddForeignKey(new[] { property }, principalKey, principalEntityType, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey AddForeignKey(
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] Key principalKey,
@@ -625,19 +772,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return foreignKey;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey GetOrAddForeignKey(
             [NotNull] Property property, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
             => GetOrAddForeignKey(new[] { property }, principalKey, principalEntityType);
 
         // Note: this will return an existing foreign key even if it doesn't have the same referenced key
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey GetOrAddForeignKey(
             [NotNull] IReadOnlyList<Property> properties, [NotNull] Key principalKey, [NotNull] EntityType principalEntityType)
             => FindForeignKey(properties, principalKey, principalEntityType)
                ?? AddForeignKey(properties, principalKey, principalEntityType);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IProperty property)
             => FindForeignKeys(new[] { property });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.HasNoNulls(properties, nameof(properties));
@@ -647,12 +810,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                    ?? FindDeclaredForeignKeys(properties);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey FindForeignKey(
             [NotNull] IProperty property,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType)
             => FindForeignKey(new[] { property }, principalKey, principalEntityType);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
@@ -667,11 +838,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                    ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetDeclaredForeignKeys() => _foreignKeys;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetDerivedForeignKeys()
             => GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindDeclaredForeignKeys([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -679,6 +862,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return _foreignKeys.Where(fk => PropertyListComparer.Instance.Equals(fk.Properties, properties));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey FindDeclaredForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
@@ -693,10 +880,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 StringComparer.Ordinal.Equals(fk.PrincipalEntityType.Name, principalEntityType.Name));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
             [NotNull] IReadOnlyList<IProperty> properties)
             => GetDerivedTypes().SelectMany(et => et.FindDeclaredForeignKeys(properties));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
@@ -704,10 +899,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => GetDerivedTypes().Select(et => et.FindDeclaredForeignKey(properties, principalKey, principalEntityType))
                 .Where(fk => fk != null);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
             [NotNull] IReadOnlyList<IProperty> properties)
             => FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
@@ -715,6 +918,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
                 .Concat(FindDerivedForeignKeys(properties, principalKey, principalEntityType));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ForeignKey RemoveForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
@@ -789,15 +996,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => _baseType?.GetDeclaredReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
                ?? GetDeclaredReferencingForeignKeys();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetDeclaredReferencingForeignKeys()
             => DeclaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
         private List<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetForeignKeys()
             => _baseType?.GetForeignKeys().Concat(_foreignKeys) ?? _foreignKeys;
 
@@ -805,6 +1024,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #region Navigations
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Navigation AddNavigation(
             [NotNull] string name,
             [NotNull] ForeignKey foreignKey,
@@ -816,6 +1039,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddNavigation(new PropertyIdentity(name), foreignKey, pointsToPrincipal);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Navigation AddNavigation(
             [NotNull] PropertyInfo navigationProperty,
             [NotNull] ForeignKey foreignKey,
@@ -885,6 +1112,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Navigation FindNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -892,6 +1123,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return FindDeclaredNavigation(name) ?? _baseType?.FindNavigation(name);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Navigation FindDeclaredNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -902,8 +1137,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Navigation> GetDeclaredNavigations() => _navigations.Values;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Navigation> FindDerivedNavigations([NotNull] string navigationName)
         {
             Check.NotNull(navigationName, nameof(navigationName));
@@ -911,9 +1154,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return GetDerivedTypes().Select(et => et.FindDeclaredNavigation(navigationName)).Where(n => n != null);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string propertyName)
             => ToEnumerable(FindNavigation(propertyName)).Concat(FindDerivedNavigations(propertyName));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Navigation RemoveNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -931,6 +1182,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Navigation> GetNavigations()
             => _baseType?.GetNavigations().Concat(_navigations.Values) ?? _navigations.Values;
 
@@ -938,10 +1193,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #region Indexes
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index AddIndex([NotNull] Property property,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => AddIndex(new[] { property }, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index AddIndex([NotNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
@@ -983,15 +1246,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return index;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index GetOrAddIndex([NotNull] Property property)
             => GetOrAddIndex(new[] { property });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index GetOrAddIndex([NotNull] IReadOnlyList<Property> properties)
             => FindIndex(properties) ?? AddIndex(properties);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index FindIndex([NotNull] IProperty property)
             => FindIndex(new[] { property });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index FindIndex([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.HasNoNulls(properties, nameof(properties));
@@ -1000,8 +1279,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return FindDeclaredIndex(properties) ?? _baseType?.FindIndex(properties);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Index> GetDeclaredIndexes() => _indexes.Values;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index FindDeclaredIndex([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -1012,12 +1299,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] IReadOnlyList<IProperty> properties)
             => GetDerivedTypes().Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<IProperty> properties)
             => ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Index RemoveIndex([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -1045,12 +1344,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return index;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Index> GetIndexes() => _baseType?.GetIndexes().Concat(_indexes.Values) ?? _indexes.Values;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property AddProperty(
             [NotNull] string name,
             [CanBeNull] Type propertyType = null,
@@ -1099,6 +1406,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddProperty(new Property(name, propertyType, this, configurationSource), runConventions);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property AddProperty(
             [NotNull] PropertyInfo propertyInfo,
             // ReSharper disable once MethodOverloadWithOptionalParameter
@@ -1155,18 +1466,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return property;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
             => FindProperty(propertyInfo) ?? AddProperty(propertyInfo);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property GetOrAddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadow)
             => FindProperty(name) ?? AddProperty(name, propertyType, shadow);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property FindProperty([NotNull] PropertyInfo propertyInfo)
             => FindProperty(propertyInfo.Name);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property FindProperty([NotNull] string name)
             => FindDeclaredProperty(Check.NotEmpty(name, nameof(name))) ?? _baseType?.FindProperty(name);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property FindDeclaredProperty([NotNull] string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -1177,8 +1508,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Property> FindDerivedProperties([NotNull] string propertyName)
         {
             Check.NotNull(propertyName, nameof(propertyName));
@@ -1186,9 +1525,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return GetDerivedTypes().Select(et => et.FindDeclaredProperty(propertyName)).Where(p => p != null);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Property> FindPropertiesInHierarchy([NotNull] string propertyName)
             => ToEnumerable(FindProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Property RemoveProperty([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -1231,9 +1578,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Property> GetProperties()
             => _baseType?.GetProperties().Concat(_properties.Values) ?? _properties.Values;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void PropertyMetadataChanged()
         {
             foreach (var indexedProperty in this.GetPropertiesAndNavigations().OfType<PropertyBase>())
@@ -1246,21 +1601,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _counts = null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual PropertyCounts Counts
             => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, entityType => entityType.CalculateCounts());
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory
             => NonCapturingLazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, this,
                 entityType => new RelationshipSnapshotFactoryFactory().Create(entityType));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
             => NonCapturingLazyInitializer.EnsureInitialized(ref _originalValuesFactory, this,
                 entityType => new OriginalValuesFactoryFactory().Create(entityType));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<ValueBuffer, ISnapshot> ShadowValuesFactory
             => NonCapturingLazyInitializer.EnsureInitialized(ref _shadowValuesFactory, this,
                 entityType => new ShadowValuesFactoryFactory().Create(entityType));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<ISnapshot> EmptyShadowValuesFactory
             => NonCapturingLazyInitializer.EnsureInitialized(ref _emptyShadowValuesFactory, this,
                 entityType => new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType));
@@ -1269,6 +1644,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         #region Ignore
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotNull(name, nameof(name));
@@ -1284,6 +1663,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? FindIgnoredMemberConfigurationSource([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -1297,6 +1680,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Unignore([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));

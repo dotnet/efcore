@@ -9,6 +9,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InterceptingLogger<T> : ILogger<T>
     {
         private static readonly string _name = typeof(T).DisplayName();
@@ -16,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly ILogger _logger;
         private readonly WarningsConfiguration _warningsConfiguration;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InterceptingLogger(
             [NotNull] IDbContextServices contextServices,
             [NotNull] IServiceProvider serviceProvider,
@@ -31,6 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     ?.WarningsConfiguration;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Log<TState>(
             LogLevel logLevel,
             EventId eventId,
@@ -65,9 +77,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsEnabled(LogLevel logLevel)
             => _logger.IsEnabled(logLevel);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDisposable BeginScope<TState>(TState state)
             => _logger.BeginScope(state);
     }

@@ -9,8 +9,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DependentsMapFactoryFactory : IdentityMapFactoryFactoryBase
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<IDependentsMap> Create([NotNull] IForeignKey foreignKey)
             => (Func<IDependentsMap>)typeof(DependentsMapFactoryFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))

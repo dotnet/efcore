@@ -12,8 +12,16 @@ using System.Reflection;
 // ReSharper disable LoopCanBeConvertedToQuery
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ExpressionEqualityComparer : IEqualityComparer<Expression>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int GetHashCode(Expression obj)
         {
             if (obj == null)
@@ -263,6 +271,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return hashCode;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
 
         private sealed class ExpressionComparer

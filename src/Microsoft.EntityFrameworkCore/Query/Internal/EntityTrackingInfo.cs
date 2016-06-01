@@ -15,6 +15,10 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class EntityTrackingInfo
     {
         private static readonly IEnumerable<IncludedEntity> _emptyIncludedEntities
@@ -24,6 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IReadOnlyList<IReadOnlyList<INavigation>> _includedNavigationPaths;
         private readonly IDictionary<INavigation, IEntityType> _includedEntityTrackingInfos;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public EntityTrackingInfo(
             [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QuerySourceReferenceExpression querySourceReferenceExpression,
@@ -64,11 +72,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsEnumerableTarget { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual QuerySourceReferenceExpression QuerySourceReferenceExpression { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IQuerySource QuerySource => QuerySourceReferenceExpression.ReferencedQuerySource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void StartTracking(
             [NotNull] IStateManager stateManager, [NotNull] object entity, ValueBuffer valueBuffer)
         {
@@ -78,8 +103,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             stateManager.StartTrackingFromQuery(_entityType, entity, valueBuffer);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public struct IncludedEntity
         {
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public IncludedEntity(
                 [NotNull] object entity, [NotNull] IEntityType entityType)
             {
@@ -90,10 +123,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Entity = entity;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public object Entity { get; }
 
             private IEntityType EntityType { get; }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public void StartTracking([NotNull] IStateManager stateManager, ValueBuffer valueBuffer)
             {
                 Check.NotNull(stateManager, nameof(stateManager));
@@ -105,6 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<IncludedEntity> GetIncludedEntities([NotNull] object entity)
         {
             Check.NotNull(entity, nameof(entity));

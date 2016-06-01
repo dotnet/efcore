@@ -13,6 +13,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Key : ConventionalAnnotatable, IMutableKey
     {
@@ -23,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Func<IWeakReferenceIdentityMap> _weakReferenceIdentityMap;
         private object _principalKeyValueFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Key([NotNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -34,13 +42,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Builder = new InternalKeyBuilder(this, DeclaringEntityType.Model.Builder);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<Property> Properties { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalKeyBuilder Builder { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
             _configurationSource = _configurationSource.Max(configurationSource);
@@ -50,17 +79,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => ReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<IIdentityMap> IdentityMapFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _identityMapFactory, this, k => new IdentityMapFactoryFactory().Create(k));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<IWeakReferenceIdentityMap> WeakReferenceIdentityMapFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _weakReferenceIdentityMap, this, k => new WeakReferenceIdentityMapFactoryFactory().Create(k));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
             => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
                 ref _principalKeyValueFactory, this, k => new KeyValueFactoryFactory().Create<TKey>(k));
@@ -69,6 +114,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
         IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual List<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
 
         [UsedImplicitly]

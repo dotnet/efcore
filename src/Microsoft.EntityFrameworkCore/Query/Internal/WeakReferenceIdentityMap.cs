@@ -11,12 +11,20 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class WeakReferenceIdentityMap<TKey> : IWeakReferenceIdentityMap
     {
         private const int IdentityMapGarbageCollectionThreshold = 500;
         private int _identityMapGarbageCollectionIterations;
         private readonly Dictionary<TKey, WeakReference<object>> _identityMap;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public WeakReferenceIdentityMap(
             [NotNull] IKey key,
             [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
@@ -27,10 +35,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _identityMap = new Dictionary<TKey, WeakReference<object>>(principalKeyValueFactory.EqualityComparer);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IPrincipalKeyValueFactory<TKey> PrincipalKeyValueFactory { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IKey Key { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual WeakReference<object> TryGetEntity(ValueBuffer valueBuffer, out bool hasNullKey)
         {
             var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
@@ -45,6 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _identityMap.TryGetValue((TKey)key, out entity) ? entity : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void CollectGarbage()
         {
             if (++_identityMapGarbageCollectionIterations == IdentityMapGarbageCollectionThreshold)
@@ -69,9 +93,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Add(ValueBuffer valueBuffer, object entity)
             => _identityMap[(TKey)PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer)] = new WeakReference<object>(entity);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, ValueBuffer valueBuffer)
         {
             if (navigation.IsDependentToPrincipal())
@@ -88,6 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 PrincipalKeyValueFactory);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IIncludeKeyComparer CreateIncludeKeyComparer(INavigation navigation, InternalEntityEntry entry)
         {
             if (navigation.IsDependentToPrincipal())

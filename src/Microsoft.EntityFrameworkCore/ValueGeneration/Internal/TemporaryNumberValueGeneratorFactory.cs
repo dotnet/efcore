@@ -8,8 +8,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override ValueGenerator Create(IProperty property)
         {
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();

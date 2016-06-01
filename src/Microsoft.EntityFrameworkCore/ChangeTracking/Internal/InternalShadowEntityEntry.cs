@@ -9,12 +9,24 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InternalShadowEntityEntry : InternalEntityEntry
     {
         private readonly ISnapshot _propertyValues;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override object Entity => null;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalShadowEntityEntry(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType)
@@ -26,6 +38,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             MarkShadowPropertiesNotSet(entityType);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalShadowEntityEntry(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
@@ -35,9 +51,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _propertyValues = entityType.GetShadowValuesFactory()(valueBuffer);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override T ReadShadowValue<T>(int shadowIndex)
             => _propertyValues.GetValue<T>(shadowIndex);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
         {
             var property = propertyBase as IProperty;
@@ -46,6 +70,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return _propertyValues[property.GetShadowIndex()];
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
         {
             var property = propertyBase as IProperty;

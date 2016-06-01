@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DependentsMap<TKey> : IDependentsMap
     {
         private readonly IForeignKey _foreignKey;
@@ -15,6 +19,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IDependentKeyValueFactory<TKey> _dependentKeyValueFactory;
         private readonly Dictionary<TKey, HashSet<InternalEntityEntry>> _map;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public DependentsMap(
             [NotNull] IForeignKey foreignKey,
             [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
@@ -26,6 +34,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _map = new Dictionary<TKey, HashSet<InternalEntityEntry>>(principalKeyValueFactory.EqualityComparer);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Add(InternalEntityEntry entry)
         {
             TKey key;
@@ -43,6 +55,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Remove(InternalEntityEntry entry)
         {
             TKey key;
@@ -57,6 +73,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Update(InternalEntityEntry entry)
         {
             if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType))
@@ -97,6 +117,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return _dependentKeyValueFactory.TryCreateFromCurrentValues(entry, out key);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry)
         {
             HashSet<InternalEntityEntry> dependents;
@@ -105,6 +129,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 : Enumerable.Empty<InternalEntityEntry>();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(InternalEntityEntry principalEntry)
         {
             HashSet<InternalEntityEntry> dependents;

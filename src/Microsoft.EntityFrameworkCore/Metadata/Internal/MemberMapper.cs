@@ -11,10 +11,18 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MemberMapper : IMemberMapper
     {
         private readonly IFieldMatcher _fieldMatcher;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public MemberMapper([NotNull] IFieldMatcher fieldMatcher)
         {
             _fieldMatcher = fieldMatcher;
@@ -22,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         // TODO: Consider doing this at model building time, but also consider mapping to interfaces
         // Issue #757
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Tuple<IProperty, MemberInfo>> MapPropertiesToMembers(IEntityType entityType)
         {
             var fieldCache = new Dictionary<Type, Dictionary<string, FieldInfo>>();
