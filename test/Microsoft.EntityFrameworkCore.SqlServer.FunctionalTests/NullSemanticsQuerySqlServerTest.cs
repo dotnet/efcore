@@ -975,6 +975,59 @@ WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB]) OR @__prm_0 = 1",
                 Sql);
         }
 
+        public override void Where_comparison_null_constant_and_null_parameter()
+        {
+            base.Where_comparison_null_constant_and_null_parameter();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE 1 = 0",
+                Sql);
+        }
+
+        public override void Where_comparison_null_constant_and_nonnull_parameter()
+        {
+            base.Where_comparison_null_constant_and_nonnull_parameter();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE 1 = 0
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]",
+                Sql);
+        }
+
+        public override void Where_comparison_nonnull_constant_and_null_parameter()
+        {
+            base.Where_comparison_nonnull_constant_and_null_parameter();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE 1 = 0
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]",
+                Sql);
+
+        }
+        public override void Where_comparison_null_semantics_optimization_works_with_complex_predicates()
+        {
+            base.Where_comparison_null_semantics_optimization_works_with_complex_predicates();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableStringA] IS NULL",
+                Sql);
+        }
+
         public override void Switching_null_semantics_produces_different_cache_entry()
         {
             base.Switching_null_semantics_produces_different_cache_entry();
@@ -988,6 +1041,24 @@ SELECT [e].[Id]
 FROM [NullSemanticsEntity1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
                 Sql);
+        }
+
+        public override void Switching_parameter_value_to_null_produces_different_cache_entry()
+        {
+            base.Switching_parameter_value_to_null_produces_different_cache_entry();
+
+            Assert.Equal(
+                @"@__prm_0: Foo (Size = 4000)
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE @__prm_0 = N'Foo'
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE 1 = 0",
+                Sql);
+
         }
 
         public override void From_sql_composed_with_relational_null_comparison()

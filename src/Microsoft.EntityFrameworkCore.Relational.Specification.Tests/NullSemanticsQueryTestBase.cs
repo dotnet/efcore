@@ -504,6 +504,37 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [Fact]
+        public virtual void Where_comparison_null_constant_and_null_parameter()
+        {
+            string prm = null;
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => prm == null));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => prm != null));
+        }
+
+        [Fact]
+        public virtual void Where_comparison_null_constant_and_nonnull_parameter()
+        {
+            string prm = "Foo";
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => null == prm));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => null != prm));
+        }
+
+        [Fact]
+        public virtual void Where_comparison_nonnull_constant_and_null_parameter()
+        {
+            string prm = null;
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => "Foo" == prm));
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => "Foo" != prm));
+        }
+
+        [Fact]
+        public virtual void Where_comparison_null_semantics_optimization_works_with_complex_predicates()
+        {
+            string prm = null;
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => null == prm && e.NullableStringA == prm));
+        }
+
+        [Fact]
         public virtual void Switching_null_semantics_produces_different_cache_entry()
         {
             List<int> results1, results2;
@@ -527,6 +558,26 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
 
             Assert.True(results1.Count != results2.Count);
+        }
+
+        [Fact]
+        public virtual void Switching_parameter_value_to_null_produces_different_cache_entry()
+        {
+            using (var context = CreateContext())
+            {
+                var prm = "Foo";
+                var query = context.Entities1
+                    .Where(e => prm == "Foo")
+                    .Select(e => e.Id);
+
+                var results1 = query.ToList();
+
+                prm = null;
+
+                var results2 = query.ToList();
+
+                Assert.True(results1.Count != results2.Count);
+            }
         }
 
         [Fact]
