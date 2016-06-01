@@ -374,7 +374,7 @@ INNER JOIN (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
     ORDER BY [c0_0], [c].[CustomerID]
-) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
 ORDER BY [c0].[c0_0], [c0].[CustomerID]", 
                 Sql);
         }
