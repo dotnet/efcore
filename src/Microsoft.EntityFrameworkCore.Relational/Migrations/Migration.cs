@@ -29,8 +29,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                         return modelBuilder.Model;
                     });
-            _upOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Up));
-            _downOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Down));
+            _upOperations = new LazyRef<List<MigrationOperation>>(BuildUpOperations);
+            _downOperations = new LazyRef<List<MigrationOperation>>(BuildDownOperations);
+        }
+
+        private List<MigrationOperation> BuildUpOperations()
+        {
+            var operations = new List<MigrationOperation>();
+
+            operations.AddRange(BuildOperations(BeforeUp));
+            operations.AddRange(BuildOperations(Up));
+            operations.AddRange(BuildOperations(AfterUp));
+
+            return operations;
+        }
+
+        private List<MigrationOperation> BuildDownOperations()
+        {
+            var operations = new List<MigrationOperation>();
+
+            operations.AddRange(BuildOperations(BeforeDown));
+            operations.AddRange(BuildOperations(Down));
+            operations.AddRange(BuildOperations(AfterDown));
+
+            return operations;
         }
 
         public virtual IModel TargetModel => _targetModel.Value;
@@ -48,6 +70,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             throw new NotImplementedException();
         }
+
+
+        protected virtual void BeforeUp([NotNull] MigrationBuilder migrationBuilder)
+        {
+        }
+
+        protected virtual void AfterUp([NotNull] MigrationBuilder migrationBuilder)
+        {
+        }
+
+
+        protected virtual void BeforeDown([NotNull] MigrationBuilder migrationBuilder)
+        {
+        }
+
+        protected virtual void AfterDown([NotNull] MigrationBuilder migrationBuilder)
+        {
+        }
+
 
         private List<MigrationOperation> BuildOperations(Action<MigrationBuilder> buildAction)
         {
