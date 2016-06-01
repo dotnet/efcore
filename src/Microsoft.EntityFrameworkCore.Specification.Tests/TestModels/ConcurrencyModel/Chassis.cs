@@ -5,8 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Concurren
 {
     public class Chassis
     {
-        public byte[] Version { get; set; }
-
         public int TeamId { get; set; }
 
         public string Name { get; set; }

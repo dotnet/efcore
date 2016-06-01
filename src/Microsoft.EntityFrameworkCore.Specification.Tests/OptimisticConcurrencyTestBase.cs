@@ -4,12 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.ConcurrencyModel;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             foreach (var value in values)
             {
-                internalEntry[value.Key] = value.Value;
+                internalEntry[value.Key] = ConvertValue(value.Key.ClrType, value.Value);
             }
         }
 
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             foreach (var value in values)
             {
-                internalEntry.SetOriginalValue(value.Key, value.Value);
+                internalEntry.SetOriginalValue(value.Key, ConvertValue(value.Key.ClrType, value.Value));
             }
         }
 
@@ -38,6 +40,25 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public static void SetOriginalValues(this EntityEntry entry, Dictionary<IProperty, object> values)
             => entry.GetInfrastructure().SetOriginalValues(values);
+        
+        private static object ConvertValue(Type expectedType, object valueToSet)
+        {
+            var expectedTypeInfo = expectedType.GetTypeInfo();
+            if (expectedTypeInfo.IsValueType
+                && valueToSet != null)
+            {
+                if (expectedTypeInfo.IsGenericType
+                    && expectedTypeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    valueToSet = Convert.ChangeType(valueToSet, Nullable.GetUnderlyingType(expectedType));
+                }
+                else
+                {
+                    valueToSet = Convert.ChangeType(valueToSet, expectedType);
+                }
+            }
+            return valueToSet;
+        }
 
         public static void Reload(this InternalEntityEntry internalEntry, DbContext context)
         {
@@ -66,57 +87,62 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
         public static void Reload(this EntityEntry entityEntry, DbContext context)
             => entityEntry.GetInfrastructure().Reload(context);
+        
+        public static Dictionary<IProperty, object> GetDatabaseValues(this EntityEntry entry, DbContext context)
+            => entry.GetInfrastructure().GetDatabaseValues(context);
 
         public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)
         {
             if (internalEntry.EntityType.ClrType == typeof(Driver))
             {
                 var id = ((Driver)internalEntry.Entity).Id;
-                return context.Set<Driver>()
-                    .Where(d => d.Id == id)
-                    .Select(d => d.GetValues(internalEntry.EntityType))
+                
+                return SelectDatabaseValues(context.Set<Driver>()
+                    .Where(d => d.Id == id), internalEntry.EntityType)
                     .SingleOrDefault();
             }
 
             if (internalEntry.EntityType.ClrType == typeof(Engine))
             {
                 var id = ((Engine)internalEntry.Entity).Id;
-                return context.Set<Engine>()
-                    .Where(d => d.Id == id)
-                    .Select(d => d.GetValues(internalEntry.EntityType))
+
+                return SelectDatabaseValues(context.Set<Engine>()
+                    .Where(d => d.Id == id), internalEntry.EntityType)
                     .SingleOrDefault();
             }
 
             return null;
         }
 
-        public static Dictionary<IProperty, object> GetDatabaseValues(this EntityEntry entry, DbContext context)
-            => entry.GetInfrastructure().GetDatabaseValues(context);
+        private static readonly NewExpression _newDictionaryExpression =
+            Expression.New(typeof(Dictionary<IProperty, object>));
 
-        private static Dictionary<IProperty, object> GetValues(this Driver driver, IEntityType entityType)
-        {
-            var result = new Dictionary<IProperty, object>();
-            result.Add(entityType.FindProperty("CarNumber"), driver.CarNumber);
-            result.Add(entityType.FindProperty("Championships"), driver.Championships);
-            result.Add(entityType.FindProperty("Id"), driver.Id);
-            result.Add(entityType.FindProperty("FastestLaps"), driver.FastestLaps);
-            result.Add(entityType.FindProperty("Name"), driver.Name);
-            result.Add(entityType.FindProperty("Podiums"), driver.Podiums);
-            result.Add(entityType.FindProperty("Poles"), driver.Poles);
-            result.Add(entityType.FindProperty("Races"), driver.Races);
-            result.Add(entityType.FindProperty("TeamId"), driver.TeamId);
-            result.Add(entityType.FindProperty("Version"), driver.Version);
-            result.Add(entityType.FindProperty("Wins"), driver.Wins);
-            return result;
-        }
+        private static readonly MethodInfo _dictionaryAddMethod =
+            typeof(Dictionary<IProperty, object>).GetMethod(nameof(Dictionary<IProperty, object>.Add));
 
-        private static Dictionary<IProperty, object> GetValues(this Engine engine, IEntityType entityType)
+        private static readonly MethodInfo _efPropertyMethodInfo =
+            typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
+
+        private static IQueryable<Dictionary<IProperty, object>> SelectDatabaseValues<TEntity>(
+            IQueryable<TEntity> query, IEntityType entityType)
         {
-            var result = new Dictionary<IProperty, object>();
-            result.Add(entityType.FindProperty("EngineSupplierId"), engine.EngineSupplierId);
-            result.Add(entityType.FindProperty("Id"), engine.Id);
-            result.Add(entityType.FindProperty("Name"), engine.Name);
-            return result;
+            var entityParameterExpression = Expression.Parameter(typeof(TEntity), "entity");
+
+            var elementInitList = entityType.GetProperties().Select(property =>
+                Expression.ElementInit(
+                    _dictionaryAddMethod,
+                    Expression.Constant(property),
+                    Expression.Convert(
+                        Expression.Call(
+                            null,
+                            _efPropertyMethodInfo.MakeGenericMethod(property.ClrType),
+                            entityParameterExpression,
+                            Expression.Constant(property.Name)),
+                        typeof(object))));
+
+            return query.Select(Expression.Lambda<Func<TEntity, Dictionary<IProperty, object>>>(
+                Expression.ListInit(_newDictionaryExpression, elementInitList),
+                entityParameterExpression));
         }
     }
 
@@ -131,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateF1Context())
             {
                 var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(1, driver.Version[0]);
+                Assert.NotEqual(1, context.Entry(driver).Property<byte[]>("Version").CurrentValue[0]);
                 driver.Podiums = StorePodiums;
-                firstVersion = driver.Version;
+                firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
                 await context.SaveChangesAsync();
             }
 
@@ -141,18 +167,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateF1Context())
             {
                 var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                Assert.NotEqual(firstVersion, driver.Version);
+                Assert.NotEqual(firstVersion, context.Entry(driver).Property<byte[]>("Version").CurrentValue);
                 Assert.Equal(StorePodiums, driver.Podiums);
 
-                secondVersion = driver.Version;
-                driver.Version = firstVersion;
+                secondVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
+                context.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
                 await context.SaveChangesAsync();
             }
 
             using (var validationContext = CreateF1Context())
             {
                 var driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
-                Assert.Equal(secondVersion, driver.Version);
+                Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
                 Assert.Equal(StorePodiums, driver.Podiums);
             }
         }

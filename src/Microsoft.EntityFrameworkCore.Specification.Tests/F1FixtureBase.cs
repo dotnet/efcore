@@ -16,17 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         {
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
+
             modelBuilder.Entity<Chassis>(b =>
                 {
                     b.HasKey(c => c.TeamId);
-                    b.Property(e => e.Version)
+                    b.Property<byte[]>("Version")
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken();
                 });
 
             modelBuilder.Entity<Driver>(b =>
                 {
-                    b.Property(e => e.Version)
+                    b.Property<byte[]>("Version")
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken();
                 });
@@ -39,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             // TODO: Complex type
             // .Property(c => c.StorageLocation);
+
             modelBuilder.Ignore<Location>();
 
             modelBuilder.Entity<EngineSupplier>();
@@ -58,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Sponsor>(b =>
                 {
-                    b.Property(e => e.Version)
+                    b.Property<byte[]>("Version")
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken();
                 });
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Team>(b =>
                 {
-                    b.Property(t => t.Version)
+                    b.Property<byte[]>("Version")
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken();
 

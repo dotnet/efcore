@@ -10,9 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Concurren
     public class Sponsor
     {
         private readonly ObservableCollection<Team> _teams = new ObservableCollection<Team>();
-
-        public byte[] Version { get; set; }
-
+        
         public int Id { get; set; }
         public string Name { get; set; }
 
