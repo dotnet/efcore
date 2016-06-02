@@ -800,6 +800,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (Metadata.IsUnique == unique)
             {
                 Metadata.SetIsUnique(unique, configurationSource);
+                Metadata.DeclaringEntityType.FindIndex(Metadata.Properties)?.SetIsUnique(unique, configurationSource);
+
                 return this;
             }
 
@@ -825,6 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             builder.Metadata.SetIsUnique(unique, configurationSource);
+            Metadata.DeclaringEntityType.FindIndex(Metadata.Properties)?.SetIsUnique(unique, configurationSource);
             return builder;
         }
 

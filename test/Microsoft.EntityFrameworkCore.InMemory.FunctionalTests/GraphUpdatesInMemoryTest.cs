@@ -17,6 +17,30 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
         {
         }
 
+        [ConditionalFact]
+        public override void Optional_One_to_one_relationships_are_one_to_one()
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_One_to_one_relationships_are_one_to_one()
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Optional_One_to_one_with_AK_relationships_are_one_to_one()
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_One_to_one_with_AK_relationships_are_one_to_one()
+        {
+            // FK uniqueness not enforced in in-memory database
+        }
+
         [ConditionalTheory]
         public override void Save_required_one_to_one_changed_by_reference_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {

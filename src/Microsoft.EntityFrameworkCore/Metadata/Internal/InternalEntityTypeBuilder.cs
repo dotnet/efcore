@@ -968,16 +968,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-            => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
+            => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), null, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-            => HasIndex(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+            => HasIndex(GetOrCreateProperties(clrProperties, configurationSource), null, configurationSource);
 
-        private InternalIndexBuilder HasIndex(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        private InternalIndexBuilder HasIndex(IReadOnlyList<Property> properties, bool? unique, ConfigurationSource configurationSource)
         {
             if (properties == null)
             {
@@ -993,10 +993,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else if (existingIndex.DeclaringEntityType != Metadata)
             {
-                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, configurationSource);
+                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, unique, configurationSource);
             }
 
-            var indexBuilder = HasIndex(existingIndex, properties, configurationSource);
+            var indexBuilder = HasIndex(existingIndex, properties, unique, configurationSource);
 
             detachedIndexes?.Attach();
 
@@ -1004,16 +1004,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalIndexBuilder HasIndex(
-            Index existingIndex, IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+            Index index, IReadOnlyList<Property> properties, bool? unique, ConfigurationSource configurationSource)
         {
-            if (existingIndex == null)
+            if (index == null)
             {
-                var index = Metadata.AddIndex(properties, configurationSource);
-                return index.Builder;
+                index = Metadata.AddIndex(properties, configurationSource);
+            }
+            else
+            {
+                index.UpdateConfigurationSource(configurationSource);
             }
 
-            existingIndex.UpdateConfigurationSource(configurationSource);
-            return existingIndex.Builder;
+            if (unique.HasValue)
+            {
+                index.SetIsUnique(unique.Value, configurationSource);
+            }
+
+            return index.Builder;
         }
 
         /// <summary>
@@ -1222,13 +1229,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             bool runConventions)
         {
-            var key = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null, runConventions: false);
-            key.UpdateConfigurationSource(configurationSource);
+            var foreignKey = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null, runConventions: false);
+            foreignKey.UpdateConfigurationSource(configurationSource);
             principalType.UpdateConfigurationSource(configurationSource);
 
-            HasIndex(dependentProperties, ConfigurationSource.Convention);
+            HasIndex(dependentProperties, foreignKey.IsUnique, ConfigurationSource.Convention);
 
-            var value = key.Builder;
+            var value = foreignKey.Builder;
             if (runConventions)
             {
                 value = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(value);

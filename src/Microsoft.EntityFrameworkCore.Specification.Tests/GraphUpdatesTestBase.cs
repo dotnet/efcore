@@ -24,6 +24,58 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             TestStore = Fixture.CreateTestStore();
         }
 
+        [ConditionalFact]
+        public virtual void Optional_One_to_one_relationships_are_one_to_one()
+        {
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Single();
+
+                root.OptionalSingle = new OptionalSingle1();
+
+                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_One_to_one_relationships_are_one_to_one()
+        {
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Single();
+
+                root.RequiredSingle = new RequiredSingle1();
+
+                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_One_to_one_with_AK_relationships_are_one_to_one()
+        {
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Single();
+
+                root.OptionalSingleAk = new OptionalSingleAk1();
+
+                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_One_to_one_with_AK_relationships_are_one_to_one()
+        {
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Single();
+
+                root.RequiredSingleAk = new RequiredSingleAk1();
+
+                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            }
+        }
+
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
