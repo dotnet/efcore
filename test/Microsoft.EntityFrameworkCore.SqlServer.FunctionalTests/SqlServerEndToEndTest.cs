@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +12,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.TestModels;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
@@ -24,6 +24,87 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
+        [Fact]
+        public void Can_use_decimal_as_identity_column()
+        {
+            var numNum1 = new NumNum { TheWalrus = "I" };
+            var numNum2 = new NumNum { TheWalrus = "Am" };
+
+            var anNum1 = new AnNum { TheWalrus = "Goo goo" };
+            var anNum2 = new AnNum { TheWalrus = "g'joob" };
+
+            var adNum1 = new AdNum { TheWalrus = "Eggman" };
+            var adNum2 = new AdNum { TheWalrus = "Eggmen" };
+
+            using (var context = new NumNumContext())
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                context.AddRange(numNum1, numNum2, adNum1, adNum2, anNum1, anNum2);
+
+                context.SaveChanges();
+            }
+
+            using (var context = new NumNumContext())
+            {
+                Assert.Equal(numNum1.Id, context.NumNums.Single(e => e.TheWalrus == "I").Id);
+                Assert.Equal(numNum2.Id, context.NumNums.Single(e => e.TheWalrus == "Am").Id);
+
+                Assert.Equal(anNum1.Id, context.AnNums.Single(e => e.TheWalrus == "Goo goo").Id);
+                Assert.Equal(anNum2.Id, context.AnNums.Single(e => e.TheWalrus == "g'joob").Id);
+
+                Assert.Equal(adNum1.Id, context.AdNums.Single(e => e.TheWalrus == "Eggman").Id);
+                Assert.Equal(adNum2.Id, context.AdNums.Single(e => e.TheWalrus == "Eggmen").Id);
+            }
+        }
+
+        private class NumNumContext : DbContext
+        {
+            public DbSet<NumNum> NumNums { get; set; }
+            public DbSet<AnNum> AnNums { get; set; }
+            public DbSet<AdNum> AdNums { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("NumNum"));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<NumNum>()
+                    .Property(e => e.Id)
+                    .HasColumnType("numeric(18, 0)")
+                    .UseSqlServerIdentityColumn();
+
+                modelBuilder
+                    .Entity<AdNum>()
+                    .Property(e => e.Id)
+                    .HasColumnType("decimal(10, 0)")
+                    .ValueGeneratedOnAdd();
+            }
+        }
+
+        private class NumNum
+        {
+            public decimal Id { get; set; }
+            public string TheWalrus { get; set; }
+        }
+
+        private class AnNum
+        {
+            [Column(TypeName = "decimal(18, 0)")]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public decimal Id { get; set; }
+
+            public string TheWalrus { get; set; }
+        }
+
+        private class AdNum
+        {
+            public decimal Id { get; set; }
+            public string TheWalrus { get; set; }
+        }
+
         [Fact]
         public void Can_run_linq_query_on_entity_set()
         {
@@ -568,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
                 }
-                else if(typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
+                else if (typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
                 }
@@ -844,10 +925,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] string propertyName = "") 
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            private void NotifyChanging([CallerMemberName] string propertyName = "") 
+            private void NotifyChanging([CallerMemberName] string propertyName = "")
                 => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
@@ -1080,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] string propertyName = "") 
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

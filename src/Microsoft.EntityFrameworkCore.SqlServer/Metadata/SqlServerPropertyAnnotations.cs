@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return value ??
                    (fallbackToModel
                     && Property.ValueGenerated == ValueGenerated.OnAdd
-                    && Property.ClrType.UnwrapNullableType().IsInteger()
+                    && (Property.ClrType.UnwrapNullableType().IsInteger()
+                        || Property.ClrType.UnwrapNullableType() == typeof(decimal))
                     && relationalProperty.DefaultValue == null
                     && relationalProperty.DefaultValueSql == null
                     && relationalProperty.ComputedColumnSql == null
@@ -102,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var propertyType = Property.ClrType;
 
                 if (value == SqlServerValueGenerationStrategy.IdentityColumn
+                    && propertyType != typeof(decimal)
                     && (!propertyType.IsInteger()
                         || propertyType == typeof(byte)
                         || propertyType == typeof(byte?)))
