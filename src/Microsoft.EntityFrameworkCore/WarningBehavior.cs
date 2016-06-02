@@ -3,10 +3,24 @@
 
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     The action that is taken when a warning is encountered.
+    /// </summary>
     public enum WarningBehavior
     {
+        /// <summary>
+        ///     A warning is logged.
+        /// </summary>
         Log,
+
+        /// <summary>
+        ///     No action is taken.
+        /// </summary>
         Ignore,
+
+        /// <summary>
+        ///     An exception is thrown.
+        /// </summary>
         Throw
     }
 }

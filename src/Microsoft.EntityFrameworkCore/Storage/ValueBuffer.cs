@@ -88,8 +88,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 : this;
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether the value buffer is empty.
+        /// </summary>
         public bool IsEmpty => _values == null;
 
+        /// <summary>
+        ///     Determines if this value buffer is equivalent to a given object (i.e. if they are both value buffers and contain the same values).
+        /// </summary>
+        /// <param name="obj">
+        ///     The object to compare this value buffer to.
+        /// </param>
+        /// <returns>
+        ///     True if the object is a <see cref="ValueBuffer"/> and contains the same values, otherwise false.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -105,6 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => Equals(_values, other._values)
                && _offset == other._offset;
 
+        /// <summary>
+        ///     Gets the hash code for the value buffer.
+        /// </summary>
+        /// <returns>
+        ///     The hash code for the value buffer.
+        /// </returns>
         public override int GetHashCode()
         {
             unchecked

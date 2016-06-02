@@ -26,8 +26,20 @@ using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         The core visitor that processes a query to be executed.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public abstract class EntityQueryModelVisitor : QueryModelVisitorBase
     {
+        /// <summary>
+        ///     Expression to reference the <see cref="QueryContext"/> parameter for a query.
+        /// </summary>
         public static readonly ParameterExpression QueryContextParameter
             = Expression.Parameter(typeof(QueryContext), "queryContext");
 
@@ -36,6 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static readonly MethodInfo _efPropertyMethod
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
 
+        /// <summary>
+        ///     Determines if a <see cref="MethodInfo"/> is referencing the <see cref="EF.Property{TProperty}(object, string)"/> method.
+        /// </summary>
+        /// <param name="methodInfo"> The method info to check. </param>
+        /// <returns>
+        ///     True if <paramref name="methodInfo"/> is referencing <see cref="EF.Property{TProperty}(object, string)"/>; otherwise fale;
+        /// </returns>
         public static bool IsPropertyMethod([CanBeNull] MethodInfo methodInfo) =>
             ReferenceEquals(methodInfo, _efPropertyMethod)
             ||
@@ -48,6 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && methodInfo.DeclaringType?.FullName == _efTypeName
             );
 
+        /// <summary>
+        ///     Creates an expression to access the given property on an given entity.
+        /// </summary>
+        /// <param name="target"> The entity. </param>
+        /// <param name="property"> The property to be accessed. </param>
+        /// <returns> The newly created expression. </returns>
         public static Expression CreatePropertyExpression([NotNull] Expression target, [NotNull] IProperty property)
             => Expression.Call(
                 null,
@@ -78,6 +103,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         // TODO: Can these be non-blocking?
         private bool _blockTaskExpressions = true;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="EntityQueryModelVisitor"/> class.
+        /// </summary>
+        /// <param name="queryOptimizer"> The <see cref="IQueryOptimizer"/> to be used when processing the query. </param>
+        /// <param name="navigationRewritingExpressionVisitorFactory"> The <see cref="INavigationRewritingExpressionVisitorFactory"/> to be used when processing the query. </param>
+        /// <param name="subQueryMemberPushDownExpressionVisitor"> The <see cref="ISubQueryMemberPushDownExpressionVisitor"/> to be used when processing the query. </param>
+        /// <param name="querySourceTracingExpressionVisitorFactory"> The <see cref="IQuerySourceTracingExpressionVisitorFactory"/> to be used when processing the query. </param>
+        /// <param name="entityResultFindingExpressionVisitorFactory"> The <see cref="IEntityResultFindingExpressionVisitorFactory"/> to be used when processing the query. </param>
+        /// <param name="taskBlockingExpressionVisitor"> The <see cref="ITaskBlockingExpressionVisitor"/> to be used when processing the query. </param>
+        /// <param name="memberAccessBindingExpressionVisitorFactory"> The <see cref="IMemberAccessBindingExpressionVisitorFactory"/> to be used when processing the query. </param>
+        /// <param name="orderingExpressionVisitorFactory"> The <see cref="IOrderingExpressionVisitorFactory"/> to be used when processing the query. </param>
+        /// <param name="projectionExpressionVisitorFactory"> The <see cref="IProjectionExpressionVisitorFactory"/> to be used when processing the query. </param>
+        /// <param name="entityQueryableExpressionVisitorFactory"> The <see cref="IEntityQueryableExpressionVisitorFactory"/> to be used when processing the query. </param>
+        /// <param name="queryAnnotationExtractor"> The <see cref="IQueryAnnotationExtractor"/> to be used when processing the query. </param>
+        /// <param name="resultOperatorHandler"> The <see cref="IResultOperatorHandler"/> to be used when processing the query. </param>
+        /// <param name="entityMaterializerSource"> The <see cref="IEntityMaterializerSource"/> to be used when processing the query. </param>
+        /// <param name="expressionPrinter"> The <see cref="IExpressionPrinter"/> to be used when processing the query. </param>
+        /// <param name="queryCompilationContext"> The <see cref="QueryCompilationContext"/> to be used when processing the query. </param>
         protected EntityQueryModelVisitor(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -129,6 +172,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             LinqOperatorProvider = queryCompilationContext.LinqOperatorProvider;
         }
 
+        /// <summary>
+        ///     Gets the expression that represents this query.
+        /// </summary>
         public virtual Expression Expression
         {
             get { return _expression; }
@@ -141,6 +187,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets the expression for the current parameter.
+        /// </summary>
         public virtual ParameterExpression CurrentParameter
         {
             get { return _currentParameter; }
@@ -153,10 +202,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets the <see cref="Query.QueryCompilationContext"/> being used for this query.
+        /// </summary>
         public virtual QueryCompilationContext QueryCompilationContext => _queryCompilationContext;
 
+        /// <summary>
+        ///     Gets the <see cref="ILinqOperatorProvider"/> being used for this query.
+        /// </summary>
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; private set; }
 
+        /// <summary>
+        ///     Creates an action to execute this query.
+        /// </summary>
+        /// <typeparam name="TResult"> The type of results that the query returns. </typeparam>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> An action that returns the results of the query. </returns>
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -191,6 +252,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Creates an action to asynchronously execute this query.
+        /// </summary>
+        /// <typeparam name="TResult"> The type of results that the query returns. </typeparam>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> An action that asynchronously returns the results of the query. </returns>
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -225,6 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Executes the query and logs any exceptions that occur.
+        /// </summary>
         protected virtual void InterceptExceptions()
         {
             _expression
@@ -237,6 +307,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     QueryContextParameter);
         }
 
+        /// <summary>
+        ///     Populates <see cref="QueryCompilationContext.QueryAnnotations"/> based on annotations found in the query.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
         protected virtual void ExtractQueryAnnotations([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -245,6 +319,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = _queryAnnotationExtractor.ExtractQueryAnnotations(queryModel);
         }
 
+        /// <summary>
+        ///     Applies optimizations to the query.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
         protected virtual void OptimizeQueryModel([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -266,6 +344,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => CoreStrings.LogOptimizedQueryModel(queryModel));
         }
 
+        /// <summary>
+        ///     Converts the results of the query from a single result to a series of results.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="type"> The type of results returned by the query. </param>
         protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel, [CanBeNull] Type type = null)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -280,6 +363,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Includes related data requested in the LINQ query.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
         protected virtual void IncludeNavigations([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -336,6 +423,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             IncludeNavigations(queryModel, includeSpecifications);
         }
 
+        /// <summary>
+        ///     Includes related data requested in the LINQ query.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="includeSpecifications"> Related data to be included. </param>
         protected virtual void IncludeNavigations(
             [NotNull] QueryModel queryModel,
             [NotNull] IReadOnlyCollection<IncludeSpecification> includeSpecifications)
@@ -415,6 +507,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return boundNavigationsList;
         }
 
+        /// <summary>
+        ///     Includes a specific navigation property requested in the LINQ query.
+        /// </summary>
+        /// <param name="includeSpecification"> The navigation property to be included. </param>
+        /// <param name="resultType"> The type of results returned by the query. </param>
+        /// <param name="accessorExpression"> Expression for the navigation property to be included. </param>
+        /// <param name="querySourceRequiresTracking"> A value indicating whether results of this query are to be tracked. </param>
         protected virtual void IncludeNavigations(
             [NotNull] IncludeSpecification includeSpecification,
             [NotNull] Type resultType,
@@ -425,6 +524,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             throw new NotImplementedException(CoreStrings.IncludeNotImplemented);
         }
 
+        /// <summary>
+        ///     Applies tracking behavior to the query.
+        /// </summary>
+        /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
+        /// <param name="queryModel"> The query. </param>
         protected virtual void TrackEntitiesInResults<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -512,6 +616,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Compile())
                 .ToList();
 
+        /// <summary>
+        ///     Creates an action to execute this query.
+        /// </summary>
+        /// <typeparam name="TResults"> The type of results that the query returns. </typeparam>
+        /// <returns> An action that returns the results of the query. </returns>>
         protected virtual Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
         {
             var queryExecutorExpression
@@ -533,6 +642,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return queryExecutor;
         }
 
+        /// <summary>
+        ///     Visits the root <see cref="QueryModel"/> node.
+        /// </summary>
+        /// <param name="queryModel"> The query. </param>
         public override void VisitQueryModel([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -545,6 +658,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Visits the <see cref="MainFromClause"/> node.
+        /// </summary>
+        /// <param name="fromClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
         public override void VisitMainFromClause(
             [NotNull] MainFromClause fromClause, [NotNull] QueryModel queryModel)
         {
@@ -567,6 +685,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AddOrUpdateMapping(fromClause, CurrentParameter);
         }
 
+        /// <summary>
+        ///     Compiles the <see cref="MainFromClause"/> node.
+        /// </summary>
+        /// <param name="mainFromClause"> The node being compiled. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> The compiled result. </returns>
         protected virtual Expression CompileMainFromClauseExpression(
             [NotNull] MainFromClause mainFromClause, [NotNull] QueryModel queryModel)
         {
@@ -576,6 +700,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return ReplaceClauseReferences(mainFromClause.FromExpression, mainFromClause);
         }
 
+        /// <summary>
+        ///     Visits <see cref="AdditionalFromClause"/> nodes.
+        /// </summary>
+        /// <param name="fromClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitAdditionalFromClause(
             [NotNull] AdditionalFromClause fromClause, [NotNull] QueryModel queryModel, int index)
         {
@@ -611,6 +741,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             IntroduceTransparentScope(fromClause, queryModel, index, transparentIdentifierType);
         }
 
+        /// <summary>
+        ///     Compiles <see cref="AdditionalFromClause"/> nodes.
+        /// </summary>
+        /// <param name="additionalFromClause"> The node being compiled. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> The compiled result. </returns>
         protected virtual Expression CompileAdditionalFromClauseExpression(
             [NotNull] AdditionalFromClause additionalFromClause, [NotNull] QueryModel queryModel)
         {
@@ -620,6 +756,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return ReplaceClauseReferences(additionalFromClause.FromExpression, additionalFromClause);
         }
 
+        /// <summary>
+        ///     Visits <see cref="JoinClause"/> nodes.
+        /// </summary>
+        /// <param name="joinClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitJoinClause(
             [NotNull] JoinClause joinClause, [NotNull] QueryModel queryModel, int index)
         {
@@ -672,6 +814,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             IntroduceTransparentScope(joinClause, queryModel, index, transparentIdentifierType);
         }
 
+        /// <summary>
+        ///     Compiles <see cref="JoinClause"/> nodes.
+        /// </summary>
+        /// <param name="joinClause"> The node being compiled. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> The compiled result. </returns>
         protected virtual Expression CompileJoinClauseInnerSequenceExpression(
             [NotNull] JoinClause joinClause, [NotNull] QueryModel queryModel)
         {
@@ -681,6 +829,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return ReplaceClauseReferences(joinClause.InnerSequence, joinClause);
         }
 
+        /// <summary>
+        ///     Visits <see cref="GroupJoinClause"/> nodes
+        /// </summary>
+        /// <param name="groupJoinClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitGroupJoinClause(
             [NotNull] GroupJoinClause groupJoinClause, [NotNull] QueryModel queryModel, int index)
         {
@@ -744,6 +898,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             IntroduceTransparentScope(groupJoinClause, queryModel, index, transparentIdentifierType);
         }
 
+        /// <summary>
+        ///     Compiles <see cref="GroupJoinClause"/> nodes.
+        /// </summary>
+        /// <param name="groupJoinClause"> The node being compiled. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <returns> The compiled result. </returns>
         protected virtual Expression CompileGroupJoinInnerSequenceExpression(
             [NotNull] GroupJoinClause groupJoinClause, [NotNull] QueryModel queryModel)
         {
@@ -753,6 +913,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return ReplaceClauseReferences(groupJoinClause.JoinClause.InnerSequence, groupJoinClause.JoinClause);
         }
 
+        /// <summary>
+        ///     Visits <see cref="WhereClause"/> nodes.
+        /// </summary>
+        /// <param name="whereClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitWhereClause(
             [NotNull] WhereClause whereClause, [NotNull] QueryModel queryModel, int index)
         {
@@ -768,6 +934,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Lambda(predicate, CurrentParameter));
         }
 
+        /// <summary>
+        ///     Visits <see cref="Ordering"/> nodes.
+        /// </summary>
+        /// <param name="ordering"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="orderByClause"> The <see cref="OrderByClause"/> for the ordering. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitOrdering(
             [NotNull] Ordering ordering,
             [NotNull] QueryModel queryModel,
@@ -791,6 +964,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(ordering.OrderingDirection));
         }
 
+        /// <summary>
+        ///     Visits <see cref="SelectClause"/> nodes.
+        /// </summary>
+        /// <param name="selectClause"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
         public override void VisitSelectClause(
             [NotNull] SelectClause selectClause, [NotNull] QueryModel queryModel)
         {
@@ -829,6 +1007,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Visits <see cref="ResultOperatorBase"/> nodes.
+        /// </summary>
+        /// <param name="resultOperator"> The node being visited. </param>
+        /// <param name="queryModel"> The query. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitResultOperator(
             [NotNull] ResultOperatorBase resultOperator, [NotNull] QueryModel queryModel, int index)
         {
@@ -994,7 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Binding
 
-        public virtual Expression BindMethodCallToValueBuffer(
+       public virtual Expression BindMethodCallToValueBuffer(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Expression expression)
         {

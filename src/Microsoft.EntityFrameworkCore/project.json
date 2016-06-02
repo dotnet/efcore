@@ -13,9 +13,6 @@
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
-    "nowarn": [
-      "CS1591"
-    ],
     "xmlDoc": true,
     "compile": {
       "include": "../Shared/*.cs"

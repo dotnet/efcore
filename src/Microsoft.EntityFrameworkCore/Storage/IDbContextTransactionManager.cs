@@ -6,14 +6,38 @@ using System.Threading.Tasks;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     <para>
+    ///         Creates and manages the current transaction.
+    ///     </para>
+    ///     <para>
+    ///         This interface is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public interface IDbContextTransactionManager
     {
+        /// <summary>
+        ///     Begins a new transaction.
+        /// </summary>
+        /// <returns> The newly created transaction. </returns>
         IDbContextTransaction BeginTransaction();
 
+        /// <summary>
+        ///     Asynchronously begins a new transaction.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> The newly created transaction. </returns>
         Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>
+        ///     Commits all changes made to the database in the current transaction.
+        /// </summary>
         void CommitTransaction();
 
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction.
+        /// </summary>
         void RollbackTransaction();
     }
 }
