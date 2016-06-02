@@ -14,12 +14,7 @@
       "type": "platform",
       "version": "1.0.0-*"
     },
-    "Microsoft.EntityFrameworkCore.Tools": {
-      "version": "$toolVersion$",
-      "type": "build",
-      "target": "package"
-    },
-    "Microsoft.EntityFrameworkCore.Tools.Cli": {
+    "Microsoft.EntityFrameworkCore.Design": {
       "version": "$toolVersion$",
       "type": "build",
       "target": "package"

@@ -3,15 +3,16 @@
 
 #if NETCOREAPP1_0
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.InternalAbstractions;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Tools.Cli;
 using Microsoft.Extensions.CommandLineUtils;
 using NuGet.Frameworks;
 
@@ -22,15 +23,44 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private const string DispatcherToolName
             = "Microsoft.EntityFrameworkCore.Tools";
 
-        private static readonly string ProjectDependencyToolName
-            = ExecuteCommand.GetToolName();
+        private const string ProjectDependencyToolName
+            = "Microsoft.EntityFrameworkCore.Design";
+            
+        private static readonly Assembly ThisAssembly = typeof(DispatchCommand).GetTypeInfo().Assembly;
+        private static readonly string ThisAssemblyVersion = ThisAssembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? ThisAssembly.GetName().Version.ToString();
+            
+        private const string DispatcherVersionArgumentName = "--dispatcher-version";
+        private const string AssemblyOptionTemplate = "--assembly";
+        private const string DataDirectoryOptionTemplate = "--data-dir";
+        private const string ProjectDirectoryOptionTemplate = "--project-dir";
+        private const string RootNamespaceOptionTemplate = "--root-namespace";
+        private const string VerboseOptionTemplate = "--verbose";
+            
+        private static IEnumerable<string> CreateArgs(
+            string assembly,
+            string dispatcherVersion,
+            string dataDir,
+            string projectDir,
+            string rootNamespace,
+            bool verbose)
+            => new[]
+            {
+                AssemblyOptionTemplate, assembly,
+                DispatcherVersionArgumentName, dispatcherVersion,
+                DataDirectoryOptionTemplate, dataDir,
+                ProjectDirectoryOptionTemplate, projectDir,
+                RootNamespaceOptionTemplate, rootNamespace,
+                verbose ? VerboseOptionTemplate : string.Empty
+            };
 
         public static CommandLineApplication Create()
         {
             var app = new CommandLineApplication(throwOnUnexpectedArg: false)
             {
                 Name = "dotnet ef",
-                FullName = "Entity Framework .NET Core CLI Commands Dispatcher"
+                FullName = "Entity Framework .NET Core CLI Commands"
             };
 
             var noBuildOption = app.Option("--no-build", "Do not build before executing");
@@ -126,9 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 {
                     bool isVerbose;
                     bool.TryParse(Environment.GetEnvironmentVariable(CommandContext.Variables.Verbose), out isVerbose);
-                    var dispatchArgs = ExecuteCommand
-                                .CreateArgs(
+                    var dispatchArgs = CreateArgs(
                                     assembly: assembly,
+                                    dispatcherVersion: ThisAssemblyVersion,
                                     dataDir: outputPaths.RuntimeOutputPath,
                                     projectDir: projectFile.ProjectDirectory,
                                     rootNamespace: projectFile.Name,
@@ -170,9 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     }
                     else
                     {
-                        // intentionally put DispatcherToolName in error because "Microsoft.EntityFrameworkCore.Tools.Cli" is 
-                        // brought in automatically as a dependency of "Microsoft.EntityFrameworkCore.Tools"
-                        Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(DispatcherToolName, fwlink));
+                        Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(DispatcherToolName, ProjectDependencyToolName, fwlink));
                     }
 
                     return 1;

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace PortableApp
 {
@@ -14,8 +13,6 @@ namespace PortableApp
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            var o = new object();
-            JsonConvert.SerializeObject(o);
             options.UseSqlite("Filename=./test.db");
         }
         

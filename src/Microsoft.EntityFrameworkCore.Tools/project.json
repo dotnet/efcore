@@ -28,7 +28,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Design": "1.0.0-*"
   },
   "frameworks": {
     "netcoreapp1.0": {
@@ -38,7 +38,7 @@
       "dependencies": {
         "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
         "Microsoft.DotNet.ProjectModel": "1.0.0-*",
-        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*",
+        "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
@@ -47,9 +47,6 @@
       }
     },
     "net451": {
-      "dependencies": {
-        "Microsoft.EntityFrameworkCore.Tools.Cli": "1.0.0-*"
-      },
       "buildOptions": {
         "outputName": "Microsoft.EntityFrameworkCore.Tools",
         "emitEntryPoint": false

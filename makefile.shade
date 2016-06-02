@@ -6,7 +6,7 @@ default CONFIGURATION_LOCAL='${E("Configuration")}'
 default BASE_DIR_LOCAL='${Directory.GetCurrentDirectory()}'
 default BUILD_DIR_LOCAL='${Path.Combine(BASE_DIR_LOCAL, "artifacts", "build")}'
 default TOOL_PACKAGE_NAME='Microsoft.EntityFrameworkCore.Tools'
-default CLI_TOOL_PROJECT_NAME='Microsoft.EntityFrameworkCore.Tools.Cli'
+default CLI_TOOL_PROJECT_NAME='Microsoft.EntityFrameworkCore.Design'
 default TOOL_EXE_NAME='${CLI_TOOL_PROJECT_NAME}.exe'
 
 var VERSION='0.1'
@@ -52,17 +52,17 @@ k-standard-goals
 
       var nuspecFile = Files.Include(Path.Combine(extractToDirectory, "*.nuspec")).First();
       var nuspec = new List<string>(File.ReadAllLines(nuspecFile));
-      var dependencies = Array.FindIndex<string>(nuspec.ToArray(), l => l.Contains("<dependencies>")) + 1;
 
       var uap = nuspec.SkipWhile(l => !l.Contains("<group targetFramework=\".NETFramework4.5.1"))
             .TakeWhile(l => !l.Contains("</group>"))
-            .Where(l => !l.Contains(CLI_TOOL_PROJECT_NAME))
             .ToList();
 
       uap[0] = uap[0].Replace(".NETFramework4.5.1", ".NETCore5.0");
       uap.Add("      </group>");
 
-      nuspec.InsertRange(dependencies, uap);
+      var dependencies = Array.FindIndex<string>(nuspec.ToArray(), l => l.Contains("<dependencies>"));
+      nuspec.InsertRange(dependencies + 1, uap);
+      nuspec.Insert(dependencies - 1, "   <developmentDependency>true</developmentDependency>");
 
       File.WriteAllLines(nuspecFile, nuspec);
 
@@ -82,7 +82,7 @@ k-standard-goals
       }
    }
 
-#repack-cli-tools target='compile' if='Directory.Exists("src")'
+#repack-design-package target='compile' if='Directory.Exists("src")'
   @{    
       if (string.IsNullOrEmpty(CONFIGURATION_LOCAL))
       {
@@ -102,6 +102,24 @@ k-standard-goals
       
       var extractToDirectory = projectNupkg + "-temp";
       ZipFile.ExtractToDirectory(projectNupkg, extractToDirectory);
+      
+      var nuspecFile = Files.Include(Path.Combine(extractToDirectory, "*.nuspec")).First();
+      var nuspec = new List<string>(File.ReadAllLines(nuspecFile));
+
+      var uap = nuspec.SkipWhile(l => !l.Contains("<group targetFramework=\".NETFramework4.5.1"))
+            .TakeWhile(l => !l.Contains("</group>"))
+            .Where(l => !l.Contains("Microsoft.Extensions.CommandLineUtils"))
+            .ToList();
+
+      uap[0] = uap[0].Replace(".NETFramework4.5.1", ".NETCore5.0");
+      uap.Add("      </group>");
+
+      var dependencies = Array.FindIndex<string>(nuspec.ToArray(), l => l.Contains("<dependencies>"));
+      nuspec.InsertRange(dependencies + 1, uap);
+      nuspec.Insert(dependencies - 1, "   <developmentDependency>true</developmentDependency>");
+
+      File.WriteAllLines(nuspecFile, nuspec);
+
 
       // don't want the exe in the "lib" folder
       File.Delete(Path.Combine(extractToDirectory, "lib/net451", TOOL_EXE_NAME));

@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli

@@ -7,7 +7,7 @@
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>4682c48a-94a2-42df-afbc-1c3a6cd7195a</ProjectGuid>
-    <RootNamespace>Microsoft.EntityFrameworkCore.Tools.Cli</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Design</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">..\..\artifacts\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\</OutputPath>
   </PropertyGroup>

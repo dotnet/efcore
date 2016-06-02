@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
         private static readonly string[] PackagesToBuild =
             {
                 "Microsoft.EntityFrameworkCore.Tools",
-                "Microsoft.EntityFrameworkCore.Tools.Cli",
+                "Microsoft.EntityFrameworkCore.Design",
                 "Microsoft.EntityFrameworkCore.Tools.Core",
                 "Microsoft.EntityFrameworkCore.Relational.Design",
                 "Microsoft.EntityFrameworkCore.Relational",

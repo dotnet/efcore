@@ -15,8 +15,8 @@
             "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.Sqlite": { },
             "Microsoft.EntityFrameworkCore.Sqlite.Design": { },
+            "Microsoft.EntityFrameworkCore.Design": { },
             "Microsoft.EntityFrameworkCore.Tools": { },
-            "Microsoft.EntityFrameworkCore.Tools.Cli": { },
             "Microsoft.EntityFrameworkCore.Tools.Core": { }
         }
     },

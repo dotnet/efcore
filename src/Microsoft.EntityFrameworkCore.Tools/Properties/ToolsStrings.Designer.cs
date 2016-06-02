@@ -69,11 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Could not invoke this command on the project. Check that the version of {projectCommand} in "tools" and "dependencies" are the same. See {fwlink} for more details.
+        /// Could not invoke this command on the project. Check that the version of '{dotnetCommand}' in "tools" and '{projectCommand}' in "dependencies" are the same. See {fwlink} for more details.
         /// </summary>
-        public static string ProjectDependencyCommandNotFound([CanBeNull] object projectCommand, [CanBeNull] object fwlink)
+        public static string ProjectDependencyCommandNotFound([CanBeNull] object dotnetCommand, [CanBeNull] object projectCommand, [CanBeNull] object fwlink)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "projectCommand", "fwlink"), projectCommand, fwlink);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "dotnetCommand", "projectCommand", "fwlink"), dotnetCommand, projectCommand, fwlink);
         }
 
         /// <summary>

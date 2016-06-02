@@ -13,9 +13,12 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Tools.Cli;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Cli
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    // TODO unify with the reflection-based OperationExecutor
+    // This version is only used by .NET Core CLI
     public class OperationExecutor
     {
         private const string DataDirEnvName = "ADONET_DATA_DIR";
@@ -36,8 +39,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 #endif
             }
 
+            var assemblyFileName = Path.GetFileNameWithoutExtension(options.Assembly);
+            
+            var projectDirectory = string.IsNullOrEmpty(options.ProjectDirectory)
+                ? Directory.GetCurrentDirectory()
+                : options.ProjectDirectory;
+                
+            var rootNamespace = string.IsNullOrEmpty(options.RootNamespace)
+                ? assemblyFileName
+                : options.RootNamespace;
+                
             var assemblyLoader = new AssemblyLoader(Assembly.Load);
-            var projectAssembly = assemblyLoader.Load(Path.GetFileNameWithoutExtension(options.Assembly));
+            var projectAssembly = assemblyLoader.Load(assemblyFileName);
 
             _contextOperations = new LazyRef<DbContextOperations>(
                           () => new DbContextOperations(
@@ -45,16 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                               projectAssembly,
                               projectAssembly,
                               environment,
-                              options.ProjectDirectory));
+                              projectDirectory));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
                     assemblyLoader,
                     projectAssembly,
                     environment,
-                    options.ProjectDirectory,
-                    options.ProjectDirectory,
-                    options.RootNamespace));
+                    projectDirectory,
+                    projectDirectory,
+                    rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
@@ -62,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     assemblyLoader,
                     projectAssembly,
                     environment,
-                    options.ProjectDirectory,
-                    options.ProjectDirectory,
-                    options.RootNamespace));
+                    projectDirectory,
+                    projectDirectory,
+                    rootNamespace));
         }
 
         public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, string, bool> confirmCheck)

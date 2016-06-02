@@ -4,11 +4,6 @@
     "emitEntryPoint": false
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tools": {
-      "version": "$toolVersion$",
-      "type": "build",
-      "target": "package"
-    },
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
     }

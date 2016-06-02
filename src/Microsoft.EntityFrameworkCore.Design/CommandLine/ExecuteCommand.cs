@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.CommandLineUtils;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
@@ -24,22 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         private const string ProjectDirectoryOptionTemplate = "--project-dir";
         private const string RootNamespaceOptionTemplate = "--root-namespace";
         private const string VerboseOptionTemplate = "--verbose";
-
-        public static IEnumerable<string> CreateArgs(
-            [NotNull] string assembly,
-            [NotNull] string dataDir,
-            [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
-            bool verbose)
-            => new[]
-            {
-                DispatcherVersionArgumentName, AssemblyVersion,
-                AssemblyOptionTemplate, Check.NotEmpty(assembly, nameof(assembly)),
-                DataDirectoryOptionTemplate, Check.NotEmpty(dataDir, nameof(dataDir)),
-                ProjectDirectoryOptionTemplate, Check.NotEmpty(projectDir, nameof(projectDir)),
-                RootNamespaceOptionTemplate, Check.NotEmpty(rootNamespace, nameof(rootNamespace)),
-                verbose ? VerboseOptionTemplate : string.Empty
-            };
             
         private static void EnsureValidDispatchRecipient(ref string[] args)
         {
@@ -69,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             // Could not validate the dispatchers version.
             throw new InvalidOperationException(
-                $"Could not invoke tool {GetToolName()}. Ensure it has matching versions in the project.json's 'dependencies' and 'tools' sections.");
+                "Could not invoke command. Ensure project.json has matching versions of 'Microsoft.EntityFrameworkCore.Design' in the 'dependencies' section and 'Microsoft.EntityFrameworkCore.Tools' in the 'tools' section.");
         }
 
         public static CommandLineApplication Create(ref string[] args)
@@ -87,23 +72,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             app.HelpOption();
             app.VerboseOption();
             app.VersionOption(GetVersion);
-            CommonCommandOptions commonOptions = null;
 
-            if (args.Contains(AssemblyOptionTemplate))
+            var commonOptions = new CommonCommandOptions
             {
-                // hidden parameters. Only add these to app for parsing.
-                commonOptions = new CommonCommandOptions
-                {
-                    Assembly = app.Option(AssemblyOptionTemplate + " <ASSEMBLY>",
-                        "The assembly file to load"),
-                    DataDirectory = app.Option(DataDirectoryOptionTemplate + " <DIR>",
-                        "The folder to use as the data directory. If not specified, the runtime output folder is used."),
-                    ProjectDirectory = app.Option(ProjectDirectoryOptionTemplate + " <DIR>",
-                        "The folder to use as the project directory. If not specified, the current working is used."),
-                    RootNamespace = app.Option(RootNamespaceOptionTemplate + " <NAMESPACE>",
-                        "The root namespace of the current project. If not specified, the project name is used.")
-                };
-            }
+                // required
+                Assembly = app.Option(AssemblyOptionTemplate + " <ASSEMBLY>",
+                     "The assembly file to load."),
+
+                // optional
+                DataDirectory = app.Option(DataDirectoryOptionTemplate + " <DIR>",
+                    "The folder to use as the data directory. If not specified, the runtime output folder is used."),
+                ProjectDirectory = app.Option(ProjectDirectoryOptionTemplate + " <DIR>",
+                    "The folder to use as the project directory. If not specified, the current working is used."),
+                RootNamespace = app.Option(RootNamespaceOptionTemplate + " <NAMESPACE>",
+                    "The root namespace of the current project. If not specified, the project name is used.")
+            };
 
             app.Command("database", c => DatabaseCommand.Configure(c, commonOptions));
             app.Command("dbcontext", c => DbContextCommand.Configure(c, commonOptions));

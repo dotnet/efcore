@@ -1,6 +1,6 @@
 {
   "version": "1.0.0-preview2-*",
-  "description": "Components for Entity Framework Core Commands on .NET Core CLI",
+  "description": "Design-time components for Entity Framework Core tools",
   "packOptions": {
     "tags": [
       "Entity Framework Core",
@@ -9,11 +9,9 @@
       "Data",
       "O/RM"
     ],
-    "files": {
-      "mappings": {
-        "lib/net451/": "lib/net451/*"
-      }
-    }
+    "files": [
+      "lib/"
+    ]
   },
   "buildOptions": {
     "emitEntryPoint": true,
@@ -32,8 +30,8 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*"
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
   },
   "configurations": {
     "debug_x86": {
@@ -48,7 +46,7 @@
     }
   },
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netcoreapp1.0": {
       "imports": "portable-net452+win81",
       "dependencies": {

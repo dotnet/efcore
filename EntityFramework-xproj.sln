@@ -24,7 +24,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools", "src\Microsoft.EntityFrameworkCore.Tools\Microsoft.EntityFrameworkCore.Tools.xproj", "{4A6CBC98-59D9-49A4-9CDF-9D6AAE8C59CF}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.Cli", "src\Microsoft.EntityFrameworkCore.Tools.Cli\Microsoft.EntityFrameworkCore.Tools.Cli.xproj", "{4682C48A-94A2-42DF-AFBC-1C3A6CD7195A}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Design", "src\Microsoft.EntityFrameworkCore.Design\Microsoft.EntityFrameworkCore.Design.xproj", "{4682C48A-94A2-42DF-AFBC-1C3A6CD7195A}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Sqlite.Design", "src\Microsoft.EntityFrameworkCore.Sqlite.Design\Microsoft.EntityFrameworkCore.Sqlite.Design.xproj", "{937E330E-E8B6-43BF-A15C-CCCEE0AFDE24}"
 EndProject
