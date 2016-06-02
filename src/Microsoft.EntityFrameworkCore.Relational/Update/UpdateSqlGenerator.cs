@@ -350,10 +350,22 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(columnModification, nameof(columnModification));
 
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
-            commandStringBuilder.Append(" = ");
-            SqlGenerationHelper.GenerateParameterName(commandStringBuilder, useOriginalValue
-                ? columnModification.OriginalParameterName
-                : columnModification.ParameterName);
+
+            var parameterValue = useOriginalValue
+                ? columnModification.OriginalValue
+                : columnModification.Value;
+
+            if (parameterValue == null)
+            {
+                commandStringBuilder.Append(" IS NULL");
+            }
+            else
+            {
+                commandStringBuilder.Append(" = ");
+                SqlGenerationHelper.GenerateParameterName(commandStringBuilder, useOriginalValue
+                    ? columnModification.OriginalParameterName
+                    : columnModification.ParameterName);
+            }
         }
 
         protected abstract void AppendIdentityWhereCondition(

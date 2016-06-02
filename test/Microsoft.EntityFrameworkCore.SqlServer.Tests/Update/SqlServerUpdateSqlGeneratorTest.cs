@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT [Computed]" + Environment.NewLine +
                 "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] = @p0;" + Environment.NewLine,
+                "WHERE @@ROWCOUNT = 1 AND [Id] IS NULL;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "UPDATE [dbo].[Ducks] SET [Name] = @p0, [Quacks] = @p1, [ConcurrencyToken] = @p2" + Environment.NewLine +
                 "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
                 "INTO @inserted0" + Environment.NewLine +
-                "WHERE [Id] = @p3 AND [ConcurrencyToken] = @p4;" + Environment.NewLine +
+                "WHERE [Id] IS NULL AND [ConcurrencyToken] IS NULL;" + Environment.NewLine +
                 "SELECT [Computed] FROM @inserted0;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Update
                 "UPDATE [dbo].[Ducks] SET [Name] = @p0, [Quacks] = @p1, [ConcurrencyToken] = @p2" + Environment.NewLine +
                 "OUTPUT INSERTED.[Computed]" + Environment.NewLine +
                 "INTO @inserted0" + Environment.NewLine +
-                "WHERE [Id] = @p3;" + Environment.NewLine +
+                "WHERE [Id] IS NULL;" + Environment.NewLine +
                 "SELECT [Computed] FROM @inserted0;" + Environment.NewLine,
                 stringBuilder.ToString());
         }

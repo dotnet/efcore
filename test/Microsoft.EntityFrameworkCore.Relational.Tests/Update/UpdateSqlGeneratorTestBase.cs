@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal(
                 "DELETE FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
 
             Assert.Equal(
                 "DELETE FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p1;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p0;" + Environment.NewLine,
+                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -192,10 +192,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
             Assert.Equal(
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter +
                 " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p4;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine,
+                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
                 OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
                 OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
                 OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
                 OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p4;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + RowsAffected + ";" + Environment.NewLine,
                 stringBuilder.ToString());
         }
@@ -250,10 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Update
                 "UPDATE " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " +
                 OpenDelimeter + "Name" + CloseDelimeter + " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " +
                 OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
-                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine +
+                "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
                 "FROM " + SchemaPrefix + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +
-                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3;" + Environment.NewLine,
+                "WHERE " + RowsAffected + " = 1 AND " + OpenDelimeter + "Id" + CloseDelimeter + " IS NULL;" + Environment.NewLine,
                 stringBuilder.ToString());
         }
 

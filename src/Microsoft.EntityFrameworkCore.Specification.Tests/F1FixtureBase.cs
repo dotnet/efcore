@@ -60,8 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
             modelBuilder.Entity<Sponsor>(b =>
                 {
-                    b.Property<byte[]>("Version")
-                        .ValueGeneratedOnAddOrUpdate()
+                    b.Property<int?>(Sponsor.ClientTokenPropertyName)
                         .IsConcurrencyToken();
                 });
 

@@ -183,6 +183,32 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [Fact]
+        public virtual void Nullable_client_side_concurrency_token_can_be_used()
+        {
+            string originalName;
+            var newName = "New name";
+            using (var context = CreateF1Context())
+            {
+                var sponsor = context.Sponsors.Single(s => s.Id == 1);
+                Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                originalName = sponsor.Name;
+                sponsor.Name = "New name";
+                context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
+                context.SaveChanges();
+            }
+
+            using (var context = CreateF1Context())
+            {
+                var sponsor = context.Sponsors.Single(s => s.Id == 1);
+                Assert.Equal(1, context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
+                Assert.Equal(newName, sponsor.Name);
+                sponsor.Name = originalName;
+                context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
+                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+            }
+        }
+
         #region Concurrency resolution with FK associations
 
         [Fact]
