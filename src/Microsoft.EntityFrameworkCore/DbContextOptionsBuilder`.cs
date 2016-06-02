@@ -93,6 +93,22 @@ namespace Microsoft.EntityFrameworkCore
         public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging()
             => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging();
 
+        /// <summary>
+        ///     Configures the behavior when a warning is raised by Entity Framework. You can set a default behavior and behaviors for
+        ///     each warning type.
+        /// </summary>
+        /// <example>
+        ///     <code>
+        ///         optionsBuilder.ConfigureWarnings(warnings => 
+        ///             warnings.Default(WarningBehavior.Ignore)
+        ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
+        ///                     .Throw(RelationalEventId.QueryClientEvaluationWarning))
+        ///     </code>
+        /// </example>
+        /// <param name="warningsConfigurationBuilderAction">
+        ///     An action to configure the warning behavior.
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> ConfigureWarnings(
             [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
             => (DbContextOptionsBuilder<TContext>)base.ConfigureWarnings(warningsConfigurationBuilderAction);
