@@ -184,6 +184,7 @@
     <Compile Include="Infrastructure\ModelCustomizer.cs" />
     <Compile Include="Infrastructure\ModelSource.cs" />
     <Compile Include="Infrastructure\SensitiveDataLogger.cs" />
+    <Compile Include="Infrastructure\WarningsConfigurationBuilder.cs" />
     <Compile Include="Internal\ConcurrencyDetector.cs" />
     <Compile Include="Internal\CurrentDbContext.cs" />
     <Compile Include="Internal\ICurrentDbContext.cs" />
@@ -500,7 +501,6 @@
     <Compile Include="ValueGeneration\ValueGeneratorFactory.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
-    <Compile Include="WarningsConfigurationBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\CoreStrings.resx">
