@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
                     if (columnExpression != null
                         && subquery._projection.OfType<AliasExpression>()
-                            .Any(ae => ae.TryGetColumnExpression()?.Name == columnExpression.Name))
+                            .Any(ae => (ae.Alias ?? ae.TryGetColumnExpression()?.Name) == (aliasExpression.Alias ?? columnExpression.Name)))
                     {
                         aliasExpression.Alias = "c" + columnAliasCounter++;
                     }
