@@ -522,7 +522,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""AlternateId"");
+        b.HasIndex(""AlternateId"")
+            .IsUnique();
 
         b.ToTable(""EntityWithTwoProperties"");
     });
@@ -563,7 +564,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""Id"");
+        b.HasIndex(""Id"")
+            .IsUnique();
 
         b.ToTable(""EntityWithOneProperty"");
     });
@@ -1298,7 +1300,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""AlternateId"");
+        b.HasIndex(""AlternateId"")
+            .IsUnique();
 
         b.ToTable(""EntityWithTwoProperties"");
     });
@@ -1348,7 +1351,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""Name"");
+        b.HasIndex(""Name"")
+            .IsUnique();
 
         b.ToTable(""EntityWithStringProperty"");
     });
@@ -1474,7 +1478,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""Id"");
+        b.HasIndex(""Id"")
+            .IsUnique();
 
         b.ToTable(""EntityWithOneProperty"");
     });
@@ -1608,7 +1613,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""AlternateId"");
+        b.HasIndex(""AlternateId"")
+            .IsUnique();
 
         b.ToTable(""EntityWithTwoProperties"");
     });
@@ -1658,7 +1664,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests.Migrat
 
         b.HasKey(""Id"");
 
-        b.HasIndex(""AlternateId"");
+        b.HasIndex(""AlternateId"")
+            .IsUnique();
 
         b.ToTable(""EntityWithTwoProperties"");
     });
