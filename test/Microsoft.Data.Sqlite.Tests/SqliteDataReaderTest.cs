@@ -179,24 +179,6 @@ namespace Microsoft.Data.Sqlite
             GetX_throws_when_null(
                 r => r.GetDouble(0));
 
-#if NETCOREAPP1_0
-        [Fact]
-        public void GetEnumerator_not_implemented()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-
-                using (var reader = connection.ExecuteReader("SELECT 1;"))
-                {
-                    var hasData = reader.Read();
-                    Assert.True(hasData);
-
-                    Assert.Throws<NotImplementedException>(() => reader.GetEnumerator());
-                }
-            }
-        }
-#else
         [Fact]
         public void GetEnumerator_works()
         {
@@ -213,7 +195,6 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
-#endif
 
         [Theory]
         [InlineData("SELECT 1;", true)]

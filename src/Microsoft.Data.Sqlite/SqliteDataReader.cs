@@ -116,14 +116,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <returns>The enumerator.</returns>
         public override IEnumerator GetEnumerator()
-        {
-#if NET451
-            return new DbEnumerator(this);
-#else
-            // TODO: Remove when the System.Data.Common includes DbEnumerator
-            throw new NotImplementedException();
-#endif
-        }
+            => new DbEnumerator(this, closeReader: false);
 
         /// <summary>
         /// Advances to the next row in the result set.
