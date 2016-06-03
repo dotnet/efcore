@@ -19,14 +19,28 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalDatabaseFacadeExtensions
     {
         /// <summary>
-        ///     Applies any pending migrations for the context to the database.
+        ///     <para>
+        ///         Applies any pending migrations for the context to the database. Will create the database
+        ///         if it does not already exist.
+        ///     </para>
+        ///      <para>
+        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations 
+        ///         to create the database and therefore the database that is created cannot be later updated using migrations. 
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
 
         /// <summary>
-        ///     Asynchronously applies any pending migrations for the context to the database.
+        ///     <para>
+        ///         Asynchronously applies any pending migrations for the context to the database. Will create the database
+        ///         if it does not already exist.
+        ///     </para>
+        ///      <para>
+        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations 
+        ///         to create the database and therefore the database that is created cannot be later updated using migrations. 
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>

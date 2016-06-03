@@ -33,17 +33,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Ensures that the database for the context exists. If it exists, no action is taken. If it does not
-        ///     exist then the database and all its schema are created. If the database exists, then no effort is made
-        ///     to ensure it is compatible with the model for this context.
+        ///     <para>
+        ///         Ensures that the database for the context exists. If it exists, no action is taken. If it does not
+        ///         exist then the database and all its schema are created. If the database exists, then no effort is made
+        ///         to ensure it is compatible with the model for this context.
+        ///     </para>
+        ///     <para>
+        ///         Note that this API does not use migrations to create the database. In addition, the database that is
+        ///         created cannot be later updated using migrations. If you are targeting a relational database and using migrations,
+        ///         you can use the DbContext.Database.Migrate() method to ensure the database is created and all migrations
+        ///         are applied.
+        ///     </para>
         /// </summary>
         /// <returns> True if the database is created, false if it already existed. </returns>
         public virtual bool EnsureCreated() => this.GetService<IDatabaseCreator>().EnsureCreated();
 
         /// <summary>
-        ///     Asynchronously ensures that the database for the context exists. If it exists, no action is taken. If it does not
-        ///     exist then the database and all its schema are created. If the database exists, then no effort is made
-        ///     to ensure it is compatible with the model for this context.
+        ///     <para>
+        ///         Asynchronously ensures that the database for the context exists. If it exists, no action is taken. If it does not
+        ///         exist then the database and all its schema are created. If the database exists, then no effort is made
+        ///         to ensure it is compatible with the model for this context.
+        ///     </para>
+        ///     <para>
+        ///         Note that this API does not use migrations to create the database. In addition, the database that is
+        ///         created cannot be later updated using migrations. If you are targeting a relational database and using migrations,
+        ///         you can use the DbContext.Database.Migrate() method to ensure the database is created and all migrations
+        ///         are applied.
+        ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
