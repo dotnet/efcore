@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 
         protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
+        private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
+
         public override void Entity_equality_empty()
         {
             base.Entity_equality_empty();
@@ -1005,7 +1007,7 @@ ORDER BY [l1].[Id], [l1].[Id0]",
         {
             base.Include_with_groupjoin_skip_and_take();
 
-            if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true)
+            if (SupportsOffset)
             {
                 Assert.Equal(
                     @"@__p_0: ?
@@ -1223,8 +1225,10 @@ WHERE (
         {
             base.Complex_multi_include_with_order_by_and_paging();
 
-            Assert.Equal(
-                @"@__p_0: ?
+            if (SupportsOffset)
+            {
+                Assert.Equal(
+                    @"@__p_0: ?
 @__p_1: ?
 
 SELECT [e].[Id], [e].[Name], [e].[OneToMany_Optional_Self_InverseId], [e].[OneToMany_Required_Self_InverseId], [e].[OneToOne_Optional_SelfId], [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l2].[Id], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
@@ -1268,7 +1272,8 @@ INNER JOIN (
     ) AS [t]
 ) AS [l1] ON [l0].[OneToMany_Optional_InverseId] = [l1].[Id]
 ORDER BY [l1].[Name], [l1].[Id]",
-                Sql);
+                    Sql);
+            }
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;
