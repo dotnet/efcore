@@ -453,9 +453,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Cancel_not_supported()
+        public void Cancel_does_nothing()
         {
-            Assert.Throws<NotSupportedException>(() => new SqliteCommand().Cancel());
+            new SqliteCommand().Cancel();
         }
 
         [Fact]

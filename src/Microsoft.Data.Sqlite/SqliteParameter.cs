@@ -13,11 +13,12 @@ using static Microsoft.Data.Sqlite.Interop.Constants;
 namespace Microsoft.Data.Sqlite
 {
     // TODO: Truncate to specified size
-    // TODO: Convert to specified type
     // TODO: Infer type and size from value
     /// <summary>
-    /// Represents a parameter and its value in a SQL statement to be executed against a SQLite database.
+    /// Represents a parameter and its value in a <see cref="SqliteCommand" />.
     /// </summary>
+    /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
+    /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
     public class SqliteParameter : DbParameter
     {
         private string _parameterName = string.Empty;
@@ -25,10 +26,18 @@ namespace Microsoft.Data.Sqlite
         private Action<Sqlite3StmtHandle, int> _bindAction;
         private bool _bindActionValid;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        /// </summary>
         public SqliteParameter()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        /// </summary>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="value">The value of the parameter. Can be null.</param>
         public SqliteParameter(string name, object value)
         {
             if (string.IsNullOrEmpty(name))
@@ -40,6 +49,11 @@ namespace Microsoft.Data.Sqlite
             Value = value;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        /// </summary>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="type">The type of the parameter.</param>
         public SqliteParameter(string name, SqliteType type)
         {
             if (string.IsNullOrEmpty(name))
@@ -51,24 +65,48 @@ namespace Microsoft.Data.Sqlite
             SqliteType = type;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        /// </summary>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="type">The type of the parameter.</param>
+        /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         public SqliteParameter(string name, SqliteType type, int size)
             : this(name, type)
         {
             Size = size;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        /// </summary>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="type">The type of the parameter.</param>
+        /// <param name="size">The maximum size, in bytes, of the parameter.</param>
+        /// <param name="sourceColumn">The source column used for loading the value. Can be null.</param>
         public SqliteParameter(string name, SqliteType type, int size, string sourceColumn)
             : this(name, type, size)
         {
             SourceColumn = sourceColumn;
         }
 
-        public override DbType DbType { get; set; } = DbType.String;
         /// <summary>
-        /// Represents the type affinity for this parameter.
+        /// Gets or sets the type of the parameter.
         /// </summary>
+        /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
+        /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
+        public override DbType DbType { get; set; } = DbType.String;
+
+        /// <summary>
+        /// Gets or sets the SQLite type of the parameter.
+        /// </summary>
+        /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
+        /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
         public virtual SqliteType SqliteType { get; set; } = SqliteType.Text;
 
+        /// <summary>
+        /// Gets or sets direction of the parameter. Only <see cref="ParameterDirection.Input" /> is supported.
+        /// </summary>
         public override ParameterDirection Direction
         {
             get { return ParameterDirection.Input; }
@@ -81,8 +119,14 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the parameter is nullable.
+        /// </summary>
         public override bool IsNullable { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the parameter.
+        /// </summary>
         public override string ParameterName
         {
             get { return _parameterName; }
@@ -97,14 +141,33 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size, in bytes, of the parameter.
+        /// </summary>
         public override int Size { get; set; }
+
+        /// <summary>
+        /// Gets or sets the source column used for loading the value.
+        /// </summary>
         public override string SourceColumn { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the source column is nullable.
+        /// </summary>
         public override bool SourceColumnNullMapping { get; set; }
 
 #if NET451
+        /// <summary>
+        /// Gets or sets the version to use when loading the value.
+        /// </summary>
         public override DataRowVersion SourceVersion { get; set; }
 #endif
 
+        /// <summary>
+        /// Gets or sets the value of the parameter.
+        /// </summary>
+        /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
+        /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
         public override object Value
         {
             get { return _value; }
@@ -115,11 +178,14 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        /// Resets the <see cref="DbType" /> property to its original value.
+        /// </summary>
         public override void ResetDbType()
             => ResetSqliteType();
 
         /// <summary>
-        /// Sets the parameter type to <see cref="SqliteType">SqliteType.Text</see>.
+        /// Resets the <see cref="SqliteType" /> property to its original value.
         /// </summary>
         public virtual void ResetSqliteType()
         {

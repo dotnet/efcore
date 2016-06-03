@@ -5,8 +5,16 @@ using System.Data.Common;
 
 namespace Microsoft.Data.Sqlite
 {
+    /// <summary>
+    /// Represents a SQLite error.
+    /// </summary>
     public class SqliteException : DbException
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteException" /> class.
+        /// </summary>
+        /// <param name="message">The message to display for the exception. Can be null.</param>
+        /// <param name="errorCode">The SQLite error code.</param>
         public SqliteException(string message, int errorCode)
             : base(message)
         {
@@ -14,9 +22,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// The error code produced by SQLite. The value's meaning depends on the context in which the exception is thrown. 
-        /// <see href="https://www.sqlite.org/rescode.html">See SQLite.org for a list of error codes.</see>
+        /// Gets the SQLite error code.
         /// </summary>
+        /// <seealso href="http://sqlite.org/rescode.html">SQLite Result Codes</seealso>
         public virtual int SqliteErrorCode { get; }
     }
 }

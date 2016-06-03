@@ -47,14 +47,21 @@ namespace Microsoft.Data.Sqlite
             connection.ExecuteNonQuery(beginCommand, commandTimeout);
         }
 
+        /// <summary>
+        /// Gets the connection associated with the transaction.
+        /// </summary>
         public new virtual SqliteConnection Connection
             => _connection;
 
+        /// <summary>
+        /// Gets the connection associated with the transaction.
+        /// </summary>
         protected override DbConnection DbConnection
             => Connection;
 
         /// <summary>
-        /// Specifies the IsolationLevel for this transaction. This cannot be changed if the transaction is complete or closed.
+        /// Gets the isolation level for the transaction. This cannot be changed if the transaction is completed or
+        /// closed.
         /// </summary>
         public override IsolationLevel IsolationLevel
         {
@@ -74,7 +81,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Persists the results of all statements executed during this transaction.
+        /// Applies the changes made in the transaction.
         /// </summary>
         public override void Commit()
         {
@@ -88,7 +95,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Reverses all changes made in this transaction.
+        /// Reverts the changes made in the transaction.
         /// </summary>
         public override void Rollback()
         {
@@ -100,6 +107,12 @@ namespace Microsoft.Data.Sqlite
             RollbackInternal();
         }
 
+        /// <summary>
+        /// Releases any resources used by the transaction and rolls it back.
+        /// </summary>
+        /// <param name="disposing">
+        /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+        /// </param>
         protected override void Dispose(bool disposing)
         {
             if (disposing

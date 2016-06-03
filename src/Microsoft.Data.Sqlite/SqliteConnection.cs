@@ -17,7 +17,7 @@ using static Microsoft.Data.Sqlite.Interop.Constants;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Represents a connection with a SQLite database.
+    /// Represents a connection to a SQLite database.
     /// </summary>
     public partial class SqliteConnection : DbConnection
     {
@@ -27,10 +27,18 @@ namespace Microsoft.Data.Sqlite
         private ConnectionState _state;
         private Sqlite3Handle _db;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteConnection" /> class.
+        /// </summary>
         public SqliteConnection()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteConnection" /> class.
+        /// </summary>
+        /// <param name="connectionString">The string used to open the connection.</param>
+        /// <seealso cref="SqliteConnectionStringBuilder" />
         public SqliteConnection(string connectionString)
         {
             ConnectionString = connectionString;
@@ -40,11 +48,16 @@ namespace Microsoft.Data.Sqlite
             => _db;
 
         /// <summary>
-        /// Represents an unmanaged pointer to a sqlite3 database object. <see href="https://www.sqlite.org/c3ref/sqlite3.html">See SQLite.org for more documentation on proper usage of this object.</see>
+        /// Gets a handle to underlying database connection.
         /// </summary>
+        /// <seealso href="http://sqlite.org/c3ref/sqlite3.html">Database Connection Handle</seealso>
         public virtual IntPtr Handle
             => _db?.DangerousGetHandle() ?? IntPtr.Zero;
 
+        /// <summary>
+        /// Gets or sets a string used to open the connection.
+        /// </summary>
+        /// <seealso cref="SqliteConnectionStringBuilder" />
         public override string ConnectionString
         {
             get { return _connectionString; }
@@ -62,9 +75,15 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
+        /// <summary>
+        /// Gets the name of the current database. Always 'main'.
+        /// </summary>
         public override string Database
             => MainDatabaseName;
 
+        /// <summary>
+        /// Gets the path to the database file. Will be absolute for open connections.
+        /// </summary>
         public override string DataSource
         {
             get
@@ -80,15 +99,21 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Corresponds to the version of the SQLite library used by the connection.
+        /// Gets the version of SQLite used by the connection.
         /// </summary>
         public override string ServerVersion
             => NativeMethods.sqlite3_libversion();
 
+        /// <summary>
+        /// Gets the current state of the connection.
+        /// </summary>
         public override ConnectionState State
             => _state;
 
-        protected internal SqliteTransaction Transaction { get; set; }
+        /// <summary>
+        /// Gets or sets the transaction currently being used by the connection, or null if none.
+        /// </summary>
+        protected internal virtual SqliteTransaction Transaction { get; set; }
 
         private void SetState(ConnectionState value)
         {
@@ -100,6 +125,10 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        /// Opens a connection to the database using the value of <see cref="ConnectionString" />.
+        /// </summary>
+        /// <exception cref="SqliteException">A SQLite error occurs while opening the connection.</exception>
         public override void Open()
         {
             if (State == ConnectionState.Open)
@@ -187,6 +216,9 @@ namespace Microsoft.Data.Sqlite
                 ?? AppDomain.CurrentDomain.BaseDirectory;
 #endif
 
+        /// <summary>
+        /// Closes the connection to the database. Open transactions are rolled back.
+        /// </summary>
         public override void Close()
         {
             if (_db == null
@@ -201,6 +233,12 @@ namespace Microsoft.Data.Sqlite
             SetState(ConnectionState.Closed);
         }
 
+        /// <summary>
+        /// Releases any resources used by the connection and closes it.
+        /// </summary>
+        /// <param name="disposing">
+        /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+        /// </param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -211,19 +249,48 @@ namespace Microsoft.Data.Sqlite
             base.Dispose(disposing);
         }
 
-        // NB: Other providers don't set Transaction
+        /// <summary>
+        /// Creates a new command associated with the connection.
+        /// </summary>
+        /// <returns>The new command.</returns>
+        /// <remarks>
+        /// The command's <seealso cref="SqliteCommand.Transaction" /> property will also be set to the current
+        /// transaction.
+        /// </remarks>
         public new virtual SqliteCommand CreateCommand()
             => new SqliteCommand { Connection = this, Transaction = Transaction };
 
+        /// <summary>
+        /// Creates a new command associated with the connection.
+        /// </summary>
+        /// <returns>The new command.</returns>
         protected override DbCommand CreateDbCommand()
             => CreateCommand();
 
+        /// <summary>
+        /// Begins a transaction on the connection.
+        /// </summary>
+        /// <returns>The transaction.</returns>
         public new virtual SqliteTransaction BeginTransaction()
             => BeginTransaction(IsolationLevel.Unspecified);
 
+        /// <summary>
+        /// Begins a transaction on the connection.
+        /// </summary>
+        /// <param name="isolationLevel">The isolation level of the transaction.</param>
+        /// <returns>The transaction.</returns>
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
             => BeginTransaction(isolationLevel);
 
+        /// <summary>
+        /// Begins a transaction on the connection.
+        /// </summary>
+        /// <param name="isolationLevel">
+        /// The isolation level of the transaction.
+        /// <para>Only <see cref="IsolationLevel.ReadUncommitted" /> and <see cref="IsolationLevel.Serializable" /> are
+        /// supported.</para>
+        /// </param>
+        /// <returns>The transaction.</returns>
         public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (State != ConnectionState.Open)
@@ -238,11 +305,21 @@ namespace Microsoft.Data.Sqlite
             return Transaction = new SqliteTransaction(this, isolationLevel, SqliteCommand.DefaultCommandTimeout);
         }
 
+        /// <summary>
+        /// Changes the current database. Not supported.
+        /// </summary>
+        /// <param name="databaseName">The name of the database to use.</param>
+        /// <exception cref="NotSupportedException">Always.</exception>
         public override void ChangeDatabase(string databaseName)
         {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Enables extension loading on the connection.
+        /// </summary>
+        /// <param name="enable">true to enable; false to disable</param>
+        /// <seealso href="http://sqlite.org/loadext.html">Run-Time Loadable Extensions</seealso>
         public virtual void EnableExtensions(bool enable = true)
         {
             if (_db == null

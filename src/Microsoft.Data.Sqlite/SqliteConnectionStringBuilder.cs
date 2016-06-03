@@ -13,7 +13,8 @@ using System.Reflection;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Provides a simple way to create and manage the contents of connection strings used by <see cref="SqliteConnection"/>.
+    /// Provides a simple way to create and manage the contents of connection strings used by
+    /// <see cref="SqliteConnection" />.
     /// </summary>
     public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
@@ -57,30 +58,51 @@ namespace Microsoft.Data.Sqlite
             };
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteConnectionStringBuilder" /> class.
+        /// </summary>
         public SqliteConnectionStringBuilder()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqliteConnectionStringBuilder" /> class.
+        /// </summary>
+        /// <param name="connectionString">
+        /// The initial connection string the builder will represent. Can be null.
+        /// </param>
         public SqliteConnectionStringBuilder(string connectionString)
         {
             ConnectionString = connectionString;
         }
 
-        public string DataSource
+        /// <summary>
+        /// Gets or sets the database file.
+        /// </summary>
+        public virtual string DataSource
         {
             get { return _dataSource; }
             set { base[DataSourceKeyword] = _dataSource = value; }
         }
 
-        public SqliteOpenMode Mode
+        /// <summary>
+        /// Gets or sets the connection mode.
+        /// </summary>
+        public virtual SqliteOpenMode Mode
         {
             get { return _mode; }
             set { base[ModeKeyword] = _mode = value; }
         }
 
+        /// <summary>
+        /// Gets a collection containing the keys used by the connection string.
+        /// </summary>
         public override ICollection Keys
             => new ReadOnlyCollection<string>((string[])_validKeywords);
 
+        /// <summary>
+        /// Gets a collection containing the values used by the connection string.
+        /// </summary>
         public override ICollection Values
         {
             get
@@ -95,12 +117,21 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public SqliteCacheMode Cache
+        /// <summary>
+        /// Gets or sets the caching mode used by the connection.
+        /// </summary>
+        /// <seealso href="http://sqlite.org/sharedcache.html">SQLite Shared-Cache Mode</seealso>
+        public virtual SqliteCacheMode Cache
         {
             get { return _cache; }
             set { base[CacheKeyword] = _cache = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the value associated with the specified key.
+        /// </summary>
+        /// <param name="keyword">The key.</param>
+        /// <returns>The value.</returns>
         public override object this[string keyword]
         {
             get { return GetAt(GetIndex(keyword)); }
@@ -168,6 +199,9 @@ namespace Microsoft.Data.Sqlite
             return enumValue;
         }
 
+        /// <summary>
+        /// Clears the contents of the builder.
+        /// </summary>
         public override void Clear()
         {
             base.Clear();
@@ -178,9 +212,19 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified key is used by the connection string.
+        /// </summary>
+        /// <param name="keyword">The key to look for.</param>
+        /// <returns>true if it is use; otherwise, false.</returns>
         public override bool ContainsKey(string keyword)
             => _keywords.ContainsKey(keyword);
 
+        /// <summary>
+        /// Removes the specified key and its value from the connection string.
+        /// </summary>
+        /// <param name="keyword">The key to remove.</param>
+        /// <returns>true if the key was used; otherwise, false.</returns>
         public override bool Remove(string keyword)
         {
             Keywords index;
@@ -195,12 +239,23 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
+        /// <summary>
+        /// Determines whether the specified key should be serialized into the connection string.
+        /// </summary>
+        /// <param name="keyword">The key to check.</param>
+        /// <returns>true if it should be serialized; otherwise, false.</returns>
         public override bool ShouldSerialize(string keyword)
         {
             Keywords index;
             return _keywords.TryGetValue(keyword, out index) && base.ShouldSerialize(_validKeywords[(int)index]);
         }
 
+        /// <summary>
+        /// Gets the value of the specified key if it is used.
+        /// </summary>
+        /// <param name="keyword">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>true if the key was used; otherwise, false.</returns>
         public override bool TryGetValue(string keyword, out object value)
         {
             Keywords index;
