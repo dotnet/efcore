@@ -7,10 +7,21 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
+    /// <summary>
+    ///     A factory for creating entity queryable expression visitors.
+    /// </summary>
     public interface IEntityQueryableExpressionVisitorFactory
     {
+        /// <summary>
+        ///     Creates a new entity queryable ExpressionVisitor.
+        /// </summary>
+        /// <param name="entityQueryModelVisitor"> The query model visitor. </param>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     An ExpressionVisitor.
+        /// </returns>
         ExpressionVisitor Create(
-            [NotNull] EntityQueryModelVisitor queryModelVisitor,
+            [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
             [CanBeNull] IQuerySource querySource);
     }
 }

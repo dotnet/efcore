@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected virtual IMaterializerFactory MaterializerFactory { get; }
 
         public override EntityQueryModelVisitor Create(
-            QueryCompilationContext queryCompilationContext, EntityQueryModelVisitor parentEntityQueryModelVisitor)
+                QueryCompilationContext queryCompilationContext, EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new InMemoryQueryModelVisitor(
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,

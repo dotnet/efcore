@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -16,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -1026,7 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Transparent Identifiers
 
-        public const string CreateTransparentIdentifierMethodName = "CreateTransparentIdentifier";
+        private const string CreateTransparentIdentifierMethodName = "CreateTransparentIdentifier";
 
         private struct TransparentIdentifier<TOuter, TInner>
         {
@@ -1122,6 +1122,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        /// <summary>
+        ///     Translates a re-linq query model expression into a compiled query expression.
+        /// </summary>
+        /// <param name="expression"> The re-linq query model expression. </param>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="inProjection"> True when the expression is a projector. </param>
+        /// <returns>
+        ///     A compiled query expression fragment.
+        /// </returns>
         public virtual Expression ReplaceClauseReferences(
             [NotNull] Expression expression,
             [CanBeNull] IQuerySource querySource = null,
@@ -1160,6 +1169,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return expression;
         }
 
+        /// <summary>
+        ///     Adds or updates the expression mapped to a query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="expression"> The expression mapped to the query source. </param>
         public virtual void AddOrUpdateMapping(
             [NotNull] IQuerySource querySource, [NotNull] Expression expression)
         {
@@ -1178,7 +1192,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Binding
 
-       public virtual Expression BindMethodCallToValueBuffer(
+        /// <summary>
+        ///     Binds a method call to a value buffer access.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="expression"> The target expression. </param>
+        /// <returns>
+        ///     A value buffer access expression.
+        /// </returns>
+        public virtual Expression BindMethodCallToValueBuffer(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Expression expression)
         {
@@ -1191,6 +1213,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex()));
         }
 
+        /// <summary>
+        ///     Binds a member access to a value buffer access.
+        /// </summary>
+        /// <param name="memberExpression"> The member access expression. </param>
+        /// <param name="expression"> The target expression. </param>
+        /// <returns>
+        ///     A value buffer access expression.
+        /// </returns>
         public virtual Expression BindMemberToValueBuffer(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Expression expression)
@@ -1205,6 +1235,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex()));
         }
 
+        /// <summary>
+        ///     Binds a value buffer read.
+        /// </summary>
+        /// <param name="memberType"> Type of the member. </param>
+        /// <param name="expression"> The target expression. </param>
+        /// <param name="index"> A value buffer index. </param>
+        /// <returns>
+        ///     A value buffer read expression.
+        /// </returns>
         public virtual Expression BindReadValueMethod(
             [NotNull] Type memberType,
             [NotNull] Expression expression,
@@ -1217,6 +1256,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .CreateReadValueExpression(expression, memberType, index);
         }
 
+        /// <summary>
+        ///     Binds a navigation path property expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="propertyExpression"> The property expression. </param>
+        /// <param name="propertyBinder"> The property binder. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
         public virtual TResult BindNavigationPathPropertyExpression<TResult>(
             [NotNull] Expression propertyExpression,
             [NotNull] Func<IEnumerable<IPropertyBase>, IQuerySource, TResult> propertyBinder)
@@ -1227,6 +1275,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindPropertyExpressionCore(propertyExpression, null, propertyBinder);
         }
 
+        /// <summary>
+        ///     Binds a member expression.
+        /// </summary>
+        /// <param name="memberExpression"> The member access expression. </param>
+        /// <param name="memberBinder"> The member binder. </param>
         public virtual void BindMemberExpression(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Action<IProperty, IQuerySource> memberBinder)
@@ -1243,6 +1296,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
+        /// <summary>
+        ///     Binds a member expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="memberExpression"> The member access expression. </param>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="memberBinder"> The member binder. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
         public virtual TResult BindMemberExpression<TResult>(
             [NotNull] MemberExpression memberExpression,
             [CanBeNull] IQuerySource querySource,
@@ -1257,11 +1320,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var property = ps.Single() as IProperty;
 
                         return property != null
-                            ? memberBinder(property, qs)
-                            : default(TResult);
+                                   ? memberBinder(property, qs)
+                                   : default(TResult);
                     });
         }
 
+        /// <summary>
+        ///     Binds a method call expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="methodCallBinder"> The method call binder. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
         public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
             [CanBeNull] IQuerySource querySource,
@@ -1276,8 +1349,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var property = ps.Single() as IProperty;
 
                         return property != null
-                            ? methodCallBinder(property, qs)
-                            : default(TResult);
+                                   ? methodCallBinder(property, qs)
+                                   : default(TResult);
                     });
         }
 
@@ -1319,7 +1392,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             querySourceReferenceExpression = null;
 
             while (memberExpression?.Expression != null
-                || (IsPropertyMethod(methodCallExpression?.Method) && methodCallExpression?.Arguments?[0] != null))
+                   || (IsPropertyMethod(methodCallExpression?.Method) && methodCallExpression?.Arguments?[0] != null))
             {
                 var propertyName = memberExpression?.Member.Name ?? (string)(methodCallExpression.Arguments[1] as ConstantExpression)?.Value;
                 expression = memberExpression?.Expression ?? methodCallExpression.Arguments[0];
@@ -1364,6 +1437,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Enumerable.Reverse(properties).ToList();
         }
 
+        /// <summary>
+        ///     Binds a method call expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="methodCallBinder"> The method call binder. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
         public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
@@ -1374,6 +1456,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindMethodCallExpression(methodCallExpression, null, methodCallBinder);
         }
 
+        /// <summary>
+        ///     Binds a method call expression.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="methodCallBinder"> The method call binder. </param>
         public virtual void BindMethodCallExpression(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Action<IProperty, IQuerySource> methodCallBinder)

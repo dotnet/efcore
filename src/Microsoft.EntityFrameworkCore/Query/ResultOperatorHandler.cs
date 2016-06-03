@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     using ResultHandler = Func<EntityQueryModelVisitor, ResultOperatorBase, QueryModel, Expression>;
 
+    /// <summary>
+    ///     The default client-eval result operator handler.
+    /// </summary>
     public class ResultOperatorHandler : IResultOperatorHandler
     {
         private static readonly Dictionary<Type, ResultHandler> _handlers
@@ -48,6 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(UnionResultOperator), (v, r, __) => HandleUnion(v, (UnionResultOperator)r) }
             };
 
+        /// <summary>
+        ///     Handles the result operator.
+        /// </summary>
+        /// <param name="entityQueryModelVisitor"> The entity query model visitor. </param>
+        /// <param name="resultOperator"> The result operator. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <returns>
+        ///     An compiled query expression fragment representing the result operator.
+        /// </returns>
         public virtual Expression HandleResultOperator(
             EntityQueryModelVisitor entityQueryModelVisitor,
             ResultOperatorBase resultOperator,
@@ -333,6 +345,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             = typeof(QueryContext).GetTypeInfo()
                 .GetDeclaredProperty("CancellationToken");
 
+        /// <summary>
+        ///     Call a client operator that may have a cancellation token.
+        /// </summary>
+        /// <param name="methodInfo"> The method to call. </param>
+        /// <param name="arguments"> A variable-length parameters list containing arguments. </param>
+        /// <returns>
+        ///     A method call expression.
+        /// </returns>
         public static Expression CallWithPossibleCancellationToken(
             [NotNull] MethodInfo methodInfo, [CanBeNull] params Expression[] arguments)
         {

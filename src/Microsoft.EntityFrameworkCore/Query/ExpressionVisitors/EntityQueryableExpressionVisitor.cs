@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
     public abstract class EntityQueryableExpressionVisitor : DefaultQueryExpressionVisitor
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityQueryableExpressionVisitor"/> class.
+        ///     Initializes a new instance of the <see cref="EntityQueryableExpressionVisitor" /> class.
         /// </summary>
         /// <param name="entityQueryModelVisitor"> The visitor for the query. </param>
         protected EntityQueryableExpressionVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
@@ -27,15 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
 
         /// <summary>
-        ///     Visits <see cref="ConstantExpression"/> nodes.
+        ///     Visits <see cref="ConstantExpression" /> nodes.
         /// </summary>
         /// <param name="constantExpression"> The node being visited. </param>
         /// <returns> An expression to use in place of the node. </returns>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
-                ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
-                : constantExpression;
+                   ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
+                   : constantExpression;
 
         /// <summary>
         ///     Visits entity type roots.
