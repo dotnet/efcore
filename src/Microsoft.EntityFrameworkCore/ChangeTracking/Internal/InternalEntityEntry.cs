@@ -222,9 +222,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool changeState = true,
             bool isModified = true)
         {
-            // TODO: Restore original value to reject changes when isModified is false
-            // Issue #742
-
             var propertyIndex = property.GetIndex();
             _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, false);
 
@@ -258,6 +255,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (changeState)
             {
+                if (!isModified
+                    && property.GetOriginalValueIndex() != -1)
+                {
+                    SetProperty(property, GetOriginalValue(property), setModified: false);
+                }
                 _stateData.FlagProperty(propertyIndex, PropertyFlag.TemporaryOrModified, isModified);
             }
 

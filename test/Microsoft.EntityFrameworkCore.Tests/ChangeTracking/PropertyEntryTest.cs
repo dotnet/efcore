@@ -3,13 +3,10 @@
 
 using System;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
@@ -119,6 +116,41 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
             new PropertyEntry(entry, "Primate").IsModified = false;
 
             Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+        }
+
+        [Fact]
+        public void Can_reject_changes_when_clearing_modified_flag()
+        {
+            var entity = new Wotty { Id = 1, Primate = "Monkey", Marmate = "Bovril" };
+
+            var entry = TestHelpers.Instance.CreateInternalEntry(
+                BuildModel(),
+                EntityState.Unchanged,
+                entity);
+
+            var primateEntry = new PropertyEntry(entry, "Primate");
+            primateEntry.OriginalValue = "Chimp";
+            primateEntry.IsModified = true;
+
+            var marmateEntry = new PropertyEntry(entry, "Marmate");
+            marmateEntry.OriginalValue = "Marmite";
+            marmateEntry.IsModified = true;
+
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Monkey", entity.Primate);
+            Assert.Equal("Bovril", entity.Marmate);
+
+            primateEntry.IsModified = false;
+
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Bovril", entity.Marmate);
+
+            marmateEntry.IsModified = false;
+
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Marmite", entity.Marmate);
         }
 
         [Fact]
@@ -431,6 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             public int Id { get; set; }
             public string Primate { get; set; }
+            public string Marmate { get; set; }
         }
 
         private class FullyNotifyingWotty : HasChangedAndChanging
@@ -518,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             public event PropertyChangedEventHandler PropertyChanged;
 
-            protected void OnPropertyChanged([CallerMemberName]string propertyName = "") 
+            protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
@@ -526,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
         {
             public event PropertyChangingEventHandler PropertyChanging;
 
-            protected void OnPropertyChanging([CallerMemberName]string propertyName = "") 
+            protected void OnPropertyChanging([CallerMemberName] string propertyName = "")
                 => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
