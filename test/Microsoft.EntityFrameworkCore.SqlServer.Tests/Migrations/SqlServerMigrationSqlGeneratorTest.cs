@@ -233,6 +233,104 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Tests.Migrations
         }
 
         [Fact]
+        public virtual void AlterColumnOperation_with_index_no_narrowing()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("Person", x =>
+                {
+                    x.Property<string>("Name");
+                    x.HasIndex("Name");
+                }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsNullable = true
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_index()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("Person", x =>
+                {
+                    x.Property<string>("Name").HasMaxLength(30);
+                    x.HasIndex("Name");
+                }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    MaxLength = 30,
+                    IsNullable = true
+                });
+
+            Assert.Equal(
+                "DROP INDEX [IX_Person_Name] ON [Person];" + EOL +
+                "GO" + EOL +
+                "" + EOL +
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30);" + EOL +
+                "GO" + EOL +
+                "" + EOL +
+                "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void AlterColumnOperation_with_composite_index()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity("Person", x =>
+                {
+                    x.Property<string>("FirstName").IsRequired();
+                    x.Property<string>("LastName");
+                    x.HasIndex("FirstName", "LastName");
+                }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "FirstName",
+                    ClrType = typeof(string),
+                    IsNullable = false
+                });
+
+            Assert.Equal(
+                "DROP INDEX [IX_Person_FirstName_LastName] ON [Person];" + EOL +
+                "GO" + EOL +
+                "" + EOL +
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'FirstName');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "ALTER TABLE [Person] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;" + EOL +
+                "GO" + EOL +
+                "" + EOL +
+                "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void CreateDatabaseOperation()
         {
             Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind" });

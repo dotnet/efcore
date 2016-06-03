@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -55,6 +56,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            var property = FindProperty(model, operation.Schema, operation.Table, operation.Name);
+            var mightNarrowColumn = property != null
+                && (property.IsKeyOrForeignKey()
+                    || operation.ColumnType != null
+                    || operation.IsUnicode == false
+                    || operation.MaxLength.HasValue
+                    || !operation.IsNullable);
+            var indexesToRebuild = mightNarrowColumn
+                ? property.GetContainingIndexes()
+                : Enumerable.Empty<IIndex>();
+
+            foreach (var index in indexesToRebuild)
+            {
+                Generate(
+                    new DropIndexOperation
+                    {
+                        Schema = operation.Schema,
+                        Table = operation.Table,
+                        Name = index.SqlServer().Name
+                    },
+                    model,
+                    builder);
+            }
+
             DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
 
             builder
@@ -94,6 +119,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(" FOR ")
                     .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .AppendLine(SqlGenerationHelper.StatementTerminator);
+            }
+
+            if (indexesToRebuild.Any())
+            {
+                foreach (var index in indexesToRebuild)
+                {
+                    Generate(
+                        new CreateIndexOperation
+                        {
+                            IsUnique = index.IsUnique,
+                            Name = index.SqlServer().Name,
+                            Schema = operation.Schema,
+                            Table = operation.Table,
+                            Columns = index.Properties.Select(p => p.SqlServer().ColumnName).ToArray(),
+                            [SqlServerFullAnnotationNames.Instance.Clustered] = index.SqlServer().IsClustered
+                        },
+                        model,
+                        builder);
+                }
             }
 
             EndStatement(builder);
