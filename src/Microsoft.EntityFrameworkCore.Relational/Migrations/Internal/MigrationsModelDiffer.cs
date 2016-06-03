@@ -17,6 +17,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     // TODO: Structural matching
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
         private static readonly Type[] _dropOperationTypes =
@@ -43,6 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             typeof(RenameSequenceOperation)
         };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public MigrationsModelDiffer(
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations,
@@ -57,13 +65,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             MigrationsAnnotations = migrationsAnnotations;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IRelationalTypeMapper TypeMapper { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IRelationalAnnotationProvider Annotations { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IMigrationsAnnotationProvider MigrationsAnnotations { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool HasDifferences(IModel source, IModel target)
             => Diff(source, target, new DiffContext()).Any();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<MigrationOperation> GetDifferences(IModel source, IModel target)
         {
             var diffContext = new DiffContext();
@@ -71,6 +101,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return Sort(Diff(source, target, diffContext), diffContext);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IReadOnlyList<MigrationOperation> Sort(
             [NotNull] IEnumerable<MigrationOperation> operations,
             [NotNull] DiffContext diffContext)
@@ -235,6 +269,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #region IModel
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [CanBeNull] IModel source,
             [CanBeNull] IModel target,
@@ -255,12 +293,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         ? Remove(source, diffContext)
                         : Enumerable.Empty<MigrationOperation>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IModel target, [NotNull] DiffContext diffContext)
             => GetSchemas(target).SelectMany(Add)
                 .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
                 .Concat(Annotations.For(target).Sequences.SelectMany(Add))
                 .Concat(target.GetEntityTypes().SelectMany(t => t.GetDeclaredForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext) =>
             source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext))
                 .Concat(Annotations.For(source).Sequences.SelectMany(Remove));
@@ -269,26 +315,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #region Schema
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IEnumerable<string> source, [NotNull] IEnumerable<string> target)
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
                 (s, t) => s == t);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] string source, [NotNull] string target)
             => Enumerable.Empty<MigrationOperation>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] string target)
         {
             yield return new EnsureSchemaOperation { Name = target };
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source) => Enumerable.Empty<MigrationOperation>();
 
         #endregion
 
         #region IEntityType
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IEntityType> source,
             [NotNull] IEnumerable<IEntityType> target,
@@ -313,6 +379,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Annotations.For(t).TableName,
                     StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEntityType source,
             [NotNull] IEntityType target,
@@ -345,6 +415,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IEntityType target, [NotNull] DiffContext diffContext)
         {
             var targetAnnotations = Annotations.For(target);
@@ -373,6 +447,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(
             [NotNull] IEntityType source, [NotNull] DiffContext diffContext)
         {
@@ -405,6 +483,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #region IProperty
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IProperty> source,
             [NotNull] IEnumerable<IProperty> target,
@@ -426,6 +508,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Annotations.For(t).ColumnName,
                     StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IProperty source, [NotNull] IProperty target)
         {
             var sourceAnnotations = Annotations.For(source);
@@ -490,6 +576,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
             [NotNull] IProperty target,
             [NotNull] DiffContext diffContext,
@@ -524,6 +614,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             yield return operation;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IProperty source)
         {
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
@@ -540,6 +634,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #region IKey
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IKey> source,
             [NotNull] IEnumerable<IKey> target,
@@ -553,6 +651,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                           && (s.IsPrimaryKey() == t.IsPrimaryKey()));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IKey source,
             [NotNull] IKey target,
@@ -561,6 +663,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 ? Remove(source, diffContext).Concat(Add(target, diffContext))
                 : Enumerable.Empty<MigrationOperation>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IKey target, [NotNull] DiffContext diffContext)
         {
             var targetAnnotations = Annotations.For(target);
@@ -594,6 +700,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             yield return operation;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(
             [NotNull] IKey source,
             [NotNull] DiffContext diffContext)
@@ -626,6 +736,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #region IForeignKey
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IForeignKey> source,
             [NotNull] IEnumerable<IForeignKey> target,
@@ -642,12 +756,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                           && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
                           && (s.DeleteBehavior == t.DeleteBehavior));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
             => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
                 ? Remove(source, diffContext).Concat(Add(target, diffContext))
                 : Enumerable.Empty<MigrationOperation>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
         {
             var declaringRootEntityType = target.DeclaringEntityType.RootType();
@@ -683,6 +805,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IForeignKey source, [NotNull] DiffContext diffContext)
         {
             var declaringRootEntityType = source.DeclaringEntityType.RootType();
@@ -704,6 +830,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #region IIndex
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<IIndex> source,
             [NotNull] IEnumerable<IIndex> target,
@@ -721,6 +851,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 // ReSharper disable once ImplicitlyCapturedClosure
                 (s, t) => s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IIndex source,
             [NotNull] IIndex target,
@@ -752,6 +886,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
             [NotNull] IIndex target,
             [NotNull] DiffContext diffContext)
@@ -772,6 +910,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             yield return operation;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IIndex source)
         {
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
@@ -788,6 +930,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #region ISequence
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IEnumerable<ISequence> source,
             [NotNull] IEnumerable<ISequence> target)
@@ -800,6 +946,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                           && (s.ClrType == t.ClrType));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] ISequence source, [NotNull] ISequence target)
         {
             var schemaChanged = source.Schema != target.Schema;
@@ -842,6 +992,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] ISequence target)
         {
             yield return new CreateSequenceOperation
@@ -857,6 +1011,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             };
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ISequence source)
         {
             yield return new DropSequenceOperation
@@ -868,6 +1026,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         #endregion
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<MigrationOperation> DiffCollection<T>(
             [NotNull] IEnumerable<T> sources,
             [NotNull] IEnumerable<T> targets,
@@ -928,9 +1090,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual string[] GetColumns([NotNull] IEnumerable<IProperty> properties)
             => properties.Select(p => Annotations.For(p).ColumnName).ToArray();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual bool HasDifferences([NotNull] IEnumerable<IAnnotation> source, [NotNull] IEnumerable<IAnnotation> target)
         {
             var unmatched = new List<IAnnotation>(target);
@@ -949,6 +1119,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return unmatched.Count != 0;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void CopyAnnotations([NotNull] IEnumerable<IAnnotation> annotations, [NotNull] IMutableAnnotatable annotatable)
         {
             foreach (var annotation in annotations)
@@ -957,12 +1131,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<string> GetSchemas([NotNull] IModel model)
             => model.GetRootEntityTypes().Select(t => Annotations.For(t).Schema)
                 .Concat(Annotations.For(model).Sequences.Select(s => s.Schema))
                 .Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual object GetDefaultValue([NotNull] Type type)
             => type == typeof(string)
                 ? string.Empty
@@ -970,6 +1152,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     ? Array.CreateInstance(type.GetElementType(), 0)
                     : type.UnwrapNullableType().GetDefaultValue();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected class DiffContext
         {
             private readonly IDictionary<IEntityType, IEntityType> _entityTypeMap = new Dictionary<IEntityType, IEntityType>();
@@ -986,27 +1172,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IDictionary<DropTableOperation, IEntityType> _removedEntityTypes
                 = new Dictionary<DropTableOperation, IEntityType>();
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual void AddMapping([NotNull] IEntityType source, [NotNull] IEntityType target)
             {
                 _entityTypeMap.Add(source, target);
                 _reverseEntityTypeMap.Add(target, source);
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual void AddMapping([NotNull] IProperty source, [NotNull] IProperty target)
             {
                 _propertyMap.Add(source, target);
                 _reversePropertyMap.Add(target, source);
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual void AddCreate([NotNull] IEntityType target, [NotNull] CreateTableOperation operation)
                 => _createTableOperations.Add(target, operation);
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual void AddDrop([NotNull] IEntityType source, [NotNull] DropTableOperation operation)
             {
                 _dropTableOperations.Add(source, operation);
                 _removedEntityTypes.Add(operation, source);
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual IEntityType FindTarget([NotNull] IEntityType source)
             {
                 IEntityType target;
@@ -1015,6 +1221,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return target;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual IProperty FindTarget([NotNull] IProperty source)
             {
                 IProperty target;
@@ -1023,6 +1233,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return target;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual IEntityType FindSource([NotNull] IEntityType target)
             {
                 IEntityType source;
@@ -1031,6 +1245,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return source ?? target;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual IProperty FindSource([NotNull] IProperty target)
             {
                 IProperty source;
@@ -1039,6 +1257,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return source ?? target;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual CreateTableOperation FindCreate([NotNull] IEntityType target)
             {
                 CreateTableOperation operation;
@@ -1047,6 +1269,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return operation;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual DropTableOperation FindDrop([NotNull] IEntityType source)
             {
                 DropTableOperation operation;
@@ -1055,6 +1281,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return operation;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual IEntityType GetMetadata([NotNull] DropTableOperation operation)
             {
                 IEntityType source;

@@ -8,9 +8,25 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using System.Data.Common;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     <para>
+    ///         Creates instances of the <see cref="IRelationalValueBufferFactory"/> type. <see cref="IRelationalValueBufferFactory"/>
+    ///         instances are tied to a specific result shape. This factory is responsible for creating the
+    ///         <see cref="IRelationalValueBufferFactory"/> for a given result shape.
+    ///     </para>
+    ///     <para>
+    ///         This factory results in value buffers that use the untyped <see cref="DbDataReader.GetValues(object[])"/> API to read 
+    ///         back individual values from the underlying <see cref="DbDataReader"/>.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class UntypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
         private struct CacheKey
@@ -39,6 +55,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly ConcurrentDictionary<CacheKey, Action<object[]>> _cache
             = new ConcurrentDictionary<CacheKey, Action<object[]>>();
 
+        /// <summary>
+        ///     Creates a new <see cref="IRelationalValueBufferFactory"/>.
+        /// </summary>
+        /// <param name="valueTypes">
+        ///     The types of values to be returned from the value buffer.
+        /// </param>
+        /// <param name="indexMap">
+        ///     An ordered list of zero-based indexes to be read from the underlying result set (i.e. the first number in this
+        ///     list is the index of the underlying result set that will be returned when value 0 is requested from the
+        ///     value buffer).
+        /// </param>
+        /// <returns>
+        ///     The newly created <see cref="IRelationalValueBufferFactoryFactory"/>.
+        /// </returns>
         public virtual IRelationalValueBufferFactory Create(
             IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
         {

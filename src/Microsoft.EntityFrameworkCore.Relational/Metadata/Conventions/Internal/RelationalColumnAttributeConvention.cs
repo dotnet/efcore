@@ -7,8 +7,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalColumnAttributeConvention : PropertyAttributeConvention<ColumnAttribute>
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, ColumnAttribute attribute, PropertyInfo clrProperty)
         {
             if (!string.IsNullOrWhiteSpace(attribute.Name))

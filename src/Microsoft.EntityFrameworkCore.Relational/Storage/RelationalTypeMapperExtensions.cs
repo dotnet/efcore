@@ -9,8 +9,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     Extension methods for the <see cref="RelationalTypeMapping"/> class.
+    /// </summary>
     public static class RelationalTypeMapperExtensions
     {
+        /// <summary>
+        ///     Gets the relational database type for a given object, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="value"> The object to get the mapping for. </param>
+        /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMappingForValue(
             [CanBeNull] this IRelationalTypeMapper typeMapper,
             [CanBeNull] object value)
@@ -20,6 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ? RelationalTypeMapping.NullMapping
                 : typeMapper.GetMapping(value.GetType());
 
+        /// <summary>
+        ///     Gets the relational database type for a given property, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="property"> The property to get the mapping for. </param>
+        /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] IProperty property)
@@ -36,6 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             throw new InvalidOperationException(RelationalStrings.UnsupportedType(property));
         }
 
+        /// <summary>
+        ///     Gets the relational database type for a given .NET type, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="clrType"> The type to get the mapping for. </param>
+        /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] Type clrType)
@@ -52,6 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType));
         }
 
+        /// <summary>
+        ///     Gets the mapping that represents the given database type, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="typeName"> The type to get the mapping for. </param>
+        /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] string typeName)
@@ -68,6 +95,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             throw new InvalidOperationException(RelationalStrings.UnsupportedType(typeName));
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether the given .NET type is mapped.
+        /// </summary>
+        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="clrType"> The .NET type. </param>
+        /// <returns> True if the type can be mapped; otherwise false. </returns>
         public static bool IsTypeMapped(
             [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] Type clrType)

@@ -9,8 +9,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalModelSource : ModelSource
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalModelSource(
             [NotNull] IDbSetFinder setFinder,
             [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
@@ -20,6 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void FindSets(ModelBuilder modelBuilder, DbContext context)
         {
             base.FindSets(modelBuilder, context);

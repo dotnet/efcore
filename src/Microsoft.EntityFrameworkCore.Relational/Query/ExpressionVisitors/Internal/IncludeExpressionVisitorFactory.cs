@@ -13,6 +13,10 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class IncludeExpressionVisitorFactory : IIncludeExpressionVisitorFactory
     {
         private readonly ISelectExpressionFactory _selectExpressionFactory;
@@ -22,6 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IncludeExpressionVisitorFactory(
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
@@ -45,6 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ExpressionVisitor Create(
             IQuerySource querySource,
             IReadOnlyList<INavigation> navigationPath,

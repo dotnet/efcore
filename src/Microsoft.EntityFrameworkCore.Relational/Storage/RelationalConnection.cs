@@ -19,6 +19,15 @@ using System.Transactions;
 #endif
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     <para>
+    ///         Represents a connection with a relational database.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public abstract class RelationalConnection : IRelationalConnection
     {
         private readonly string _connectionString;
@@ -29,6 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private int? _commandTimeout;
         private readonly ILogger _logger;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="IRelationalConnection"/> class.
+        /// </summary>
+        /// <param name="options"> The options for the context that this connection will be used with. </param>
+        /// <param name="logger"> The logger to write to. </param>
         protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILogger logger)
         {
             Check.NotNull(options, nameof(options));
@@ -62,16 +76,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
+        /// <summary>
+        ///     Creates a <see cref="DbConnection"/> to the database.
+        /// </summary>
+        /// <returns> The connection. </returns>
         protected abstract DbConnection CreateDbConnection();
 
+        /// <summary>
+        ///     Gets the logger to write to.
+        /// </summary>
         protected virtual ILogger Logger => _logger;
 
+        /// <summary>
+        ///     Gets the connection string for the database.
+        /// </summary>
         public virtual string ConnectionString => _connectionString ?? _connection.Value.ConnectionString;
 
+        /// <summary>
+        ///     Gets the underlying <see cref="System.Data.Common.DbConnection"/> used to connect to the database.
+        /// </summary>
         public virtual DbConnection DbConnection => _connection.Value;
 
+        /// <summary>
+        ///     Gets the current transaction.
+        /// </summary>
         public virtual IDbContextTransaction CurrentTransaction { get; [param: NotNull] protected set; }
 
+        /// <summary>
+        ///     Gets the timeout for executing a command against the database.
+        /// </summary>
         public virtual int? CommandTimeout
         {
             get { return _commandTimeout; }
@@ -87,13 +120,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
+        /// <summary>
+        ///     Begins a new transaction.
+        /// </summary>
+        /// <returns> The newly created transaction. </returns>
         [NotNull]
         public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
 
+        /// <summary>
+        ///     Asynchronously begins a new transaction.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction. 
+        /// </returns>
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
             => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
 
+        /// <summary>
+        ///     Begins a new transaction.
+        /// </summary>
+        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
+        /// <returns> The newly created transaction. </returns>
         [NotNull]
         public virtual IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
@@ -107,6 +156,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return BeginTransactionWithNoPreconditions(isolationLevel);
         }
 
+        /// <summary>
+        ///     Asynchronously begins a new transaction.
+        /// </summary>
+        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction. 
+        /// </returns>
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
             IsolationLevel isolationLevel,
@@ -141,6 +198,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return CurrentTransaction;
         }
 
+        /// <summary>
+        ///     Specifies an existing <see cref="DbTransaction"/> to be used for database operations.
+        /// </summary>
+        /// <param name="transaction"> The transaction to be used. </param>
         public virtual IDbContextTransaction UseTransaction(DbTransaction transaction)
         {
             if (transaction == null)
@@ -167,6 +228,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return CurrentTransaction;
         }
 
+        /// <summary>
+        ///     Commits all changes made to the database in the current transaction.
+        /// </summary>
         public virtual void CommitTransaction()
         {
             if (CurrentTransaction == null)
@@ -177,6 +241,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CurrentTransaction.Commit();
         }
 
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction.
+        /// </summary>
         public virtual void RollbackTransaction()
         {
             if (CurrentTransaction == null)
@@ -187,6 +254,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CurrentTransaction.Rollback();
         }
 
+        /// <summary>
+        ///     Opens the connection to the database.
+        /// </summary>
         public virtual void Open()
         {
             CheckForAmbientTransactions();
@@ -213,6 +283,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _openedCount++;
         }
 
+        /// <summary>
+        ///     Asynchronously opens the connection to the database.
+        /// </summary>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
+        /// </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
         public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             CheckForAmbientTransactions();
@@ -251,6 +328,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 #endif
         }
 
+        /// <summary>
+        ///     Closes the connection to the database.
+        /// </summary>
         public virtual void Close()
         {
             // TODO: Consider how to handle open/closing to make sure that a connection that is passed in
@@ -277,10 +357,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether the multiple active result sets feature is enabled.
+        /// </summary>
         public virtual bool IsMultipleActiveResultSetsEnabled => false;
 
+        /// <summary>
+        ///     Gets or sets the active cursor.
+        /// </summary>
         public virtual IValueBufferCursor ActiveCursor { get; set; }
 
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public virtual void Dispose()
         {
             CurrentTransaction?.Dispose();

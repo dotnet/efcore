@@ -8,8 +8,16 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public abstract class RelationalNullsExpressionVisitorBase : RelinqExpressionVisitor
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Expression BuildIsNullExpression([NotNull] Expression expression)
         {
             var isNullExpressionBuilder = new IsNullExpressionBuildingVisitor();
@@ -19,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return isNullExpressionBuilder.ResultExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitExtension(Expression node)
             => node is NotNullableExpression
                 ? node

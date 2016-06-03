@@ -8,10 +8,18 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalQueryContextFactory : QueryContextFactory
     {
         private readonly IRelationalConnection _connection;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IConcurrencyDetector concurrencyDetector,
@@ -22,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _connection = connection;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override QueryContext Create()
             => new RelationalQueryContext(CreateQueryBuffer, _connection, StateManager, ConcurrencyDetector);
     }

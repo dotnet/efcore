@@ -11,12 +11,20 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class AsyncQueryingEnumerable : IAsyncEnumerable<ValueBuffer>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly ShaperCommandContext _shaperCommandContext;
         private readonly int? _queryIndex;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public AsyncQueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] ShaperCommandContext shaperCommandContext,
@@ -27,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _queryIndex = queryIndex;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IAsyncEnumerator<ValueBuffer> GetEnumerator() => new AsyncEnumerator(this);
 
         private sealed class AsyncEnumerator : IAsyncEnumerator<ValueBuffer>, IValueBufferCursor

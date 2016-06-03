@@ -12,6 +12,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     <para>
+    ///         A transaction against the database.
+    ///     </para>
+    ///     <para>
+    ///         Instances of this class are typically obtained from <see cref="DatabaseFacade.BeginTransaction" /> and it is not designed
+    ///         to be directly constructed in your application code.
+    ///     </para>
+    /// </summary>
     public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTransaction>
     {
         private readonly IRelationalConnection _relationalConnection;
@@ -21,6 +30,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private bool _disposed;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalTransaction"/> class.
+        /// </summary>
+        /// <param name="connection"> The connection to the database. </param>
+        /// <param name="transaction"> The underlying <see cref="DbTransaction"/>. </param>
+        /// <param name="logger"> The logger to write to. </param>
+        /// <param name="transactionOwned">
+        ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
+        /// </param>
         public RelationalTransaction(
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
@@ -43,6 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _transactionOwned = transactionOwned;
         }
 
+        /// <summary>
+        ///     Commits all changes made to the database in the current transaction.
+        /// </summary>
         public virtual void Commit()
         {
             _logger.LogDebug(
@@ -54,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ClearTransaction();
         }
 
+        /// <summary>
+        ///     Discards all changes made to the database in the current transaction.
+        /// </summary>
         public virtual void Rollback()
         {
             _logger.LogDebug(
@@ -65,6 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ClearTransaction();
         }
 
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public virtual void Dispose()
         {
             if (!_disposed)

@@ -21,6 +21,10 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalResultOperatorHandler : IResultOperatorHandler
     {
         private sealed class HandlerContext
@@ -98,6 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly ResultOperatorHandler _resultOperatorHandler;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalResultOperatorHandler(
             [NotNull] IModel model,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
@@ -112,6 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _resultOperatorHandler = resultOperatorHandler;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression HandleResultOperator(
             EntityQueryModelVisitor entityQueryModelVisitor,
             ResultOperatorBase resultOperator,

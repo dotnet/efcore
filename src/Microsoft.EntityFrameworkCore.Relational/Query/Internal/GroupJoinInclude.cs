@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class GroupJoinInclude : IDisposable
     {
         private readonly IReadOnlyList<INavigation> _navigationPath;
@@ -19,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private IRelatedEntitiesLoader[] _relatedEntitiesLoaders;
         private GroupJoinInclude _previous;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public GroupJoinInclude(
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] IReadOnlyList<Func<QueryContext, IRelatedEntitiesLoader>> relatedEntitiesLoaderFactories,
@@ -29,6 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetPrevious([NotNull] GroupJoinInclude previous)
         {
             if (_previous != null)
@@ -41,6 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Initialize([NotNull] RelationalQueryContext queryContext)
         {
             _queryContext = queryContext;
@@ -53,6 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _previous?.Initialize(queryContext);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Include([CanBeNull] object entity)
         {
             _previous?.Include(entity);
@@ -66,6 +86,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _querySourceRequiresTracking);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Dispose()
         {
             if (_queryContext != null)

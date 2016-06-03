@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class AsyncIncludeCollectionIterator : IDisposable
     {
         private readonly IAsyncEnumerator<ValueBuffer> _relatedValuesEnumerator;
@@ -17,12 +21,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private bool _hasRemainingRows;
         private bool _moveNextPending = true;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public AsyncIncludeCollectionIterator(
             [NotNull] IAsyncEnumerator<ValueBuffer> relatedValuesEnumerator)
         {
             _relatedValuesEnumerator = relatedValuesEnumerator;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IAsyncEnumerable<ValueBuffer> GetRelatedValues(
             [NotNull] IIncludeKeyComparer keyComparer)
             => new RelatedValuesEnumerable(this, keyComparer);
@@ -87,6 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Dispose() => _relatedValuesEnumerator.Dispose();
     }
 }

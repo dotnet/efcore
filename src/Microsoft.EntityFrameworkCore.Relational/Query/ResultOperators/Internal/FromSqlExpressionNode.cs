@@ -10,8 +10,16 @@ using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class FromSqlExpressionNode : ResultOperatorExpressionNodeBase
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
         {
             RelationalQueryableExtensions.FromSqlMethodInfo
@@ -20,6 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         private readonly string _sql;
         private readonly Expression _arguments;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public FromSqlExpressionNode(
             MethodCallExpressionParseInfo parseInfo,
             [NotNull] ConstantExpression sql,
@@ -30,9 +42,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             _arguments = arguments;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
             => new FromSqlResultOperator(_sql, _arguments);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Expression Resolve(
             ParameterExpression inputParameter,
             Expression expressionToBeResolved,

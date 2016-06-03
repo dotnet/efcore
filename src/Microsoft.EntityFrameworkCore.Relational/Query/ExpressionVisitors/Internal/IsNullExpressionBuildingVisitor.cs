@@ -8,12 +8,24 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class IsNullExpressionBuildingVisitor : RelinqExpressionVisitor
     {
         private bool _nullConstantAdded;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression ResultExpression { get; private set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConstant(ConstantExpression node)
         {
             if (node.Value == null
@@ -26,6 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitBinary(BinaryExpression node)
         {
             // a ?? b == null <-> a == null && b == null
@@ -58,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitExtension(Expression node)
         {
             var aliasExpression = node as AliasExpression;
@@ -98,6 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return node;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConditional(ConditionalExpression node)
         {
             var current = ResultExpression;

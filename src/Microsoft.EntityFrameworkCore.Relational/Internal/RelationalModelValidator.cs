@@ -12,11 +12,28 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalModelValidator : LoggingModelValidator
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IRelationalAnnotationProvider RelationalExtensions { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IRelationalTypeMapper TypeMapper { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalModelValidator(
             [NotNull] ILogger<RelationalModelValidator> loggerFactory,
             [NotNull] IRelationalAnnotationProvider relationalExtensions,
@@ -27,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             TypeMapper = typeMapper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Validate(IModel model)
         {
             base.Validate(model);
@@ -37,6 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             EnsureDataTypes(model);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureDataTypes([NotNull] IModel model)
         {
             foreach (var entityType in model.GetEntityTypes())
@@ -52,6 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureDistinctTableNames([NotNull] IModel model)
         {
             var tables = new HashSet<string>();
@@ -68,6 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void EnsureSharedColumnsCompatibility([NotNull] IModel model)
         {
             var groupedEntityTypes = new Dictionary<string, List<IEntityType>>();
@@ -176,6 +209,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void ValidateInheritanceMapping([NotNull] IModel model)
         {
             var hierarchies = new Dictionary<IEntityType, List<IEntityType>>();

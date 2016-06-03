@@ -8,12 +8,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
         private readonly ISensitiveDataLogger _logger;
         private readonly DiagnosticSource _diagnosticSource;
         private readonly IRelationalTypeMapper _typeMapper;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalCommandBuilderFactory(
             [NotNull] ISensitiveDataLogger<RelationalCommandBuilderFactory> logger,
             [NotNull] DiagnosticSource diagnosticSource,
@@ -28,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _typeMapper = typeMapper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IRelationalCommandBuilder Create()
             => new RelationalCommandBuilder(
                 _logger,

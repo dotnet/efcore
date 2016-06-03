@@ -7,6 +7,15 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     <para>
+    ///         Maps string property types to their corresponding relational database types.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class StringRelationalTypeMapper : IStringRelationalTypeMapper
     {
         private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedAnsiMappings
@@ -15,6 +24,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedUnicodeMappings
             = new ConcurrentDictionary<int, RelationalTypeMapping>();
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StringRelationalTypeMapper"/> class.
+        /// </summary>
+        /// <param name="maxBoundedAnsiLength"> The maximum length of a bounded ANSI string. </param>
+        /// <param name="defaultAnsiMapping"> The default mapping of an ANSI string. </param>
+        /// <param name="unboundedAnsiMapping"> The mapping for an unbounded ANSI string. </param>
+        /// <param name="keyAnsiMapping"> The mapping for an ANSI string that is part of a key. </param>
+        /// <param name="createBoundedAnsiMapping"> The function to create a mapping for a bounded ANSI string. </param>
+        /// <param name="maxBoundedUnicodeLength"> The maximum length of a bounded Unicode string. </param>
+        /// <param name="defaultUnicodeMapping"> The default mapping of a Unicode string. </param>
+        /// <param name="unboundedUnicodeMapping"> The mapping for an unbounded Unicode string. </param>
+        /// <param name="keyUnicodeMapping"> The mapping for a Unicode string that is part of a key. </param>
+        /// <param name="createBoundedUnicodeMapping"> The function to create a mapping for a bounded Unicode string. </param>
         public StringRelationalTypeMapper(
             int maxBoundedAnsiLength,
             [NotNull] RelationalTypeMapping defaultAnsiMapping,
@@ -40,18 +62,65 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CreateBoundedUnicodeMapping = createBoundedUnicodeMapping;
         }
 
+        /// <summary>
+        ///     Gets the maximum length of a bounded ANSI string.
+        /// </summary>
         public virtual int MaxBoundedAnsiLength { get; }
+
+        /// <summary>
+        ///     Gets the default mapping of an ANSI string.
+        /// </summary>
         public virtual RelationalTypeMapping DefaultAnsiMapping { get; }
+
+        /// <summary>
+        ///     Gets the mapping for an unbounded ANSI string.
+        /// </summary>
         public virtual RelationalTypeMapping UnboundedAnsiMapping { get; }
+
+        /// <summary>
+        ///     Gets the mapping for an ANSI string that is part of a key.
+        /// </summary>
         public virtual RelationalTypeMapping KeyAnsiMapping { get; }
+
+        /// <summary>
+        ///     Gets the function to create a mapping for a bounded ANSI string.
+        /// </summary>
         public virtual Func<int, RelationalTypeMapping> CreateBoundedAnsiMapping { get; }
 
+        /// <summary>
+        ///     Gets the maximum length of a bounded Unicode string.
+        /// </summary>
         public virtual int MaxBoundedUnicodeLength { get; }
+
+        /// <summary>
+        ///     Gets the default mapping of a Unicode string.
+        /// </summary>
         public virtual RelationalTypeMapping DefaultUnicodeMapping { get; }
+
+        /// <summary>
+        ///     Gets the mapping for an unbounded Unicode string.
+        /// </summary>
         public virtual RelationalTypeMapping UnboundedUnicodeMapping { get; }
+
+        /// <summary>
+        ///     Gets the mapping for a Unicode string that is part of a key.
+        /// </summary>
         public virtual RelationalTypeMapping KeyUnicodeMapping { get; }
+
+        /// <summary>
+        ///     Gets the function to create a mapping for a bounded Unicode string.
+        /// </summary>
         public virtual Func<int, RelationalTypeMapping> CreateBoundedUnicodeMapping { get; }
 
+        /// <summary>
+        ///     Gets the relational database type for a string property.
+        /// </summary>
+        /// <param name="unicode">A value indicating whether the property should handle Unicode data or not.</param>
+        /// <param name="keyOrIndex">A value indicating whether the property is part of a key or not.</param>
+        /// <param name="maxLength">The maximum length of data the property is configured to store, or null if no maximum is configured.</param>
+        /// <returns>
+        ///     The type mapping to be used.
+        /// </returns>
         public virtual RelationalTypeMapping FindMapping(bool unicode, bool keyOrIndex, int? maxLength)
             => unicode
                 ? FindMapping(

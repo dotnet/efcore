@@ -19,6 +19,10 @@ using Remotion.Linq.Clauses;
 // ReSharper disable ImplicitlyCapturedClosure
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class IncludeExpressionVisitor : ExpressionVisitorBase
     {
         private readonly ISelectExpressionFactory _selectExpressionFactory;
@@ -33,6 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly IReadOnlyList<int> _queryIndexes;
         private readonly bool _querySourceRequiresTracking;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IncludeExpressionVisitor(
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
@@ -70,6 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));

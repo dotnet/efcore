@@ -5,8 +5,16 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalModelBuilderAnnotations : RelationalModelAnnotations
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalModelBuilderAnnotations(
             [NotNull] InternalModelBuilder internalBuilder,
             ConfigurationSource configurationSource,
@@ -15,7 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool HasDatabaseName([CanBeNull] string value) => SetDatabaseName(value);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool HasDefaultSchema([CanBeNull] string value) => SetDefaultSchema(value);
     }
 }

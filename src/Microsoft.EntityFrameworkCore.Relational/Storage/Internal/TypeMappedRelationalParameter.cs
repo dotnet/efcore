@@ -7,8 +7,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class TypeMappedRelationalParameter : IRelationalParameter
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public TypeMappedRelationalParameter(
             [NotNull] string invariantName,
             [NotNull] string name,
@@ -25,8 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             IsNullable = nullable;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string InvariantName { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Name { get; }
 
         // internal for testing
@@ -35,6 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         // internal for testing
         internal bool? IsNullable { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddDbParameter(DbCommand command, object value)
         {
             Check.NotNull(command, nameof(command));

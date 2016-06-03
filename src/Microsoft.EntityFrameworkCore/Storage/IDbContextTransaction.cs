@@ -7,9 +7,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     A transaction against the database.
-    ///     Instances of this class are typically obtained from <see cref="DatabaseFacade.BeginTransaction" /> and it is not designed
-    ///     to be directly constructed in your application code.
+    ///     <para>
+    ///         A transaction against the database.
+    ///     </para>
+    ///     <para>
+    ///         Instances of this class are typically obtained from <see cref="DatabaseFacade.BeginTransaction" /> and it is not designed
+    ///         to be directly constructed in your application code.
+    ///     </para>
     /// </summary>
     public interface IDbContextTransaction : IDisposable
     {

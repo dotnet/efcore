@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class IncludeCollectionIterator : IDisposable
     {
         private readonly IEnumerator<ValueBuffer> _relatedValuesEnumerator;
@@ -15,11 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private bool _hasRemainingRows;
         private bool _initialized;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IncludeCollectionIterator([NotNull] IEnumerator<ValueBuffer> relatedValuesEnumerator)
         {
             _relatedValuesEnumerator = relatedValuesEnumerator;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ValueBuffer> GetRelatedValues(
             [NotNull] IIncludeKeyComparer keyComparer)
         {
@@ -38,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Dispose() => _relatedValuesEnumerator.Dispose();
     }
 }

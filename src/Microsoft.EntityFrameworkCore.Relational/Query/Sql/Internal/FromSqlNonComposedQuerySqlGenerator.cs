@@ -13,11 +13,19 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class FromSqlNonComposedQuerySqlGenerator : DefaultQuerySqlGenerator
     {
         private readonly string _sql;
         private readonly Expression _arguments;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public FromSqlNonComposedQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
@@ -40,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             _arguments = arguments;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Expression Visit(Expression expression)
         {
             GenerateFromSql(_sql, _arguments, ParameterValues);
@@ -47,6 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             return expression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IRelationalValueBufferFactory CreateValueBufferFactory(
             IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)
         {

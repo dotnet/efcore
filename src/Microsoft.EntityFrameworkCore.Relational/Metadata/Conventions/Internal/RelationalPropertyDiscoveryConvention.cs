@@ -8,10 +8,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalPropertyDiscoveryConvention : PropertyDiscoveryConvention
     {
         private readonly IRelationalTypeMapper _typeMapper;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalPropertyDiscoveryConvention([NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
@@ -19,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             _typeMapper = typeMapper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override bool IsCandidatePrimitiveProperty(PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));

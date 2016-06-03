@@ -6,17 +6,33 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MigrationsIdGenerator : IMigrationsIdGenerator
     {
         private const string Format = "yyyyMMddHHmmss";
 
         private DateTime _lastTimestamp = DateTime.MinValue;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GetName(string id) => id.Substring(Format.Length + 1);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsValidId(string value)
             => Regex.IsMatch(value, $"[0-9]{{{Format.Length}}}_.+", default(RegexOptions), TimeSpan.FromMilliseconds(1000.0));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateId(string name)
         {
             var now = DateTime.UtcNow;

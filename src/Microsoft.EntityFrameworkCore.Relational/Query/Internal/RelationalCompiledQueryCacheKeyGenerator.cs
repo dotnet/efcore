@@ -10,10 +10,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGenerator
     {
         private readonly IDbContextOptions _contextOptions;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalCompiledQueryCacheKeyGenerator(
             [NotNull] IModel model,
             [NotNull] ICurrentDbContext currentContext,
@@ -25,19 +33,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _contextOptions = contextOptions;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override object GenerateCacheKey(Expression query, bool async)
             => GenerateCacheKeyCore(query, async);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
             => new RelationalCompiledQueryCacheKey(
                 base.GenerateCacheKeyCore(query, async),
                 RelationalOptionsExtension.Extract(_contextOptions).UseRelationalNulls);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected struct RelationalCompiledQueryCacheKey
         {
             private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
             private readonly bool _useRelationalNulls;
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public RelationalCompiledQueryCacheKey(
                 CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls)
             {
@@ -45,6 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _useRelationalNulls = useRelationalNulls;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public override bool Equals(object obj)
                 => !ReferenceEquals(null, obj) && obj is RelationalCompiledQueryCacheKey && Equals((RelationalCompiledQueryCacheKey)obj);
 
@@ -52,6 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
                    && (_useRelationalNulls == other._useRelationalNulls);
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public override int GetHashCode()
             {
                 unchecked

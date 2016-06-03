@@ -13,6 +13,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ShaperCommandContext
     {
         private readonly ConcurrentDictionary<CommandCacheKey, IRelationalCommand> _commandCache
@@ -64,6 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private IRelationalValueBufferFactory _valueBufferFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ShaperCommandContext(
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] Func<IQuerySqlGenerator> querySqlGeneratorFactory)
@@ -72,10 +80,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Func<IQuerySqlGenerator> QuerySqlGeneratorFactory { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IRelationalCommand GetRelationalCommand(
             [NotNull] IReadOnlyDictionary<string, object> parameters)
         {
@@ -98,6 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return relationalCommand;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)
             => NonCapturingLazyInitializer
                 .EnsureInitialized(

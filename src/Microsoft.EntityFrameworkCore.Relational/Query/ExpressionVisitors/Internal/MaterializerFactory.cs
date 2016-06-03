@@ -16,11 +16,19 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MaterializerFactory : IMaterializerFactory
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public MaterializerFactory(
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
@@ -32,6 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _relationalAnnotationProvider = relationalAnnotationProvider;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression<Func<ValueBuffer, object>> CreateMaterializer(
             IEntityType entityType,
             SelectExpression selectExpression,

@@ -12,12 +12,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MigrationsAssembly : IMigrationsAssembly
     {
         private readonly IMigrationsIdGenerator _idGenerator;
         private readonly LazyRef<IReadOnlyDictionary<string, TypeInfo>> _migrations;
         private readonly LazyRef<ModelSnapshot> _modelSnapshot;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public MigrationsAssembly(
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDbContextOptions options,
@@ -53,10 +61,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .FirstOrDefault());
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyDictionary<string, TypeInfo> Migrations => _migrations.Value;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ModelSnapshot ModelSnapshot => _modelSnapshot.Value;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Assembly Assembly { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string FindMigrationId(string nameOrId)
             => Migrations.Keys
                 .Where(
@@ -66,6 +92,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         : id => string.Equals(_idGenerator.GetName(id), nameOrId, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
         {
             Check.NotNull(activeProvider, nameof(activeProvider));

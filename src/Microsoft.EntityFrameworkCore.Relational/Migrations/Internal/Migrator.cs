@@ -15,6 +15,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class Migrator : IMigrator
     {
         private readonly IMigrationsAssembly _migrationsAssembly;
@@ -28,6 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly ILogger _logger;
         private readonly string _activeProvider;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Migrator(
             [NotNull] IMigrationsAssembly migrationsAssembly,
             [NotNull] IHistoryRepository historyRepository,
@@ -63,6 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _activeProvider = providerServices.InvariantName;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Migrate(string targetMigration = null)
         {
             var connection = _connection.DbConnection;
@@ -87,6 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual async Task MigrateAsync(
             string targetMigration = null,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -205,6 +221,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateScript(
             string fromMigration = null,
             string toMigration = null,
@@ -286,6 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration)
         {
             Check.NotNull(migration, nameof(migration));
@@ -299,6 +323,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .ToList();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateDownSql(
             [NotNull] Migration migration,
             [CanBeNull] Migration previousMigration)

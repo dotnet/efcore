@@ -3,13 +3,41 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     <para>
+    ///         Logging information about a <see cref="DbCommand"/> that is being executed.
+    ///     </para>
+    ///     <para>
+    ///         Instances of this class are typically created by Entity Framework and passed to loggers, it is not designed
+    ///         to be directly constructed in your application code.    
+    ///     </para>
+    /// </summary>
     public class DbCommandLogData
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DbParameterLogData"/> class.
+        /// </summary>
+        /// <param name="commandText">
+        ///     The command text being executed.
+        /// </param>
+        /// <param name="commandType">
+        ///     The type of command being executed.
+        /// </param>
+        /// <param name="commandTimeout">
+        ///     The timeout configured for the command.
+        /// </param>
+        /// <param name="parameters">
+        ///     Parameters for the command.
+        /// </param>
+        /// <param name="elapsedMilliseconds">
+        ///     How many milliseconds the command took to execute (if it has completed).
+        /// </param>
         public DbCommandLogData(
             [NotNull] string commandText,
             CommandType commandType,
@@ -24,10 +52,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ElapsedMilliseconds = elapsedMilliseconds;
         }
 
+        /// <summary>
+        ///     Gets the command text being executed.
+        /// </summary>
         public virtual string CommandText { get; }
+
+        /// <summary>
+        ///     Gets the type of command being executed.
+        /// </summary>
         public virtual CommandType CommandType { get; }
+
+        /// <summary>
+        ///     Gets the timeout configured for the command.
+        /// </summary>
         public virtual int CommandTimeout { get; }
+
+        /// <summary>
+        ///     Gets the parameters for the command.
+        /// </summary>
         public virtual IReadOnlyList<DbParameterLogData> Parameters { get; }
+
+        /// <summary>
+        ///     Gets how many milliseconds the command took to execute (if it has completed).
+        /// </summary>
         public virtual long? ElapsedMilliseconds { get; }
     }
 }

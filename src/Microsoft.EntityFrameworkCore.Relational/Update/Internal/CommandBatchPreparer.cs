@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class CommandBatchPreparer : ICommandBatchPreparer
     {
         private readonly IModificationCommandBatchFactory _modificationCommandBatchFactory;
@@ -20,6 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IRelationalAnnotationProvider _annotationProvider;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactoryFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public CommandBatchPreparer(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
@@ -34,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _keyValueIndexFactoryFactory = keyValueIndexFactoryFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<IUpdateEntry> entries)
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
@@ -61,6 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
             [NotNull] IReadOnlyList<IUpdateEntry> entries,
             [NotNull] Func<string> generateParameterName)
@@ -96,6 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         // 3. Commands deleting rows or modifying the foreign key values must precede
         //     commands adding or modifying the foreign key values to the same values
         //     if foreign key is unique
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
         {
             var modificationCommandGraph = new Multigraph<ModificationCommand, IForeignKey>();

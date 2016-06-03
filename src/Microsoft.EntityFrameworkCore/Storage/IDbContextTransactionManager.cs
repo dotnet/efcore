@@ -27,7 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Asynchronously begins a new transaction.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> The newly created transaction. </returns>
+        /// <returns> 
+        ///     A task that represents the asynchronous operation. The task result contains the newly created transaction. 
+        /// </returns>
         Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>

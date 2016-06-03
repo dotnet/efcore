@@ -9,8 +9,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MigrationCommandExecutor : IMigrationCommandExecutor
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void ExecuteNonQuery(
             IEnumerable<MigrationCommand> migrationCommands,
             IRelationalConnection connection)
@@ -58,6 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual async Task ExecuteNonQueryAsync(
             IEnumerable<MigrationCommand> migrationCommands,
             IRelationalConnection connection,

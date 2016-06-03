@@ -10,12 +10,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public abstract class RelationalConventionSetBuilder : IConventionSetBuilder
     {
         private readonly IRelationalTypeMapper _typeMapper;
         private readonly DbContext _context;
         private readonly IDbSetFinder _setFinder;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected RelationalConventionSetBuilder(
             [NotNull] IRelationalTypeMapper typeMapper,
             [CanBeNull] ICurrentDbContext currentContext,
@@ -28,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             _setFinder = setFinder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConventionSet AddConventions(ConventionSet conventionSet)
         {
             RelationshipDiscoveryConvention relationshipDiscoveryConvention = new RelationalRelationshipDiscoveryConvention(_typeMapper);

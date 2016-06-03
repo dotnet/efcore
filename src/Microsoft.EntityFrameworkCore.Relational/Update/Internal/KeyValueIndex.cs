@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public sealed class KeyValueIndex<TKey> : IKeyValueIndex
     {
         private readonly IForeignKey _foreignKey;
@@ -14,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IEqualityComparer<TKey> _keyComparer;
         private readonly bool _fromOriginalValues;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public KeyValueIndex(
             [NotNull] IForeignKey foreignKey,
             [NotNull] TKey keyValue,
@@ -26,6 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _keyComparer = keyComparer;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IKeyValueIndex WithOriginalValuesFlag()
             => new KeyValueIndex<TKey>(_foreignKey, _keyValue, _keyComparer, fromOriginalValues: true);
 
@@ -34,12 +46,20 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                && other._foreignKey == _foreignKey
                && _keyComparer.Equals(_keyValue, other._keyValue);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override bool Equals(object obj)
             => !ReferenceEquals(null, obj)
                && (ReferenceEquals(this, obj)
                    || (obj.GetType() == GetType()
                        && Equals((KeyValueIndex<TKey>)obj)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override int GetHashCode()
             => (((((typeof(TKey).GetHashCode() * 397)
                    ^ _fromOriginalValues.GetHashCode()) * 397)

@@ -9,11 +9,19 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RemappingUntypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
         private readonly IReadOnlyList<int> _indexMap;
         private readonly Action<object[]> _processValuesAction;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RemappingUntypedRelationalValueBufferFactory(
             [NotNull] IReadOnlyList<int> indexMap,
             [CanBeNull] Action<object[]> processValuesAction)
@@ -22,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _processValuesAction = processValuesAction;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ValueBuffer Create(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path

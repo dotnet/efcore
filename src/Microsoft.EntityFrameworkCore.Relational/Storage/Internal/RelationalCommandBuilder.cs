@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
         private readonly ISensitiveDataLogger _logger;
@@ -16,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalCommandBuilder(
             [NotNull] ISensitiveDataLogger logger,
             [NotNull] DiagnosticSource diagnosticSource,
@@ -33,8 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         IndentedStringBuilder IInfrastructure<IndentedStringBuilder>.Instance
             => _commandTextBuilder;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IRelationalParameterBuilder ParameterBuilder { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IRelationalCommand Build()
             => new RelationalCommand(
                 _logger,
@@ -42,6 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 _commandTextBuilder.ToString(),
                 ParameterBuilder.Parameters);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string ToString() => _commandTextBuilder.ToString();
     }
 }

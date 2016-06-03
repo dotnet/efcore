@@ -7,12 +7,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RawSqlCommandBuilder : IRawSqlCommandBuilder
     {
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RawSqlCommandBuilder(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
@@ -27,12 +35,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IRelationalCommand Build(string sql)
             => _relationalCommandBuilderFactory
                 .Create()
                 .Append(Check.NotEmpty(sql, nameof(sql)))
                 .Build();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual RawSqlCommand Build(string sql, IReadOnlyList<object> parameters)
         {
             Check.NotEmpty(sql, nameof(sql));
