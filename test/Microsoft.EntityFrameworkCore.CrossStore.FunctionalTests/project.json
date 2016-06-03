@@ -1,4 +1,7 @@
 {
+  "buildOptions": {
+    "warningsAsErrors": true
+  },
   "dependencies": {
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": "1.0.0",
@@ -19,6 +22,6 @@
         }
       }
     },
-    "net451": {}
+    "net451": { }
   }
 }

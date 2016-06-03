@@ -1,4 +1,7 @@
 {
+  "buildOptions": {
+    "warningsAsErrors": true
+  },
   "dependencies": {
     "System.Runtime.InteropServices.RuntimeInformation": "4.0.0-*",
     "Microsoft.NETCore.Platforms": "1.0.1-*",

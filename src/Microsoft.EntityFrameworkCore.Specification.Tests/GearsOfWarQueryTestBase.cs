@@ -602,7 +602,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             using (var context = CreateContext())
             {
                 var weapons = context.Weapons
+#pragma warning disable CS0458 // The result of the expression is always 'null'
                     .Where(w => (w.AmmunitionType & null) > 0)
+#pragma warning restore CS0458 // The result of the expression is always 'null'
                     .ToList();
 
                 Assert.Equal(0, weapons.Count);

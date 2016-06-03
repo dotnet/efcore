@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
 {
     public class JsonUtilityTest
     {
+#pragma warning disable 649
         private readonly ITestOutputHelper _output;
+#pragma warning restore 649
         public JsonUtilityTest(ITestOutputHelper output)
         {
             // uncomment to debug test

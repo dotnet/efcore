@@ -1,4 +1,7 @@
 {
+  "buildOptions": {
+    "warningsAsErrors": true
+  },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
     "EntityFramework": "6.1.2",
@@ -10,6 +13,6 @@
   },
   "testRunner": "xunit",
   "frameworks": {
-    "net451": {}
+    "net451": { }
   }
 }

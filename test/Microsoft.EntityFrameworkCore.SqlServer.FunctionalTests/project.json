@@ -1,9 +1,10 @@
 {
   "buildOptions": {
+    "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "copyToOutput": {
       "include": "**/*.sql",
-       "includeFiles": "config.json"
+      "includeFiles": "config.json"
     }
   },
   "dependencies": {

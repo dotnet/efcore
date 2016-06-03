@@ -2,6 +2,7 @@
   "version": "1.0.0-*",
   "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
   "buildOptions": {
+    "warningsAsErrors": true,
     "keyFile": "../../tools/Key.snk",
     "nowarn": [
       "CS1591"
