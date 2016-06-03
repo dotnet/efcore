@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.Data.Sqlite.Internal;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 

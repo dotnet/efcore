@@ -4,7 +4,7 @@
 using System;
 using Xunit;
 
-namespace Microsoft.Data.Sqlite
+namespace Microsoft.Data.Sqlite.Internal
 {
     public class SqliteEngineTest
     {
