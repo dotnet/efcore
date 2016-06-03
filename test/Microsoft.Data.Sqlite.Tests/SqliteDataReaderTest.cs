@@ -255,7 +255,7 @@ namespace Microsoft.Data.Sqlite
         public void GetFieldValue_of_byteArray_empty() =>
             GetFieldValue_works(
                 "SELECT X'';",
-                new byte[0] );
+                new byte[0]);
 
         [Fact]
         public void GetFieldValue_of_byteArray_throws_when_null() =>
@@ -927,7 +927,7 @@ namespace Microsoft.Data.Sqlite
                 ((IDisposable)reader).Dispose();
 
                 var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
-                Assert.Equal(Strings.FormatDataReaderClosed(operation), ex.Message);
+                Assert.Equal(Strings.DataReaderClosed(operation), ex.Message);
             }
         }
 

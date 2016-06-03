@@ -3,7 +3,6 @@
 
 #if WINDOWS_UWP
 
-using System;
 using System.IO;
 using Windows.Storage;
 using Xunit;

@@ -79,7 +79,8 @@ namespace Microsoft.Data.Sqlite.Utilities
             return handle != IntPtr.Zero;
         }
 
-        private static bool IsMono() => Type.GetType("Mono.Runtime") != null;
+        private static bool IsMono()
+            => Type.GetType("Mono.Runtime") != null;
 
         private static string GetArchitecture()
         {

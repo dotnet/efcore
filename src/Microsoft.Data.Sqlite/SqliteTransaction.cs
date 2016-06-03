@@ -26,7 +26,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (connection.ConnectionStringBuilder.Cache != SqliteCacheMode.Shared)
                 {
-                    throw new ArgumentException(Strings.FormatInvalidIsolationLevelForUnsharedCache(isolationLevel));
+                    throw new ArgumentException(Strings.InvalidIsolationLevelForUnsharedCache(isolationLevel));
                 }
                 connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
             }
@@ -36,18 +36,22 @@ namespace Microsoft.Data.Sqlite
             }
             else if (isolationLevel != IsolationLevel.Unspecified)
             {
-                throw new ArgumentException(Strings.FormatInvalidIsolationLevel(isolationLevel));
+                throw new ArgumentException(Strings.InvalidIsolationLevel(isolationLevel));
             }
 
-            // TODO: Register transaction hooks to detect when a user manually completes a transaction created using this API
+            // TODO: Register transaction hooks to detect when a user manually completes a transaction created using
+            //       this API
             var beginCommand = (isolationLevel == IsolationLevel.Serializable)
                 ? "BEGIN IMMEDIATE"
                 : "BEGIN";
             connection.ExecuteNonQuery(beginCommand, commandTimeout);
         }
 
-        public new virtual SqliteConnection Connection => _connection;
-        protected override DbConnection DbConnection => Connection;
+        public new virtual SqliteConnection Connection
+            => _connection;
+
+        protected override DbConnection DbConnection
+            => Connection;
 
         /// <summary>
         /// Specifies the IsolationLevel for this transaction. This cannot be changed if the transaction is complete or closed.
@@ -84,7 +88,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Reverses all changes made in this transaction. 
+        /// Reverses all changes made in this transaction.
         /// </summary>
         public override void Rollback()
         {

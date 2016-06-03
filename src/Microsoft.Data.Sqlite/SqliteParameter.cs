@@ -76,7 +76,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (value != ParameterDirection.Input)
                 {
-                    throw new ArgumentException(Strings.FormatInvalidParameterDirection(value));
+                    throw new ArgumentException(Strings.InvalidParameterDirection(value));
                 }
             }
         }
@@ -115,7 +115,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public override void ResetDbType() => ResetSqliteType();
+        public override void ResetDbType()
+            => ResetSqliteType();
 
         /// <summary>
         /// Sets the parameter type to <see cref="SqliteType">SqliteType.Text</see>.
@@ -130,7 +131,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_parameterName.Length == 0)
             {
-                throw new InvalidOperationException(Strings.FormatRequiresSet("ParameterName"));
+                throw new InvalidOperationException(Strings.RequiresSet("ParameterName"));
             }
 
             var index = NativeMethods.sqlite3_bind_parameter_index(stmt, _parameterName);
@@ -142,7 +143,7 @@ namespace Microsoft.Data.Sqlite
 
             if (_value == null)
             {
-                throw new InvalidOperationException(Strings.FormatRequiresSet("Value"));
+                throw new InvalidOperationException(Strings.RequiresSet("Value"));
             }
 
             if (!_bindActionValid)
@@ -249,7 +250,7 @@ namespace Microsoft.Data.Sqlite
                 }
                 else
                 {
-                    throw new InvalidOperationException(Strings.FormatUnknownDataType(type));
+                    throw new InvalidOperationException(Strings.UnknownDataType(type));
                 }
 
                 _bindActionValid = true;
@@ -260,11 +261,11 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-        private static void BindBlob(Sqlite3StmtHandle stmt, int index, byte[] value) =>
-            NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, SQLITE_TRANSIENT);
+        private static void BindBlob(Sqlite3StmtHandle stmt, int index, byte[] value)
+            => NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, SQLITE_TRANSIENT);
 
-        private static void BindText(Sqlite3StmtHandle stmt, int index, string value) =>
-            NativeMethods.sqlite3_bind_text(stmt, index, value, SQLITE_TRANSIENT);
+        private static void BindText(Sqlite3StmtHandle stmt, int index, string value)
+            => NativeMethods.sqlite3_bind_text(stmt, index, value, SQLITE_TRANSIENT);
 
         private static void BindDouble(Sqlite3StmtHandle stmt, int index, double value)
         {
@@ -301,7 +302,7 @@ namespace Microsoft.Data.Sqlite
 
                 if (index != 0)
                 {
-                    throw new InvalidOperationException(Strings.FormatAmbiguousParameterName(_parameterName));
+                    throw new InvalidOperationException(Strings.AmbiguousParameterName(_parameterName));
                 }
 
                 index = nextIndex;

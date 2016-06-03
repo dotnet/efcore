@@ -36,12 +36,14 @@ namespace Microsoft.Data.Sqlite
             ConnectionString = connectionString;
         }
 
-        internal virtual Sqlite3Handle DbHandle => _db;
+        internal virtual Sqlite3Handle DbHandle
+            => _db;
 
         /// <summary>
         /// Represents an unmanaged pointer to a sqlite3 database object. <see href="https://www.sqlite.org/c3ref/sqlite3.html">See SQLite.org for more documentation on proper usage of this object.</see>
         /// </summary>
-        public virtual IntPtr Handle => _db?.DangerousGetHandle() ?? IntPtr.Zero;
+        public virtual IntPtr Handle
+            => _db?.DangerousGetHandle() ?? IntPtr.Zero;
 
         public override string ConnectionString
         {
@@ -60,7 +62,8 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
-        public override string Database => MainDatabaseName;
+        public override string Database
+            => MainDatabaseName;
 
         public override string DataSource
         {
@@ -79,8 +82,12 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Corresponds to the version of the SQLite library used by the connection.
         /// </summary>
-        public override string ServerVersion => NativeMethods.sqlite3_libversion();
-        public override ConnectionState State => _state;
+        public override string ServerVersion
+            => NativeMethods.sqlite3_libversion();
+
+        public override ConnectionState State
+            => _state;
+
         protected internal SqliteTransaction Transaction { get; set; }
 
         private void SetState(ConnectionState value)
@@ -205,16 +212,23 @@ namespace Microsoft.Data.Sqlite
         }
 
         // NB: Other providers don't set Transaction
-        public new virtual SqliteCommand CreateCommand() => new SqliteCommand { Connection = this, Transaction = Transaction };
-        protected override DbCommand CreateDbCommand() => CreateCommand();
-        public new virtual SqliteTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
-        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => BeginTransaction(isolationLevel);
+        public new virtual SqliteCommand CreateCommand()
+            => new SqliteCommand { Connection = this, Transaction = Transaction };
+
+        protected override DbCommand CreateDbCommand()
+            => CreateCommand();
+
+        public new virtual SqliteTransaction BeginTransaction()
+            => BeginTransaction(IsolationLevel.Unspecified);
+
+        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
+            => BeginTransaction(isolationLevel);
 
         public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("BeginTransaction"));
+                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("BeginTransaction"));
             }
             if (Transaction != null)
             {
@@ -234,7 +248,7 @@ namespace Microsoft.Data.Sqlite
             if (_db == null
                 || _db.IsInvalid)
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection(nameof(EnableExtensions)));
+                throw new InvalidOperationException(Strings.CallRequiresOpenConnection(nameof(EnableExtensions)));
             }
 
             var rc = NativeMethods.sqlite3_enable_load_extension(_db, enable ? 1 : 0);

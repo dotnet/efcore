@@ -6,14 +6,20 @@ using System.Reflection;
 
 namespace Microsoft.Data.Sqlite.Utilities
 {
-    public class ApplicationDataHelper
+    internal class ApplicationDataHelper
     {
         private static Lazy<object> _appData = new Lazy<object>(() => LoadAppData());
         private static Lazy<string> _localFolder = new Lazy<string>(() => GetFolderPath("LocalFolder"));
         private static Lazy<string> _tempFolder = new Lazy<string>(() => GetFolderPath("TemporaryFolder"));
-        public static object CurrentApplicationData => _appData.Value;
-        public static string TemporaryFolderPath => _tempFolder.Value;
-        public static string LocalFolderPath => _localFolder.Value;
+
+        public static object CurrentApplicationData
+            => _appData.Value;
+
+        public static string TemporaryFolderPath
+            => _tempFolder.Value;
+
+        public static string LocalFolderPath
+            => _localFolder.Value;
 
         private static object LoadAppData()
         {
@@ -33,6 +39,7 @@ namespace Microsoft.Data.Sqlite.Utilities
         {
             var appDataType = CurrentApplicationData?.GetType();
             var temporaryFolder = appDataType?.GetRuntimeProperty(propertyName).GetValue(CurrentApplicationData);
+
             return temporaryFolder?.GetType().GetRuntimeProperty("Path").GetValue(temporaryFolder) as string;
         }
     }

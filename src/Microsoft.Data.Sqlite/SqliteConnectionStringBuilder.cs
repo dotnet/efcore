@@ -78,7 +78,8 @@ namespace Microsoft.Data.Sqlite
             set { base[ModeKeyword] = _mode = value; }
         }
 
-        public override ICollection Keys => new ReadOnlyCollection<string>((string[])_validKeywords);
+        public override ICollection Keys
+            => new ReadOnlyCollection<string>((string[])_validKeywords);
 
         public override ICollection Values
         {
@@ -149,7 +150,7 @@ namespace Microsoft.Data.Sqlite
             }
             else if (value.GetType().GetTypeInfo().IsEnum)
             {
-                throw new ArgumentException(Strings.FormatConvertFailed(value.GetType(), typeof(TEnum)));
+                throw new ArgumentException(Strings.ConvertFailed(value.GetType(), typeof(TEnum)));
             }
             else
             {
@@ -161,7 +162,7 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(
                     nameof(value),
                     value,
-                    Strings.FormatInvalidEnumValue(typeof(TEnum), enumValue));
+                    Strings.InvalidEnumValue(typeof(TEnum), enumValue));
             }
 
             return enumValue;
@@ -177,7 +178,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public override bool ContainsKey(string keyword) => _keywords.ContainsKey(keyword);
+        public override bool ContainsKey(string keyword)
+            => _keywords.ContainsKey(keyword);
 
         public override bool Remove(string keyword)
         {
@@ -238,7 +240,7 @@ namespace Microsoft.Data.Sqlite
             Keywords index;
             if (!_keywords.TryGetValue(keyword, out index))
             {
-                throw new ArgumentException(Strings.FormatKeywordNotSupported(keyword));
+                throw new ArgumentException(Strings.KeywordNotSupported(keyword));
             }
 
             return index;

@@ -13,9 +13,24 @@ namespace Microsoft.Data.Sqlite
         private Version _min;
         private Version _max;
         private Version _skip;
-        public string Min { get { return _min.ToString(); } set { _min = new Version(value); } }
-        public string Max { get { return _max.ToString(); } set { _max = new Version(value); } }
-        public string Skip { get { return _skip.ToString(); } set { _skip = new Version(value); } }
+
+        public string Min
+        {
+            get { return _min.ToString(); }
+            set { _min = new Version(value); }
+        }
+
+        public string Max
+        {
+            get { return _max.ToString(); }
+            set { _max = new Version(value); }
+        }
+
+        public string Skip
+        {
+            get { return _skip.ToString(); }
+            set { _skip = new Version(value); }
+        }
 
         private Version Current = new Version(NativeMethods.sqlite3_libversion());
 
@@ -48,7 +63,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         private string _skipReason;
-        
+
         public string SkipReason
         {
             set { _skipReason = value; }

@@ -49,7 +49,8 @@ namespace Microsoft.Data.Sqlite
             _closeConnection = closeConnection;
         }
 
-        public override int Depth => 0;
+        public override int Depth
+            => 0;
 
         public override int FieldCount
         {
@@ -57,7 +58,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (_closed)
                 {
-                    throw new InvalidOperationException(Strings.FormatDataReaderClosed("FieldCount"));
+                    throw new InvalidOperationException(Strings.DataReaderClosed("FieldCount"));
                 }
 
                 return NativeMethods.sqlite3_column_count(_stmt);
@@ -67,16 +68,23 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Represents an unmanaged pointer to a sqlite3_stmt object. <see href="https://www.sqlite.org/c3ref/stmt.html">See SQLite.org for more documentation on proper usage of this object.</see>
         /// </summary>
-        public virtual IntPtr Handle => _stmt?.DangerousGetHandle() ?? IntPtr.Zero;
+        public virtual IntPtr Handle
+            => _stmt?.DangerousGetHandle() ?? IntPtr.Zero;
 
-        public override bool HasRows => _hasRows;
-        public override bool IsClosed => _closed;
+        public override bool HasRows
+            => _hasRows;
+
+        public override bool IsClosed
+            => _closed;
+
         public override int RecordsAffected { get; }
 
         /// <remarks>The <paramref name="name" /> parameter is case sensitive.</remarks>
-        public override object this[string name] => GetValue(GetOrdinal(name));
+        public override object this[string name]
+            => GetValue(GetOrdinal(name));
 
-        public override object this[int ordinal] => GetValue(ordinal);
+        public override object this[int ordinal]
+            => GetValue(ordinal);
 
         public override IEnumerator GetEnumerator()
         {
@@ -92,7 +100,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.FormatDataReaderClosed("Read"));
+                throw new InvalidOperationException(Strings.DataReaderClosed("Read"));
             }
 
             if (!_stepped)
@@ -129,8 +137,8 @@ namespace Microsoft.Data.Sqlite
         }
 
 #if NET451
-        // TODO: Remove when fixed in System.Data.Common
-        public override void Close() => Dispose(true);
+        public override void Close()
+            => Dispose(true);
 
         public override DataTable GetSchemaTable()
         {
@@ -168,7 +176,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetName"));
+                throw new InvalidOperationException(Strings.DataReaderClosed("GetName"));
             }
 
             var name = NativeMethods.sqlite3_column_name(_stmt, ordinal);
@@ -201,7 +209,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetDataTypeName"));
+                throw new InvalidOperationException(Strings.DataReaderClosed("GetDataTypeName"));
             }
 
             var typeName = NativeMethods.sqlite3_column_decltype(_stmt, ordinal);
@@ -242,7 +250,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetFieldType"));
+                throw new InvalidOperationException(Strings.DataReaderClosed("GetFieldType"));
             }
 
             var sqliteType = GetSqliteType(ordinal);
@@ -286,7 +294,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.FormatDataReaderClosed("IsDBNull"));
+                throw new InvalidOperationException(Strings.DataReaderClosed("IsDBNull"));
             }
             if (!_stepped || _done)
             {
@@ -296,11 +304,20 @@ namespace Microsoft.Data.Sqlite
             return GetSqliteType(ordinal) == SQLITE_NULL;
         }
 
-        public override bool GetBoolean(int ordinal) => GetInt64(ordinal) != 0;
-        public override byte GetByte(int ordinal) => (byte)GetInt64(ordinal);
-        public override char GetChar(int ordinal) => (char)GetInt64(ordinal);
-        public override DateTime GetDateTime(int ordinal) => DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
-        public override decimal GetDecimal(int ordinal) => decimal.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+        public override bool GetBoolean(int ordinal)
+            => GetInt64(ordinal) != 0;
+
+        public override byte GetByte(int ordinal)
+            => (byte)GetInt64(ordinal);
+
+        public override char GetChar(int ordinal)
+            => (char)GetInt64(ordinal);
+
+        public override DateTime GetDateTime(int ordinal)
+            => DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+
+        public override decimal GetDecimal(int ordinal)
+            => decimal.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
 
         public override double GetDouble(int ordinal)
         {
@@ -312,10 +329,17 @@ namespace Microsoft.Data.Sqlite
             return NativeMethods.sqlite3_column_double(_stmt, ordinal);
         }
 
-        public override float GetFloat(int ordinal) => (float)GetDouble(ordinal);
-        public override Guid GetGuid(int ordinal) => new Guid(GetBlob(ordinal));
-        public override short GetInt16(int ordinal) => (short)GetInt64(ordinal);
-        public override int GetInt32(int ordinal) => (int)GetInt64(ordinal);
+        public override float GetFloat(int ordinal)
+            => (float)GetDouble(ordinal);
+
+        public override Guid GetGuid(int ordinal)
+            => new Guid(GetBlob(ordinal));
+
+        public override short GetInt16(int ordinal)
+            => (short)GetInt64(ordinal);
+
+        public override int GetInt32(int ordinal)
+            => (int)GetInt64(ordinal);
 
         public override long GetInt64(int ordinal)
         {
@@ -443,7 +467,7 @@ namespace Microsoft.Data.Sqlite
         {
             if (_closed)
             {
-                throw new InvalidOperationException(Strings.FormatDataReaderClosed("GetValue"));
+                throw new InvalidOperationException(Strings.DataReaderClosed("GetValue"));
             }
 
             var sqliteType = GetSqliteType(ordinal);

@@ -52,7 +52,7 @@ namespace Microsoft.Data.Sqlite
             {
                 if (value != CommandType.Text)
                 {
-                    throw new ArgumentException(Strings.FormatInvalidCommandType(value));
+                    throw new ArgumentException(Strings.InvalidCommandType(value));
                 }
             }
         }
@@ -74,36 +74,46 @@ namespace Microsoft.Data.Sqlite
             set { Transaction = (SqliteTransaction)value; }
         }
 
-        public new virtual SqliteParameterCollection Parameters => _parameters.Value;
-        protected override DbParameterCollection DbParameterCollection => Parameters;
+        public new virtual SqliteParameterCollection Parameters
+            => _parameters.Value;
+
+        protected override DbParameterCollection DbParameterCollection
+            => Parameters;
+
         public override int CommandTimeout { get; set; } = DefaultCommandTimeout;
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
-        public new virtual SqliteParameter CreateParameter() => new SqliteParameter();
-        protected override DbParameter CreateDbParameter() => CreateParameter();
+
+        public new virtual SqliteParameter CreateParameter()
+            => new SqliteParameter();
+
+        protected override DbParameter CreateDbParameter()
+            => CreateParameter();
 
         public override void Prepare()
         {
         }
 
-        public new virtual SqliteDataReader ExecuteReader() => ExecuteReader(CommandBehavior.Default);
+        public new virtual SqliteDataReader ExecuteReader()
+            => ExecuteReader(CommandBehavior.Default);
 
         public new virtual SqliteDataReader ExecuteReader(CommandBehavior behavior)
         {
-            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess | CommandBehavior.SingleResult | CommandBehavior.SingleRow | CommandBehavior.CloseConnection)) != 0)
+            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess | CommandBehavior.SingleResult
+                | CommandBehavior.SingleRow | CommandBehavior.CloseConnection)) != 0)
             {
-                throw new ArgumentException(Strings.FormatInvalidCommandBehavior(behavior));
+                throw new ArgumentException(Strings.InvalidCommandBehavior(behavior));
             }
 
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteReader"));
+                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteReader"));
             }
 
             if (string.IsNullOrEmpty(CommandText))
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteReader"));
+                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteReader"));
             }
 
             if (Transaction != Connection.Transaction)
@@ -168,7 +178,7 @@ namespace Microsoft.Data.Sqlite
                             unboundParams.Add(name);
                         }
                     }
-                    throw new InvalidOperationException(Strings.FormatMissingParameters(string.Join(", ", unboundParams)));
+                    throw new InvalidOperationException(Strings.MissingParameters(string.Join(", ", unboundParams)));
                 }
 
                 try
@@ -192,8 +202,8 @@ namespace Microsoft.Data.Sqlite
                     throw;
                 }
 
-                // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements. It will result
-                //     in unexpected corner cases, but it's the best we can do without re-parsing SQL
+                // NB: This is only a heuristic to separate SELECT statements from INSERT/UPDATE/DELETE statements. It
+                //     will result in unexpected corner cases, but it's the best we can do without re-parsing SQL
                 if (NativeMethods.sqlite3_stmt_readonly(stmt) != 0)
                 {
                     stmts.Enqueue(Tuple.Create(stmt, rc != SQLITE_DONE));
@@ -212,16 +222,17 @@ namespace Microsoft.Data.Sqlite
             return new SqliteDataReader(Connection, stmts, hasChanges ? changes : -1, closeConnection);
         }
 
-        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => ExecuteReader(behavior);
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+            => ExecuteReader(behavior);
 
-        public new virtual Task<SqliteDataReader> ExecuteReaderAsync() =>
-            ExecuteReaderAsync(CommandBehavior.Default, CancellationToken.None);
+        public new virtual Task<SqliteDataReader> ExecuteReaderAsync()
+            => ExecuteReaderAsync(CommandBehavior.Default, CancellationToken.None);
 
-        public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CancellationToken cancellationToken) =>
-            ExecuteReaderAsync(CommandBehavior.Default, cancellationToken);
+        public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CancellationToken cancellationToken)
+            => ExecuteReaderAsync(CommandBehavior.Default, cancellationToken);
 
-        public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior) =>
-            ExecuteReaderAsync(behavior, CancellationToken.None);
+        public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior)
+            => ExecuteReaderAsync(behavior, CancellationToken.None);
 
         public new virtual Task<SqliteDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
@@ -232,19 +243,19 @@ namespace Microsoft.Data.Sqlite
 
         protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(
             CommandBehavior behavior,
-            CancellationToken cancellationToken) =>
-                await ExecuteReaderAsync(behavior, cancellationToken);
+            CancellationToken cancellationToken)
+            => await ExecuteReaderAsync(behavior, cancellationToken);
 
         public override int ExecuteNonQuery()
         {
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteNonQuery"));
+                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteNonQuery"));
             }
             if (CommandText == null)
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteNonQuery"));
+                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteNonQuery"));
             }
 
             var reader = ExecuteReader();
@@ -258,11 +269,11 @@ namespace Microsoft.Data.Sqlite
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteScalar"));
+                throw new InvalidOperationException(Strings.CallRequiresOpenConnection("ExecuteScalar"));
             }
             if (CommandText == null)
             {
-                throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteScalar"));
+                throw new InvalidOperationException(Strings.CallRequiresSetCommandText("ExecuteScalar"));
             }
 
             using (var reader = ExecuteReader())

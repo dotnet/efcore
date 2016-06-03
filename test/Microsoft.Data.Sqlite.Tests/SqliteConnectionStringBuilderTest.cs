@@ -109,10 +109,10 @@ namespace Microsoft.Data.Sqlite
         public void Item_validates_argument()
         {
             var ex = Assert.Throws<ArgumentException>(() => new SqliteConnectionStringBuilder()["Invalid"]);
-            Assert.Equal(Strings.FormatKeywordNotSupported("Invalid"), ex.Message);
+            Assert.Equal(Strings.KeywordNotSupported("Invalid"), ex.Message);
 
             ex = Assert.Throws<ArgumentException>(() => new SqliteConnectionStringBuilder()["Invalid"] = 0);
-            Assert.Equal(Strings.FormatKeywordNotSupported("Invalid"), ex.Message);
+            Assert.Equal(Strings.KeywordNotSupported("Invalid"), ex.Message);
         }
 
         [Fact]

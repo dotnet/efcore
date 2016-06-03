@@ -59,7 +59,7 @@ namespace Microsoft.Data.Sqlite
         public void Direction_validates_value()
         {
             var ex = Assert.Throws<ArgumentException>(() => new SqliteParameter().Direction = ParameterDirection.Output);
-            Assert.Equal(Strings.FormatInvalidParameterDirection(ParameterDirection.Output), ex.Message);
+            Assert.Equal(Strings.InvalidParameterDirection(ParameterDirection.Output), ex.Message);
         }
 
         [Fact]
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.FormatRequiresSet("ParameterName"), ex.Message);
+                Assert.Equal(Strings.RequiresSet("ParameterName"), ex.Message);
             }
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-                Assert.Equal(Strings.FormatRequiresSet("Value"), ex.Message);
+                Assert.Equal(Strings.RequiresSet("Value"), ex.Message);
             }
         }
 
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(coercedValue, result);
             }
         }
-        
+
         [Theory]
         [InlineData(double.NaN)]
         [InlineData(float.NaN)]
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.FormatUnknownDataType(typeof(object)), ex.Message);
+                Assert.Equal(Strings.UnknownDataType(typeof(object)), ex.Message);
             }
         }
 
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
 
-                Assert.Equal(Strings.FormatAmbiguousParameterName("Param"), ex.Message);
+                Assert.Equal(Strings.AmbiguousParameterName("Param"), ex.Message);
             }
         }
 

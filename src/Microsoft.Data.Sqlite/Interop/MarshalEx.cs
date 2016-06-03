@@ -66,7 +66,7 @@ namespace Microsoft.Data.Sqlite.Interop
                 ? VersionedMethods.GetErrorString(rc)
                 : NativeMethods.sqlite3_errmsg(db);
 
-            throw new SqliteException(Strings.FormatSqliteNativeError(rc, message), rc);
+            throw new SqliteException(Strings.SqliteNativeError(rc, message), rc);
         }
     }
 }

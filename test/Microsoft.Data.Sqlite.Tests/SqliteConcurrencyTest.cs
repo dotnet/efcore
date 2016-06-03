@@ -11,7 +11,6 @@ using Microsoft.Data.Sqlite.Interop;
 using Xunit;
 
 using static Microsoft.Data.Sqlite.Interop.Constants;
-using static Microsoft.Data.Sqlite.TestUtilities.Constants;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -88,7 +87,7 @@ INSERT INTO a VALUES (2);";
 
                     Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
                     var message = NativeMethods.sqlite3_errmsg(connection.DbHandle);
-                    Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_LOCKED, message), ex.Message);
+                    Assert.Equal(Strings.SqliteNativeError(SQLITE_LOCKED, message), ex.Message);
                 }
 
                 dropCommand.ExecuteNonQuery();
@@ -120,7 +119,7 @@ INSERT INTO a VALUES (2);";
                         if (CurrentVersion >= new Version("3.7.15"))
                         {
                             var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                            Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                            Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
                         }
                     }
 
@@ -206,7 +205,7 @@ INSERT INTO a VALUES (2);";
                             if (CurrentVersion >= new Version("3.7.15"))
                             {
                                 var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                                Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                                Assert.Equal(Strings.SqliteNativeError(SQLITE_BUSY, message), ex.Message);
                             }
                         });
 

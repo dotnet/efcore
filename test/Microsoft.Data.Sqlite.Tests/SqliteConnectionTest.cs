@@ -323,7 +323,7 @@ namespace Microsoft.Data.Sqlite
 
             var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
 
-            Assert.Equal(Strings.FormatCallRequiresOpenConnection("BeginTransaction"), ex.Message);
+            Assert.Equal(Strings.CallRequiresOpenConnection("BeginTransaction"), ex.Message);
         }
 
         [Fact]
@@ -433,7 +433,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => connection.EnableExtensions());
-                Assert.Equal(Strings.FormatCallRequiresOpenConnection("EnableExtensions"), ex.Message);
+                Assert.Equal(Strings.CallRequiresOpenConnection("EnableExtensions"), ex.Message);
             }
         }
     }

@@ -48,7 +48,7 @@ namespace Microsoft.Data.Sqlite
 
                 var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(IsolationLevel.Snapshot));
 
-                Assert.Equal(Strings.FormatInvalidIsolationLevel(IsolationLevel.Snapshot), ex.Message);
+                Assert.Equal(Strings.InvalidIsolationLevel(IsolationLevel.Snapshot), ex.Message);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
                 var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(IsolationLevel.ReadUncommitted));
-                Assert.Equal(Strings.FormatInvalidIsolationLevelForUnsharedCache(IsolationLevel.ReadUncommitted), ex.Message);
+                Assert.Equal(Strings.InvalidIsolationLevelForUnsharedCache(IsolationLevel.ReadUncommitted), ex.Message);
             }
 
             using (var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared"))

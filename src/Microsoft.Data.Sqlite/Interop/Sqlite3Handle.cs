@@ -15,7 +15,8 @@ namespace Microsoft.Data.Sqlite.Interop
         {
         }
 
-        public override bool IsInvalid => handle == IntPtr.Zero;
+        public override bool IsInvalid
+            => handle == IntPtr.Zero;
 
         protected override bool ReleaseHandle()
         {
