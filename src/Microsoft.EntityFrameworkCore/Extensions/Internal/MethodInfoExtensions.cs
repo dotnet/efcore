@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Reflection;
 using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
-namespace System.Reflection
+namespace Microsoft.EntityFrameworkCore.Extensions.Internal
 {
     /// <summary>
     ///     Extension methods for <see cref="MethodInfo" />.
