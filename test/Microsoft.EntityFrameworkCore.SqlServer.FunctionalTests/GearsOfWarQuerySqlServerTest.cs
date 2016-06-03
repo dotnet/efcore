@@ -773,7 +773,7 @@ WHERE [w].[AmmunitionType] IS NULL",
 
             Assert.Equal(
                 @"SELECT [w].[Id], CASE
-    WHEN [w].[IsAutomatic] = 1
+    WHEN [w].[IsAutomatic] = CAST(1 AS BIT)
     THEN 1 ELSE 0
 END
 FROM [Weapon] AS [w]",
