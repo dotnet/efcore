@@ -13,13 +13,27 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
+    /// <summary>
+    ///     A projection expression visitor.
+    /// </summary>
     public class ProjectionExpressionVisitor : DefaultQueryExpressionVisitor
     {
+        /// <summary>
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.ProjectionExpressionVisitor class.
+        /// </summary>
+        /// <param name="entityQueryModelVisitor"> The entity query model visitor. </param>
         public ProjectionExpressionVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
             : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
         }
 
+        /// <summary>
+        ///     Visit a subquery.
+        /// </summary>
+        /// <param name="expression"> The subquery expression. </param>
+        /// <returns>
+        ///     A compiled query expression fragment representing the input subquery expression.
+        /// </returns>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var queryModelVisitor = CreateQueryModelVisitor();

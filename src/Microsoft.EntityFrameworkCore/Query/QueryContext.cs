@@ -13,6 +13,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     The principal data structure used by a compiled query during execution.
+    /// </summary>
     public class QueryContext
     {
         private readonly Func<IQueryBuffer> _queryBufferFactory;
@@ -21,6 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private IQueryBuffer _queryBuffer;
 
+        /// <summary>
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.QueryContext class.
+        /// </summary>
+        /// <param name="queryBufferFactory"> The query buffer factory. </param>
+        /// <param name="stateManager"> The state manager. </param>
+        /// <param name="concurrencyDetector"> The concurrency detector. </param>
         public QueryContext(
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IStateManager stateManager,
@@ -36,18 +45,47 @@ namespace Microsoft.EntityFrameworkCore.Query
             ConcurrencyDetector = concurrencyDetector;
         }
 
+        /// <summary>
+        ///     The query buffer.
+        /// </summary>
         public virtual IQueryBuffer QueryBuffer
             => _queryBuffer ?? (_queryBuffer = _queryBufferFactory());
 
+        /// <summary>
+        ///     The state manager.
+        /// </summary>
+        /// <value>
+        ///     The state manager.
+        /// </value>
         public virtual IStateManager StateManager { get; }
 
+        /// <summary>
+        ///     Gets the concurrency detector.
+        /// </summary>
+        /// <value>
+        ///     The concurrency detector.
+        /// </value>
         public virtual IConcurrencyDetector ConcurrencyDetector { get; }
 
+        /// <summary>
+        ///     Gets or sets the cancellation token.
+        /// </summary>
+        /// <value>
+        ///     The cancellation token.
+        /// </value>
         public virtual CancellationToken CancellationToken { get; set; }
 
+        /// <summary>
+        ///     The parameter values.
+        /// </summary>
         public virtual IReadOnlyDictionary<string, object> ParameterValues
             => (IReadOnlyDictionary<string, object>)_parameterValues;
 
+        /// <summary>
+        ///     Adds a parameter.
+        /// </summary>
+        /// <param name="name"> The name. </param>
+        /// <param name="value"> The value. </param>
         public virtual void AddParameter([NotNull] string name, [CanBeNull] object value)
         {
             Check.NotEmpty(name, nameof(name));
@@ -55,6 +93,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             _parameterValues.Add(name, value);
         }
 
+        /// <summary>
+        ///     Removes a parameter by name.
+        /// </summary>
+        /// <param name="name"> The name. </param>
+        /// <returns>
+        ///     The parameter value.
+        /// </returns>
         public virtual object RemoveParameter([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -66,8 +111,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             return value;
         }
 
+        /// <summary>
+        ///     Notify the state manager that a tracking query is starting.
+        /// </summary>
         public virtual void BeginTrackingQuery() => StateManager.BeginTrackingQuery();
 
+        /// <summary>
+        ///     Start tracking an entity.
+        /// </summary>
+        /// <param name="entity"> The entity. </param>
+        /// <param name="entityTrackingInfo"> Information describing how to track the entity. </param>
         public virtual void StartTracking(
             [NotNull] object entity, [NotNull] EntityTrackingInfo entityTrackingInfo)
         {

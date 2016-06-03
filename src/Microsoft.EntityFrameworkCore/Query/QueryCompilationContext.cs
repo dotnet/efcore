@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
@@ -21,6 +22,9 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     A query compilation context. The primary data structure representing the state/components used during query compilation.
+    /// </summary>
     public class QueryCompilationContext
     {
         private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
@@ -30,6 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
+        /// <summary>
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.QueryCompilationContext class.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="logger"> The logger. </param>
+        /// <param name="entityQueryModelVisitorFactory"> The entity query model visitor factory. </param>
+        /// <param name="requiresMaterializationExpressionVisitorFactory"> The requires materialization expression visitor factory. </param>
+        /// <param name="linqOperatorProvider"> The linq operator provider. </param>
+        /// <param name="contextType"> Type of the context. </param>
+        /// <param name="trackQueryResults"> The default configured tracking behavior. </param>
         public QueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
@@ -56,15 +70,60 @@ namespace Microsoft.EntityFrameworkCore.Query
             TrackQueryResults = trackQueryResults;
         }
 
+        /// <summary>
+        ///     Gets the model.
+        /// </summary>
+        /// <value>
+        ///     The model.
+        /// </value>
         public virtual IModel Model { get; }
+
+        /// <summary>
+        ///     Gets the logger.
+        /// </summary>
+        /// <value>
+        ///     The logger.
+        /// </value>
         public virtual ILogger Logger { get; }
+
+        /// <summary>
+        ///     Gets the linq operator provider.
+        /// </summary>
+        /// <value>
+        ///     The linq operator provider.
+        /// </value>
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; }
 
+        /// <summary>
+        ///     Gets the type of the context./
+        /// </summary>
+        /// <value>
+        ///     The type of the context.
+        /// </value>
         public virtual Type ContextType { get; }
+
+        /// <summary>
+        ///     Gets a value indicating the default configured tracking behavior.
+        /// </summary>
+        /// <value>
+        ///     true if the default is to track query results, false if not.
+        /// </value>
         public virtual bool TrackQueryResults { get; }
 
+        /// <summary>
+        ///     Gets the query source mapping.
+        /// </summary>
+        /// <value>
+        ///     The query source mapping.
+        /// </value>
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
+        /// <summary>
+        ///     Gets the query annotations./
+        /// </summary>
+        /// <value>
+        ///     The query annotations.
+        /// </value>
         public virtual IReadOnlyCollection<IQueryAnnotation> QueryAnnotations
         {
             get { return _queryAnnotations; }
@@ -77,6 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether this is a tracking query.
+        /// </summary>
+        /// <value>
+        ///     true if this object is a tracking query, false if not.
+        /// </value>
         public virtual bool IsTrackingQuery
         {
             get
@@ -90,10 +155,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     The query has at least one Include operation.
+        /// </summary>
         public virtual bool IsIncludeQuery => QueryAnnotations.OfType<IncludeResultOperator>().Any();
 
+        /// <summary>
+        ///     Gets a value indicating whether this query requires a query buffer.
+        /// </summary>
+        /// <value>
+        ///     true if this query requires a query buffer, false if not.
+        /// </value>
         public virtual bool IsQueryBufferRequired { get; private set; }
 
+        /// <summary>
+        ///     Determine if the query requires a query buffer.
+        /// </summary>
+        /// <param name="queryModel"> The query model. </param>
         public virtual void DetermineQueryBufferRequirement([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -169,13 +247,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Creates query model visitor.
+        /// </summary>
+        /// <returns>
+        ///     The new query model visitor.
+        /// </returns>
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
             => CreateQueryModelVisitor(parentEntityQueryModelVisitor: null);
 
+        /// <summary>
+        ///     Creates query model visitor.
+        /// </summary>
+        /// <param name="parentEntityQueryModelVisitor"> The parent entity query model visitor. </param>
+        /// <returns>
+        ///     The new query model visitor.
+        /// </returns>
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor(
             [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
 
+        /// <summary>
+        ///     Adds a trackable include.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="navigationPath"> The included navigation path. </param>
         public virtual void AddTrackableInclude(
             [NotNull] IQuerySource querySource, [NotNull] IReadOnlyList<INavigation> navigationPath)
         {
@@ -196,6 +292,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             includes.Add(navigationPath);
         }
 
+        /// <summary>
+        ///     Gets all trackable includes for a given query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     The trackable includes.
+        /// </returns>
         public virtual IReadOnlyList<IReadOnlyList<INavigation>> GetTrackableIncludes([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -210,6 +313,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return _trackableIncludes.TryGetValue(querySource, out includes) ? includes : null;
         }
 
+        /// <summary>
+        ///     Determines all query sources that require materialization.
+        /// </summary>
+        /// <param name="queryModelVisitor"> The query model visitor. </param>
+        /// <param name="queryModel"> The query model. </param>
         public virtual void FindQuerySourcesRequiringMaterialization(
             [NotNull] EntityQueryModelVisitor queryModelVisitor, [NotNull] QueryModel queryModel)
         {
@@ -227,6 +335,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Determine whether or not a query source requires materialization.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     true if it requires materialization, false if not.
+        /// </returns>
         public virtual bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));

@@ -3,8 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     Factory for <see cref="QueryContext" /> instances.
+    /// </summary>
     public interface IQueryContextFactory
     {
+        /// <summary>
+        ///     Creates a new QueryContext.
+        /// </summary>
+        /// <returns>
+        ///     A QueryContext instance.
+        /// </returns>
         QueryContext Create();
     }
 }
