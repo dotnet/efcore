@@ -141,12 +141,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (!_disposed)
                 {
-                    _dataReader?.Dispose();
-
                     lock (_queryingEnumerable._relationalQueryContext)
                     {
                         _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
-                        _queryingEnumerable._relationalQueryContext.Connection?.Close();
+                        if (_dataReader != null)
+                        {
+                            _dataReader.Dispose();
+                            _queryingEnumerable._relationalQueryContext.Connection?.Close();
+                        }
                     }
 
                     _disposed = true;

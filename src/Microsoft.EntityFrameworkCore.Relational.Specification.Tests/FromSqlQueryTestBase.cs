@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
@@ -446,6 +447,23 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 Assert.Equal(3, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));
                 Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+            }
+        }
+
+        [Fact]
+        public virtual void Include_does_not_close_user_opened_connection_for_empty_result()
+        {
+            using (var ctx = CreateContext())
+            {
+                ctx.Database.OpenConnection();
+
+                var query = ctx.Customers
+                        .Include(v => v.Orders)
+                        .Where(v => v.CustomerID == "MAMRFC")
+                        .ToList();
+
+                Assert.Empty(query);
+                Assert.Equal(ConnectionState.Open, ctx.Database.GetDbConnection().State);
             }
         }
 
