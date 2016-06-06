@@ -87,6 +87,39 @@
                     contents.AddRange(dependency["native"].Keys);
                 }
                 
+                // Only pull in native assets for SQLite.Native.
+                // TODO address this generally if using the rid fallback graph from MSBuild is ever becomes a thing
+                if (dependencyKey.StartsWith("SQLite.Native", StringComparison.OrdinalIgnoreCase) 
+                    && dependency.ContainsKey("runtimeTargets"))
+                {
+                    foreach (var assetKey in dependency["runtimeTargets"].Keys)
+                    {
+                        var asset = dependency["runtimeTargets"][assetKey];
+                        if (!asset.ContainsKey("rid")) 
+                        {
+                            continue;
+                        }
+                        var rid = asset["rid"];
+                        if (rid.StartsWith("win7-"))
+                        {
+                            writer.Write("   <Content Include='");
+                            writer.Write(
+                                Path.Combine(NuGetPackagesDirectory, 
+                                    dependencyKey,
+                                    assetKey).Replace('/', '\\'));
+                            writer.WriteLine("'>");
+                            
+                            // this special subfolder structure only works because Microsoft.Data.Sqlite knows how to
+                            // look in x86/x64 folders for sqlite3.dll
+                            writer.WriteLine("      <Link>" + rid.Substring(rid.Length - 3) + @"\%(Filename)%(Extension)</Link>");
+                            
+                            writer.WriteLine("      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>");
+                            writer.WriteLine("      <Visible>False</Visible>");
+                            writer.WriteLine("  </Content>");
+                        }
+                    }
+                }
+                                
                 foreach (var content in contents)
                 {
                     writer.Write(@"    <Content Include='");
