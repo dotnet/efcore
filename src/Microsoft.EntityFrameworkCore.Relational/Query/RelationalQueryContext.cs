@@ -15,6 +15,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     The principal data structure used by a compiled relational query during execution.
+    /// </summary>
     public class RelationalQueryContext : QueryContext
     {
         private readonly List<IValueBufferCursor> _activeQueries = new List<IValueBufferCursor>();
@@ -23,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private int _activeIncludeQueryOffset;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalQueryContext(
@@ -41,10 +44,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             Connection = connection;
         }
 
+        /// <summary>
+        ///     Gets the active relational connection.
+        /// </summary>
+        /// <value>
+        ///     The connection.
+        /// </value>
         public virtual IRelationalConnection Connection { get; }
 
+        /// <summary>
+        ///     Gets a semaphore used to serialize async queries.
+        /// </summary>
+        /// <value>
+        ///     The semaphore.
+        /// </value>
         public virtual SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1);
 
+        /// <summary>
+        ///     Registers a value buffer cursor.
+        /// </summary>
+        /// <param name="valueBufferCursor"> The value buffer cursor. </param>
+        /// <param name="queryIndex"> Zero-based index of the query. </param>
         public virtual void RegisterValueBufferCursor(
             [NotNull] IValueBufferCursor valueBufferCursor, int? queryIndex)
         {
@@ -65,6 +85,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Asynchronously registers a value buffer cursor.
+        /// </summary>
+        /// <param name="valueBufferCursor"> The value buffer cursor. </param>
+        /// <param name="queryIndex"> Zero-based index of the query. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns>
+        ///     A Task.
+        /// </returns>
         public virtual async Task RegisterValueBufferCursorAsync(
             [NotNull] IValueBufferCursor valueBufferCursor, int? queryIndex, CancellationToken cancellationToken)
         {
@@ -102,6 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             _activeIncludeQueries[includeQueryIndex - 1] = valueBufferCursor;
         }
 
+        /// <summary>
+        ///     Deregisters the value buffer cursor described by valueBufferCursor.
+        /// </summary>
+        /// <param name="valueBufferCursor"> The value buffer cursor. </param>
         public virtual void DeregisterValueBufferCursor([NotNull] IValueBufferCursor valueBufferCursor)
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
@@ -118,13 +151,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets the include value buffer for a given query index.
+        /// </summary>
+        /// <param name="queryIndex"> Zero-based index of the query. </param>
+        /// <returns>
+        ///     The include value buffer.
+        /// </returns>
         public virtual ValueBuffer GetIncludeValueBuffer(int queryIndex)
             => queryIndex == 0
                 ? _activeQueries[_activeIncludeQueryOffset + queryIndex].Current
                 : _activeIncludeQueries[queryIndex - 1].Current;
 
+        /// <summary>
+        ///     Begins an include scope.
+        /// </summary>
         public virtual void BeginIncludeScope() => _activeIncludeQueryOffset = _activeQueries.Count;
 
+        /// <summary>
+        ///     Ends an include scope.
+        /// </summary>
         public virtual void EndIncludeScope()
         {
             for (var i = _activeQueries.Count - 1; i > _activeIncludeQueryOffset; i--)

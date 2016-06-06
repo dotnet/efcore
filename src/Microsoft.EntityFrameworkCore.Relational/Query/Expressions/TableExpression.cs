@@ -9,8 +9,18 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
+    /// <summary>
+    ///     Represents a SQL table expression.
+    /// </summary>
     public class TableExpression : TableExpressionBase
     {
+        /// <summary>
+        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.Expressions.TableExpression class.
+        /// </summary>
+        /// <param name="table"> The table name. </param>
+        /// <param name="schema"> The schema name. </param>
+        /// <param name="alias"> The alias. </param>
+        /// <param name="querySource"> The query source. </param>
         public TableExpression(
             [NotNull] string table,
             [CanBeNull] string schema,
@@ -26,10 +36,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Schema = schema;
         }
 
+        /// <summary>
+        ///     Gets the table name.
+        /// </summary>
+        /// <value>
+        ///     The table name.
+        /// </value>
         public virtual string Table { get; }
 
+        /// <summary>
+        ///     Gets the schema name.
+        /// </summary>
+        /// <value>
+        ///     The schema name.
+        /// </value>
         public virtual string Schema { get; }
 
+        /// <summary>
+        /// Dispatches to the specific visit method for this node type.
+        /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -41,6 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 : base.Accept(visitor);
         }
 
+        /// <summary>
+        /// Creates a <see cref="string"/> representation of the Expression.
+        /// </summary>
+        /// <returns>A <see cref="string"/> representation of the Expression.</returns>
         public override string ToString() => Table + " " + Alias;
     }
 }

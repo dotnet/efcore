@@ -6,8 +6,12 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class StartsWithTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
@@ -16,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         private static readonly MethodInfo _concat
             = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));

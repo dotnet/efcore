@@ -15,12 +15,22 @@ using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
+    /// <summary>
+    ///     An expression visitor for translating relational LINQ query projections.
+    /// </summary>
     public class RelationalProjectionExpressionVisitor : ProjectionExpressionVisitor
     {
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly IQuerySource _querySource;
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="RelationalProjectionExpressionVisitor" />.
+        /// </summary>
+        /// <param name="sqlTranslatingExpressionVisitorFactory"> The SQL translating expression visitor factory. </param>
+        /// <param name="entityMaterializerSource"> The entity materializer source. </param>
+        /// <param name="queryModelVisitor"> The query model visitor. </param>
+        /// <param name="querySource"> The query source. </param>
         public RelationalProjectionExpressionVisitor(
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
@@ -40,6 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private new RelationalQueryModelVisitor QueryModelVisitor
             => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
+        /// <summary>
+        ///     Visit a method call expression.
+        /// </summary>
+        /// <param name="node"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated method call.
+        /// </returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Check.NotNull(node, nameof(node));
@@ -62,6 +79,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return base.VisitMethodCall(node);
         }
 
+        /// <summary>
+        ///     Visit a new expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated new expression.
+        /// </returns>
         protected override Expression VisitNew(NewExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -91,6 +115,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return newNewExpression;
         }
 
+        /// <summary>
+        ///     Visits the given node.
+        /// </summary>
+        /// <param name="node"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression to the translated input expression.
+        /// </returns>
         public override Expression Visit(Expression node)
         {
             var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);

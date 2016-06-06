@@ -10,12 +10,22 @@ using Microsoft.EntityFrameworkCore.Query.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
+    /// <summary>
+    ///     A base LINQ expression translator for CLR <see cref="MethodCallExpression" /> expressions that
+    ///     have multiple overloads.
+    /// </summary>
     public abstract class MultipleOverloadStaticMethodCallTranslator : IMethodCallTranslator
     {
         private readonly Type _declaringType;
         private readonly string _clrMethodName;
         private readonly string _sqlFunctionName;
 
+        /// <summary>
+        ///     Specialised constructor for use only by derived class.
+        /// </summary>
+        /// <param name="declaringType"> The declaring type of the method. </param>
+        /// <param name="clrMethodName"> Name of the method. </param>
+        /// <param name="sqlFunctionName"> The name of the target SQL function. </param>
         protected MultipleOverloadStaticMethodCallTranslator(
             [NotNull] Type declaringType,
             [NotNull] string clrMethodName,
@@ -26,6 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             _sqlFunctionName = sqlFunctionName;
         }
 
+        /// <summary>
+        ///     Translates the given method call expression.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <returns>
+        ///     A SQL expression representing the translated MethodCallExpression.
+        /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             var methodInfos = _declaringType.GetTypeInfo().GetDeclaredMethods(_clrMethodName);

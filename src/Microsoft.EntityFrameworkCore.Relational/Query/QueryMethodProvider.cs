@@ -13,8 +13,17 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     Provides reflection objects for late-binding to synchronous relational query operations.
+    /// </summary>
     public class QueryMethodProvider : IQueryMethodProvider
     {
+        /// <summary>
+        ///     Gets the shaped query method.
+        /// </summary>
+        /// <value>
+        ///     The shaped query method.
+        /// </value>
         public virtual MethodInfo ShapedQueryMethod => _shapedQueryMethodInfo;
 
         private static readonly MethodInfo _shapedQueryMethodInfo
@@ -39,6 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets the default if empty shaped query method.
+        /// </summary>
+        /// <value>
+        ///     The default if empty shaped query method.
+        /// </value>
         public virtual MethodInfo DefaultIfEmptyShapedQueryMethod => _defaultIfEmptyShapedQueryMethodInfo;
 
         private static readonly MethodInfo _defaultIfEmptyShapedQueryMethodInfo
@@ -84,6 +99,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // TODO: Pass shaper to underlying enumerable
 
+        /// <summary>
+        ///     Gets the query method.
+        /// </summary>
+        /// <value>
+        ///     The query method.
+        /// </value>
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
         private static readonly MethodInfo _queryMethodInfo
@@ -101,6 +122,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 shaperCommandContext,
                 queryIndex);
 
+        /// <summary>
+        ///     Gets the get result method.
+        /// </summary>
+        /// <value>
+        ///     The get result method.
+        /// </value>
         public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
 
         private static readonly MethodInfo _getResultMethodInfo
@@ -123,6 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return default(TResult);
         }
 
+        /// <summary>
+        ///     Gets the group by method.
+        /// </summary>
+        /// <value>
+        ///     The group by method.
+        /// </value>
         public virtual MethodInfo GroupByMethod => _groupByMethodInfo;
 
         private static readonly MethodInfo _groupByMethodInfo
@@ -169,8 +202,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets the type of the group join include.
+        /// </summary>
+        /// <value>
+        ///     The type of the group join include.
+        /// </value>
         public virtual Type GroupJoinIncludeType => typeof(GroupJoinInclude);
 
+        /// <summary>
+        ///     Creates a group join include used to describe an Include operation that should
+        ///     be performed as part of a GroupJoin.
+        /// </summary>
+        /// <param name="navigationPath"> The included navigation path. </param>
+        /// <param name="querySourceRequiresTracking"> true if this query source requires tracking. </param>
+        /// <param name="existingGroupJoinInclude"> A possibly null existing group join include. </param>
+        /// <param name="relatedEntitiesLoaders"> The related entities loaders. </param>
+        /// <returns>
+        ///     A new group join include.
+        /// </returns>
         public virtual object CreateGroupJoinInclude(
             IReadOnlyList<INavigation> navigationPath,
             bool querySourceRequiresTracking,
@@ -195,6 +245,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return previousGroupJoinInclude;
         }
 
+        /// <summary>
+        ///     Gets the group join method.
+        /// </summary>
+        /// <value>
+        ///     The group join method.
+        /// </value>
         public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
 
         private static readonly MethodInfo _groupJoinMethodInfo
@@ -228,11 +284,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     while (hasNext)
                     {
-                        var outer 
-                            = Equals(nextOuter, default(TOuter)) 
+                        var outer
+                            = Equals(nextOuter, default(TOuter))
                                 ? outerShaper.Shape(queryContext, sourceEnumerator.Current)
                                 : nextOuter;
-                        
+
                         nextOuter = default(TOuter);
 
                         outerGroupJoinInclude?.Include(outer);
@@ -262,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 {
                                     break;
                                 }
-                                
+
                                 if (hasOuters)
                                 {
                                     nextOuter = outerShaper.Shape(queryContext, sourceEnumerator.Current);
@@ -306,6 +362,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets the include method.
+        /// </summary>
+        /// <value>
+        ///     The include method.
+        /// </value>
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
 
         private static readonly MethodInfo _includeMethodInfo
@@ -356,9 +418,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Gets the type of the related entities loader.
+        /// </summary>
+        /// <value>
+        ///     The type of the related entities loader.
+        /// </value>
         public virtual Type RelatedEntitiesLoaderType => typeof(IRelatedEntitiesLoader);
 
-        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod => _createReferenceRelatedEntitiesLoaderMethod;
+        /// <summary>
+        ///     Gets the create reference related entities loader method.
+        /// </summary>
+        /// <value>
+        ///     The create reference related entities loader method.
+        /// </value>
+        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod
+            => _createReferenceRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createReferenceRelatedEntitiesLoaderMethod
             = typeof(QueryMethodProvider).GetTypeInfo()
@@ -403,7 +478,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod => _createCollectionRelatedEntitiesLoaderMethod;
+        /// <summary>
+        ///     Gets the create collection related entities loader method.
+        /// </summary>
+        /// <value>
+        ///     The create collection related entities loader method.
+        /// </value>
+        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod
+            => _createCollectionRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createCollectionRelatedEntitiesLoaderMethod
             = typeof(QueryMethodProvider).GetTypeInfo()

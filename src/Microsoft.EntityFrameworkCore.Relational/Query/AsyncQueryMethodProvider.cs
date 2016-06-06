@@ -12,12 +12,21 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ImplicitlyCapturedClosure
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     Provides reflection objects for late-binding to asynchronous relational query operations.
+    /// </summary>
     public class AsyncQueryMethodProvider : IQueryMethodProvider
     {
+        /// <summary>
+        ///     The shaped query method.
+        /// </summary>
         public virtual MethodInfo ShapedQueryMethod => _shapedQueryMethodInfo;
 
         private static readonly MethodInfo _shapedQueryMethodInfo
@@ -25,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -37,6 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     queryIndex: null),
                     vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
 
+        /// <summary>
+        ///     The default if empty shaped query method.
+        /// </summary>
         public virtual MethodInfo DefaultIfEmptyShapedQueryMethod => _defaultIfEmptyShapedQueryMethodInfo;
 
         private static readonly MethodInfo _defaultIfEmptyShapedQueryMethodInfo
@@ -44,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_DefaultIfEmptyShapedQuery));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _DefaultIfEmptyShapedQuery<T>(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -116,6 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // TODO: Pass shaper to underlying enumerable
 
+        /// <summary>
+        ///     The query method.
+        /// </summary>
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
         private static readonly MethodInfo _queryMethodInfo
@@ -123,7 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Query));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,
@@ -133,6 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 shaperCommandContext,
                 queryIndex);
 
+        /// <summary>
+        ///     The get result method.
+        /// </summary>
         public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
 
         private static readonly MethodInfo _getResultMethodInfo
@@ -158,6 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return default(TResult);
         }
 
+        /// <summary>
+        ///     The group by method.
+        /// </summary>
         public virtual MethodInfo GroupByMethod => _groupByMethodInfo;
 
         private static readonly MethodInfo _groupByMethodInfo
@@ -165,7 +183,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -253,14 +270,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Type of the group join include.
+        /// </summary>
         public virtual Type GroupJoinIncludeType => typeof(AsyncGroupJoinInclude);
 
+        /// <summary>
+        ///     Creates a group join include used to describe an Include operation that should
+        ///     be performed as part of a GroupJoin.
+        /// </summary>
+        /// <param name="navigationPath"> The included navigation path. </param>
+        /// <param name="querySourceRequiresTracking"> true if this query source requires tracking. </param>
+        /// <param name="existingGroupJoinInclude"> A possibly null existing group join include. </param>
+        /// <param name="relatedEntitiesLoaders"> The related entities loaders. </param>
+        /// <returns>
+        ///     A new group join include.
+        /// </returns>
         public virtual object CreateGroupJoinInclude(
             IReadOnlyList<INavigation> navigationPath,
             bool querySourceRequiresTracking,
             object existingGroupJoinInclude,
             object relatedEntitiesLoaders)
         {
+            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(relatedEntitiesLoaders, nameof(relatedEntitiesLoaders));
+
             var previousGroupJoinInclude
                 = new AsyncGroupJoinInclude(
                     navigationPath,
@@ -279,6 +313,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return previousGroupJoinInclude;
         }
 
+        /// <summary>
+        ///     The group join method.
+        /// </summary>
         public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
 
         private static readonly MethodInfo _groupJoinMethodInfo
@@ -286,7 +323,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             RelationalQueryContext queryContext,
             IAsyncEnumerable<ValueBuffer> source,
@@ -479,6 +515,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     The include method.
+        /// </summary>
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
 
         private static readonly MethodInfo _includeMethodInfo
@@ -486,7 +525,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IAsyncEnumerable<T> innerResults,
@@ -529,16 +567,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
+        /// <summary>
+        ///     Type of the related entities loader.
+        /// </summary>
         public virtual Type RelatedEntitiesLoaderType => typeof(IAsyncRelatedEntitiesLoader);
 
-        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod => _createReferenceRelatedEntitiesLoaderMethod;
+        /// <summary>
+        ///     The create reference related entities loader method.
+        /// </summary>
+        public virtual MethodInfo CreateReferenceRelatedEntitiesLoaderMethod 
+            => _createReferenceRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createReferenceRelatedEntitiesLoaderMethod
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
                 .GetDeclaredMethod(nameof(_CreateReferenceRelatedEntitiesLoader));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncRelatedEntitiesLoader _CreateReferenceRelatedEntitiesLoader(
             int valueBufferOffset,
             int queryIndex,
@@ -620,14 +664,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod => _createCollectionRelatedEntitiesLoaderMethod;
+        /// <summary>
+        ///     The create collection related entities loader method.
+        /// </summary>
+        public virtual MethodInfo CreateCollectionRelatedEntitiesLoaderMethod 
+            => _createCollectionRelatedEntitiesLoaderMethod;
 
         private static readonly MethodInfo _createCollectionRelatedEntitiesLoaderMethod
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
                 .GetDeclaredMethod(nameof(_CreateCollectionRelatedEntitiesLoader));
 
         [UsedImplicitly]
-        // ReSharper disable once InconsistentNaming
         private static IAsyncRelatedEntitiesLoader _CreateCollectionRelatedEntitiesLoader(
             QueryContext queryContext,
             ShaperCommandContext shaperCommandContext,

@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
+    /// <summary>
+    ///     A factory for creating instances of <see cref="SqlTranslatingExpressionVisitor" />.
+    /// </summary>
     public class SqlTranslatingExpressionVisitorFactory : ISqlTranslatingExpressionVisitorFactory
     {
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
@@ -19,6 +22,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IMemberTranslator _memberTranslator;
         private readonly IRelationalTypeMapper _relationalTypeMapper;
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitorFactory" />.
+        /// </summary>
+        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
+        /// <param name="compositeExpressionFragmentTranslator"> The composite expression fragment translator. </param>
+        /// <param name="methodCallTranslator"> The method call translator. </param>
+        /// <param name="memberTranslator"> The member translator. </param>
+        /// <param name="relationalTypeMapper"> The relational type mapper. </param>
         public SqlTranslatingExpressionVisitorFactory(
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
@@ -39,6 +50,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _relationalTypeMapper = relationalTypeMapper;
         }
 
+        /// <summary>
+        ///     Creates a new SqlTranslatingExpressionVisitor.
+        /// </summary>
+        /// <param name="queryModelVisitor"> The query model visitor. </param>
+        /// <param name="targetSelectExpression"> The target select expression. </param>
+        /// <param name="topLevelPredicate"> The top level predicate. </param>
+        /// <param name="bindParentQueries"> true to bind parent queries. </param>
+        /// <param name="inProjection"> true if we are translating a projection. </param>
+        /// <returns>
+        ///     A SqlTranslatingExpressionVisitor.
+        /// </returns>
         public virtual SqlTranslatingExpressionVisitor Create(
             RelationalQueryModelVisitor queryModelVisitor,
             SelectExpression targetSelectExpression = null,

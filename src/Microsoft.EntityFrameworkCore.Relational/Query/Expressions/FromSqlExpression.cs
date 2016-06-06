@@ -9,8 +9,18 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
+    /// <summary>
+    ///     Represents a FromSql expression.
+    /// </summary>
     public class FromSqlExpression : TableExpressionBase
     {
+        /// <summary>
+        ///     Creates a new instance of a FromSqlExpression.
+        /// </summary>
+        /// <param name="sql"> The SQL. </param>
+        /// <param name="arguments"> The arguments. </param>
+        /// <param name="alias"> The alias. </param>
+        /// <param name="querySource"> The query source. </param>
         public FromSqlExpression(
             [NotNull] string sql,
             [NotNull] Expression arguments,
@@ -27,9 +37,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Arguments = arguments;
         }
 
+        /// <summary>
+        ///     Gets the SQL.
+        /// </summary>
+        /// <value>
+        ///     The SQL.
+        /// </value>
         public virtual string Sql { get; }
+
+        /// <summary>
+        ///     Gets the arguments.
+        /// </summary>
+        /// <value>
+        ///     The arguments.
+        /// </value>
         public virtual Expression Arguments { get; }
 
+        /// <summary>
+        /// Dispatches to the specific visit method for this node type.
+        /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -41,6 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 : base.Accept(visitor);
         }
 
+        /// <summary>
+        /// Creates a <see cref="string"/> representation of the Expression.
+        /// </summary>
+        /// <returns>A <see cref="string"/> representation of the Expression.</returns>
         public override string ToString() => Sql + " " + Alias;
     }
 }

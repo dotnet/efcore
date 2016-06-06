@@ -23,7 +23,8 @@ using Remotion.Linq.Clauses.Expressions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     A query compilation context. The primary data structure representing the state/components used during query compilation.
+    ///     A query compilation context. The primary data structure representing the state/components
+    ///     used during query compilation.
     /// </summary>
     public class QueryCompilationContext
     {

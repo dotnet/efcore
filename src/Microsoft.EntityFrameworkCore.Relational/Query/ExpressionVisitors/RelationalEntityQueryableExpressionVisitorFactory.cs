@@ -12,6 +12,9 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
+    /// <summary>
+    ///     A factory for creating instances of <see cref="RelationalEntityQueryableExpressionVisitor" />.
+    /// </summary>
     public class RelationalEntityQueryableExpressionVisitorFactory : IEntityQueryableExpressionVisitorFactory
     {
         private readonly IModel _model;
@@ -20,6 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="RelationalEntityQueryableExpressionVisitorFactory" />.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="selectExpressionFactory"> The select expression factory. </param>
+        /// <param name="materializerFactory"> The materializer factory. </param>
+        /// <param name="shaperCommandContextFactory"> The shaper command context factory. </param>
+        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
         public RelationalEntityQueryableExpressionVisitorFactory(
             [NotNull] IModel model,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
@@ -40,6 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _relationalAnnotationProvider = relationalAnnotationProvider;
         }
 
+        /// <summary>
+        ///     Creates a new ExpressionVisitor.
+        /// </summary>
+        /// <param name="queryModelVisitor"> The query model visitor. </param>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     An ExpressionVisitor.
+        /// </returns>
         public virtual ExpressionVisitor Create(
             EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
             => new RelationalEntityQueryableExpressionVisitor(

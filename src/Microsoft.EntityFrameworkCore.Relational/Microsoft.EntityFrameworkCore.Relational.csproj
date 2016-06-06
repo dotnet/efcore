@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -209,10 +209,10 @@
     <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
-    <Compile Include="Query\ExpressionTranslators\IsNullOrEmptyTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\ContainsTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\EndsWithTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\EqualsTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\IsNullOrEmptyTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\ContainsTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\EndsWithTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\EqualsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\IExpressionFragmentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\IMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\IMethodCallTranslator.cs" />
@@ -221,11 +221,10 @@
     <Compile Include="Query\ExpressionTranslators\RelationalCompositeExpressionFragmentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\RelationalCompositeMemberTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\RelationalCompositeMethodCallTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\SingleOverloadInstanceMethodCallTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\SingleOverloadStaticMethodCallTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\StartsWithTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\StringCompareTranslator.cs" />
-    <Compile Include="Query\ExpressionTranslators\StringConcatTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\StartsWithTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\StringCompareTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\StringConcatTranslator.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\BufferedEntityShaper`.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\BufferedOffsetEntityShaper.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\CompositePredicateExpressionVisitor.cs" />

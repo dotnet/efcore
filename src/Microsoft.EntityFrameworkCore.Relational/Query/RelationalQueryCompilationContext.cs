@@ -15,6 +15,10 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     A relational query compilation context. The primary data structure representing the state/components
+    ///     used during relational query compilation.
+    /// </summary>
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
@@ -24,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISet<string> _tableAliasSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalQueryCompilationContext(
@@ -50,8 +54,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryMethodProvider = queryMethodProvider;
         }
 
+        /// <summary>
+        ///     Gets the query method provider.
+        /// </summary>
+        /// <value>
+        ///     The query method provider.
+        /// </value>
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
 
+        /// <summary>
+        ///     Creates a query model visitor.
+        /// </summary>
+        /// <returns>
+        ///     The new query model visitor.
+        /// </returns>
         public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {
             var relationalQueryModelVisitor
@@ -62,8 +78,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             return relationalQueryModelVisitor;
         }
 
+        /// <summary>
+        ///     True if the current provider supports SQL LATERAL JOIN.
+        /// </summary>
         public virtual bool IsLateralJoinSupported => false;
 
+        /// <summary>
+        ///     Creates query model visitor.
+        /// </summary>
+        /// <param name="parentEntityQueryModelVisitor"> The parent entity query model visitor. </param>
+        /// <returns>
+        ///     The new query model visitor.
+        /// </returns>
         public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor)
         {
             var relationalQueryModelVisitor
@@ -74,6 +100,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return relationalQueryModelVisitor;
         }
 
+        /// <summary>
+        ///     Searches for a select expression corresponding to the passed query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     The select expression.
+        /// </returns>
         public virtual SelectExpression FindSelectExpression([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -86,9 +119,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .First();
         }
 
+        /// <summary>
+        ///     Creates a unique table alias.
+        /// </summary>
+        /// <returns>
+        ///     A unique table alias.
+        /// </returns>
         public virtual string CreateUniqueTableAlias()
             => CreateUniqueTableAlias(SystemAliasPrefix);
 
+        /// <summary>
+        ///     Creates a unique table alias.
+        /// </summary>
+        /// <param name="currentAlias"> The current alias. </param>
+        /// <returns>
+        ///     A unique table alias.
+        /// </returns>
         public virtual string CreateUniqueTableAlias([NotNull] string currentAlias)
         {
             Check.NotNull(currentAlias, nameof(currentAlias));
@@ -107,6 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             _tableAliasSet.Add(uniqueAlias);
+
             return uniqueAlias;
         }
     }

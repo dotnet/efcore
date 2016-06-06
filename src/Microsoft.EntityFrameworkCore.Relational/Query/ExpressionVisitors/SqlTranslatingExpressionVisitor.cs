@@ -22,18 +22,21 @@ using Remotion.Linq.Parsing;
 // ReSharper disable AssignNullToNotNullAttribute
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
+    /// <summary>
+    ///     The default relational LINQ translating expression visitor.
+    /// </summary>
     public class SqlTranslatingExpressionVisitor : ThrowingExpressionVisitor
     {
-        private static readonly Dictionary<ExpressionType, ExpressionType> _inverseOperatorMap 
+        private static readonly Dictionary<ExpressionType, ExpressionType> _inverseOperatorMap
             = new Dictionary<ExpressionType, ExpressionType>
-        {
-            { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual },
-            { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
-            { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
-            { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
-            { ExpressionType.Equal, ExpressionType.NotEqual },
-            { ExpressionType.NotEqual, ExpressionType.Equal }
-        };
+            {
+                { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual },
+                { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThan },
+                { ExpressionType.GreaterThan, ExpressionType.LessThanOrEqual },
+                { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan },
+                { ExpressionType.Equal, ExpressionType.NotEqual },
+                { ExpressionType.NotEqual, ExpressionType.Equal }
+            };
 
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
@@ -47,6 +50,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly bool _bindParentQueries;
         private readonly bool _inProjection;
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="SqlTranslatingExpressionVisitor" />.
+        /// </summary>
+        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
+        /// <param name="compositeExpressionFragmentTranslator"> The composite expression fragment translator. </param>
+        /// <param name="methodCallTranslator"> The method call translator. </param>
+        /// <param name="memberTranslator"> The member translator. </param>
+        /// <param name="relationalTypeMapper"> The relational type mapper. </param>
+        /// <param name="queryModelVisitor"> The query model visitor. </param>
+        /// <param name="targetSelectExpression"> The target select expression. </param>
+        /// <param name="topLevelPredicate"> The top level predicate. </param>
+        /// <param name="bindParentQueries"> true to bind parent queries. </param>
+        /// <param name="inProjection"> true if the expression to be translated is a LINQ projection. </param>
         public SqlTranslatingExpressionVisitor(
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
@@ -78,8 +94,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _inProjection = inProjection;
         }
 
+        /// <summary>
+        ///     When translating a predicate expression, returns a client expression corresponding
+        ///     to the part of the target expression that should be evaluated locally.
+        /// </summary>
+        /// <value>
+        ///     The client eval predicate.
+        /// </value>
         public virtual Expression ClientEvalPredicate { get; private set; }
 
+        /// <summary>
+        ///     Visits the given expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public override Expression Visit(Expression expression)
         {
             var translatedExpression = _compositeExpressionFragmentTranslator.Translate(expression);
@@ -93,6 +123,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return base.Visit(expression);
         }
 
+        /// <summary>
+        ///     Visit a binary expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitBinary(BinaryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -170,14 +207,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 case ExpressionType.Modulo:
                 case ExpressionType.And:
                 case ExpressionType.Or:
-                    {
+                {
                     var leftExpression = Visit(expression.Left);
                     var rightExpression = Visit(expression.Right);
 
                     return leftExpression != null && rightExpression != null
                         ? Expression.MakeBinary(
-                            expression.NodeType, 
-                            leftExpression, 
+                            expression.NodeType,
+                            leftExpression,
                             rightExpression,
                             expression.IsLiftedToNull,
                             expression.Method)
@@ -188,6 +225,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
+        /// <summary>
+        ///     Visits a conditional expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitConditional(ConditionalExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -233,11 +277,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 if (binaryOperation != null)
                 {
                     var nodeType = binaryOperation.NodeType;
-                    if (!_inverseOperatorMap.ContainsKey(nodeType))
-                    {
-                        return null;
-                    }
-                    return Expression.MakeBinary(_inverseOperatorMap[nodeType], binaryOperation.Left, binaryOperation.Right);
+
+                    return
+                        !_inverseOperatorMap.ContainsKey(nodeType)
+                            ? null
+                            : Expression.MakeBinary(
+                                _inverseOperatorMap[nodeType],
+                                binaryOperation.Left,
+                                binaryOperation.Right);
                 }
 
                 return Expression.Not(test);
@@ -249,9 +296,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private static Expression TryRemoveNullCheck(ConditionalExpression node)
         {
             var binaryTest = node.Test as BinaryExpression;
+
             if (binaryTest == null
-                || !(binaryTest.NodeType == ExpressionType.Equal 
-                    || binaryTest.NodeType == ExpressionType.NotEqual))
+                || !(binaryTest.NodeType == ExpressionType.Equal
+                     || binaryTest.NodeType == ExpressionType.NotEqual))
             {
                 return null;
             }
@@ -262,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var rightConstant = binaryTest.Right as ConstantExpression;
             var isRightNullConstant = rightConstant != null && rightConstant.Value == null;
 
-            if (isLeftNullConstant == isRightNullConstant) 
+            if (isLeftNullConstant == isRightNullConstant)
             {
                 return null;
             }
@@ -270,7 +318,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (binaryTest.NodeType == ExpressionType.Equal)
             {
                 var ifTrueConstant = node.IfTrue as ConstantExpression;
-                if (ifTrueConstant == null || ifTrueConstant.Value != null)
+                if (ifTrueConstant == null
+                    || ifTrueConstant.Value != null)
                 {
                     return null;
                 }
@@ -278,7 +327,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             else
             {
                 var ifFalseConstant = node.IfFalse as ConstantExpression;
-                if (ifFalseConstant == null || ifFalseConstant.Value != null)
+                if (ifFalseConstant == null
+                    || ifFalseConstant.Value != null)
                 {
                     return null;
                 }
@@ -288,12 +338,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var resultExpression = binaryTest.NodeType == ExpressionType.Equal ? node.IfFalse : node.IfTrue;
 
             var nullCheckRemovalTestingVisitor = new NullCheckRemovalTestingVisitor();
-            if (nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression))
-            {
-                return resultExpression;
-            }
 
-            return null;
+            return nullCheckRemovalTestingVisitor.CanRemoveNullCheck(testExpression, resultExpression)
+                ? resultExpression
+                : null;
         }
 
         private class NullCheckRemovalTestingVisitor : ExpressionVisitorBase
@@ -315,10 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return _canRemoveNullCheck ?? false;
             }
 
-            public override Expression Visit([CanBeNull] Expression node)
-            {
-                return _canRemoveNullCheck == false ? node : base.Visit(node);
-            }
+            public override Expression Visit(Expression node)
+                => _canRemoveNullCheck == false ? node : base.Visit(node);
 
             private void AnalyzeTestExpression(Expression expression)
             {
@@ -332,20 +378,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
 
                 var memberExpression = expression as MemberExpression;
-                if (memberExpression != null)
-                {
-                    var querySourceInstance = memberExpression.Expression as QuerySourceReferenceExpression;
-                    if (querySourceInstance != null)
-                    {
-                        _querySource = querySourceInstance.ReferencedQuerySource;
-                        _propertyName = memberExpression.Member.Name;
+                var querySourceInstance = memberExpression?.Expression as QuerySourceReferenceExpression;
 
-                        return;
-                    }
+                if (querySourceInstance != null)
+                {
+                    _querySource = querySourceInstance.ReferencedQuerySource;
+                    _propertyName = memberExpression.Member.Name;
+
+                    return;
                 }
 
                 var methodCallExpression = expression as MethodCallExpression;
-                if (methodCallExpression != null && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
+
+                if (methodCallExpression != null
+                    && EntityQueryModelVisitor.IsPropertyMethod(methodCallExpression.Method))
                 {
                     var querySourceCaller = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;
                     if (querySourceCaller != null)
@@ -355,8 +401,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         {
                             _querySource = querySourceCaller.ReferencedQuerySource;
                             _propertyName = (string)propertyNameExpression.Value;
-
-                            return;
                         }
                     }
                 }
@@ -364,7 +408,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
             {
-                _canRemoveNullCheck = (expression.ReferencedQuerySource == _querySource && _propertyName == null);
+                _canRemoveNullCheck
+                    = expression.ReferencedQuerySource == _querySource
+                      && _propertyName == null;
 
                 return expression;
             }
@@ -390,7 +436,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 if (EntityQueryModelVisitor.IsPropertyMethod(node.Method))
                 {
                     var propertyNameExpression = node.Arguments[1] as ConstantExpression;
-                    if (propertyNameExpression != null && (string)propertyNameExpression.Value == _propertyName)
+                    if (propertyNameExpression != null
+                        && (string)propertyNameExpression.Value == _propertyName)
                     {
                         var querySource = node.Arguments[0] as QuerySourceReferenceExpression;
                         if (querySource != null)
@@ -517,6 +564,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
+        /// <summary>
+        ///     Visits a method call expression.
+        /// </summary>
+        /// <param name="methodCallExpression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -553,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var expression
                 = _queryModelVisitor
                     .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression)
-                    ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression);
+                  ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression);
 
             if (expression == null
                 && _bindParentQueries)
@@ -566,6 +620,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return expression;
         }
 
+        /// <summary>
+        ///     Visit a member expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitMember(MemberExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -652,6 +713,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     property,
                     selectExpression.GetTableForQuerySource(querySource)));
 
+        /// <summary>
+        ///     Visit a unary expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitUnary(UnaryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -683,6 +751,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
+        /// <summary>
+        ///     Visits a new expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitNew(NewExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -722,6 +797,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return null;
         }
 
+        /// <summary>
+        ///     Visits a sub-query expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -767,10 +849,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var streamedSingleValueInfo = subQueryOutputDataInfo as StreamedSingleValueInfo;
                 var streamedSingleValueSupportedType = streamedSingleValueInfo != null
-                    && _relationalTypeMapper.FindMapping(streamedSingleValueInfo.DataType.UnwrapNullableType().UnwrapEnumType()) != null;
+                                                       && _relationalTypeMapper.FindMapping(streamedSingleValueInfo.DataType.UnwrapNullableType().UnwrapEnumType()) != null;
 
                 if (_inProjection
-                    && !(subQueryOutputDataInfo is StreamedScalarValueInfo) 
+                    && !(subQueryOutputDataInfo is StreamedScalarValueInfo)
                     && !streamedSingleValueSupportedType)
                 {
                     return null;
@@ -814,7 +896,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             return null;
         }
-        
+
+        /// <summary>
+        ///     Visits a constant expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitConstant(ConstantExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -831,6 +920,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 : null;
         }
 
+        /// <summary>
+        ///     Visits a parameter expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitParameter(ParameterExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -842,6 +938,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 : null;
         }
 
+        /// <summary>
+        ///     Visits an extension expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitExtension(Expression expression)
         {
             var stringCompare = expression as StringCompareExpression;
@@ -874,6 +977,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return base.VisitExtension(expression);
         }
 
+        /// <summary>
+        ///     Visits a query source reference expression.
+        /// </summary>
+        /// <param name="expression"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -886,10 +996,37 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return selector != null ? Visit(selector) : null;
         }
 
+        /// <summary>
+        ///     Called when an unhandled item is visited. This method provides the item the visitor cannot handle (<paramref name="unhandledItem" />),
+        ///     the <paramref name="visitMethod" /> that is not implemented in the visitor, and a delegate that can be used to invoke the
+        ///     <paramref name="baseBehavior" /> of the <see cref="T:Remotion.Linq.Parsing.RelinqExpressionVisitor" /> class. The default behavior of
+        ///     this method is to call the
+        ///     <see cref="M:Remotion.Linq.Parsing.ThrowingExpressionVisitor.CreateUnhandledItemException``1(``0,System.String)" /> method, but it can
+        ///     be overridden to do something else.
+        /// </summary>
+        /// <typeparam name="TItem">
+        ///     The type of the item that could not be handled. Either an <see cref="T:System.Linq.Expressions.Expression" /> type, a
+        ///     <see cref="T:System.Linq.Expressions.MemberBinding" />
+        ///     type, or <see cref="T:System.Linq.Expressions.ElementInit" />.
+        /// </typeparam>
+        /// <typeparam name="TResult">The result type expected for the visited <paramref name="unhandledItem" />.</typeparam>
+        /// <param name="unhandledItem">The unhandled item.</param>
+        /// <param name="visitMethod">The visit method that is not implemented.</param>
+        /// <param name="baseBehavior">The behavior exposed by <see cref="T:Remotion.Linq.Parsing.RelinqExpressionVisitor" /> for this item type.</param>
+        /// <returns>An object to replace <paramref name="unhandledItem" /> in the expression tree. Alternatively, the method can throw any exception.</returns>
         protected override TResult VisitUnhandledItem<TItem, TResult>(
             TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
             => default(TResult);
 
+        /// <summary>
+        ///     Creates an unhandled item exception.
+        /// </summary>
+        /// <typeparam name="T"> Generic type parameter. </typeparam>
+        /// <param name="unhandledItem"> The unhandled item. </param>
+        /// <param name="visitMethod"> The visit method that is not implemented. </param>
+        /// <returns>
+        ///     The new unhandled item exception.
+        /// </returns>
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
             => null; // Never called
     }

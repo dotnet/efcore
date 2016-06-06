@@ -13,10 +13,13 @@ using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     A relational factory for instances of <see cref="QueryCompilationContext" />.
+    /// </summary>
     public class RelationalQueryCompilationContextFactory : QueryCompilationContextFactory
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalQueryCompilationContextFactory(
@@ -37,6 +40,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Register(FromSqlExpressionNode.SupportedMethods, typeof(FromSqlExpressionNode));
         }
 
+        /// <summary>
+        ///     Creates a new QueryCompilationContext.
+        /// </summary>
+        /// <param name="async"> true if the query is asynchronous. </param>
+        /// <returns>
+        ///     A QueryCompilationContext.
+        /// </returns>
         public override QueryCompilationContext Create(bool async)
             => async
                 ? new RelationalQueryCompilationContext(

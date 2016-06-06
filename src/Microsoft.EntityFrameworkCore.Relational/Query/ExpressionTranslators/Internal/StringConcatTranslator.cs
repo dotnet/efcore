@@ -7,8 +7,12 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 
-namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
+namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class StringConcatTranslator : IExpressionFragmentTranslator
     {
         private static readonly MethodInfo _stringConcatMethodInfo = typeof(string).GetTypeInfo()
@@ -17,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                          && m.GetParameters()[0].ParameterType == typeof(object)
                          && m.GetParameters()[1].ParameterType == typeof(object));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression Translate(Expression expression)
         {
             var binaryExpression = expression as BinaryExpression;

@@ -18,6 +18,9 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.Sql
 {
+    /// <summary>
+    ///     The default query SQL generator.
+    /// </summary>
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, IQuerySqlGenerator
     {
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
@@ -48,6 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             { ExpressionType.Or, " | " }
         };
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="DefaultQuerySqlGenerator" />.
+        /// </summary>
+        /// <param name="relationalCommandBuilderFactory"> The relational command builder factory. </param>
+        /// <param name="sqlGenerationHelper"> The SQL generation helper. </param>
+        /// <param name="parameterNameGeneratorFactory"> The parameter name generator factory. </param>
+        /// <param name="relationalTypeMapper"> The relational type mapper. </param>
+        /// <param name="selectExpression"> The select expression. </param>
         public DefaultQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
@@ -69,14 +80,45 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             SelectExpression = selectExpression;
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether this SQL query is cacheable.
+        /// </summary>
+        /// <value>
+        ///     true if this SQL query is cacheable, false if not.
+        /// </value>
         public virtual bool IsCacheable { get; private set; }
 
+        /// <summary>
+        ///     Gets the select expression.
+        /// </summary>
+        /// <value>
+        ///     The select expression.
+        /// </value>
         protected virtual SelectExpression SelectExpression { get; }
 
+        /// <summary>
+        ///     Gets the SQL generation helper.
+        /// </summary>
+        /// <value>
+        ///     The SQL generation helper.
+        /// </value>
         protected virtual ISqlGenerationHelper SqlGenerator => _sqlGenerationHelper;
 
+        /// <summary>
+        ///     Gets the parameter values.
+        /// </summary>
+        /// <value>
+        ///     The parameter values.
+        /// </value>
         protected virtual IReadOnlyDictionary<string, object> ParameterValues => _parametersValues;
 
+        /// <summary>
+        ///     Generates SQL for the given parameter values.
+        /// </summary>
+        /// <param name="parameterValues"> The parameter values. </param>
+        /// <returns>
+        ///     A relational command.
+        /// </returns>
         public virtual IRelationalCommand GenerateSql(IReadOnlyDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
@@ -92,6 +134,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return _relationalCommandBuilder.Build();
         }
 
+        /// <summary>
+        ///     Creates a relational value buffer factory.
+        /// </summary>
+        /// <param name="relationalValueBufferFactoryFactory"> The relational value buffer factory. </param>
+        /// <param name="dataReader"> The data reader. </param>
+        /// <returns>
+        ///     The new value buffer factory.
+        /// </returns>
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
             IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)
         {
@@ -101,12 +151,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 .Create(SelectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
+        /// <summary>
+        ///     The generated SQL.
+        /// </summary>
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
+        /// <summary>
+        ///     The default string concatenation operator SQL.
+        /// </summary>
         protected virtual string ConcatOperator => "+";
+
+        /// <summary>
+        ///     The default true literal SQL.
+        /// </summary>
         protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
+
+        /// <summary>
+        ///     The default false literal SQL.
+        /// </summary>
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
+        /// <summary>
+        ///     Visit a top-level SelectExpression.
+        /// </summary>
+        /// <param name="selectExpression"> The select expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitSelect(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -223,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             var searchConditionTranslatingVisitor = new SearchConditionTranslatingVisitor(searchCondition);
             newExpression = searchConditionTranslatingVisitor.Visit(newExpression);
 
-            if (searchCondition && !searchConditionTranslatingVisitor.IsSearchCondition(newExpression))
+            if (searchCondition && !SearchConditionTranslatingVisitor.IsSearchCondition(newExpression))
             {
                 var constantExpression = newExpression as ConstantExpression;
                 if ((constantExpression != null)
@@ -237,11 +308,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return newExpression;
         }
 
+        /// <summary>
+        ///     Visit the projection.
+        /// </summary>
+        /// <param name="projections"> The projection expression. </param>
         protected virtual void VisitProjection([NotNull] IReadOnlyList<Expression> projections) => VisitJoin(
             projections
                 .Select(e => ApplyOptimizations(e, searchCondition: false))
                 .ToList());
 
+        /// <summary>
+        ///     Generates the ORDER BY SQL.
+        /// </summary>
+        /// <param name="orderings"> The orderings. </param>
         protected virtual void GenerateOrderBy([NotNull] IReadOnlyList<Ordering> orderings)
         {
             _relationalCommandBuilder.Append("ORDER BY ");
@@ -302,6 +381,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
         }
 
+        /// <summary>
+        ///     Visit a FromSqlExpression.
+        /// </summary>
+        /// <param name="fromSqlExpression"> The FromSql expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitFromSql(FromSqlExpression fromSqlExpression)
         {
             Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
@@ -319,6 +405,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return fromSqlExpression;
         }
 
+        /// <summary>
+        ///     Generate SQL corresponding to a FromSql query.
+        /// </summary>
+        /// <param name="sql"> The FromSql SQL query. </param>
+        /// <param name="arguments"> The arguments. </param>
+        /// <param name="parameters"> The parameters for this query. </param>
         protected virtual void GenerateFromSql(
             [NotNull] string sql,
             [NotNull] Expression arguments,
@@ -434,6 +526,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private RelationalTypeMapping GetTypeMapping(object value)
             => _typeMapping ?? _relationalTypeMapper.GetMappingForValue(value);
 
+        /// <summary>
+        ///     Visit a TableExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The table expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitTable(TableExpression tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -451,6 +550,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return tableExpression;
         }
 
+        /// <summary>
+        ///     Visit a CrossJoin expression.
+        /// </summary>
+        /// <param name="crossJoinExpression"> The cross join expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
         {
             Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
@@ -462,6 +568,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return crossJoinExpression;
         }
 
+        /// <summary>
+        ///     Visit a LateralJoin expression.
+        /// </summary>
+        /// <param name="lateralJoinExpression"> The lateral join expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitLateralJoin(LateralJoinExpression lateralJoinExpression)
         {
             Check.NotNull(lateralJoinExpression, nameof(lateralJoinExpression));
@@ -473,6 +586,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return lateralJoinExpression;
         }
 
+        /// <summary>
+        ///     Visit a CountExpression
+        /// </summary>
+        /// <param name="countExpression"> The count expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitCount(CountExpression countExpression)
         {
             Check.NotNull(countExpression, nameof(countExpression));
@@ -482,6 +602,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return countExpression;
         }
 
+        /// <summary>
+        ///     Visit a SumExpression.
+        /// </summary>
+        /// <param name="sumExpression"> The sum expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitSum(SumExpression sumExpression)
         {
             Check.NotNull(sumExpression, nameof(sumExpression));
@@ -495,6 +622,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return sumExpression;
         }
 
+        /// <summary>
+        ///     Visit a MinExpression.
+        /// </summary>
+        /// <param name="minExpression"> The min expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitMin(MinExpression minExpression)
         {
             Check.NotNull(minExpression, nameof(minExpression));
@@ -508,6 +642,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return minExpression;
         }
 
+        /// <summary>
+        ///     Visit a MaxExpression.
+        /// </summary>
+        /// <param name="maxExpression"> The max expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitMax(MaxExpression maxExpression)
         {
             Check.NotNull(maxExpression, nameof(maxExpression));
@@ -521,6 +662,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return maxExpression;
         }
 
+        /// <summary>
+        ///     Visit a StringCompareExpression.
+        /// </summary>
+        /// <param name="stringCompareExpression"> The string compare expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitStringCompare(StringCompareExpression stringCompareExpression)
         {
             Visit(stringCompareExpression.Left);
@@ -532,6 +680,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return stringCompareExpression;
         }
 
+        /// <summary>
+        ///     Visit an InExpression.
+        /// </summary>
+        /// <param name="inExpression"> The in expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitIn(InExpression inExpression)
         {
             if (inExpression.Values != null)
@@ -586,6 +741,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return inExpression;
         }
 
+        /// <summary>
+        ///     Visit a negated InExpression.
+        /// </summary>
+        /// <param name="inExpression"> The in expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected virtual Expression VisitNotIn([NotNull] InExpression inExpression)
         {
             if (inExpression.Values != null)
@@ -630,6 +792,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return inExpression;
         }
 
+        /// <summary>
+        ///     Process the InExpression values.
+        /// </summary>
+        /// <param name="inExpressionValues"> The in expression values. </param>
+        /// <returns>
+        ///     A list of expressions.
+        /// </returns>
         protected virtual IReadOnlyList<Expression> ProcessInExpressionValues(
             [NotNull] IEnumerable<Expression> inExpressionValues)
         {
@@ -701,6 +870,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
         }
 
+        /// <summary>
+        ///     Extracts the non null expression values from a list of expressions.
+        /// </summary>
+        /// <param name="inExpressionValues"> The list of expressions. </param>
+        /// <returns>
+        ///     The extracted non null expression values.
+        /// </returns>
         protected virtual IReadOnlyList<Expression> ExtractNonNullExpressionValues(
             [NotNull] IReadOnlyList<Expression> inExpressionValues)
         {
@@ -736,6 +912,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return inValuesNotNull;
         }
 
+        /// <summary>
+        ///     Visit an InnerJoinExpression.
+        /// </summary>
+        /// <param name="innerJoinExpression"> The inner join expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
         {
             Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));
@@ -751,6 +934,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return innerJoinExpression;
         }
 
+        /// <summary>
+        ///     Visit an LeftOuterJoinExpression.
+        /// </summary>
+        /// <param name="leftOuterJoinExpression"> The left outer join expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitLeftOuterJoin(LeftOuterJoinExpression leftOuterJoinExpression)
         {
             Check.NotNull(leftOuterJoinExpression, nameof(leftOuterJoinExpression));
@@ -766,6 +956,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return leftOuterJoinExpression;
         }
 
+        /// <summary>
+        ///     Generates the TOP part of the SELECT statement,
+        /// </summary>
+        /// <param name="selectExpression"> The select expression. </param>
         protected virtual void GenerateTop([NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -781,6 +975,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
         }
 
+        /// <summary>
+        ///     Generates the LIMIT OFFSET part of the SELECT statement,
+        /// </summary>
+        /// <param name="selectExpression"> The select expression. </param>
         protected virtual void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -805,6 +1003,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
         }
 
+        /// <summary>
+        ///     Visit a ConditionalExpression.
+        /// </summary>
+        /// <param name="expression"> The conditional expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitConditional(ConditionalExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -854,6 +1059,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return expression;
         }
 
+        /// <summary>
+        ///     Visit an ExistsExpression.
+        /// </summary>
+        /// <param name="existsExpression"> The exists expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitExists(ExistsExpression existsExpression)
         {
             Check.NotNull(existsExpression, nameof(existsExpression));
@@ -870,6 +1082,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return existsExpression;
         }
 
+        /// <summary>
+        ///     Visit a BinaryExpression.
+        /// </summary>
+        /// <param name="expression"> The binary expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitBinary(BinaryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -891,8 +1110,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 {
                     _typeMapping
                         = InferTypeMappingFromColumn(expression.Left)
-                        ?? InferTypeMappingFromColumn(expression.Right)
-                        ?? parentTypeMapping;
+                          ?? InferTypeMappingFromColumn(expression.Right)
+                          ?? parentTypeMapping;
                 }
 
                 var needParens = expression.Left is BinaryExpression;
@@ -915,12 +1134,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     switch (expression.NodeType)
                     {
                         case ExpressionType.Add:
-                        op = expression.Type == typeof(string)
-                            ? " " + ConcatOperator + " "
-                            : " + ";
-                        break;
+                            op = expression.Type == typeof(string)
+                                ? " " + ConcatOperator + " "
+                                : " + ";
+                            break;
                         default:
-                        throw new ArgumentOutOfRangeException();
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
 
@@ -946,6 +1165,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return expression;
         }
 
+        /// <summary>
+        ///     Visits a ColumnExpression.
+        /// </summary>
+        /// <param name="columnExpression"> The column expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitColumn(ColumnExpression columnExpression)
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
@@ -957,11 +1183,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return columnExpression;
         }
 
+        /// <summary>
+        ///     Visits an AliasExpression.
+        /// </summary>
+        /// <param name="aliasExpression"> The alias expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitAlias(AliasExpression aliasExpression)
         {
             Check.NotNull(aliasExpression, nameof(aliasExpression));
 
-            if (!aliasExpression.Projected)
+            if (!aliasExpression.IsProjected)
             {
                 Visit(aliasExpression.Expression);
 
@@ -979,6 +1212,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return aliasExpression;
         }
 
+        /// <summary>
+        ///     Visits an IsNullExpression.
+        /// </summary>
+        /// <param name="isNullExpression"> The is null expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitIsNull(IsNullExpression isNullExpression)
         {
             Check.NotNull(isNullExpression, nameof(isNullExpression));
@@ -990,6 +1230,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return isNullExpression;
         }
 
+        /// <summary>
+        ///     Visits an IsNotNullExpression.
+        /// </summary>
+        /// <param name="isNotNullExpression"> The is not null expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitIsNotNull([NotNull] IsNullExpression isNotNullExpression)
         {
             Check.NotNull(isNotNullExpression, nameof(isNotNullExpression));
@@ -1001,6 +1248,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return isNotNullExpression;
         }
 
+        /// <summary>
+        ///     Visit a LikeExpression.
+        /// </summary>
+        /// <param name="likeExpression"> The like expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitLike(LikeExpression likeExpression)
         {
             Check.NotNull(likeExpression, nameof(likeExpression));
@@ -1019,6 +1273,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return likeExpression;
         }
 
+        /// <summary>
+        ///     Visits a SqlFunctionExpression.
+        /// </summary>
+        /// <param name="sqlFunctionExpression"> The SQL function expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
@@ -1031,6 +1292,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return sqlFunctionExpression;
         }
 
+        /// <summary>
+        ///     Visit a SQL ExplicitCastExpression.
+        /// </summary>
+        /// <param name="explicitCastExpression"> The explicit cast expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitExplicitCast(ExplicitCastExpression explicitCastExpression)
         {
             _relationalCommandBuilder.Append("CAST(");
@@ -1053,6 +1321,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return explicitCastExpression;
         }
 
+        /// <summary>
+        ///     Visits a UnaryExpression.
+        /// </summary>
+        /// <param name="expression"> The unary expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitUnary(UnaryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -1103,6 +1378,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return base.VisitUnary(expression);
         }
 
+        /// <summary>
+        ///     Visits a ConstantExpression.
+        /// </summary>
+        /// <param name="expression"> The constant expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitConstant(ConstantExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -1115,6 +1397,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return expression;
         }
 
+        /// <summary>
+        ///     Visits a ParameterExpression.
+        /// </summary>
+        /// <param name="parameterExpression"> The parameter expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
             Check.NotNull(parameterExpression, nameof(parameterExpression));
@@ -1136,6 +1425,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return parameterExpression;
         }
 
+        /// <summary>
+        ///     Visits a PropertyParameterExpression.
+        /// </summary>
+        /// <param name="propertyParameterExpression"> The property parameter expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression VisitPropertyParameter(PropertyParameterExpression propertyParameterExpression)
         {
             var parameterName
@@ -1156,6 +1452,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return propertyParameterExpression;
         }
 
+        /// <summary>
+        ///     Infers a type mapping from a column expression.
+        /// </summary>
+        /// <param name="expression"> The expression to infer a type mapping for. </param>
+        /// <returns>
+        ///     A RelationalTypeMapping.
+        /// </returns>
         protected virtual RelationalTypeMapping InferTypeMappingFromColumn([NotNull] Expression expression)
         {
             var column = expression.TryGetColumnExpression();
@@ -1164,11 +1467,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 : null;
         }
 
+        /// <summary>
+        ///     Attempts to generate binary operator for a given expression type.
+        /// </summary>
+        /// <param name="op"> The operation. </param>
+        /// <param name="result"> [out] The SQL binary operator. </param>
+        /// <returns>
+        ///     true if it succeeds, false if it fails.
+        /// </returns>
         protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result)
             => _binaryOperatorMap.TryGetValue(op, out result);
 
+        /// <summary>
+        ///     Generates SQL for a given binary operation type.
+        /// </summary>
+        /// <param name="op"> The operation. </param>
+        /// <returns>
+        ///     The binary operator.
+        /// </returns>
         protected virtual string GenerateBinaryOperator(ExpressionType op) => _binaryOperatorMap[op];
 
+        /// <summary>
+        ///     Creates unhandled item exception.
+        /// </summary>
+        /// <typeparam name="T"> Generic type parameter. </typeparam>
+        /// <param name="unhandledItem"> The unhandled item. </param>
+        /// <param name="visitMethod"> The visit method. </param>
+        /// <returns>
+        ///     The new unhandled item exception.
+        /// </returns>
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
             => new NotImplementedException(visitMethod);
 
@@ -1214,16 +1541,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                         var constantExpression
                             = leftExpression as ConstantExpression
-                                ?? rightExpression as ConstantExpression;
+                              ?? rightExpression as ConstantExpression;
 
                         if (constantExpression != null)
                         {
-                            if (parameterValue == null && constantExpression.Value == null)
+                            if (parameterValue == null
+                                && constantExpression.Value == null)
                             {
                                 return
                                     expression.NodeType == ExpressionType.Equal
-                                    ? Expression.Constant(true)
-                                    : Expression.Constant(false);
+                                        ? Expression.Constant(true)
+                                        : Expression.Constant(false);
                             }
 
                             if ((parameterValue == null && constantExpression.Value != null)
@@ -1231,8 +1559,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             {
                                 return
                                     expression.NodeType == ExpressionType.Equal
-                                    ? Expression.Constant(false)
-                                    : Expression.Constant(true);
+                                        ? Expression.Constant(false)
+                                        : Expression.Constant(true);
                             }
                         }
                     }
@@ -1251,7 +1579,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _isSearchCondition = isSearchCondition;
             }
 
-            public bool IsSearchCondition(Expression expression)
+            public static bool IsSearchCondition(Expression expression)
             {
                 expression = expression.RemoveConvert();
 
@@ -1386,7 +1714,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _isSearchCondition = false;
                     var newExpression = base.VisitExtension(expression);
                     _isSearchCondition = parentIsSearchCondition;
-                    return (expression is AliasExpression || expression is ColumnExpression || expression is SelectExpression)
+                    return expression is AliasExpression || expression is ColumnExpression || expression is SelectExpression
                         ? Expression.Equal(newExpression, Expression.Constant(true, typeof(bool)))
                         : newExpression;
                 }

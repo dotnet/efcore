@@ -19,16 +19,23 @@ using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     The default relational <see cref="QueryModel" /> visitor.
+    /// </summary>
     public class RelationalQueryModelVisitor : EntityQueryModelVisitor
     {
+        /// <summary>
+        ///     The SelectExpressions for this query, mapped by query source.
+        /// </summary>
+        /// <value>
+        ///     A map of query source to select expression.
+        /// </value>
         protected virtual Dictionary<IQuerySource, SelectExpression> QueriesBySource { get; }
             = new Dictionary<IQuerySource, SelectExpression>();
 
@@ -53,6 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalQueryModelVisitor(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -113,53 +124,118 @@ namespace Microsoft.EntityFrameworkCore.Query
             ParentQueryModelVisitor = parentQueryModelVisitor;
         }
 
+        /// <summary>
+        ///     Gets the options for the target context.
+        /// </summary>
+        /// <value>
+        ///     Options for the target context.
+        /// </value>
         protected virtual IDbContextOptions ContextOptions { get; }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client eval.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client eval, false if not.
+        /// </value>
         public virtual bool RequiresClientEval { get; set; }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client select many.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client select many, false if not.
+        /// </value>
         public virtual bool RequiresClientSelectMany
         {
             get { return _requiresClientSelectMany || RequiresClientEval; }
             set { _requiresClientSelectMany = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client join.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client join, false if not.
+        /// </value>
         public virtual bool RequiresClientJoin
         {
             get { return _requiresClientJoin || RequiresClientEval; }
             set { _requiresClientJoin = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client filter.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client filter, false if not.
+        /// </value>
         public virtual bool RequiresClientFilter
         {
             get { return _requiresClientFilter || RequiresClientEval; }
             set { _requiresClientFilter = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client order by.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client order by, false if not.
+        /// </value>
         public virtual bool RequiresClientOrderBy
         {
             get { return _requiresClientOrderBy || RequiresClientEval; }
             set { _requiresClientOrderBy = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client projection.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client projection, false if not.
+        /// </value>
         public virtual bool RequiresClientProjection
         {
             get { return _requiresClientProjection || RequiresClientEval; }
             set { _requiresClientProjection = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the query requires client result operator.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires client result operator, false if not.
+        /// </value>
         public virtual bool RequiresClientResultOperator
         {
             get { return _requiresClientResultOperator || RequiresClientEval; }
             set { _requiresClientResultOperator = value; }
         }
 
+        /// <summary>
+        ///     Context for the query compilation.
+        /// </summary>
         public new virtual RelationalQueryCompilationContext QueryCompilationContext
             => (RelationalQueryCompilationContext)base.QueryCompilationContext;
 
+        /// <summary>
+        ///     The SelectExpressions active in the current query compilation.
+        /// </summary>
         public virtual ICollection<SelectExpression> Queries => QueriesBySource.Values;
 
+        /// <summary>
+        ///     Gets the parent query model visitor, or null if there is no parent.
+        /// </summary>
+        /// <value>
+        ///     The parent query model visitor, or null if there is no parent.
+        /// </value>
         public virtual RelationalQueryModelVisitor ParentQueryModelVisitor { get; }
 
+        /// <summary>
+        ///     Registers a sub query visitor.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="queryModelVisitor"> The query model visitor. </param>
         public virtual void RegisterSubQueryVisitor(
             [NotNull] IQuerySource querySource, [NotNull] RelationalQueryModelVisitor queryModelVisitor)
         {
@@ -169,6 +245,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             _subQueryModelVisitorsBySource.Add(querySource, queryModelVisitor);
         }
 
+        /// <summary>
+        ///     Adds a SelectExpression to this query.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="selectExpression"> The select expression. </param>
         public virtual void AddQuery([NotNull] IQuerySource querySource, [NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -177,6 +258,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueriesBySource.Add(querySource, selectExpression);
         }
 
+        /// <summary>
+        ///     Try and get the active SelectExpression for a given query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     A SelectExpression, or null.
+        /// </returns>
         public virtual SelectExpression TryGetQuery([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -187,6 +275,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : QueriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource));
         }
 
+        /// <summary>
+        ///     High-level method called to perform Include compilation.
+        /// </summary>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="includeSpecifications"> Related data to be included. </param>
         protected override void IncludeNavigations(
             QueryModel queryModel,
             IReadOnlyCollection<IncludeSpecification> includeSpecifications)
@@ -231,6 +324,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return navigationIndexMap;
         }
 
+        /// <summary>
+        ///     High-level method called to perform Include compilation for a single Include.
+        /// </summary>
+        /// <param name="includeSpecification"> The navigation property to be included. </param>
+        /// <param name="resultType"> The type of results returned by the query. </param>
+        /// <param name="accessorExpression"> Expression for the navigation property to be included. </param>
+        /// <param name="querySourceRequiresTracking"> A value indicating whether results of this query are to be tracked. </param>
         protected override void IncludeNavigations(
             IncludeSpecification includeSpecification,
             Type resultType,
@@ -250,6 +350,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression = includeExpressionVisitor.Visit(Expression);
         }
 
+        /// <summary>
+        ///     Visit a query model.
+        /// </summary>
+        /// <param name="queryModel"> The query model. </param>
         public override void VisitQueryModel(QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -268,6 +372,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Visit a sub-query model.
+        /// </summary>
+        /// <param name="queryModel"> The sub-query model. </param>
         public virtual void VisitSubQueryModel([NotNull] QueryModel queryModel)
         {
             _bindParentQueries = true;
@@ -275,6 +383,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             VisitQueryModel(queryModel);
         }
 
+        /// <summary>
+        ///     Compile main from clause expression.
+        /// </summary>
+        /// <param name="mainFromClause"> The main from clause. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression CompileMainFromClauseExpression(
             MainFromClause mainFromClause, QueryModel queryModel)
         {
@@ -286,6 +402,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return LiftSubQuery(mainFromClause, mainFromClause.FromExpression, expression);
         }
 
+        /// <summary>
+        ///     Visit an additional from clause.
+        /// </summary>
+        /// <param name="fromClause"> The from clause being visited. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitAdditionalFromClause(
             AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
@@ -358,6 +480,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Compile an additional from clause expression.
+        /// </summary>
+        /// <param name="additionalFromClause"> The additional from clause being compiled. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression CompileAdditionalFromClauseExpression(
             AdditionalFromClause additionalFromClause, QueryModel queryModel)
         {
@@ -369,6 +499,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return LiftSubQuery(additionalFromClause, additionalFromClause.FromExpression, expression);
         }
 
+        /// <summary>
+        ///     Visit a join clause.
+        /// </summary>
+        /// <param name="joinClause"> The join clause being visited. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
             Check.NotNull(joinClause, nameof(joinClause));
@@ -382,6 +518,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 LinqOperatorProvider.Join);
         }
 
+        /// <summary>
+        ///     Compile a join clause inner sequence expression.
+        /// </summary>
+        /// <param name="joinClause"> The join clause being compiled. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression CompileJoinClauseInnerSequenceExpression(
             JoinClause joinClause, QueryModel queryModel)
         {
@@ -393,6 +537,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return LiftSubQuery(joinClause, joinClause.InnerSequence, expression);
         }
 
+        /// <summary>
+        ///     Visit a group join clause.
+        /// </summary>
+        /// <param name="groupJoinClause"> The group join being visited. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitGroupJoinClause(
             GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
         {
@@ -408,6 +558,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 outerJoin: true);
         }
 
+        /// <summary>
+        ///     Optimize a join clause.
+        /// </summary>
+        /// <param name="joinClause"> The join clause being visited. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="index"> Index of the node being visited. </param>
+        /// <param name="baseVisitAction"> The base visit action. </param>
+        /// <param name="operatorToFlatten"> The operator to flatten. </param>
+        /// <param name="outerJoin"> true if an outer join should be performed. </param>
         protected virtual void OptimizeJoinClause(
             [NotNull] JoinClause joinClause,
             [NotNull] QueryModel queryModel,
@@ -548,6 +707,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
+        /// <summary>
+        ///     Compile a group join inner sequence expression.
+        /// </summary>
+        /// <param name="groupJoinClause"> The group join clause being compiled. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         protected override Expression CompileGroupJoinInnerSequenceExpression(
             GroupJoinClause groupJoinClause, QueryModel queryModel)
         {
@@ -695,6 +862,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Visit a where clause.
+        /// </summary>
+        /// <param name="whereClause"> The where clause being visited. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
             Check.NotNull(whereClause, nameof(whereClause));
@@ -746,6 +919,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Visit an order by clause.
+        /// </summary>
+        /// <param name="orderByClause"> The order by clause. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
             Check.NotNull(orderByClause, nameof(orderByClause));
@@ -808,6 +987,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Visit a result operator.
+        /// </summary>
+        /// <param name="resultOperator"> The result operator being visited. </param>
+        /// <param name="queryModel"> The query model. </param>
+        /// <param name="index"> Index of the node being visited. </param>
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             base.VisitResultOperator(resultOperator, queryModel, index);
@@ -818,6 +1003,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <summary>
+        ///     Generated a client-eval warning
+        /// </summary>
+        /// <param name="expression"> The expression being client-eval'd. </param>
         protected virtual void WarnClientEval([NotNull] object expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -880,6 +1069,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Binding
 
+        /// <summary>
+        ///     Bind a member expression to a value buffer access.
+        /// </summary>
+        /// <param name="memberExpression"> The member access expression. </param>
+        /// <param name="expression"> The target expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public override Expression BindMemberToValueBuffer(MemberExpression memberExpression, Expression expression)
         {
             Check.NotNull(memberExpression, nameof(memberExpression));
@@ -898,6 +1095,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 bindSubQueries: true);
         }
 
+        /// <summary>
+        ///     Bind a method call expression to a value buffer access.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="expression"> The target expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public override Expression BindMethodCallToValueBuffer(
             MethodCallExpression methodCallExpression, Expression expression)
         {
@@ -919,6 +1124,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                        .BindMethodCallToValueBuffer(methodCallExpression, expression);
         }
 
+        /// <summary>
+        ///     Bind a member expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="memberExpression"> The member access expression. </param>
+        /// <param name="memberBinder"> The member binder. </param>
+        /// <param name="bindSubQueries"> true to bind sub queries. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
         public virtual TResult BindMemberExpression<TResult>(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
@@ -943,6 +1158,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (property, qs) => BindMemberOrMethod(memberBinder, qs, property, bindSubQueries));
         }
 
+        /// <summary>
+        ///     Bind a method call expression.
+        /// </summary>
+        /// <typeparam name="TResult"> Type of the result. </typeparam>
+        /// <param name="methodCallExpression"> The method call expression. </param>
+        /// <param name="memberBinder"> The member binder. </param>
+        /// <param name="bindSubQueries"> true to bind sub queries. </param>
+        /// <returns>
+        ///     A TResult.
+        /// </returns>
         public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder,
@@ -964,6 +1189,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (property, qs) => BindMemberOrMethod(memberBinder, qs, property, bindSubQueries));
         }
 
+        /// <summary>
+        ///     Bind a local method call expression.
+        /// </summary>
+        /// <param name="methodCallExpression"> The local method call expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
         public virtual Expression BindLocalMethodCallExpression(
             [NotNull] MethodCallExpression methodCallExpression)
         {

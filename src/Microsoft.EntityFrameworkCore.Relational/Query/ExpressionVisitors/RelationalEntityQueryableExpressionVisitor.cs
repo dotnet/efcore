@@ -21,6 +21,9 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 {
+    /// <summary>
+    ///     A visitor that performs basic relational query translation of EF query roots.
+    /// </summary>
     public class RelationalEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private readonly IModel _model;
@@ -30,6 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IQuerySource _querySource;
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="RelationalEntityQueryableExpressionVisitor" />.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="selectExpressionFactory"> The select expression factory. </param>
+        /// <param name="materializerFactory"> The materializer factory. </param>
+        /// <param name="shaperCommandContextFactory"> The shaper command context factory. </param>
+        /// <param name="relationalAnnotationProvider"> The relational annotation provider. </param>
+        /// <param name="queryModelVisitor"> The query model visitor. </param>
+        /// <param name="querySource"> The query source. </param>
         public RelationalEntityQueryableExpressionVisitor(
             [NotNull] IModel model,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
@@ -56,6 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
+        /// <summary>
+        ///     Visit a sub-query expression.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated sub-query.
+        /// </returns>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -72,6 +92,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return queryModelVisitor.Expression;
         }
 
+        /// <summary>
+        ///     Visit a member expression.
+        /// </summary>
+        /// <param name="node"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated member.
+        /// </returns>
         protected override Expression VisitMember(MemberExpression node)
         {
             Check.NotNull(node, nameof(node));
@@ -89,6 +116,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return base.VisitMember(node);
         }
 
+        /// <summary>
+        ///     Visit a method call expression.
+        /// </summary>
+        /// <param name="node"> The expression to visit. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated method call.
+        /// </returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Check.NotNull(node, nameof(node));
@@ -106,6 +140,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return base.VisitMethodCall(node);
         }
 
+        /// <summary>
+        ///     Visit an entity query root.
+        /// </summary>
+        /// <param name="elementType"> The CLR type of the entity root. </param>
+        /// <returns>
+        ///     An Expression corresponding to the translated entity root.
+        /// </returns>
         protected override Expression VisitEntityQueryable(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));

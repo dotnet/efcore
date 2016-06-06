@@ -14,6 +14,9 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
+    /// <summary>
+    ///     Represents a SQL SELECT expression.
+    /// </summary>
     public class SelectExpression : TableExpressionBase
     {
         private const string SystemAliasPrefix = "t";
@@ -34,8 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private bool _isDistinct;
 
-        public virtual Expression Predicate { get; [param: CanBeNull] set; }
-
+        /// <summary>
+        ///     Creates a new instance of SelectExpression.
+        /// </summary>
+        /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
+        /// <param name="queryCompilationContext"> Context for the query compilation. </param>
         public SelectExpression([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext)
             : base(null, null)
@@ -47,6 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _queryCompilationContext = queryCompilationContext;
         }
 
+        /// <summary>
+        ///     Creates a new instance of SelectExpression.
+        /// </summary>
+        /// <param name="querySqlGeneratorFactory"> The query SQL generator factory. </param>
+        /// <param name="queryCompilationContext"> Context for the query compilation. </param>
+        /// <param name="alias"> The alias. </param>
         public SelectExpression(
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
@@ -59,10 +71,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Alias = queryCompilationContext.CreateUniqueTableAlias(alias);
         }
 
+        /// <summary>
+        ///     Gets or sets the predicate corresponding to the WHERE part of the SELECT expression.
+        /// </summary>
+        /// <value>
+        ///     The predicate.
+        /// </value>
+        public virtual Expression Predicate { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Type of this expression.
+        /// </summary>
         public override Type Type => _projection.Count == 1
             ? _projection[0].Type
             : base.Type;
 
+        /// <summary>
+        ///     Makes a copy of this SelectExpression.
+        /// </summary>
+        /// <param name="alias"> The alias. </param>
+        /// <returns>
+        ///     A copy of this SelectExpression.
+        /// </returns>
         public virtual SelectExpression Clone([CanBeNull] string alias = null)
         {
             var selectExpression
@@ -89,10 +119,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return selectExpression;
         }
 
+        /// <summary>
+        ///     The tables making up the FROM part of the SELECT expression.
+        /// </summary>
         public virtual IReadOnlyList<TableExpressionBase> Tables => _tables;
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether this expression projects a single wildcard ('*').
+        /// </summary>
+        /// <value>
+        ///     true if this SelectExpression is project star, false if not.
+        /// </value>
         public virtual bool IsProjectStar { get; set; }
 
+        /// <summary>
+        ///     Adds a table to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The table expression. </param>
+        /// <param name="createUniqueAlias"> true to create unique alias. </param>
         public virtual void AddTable([NotNull] TableExpressionBase tableExpression, bool createUniqueAlias = true)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -104,6 +148,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _tables.Add(tableExpression);
         }
 
+        /// <summary>
+        ///     Adds tables to this SelectExprssion.
+        /// </summary>
+        /// <param name="tableExpressions"> The table expressions. </param>
         public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions)
         {
             Check.NotNull(tableExpressions, nameof(tableExpressions));
@@ -115,8 +163,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Removes any tables added to this SelectExpression.
+        /// </summary>
         public virtual void ClearTables() => _tables.Clear();
 
+        /// <summary>
+        ///     Determines if this SelectExpression contains any correlated subqueries.
+        /// </summary>
+        /// <returns>
+        ///     true if correlated, false if not.
+        /// </returns>
         public virtual bool IsCorrelated() => new CorrelationFindingExpressionVisitor().IsCorrelated(this);
 
         private class CorrelationFindingExpressionVisitor : ExpressionVisitor
@@ -154,6 +211,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Determines whether or not this SelectExpression handles the given query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     true if the supplied query source is handled by this SelectExpression; otherwise false.
+        /// </returns>
         public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -163,6 +227,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                    || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false));
         }
 
+        /// <summary>
+        ///     Gets the table corresponding to the supplied query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns>
+        ///     The table for query source.
+        /// </returns>
         public virtual TableExpressionBase GetTableForQuerySource([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -173,6 +244,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                    ?? _tables.Single();
         }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether this SelectExpression is DISTINCT.
+        /// </summary>
+        /// <value>
+        ///     true if this SelectExpression is distinct, false if not.
+        /// </value>
         public virtual bool IsDistinct
         {
             get { return _isDistinct; }
@@ -187,6 +264,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the LIMIT of this SelectExpression.
+        /// </summary>
+        /// <value>
+        ///     The limit.
+        /// </value>
         public virtual Expression Limit
         {
             get { return _limit; }
@@ -201,6 +284,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the OFFSET of this SelectExpression.
+        /// </summary>
+        /// <value>
+        ///     The offset.
+        /// </value>
         public virtual Expression Offset
         {
             get { return _offset; }
@@ -250,6 +339,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Creates a subquery based on this SelectExpression and makes that table the single entry in
+        ///     <see cref="Tables"/>. Clears all other top-level aspects of this SelectExpression.
+        /// </summary>
+        /// <returns>
+        ///     A SelectExpression.
+        /// </returns>
         public virtual SelectExpression PushDownSubquery()
         {
             _subqueryDepth++;
@@ -307,8 +403,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return subquery;
         }
 
+        /// <summary>
+        ///     The projection of this SelectExpression.
+        /// </summary>
         public virtual IReadOnlyList<Expression> Projection => _projection;
 
+        /// <summary>
+        ///     Adds a column to the projection.
+        /// </summary>
+        /// <param name="column"> The column name. </param>
+        /// <param name="property"> The corresponding EF property. </param>
+        /// <param name="querySource"> The originating query source. </param>
+        /// <returns>
+        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        /// </returns>
         public virtual int AddToProjection(
             [NotNull] string column,
             [NotNull] IProperty property,
@@ -332,9 +440,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return projectionIndex;
         }
 
+        /// <summary>
+        ///     Adds an expression to the projection.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <returns>
+        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        /// </returns>
         public virtual int AddToProjection([NotNull] Expression expression)
             => AddToProjection(expression, true);
 
+        /// <summary>
+        ///     Adds an expression to the projection.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
+        /// <param name="resetProjectStar"> true to reset the value of <see cref="IsProjectStar"/>. </param>
+        /// <returns>
+        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        /// </returns>
         public virtual int AddToProjection([NotNull] Expression expression, bool resetProjectStar)
         {
             Check.NotNull(expression, nameof(expression));
@@ -362,9 +485,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return _projection.Count - 1;
         }
 
+        /// <summary>
+        ///     Adds an <see cref="AliasExpression"/> to the projection.
+        /// </summary>
+        /// <param name="aliasExpression"> The alias expression. </param>
+        /// <returns>
+        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        /// </returns>
         public virtual int AddToProjection([NotNull] AliasExpression aliasExpression)
             => AddAliasToProjection(aliasExpression.Alias, aliasExpression.Expression);
 
+        /// <summary>
+        ///     Adds an expression with an alias to the projection.
+        /// </summary>
+        /// <param name="alias"> The alias. </param>
+        /// <param name="expression"> The expression. </param>
+        /// <returns>
+        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        /// </returns>
         public virtual int AddAliasToProjection([CanBeNull] string alias, [NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -411,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             if (orderByAliasExpression.Expression.ToString() == expression.ToString())
                             {
                                 orderByAliasExpression.Alias = alias;
-                                orderByAliasExpression.Projected = true;
+                                orderByAliasExpression.IsProjected = true;
                             }
                         }
                     }
@@ -425,6 +563,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return projectionIndex;
         }
 
+        /// <summary>
+        ///     Adds a ColumnExpression to the projection.
+        /// </summary>
+        /// <param name="columnExpression"> The column expression. </param>
+        /// <returns>
+        ///     The corresponding index of the added expression in <see cref="Projection"/>.
+        /// </returns>
         public virtual int AddToProjection([NotNull] ColumnExpression columnExpression)
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
@@ -465,6 +610,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return projectionIndex;
         }
 
+        /// <summary>
+        ///     Gets the types of the expressions in <see cref="Projection"/>.
+        /// </summary>
+        /// <returns>
+        ///     The types of the expressions in <see cref="Projection"/>.
+        /// </returns>
         public virtual IEnumerable<Type> GetProjectionTypes()
         {
             if (_projection.Any()
@@ -476,6 +627,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return _tables.OfType<SelectExpression>().SelectMany(e => e.GetProjectionTypes());
         }
 
+        /// <summary>
+        ///     Sets a <see cref="ConditionalExpression"/> as the single projected expression
+        ///     in this SelectExpression.
+        /// </summary>
+        /// <param name="conditionalExpression"> The conditional expression. </param>
         public virtual void SetProjectionConditionalExpression([NotNull] ConditionalExpression conditionalExpression)
         {
             Check.NotNull(conditionalExpression, nameof(conditionalExpression));
@@ -484,6 +640,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             AddToProjection(conditionalExpression);
         }
 
+        /// <summary>
+        ///     Sets an expression as the single projected expression in this SelectExpression.
+        /// </summary>
+        /// <param name="expression"> The expression. </param>
         public virtual void SetProjectionExpression([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -495,12 +655,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             AddToProjection(expression);
         }
 
+        /// <summary>
+        ///     Clears the projection.
+        /// </summary>
         public virtual void ClearProjection()
         {
             _projection.Clear();
             IsProjectStar = true;
         }
 
+        /// <summary>
+        ///     Clears the column expressions from the projection.
+        /// </summary>
         public virtual void ClearColumnProjections()
         {
             for (var i = _projection.Count - 1; i >= 0; i--)
@@ -518,6 +684,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Removes a range from the projection.
+        /// </summary>
+        /// <param name="index"> Zero-based index of the start of the range to remove. </param>
         public virtual void RemoveRangeFromProjection(int index)
         {
             if (index < _projection.Count)
@@ -526,6 +696,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Removes expressions from the projection corresponding to the
+        ///     supplied <see cref="Ordering"/> expressions.
+        /// </summary>
+        /// <param name="orderBy"> The Orderings to remove from the projection. </param>
         public virtual void RemoveFromProjection([NotNull] IEnumerable<Ordering> orderBy)
         {
             Check.NotNull(orderBy, nameof(orderBy));
@@ -533,7 +708,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _projection.RemoveAll(ce => orderBy.Any(o => ReferenceEquals(o.Expression, ce)));
         }
 
-        public virtual int GetProjectionIndex([NotNull] IProperty property, [NotNull] IQuerySource querySource)
+        /// <summary>
+        ///     Computes the index in <see cref="Projection"/> corresponding to the supplied property and query source.
+        /// </summary>
+        /// <param name="property"> The corresponding EF property. </param>
+        /// <param name="querySource"> The originating query source. </param>
+        /// <returns>
+        ///     The projection index.
+        /// </returns>
+        public virtual int GetProjectionIndex(
+            [NotNull] IProperty property, [NotNull] IQuerySource querySource)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(querySource, nameof(querySource));
@@ -550,6 +734,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     });
         }
 
+        /// <summary>
+        ///     Adds a column to the ORDER BY of this SelectExpression.
+        /// </summary>
+        /// <param name="column"> The column name. </param>
+        /// <param name="property"> The corresponding EF property. </param>
+        /// <param name="table"> The target table. </param>
+        /// <param name="orderingDirection"> The ordering direction. </param>
+        /// <returns>
+        ///     An AliasExpression corresponding to the expression added to the ORDER BY.
+        /// </returns>
         public virtual AliasExpression AddToOrderBy(
             [NotNull] string column,
             [NotNull] IProperty property,
@@ -571,6 +765,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return aliasExpression;
         }
 
+        /// <summary>
+        ///     Adds multiple expressions to the ORDER BY of this SelectExpression.
+        /// </summary>
+        /// <param name="orderings"> The orderings expressions. </param>
         public virtual void AddToOrderBy([NotNull] IEnumerable<Ordering> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
@@ -596,6 +794,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Adds a single <see cref="Ordering"/> to the order by.
+        /// </summary>
+        /// <param name="ordering"> The ordering. </param>
         public virtual void AddToOrderBy([NotNull] Ordering ordering)
         {
             Check.NotNull(ordering, nameof(ordering));
@@ -606,6 +808,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Prepends multiple ordering expressions to the ORDER BY of this SelectExpression.
+        /// </summary>
+        /// <param name="orderings"> The orderings expressions. </param>
         public virtual void PrependToOrderBy([NotNull] IEnumerable<Ordering> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
@@ -613,10 +819,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _orderBy.InsertRange(0, orderings);
         }
 
+        /// <summary>
+        ///     The SQL ORDER BY of this SelectExpression.
+        /// </summary>
         public virtual IReadOnlyList<Ordering> OrderBy => _orderBy;
 
+        /// <summary>
+        ///     Clears the ORDER BY of this SelectExpression.
+        /// </summary>
         public virtual void ClearOrderBy() => _orderBy.Clear();
 
+        /// <summary>
+        ///     Transforms the projection of this SelectExpression by expanding the wildcard ('*') projection
+        ///     into individual explicit projection expressions.
+        /// </summary>
         public virtual void ExplodeStarProjection()
         {
             if (IsProjectStar)
@@ -638,6 +854,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
+        /// <summary>
+        ///     Adds a SQL CROSS JOIN to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
+        /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
         public virtual void AddCrossJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
@@ -649,6 +870,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _projection.AddRange(projection);
         }
 
+        /// <summary>
+        ///     Adds a SQL LATERAL JOIN to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
+        /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
         public virtual void AddLateralJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
@@ -660,6 +886,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _projection.AddRange(projection);
         }
 
+        /// <summary>
+        ///     Adds a SQL INNER JOIN to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
         public virtual JoinExpressionBase AddInnerJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -667,6 +897,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return AddInnerJoin(tableExpression, Enumerable.Empty<AliasExpression>());
         }
 
+        /// <summary>
+        ///     Adds a SQL INNER JOIN to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
+        /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
         public virtual JoinExpressionBase AddInnerJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
@@ -682,6 +917,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return innerJoinExpression;
         }
 
+        /// <summary>
+        ///     Adds a SQL LEFT OUTER JOIN to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
         public virtual JoinExpressionBase AddLeftOuterJoin([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -689,6 +928,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return AddLeftOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
         }
 
+        /// <summary>
+        ///     Adds a SQL LEFT OUTER JOIN to this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The target table expression. </param>
+        /// <param name="projection"> A sequence of expressions that should be added to the projection. </param>
         public virtual JoinExpressionBase AddLeftOuterJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
@@ -719,6 +963,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return uniqueAlias;
         }
 
+        /// <summary>
+        ///     Removes a table from this SelectExpression.
+        /// </summary>
+        /// <param name="tableExpression"> The table expression. </param>
         public virtual void RemoveTable([NotNull] TableExpressionBase tableExpression)
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
@@ -726,6 +974,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _tables.Remove(tableExpression);
         }
 
+        /// <summary>
+        ///     Dispatches to the specific visit method for this node type.
+        /// </summary>
         protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
@@ -737,6 +988,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 : base.Accept(visitor);
         }
 
+        /// <summary>
+        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
+        ///     reduced expression.
+        ///     Throws an exception if the node isn't reducible.
+        /// </summary>
+        /// <param name="visitor"> An instance of <see cref="ExpressionVisitor" />. </param>
+        /// <returns> The expression being visited, or an expression which should replace it in the tree. </returns>
+        /// <remarks>
+        ///     Override this method to provide logic to walk the node's children.
+        ///     A typical implementation will call visitor.Visit on each of its
+        ///     children, and if any of them change, should return a new copy of
+        ///     itself with the modified children.
+        /// </remarks>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             foreach (var expression in Projection)
@@ -759,9 +1023,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return this;
         }
 
+        /// <summary>
+        ///     Creates the default query SQL generator.
+        /// </summary>
+        /// <returns>
+        ///     The new default query SQL generator.
+        /// </returns>
         public virtual IQuerySqlGenerator CreateDefaultQuerySqlGenerator()
             => _querySqlGeneratorFactory.CreateDefault(this);
 
+        /// <summary>
+        ///     Creates the FromSql query SQL generator.
+        /// </summary>
+        /// <param name="sql"> The SQL. </param>
+        /// <param name="arguments"> The arguments. </param>
+        /// <returns>
+        ///     The new FromSql query SQL generator.
+        /// </returns>
         public virtual IQuerySqlGenerator CreateFromSqlQuerySqlGenerator(
             [NotNull] string sql,
             [NotNull] Expression arguments)
@@ -771,12 +1049,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     Check.NotEmpty(sql, nameof(sql)),
                     Check.NotNull(arguments, nameof(arguments)));
 
+        /// <summary>
+        ///     Convert this object into a string representation.
+        /// </summary>
+        /// <returns>
+        ///     A string that represents this object.
+        /// </returns>
         public override string ToString()
             => CreateDefaultQuerySqlGenerator()
                 .GenerateSql(new Dictionary<string, object>())
                 .CommandText;
 
         // TODO: Make polymorphic
+
+        /// <summary>
+        ///     Updates the table expression of any column expressions in the target expression.
+        /// </summary>
+        /// <param name="expression"> The target expression. </param>
+        /// <param name="tableExpression"> The new table expression. </param>
+        /// <returns>
+        ///     An updated expression.
+        /// </returns>
         public virtual Expression UpdateColumnExpression(
             [NotNull] Expression expression,
             [NotNull] TableExpressionBase tableExpression)
