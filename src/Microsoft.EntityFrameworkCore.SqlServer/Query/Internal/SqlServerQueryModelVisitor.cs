@@ -140,13 +140,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (column != null)
                     {
-                        column = new ColumnExpression(column.Name, column.Property, subQuery);
+                        column = new ColumnExpression(alias.Alias ?? column.Name, column.Property, subQuery);
                         alias = new AliasExpression(alias.Alias, column);
                         selectExpression.AddToProjection(alias);
                     }
                     else
                     {
-                        column = new ColumnExpression(alias.Alias, alias.Expression.Type, subQuery);
+                        column = new ColumnExpression(alias?.Alias, alias.Expression.Type, subQuery);
                         selectExpression.AddToProjection(column);
                     }
                 }

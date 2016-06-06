@@ -1001,8 +1001,6 @@ ORDER BY [l1].[Id], [l1].[Id0]",
                 Sql);
         }
 
-        // TODO remove condition when https://github.com/aspnet/EntityFramework/issues/4739 is resolved
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Include_with_groupjoin_skip_and_take()
         {
             base.Include_with_groupjoin_skip_and_take();
