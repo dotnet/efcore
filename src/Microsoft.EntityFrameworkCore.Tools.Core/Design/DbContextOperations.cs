@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly ILoggerProvider _loggerProvider;
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
+        private readonly string _environment;
+        private readonly string _startupProjectDir;
         private readonly LazyRef<ILogger> _logger;
         private readonly IServiceProvider _runtimeServices;
 
@@ -40,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             _loggerProvider = loggerProvider;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
+            _environment = environment;
+            _startupProjectDir = startupProjectDir;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
             var startup = new StartupInvoker(startupAssembly, environment, startupProjectDir);
@@ -110,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                 {
                     contexts.Add(
                         context,
-                        () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create());
+                        () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create(
+                            CreateFactoryOptions()));
                 }
             }
 
@@ -145,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                         {
                             return (DbContext)Activator.CreateInstance(context);
                         }
-                        catch(MissingMethodException ex)
+                        catch (MissingMethodException ex)
                         {
                             throw new OperationException(ToolsCoreStrings.NoParameterlessConstructor(context.Name), ex);
                         }
@@ -155,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             return contexts;
         }
 
-        private static Func<DbContext> FindContextFactory(Type contextType)
+        private Func<DbContext> FindContextFactory(Type contextType)
         {
             var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
             var factory = contextType.GetTypeInfo().Assembly.GetConstructableTypes()
@@ -167,7 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                 return null;
             }
 
-            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory)).Create();
+            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory)).Create(
+                CreateFactoryOptions());
         }
 
         private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)
@@ -235,5 +241,14 @@ namespace Microsoft.EntityFrameworkCore.Design
                          || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
                 .ToDictionary(t => t.Key, t => t.Value);
         }
+
+        private DbContextFactoryOptions CreateFactoryOptions()
+            => new DbContextFactoryOptions
+            {
+                ApplicationBasePath = _startupProjectDir,
+                EnvironmentName = !string.IsNullOrEmpty(_environment)
+                        ? _environment
+                        : "Development"
+            };
     }
 }

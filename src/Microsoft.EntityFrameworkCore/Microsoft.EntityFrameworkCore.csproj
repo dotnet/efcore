@@ -166,6 +166,7 @@
     <Compile Include="Infrastructure\CoreEventId.cs" />
     <Compile Include="Infrastructure\DatabaseFacade.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
+    <Compile Include="Infrastructure\DbContextFactoryOptions.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />

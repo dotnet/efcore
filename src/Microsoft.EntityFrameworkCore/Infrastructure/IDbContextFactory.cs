@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -17,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates a new instance of a derived context.
         /// </summary>
+        /// <param name="options"> Information about the environment an application is running in. </param>
         /// <returns> An instance of <typeparamref name="TContext" />. </returns>
-        TContext Create();
+        TContext Create([NotNull] DbContextFactoryOptions options);
     }
 }
