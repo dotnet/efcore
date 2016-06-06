@@ -8,6 +8,7 @@
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.AspNetCore.Testing": "1.0.0-*",
     "Microsoft.Data.Sqlite": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "xunit": "2.1.0"
   },
   "testRunner": "xunit",
