@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore
             = typeof(RelationalQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethod(nameof(FromSql));
 
+        [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSql<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
             [NotNull] [NotParameterized] string sql,
