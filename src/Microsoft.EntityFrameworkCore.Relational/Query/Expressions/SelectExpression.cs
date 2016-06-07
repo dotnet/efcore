@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -154,13 +156,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
         }
 
-        public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
+        public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource, bool deepSearch = true)
         {
             Check.NotNull(querySource, nameof(querySource));
-
-            return _tables.Any(te
-                => te.QuerySource == querySource
-                   || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false));
+            foreach (var te in _tables)
+            {
+                if (te.QuerySource == querySource)
+                {
+                    return true;
+                }
+                if (deepSearch)
+                {
+                    Type itemTypeLeft = null;
+                    if (te.QuerySource != null)
+                    {
+                        itemTypeLeft = te.QuerySource.ItemType;
+                        if (itemTypeLeft.GetTypeInfo().IsGenericType && typeof(IEnumerable).IsAssignableFrom(itemTypeLeft))
+                        {
+                            itemTypeLeft = itemTypeLeft.GetSequenceType();
+                        }
+                    }
+                    var itemTypeRight = querySource.ItemType;
+                    if (itemTypeRight.GetTypeInfo().IsGenericType && typeof(IEnumerable).IsAssignableFrom(itemTypeRight))
+                    {
+                        itemTypeRight = itemTypeRight.GetSequenceType();
+                    }
+                    if (te.QuerySource != null &&
+                        itemTypeLeft == itemTypeRight &&
+                        (te.Alias == querySource.ItemName ||
+                        te.Alias + "_group" == querySource.ItemName)
+                        )
+                    {
+                        return true;
+                    }
+                }
+                var se = te as SelectExpression;
+                if (se != null && se.HandlesQuerySource(querySource))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public virtual TableExpressionBase GetTableForQuerySource([NotNull] IQuerySource querySource)
@@ -169,7 +205,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             return _tables.FirstOrDefault(te
                 => te.QuerySource == querySource
-                   || ((te as SelectExpression)?.HandlesQuerySource(querySource) ?? false))
+                || (te.QuerySource != null &&
+                    te.QuerySource.ItemType == querySource.ItemType &&
+                    te.Alias == querySource.ItemName)
+                   || ((te as SelectExpression)?.HandlesQuerySource(querySource, false) ?? false))
                    ?? _tables.Single();
         }
 
@@ -610,7 +649,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(orderings, nameof(orderings));
 
-            _orderBy.InsertRange(0, orderings);
+            foreach (var ordering in orderings.Reverse())
+            {
+                _orderBy.RemoveAll(o => o.Expression.Equals(ordering.Expression));
+                _orderBy.Insert(0, ordering);
+            }
         }
 
         public virtual IReadOnlyList<Ordering> OrderBy => _orderBy;
