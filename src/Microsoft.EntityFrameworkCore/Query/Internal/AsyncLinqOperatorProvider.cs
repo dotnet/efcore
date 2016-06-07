@@ -402,12 +402,128 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
-            IAsyncEnumerable<TOuter> outer,
-            IAsyncEnumerable<TInner> inner,
-            Func<TOuter, TKey> outerKeySelector,
-            Func<TInner, TKey> innerKeySelector,
-            Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
-            => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
+                IAsyncEnumerable<TOuter> outer,
+                IAsyncEnumerable<TInner> inner,
+                Func<TOuter, TKey> outerKeySelector,
+                Func<TInner, TKey> innerKeySelector,
+                Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+            => new GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult>(
+                outer, inner, outerKeySelector, innerKeySelector, resultSelector);
+
+        private sealed class GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> : IAsyncEnumerable<TResult>
+        {
+            private readonly IAsyncEnumerable<TOuter> _outer;
+            private readonly IAsyncEnumerable<TInner> _inner;
+            private readonly Func<TOuter, TKey> _outerKeySelector;
+            private readonly Func<TInner, TKey> _innerKeySelector;
+            private readonly Func<TOuter, IAsyncEnumerable<TInner>, TResult> _resultSelector;
+
+            public GroupJoinAsyncEnumerable(
+                IAsyncEnumerable<TOuter> outer,
+                IAsyncEnumerable<TInner> inner,
+                Func<TOuter, TKey> outerKeySelector,
+                Func<TInner, TKey> innerKeySelector,
+                Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+            {
+                _outer = outer;
+                _inner = inner;
+                _outerKeySelector = outerKeySelector;
+                _innerKeySelector = innerKeySelector;
+                _resultSelector = resultSelector;
+            }
+
+            public IAsyncEnumerator<TResult> GetEnumerator()
+                => new GroupJoinAsyncEnumerator(
+                    _outer.GetEnumerator(),
+                    _inner.GetEnumerator(),
+                    _outerKeySelector,
+                    _innerKeySelector,
+                    _resultSelector);
+
+            private sealed class GroupJoinAsyncEnumerator : IAsyncEnumerator<TResult>
+            {
+                private readonly IAsyncEnumerator<TOuter> _outer;
+                private readonly IAsyncEnumerator<TInner> _inner;
+                private readonly Func<TOuter, TKey> _outerKeySelector;
+                private readonly Func<TInner, TKey> _innerKeySelector;
+                private readonly Func<TOuter, IAsyncEnumerable<TInner>, TResult> _resultSelector;
+
+                private Dictionary<TKey, List<TInner>> _innerGroups;
+
+                public GroupJoinAsyncEnumerator(
+                    IAsyncEnumerator<TOuter> outer,
+                    IAsyncEnumerator<TInner> inner,
+                    Func<TOuter, TKey> outerKeySelector,
+                    Func<TInner, TKey> innerKeySelector,
+                    Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+                {
+                    _outer = outer;
+                    _inner = inner;
+                    _outerKeySelector = outerKeySelector;
+                    _innerKeySelector = innerKeySelector;
+                    _resultSelector = resultSelector;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    List<TInner> group;
+
+                    if (!await _outer.MoveNext(cancellationToken))
+                    {
+                        return false;
+                    }
+
+                    if (_innerGroups == null)
+                    {
+                        _innerGroups = new Dictionary<TKey, List<TInner>>();
+
+                        while (await _inner.MoveNext(cancellationToken))
+                        {
+                            var inner = _inner.Current;
+                            var innerKey = _innerKeySelector(inner);
+
+                            if (innerKey != null)
+                            {
+                                if (!_innerGroups.TryGetValue(innerKey, out group))
+                                {
+                                    _innerGroups.Add(innerKey, group = new List<TInner>());
+                                }
+
+                                group.Add(inner);
+                            }
+                        }
+                    }
+
+                    var outer = _outer.Current;
+                    var outerKey = _outerKeySelector(outer);
+
+                    Current
+                        = _resultSelector(
+                            outer,
+                            new AsyncEnumerableAdapter<TInner>(
+                                outerKey != null
+                                && _innerGroups.TryGetValue(outerKey, out group)
+                                    ? (IEnumerable<TInner>)group
+                                    : EmptyEnumerable<TInner>.Instance));
+
+                    return true;
+                }
+
+                public TResult Current { get; private set; }
+
+                public void Dispose()
+                {
+                    _inner.Dispose();
+                    _outer.Dispose();
+                }
+
+                [UsedImplicitly]
+                private sealed class EmptyEnumerable<TElement>
+                {
+                    public static readonly TElement[] Instance = new TElement[0];
+                }
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

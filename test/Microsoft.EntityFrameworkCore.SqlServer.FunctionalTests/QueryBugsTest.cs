@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,11 +19,110 @@ using Xunit;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
 {
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {
+        [Fact]
+        public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
+        {
+            using (var testStore = SqlServerTestStore.CreateScratch())
+            {
+                using (var context = new DeadlockContext(testStore.ConnectionString))
+                {
+                    context.Database.EnsureCreated();
+                    context.EnsureSeeded();
+
+                    var count
+                        = await context.Persons
+                              .Where(p => (p.AddressOne != null && p.AddressOne.Street.Contains("Low Street"))
+                                          || (p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street")))
+                                            .CountAsync();
+
+                    Assert.Equal(0, count);
+                }
+            }
+        }
+
+        private class DeadlockContext : DbContext
+        {
+            private readonly string _connectionString;
+
+            public DeadlockContext(string connectionString)
+            {
+                _connectionString = connectionString;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(_connectionString);
+
+            public DbSet<Person> Persons { get; set; }
+            public DbSet<Address> Addresses { get; set; }
+
+            public class Address
+            {
+                public int Id { get; set; }
+                public string Street { get; set; }
+                public int PersonId { get; set; }
+                public Person Person { get; set; }
+            }
+
+            public class Person
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+                public int? AddressOneId { get; set; }
+                public Address AddressOne { get; set; }
+                public int? AddressTwoId { get; set; }
+                public Address AddressTwo { get; set; }
+            }
+
+            public void EnsureSeeded()
+            {
+                if (!Persons.Any())
+                {
+                    AddRange(
+                        new Person { Name = "John Doe" },
+                        new Person { Name = "Joe Bloggs" });
+
+                    SaveChanges();
+                }
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Person>().HasKey(p => p.Id);
+
+                modelBuilder.Entity<Person>().Property(p => p.Name)
+                    .IsRequired();
+
+                modelBuilder.Entity<Person>().HasOne(p => p.AddressOne)
+                    .WithMany()
+                    .HasForeignKey(p => p.AddressOneId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                modelBuilder.Entity<Person>().Property(p => p.AddressOneId);
+
+                modelBuilder.Entity<Person>().HasOne(p => p.AddressTwo)
+                    .WithMany()
+                    .HasForeignKey(p => p.AddressTwoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                modelBuilder.Entity<Person>().Property(p => p.AddressTwoId);
+
+                modelBuilder.Entity<Address>().HasKey(a => a.Id);
+
+                modelBuilder.Entity<Address>().Property(a => a.Street).IsRequired(true);
+
+                modelBuilder.Entity<Address>().HasOne(a => a.Person)
+                    .WithMany()
+                    .HasForeignKey(a => a.PersonId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            }
+        }
+
         [Fact]
         public void Query_when_null_key_in_database_should_throw()
         {
@@ -951,7 +1051,6 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
         }
 
-
         [Fact]
         public virtual void Repro3101_coalesce_tracking()
         {
@@ -986,26 +1085,26 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 _fixture.ServiceProvider,
                 (sp, co) => new MyContext3101(sp),
                 context =>
-                {
-                    var c11 = new Child3101 { Name = "c11" };
-                    var c12 = new Child3101 { Name = "c12" };
-                    var c13 = new Child3101 { Name = "c13" };
-                    var c21 = new Child3101 { Name = "c21" };
-                    var c22 = new Child3101 { Name = "c22" };
-                    var c31 = new Child3101 { Name = "c31" };
-                    var c32 = new Child3101 { Name = "c32" };
+                    {
+                        var c11 = new Child3101 { Name = "c11" };
+                        var c12 = new Child3101 { Name = "c12" };
+                        var c13 = new Child3101 { Name = "c13" };
+                        var c21 = new Child3101 { Name = "c21" };
+                        var c22 = new Child3101 { Name = "c22" };
+                        var c31 = new Child3101 { Name = "c31" };
+                        var c32 = new Child3101 { Name = "c32" };
 
-                    context.Children.AddRange(c11, c12, c13, c21, c22, c31, c32);
+                        context.Children.AddRange(c11, c12, c13, c21, c22, c31, c32);
 
-                    var e1 = new Entity3101 { Id = 1, Children = new[] { c11, c12, c13 } };
-                    var e2 = new Entity3101 { Id = 2, Children = new[] { c21, c22 } };
-                    var e3 = new Entity3101 { Id = 3, Children = new[] { c31, c32 } };
+                        var e1 = new Entity3101 { Id = 1, Children = new[] { c11, c12, c13 } };
+                        var e2 = new Entity3101 { Id = 2, Children = new[] { c21, c22 } };
+                        var e3 = new Entity3101 { Id = 3, Children = new[] { c31, c32 } };
 
-                    e2.RootEntity = e1;
+                        e2.RootEntity = e1;
 
-                    context.Entities.AddRange(e1, e2, e3);
-                    context.SaveChanges();
-                });
+                        context.Entities.AddRange(e1, e2, e3);
+                        context.SaveChanges();
+                    });
         }
 
         public class MyContext3101 : DbContext
@@ -1021,8 +1120,6 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
             public DbSet<Child3101> Children { get; set; }
 
-
-
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3101"));
 
@@ -1036,7 +1133,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             public Entity3101()
             {
-                this.Children = new Collection<Child3101>();
+                Children = new Collection<Child3101>();
             }
 
             public int Id { get; set; }
