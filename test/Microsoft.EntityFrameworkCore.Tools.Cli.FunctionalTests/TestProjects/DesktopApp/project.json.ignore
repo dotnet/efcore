@@ -12,17 +12,12 @@
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
     },
-    "Newtonsoft.Json": "8.0.4-*"
+    "Newtonsoft.Json": "9.0.1-*"
   },
   "frameworks": {
     "net451": { }
   },
   "tools": {
-    "Microsoft.EntityFrameworkCore.Tools": {
-      "version": "$toolVersion$",
-      "imports": [
-        "portable-net451+win8"
-      ]
-    }
+    "Microsoft.EntityFrameworkCore.Tools": "$toolVersion$"
   }
 }

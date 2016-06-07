@@ -47,9 +47,6 @@
       }
     },
     "netstandard1.3": {
-      "imports": [
-        "portable-net452+win81"
-      ],
       "dependencies": {
         "Microsoft.CSharp": "4.0.1-*",
         "System.Data.Common": "4.1.0-*",

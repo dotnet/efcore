@@ -28,9 +28,6 @@
   "frameworks": {
     "net451": { },
     "netstandard1.3": {
-      "imports": [
-        "portable-net452+win81"
-      ],
       "dependencies": {
         "System.Collections.NonGeneric": "4.0.1-*",
         "System.IO": "4.1.0-*",

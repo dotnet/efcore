@@ -32,9 +32,6 @@
   "frameworks": {
     "net451": { },
     "netstandard1.3": {
-      "imports": [
-        "portable-net452+win81"
-      ],
       "dependencies": {
         "System.IO.FileSystem": "4.0.1-*"
       }

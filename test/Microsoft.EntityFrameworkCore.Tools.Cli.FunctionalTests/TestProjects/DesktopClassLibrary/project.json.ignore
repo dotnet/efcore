@@ -12,11 +12,6 @@
     "net451": { }
   },
   "tools": {
-    "Microsoft.EntityFrameworkCore.Tools": {
-      "version": "$toolVersion$",
-      "imports": [
-        "portable-net451+win8"
-      ]
-    }
+    "Microsoft.EntityFrameworkCore.Tools": "$toolVersion$"
   }
 }

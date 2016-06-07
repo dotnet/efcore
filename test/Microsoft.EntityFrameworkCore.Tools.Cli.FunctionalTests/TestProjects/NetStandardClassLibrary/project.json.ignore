@@ -14,18 +14,9 @@
     }
   },
   "frameworks": {
-    "netcoreapp1.0": {
-      "imports": [
-        "portable-net451+win8"
-      ]
-    }
+    "netcoreapp1.0": { }
   },
   "tools": {
-    "Microsoft.EntityFrameworkCore.Tools": {
-      "version": "$toolVersion$",
-      "imports": [
-        "portable-net451+win8"
-      ]
-    }
+    "Microsoft.EntityFrameworkCore.Tools": "$toolVersion$"
   }
 }

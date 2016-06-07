@@ -31,9 +31,6 @@
   "frameworks": {
     "net451": { },
     "netstandard1.3": {
-      "imports": [
-        "portable-net452+win81"
-      ],
       "dependencies": {
         "System.Data.SqlClient": "4.1.0-*",
         "System.Threading.Thread": "4.0.0-*"

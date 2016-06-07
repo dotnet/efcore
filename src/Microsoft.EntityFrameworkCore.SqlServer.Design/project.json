@@ -28,10 +28,6 @@
   },
   "frameworks": {
     "net451": { },
-    "netstandard1.3": {
-      "imports": [
-        "portable-net452+win81"
-      ]
-    }
+    "netstandard1.3": { }
   }
 }
