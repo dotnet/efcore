@@ -198,7 +198,6 @@
     <Compile Include="Query\Expressions\LateralJoinExpression.cs" />
     <Compile Include="Query\Expressions\LeftOuterJoinExpression.cs" />
     <Compile Include="Query\Expressions\LikeExpression.cs" />
-    <Compile Include="Query\Expressions\LiteralExpression.cs" />
     <Compile Include="Query\Expressions\MaxExpression.cs" />
     <Compile Include="Query\Expressions\MinExpression.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />

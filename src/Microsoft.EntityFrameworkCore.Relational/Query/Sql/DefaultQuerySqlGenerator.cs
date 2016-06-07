@@ -1047,16 +1047,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             return likeExpression;
         }
 
-        public virtual Expression VisitLiteral(LiteralExpression literalExpression)
-        {
-            Check.NotNull(literalExpression, nameof(literalExpression));
-
-            var value = literalExpression.Literal;
-            _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateLiteral(value, GetTypeMapping(value)));
-
-            return literalExpression;
-        }
-
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);

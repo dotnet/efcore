@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
                     methodCallExpression.Object,
                     Expression.Add(
                         Expression.Add(
-                            new LiteralExpression("%"),
+                            Expression.Constant("%", typeof(string)),
                             methodCallExpression.Arguments[0],
                             _concat),
-                        new LiteralExpression("%"),
+                        Expression.Constant("%", typeof(string)),
                         _concat))
                 : null;
         }

@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitAlias([NotNull] AliasExpression aliasExpression);
         Expression VisitIsNull([NotNull] IsNullExpression isNullExpression);
         Expression VisitLike([NotNull] LikeExpression likeExpression);
-        Expression VisitLiteral([NotNull] LiteralExpression literalExpression);
         Expression VisitSelect([NotNull] SelectExpression selectExpression);
         Expression VisitTable([NotNull] TableExpression tableExpression);
         Expression VisitFromSql([NotNull] FromSqlExpression fromSqlExpression);

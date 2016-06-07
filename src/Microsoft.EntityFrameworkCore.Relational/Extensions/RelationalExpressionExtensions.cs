@@ -32,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return unwrappedExpression is ConstantExpression
                    || unwrappedExpression is ColumnExpression
                    || unwrappedExpression is ParameterExpression
-                   || unwrappedExpression is LiteralExpression
                    || unwrappedExpression.IsAliasWithColumnExpression();
         }
     }

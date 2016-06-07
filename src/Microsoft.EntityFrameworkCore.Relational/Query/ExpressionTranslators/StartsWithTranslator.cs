@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             return ReferenceEquals(methodCallExpression.Method, _methodInfo)
                 ? new LikeExpression(
                     methodCallExpression.Object,
-                    Expression.Add(methodCallExpression.Arguments[0], new LiteralExpression("%"), _concat))
+                    Expression.Add(methodCallExpression.Arguments[0], Expression.Constant("%", typeof(string)), _concat))
                 : null;
         }
     }
