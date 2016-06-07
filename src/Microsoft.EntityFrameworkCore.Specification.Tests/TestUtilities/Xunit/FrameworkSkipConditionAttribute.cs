@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Extensions.PlatformAbstractions;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 {
@@ -36,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
 
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CLR)
                 &&
-                PlatformServices.Default.Runtime.RuntimeType.Equals("CLR", StringComparison.OrdinalIgnoreCase))
+                RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CoreCLR)
                 &&
-                PlatformServices.Default.Runtime.RuntimeType.Equals("CoreCLR", StringComparison.OrdinalIgnoreCase))
+                RuntimeInformation.FrameworkDescription.StartsWith(".NET Core", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }

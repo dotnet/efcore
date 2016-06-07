@@ -7,7 +7,10 @@
     "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*",
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
+    "Microsoft.Extensions.RuntimeEnvironment.Sources": {
+      "version": "1.0.0-*",
+      "type": "build"
+    },
     "xunit": "2.1.0"
   },
   "frameworks": {

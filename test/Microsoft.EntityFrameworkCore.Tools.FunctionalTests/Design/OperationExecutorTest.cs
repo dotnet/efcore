@@ -155,7 +155,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                             BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                             BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                             BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Extensions.PlatformAbstractions", copyLocal: true),
                             BuildReference.ByName("Remotion.Linq", copyLocal: true)
                         },
                         Sources = { @"
@@ -232,7 +231,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
-                        BuildReference.ByName("Microsoft.Extensions.PlatformAbstractions", copyLocal: true),
                         BuildReference.ByName("Remotion.Linq", copyLocal: true)
                     },
                     Sources = { @"
@@ -342,7 +340,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
-                        BuildReference.ByName("Microsoft.Extensions.PlatformAbstractions", copyLocal: true),
                         BuildReference.ByPath(contextsBuild.TargetPath)
                     },
                     Sources = { @"
@@ -424,7 +421,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
-                        BuildReference.ByName("Microsoft.Extensions.PlatformAbstractions", copyLocal: true),
                         BuildReference.ByName("Remotion.Linq", copyLocal: true)
                     },
                     Sources = { @"
@@ -503,7 +499,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
-                        BuildReference.ByName("Microsoft.Extensions.PlatformAbstractions", copyLocal: true),
                         BuildReference.ByName("Remotion.Linq", copyLocal: true)
                     },
                     Sources = { @"
@@ -562,7 +557,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Options", copyLocal: true),
-                        BuildReference.ByName("Microsoft.Extensions.PlatformAbstractions", copyLocal: true),
                         BuildReference.ByName("Remotion.Linq", copyLocal: true)
                     },
                     Sources = { @"

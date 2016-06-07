@@ -20,8 +20,11 @@
   },
   "dependencies": {
     "System.Runtime.InteropServices.RuntimeInformation": "4.0.0-*",
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.InMemory": "1.0.0-*",
+    "Microsoft.Extensions.RuntimeEnvironment.Sources": {
+      "version": "1.0.0-*",
+      "type": "build"
+    },
     "xunit": "2.1.0"
   },
   "frameworks": {
@@ -31,7 +34,8 @@
         "portable-net452+win81"
       ],
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-*"
+        "Microsoft.CSharp": "4.0.1-*",
+        "System.IO.FileSystem": "4.0.1-*"
       }
     },
     "net451": {

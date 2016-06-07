@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.PlatformAbstractions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Microbenchmarks.Core
                 ProductReportingVersion = BenchmarkConfig.Instance.ProductReportingVersion,
                 RunStarted = DateTime.UtcNow,
                 MachineName = _machineName,
-                Framework = PlatformServices.Default.Runtime.RuntimeType,
+                Framework = Microsoft.Extensions.Internal.RuntimeEnvironment.RuntimeType,
                 Architecture = IntPtr.Size > 4 ? "x64" : "x86",
                 WarmupIterations = TestCase.WarmupIterations,
                 Iterations = TestCase.Iterations,
