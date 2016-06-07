@@ -114,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             }
         }
 
-        [ConditionalFact(Skip = "Test is flaky on Linux. See https://github.com/dotnet/corefx/issues/8701")]
+        [ConditionalFact]
+        [PlatformSkipCondition(TestPlatform.Mac | TestPlatform.Linux, SkipReason = "Test is flaky on OSX/Linux. See https://github.com/dotnet/corefx/issues/8701")]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()
