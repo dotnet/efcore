@@ -610,7 +610,7 @@ function ProcessCommonDotnetParameters($dteProject, $dteStartupProject, $Environ
 }
 
 function IsDotNetProject($project) {
-    $project.FileName -like "*.xproj"
+    $project.FileName -like "*.xproj" -or $project.Kind -eq "{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}"
 }
 
 function IsUwpProject($project) {
