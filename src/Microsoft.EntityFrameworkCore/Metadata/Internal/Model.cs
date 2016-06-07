@@ -80,13 +80,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType AddEntityType(
             [NotNull] string name,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             Check.NotEmpty(name, nameof(name));
 
             var entityType = new EntityType(name, this, configurationSource);
 
-            return AddEntityType(entityType);
+            return AddEntityType(entityType, runConventions);
         }
 
         /// <summary>
@@ -96,17 +97,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType AddEntityType(
             [NotNull] Type type,
             // ReSharper disable once MethodOverloadWithOptionalParameter
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             Check.NotNull(type, nameof(type));
 
             var entityType = new EntityType(type, this, configurationSource);
 
             _clrTypeMap[type] = entityType;
-            return AddEntityType(entityType);
+            return AddEntityType(entityType, runConventions);
         }
 
-        private EntityType AddEntityType(EntityType entityType)
+        private EntityType AddEntityType(EntityType entityType, bool runConventions)
         {
             var previousLength = _entityTypes.Count;
             _entityTypes[entityType.Name] = entityType;
@@ -115,7 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.Name));
             }
 
-            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
+            if (runConventions)
+            {
+                return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
+            }
+            return entityType;
         }
 
         /// <summary>

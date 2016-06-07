@@ -134,6 +134,11 @@
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="ModelBuilderTest\DataAnnotationsTestBase.cs" />
+    <Compile Include="ModelBuilderTest\GiantModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GiantModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="ModelBuilderTest\InheritanceTestBase.cs" />
     <Compile Include="ModelBuilderTest\ManyToOneTestBase.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipStringTest.cs" />
@@ -176,6 +181,15 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ModelBuilderTest\GiantModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GiantModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

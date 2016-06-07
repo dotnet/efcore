@@ -30,14 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public const string NavigationCandidatesAnnotationName = "RelationshipDiscoveryConvention:NavigationCandidates";
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
+        private InternalEntityTypeBuilder DiscoverRelationships(InternalEntityTypeBuilder entityTypeBuilder)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             if (!entityTypeBuilder.Metadata.HasClrType())
             {
                 return entityTypeBuilder;
@@ -327,6 +321,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            if (!entityTypeBuilder.Metadata.HasClrType())
+            {
+                return entityTypeBuilder;
+            }
+
+            if (entityTypeBuilder.Metadata.FindAnnotation(NavigationCandidatesAnnotationName) == null)
+            {
+                var modelBuilder = entityTypeBuilder.ModelBuilder;
+                var discoveredEntityTypes = new List<InternalEntityTypeBuilder>();
+                var unvisitedEntityTypes = new Stack<InternalEntityTypeBuilder>();
+                unvisitedEntityTypes.Push(entityTypeBuilder);
+
+                while (unvisitedEntityTypes.Count > 0)
+                {
+                    var nextEntityTypeBuilder = unvisitedEntityTypes.Pop();
+                    nextEntityTypeBuilder = nextEntityTypeBuilder.Metadata.Builder
+                                            ?? modelBuilder.Entity(nextEntityTypeBuilder.Metadata.ClrType, ConfigurationSource.Convention);
+                    if (nextEntityTypeBuilder == null)
+                    {
+                        continue;
+                    }
+
+                    discoveredEntityTypes.Add(nextEntityTypeBuilder);
+                    var navigationCandidates = GetNavigationCandidates(nextEntityTypeBuilder).Reverse();
+                    foreach (var candidateTuple in navigationCandidates)
+                    {
+                        var targetClrType = candidateTuple.Value;
+                        if (modelBuilder.Metadata.FindEntityType(targetClrType) != null)
+                        {
+                            continue;
+                        }
+
+                        var candidateTargetEntityTypeBuilder = modelBuilder.Entity(
+                            targetClrType, ConfigurationSource.Convention, runConventions: false);
+                        if (candidateTargetEntityTypeBuilder != null)
+                        {
+                            unvisitedEntityTypes.Push(candidateTargetEntityTypeBuilder);
+                        }
+                    }
+                }
+
+                for (var i = 1; i < discoveredEntityTypes.Count; i++)
+                {
+                    modelBuilder.Metadata.ConventionDispatcher.OnEntityTypeAdded(discoveredEntityTypes[i]);
+                }
+            }
+
+            return DiscoverRelationships(entityTypeBuilder);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
         {
             foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
@@ -338,11 +388,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (oldBaseTypeBuilder != null)
             {
                 ApplyOnRelatedEntityTypes(oldBaseTypeBuilder.Metadata);
-                Apply(oldBaseTypeBuilder);
+                DiscoverRelationships(oldBaseTypeBuilder);
             }
 
             ApplyOnRelatedEntityTypes(entityTypeBuilder.Metadata);
-            return Apply(entityTypeBuilder) != null;
+            return DiscoverRelationships(entityTypeBuilder) != null;
         }
 
         private void ApplyOnRelatedEntityTypes(EntityType entityType)
@@ -355,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var relatedEntityType in relatedEntityTypes)
             {
                 var relatedEntityTypeBuilder = relatedEntityType.Builder;
-                Apply(relatedEntityTypeBuilder);
+                DiscoverRelationships(relatedEntityTypeBuilder);
             }
         }
 
@@ -397,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var navigationCandidates = GetNavigationCandidates(entityTypeBuilder);
                 navigationCandidates = navigationCandidates.Add(propertyInfo, FindCandidateNavigationPropertyType(propertyInfo));
                 SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
-                Apply(entityTypeBuilder);
+                DiscoverRelationships(entityTypeBuilder);
             }
 
             return true;
@@ -418,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             navigationCandidates = navigationCandidates.Remove(candidate);
             SetNavigationCandidates(entityTypeBuilder, navigationCandidates);
-            Apply(entityTypeBuilder);
+            DiscoverRelationships(entityTypeBuilder);
             return entityTypeBuilder.IsIgnored(ignoredMemberName, ConfigurationSource.Convention);
         }
 
@@ -443,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 // Only run the convention if an ambiguity might have been removed
                 if (navigationCandidates.ContainsValue(targetType))
                 {
-                    Apply(entityTypeBuilder);
+                    DiscoverRelationships(entityTypeBuilder);
                 }
             }
 

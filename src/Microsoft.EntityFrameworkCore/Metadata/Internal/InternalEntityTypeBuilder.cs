@@ -1617,7 +1617,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 referencedPropertiesList = null;
             }
-            var typesList = referencedPropertiesList?.Select(p => p.IsShadowProperty ? null : p.ClrType).ToList();
+            var typesList = referencedPropertiesList?.Select(p => p.ClrType).ToList();
             for (var i = 0; i < propertyNamesList.Count; i++)
             {
                 var propertyName = propertyNamesList[i];

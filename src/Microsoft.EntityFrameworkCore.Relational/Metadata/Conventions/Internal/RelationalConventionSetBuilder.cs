@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ReplaceConvention(conventionSet.EntityTypeAddedConventions, (InversePropertyAttributeConvention)new RelationalInversePropertyAttributeConvention(_typeMapper));
             ReplaceConvention(conventionSet.EntityTypeAddedConventions, relationshipDiscoveryConvention);
 
+            ReplaceConvention(conventionSet.BaseEntityTypeSetConventions, relationshipDiscoveryConvention);
+
             ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, relationshipDiscoveryConvention);
 
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (ForeignKeyAttributeConvention)new RelationalForeignKeyAttributeConvention(_typeMapper));

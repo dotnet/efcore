@@ -242,17 +242,19 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Internal
         }
 
         [Fact]
-        public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_property_is_shadow()
+        public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_shadow()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention)
+                .HasForeignKey(new[] { "ShadowCustomerId" }, ConfigurationSource.Convention);
 
-            Assert.Equal(
-                CoreStrings.NoPropertyType("ShadowCustomerId", nameof(Order)),
-                Assert.Throws<InvalidOperationException>(() => relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId" }, ConfigurationSource.Convention)).Message);
+            var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
+            Assert.NotNull(shadowProperty);
+            Assert.True(((IProperty)shadowProperty).IsShadowProperty);
+            Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
         }
 
         [Fact]

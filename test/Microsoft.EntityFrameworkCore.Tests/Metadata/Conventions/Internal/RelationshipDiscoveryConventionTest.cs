@@ -474,7 +474,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
                 NavigationsToBaseAndDerived.IgnoreDerivedTwoNavigation,
-                NavigationsToBaseAndDerived.IgnoreDerivedOneNavigation);
+                NavigationsToBaseAndDerived.IgnoreDerivedOneNavigation,
+                DerivedOne.IgnoreDerivedNavigation);
             var modelBuilder = entityBuilder.ModelBuilder;
             modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
             var baseBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
@@ -496,7 +497,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<NavigationsToBaseAndDerived>(
                 NavigationsToBaseAndDerived.IgnoreDerivedTwoNavigation,
-                NavigationsToBaseAndDerived.IgnoreDerivedOneNavigation);
+                NavigationsToBaseAndDerived.IgnoreDerivedOneNavigation,
+                DerivedOne.IgnoreDerivedNavigation);
             var modelBuilder = entityBuilder.ModelBuilder;
             modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
             var baseBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
@@ -752,7 +754,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
         {
             var entityBuilder = CreateInternalEntityBuilder<SelfRef>(SelfRef.IgnoreNavigation3, SelfRef.IgnoreNavigation4);
 
-            entityBuilder.Relationship(entityBuilder, nameof(SelfRef.SelfRef1), null, ConfigurationSource.Explicit);
+            entityBuilder.Relationship(entityBuilder, nameof(SelfRef.SelfRef1), null, ConfigurationSource.Explicit)
+                .IsUnique(false, ConfigurationSource.Convention);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
@@ -986,6 +989,12 @@ namespace Microsoft.EntityFrameworkCore.Tests.Metadata.Conventions.Internal
             if (onEntityAdded != null)
             {
                 conventions.EntityTypeAddedConventions.Add(new TestModelChangeListener(onEntityAdded));
+
+                var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention();
+                conventions.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
+                conventions.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
+                conventions.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
+                conventions.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
             }
             var modelBuilder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.DataAnnotation);

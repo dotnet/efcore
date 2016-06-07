@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -42,6 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 return entityTypeBuilder;
             }
+        }
+        
+        [Fact]
+        public void Can_discover_large_models_through_navigations()
+        {
+            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
+
+            modelBuilder.Entity<GiantModel.RelatedEntity1>();
+            
+            Assert.Equal(2000, modelBuilder.Model.GetEntityTypes().Count());
         }
 
         public class GenericNonRelationship : NonRelationshipTestBase

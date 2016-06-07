@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource,
+            bool runConventions = true)
         {
             if (IsIgnored(name, configurationSource))
             {
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Metadata.Unignore(name);
 
-                entityType = Metadata.AddEntityType(name, configurationSource);
+                entityType = Metadata.AddEntityType(name, configurationSource, runConventions);
             }
             else
             {
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource,
+            bool runConventions = true)
         {
             if (IsIgnored(type, configurationSource))
             {
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Metadata.Unignore(type);
 
-                entityType = Metadata.AddEntityType(type, configurationSource);
+                entityType = Metadata.AddEntityType(type, configurationSource, runConventions);
             }
             else
             {

@@ -1740,7 +1740,7 @@ namespace Microsoft.EntityFrameworkCore.Tests
             }
 
             [Fact]
-            public virtual void Does_not_create_shadow_FK_property_with_shadow_PK()
+            public virtual void Creates_shadow_FK_property_with_shadow_PK()
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -1751,11 +1751,9 @@ namespace Microsoft.EntityFrameworkCore.Tests
 
                 var entityB = modelBuilder.Entity<Beta>();
 
-                var relationship = entityB.HasOne(e => e.FirstNav).WithMany();
+                entityB.HasOne(e => e.FirstNav).WithMany().HasForeignKey("ShadowId");
 
-                Assert.Equal(
-                    CoreStrings.NoPropertyType("ShadowId", nameof(Beta)),
-                    Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey("ShadowId")).Message);
+                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 
             [Fact]
