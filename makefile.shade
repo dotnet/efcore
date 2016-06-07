@@ -36,7 +36,7 @@ k-standard-goals
     }
   }
 
-#repack-tools target='compile' if='Directory.Exists("src")'
+#repack-tools target='compile' if='Directory.Exists("src") && !IsTravisCi'
   @{
       // copies the net451 target for UWP, minus the dependency on CLI tooling
       var projectNupkg = Files
@@ -82,7 +82,7 @@ k-standard-goals
       }
    }
 
-#repack-design-package target='compile' if='Directory.Exists("src")'
+#repack-design-package target='compile' if='Directory.Exists("src") && !IsTravisCi'
   @{    
       if (string.IsNullOrEmpty(CONFIGURATION_LOCAL))
       {
