@@ -6,8 +6,10 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -17,14 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _environment;
         private readonly string _startupTargetDir;
         private readonly string _startupAssemblyName;
+        private readonly LazyRef<ILogger> _logger;
 
         public StartupInvoker(
+            [NotNull] LazyRef<ILogger> logger,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string startupTargetDir)
         {
+            Check.NotNull(logger, nameof(logger));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotEmpty(startupTargetDir, nameof(startupTargetDir));
+
+            _logger = logger;
 
             _environment = !string.IsNullOrEmpty(environment)
                 ? environment
@@ -86,21 +93,37 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
-            var instance = !method.IsStatic
-                ? ActivatorUtilities.GetServiceOrCreateInstance(GetHostServices(), type)
-                : null;
-
-            var parameters = method.GetParameters();
-            var arguments = new object[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
+            try
             {
-                var parameterType = parameters[i].ParameterType;
-                arguments[i] = parameterType == typeof(IServiceCollection)
-                    ? services
-                    : ActivatorUtilities.GetServiceOrCreateInstance(GetHostServices(), parameterType);
-            }
+                var instance = !method.IsStatic
+                    ? ActivatorUtilities.GetServiceOrCreateInstance(GetHostServices(), type)
+                    : null;
 
-            return method.Invoke(instance, arguments);
+                var parameters = method.GetParameters();
+                var arguments = new object[parameters.Length];
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    var parameterType = parameters[i].ParameterType;
+                    arguments[i] = parameterType == typeof(IServiceCollection)
+                        ? services
+                        : ActivatorUtilities.GetServiceOrCreateInstance(GetHostServices(), parameterType);
+                }
+
+                return method.Invoke(instance, arguments);
+            }
+            catch (Exception ex)
+            {
+                if (ex is TargetInvocationException)
+                {
+                    ex = ex.InnerException;
+                }
+
+                _logger.Value.LogWarning(
+                    ToolsCoreStrings.InvokeStartupMethodFailed(method.Name, type.DisplayName(), ex.Message));
+                _logger.Value.LogDebug(ex.ToString());
+
+                return null;
+            }
         }
 
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)

@@ -2,12 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tests.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
@@ -131,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
 
         private StartupInvoker CreateStartupInvoker(Assembly assembly, string environment)
             => new StartupInvoker(
+                new LazyRef<ILogger>(() => new LoggerFactory().CreateLogger("Test")),
                 assembly,
                 environment,
                 "Irrelevant");
@@ -159,7 +163,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
         public void ConfigureServices_injects_services()
         {
             var assembly = MockAssembly.Create(typeof(StartupInjected));
-            var startup = new StartupInvoker(assembly, "Injected", @"C:\The\Right\Path");
+            var startup = new StartupInvoker(
+                new LazyRef<ILogger>(() => new LoggerFactory().CreateLogger("Test")),
+                assembly,
+                "Injected",
+                @"C:\The\Right\Path");
 
             var services = startup.ConfigureServices();
             var service = services.GetRequiredService<TestService>();
@@ -212,6 +220,43 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Design.Internal
             }
 
             public string Value { get; }
+        }
+
+        [Fact]
+        public void Invoke_warns_on_error()
+        {
+            var log = new List<Tuple<LogLevel, string>>();
+
+            var startup = new StartupInvoker(
+                new LazyRef<ILogger>(() => new ListLoggerFactory(log).CreateLogger("Test")),
+                MockAssembly.Create(typeof(BadStartup)),
+                /*environment:*/ null,
+                "Irrelevant");
+
+            var services = startup.ConfigureServices();
+
+            Assert.NotNull(services);
+            Assert.Equal(
+                ToolsCoreStrings.InvokeStartupMethodFailed(
+                    "ConfigureServices",
+                    typeof(BadStartup).DisplayName(),
+                    "Something went wrong."),
+                log[0].Item2);
+        }
+
+        private class BadStartup : IStartup
+        {
+            public BadStartup()
+            {
+                throw new Exception("Something went wrong.");
+            }
+
+            public void Configure(IApplicationBuilder app)
+            {
+            }
+
+            public IServiceProvider ConfigureServices(IServiceCollection services)
+                => services.BuildServiceProvider();
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 environment,
                 startupTargetDir);
 
-            var startup = new StartupInvoker(startupAssembly, environment, startupTargetDir);
+            var startup = new StartupInvoker(_logger, startupAssembly, environment, startupTargetDir);
             _servicesBuilder = new DesignTimeServicesBuilder(startupAssemblyLoader, startup);
         }
 

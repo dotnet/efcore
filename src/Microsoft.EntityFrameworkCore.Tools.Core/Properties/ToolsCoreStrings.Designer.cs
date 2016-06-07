@@ -370,6 +370,14 @@ namespace Microsoft.EntityFrameworkCore
             return string.Format(CultureInfo.CurrentCulture, GetString("LogNotExistDatabase", "name"), name);
         }
 
+        /// <summary>
+        /// An error occurred while calling method '{method}' on startup class '{startupClass}'. Consider using IDbContextFactory to override the initialization of the DbContext at design-time. Error: {error}
+        /// </summary>
+        public static string InvokeStartupMethodFailed([CanBeNull] object method, [CanBeNull] object startupClass, [CanBeNull] object error)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvokeStartupMethodFailed", "method", "startupClass", "error"), method, startupClass, error);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

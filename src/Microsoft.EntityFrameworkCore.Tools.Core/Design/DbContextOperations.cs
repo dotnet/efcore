@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _startupTargetDir = startupTargetDir;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
-            var startup = new StartupInvoker(startupAssembly, environment, startupTargetDir);
+            var startup = new StartupInvoker(_logger, startupAssembly, environment, startupTargetDir);
             _runtimeServices = startup.ConfigureServices();
         }
 

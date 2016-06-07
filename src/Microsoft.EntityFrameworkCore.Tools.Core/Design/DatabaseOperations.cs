@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -42,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
 
-            var startup = new StartupInvoker(startupAssembly, environment, startupTargetDir);
+            var logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
+            var startup = new StartupInvoker(logger, startupAssembly, environment, startupTargetDir);
             _servicesBuilder = new DesignTimeServicesBuilder(startupAssemblyLoader, startup);
         }
 
