@@ -3187,8 +3187,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(
                     CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<AggregateException>(
-                        async () => await context.Customers.FirstAsync())).InnerException.Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () => await context.Customers.FirstAsync())).Message);
             }
         }
 
