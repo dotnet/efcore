@@ -25,7 +25,7 @@
     "Microsoft.Extensions.Caching.Memory": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
     "Microsoft.Extensions.Logging": "1.0.0-*",
-    "Remotion.Linq": "2.0.2",
+    "Remotion.Linq": "2.1.0-*",
     "System.Collections.Immutable": "1.2.0-*",
     "System.Interactive.Async": "3.0.0-*"
   },
