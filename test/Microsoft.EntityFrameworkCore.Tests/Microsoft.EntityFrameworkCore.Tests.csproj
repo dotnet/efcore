@@ -68,6 +68,7 @@
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
+    <Compile Include="ChangeTracking\Internal\QueryFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\ShadowFkFixupTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />

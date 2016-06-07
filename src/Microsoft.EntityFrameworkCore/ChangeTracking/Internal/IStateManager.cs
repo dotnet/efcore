@@ -160,7 +160,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        bool? SingleQueryMode { get; set; }
+        bool IsSingleQueryMode([NotNull] IEntityType entityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        void EndSingleQueryMode();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

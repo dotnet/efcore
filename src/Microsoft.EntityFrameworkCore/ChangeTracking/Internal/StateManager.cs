@@ -32,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
         private bool _needsUnsubscribe;
+        private bool? _singleQueryMode;
+        private IEntityType _singleQueryModeEntityType;
 
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
@@ -67,7 +69,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool? SingleQueryMode { get; set; }
+        public virtual bool IsSingleQueryMode(IEntityType entityType)
+        {
+            if (_singleQueryMode == false)
+            {
+                // Once we are out of SQM we are always out.
+                return false;
+            }
+
+            // If we already checked for self-refs then don't check again.
+            if (_singleQueryModeEntityType == entityType)
+            {
+                return true;
+            }
+
+            // Drop out if SQM for change of entity type or self-refs since query may not fix them up.
+            if (_singleQueryModeEntityType != null
+                || entityType.GetNavigations().Any(n => entityType.IsSameHierarchy(n.GetTargetType())))
+            {
+                _singleQueryMode = false;
+                return false;
+            }
+
+            _singleQueryModeEntityType = entityType;
+
+            return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void EndSingleQueryMode() => _singleQueryMode = false;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -90,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity);
             if (entry == null)
             {
-                SingleQueryMode = false;
+                _singleQueryMode = false;
 
                 var entityType = _model.FindEntityType(entity.GetType());
 
@@ -110,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void BeginTrackingQuery() => SingleQueryMode = SingleQueryMode == null;
+        public virtual void BeginTrackingQuery() => _singleQueryMode = _singleQueryMode == null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 

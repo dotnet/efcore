@@ -2681,9 +2681,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
                 var stateManager = context.ChangeTracker.GetInfrastructure();
 
+                stateManager.BeginTrackingQuery();
+
                 stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 11 }, new ValueBuffer(new object[] { 11 }));
                 stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 12 }, new ValueBuffer(new object[] { 12 }));
                 stateManager.StartTrackingFromQuery(categoryType, new Category { Id = 13 }, new ValueBuffer(new object[] { 13 }));
+
+                stateManager.BeginTrackingQuery();
 
                 stateManager.StartTrackingFromQuery(productType, new Product { Id = 21, CategoryId = 11 }, new ValueBuffer(new object[] { 21, 11 }));
                 AssertAllFixedUp(context);
@@ -2695,6 +2699,8 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 AssertAllFixedUp(context);
                 stateManager.StartTrackingFromQuery(productType, new Product { Id = 25, CategoryId = 12 }, new ValueBuffer(new object[] { 25, 12 }));
                 AssertAllFixedUp(context);
+
+                stateManager.BeginTrackingQuery();
 
                 stateManager.StartTrackingFromQuery(offerType, new SpecialOffer { Id = 31, ProductId = 22 }, new ValueBuffer(new object[] { 31, 22 }));
                 AssertAllFixedUp(context);

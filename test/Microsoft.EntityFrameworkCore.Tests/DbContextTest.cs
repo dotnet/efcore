@@ -218,7 +218,12 @@ namespace Microsoft.EntityFrameworkCore.Tests
             public IEnumerable<InternalEntityEntry> InternalEntries { get; set; }
             public bool SaveChangesCalled { get; set; }
             public bool SaveChangesAsyncCalled { get; set; }
-            public virtual bool? SingleQueryMode { get; set; }
+
+            public bool IsSingleQueryMode(IEntityType entityType) => false;
+
+            public void EndSingleQueryMode()
+            {
+            }
 
             public void Unsubscribe()
             {

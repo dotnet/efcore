@@ -87,36 +87,69 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            Assert.Null(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.BeginTrackingQuery();
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 77, PrincipalId = 777 },
                 new ValueBuffer(new object[] { 77, "Bjork", 777 }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 78, PrincipalId = 778 },
                 new ValueBuffer(new object[] { 78, "Beck", 778 }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.BeginTrackingQuery();
 
-            Assert.False(stateManager.SingleQueryMode);
+            Assert.False(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 79, PrincipalId = 779 },
                 new ValueBuffer(new object[] { 79, "Bush", 779 }));
 
-            Assert.False(stateManager.SingleQueryMode);
+            Assert.False(stateManager.IsSingleQueryMode(categoryType));
+        }
+
+        [Fact]
+        public void State_manager_switches_out_of_single_query_mode_when_entity_has_self_refs()
+        {
+            var model = BuildModel();
+            var widgetType = model.FindEntityType(typeof(Widget));
+            var stateManager = CreateStateManager(model);
+
+            Assert.False(stateManager.IsSingleQueryMode(widgetType));
+
+            stateManager.BeginTrackingQuery();
+
+            Assert.False(stateManager.IsSingleQueryMode(widgetType));
+        }
+
+        [Fact]
+        public void State_manager_switches_out_of_single_query_mode_when_entity_included()
+        {
+            var model = BuildModel();
+            var productType = model.FindEntityType(typeof(Product));
+            var categoryType = model.FindEntityType(typeof(Category));
+            var stateManager = CreateStateManager(model);
+
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
+
+            stateManager.BeginTrackingQuery();
+
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
+
+            Assert.False(stateManager.IsSingleQueryMode(productType));
+
+            Assert.False(stateManager.IsSingleQueryMode(categoryType));
         }
 
         [Fact]
@@ -126,29 +159,29 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            Assert.Null(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.BeginTrackingQuery();
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 77, PrincipalId = 777 },
                 new ValueBuffer(new object[] { 77, "Bjork", 777 }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             var entry = stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 78, PrincipalId = 778 },
                 new ValueBuffer(new object[] { 78, "Beck", 778 }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             entry.SetEntityState(EntityState.Modified);
 
-            Assert.False(stateManager.SingleQueryMode);
+            Assert.False(stateManager.IsSingleQueryMode(categoryType));
         }
 
         [Fact]
@@ -158,29 +191,29 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            Assert.Null(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.BeginTrackingQuery();
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 77, PrincipalId = 777 },
                 new ValueBuffer(new object[] { 77, "Bjork", null }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             var entry = stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 78, PrincipalId = 778 },
                 new ValueBuffer(new object[] { 78, "Beck", 778 }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             entry.SetEntityState(EntityState.Added);
 
-            Assert.False(stateManager.SingleQueryMode);
+            Assert.False(stateManager.IsSingleQueryMode(categoryType));
         }
 
         [Fact]
@@ -190,29 +223,29 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            Assert.Null(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.BeginTrackingQuery();
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             var entry = stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 77, PrincipalId = 777 },
                 new ValueBuffer(new object[] { 77, "Bjork", 777 }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.StartTrackingFromQuery(
                 categoryType,
                 new Category { Id = 78, PrincipalId = 778 },
                 new ValueBuffer(new object[] { 78, "Beck", 778 }));
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
 
             stateManager.GetOrCreateEntry(entry.Entity);
 
-            Assert.True(stateManager.SingleQueryMode);
+            Assert.True(stateManager.IsSingleQueryMode(categoryType));
         }
 
         [Fact]
@@ -519,9 +552,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(() => stateManager.GetOrCreateEntry(new SpecialProduct())).Message);
         }
 
-        private static IStateManager CreateStateManager(IModel model)
+        private static IStateManager CreateStateManager(IModel model) 
+            => TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
+
+        public class Widget
         {
-            return TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
+            public int Id { get; set; }
+
+            public int? ParentWidgetId { get; set; }
+            public Widget ParentWidget { get; set; }
+
+            public List<Widget> ChildWidgets { get; set; }
         }
 
         private class Category
@@ -556,8 +597,16 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
             builder.Entity<Product>().HasOne<Category>().WithOne()
                 .HasForeignKey<Product>(e => e.DependentId)
                 .HasPrincipalKey<Category>(e => e.PrincipalId);
+
+            builder.Entity<Widget>()
+                .HasOne(e => e.ParentWidget)
+                .WithMany(e => e.ChildWidgets)
+                .HasForeignKey(e => e.ParentWidgetId);
+
             builder.Entity<Category>();
+
             builder.Entity<Dogegory>();
+
             builder.Entity("Location", eb =>
                 {
                     eb.Property<int>("Id");

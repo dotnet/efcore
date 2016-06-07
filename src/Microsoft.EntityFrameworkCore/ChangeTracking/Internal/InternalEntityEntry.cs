@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             // can happen without constraints on changing read-only values kicking in
             _stateData.EntityState = EntityState.Detached;
 
-            StateManager.SingleQueryMode = false;
+            StateManager.EndSingleQueryMode();
 
             return true;
         }
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                StateManager.SingleQueryMode = false;
+                StateManager.EndSingleQueryMode();
             }
 
             if (oldState == newState)
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.StopTracking(this);
             }
 
-            StateManager.Notify.StateChanged(this, oldState, StateManager.SingleQueryMode == true, fromQuery: false);
+            StateManager.Notify.StateChanged(this, oldState, StateManager.IsSingleQueryMode(EntityType), fromQuery: false);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             StateManager.Notify.StateChanging(this, EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
-            StateManager.Notify.StateChanged(this, EntityState.Detached, StateManager.SingleQueryMode == true, fromQuery: true);
+            StateManager.Notify.StateChanged(this, EntityState.Detached, StateManager.IsSingleQueryMode(EntityType), fromQuery: true);
         }
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     _stateData.EntityState = EntityState.Modified;
                 }
 
-                StateManager.SingleQueryMode = false;
+                StateManager.EndSingleQueryMode();
 
                 if (changeState)
                 {
