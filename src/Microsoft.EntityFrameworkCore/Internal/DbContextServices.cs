@@ -24,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<IDatabaseProviderServices> _providerServices;
         private bool _inOnModelCreating;
+        private ILoggerFactory _loggerFactory;
+        private IMemoryCache _memoryCache;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
@@ -85,14 +87,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ILoggerFactory LoggerFactory
-            => CoreOptions?.LoggerFactory ?? _scopedProvider?.GetRequiredService<ILoggerFactory>();
+            => _loggerFactory ?? (_loggerFactory = CoreOptions?.LoggerFactory ?? _scopedProvider?.GetRequiredService<ILoggerFactory>());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IMemoryCache MemoryCache
-            => CoreOptions?.MemoryCache ?? _scopedProvider?.GetRequiredService<IMemoryCache>();
+            => _memoryCache ?? (_memoryCache = CoreOptions?.MemoryCache ?? _scopedProvider?.GetRequiredService<IMemoryCache>());
 
         private CoreOptionsExtension CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();

@@ -18,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class DatabaseFacade : IInfrastructure<IServiceProvider>
     {
         private readonly DbContext _context;
+        private IDatabaseCreator _databaseCreator;
+        private IDbContextTransactionManager _transactionManager;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseFacade" /> class. Instances of this class are typically
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <returns> True if the database is created, false if it already existed. </returns>
-        public virtual bool EnsureCreated() => this.GetService<IDatabaseCreator>().EnsureCreated();
+        public virtual bool EnsureCreated() => DatabaseCreator.EnsureCreated();
 
         /// <summary>
         ///     <para>
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     false if it already existed.
         /// </returns>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => this.GetService<IDatabaseCreator>().EnsureCreatedAsync(cancellationToken);
+            => DatabaseCreator.EnsureCreatedAsync(cancellationToken);
 
         /// <summary>
         ///     <para>
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <returns> True if the database is deleted, false if it did not exist. </returns>
-        public virtual bool EnsureDeleted() => this.GetService<IDatabaseCreator>().EnsureDeleted();
+        public virtual bool EnsureDeleted() => DatabaseCreator.EnsureDeleted();
 
         /// <summary>
         ///     <para>
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     false if it did not exist.
         /// </returns>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => this.GetService<IDatabaseCreator>().EnsureDeletedAsync(cancellationToken);
+            => DatabaseCreator.EnsureDeletedAsync(cancellationToken);
 
         /// <summary>
         ///     Starts a new transaction.
@@ -107,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A <see cref="IDbContextTransaction" /> that represents the started transaction.
         /// </returns>
         public virtual IDbContextTransaction BeginTransaction()
-            => this.GetService<IDbContextTransactionManager>().BeginTransaction();
+            => TransactionManager.BeginTransaction();
 
         /// <summary>
         ///     Asynchronously starts a new transaction.
@@ -118,19 +120,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     that represents the started transaction.
         /// </returns>
         public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => this.GetService<IDbContextTransactionManager>().BeginTransactionAsync(cancellationToken);
+            => TransactionManager.BeginTransactionAsync(cancellationToken);
 
         /// <summary>
         ///     Applies the outstanding operations in the current transaction to the database.
         /// </summary>
         public virtual void CommitTransaction()
-            => this.GetService<IDbContextTransactionManager>().CommitTransaction();
+            => TransactionManager.CommitTransaction();
 
         /// <summary>
         ///     Discards the outstanding operations in the current transaction.
         /// </summary>
         public virtual void RollbackTransaction()
-            => this.GetService<IDbContextTransactionManager>().RollbackTransaction();
+            => TransactionManager.RollbackTransaction();
 
         /// <summary>
         ///     <para>
@@ -142,5 +144,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => ((IInfrastructure<IServiceProvider>)_context).Instance;
+
+        private IDbContextTransactionManager TransactionManager 
+            => _transactionManager ?? (_transactionManager = this.GetService<IDbContextTransactionManager>());
+
+        private IDatabaseCreator DatabaseCreator 
+            => _databaseCreator ?? (_databaseCreator = this.GetService<IDatabaseCreator>());
     }
 }
