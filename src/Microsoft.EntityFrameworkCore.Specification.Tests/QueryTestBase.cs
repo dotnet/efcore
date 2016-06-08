@@ -1851,7 +1851,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
-        public virtual void Select_anonymous_bool_constant_in_expression()
+        public virtual void Select_anonymous_constant_in_expression()
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.CustomerID, Expression = c.CustomerID.Length + 5 }));
@@ -5012,6 +5012,15 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             AssertQuery<Customer>(customer => customer
                 // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
                 .OrderBy(c => c.Region == null ? "ZZ" : c.Region),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_comparison_operator()
+        {
+            AssertQuery<Customer>(customer => customer
+                // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
+                .OrderBy(c => c.Region == "ASK"),
                 entryCount: 91);
         }
 

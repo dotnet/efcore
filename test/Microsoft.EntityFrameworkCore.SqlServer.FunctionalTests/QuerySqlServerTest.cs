@@ -1637,9 +1637,9 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
-        public override void Select_anonymous_bool_constant_in_expression()
+        public override void Select_anonymous_constant_in_expression()
         {
-            base.Select_anonymous_bool_constant_in_expression();
+            base.Select_anonymous_constant_in_expression();
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], LEN([c].[CustomerID]) + 5
@@ -1925,7 +1925,7 @@ WHERE [e].[EmployeeID] = 1",
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE 1 = 0",
+WHERE 0 = 1",
                 Sql);
 
             Assert.True(TestSqlLoggerFactory.Log.Contains(
@@ -1971,11 +1971,11 @@ WHERE @__intPrm_0 = [e].[ReportsTo]",
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE 1 = 0
+WHERE 0 = 1
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE 1 = 0",
+WHERE 0 = 1",
                 Sql);
 
             Assert.True(TestSqlLoggerFactory.Log.Contains(
@@ -1992,11 +1992,11 @@ WHERE 1 = 0",
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE 1 = 0
+WHERE 0 = 1
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE 1 = 0",
+WHERE 0 = 1",
                 Sql);
 
             Assert.True(TestSqlLoggerFactory.Log.Contains(
@@ -2220,7 +2220,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE 1 = 0",
+WHERE 0 = 1",
                 Sql);
         }
 
@@ -2231,7 +2231,7 @@ WHERE 1 = 0",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE 1 = 0",
+WHERE 0 = 1",
                 Sql);
         }
 
@@ -3417,7 +3417,7 @@ ORDER BY [e1].[EmployeeID]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE 1 = 0",
+WHERE 0 = 1",
                 Sql);
         }
 
@@ -3619,7 +3619,7 @@ WHERE [p].[Discontinued] = 1",
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[ProductID] > 100) AND [p].[Discontinued] = 1) OR [p].[Discontinued] = 1",
+WHERE (([p].[ProductID] > 100) AND ([p].[Discontinued] = 1)) OR ([p].[Discontinued] = 1)",
                 Sql);
         }
 
@@ -3721,7 +3721,7 @@ END",
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] >= 20)",
+WHERE ([p].[Discontinued] = 0) AND ([p].[ProductID] >= 20)",
                 Sql);
         }
 
@@ -3732,7 +3732,7 @@ WHERE [p].[Discontinued] = 0 AND ([p].[ProductID] >= 20)",
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[Discontinued] = 0 OR ([p].[ProductID] >= 20)",
+WHERE ([p].[Discontinued] = 0) OR ([p].[ProductID] >= 20)",
                 Sql);
         }
 
@@ -3743,7 +3743,7 @@ WHERE [p].[Discontinued] = 0 OR ([p].[ProductID] >= 20)",
             Assert.Equal(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[Discontinued] = 0 AND ([p].[ProductID] < 60)) AND ([p].[ProductID] > 30)",
+WHERE (([p].[Discontinued] = 0) AND ([p].[ProductID] < 60)) AND ([p].[ProductID] > 30)",
                 Sql);
         }
 
@@ -4803,6 +4803,20 @@ END",
                 Sql);
         }
 
+        public override void OrderBy_comparison_operator()
+        {
+            base.OrderBy_comparison_operator();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY CASE
+    WHEN [c].[Region] = N'ASK'
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
         public override void Contains_with_subquery()
         {
             base.Contains_with_subquery();
@@ -4978,7 +4992,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ABC'')); GO; DROP TABLE Orders; GO; --', 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE 1 = 0",
+WHERE 0 = 1",
                 Sql);
         }
 
