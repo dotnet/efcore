@@ -9,16 +9,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
     public class CommonCommandOptions
     {
         public CommandOption Assembly { get; set; }
+        public CommandOption StartupAssembly { get; set; }
         public CommandOption DataDirectory { get; set; }
         public CommandOption ProjectDirectory { get; set; }
+        public CommandOption StartupTargetDirectory { get; set; }
         public CommandOption RootNamespace { get; set; }
 
         public CommonOptions Value()
             => new CommonOptions
             {
                 Assembly = Assembly.Value(),
+                StartupAssembly = StartupAssembly.Value(),
                 DataDirectory = DataDirectory.Value(),
                 ProjectDirectory = ProjectDirectory.Value(),
+                StartupTargetDirectory = StartupTargetDirectory.Value(),
                 RootNamespace = RootNamespace.Value()
             };
     }

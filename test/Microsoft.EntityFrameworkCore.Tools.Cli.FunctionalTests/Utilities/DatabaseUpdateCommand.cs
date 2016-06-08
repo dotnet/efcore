@@ -7,8 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
 {
     public class DatabaseUpdateCommand : EfCommand
     {
-        public DatabaseUpdateCommand(string projectPath, ITestOutputHelper output)
-            : base(projectPath, output)
+        public DatabaseUpdateCommand(string targetProject, ITestOutputHelper output, string startupProject = null)
+            : base(targetProject, output, startupProject)
         {
         }
 

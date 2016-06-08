@@ -8,8 +8,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -39,45 +37,60 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 #endif
             }
 
+            if (!File.Exists(options.Assembly))
+            {
+                throw new OperationException($"Could not find assembly '{options.Assembly}'.");
+            }
+
             var assemblyFileName = Path.GetFileNameWithoutExtension(options.Assembly);
             
-            var projectDirectory = string.IsNullOrEmpty(options.ProjectDirectory)
-                ? Directory.GetCurrentDirectory()
-                : options.ProjectDirectory;
-                
-            var rootNamespace = string.IsNullOrEmpty(options.RootNamespace)
-                ? assemblyFileName
-                : options.RootNamespace;
-                
+            // TODO add hooks into Assembly.Load to allow loading from other locations
             var assemblyLoader = new AssemblyLoader(Assembly.Load);
             var projectAssembly = assemblyLoader.Load(assemblyFileName);
 
+            // optional
+            var startupAssembly = string.IsNullOrWhiteSpace(options.StartupAssembly)
+                ? projectAssembly
+                : assemblyLoader.Load(Path.GetFileNameWithoutExtension(options.StartupAssembly));
+
+            var projectDir = string.IsNullOrEmpty(options.ProjectDirectory)
+                ? Directory.GetCurrentDirectory()
+                : options.ProjectDirectory;
+
+            var startupTargetDir = string.IsNullOrEmpty(options.StartupTargetDirectory)
+                ? Directory.GetCurrentDirectory()
+                : options.StartupTargetDirectory;
+
+            var rootNamespace = string.IsNullOrEmpty(options.RootNamespace)
+                ? assemblyFileName
+                : options.RootNamespace;
+
             _contextOperations = new LazyRef<DbContextOperations>(
-                          () => new DbContextOperations(
-                              new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                              projectAssembly,
-                              projectAssembly,
-                              environment,
-                              projectDirectory));
+                () => new DbContextOperations(
+                    new LoggerProvider(name => new ConsoleCommandLogger(name)),
+                    assembly: projectAssembly,
+                    startupAssembly: startupAssembly,
+                    environment: environment,
+                    startupTargetDir: startupTargetDir));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                    assemblyLoader,
-                    projectAssembly,
-                    environment,
-                    projectDirectory,
-                    projectDirectory,
-                    rootNamespace));
+                    startupAssemblyLoader: assemblyLoader,
+                    startupAssembly: startupAssembly,
+                    environment: environment,
+                    projectDir: projectDir,
+                    startupTargetDir: startupTargetDir,
+                    rootNamespace: rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
-                    projectAssembly,
-                    assemblyLoader,
-                    projectAssembly,
-                    environment,
-                    projectDirectory,
-                    projectDirectory,
-                    rootNamespace));
+                    assembly: projectAssembly,
+                    startupAssemblyLoader: assemblyLoader,
+                    startupAssembly: startupAssembly,
+                    environment: environment,
+                    projectDir: projectDir,
+                    startupTargetDir: startupTargetDir,
+                    rootNamespace: rootNamespace));
         }
 
         public virtual void DropDatabase([CanBeNull] string contextName, [NotNull] Func<string, string, bool> confirmCheck)

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.IO;
+using System.Linq;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.DotNet.ProjectModel;
 using Newtonsoft.Json;
 using NuGet.Configuration;
-using System;
-using System.IO;
-using System.Linq;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             {
                 return;
             }
-            _toolsBuilt = true;
+
+            Reporter.Output.WriteLine("Re-building tools packages...".Bold().Black());
             var start = new DateTime(2015, 1, 1);
             var seconds = (long)(DateTime.UtcNow - start).TotalSeconds;
             var suffix = "t" + seconds.ToString("x").PadLeft(9, (char)'0');
@@ -69,18 +70,27 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                     Path.Combine(_solutionDir, "src", "Microsoft.EntityFrameworkCore.Tools", Constants.ProjectFileName)),
                 new { version = "" });
             _toolVersion = toolsProject.version.Replace("*", suffix);
+            _toolsBuilt = true;
             
-
             foreach (var pkg in PackagesToBuild)
             {
                 logger?.WriteLine($"Building {pkg} version {_toolVersion}");
+                Reporter.Output.WriteLine($"Re-building {pkg}".Bold().Black());
+
+                // Workaround https://github.com/dotnet/cli/issues/3424
+                AssertCommand.Pass(
+                    new BuildCommand(
+                        Path.Combine(_solutionDir, "src", pkg, Constants.ProjectFileName),
+                        logger)
+                        .Execute());
+
                 // TODO can remove when https://github.com/NuGet/Home/issues/2469 is available
                 AssertCommand.Pass(
                     new PackCommand(
                         Path.Combine(_solutionDir, "src", pkg, Constants.ProjectFileName),
                         _localArtifacts,
                         logger)
-                        .Execute($"--version-suffix {suffix}"));
+                        .Execute($"--version-suffix {suffix} --no-build"));
             }
         }
 
@@ -94,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 .Concat(fallbackRestoreLocations ?? Enumerable.Empty<string>())
                 .Select(s => "--fallbacksource " + s);
 
+            Reporter.Output.WriteLine($"Restoring packages to test project {projectPath}".Bold().Black());
             AssertCommand.Pass(
                 new RestoreCommand(projectPath, logger)
                     .Execute(" --verbosity error " + string.Join(" ", fallbacks))

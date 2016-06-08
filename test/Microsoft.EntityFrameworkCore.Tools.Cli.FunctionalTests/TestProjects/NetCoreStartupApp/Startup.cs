@@ -3,31 +3,23 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NetStandardClassLibrary;
 
-namespace AspNetHostingPortableApp
+namespace StartupForNetStandardClassLibrary
 {
     public class Startup
     {
-        private IConfiguration _config;
-        public Startup(IHostingEnvironment app)
-        {
-            _config = new ConfigurationBuilder()
-                .SetBasePath(app.ContentRootPath)
-                .AddJsonFile("config.json")
-                .Build();
-        }
-        
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddDbContext<TestContext>(o => o.UseSqlite(_config["TestContext"]));
+                .AddDbContext<NetStandardContext>(o => o.UseSqlite("Filename=./lib.db"));
         }
 
         public void Configure(IApplicationBuilder app)
         {
 
         }
-        
+
         public static void Main(string[] args)
         {
             var host = new WebHostBuilder()

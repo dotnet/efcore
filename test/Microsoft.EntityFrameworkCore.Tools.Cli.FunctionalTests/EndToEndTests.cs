@@ -33,25 +33,26 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
         }
 
         [Fact(Skip = SkipReason)]
-        public void MigrationsForAspNetApp()
+        public void MigrationsOnNetStandardClassLibraryWithExternalStartup()
         {
-            var libraryProject = Path.Combine(_fixture.TestProjectRoot, "LibraryUsingSqlite", "project.json");
-            AssertCommand.Pass(new RestoreCommand(libraryProject, _output)
-                .Execute(" --verbosity error "));
+            AddAndApplyMigrationImpl("NetStandardClassLibrary", "NetStandardContext", "initialLibrary", startupProject: "NetCoreStartupApp");
+        }
 
-            AddAndApplyMigrationImpl("AspNetHostingPortableApp", "LibraryContext", "initialLibrary");
-            AddAndApplyMigrationImpl("AspNetHostingPortableApp", "TestContext", "initialTest");
+        [Fact(Skip = SkipReason)]
+        public void MigrationsOnDesktopClassLibraryWithExternalStartup()
+        {
+            AddAndApplyMigrationImpl("DesktopClassLibrary", "DesktopContext", "initialLibrary", startupProject: "DesktopStartupApp");
         }
 
         [Fact(Skip = SkipReason)]
         public void AddMigrationToDifferentFolder()
         {
-            var libraryProject = Path.Combine(_fixture.TestProjectRoot, "PortableApp", "project.json");
+            var project = Path.Combine(_fixture.TestProjectRoot, "PortableApp", "project.json");
             Assert.False(Directory.Exists(Path.Combine(_fixture.TestProjectRoot, "SomeOtherDir")));
 
-            _fixture.InstallTool(libraryProject, _output, _fixture.TestProjectRoot);
+            _fixture.InstallTool(project, _output, _fixture.TestProjectRoot);
 
-            AssertCommand.Pass(new MigrationAddCommand(libraryProject, "OtherFolderMigration", _output)
+            AssertCommand.Pass(new MigrationAddCommand(project, "OtherFolderMigration", _output)
                 .Execute($" --context TestContext --output-dir ../SomeOtherDir"));
 
             Assert.True(Directory.Exists(Path.Combine(_fixture.TestProjectRoot, "SomeOtherDir")));
@@ -61,16 +62,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
         [Theory(Skip = SkipReason)]
         [InlineData("PortableApp")]
         [InlineData("StandaloneApp")]
+        [InlineData("AspNetHostingPortableApp")]
         public void MigrationCommandsForNetCoreApps(string project)
             => AddAndApplyMigrationImpl(project, "TestContext", "Initial");
 
         private void AddAndApplyMigrationImpl(
-            string project,
+            string targetProject,
             string contextName,
-            string migrationName)
+            string migrationName,
+            string startupProject = null)
         {
-            var targetProject = Path.Combine(_fixture.TestProjectRoot, project, "project.json");
-            var migrationDir = Path.Combine(Path.GetDirectoryName(targetProject), "Migrations");
+            var targetDir = Path.Combine(_fixture.TestProjectRoot, targetProject, "project.json");
+            var startupProjectDir = startupProject != null
+                ? Path.Combine(_fixture.TestProjectRoot, startupProject, "project.json")
+                : null;
+
+            _output.WriteLine("Target dir = " + targetDir);
+
+            var migrationDir = Path.Combine(Path.GetDirectoryName(targetDir), "Migrations");
             var snapshotFile = contextName + "ModelSnapshot.cs";
 
             if (Directory.Exists(migrationDir))
@@ -78,16 +87,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 Assert.False(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
             }
 
-            _fixture.InstallTool(targetProject, _output, _fixture.TestProjectRoot);
+            _fixture.InstallTool(targetDir, _output, _fixture.TestProjectRoot);
 
-            var args = $" --context {contextName}";
+            if (startupProjectDir != null)
+            {
+                _fixture.InstallTool(startupProjectDir, _output, _fixture.TestProjectRoot);
+            }
 
-            AssertCommand.Pass(new MigrationAddCommand(targetProject, migrationName, _output)
+            var args = $"--context {contextName}";
+
+            AssertCommand.Pass(new MigrationAddCommand(targetDir, migrationName, _output, startupProjectDir)
                 .Execute(args));
 
             Assert.True(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
 
-            AssertCommand.Pass(new DatabaseUpdateCommand(targetProject, _output)
+            AssertCommand.Pass(new DatabaseUpdateCommand(targetDir, _output, startupProjectDir)
                 .Execute(args));
         }
     }

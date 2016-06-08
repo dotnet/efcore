@@ -3,24 +3,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using DesktopClassLibrary;
 
-namespace AspNetHostingPortableApp
+namespace StartupAppForDesktopClassLibrary
 {
     public class Startup
     {
-        private IConfiguration _config;
-        public Startup(IHostingEnvironment app)
-        {
-            _config = new ConfigurationBuilder()
-                .SetBasePath(app.ContentRootPath)
-                .AddJsonFile("config.json")
-                .Build();
-        }
-        
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddDbContext<TestContext>(o => o.UseSqlite(_config["TestContext"]));
+                .AddDbContext<DesktopContext>(o => o.UseSqlite("Filename=./desktop.db"));
         }
 
         public void Configure(IApplicationBuilder app)

@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
     {
         private readonly string _migrationName;
 
-        public MigrationAddCommand(string projectPath, string migrationName, ITestOutputHelper output)
-            : base(projectPath, output)
+        public MigrationAddCommand(string targetProject, string migrationName, ITestOutputHelper output, string startupProject = null)
+            : base(targetProject, output, startupProject)
         {
             _migrationName = migrationName;
         }

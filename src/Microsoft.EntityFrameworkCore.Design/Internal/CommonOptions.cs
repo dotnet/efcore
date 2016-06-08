@@ -6,8 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     public class CommonOptions
     {
         public string Assembly { get; set; }
+        public string StartupAssembly { get; set; }
         public string DataDirectory { get; set; }
         public string RootNamespace { get; set; }
         public string ProjectDirectory { get; set; }
+        public string StartupTargetDirectory { get; set; }
     }
 }

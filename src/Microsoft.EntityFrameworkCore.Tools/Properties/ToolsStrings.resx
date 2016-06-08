@@ -121,7 +121,7 @@
     <value>Build failed on '{projectName}'.</value>
   </data>
   <data name="ClassLibrariesNotSupportedInCli" xml:space="preserve">
-    <value>This preview of Entity Framework tools does not support targeting class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.</value>
+    <value>Could not invoke this command on the startup project '{projectName}'. This preview of Entity Framework tools does not support commands on class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.</value>
   </data>
   <data name="DesktopCommandsRequiresWindows" xml:space="preserve">
     <value>Could not invoke this command on this project. Commands for framework '{framework}' are only supported on Windows.</value>
@@ -135,13 +135,16 @@
   <data name="LogUsingFramework" xml:space="preserve">
     <value>Using framework '{frameworkName}'.</value>
   </data>
-  <data name="LogUsingProject" xml:space="preserve">
-    <value>Using project '{projectName}'.</value>
+  <data name="LogUsingTargetProject" xml:space="preserve">
+    <value>Using target project '{project}'.</value>
   </data>
   <data name="ProjectDependencyCommandNotFound" xml:space="preserve">
-    <value>Could not invoke this command on the project. Check that the version of '{dotnetCommand}' in "tools" and '{projectCommand}' in "dependencies" are the same. See {fwlink} for more details.</value>
+    <value>Could not invoke this command with the startup project '{projectName}'. Check that '{dependencyCommand}' has been added to "dependencies" in the startup project and that the version of '{toolCommand}' in "tools" and '{dependencyCommand}' are the same. See {fwlink} for more details.</value>
   </data>
   <data name="LogDataDirectory" xml:space="preserve">
     <value>Setting the data directory to '{path}'.</value>
+  </data>
+  <data name="LogUsingStartupProject" xml:space="preserve">
+    <value>Using startup project '{project}'.</value>
   </data>
 </root>

@@ -25,32 +25,38 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private const string ProjectDependencyToolName
             = "Microsoft.EntityFrameworkCore.Design";
-            
+
         private static readonly Assembly ThisAssembly = typeof(DispatchCommand).GetTypeInfo().Assembly;
         private static readonly string ThisAssemblyVersion = ThisAssembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
             ?? ThisAssembly.GetName().Version.ToString();
-            
+
         private const string DispatcherVersionArgumentName = "--dispatcher-version";
         private const string AssemblyOptionTemplate = "--assembly";
+        private const string StartupAssemblyOptionTemplate = "--startup-assembly";
         private const string DataDirectoryOptionTemplate = "--data-dir";
         private const string ProjectDirectoryOptionTemplate = "--project-dir";
+        private const string AppBaseDirectoryOptionTemplate = "--app-base-dir";
         private const string RootNamespaceOptionTemplate = "--root-namespace";
         private const string VerboseOptionTemplate = "--verbose";
-            
+
         private static IEnumerable<string> CreateArgs(
             string assembly,
+            string startupAssembly,
             string dispatcherVersion,
             string dataDir,
             string projectDir,
+            string startupTargetDir,
             string rootNamespace,
             bool verbose)
             => new[]
             {
                 AssemblyOptionTemplate, assembly,
+                StartupAssemblyOptionTemplate, startupAssembly,
                 DispatcherVersionArgumentName, dispatcherVersion,
                 DataDirectoryOptionTemplate, dataDir,
                 ProjectDirectoryOptionTemplate, projectDir,
+                AppBaseDirectoryOptionTemplate, startupTargetDir,
                 RootNamespaceOptionTemplate, rootNamespace,
                 verbose ? VerboseOptionTemplate : string.Empty
             };
@@ -63,40 +69,70 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 FullName = "Entity Framework .NET Core CLI Commands"
             };
 
-            var noBuildOption = app.Option("--no-build", "Do not build before executing");
+            // TODO better help output https://github.com/aspnet/EntityFramework/issues/5188
+            // app.HelpOption("-h|--help");
 
+            var targetProjectOption = app.Option(
+                "-p|--project <PROJECT>",
+                "The project to target (defaults to the project in the current directory). Can be a path to a project.json or a project directory.");
+            var startupProjectOption = app.Option(
+                "-s|--startup-project <PROJECT>",
+                "The path to the project containing Startup (defaults to the target project). Can be a path to a project.json or a project directory.");
             var configurationOption = app.Option(
-                      "-c|--configuration <CONFIGURATION>",
-                      "Configuration under which to load");
+                "-c|--configuration <CONFIGURATION>",
+                $"Configuration under which to load (defaults to {Constants.DefaultConfiguration})");
             var frameworkOption = app.Option(
-                      "-f|--framework <FRAMEWORK>",
-                      "Target framework to load");
+                "-f|--framework <FRAMEWORK>",
+                $"Target framework to load from the startup project (defaults to the framework most compatible with {FrameworkConstants.CommonFrameworks.NetCoreApp10}).");
             var buildBasePathOption = app.Option(
-                      "-b|--build-base-path <OUTPUT_DIR>",
-                      "Directory in which to find temporary outputs");
+                "-b|--build-base-path <OUTPUT_DIR>",
+                "Directory in which to find temporary outputs.");
             var outputOption = app.Option(
-                      "-o|--output <OUTPUT_DIR>",
-                      "Directory in which to find outputs");
+                "-o|--output <OUTPUT_DIR>",
+                "Directory in which to find outputs");
+            var noBuildOption = app.Option("--no-build", "Do not build before executing.");
 
             app.OnExecute(() =>
             {
-                var project = Directory.GetCurrentDirectory();
+                var targetProjectPath = targetProjectOption.HasValue()
+                    ? targetProjectOption.Value()
+                    : Directory.GetCurrentDirectory();
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogUsingProject(project));
+                Project targetProject;
+                if (!ProjectReader.TryGetProject(targetProjectPath, out targetProject))
+                {
+                    throw new OperationException($"Could not load target project '{targetProjectPath}'");
+                }
 
-                var projectFile = ProjectReader.GetProject(project);
+                Reporter.Verbose.WriteLine(ToolsStrings.LogUsingTargetProject(targetProject.Name));
 
-                var framework = frameworkOption.HasValue()
+                Project startupProject;
+                if (startupProjectOption.HasValue())
+                {
+                    var startupPath = startupProjectOption.Value();
+                    if (!ProjectReader.TryGetProject(startupPath, out startupProject))
+                    {
+                        throw new OperationException($"Could not load project '{startupPath}'");
+                    }
+                }
+                else
+                {
+                    startupProject = targetProject;
+                }
+
+                Reporter.Verbose.WriteLine(ToolsStrings.LogUsingStartupProject(startupProject.Name));
+
+                var startupFramework = frameworkOption.HasValue()
                     ? NuGetFramework.Parse(frameworkOption.Value())
                     : null;
 
-                if (framework == null)
+                if (startupFramework == null)
                 {
-                    var frameworks = projectFile.GetTargetFrameworks().Select(i => i.FrameworkName);
-                    framework = NuGetFrameworkUtility.GetNearest(frameworks, FrameworkConstants.CommonFrameworks.NetCoreApp10, f => f)
+                    var frameworks = startupProject.GetTargetFrameworks().Select(i => i.FrameworkName);
+                    startupFramework = NuGetFrameworkUtility.GetNearest(frameworks, FrameworkConstants.CommonFrameworks.NetCoreApp10, f => f)
                                 ?? frameworks.FirstOrDefault();
 
-                    Reporter.Verbose.WriteLine(ToolsStrings.LogUsingFramework(framework.GetShortFolderName()));
+                    Reporter.Verbose.WriteLine(ToolsStrings.LogUsingFramework(startupFramework.GetShortFolderName()));
                 }
 
                 var configuration = configurationOption.Value();
@@ -111,9 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 if (!noBuildOption.HasValue())
                 {
                     var buildExitCode = BuildCommandFactory.Create(
-                            projectFile.ProjectFilePath,
+                            startupProject.ProjectFilePath,
                             configuration,
-                            framework,
+                            startupFramework,
                             buildBasePathOption.Value(),
                             outputOption.Value())
                         .ForwardStdErr()
@@ -122,49 +158,64 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         .ExitCode;
                     if (buildExitCode != 0)
                     {
-                        throw new OperationException(ToolsStrings.BuildFailed(projectFile.Name));
+                        throw new OperationException(ToolsStrings.BuildFailed(startupProject.Name));
                     }
                 }
 
-                var projectContext = ProjectContext.Create(
-                    projectFile.ProjectFilePath,
-                    framework,
+                var startupProjectContext = ProjectContext.Create(
+                    startupProject.ProjectFilePath,
+                    startupFramework,
                     RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers());
 
-                var outputPaths = projectContext
+                var startupOutputPaths = startupProjectContext
                     .GetOutputPaths(configuration, buildBasePathOption.Value(), outputOption.Value());
 
                 // TODO remove when https://github.com/dotnet/cli/issues/2645 is resolved
                 Func<bool> isClassLibrary = () =>
                 {
-                    return outputPaths.RuntimeFiles == null
+                    return startupOutputPaths.RuntimeFiles == null
                         || (
-                            framework.IsDesktop()
-                                ? !Directory.Exists(outputPaths.RuntimeFiles.BasePath)
-                                : !File.Exists(outputPaths.RuntimeFiles.RuntimeConfigJson) || !File.Exists(outputPaths.RuntimeFiles.DepsJson)
+                            startupFramework.IsDesktop()
+                                ? !Directory.Exists(startupOutputPaths.RuntimeFiles.BasePath)
+                                : !File.Exists(startupOutputPaths.RuntimeFiles.RuntimeConfigJson) || !File.Exists(startupOutputPaths.RuntimeFiles.DepsJson)
                             );
                 };
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogDataDirectory(outputPaths.RuntimeOutputPath));
+                Reporter.Verbose.WriteLine(ToolsStrings.LogDataDirectory(startupOutputPaths.RuntimeOutputPath));
 
-                var assembly = Path.Combine(outputPaths.RuntimeOutputPath,
-                    projectFile.GetCompilerOptions(framework, configuration).OutputName + ".dll");
+                // Workaround https://github.com/dotnet/cli/issues/3164
+                var isExecutable = startupProject.GetCompilerOptions(startupFramework, configuration).EmitEntryPoint.HasValue
+                    ? startupProject.GetCompilerOptions(startupFramework, configuration).EmitEntryPoint.Value
+                    : startupProject.GetCompilerOptions(null, configuration).EmitEntryPoint.GetValueOrDefault();
 
-                Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectDependencyToolName, projectFile.Name));
+                var startupAssembly = isExecutable
+                    ? startupOutputPaths.RuntimeFiles.Executable
+                    : startupOutputPaths.RuntimeFiles.Assembly;
+
+                var targetAssembly = targetProject.ProjectFilePath.Equals(startupProject.ProjectFilePath)
+                    ? startupAssembly
+                    // This assumes the target assembly is present in the startup project context and is a *.dll
+                    // TODO create a project context for target project as well to ensure filename is correct
+                    : Path.Combine(startupOutputPaths.RuntimeOutputPath,
+                        targetProject.GetCompilerOptions(null, configuration).OutputName + FileNameSuffixes.DotNet.DynamicLib);
+
+                Reporter.Verbose.WriteLine(ToolsStrings.LogBeginDispatch(ProjectDependencyToolName, startupProject.Name));
 
                 try
                 {
                     bool isVerbose;
                     bool.TryParse(Environment.GetEnvironmentVariable(CommandContext.Variables.Verbose), out isVerbose);
                     var dispatchArgs = CreateArgs(
-                                    assembly: assembly,
+                                    assembly: targetAssembly,
+                                    startupAssembly: startupOutputPaths.RuntimeFiles.Assembly,
                                     dispatcherVersion: ThisAssemblyVersion,
-                                    dataDir: outputPaths.RuntimeOutputPath,
-                                    projectDir: projectFile.ProjectDirectory,
-                                    rootNamespace: projectFile.Name,
+                                    dataDir: startupOutputPaths.RuntimeOutputPath,
+                                    startupTargetDir: startupOutputPaths.RuntimeOutputPath,
+                                    projectDir: targetProject.ProjectDirectory,
+                                    rootNamespace: targetProject.Name,
                                     verbose: isVerbose)
                                 .Concat(app.RemainingArguments);
-                                
+
                     var buildBasePath = buildBasePathOption.Value();
                     if (buildBasePath != null && !Path.IsPathRooted(buildBasePath))
                     {
@@ -173,12 +224,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     }
 
                     return new ProjectDependenciesCommandFactory(
-                            framework,
+                            startupFramework,
                             configuration,
                             outputOption.Value(),
                             buildBasePath,
-                            projectFile.ProjectDirectory)
-                        .Create(ProjectDependencyToolName, dispatchArgs, framework, configuration)
+                            startupProject.ProjectDirectory)
+                        .Create(ProjectDependencyToolName, dispatchArgs, startupFramework, configuration)
                         .ForwardStdErr()
                         .ForwardStdOut()
                         .Execute()
@@ -192,15 +243,22 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                     if (isClassLibrary())
                     {
-                        Reporter.Error.WriteLine(ToolsStrings.ClassLibrariesNotSupportedInCli(fwlink));
+                        Reporter.Error.WriteLine(
+                            ToolsStrings.ClassLibrariesNotSupportedInCli(startupProject.Name, fwlink).Bold().Red());
                     }
-                    else if (framework.IsDesktop() && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    else if (startupFramework.IsDesktop() && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
-                        Reporter.Error.WriteLine(ToolsStrings.DesktopCommandsRequiresWindows(framework.GetShortFolderName()));
+                        Reporter.Error.WriteLine(
+                            ToolsStrings.DesktopCommandsRequiresWindows(startupFramework.GetShortFolderName()).Bold().Red());
                     }
                     else
                     {
-                        Reporter.Error.WriteLine(ToolsStrings.ProjectDependencyCommandNotFound(DispatcherToolName, ProjectDependencyToolName, fwlink));
+                        Reporter.Error.WriteLine(
+                            ToolsStrings.ProjectDependencyCommandNotFound(
+                                startupProject.Name,
+                                ProjectDependencyToolName,
+                                DispatcherToolName,
+                                fwlink).Bold().Red());
                     }
 
                     return 1;

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
         private readonly string _environment;
-        private readonly string _startupProjectDir;
+        private readonly string _startupTargetDir;
         private readonly LazyRef<ILogger> _logger;
         private readonly IServiceProvider _runtimeServices;
 
@@ -32,21 +32,21 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
-            [NotNull] string startupProjectDir)
+            [NotNull] string startupTargetDir)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotEmpty(startupProjectDir, nameof(startupProjectDir));
+            Check.NotEmpty(startupTargetDir, nameof(startupTargetDir));
 
             _loggerProvider = loggerProvider;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
             _environment = environment;
-            _startupProjectDir = startupProjectDir;
+            _startupTargetDir = startupTargetDir;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
-            var startup = new StartupInvoker(startupAssembly, environment, startupProjectDir);
+            var startup = new StartupInvoker(startupAssembly, environment, startupTargetDir);
             _runtimeServices = startup.ConfigureServices();
         }
 
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private DbContextFactoryOptions CreateFactoryOptions()
             => new DbContextFactoryOptions
             {
-                ApplicationBasePath = _startupProjectDir,
+                ApplicationBasePath = _startupTargetDir,
                 EnvironmentName = !string.IsNullOrEmpty(_environment)
                         ? _environment
                         : "Development"

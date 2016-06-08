@@ -126,11 +126,11 @@ function Add-Migration {
     $contextTypeName = $values.ContextTypeName
 
     if (IsDotNetProject $dteProject) {
-        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+        $options = ProcessCommonDotnetParameters $Environment $contextTypeName
         if($OutputDir) {
             $options += "--output-dir", (NormalizePath $OutputDir)
         }
-        $files = InvokeDotNetEf $dteProject -json migrations add $Name @options
+        $files = InvokeDotNetEf $dteProject $dteStartupProject -json migrations add $Name @options
         $DTE.ItemOperations.OpenFile($files.MigrationFile) | Out-Null
     }
     else {
@@ -211,8 +211,8 @@ function Update-Database {
     $contextTypeName = $values.ContextTypeName
 
     if (IsDotNetProject $dteProject) {
-        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
-        InvokeDotNetEf $dteProject database update $Migration @options | Out-Null
+        $options = ProcessCommonDotnetParameters $Environment $contextTypeName
+        InvokeDotNetEf $dteProject $dteStartupProject database update $Migration @options | Out-Null
         Write-Output "Done."
     } else {
         if (IsUwpProject $dteProject) {
@@ -298,14 +298,14 @@ function Script-Migration {
     $scriptFile = Join-Path $fullIntermediatePath $fileName
 
     if (IsDotNetProject $dteProject) {
-        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+        $options = ProcessCommonDotnetParameters $Environment $contextTypeName
 
         $options += "--output",$scriptFile
         if ($Idempotent) {
             $options += ,"--idempotent"
         }
 
-        InvokeDotNetEf $dteProject migrations script $From $To @options | Out-Null
+        InvokeDotNetEf $dteProject $dteStartupProject migrations script $From $To @options | Out-Null
 
         $DTE.ItemOperations.OpenFile($scriptFile) | Out-Null
 
@@ -379,11 +379,11 @@ function Remove-Migration {
     $forceRemove = $Force -or (IsUwpProject $dteProject)
 
     if (IsDotNetProject $dteProject) {
-        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $contextTypeName
+        $options = ProcessCommonDotnetParameters $Environment $contextTypeName
         if ($forceRemove) {
             $options += ,"--force"
         }
-        InvokeDotNetEf $dteProject migrations remove @options | Out-Null
+        InvokeDotNetEf $dteProject $dteStartupProject migrations remove @options | Out-Null
         Write-Output "Done."
     } else {
         $filesToRemove = InvokeOperation $dteStartupProject $Environment $dteProject RemoveMigration @{
@@ -475,7 +475,7 @@ function Scaffold-DbContext {
     $dteProject = $values.Project
 
     if (IsDotNetProject $dteProject) {
-        $options = ProcessCommonDotnetParameters $dteProject $dteStartupProject $Environment $Context
+        $options = ProcessCommonDotnetParameters $Environment $Context
         if ($OutputDir) {
             $options += "--output-dir",(NormalizePath $OutputDir)
         }
@@ -488,7 +488,7 @@ function Scaffold-DbContext {
         $options += $Schemas | % { "--schema", $_ }
         $options += $Tables | % { "--table", $_ }
 
-        InvokeDotNetEf $dteProject dbcontext scaffold $Connection $Provider @options | Out-Null
+        InvokeDotNetEf $dteProject $dteStartupProject dbcontext scaffold $Connection $Provider @options | Out-Null
     } else {
         $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject ReverseEngineer @{
             connectionString = $Connection
@@ -541,8 +541,8 @@ function GetContextTypes($projectName, $startupProjectName, $environment) {
     $project = $values.Project
 
     if (IsDotNetProject $startupProject) {
-        $options = ProcessCommonDotnetParameters $startupProject $startupProject $environment
-        $types = InvokeDotNetEf $startupProject -json -skipBuild dbcontext list @options
+        $options = ProcessCommonDotnetParameters $environment
+        $types = InvokeDotNetEf $startupProject $startupProject -json -skipBuild dbcontext list @options
         return $types | %{ $_.fullName }
     } else {
         $contextTypes = InvokeOperation $startupProject $environment $project GetContextTypes -skipBuild
@@ -557,8 +557,8 @@ function GetMigrations($contextTypeName, $projectName, $startupProjectName, $env
     $contextTypeName = $values.ContextTypeName
 
     if (IsDotNetProject $startupProject) {
-        $options = ProcessCommonDotnetParameters $startupProject $startupProject $environment $contextTypeName
-        $migrations = InvokeDotNetEf $startupProject -json -skipBuild migrations list @options
+        $options = ProcessCommonDotnetParameters $environment $contextTypeName
+        $migrations = InvokeDotNetEf $startupProject $startupProject -json -skipBuild migrations list @options
         return $migrations | %{ $_.safeName }
     }
     else {
@@ -594,14 +594,10 @@ function NormalizePath($path) {
     }
 }
 
-function ProcessCommonDotnetParameters($dteProject, $dteStartupProject, $Environment, $contextTypeName) {
+function ProcessCommonDotnetParameters($environment, $contextTypeName) {
     $options=@()
-    #if ($dteStartupProject.Name -ne $dteProject.Name) {
-    #    $startupProjectPath = GetProperty $dteStartupProject.Properties FullPath
-    #    $options += "--startup-project",(NormalizePath $startupProjectPath)
-    #}
-    if ($Environment) {
-        $options += "--environment",$Environment
+    if ($environment) {
+        $options += "--environment",$environment
     }
     if ($contextTypeName) {
         $options += "--context",$contextTypeName
@@ -633,36 +629,57 @@ function ShowConsole {
     $powerConsoleWindow.Show()
 }
 
-function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
-    try {
-        $dotnet = (Get-Command dotnet).Path
-    } catch {
-        throw "Could not find .NET Core CLI (dotnet.exe). .NET Core CLI is required to execute EF commands on this project type."
+function InvokeDotNetEf($dteProject, $dteStartupProject, [switch] $json, [switch] $skipBuild) {
+
+    if (!(IsDotNetProject $dteProject) -or !(IsDotNetProject $dteStartupProject)) {
+        Write-Warning "This command may fail unless both the targeted project and startup project are ASP.NET Core or .NET Core projects."
     }
-    Write-Debug "Found $dotnet"
-    $fullPath = GetProperty $project.Properties FullPath
-    $projectJson = Join-Path $fullPath project.json
+
+    if ($env:DOTNET_INSTALL_DIR) {
+        $dotnet = Join-Path $env:DOTNET_INSTALL_DIR dotnet.exe
+    } else {
+        $cmd = Get-Command dotnet -ErrorAction Ignore # searches $env:PATH
+        if ($cmd) {
+            $dotnet = $cmd.Path
+        }
+    }
+
+    if (!(Test-Path $dotnet)) {
+        throw "Could not find .NET Core CLI (dotnet.exe) in the PATH or DOTNET_INSTALL_DIR environment variables. .NET Core CLI is required to execute EF commands on this project type."
+    }
+
+    Write-Debug "Using $dotnet"
+    $targetFullPath = GetProperty $dteProject.Properties FullPath
+    $targetProjectJson = Join-Path $targetFullPath project.json
     try {
-        Write-Debug "Reading $projectJson"
-        $projectDef = Get-Content $projectJson -Raw | ConvertFrom-Json
+        Write-Debug "Reading $targetProjectJson"
+        $projectDef = Get-Content $targetProjectJson -Raw | ConvertFrom-Json
     } catch {
         Write-Verbose $_.Exception.Message
-        throw "Invalid JSON file in $projectJson"
+        throw "Invalid JSON file in $targetProjectJson"
     }
     if ($projectDef.tools) {
         $t=$projectDef.tools | Get-Member Microsoft.EntityFrameworkCore.Tools
     }
     if (!$t) {
-        $projectName = $project.ProjectName
+        $projectName = $dteProject.ProjectName
         throw "Cannot execute this command because 'Microsoft.EntityFrameworkCore.Tools' is not installed in project '$projectName'. Add 'Microsoft.EntityFrameworkCore.Tools' to the 'tools' section in project.json. See http://go.microsoft.com/fwlink/?LinkId=798221 for more details."
     }
 
-    $config = $project.ConfigurationManager.ActiveConfiguration.ConfigurationName
-    $arguments = "--configuration", $config
+    $arguments=@()
+
+    $startupProjectPath =  GetProperty $dteStartupProject.Properties FullPath
+    $arguments += "--startup-project", (NormalizePath $startupProjectPath)
+
+    $startupProjectName =  $dteStartupProject.ProjectName
+    Write-Verbose "Using startup project '$startupProjectName'"
+
+    $config = $dteStartupProject.ConfigurationManager.ActiveConfiguration.ConfigurationName
+    $arguments += "--configuration", $config
     Write-Debug "Using configuration $config"
 
-    $buildBasePath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties OutputPath
-    $arguments += "--build-base-path", $buildBasePath
+    $buildBasePath = GetProperty $dteStartupProject.ConfigurationManager.ActiveConfiguration.Properties OutputPath
+    $arguments += "--build-base-path", (NormalizePath $buildBasePath)
     Write-Debug "Using build base path $buildBasePath"
     
     if ($skipBuild) {
@@ -685,8 +702,8 @@ function InvokeDotNetEf($project, [switch] $json, [switch] $skipBuild) {
 
     $command = "ef $($arguments -join ' ')"
     try {
-        Write-Verbose "Working directory: $fullPath"
-        Push-Location $fullPath
+        Write-Verbose "Working directory: $targetFullPath"
+        Push-Location $targetFullPath
         $ErrorActionPreference='SilentlyContinue'
         Write-Verbose "Executing command: dotnet $command"
         # TODO don't use invoke-expression.
@@ -732,6 +749,10 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     $projectName = $project.ProjectName
 
     Write-Verbose "Using project '$projectName'"
+
+    if (IsDotNetProject $startupProject) {
+        throw "This command cannot use '$startupProjectName' as the startup project because '$projectName' is not an ASP.NET Core or .NET Core project"
+    }
 
     $package = Get-Package -ProjectName $startupProjectName | ? Id -eq Microsoft.EntityFrameworkCore.Tools
     if (!($package)) {
@@ -929,12 +950,6 @@ function GetProjectItem($project, $path) {
 
 function GetStartUpProject($name, $fallbackProject) {
     if ($name) {
-        if (IsDotNetProject $fallbackProject) {
-            # this means users specified -StartupProject explicitly
-            # otherwise, ignore what VS has marked as the "startup project"
-            # TODO remove warning when https://github.com/aspnet/EntityFramework/issues/5311 is fixed
-            Write-Warning "'-StartupProject' is not supported on *.xproj projects. This parameter will be ignored."
-        }
         return Get-Project $name
     }
 

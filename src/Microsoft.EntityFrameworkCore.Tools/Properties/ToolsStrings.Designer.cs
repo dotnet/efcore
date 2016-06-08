@@ -7,6 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     using System.Resources;
     using JetBrains.Annotations;
 
+	/// <summary>
+	///		This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
+	/// </summary>
     public static class ToolsStrings
     {
         private static readonly ResourceManager _resourceManager
@@ -21,11 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// This preview of Entity Framework tools does not support targeting class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.
+        /// Could not invoke this command on the startup project '{projectName}'. This preview of Entity Framework tools does not support commands on class library projects in ASP.NET Core and .NET Core applications. See {fwlink} for details and workarounds.
         /// </summary>
-        public static string ClassLibrariesNotSupportedInCli([CanBeNull] object fwlink)
+        public static string ClassLibrariesNotSupportedInCli([CanBeNull] object projectName, [CanBeNull] object fwlink)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ClassLibrariesNotSupportedInCli", "fwlink"), fwlink);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ClassLibrariesNotSupportedInCli", "projectName", "fwlink"), projectName, fwlink);
         }
 
         /// <summary>
@@ -61,19 +65,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        /// Using project '{projectName}'.
+        /// Using target project '{project}'.
         /// </summary>
-        public static string LogUsingProject([CanBeNull] object projectName)
+        public static string LogUsingTargetProject([CanBeNull] object project)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogUsingProject", "projectName"), projectName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogUsingTargetProject", "project"), project);
         }
 
         /// <summary>
-        /// Could not invoke this command on the project. Check that the version of '{dotnetCommand}' in "tools" and '{projectCommand}' in "dependencies" are the same. See {fwlink} for more details.
+        /// Could not invoke this command with the startup project '{projectName}'. Check that '{dependencyCommand}' has been added to "dependencies" in the startup project and that the version of '{toolCommand}' in "tools" and '{dependencyCommand}' are the same. See {fwlink} for more details.
         /// </summary>
-        public static string ProjectDependencyCommandNotFound([CanBeNull] object dotnetCommand, [CanBeNull] object projectCommand, [CanBeNull] object fwlink)
+        public static string ProjectDependencyCommandNotFound([CanBeNull] object projectName, [CanBeNull] object dependencyCommand, [CanBeNull] object toolCommand, [CanBeNull] object fwlink)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "dotnetCommand", "projectCommand", "fwlink"), dotnetCommand, projectCommand, fwlink);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ProjectDependencyCommandNotFound", "projectName", "dependencyCommand", "toolCommand", "fwlink"), projectName, dependencyCommand, toolCommand, fwlink);
         }
 
         /// <summary>
@@ -82,6 +86,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string LogDataDirectory([CanBeNull] object path)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogDataDirectory", "path"), path);
+        }
+
+        /// <summary>
+        /// Using startup project '{project}'.
+        /// </summary>
+        public static string LogUsingStartupProject([CanBeNull] object project)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogUsingStartupProject", "project"), project);
         }
 
         private static string GetString(string name, params string[] formatterNames)

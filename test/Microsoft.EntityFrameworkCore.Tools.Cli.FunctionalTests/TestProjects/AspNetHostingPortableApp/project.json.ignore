@@ -19,13 +19,7 @@
       "type": "build",
       "target": "package"
     },
-    "Microsoft.EntityFrameworkCore.Tools.Core": {
-      "target": "project"
-    },
     "Microsoft.EntityFrameworkCore.Sqlite": {
-      "target": "project"
-    },
-    "LibraryUsingSqlite": {
       "target": "project"
     },
     "Microsoft.AspNetCore.Hosting": "1.0.0-*",

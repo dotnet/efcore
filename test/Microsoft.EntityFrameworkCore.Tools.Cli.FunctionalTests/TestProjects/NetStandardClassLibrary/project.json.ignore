@@ -1,20 +1,13 @@
 {
   "version": "1.0.0-*",
-  "buildOptions": {
-    "emitEntryPoint": false
-  },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Design": {
-      "version": "$toolVersion$",
-      "type": "build",
-      "target": "package"
-    },
     "Microsoft.EntityFrameworkCore.Sqlite": {
       "target": "project"
-    }
+    },
+    "NETStandard.Library": "1.6.0-*"
   },
   "frameworks": {
-    "netcoreapp1.0": { }
+    "netstandard1.3": { }
   },
   "tools": {
     "Microsoft.EntityFrameworkCore.Tools": "$toolVersion$"

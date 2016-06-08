@@ -9,21 +9,28 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
 {
     public abstract class EfCommand : TestCommand
     {
-        protected EfCommand(string projectPath, ITestOutputHelper output)
+        private readonly string _startupArgs;
+
+        protected EfCommand(string targetProject, ITestOutputHelper output, string startupProject = null)
             : base("dotnet", output)
         {
-            WorkingDirectory = Path.GetDirectoryName(projectPath);
+            _startupArgs = startupProject != null
+                ? $"--startup-project {startupProject}"
+                : string.Empty;
+
+            // always executes on startup project
+            WorkingDirectory = Path.GetDirectoryName(targetProject);
         }
 
         public override CommandResult Execute(string args = "")
         {
-            args = $"--verbose ef {BuildArgs()} {args}";
+            args = $"--verbose ef {_startupArgs} {BuildArgs()} {args}";
             return base.Execute(args);
         }
 
         public override CommandResult ExecuteWithCapturedOutput(string args = "")
         {
-            args = $"--verbose ef {BuildArgs()} {args}";
+            args = $"--verbose ef {_startupArgs} {BuildArgs()} {args}";
             return base.ExecuteWithCapturedOutput(args);
         }
 

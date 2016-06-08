@@ -2,30 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {
     public class ExecuteCommand
     {
-        private static readonly Assembly ThisAssembly = typeof(ExecuteCommand).GetTypeInfo().Assembly;
-        private static readonly string AssemblyVersion = ThisAssembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-            ?? ThisAssembly.GetName().Version.ToString();
-        
         private const string DispatcherVersionArgumentName = "--dispatcher-version";
         private const string AssemblyOptionTemplate = "--assembly";
+        private const string StartupAssemblyOptionTemplate = "--startup-assembly";
         private const string DataDirectoryOptionTemplate = "--data-dir";
         private const string ProjectDirectoryOptionTemplate = "--project-dir";
+        private const string AppBaseDirectoryOptionTemplate = "--app-base-dir";
         private const string RootNamespaceOptionTemplate = "--root-namespace";
-        private const string VerboseOptionTemplate = "--verbose";
-            
+
         private static void EnsureValidDispatchRecipient(ref string[] args)
         {
             if (!args.Contains(DispatcherVersionArgumentName, StringComparer.OrdinalIgnoreCase))
@@ -41,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             {
                 var dispatcherVersion = args[dispatcherArgumentValueIndex];
 
-                if (string.Equals(dispatcherVersion, AssemblyVersion, StringComparison.Ordinal))
+                if (string.Equals(dispatcherVersion, GetVersion(), StringComparison.Ordinal))
                 {
                     // Remove dispatcher arguments from
                     var preDispatcherArgument = args.Take(dispatcherArgumentIndex);
@@ -50,17 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     args = newProgramArguments.ToArray();
                     return;
                 }
+
+                ConsoleCommandLogger.Verbose("Expected dispatch version " + GetVersion() + " but received " + dispatcherVersion);
             }
 
-            // Could not validate the dispatchers version.
-            throw new InvalidOperationException(
+            // Could not validate the dispatcher version.
+            throw new OperationException(
                 "Could not invoke command. Ensure project.json has matching versions of 'Microsoft.EntityFrameworkCore.Design' in the 'dependencies' section and 'Microsoft.EntityFrameworkCore.Tools' in the 'tools' section.");
         }
 
         public static CommandLineApplication Create(ref string[] args)
         {
             EnsureValidDispatchRecipient(ref args);
-            
+
             var app = new CommandLineApplication()
             {
                 // Technically, the real "dotnet-ef.dll" is in Microsoft.EntityFrameworkCore.Tools,
@@ -80,12 +75,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                      "The assembly file to load."),
 
                 // optional
+                StartupAssembly = app.Option(StartupAssemblyOptionTemplate + " <ASSEMBLY>",
+                     "The assembly file containing the startup class."),
                 DataDirectory = app.Option(DataDirectoryOptionTemplate + " <DIR>",
-                    "The folder to use as the data directory. If not specified, the runtime output folder is used."),
+                    "The folder used as the data directory (defaults to current working directory)."),
                 ProjectDirectory = app.Option(ProjectDirectoryOptionTemplate + " <DIR>",
-                    "The folder to use as the project directory. If not specified, the current working is used."),
+                    "The folder used as the project directory (defaults to current working directory)."),
+                StartupTargetDirectory = app.Option(AppBaseDirectoryOptionTemplate + " <DIR>",
+                    "The folder used as the base directory for the application (defaults to current working directory)."),
                 RootNamespace = app.Option(RootNamespaceOptionTemplate + " <NAMESPACE>",
-                    "The root namespace of the current project. If not specified, the project name is used.")
+                    "The root namespace of the target project (defaults to the project assembly name).")
             };
 
             app.Command("database", c => DatabaseCommand.Configure(c, commonOptions));
@@ -120,12 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
             ConsoleCommandLogger.Output("");
         }
 
+        private static readonly Assembly ThisAssembly = typeof(ExecuteCommand).GetTypeInfo().Assembly;
+
         private static string GetVersion()
-            => typeof(ExecuteCommand)
-                .GetTypeInfo()
-                .Assembly
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                .InformationalVersion;
+            => ThisAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+                ?? ThisAssembly.GetName().Version.ToString();
 
         public static string GetToolName()
             => typeof(ExecuteCommand).GetTypeInfo().Assembly.GetName().Name;

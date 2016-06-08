@@ -1,4 +1,3 @@
 {
-    "TestContext": "Filename=./aspnet.db",
-    "LibraryContext": "Filename=./librarydb.db"
+    "TestContext": "Filename=./aspnet.db"
 }

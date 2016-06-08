@@ -15,22 +15,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly Type _startupType;
         private readonly string _environment;
-        private readonly string _startupProjectDir;
+        private readonly string _startupTargetDir;
         private readonly string _startupAssemblyName;
 
         public StartupInvoker(
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
-            [NotNull] string startupProjectDir)
+            [NotNull] string startupTargetDir)
         {
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotEmpty(startupProjectDir, nameof(startupProjectDir));
+            Check.NotEmpty(startupTargetDir, nameof(startupTargetDir));
 
             _environment = !string.IsNullOrEmpty(environment)
                 ? environment
                 : "Development";
 
-            _startupProjectDir = startupProjectDir;
+            _startupTargetDir = startupTargetDir;
 
             _startupAssemblyName = startupAssembly.GetName().Name;
 
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             services.AddSingleton<IHostingEnvironment>(
                 new HostingEnvironment
                 {
-                    ContentRootPath = _startupProjectDir,
+                    ContentRootPath = _startupTargetDir,
                     EnvironmentName = _environment,
                     ApplicationName = _startupAssemblyName
                 });
