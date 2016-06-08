@@ -788,6 +788,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
                             .CreateQueryModelVisitor(_queryModelVisitor);
 
+                    var queriesProjectionCountMapping = _queryModelVisitor.Queries
+                        .ToDictionary(k => k, s => s.Projection.Count);
+
                     queryModelVisitor.VisitSubQueryModel(subQueryModel);
 
                     if (queryModelVisitor.Queries.Count == 1
@@ -798,6 +801,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         var selectExpression = queryModelVisitor.Queries.First();
 
                         selectExpression.Alias = string.Empty; // anonymous
+
+                        foreach (var mappingElement in queriesProjectionCountMapping)
+                        {
+                            mappingElement.Key.RemoveRangeFromProjection(mappingElement.Value);
+                        }
 
                         return selectExpression;
                     }

@@ -1191,7 +1191,7 @@ ORDER BY [l1.OneToMany_Optional].[Id]",
             base.Where_navigation_property_to_collection();
 
             Assert.Equal(
-                @"SELECT [l1].[Id], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Required_FK].[Id]
+                @"SELECT [l1].[Id], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId]
 FROM [Level1] AS [l1]
 INNER JOIN [Level2] AS [l1.OneToOne_Required_FK] ON [l1].[Id] = [l1.OneToOne_Required_FK].[Level1_Required_Id]
 WHERE (
@@ -1207,7 +1207,7 @@ WHERE (
             base.Where_navigation_property_to_collection_of_original_entity_type();
 
             Assert.Equal(
-                @"SELECT [l2].[Id], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId], [l2.OneToMany_Required_Inverse].[Id]
+                @"SELECT [l2].[Id], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId]
 FROM [Level2] AS [l2]
 INNER JOIN [Level1] AS [l2.OneToMany_Required_Inverse] ON [l2].[OneToMany_Required_InverseId] = [l2.OneToMany_Required_Inverse].[Id]
 WHERE (
@@ -1272,6 +1272,99 @@ INNER JOIN (
 ORDER BY [l1].[Name], [l1].[Id]",
                     Sql);
             }
+        }
+
+        public override void Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        {
+            base.Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level();
+
+            Assert.Equal(
+                @"SELECT DISTINCT [l1].[Name]
+FROM [Level1] AS [l1]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Level2] AS [l2]
+    WHERE [l2].[Level1_Required_Id] = [l1].[Id])",
+                Sql);
+        }
+
+        public override void Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level_join()
+        {
+            base.Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level_join();
+
+            Assert.Equal(
+                @"SELECT [e1].[Name], [e2].[Id]
+FROM [Level1] AS [e1]
+INNER JOIN [Level2] AS [e2] ON [e1].[Id] = (
+    SELECT TOP(1) [subQuery0].[Id]
+    FROM [Level1] AS [subQuery0]
+    WHERE [subQuery0].[Id] = [e2].[Level1_Optional_Id]
+)
+WHERE EXISTS (
+    SELECT 1
+    FROM [Level2] AS [l2]
+    WHERE [l2].[Level1_Required_Id] = [e1].[Id])",
+                Sql);
+        }
+
+        public override void Correlated_nested_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        {
+            base.Correlated_nested_subquery_doesnt_project_unnecessary_columns_in_top_level();
+
+            Assert.StartsWith(
+                @"SELECT [l1].[Name]
+FROM [Level1] AS [l1]
+
+SELECT [l20].[Id]
+FROM [Level2] AS [l20]
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Level3] AS [l32])
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+
+SELECT [l20].[Id]
+FROM [Level2] AS [l20]
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Level3] AS [l32])
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
+        }
+
+        public override void Correlated_nested_two_levels_up_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        {
+            base.Correlated_nested_two_levels_up_subquery_doesnt_project_unnecessary_columns_in_top_level();
+
+            Assert.StartsWith(
+                @"SELECT [l1].[Name]
+FROM [Level1] AS [l1]
+
+SELECT 1
+FROM [Level2] AS [l20]
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Level3] AS [l32])
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+
+SELECT 1
+FROM [Level2] AS [l20]
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Level3] AS [l32])
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END",
+                Sql);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

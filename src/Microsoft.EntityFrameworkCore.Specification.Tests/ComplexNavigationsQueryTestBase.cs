@@ -2472,5 +2472,130 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 }
             }
         }
+
+        [ConditionalFact]
+        public virtual void Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne.ToList()
+                            where context.LevelTwo.ToList().Any(l2 => l2.Level1_Required_Id == l1.Id)
+                            select l1.Name).Distinct().ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = (from l1 in context.LevelOne
+                             where context.LevelTwo.Any(l2 => l2.Level1_Required_Id == l1.Id)
+                             select l1.Name).Distinct();
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_subquery_doesnt_project_unnecessary_columns_in_top_level_join()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.ToList();
+                levelTwos = context.LevelTwo.Include(e => e.OneToOne_Optional_FK_Inverse).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            join e2 in context.LevelTwo on e1.Id equals e2.OneToOne_Optional_FK_Inverse.Id
+                            where context.LevelTwo.Any(l2 => l2.Level1_Required_Id == e1.Id)
+                            select new { Name1 = e1.Name, Id2 = e2.Id };
+
+                var result = query.ToList();
+
+                var expected = (from l1 in levelOnes
+                                join l2 in levelTwos on l1.Id equals l2.OneToOne_Optional_FK_Inverse?.Id
+                                where levelTwos.Any(l2 => l2.Level1_Required_Id == l1.Id)
+                                select new { Name1 = l1.Name, Id2 = l2.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_nested_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne.ToList()
+                            where context.LevelTwo.ToList().Any(l2 => context.LevelThree.ToList().Select(l3 => l1.Id).Any())
+                            select l1.Name).Distinct().ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = (from l1 in context.LevelOne
+                             where context.LevelTwo.Any(l2 => context.LevelThree.Select(l3 => l2.Id).Any())
+                             select l1.Name).Distinct();
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_nested_two_levels_up_subquery_doesnt_project_unnecessary_columns_in_top_level()
+        {
+            List<string> expected;
+
+            using (var context = CreateContext())
+            {
+                expected = (from l1 in context.LevelOne.ToList()
+                            where context.LevelTwo.ToList().Any(l2 => context.LevelThree.ToList().Select(l3 => l1.Id).Any())
+                            select l1.Name).Distinct().ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = (from l1 in context.LevelOne
+                             where context.LevelTwo.Any(l2 => context.LevelThree.Select(l3 => l1.Id).Any())
+                             select l1.Name).Distinct();
+
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (var i = 0; i < result.Count; i++)
+                {
+                    Assert.True(expected.Contains(result[i]));
+                }
+            }
+        }
     }
 }
