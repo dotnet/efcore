@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
 
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.GetService<IConcurrencyDetector>().EnterCriticalSection();
 
                 Exception ex;
                 if (async)
