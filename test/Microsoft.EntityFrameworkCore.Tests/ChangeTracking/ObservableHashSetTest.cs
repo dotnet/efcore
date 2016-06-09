@@ -14,7 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 {
     public class ObservableHashSetTest
     {
-        private static readonly Random _random = new Random();
+        // seed chosen by fair dice roll
+        // guaranteed to be random
+        private static readonly Random _random = new Random(4);
 
         [Fact]
         public void Can_construct()
@@ -149,21 +151,28 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
             var hashSet = new ObservableHashSet<int>(testData);
 
-            var arrray = new int[orderedDistinct.Count];
-            hashSet.CopyTo(arrray);
+            var array = new int[orderedDistinct.Count];
+            hashSet.CopyTo(array);
 
-            Assert.Equal(orderedDistinct, arrray.Take(orderedDistinct.Count).OrderBy(i => i));
+            Assert.Equal(orderedDistinct, array.Take(orderedDistinct.Count).OrderBy(i => i));
 
-            arrray = new int[orderedDistinct.Count + 100];
-            hashSet.CopyTo(arrray, 100);
+            array = new int[orderedDistinct.Count + 100];
+            hashSet.CopyTo(array, 100);
 
-            Assert.Equal(orderedDistinct, arrray.Skip(100).Take(orderedDistinct.Count).OrderBy(i => i));
+            Assert.Equal(orderedDistinct, array.Skip(100).Take(orderedDistinct.Count).OrderBy(i => i));
 
-            var toTake = Math.Max(10, orderedDistinct.Count);
-            arrray = new int[100 + toTake];
-            hashSet.CopyTo(arrray, 100, toTake);
+            var toTake = Math.Min(10, orderedDistinct.Count);
+            array = new int[100 + toTake];
+            hashSet.CopyTo(array, 100, toTake);
 
-            Assert.Equal(orderedDistinct.Take(toTake), arrray.Skip(100).Take(toTake).OrderBy(i => i));
+            // there is no guaranteed order so just checking that all array elements are
+            // distinct and source collection contains them
+            var copied = array.Skip(100).Take(toTake);
+            Assert.Equal(copied.Count(), copied.Distinct().Count());
+            foreach (var element in copied)
+            {
+                Assert.Contains(element, orderedDistinct);
+            }
         }
 
         [Fact]
