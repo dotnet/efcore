@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public InMemoryQueryContext(
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IInMemoryStore store,
-            [NotNull] IStateManager stateManager,
+            [NotNull] LazyRef<IStateManager> stateManager,
             [NotNull] IConcurrencyDetector concurrencyDetector)
             : base(
                 Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)),

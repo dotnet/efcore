@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class QueryBuffer : IQueryBuffer
     {
-        private readonly IStateManager _stateManager;
-        private readonly IChangeDetector _changeDetector;
+        private readonly LazyRef<IStateManager> _stateManager;
+        private readonly LazyRef<IChangeDetector> _changeDetector;
 
         private IWeakReferenceIdentityMap _identityMap0;
         private IWeakReferenceIdentityMap _identityMap1;
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public QueryBuffer(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IChangeDetector changeDetector)
+            [NotNull] LazyRef<IStateManager> stateManager,
+            [NotNull] LazyRef<IChangeDetector> changeDetector)
         {
             _stateManager = stateManager;
             _changeDetector = changeDetector;
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (queryStateManager)
             {
-                var entry = _stateManager.TryGetEntry(key, entityLoadInfo.ValueBuffer, throwOnNullKey);
+                var entry = _stateManager.Value.TryGetEntry(key, entityLoadInfo.ValueBuffer, throwOnNullKey);
 
                 if (entry != null)
                 {
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual object GetPropertyValue(object entity, IProperty property)
         {
-            var entry = _stateManager.TryGetEntry(entity);
+            var entry = _stateManager.Value.TryGetEntry(entity);
 
             if (entry != null)
             {
@@ -134,14 +134,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             entityTrackingInfo
-                .StartTracking(_stateManager, entity, (ValueBuffer)boxedValueBuffer);
+                .StartTracking(_stateManager.Value, entity, (ValueBuffer)boxedValueBuffer);
 
             foreach (var includedEntity 
                 in entityTrackingInfo.GetIncludedEntities(entity)
                     .Where(includedEntity
                         => _valueBuffers.TryGetValue(includedEntity.Entity, out boxedValueBuffer)))
             {
-                includedEntity.StartTracking(_stateManager, (ValueBuffer)boxedValueBuffer);
+                includedEntity.StartTracking(_stateManager.Value, (ValueBuffer)boxedValueBuffer);
             }
         }
 
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             object boxedValueBuffer;
             if (!_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
             {
-                var entry = _stateManager.TryGetEntry(entity);
+                var entry = _stateManager.Value.TryGetEntry(entity);
 
                 Debug.Assert(entry != null);
 
@@ -297,7 +297,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IReadOnlyList<object> relatedEntities,
             bool tracking)
         {
-            _changeDetector.Suspend();
+            if (tracking)
+            {
+                _changeDetector.Value.Suspend();
+            }
+
             try
             {
                 var navigation = navigationPath[currentNavigationIndex];
@@ -353,7 +357,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
             finally
             {
-                _changeDetector.Resume();
+                if (tracking)
+                {
+                    _changeDetector.Value.Resume();
+                }
             }
         }
 
@@ -366,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (tracking)
             {
-                _stateManager.TryGetEntry(entity)?.SetRelationshipSnapshotValue(navigation, value);
+                _stateManager.Value.TryGetEntry(entity)?.SetRelationshipSnapshotValue(navigation, value);
             }
         }
 
@@ -376,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (tracking)
             {
-                _stateManager.TryGetEntry(entity)?.AddToCollectionSnapshot(navigation, value);
+                _stateManager.Value.TryGetEntry(entity)?.AddToCollectionSnapshot(navigation, value);
             }
         }
 
@@ -386,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (tracking)
             {
-                _stateManager.TryGetEntry(entity)?.AddRangeToCollectionSnapshot(navigation, values);
+                _stateManager.Value.TryGetEntry(entity)?.AddRangeToCollectionSnapshot(navigation, values);
             }
         }
 

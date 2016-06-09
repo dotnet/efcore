@@ -2,11 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Specification.Tests
 {
     public abstract class NorthwindQueryFixtureBase
     {
+        public abstract DbContextOptions BuildOptions(IServiceCollection additionalServices = null);
+
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>();

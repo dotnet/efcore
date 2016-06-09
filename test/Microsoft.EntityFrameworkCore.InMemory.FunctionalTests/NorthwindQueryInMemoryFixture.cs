@@ -18,21 +18,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         public NorthwindQueryInMemoryFixture()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(_testLoggerFactory)
-                .BuildServiceProvider();
-
-            _options = new DbContextOptionsBuilder()
-                .UseInMemoryDatabase()
-                .UseInternalServiceProvider(serviceProvider).Options;
+            _options = BuildOptions();
 
             using (var context = CreateContext())
             {
                 NorthwindData.Seed(context);
             }
         }
+
+        public override DbContextOptions BuildOptions(IServiceCollection serviceCollection = null)
+            => new DbContextOptionsBuilder()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(
+                    (serviceCollection ?? new ServiceCollection())
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
+                        .AddSingleton<ILoggerFactory>(_testLoggerFactory)
+                        .BuildServiceProvider()).Options;
 
         public override NorthwindContext CreateContext()
             => new NorthwindContext(_options);
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.FunctionalTests
 
         private class TestLogger : ILogger
         {
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) 
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
                 => TestOutputHelper?.WriteLine(formatter(state, exception));
 
             public bool IsEnabled(LogLevel logLevel) => TestOutputHelper != null;

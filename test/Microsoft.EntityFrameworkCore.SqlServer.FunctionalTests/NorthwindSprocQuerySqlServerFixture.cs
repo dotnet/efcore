@@ -20,19 +20,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             _testStore = SqlServerNorthwindContext.GetSharedStore();
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
-                .BuildServiceProvider();
-
-            _options = new DbContextOptionsBuilder()
-                .EnableSensitiveDataLogging()
-                .UseInternalServiceProvider(serviceProvider)
-                .UseSqlServer(_testStore.ConnectionString).Options;
-
-            serviceProvider.GetRequiredService<ILoggerFactory>();
+            _options = BuildOptions();
         }
+
+        public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
+            => new DbContextOptionsBuilder()
+                .EnableSensitiveDataLogging()
+                .UseInternalServiceProvider((additionalServices ?? new ServiceCollection())
+                    .AddEntityFrameworkSqlServer()
+                    .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                    .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                    .BuildServiceProvider())
+                .UseSqlServer(_testStore.ConnectionString).Options;
 
         public override NorthwindContext CreateContext()
         {
