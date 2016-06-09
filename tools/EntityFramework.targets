@@ -27,12 +27,36 @@
         using (var writer = File.CreateText(ProjectLockTargetsFile))
         {
             dynamic lockFile = new JavaScriptSerializer().DeserializeObject(File.ReadAllText(ProjectLockFile));
+            var libraries = lockFile["libraries"];
             var targets = lockFile["targets"];
             var target = targets[NuGetTarget];
 
             writer.WriteLine("<?xml version='1.0' encoding='utf-8' ?>");
             writer.WriteLine("<Project ToolsVersion='14.0' xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>");
             writer.WriteLine("  <ItemGroup>");
+
+            foreach (var libraryKey in libraries.Keys)
+            {
+                var library = libraries[libraryKey];
+                if (!library.ContainsKey("files"))
+                {
+                    continue;
+                }
+                foreach (var file in library["files"])
+                {
+                    if (file.EndsWith(".cs"))
+                    {
+                        writer.WriteLine("    <Compile Include=\"" + 
+                            Path.Combine(NuGetPackagesDirectory, 
+                                libraryKey, 
+                                file)
+                            .Replace("/", "\\")
+                            + "\">");
+                        writer.WriteLine("       <Link>" + file + "</Link>");
+                        writer.WriteLine("    </Compile>");
+                    }
+                }
+            }
 
             var frameworkAssemblies = new List<string>();
 
