@@ -317,8 +317,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3: True
 @p4: Your (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p5: strong (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p6: 01/02/2015 10:11:12
-@p7: 01/02/2019 14:11:12
+@p6: 01/02/2015 10:11:12 (DbType = DateTime)
+@p7: 01/02/2019 14:11:12 (DbType = DateTime)
 @p8: 01/02/2017 12:11:12
 @p9: 01/02/2016 11:11:12 +00:00
 @p10: 102.2
@@ -333,7 +333,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19: 103.3
 @p20: don't (Nullable = false) (Size = 4000)
 @p21: 84.4
-@p22: 01/02/2018 13:11:12
+@p22: 01/02/2018 13:11:12 (DbType = DateTime)
 @p23: 79
 @p24: 82.2
 @p25: Gumball Rules! (Nullable = false) (Size = 8000) (DbType = AnsiString)
@@ -443,8 +443,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3: True (Nullable = true)
 @p4: Your (Size = 8000) (DbType = AnsiString)
 @p5: strong (Size = 8000) (DbType = AnsiString)
-@p6: 01/02/2015 10:11:12 (Nullable = true)
-@p7: 01/02/2019 14:11:12 (Nullable = true)
+@p6: 01/02/2015 10:11:12 (Nullable = true) (DbType = DateTime)
+@p7: 01/02/2019 14:11:12 (Nullable = true) (DbType = DateTime)
 @p8: 01/02/2017 12:11:12 (Nullable = true)
 @p9: 01/02/2016 11:11:12 +00:00 (Nullable = true)
 @p10: 102.2 (Nullable = true)
@@ -459,7 +459,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19: 103.3 (Nullable = true)
 @p20: don't (Size = 4000)
 @p21: 84.4 (Nullable = true)
-@p22: 01/02/2018 13:11:12 (Nullable = true)
+@p22: 01/02/2018 13:11:12 (Nullable = true) (DbType = DateTime)
 @p23: 79 (Nullable = true)
 @p24: 82.2 (Nullable = true)
 @p25: Gumball Rules! (Size = 8000) (DbType = AnsiString)
@@ -563,8 +563,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3:  (DbType = String)
 @p4:  (Size = 8000)
 @p5:  (Size = 8000)
-@p6:  (DbType = DateTime2)
-@p7:  (DbType = DateTime2)
+@p6:  (DbType = DateTime)
+@p7:  (DbType = DateTime)
 @p8:  (DbType = DateTime2)
 @p9:  (DbType = String)
 @p10:  (DbType = String)
@@ -579,7 +579,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19:  (DbType = String)
 @p20:  (Size = 4000) (DbType = String)
 @p21:  (DbType = String)
-@p22:  (DbType = DateTime2)
+@p22:  (DbType = DateTime)
 @p23:  (DbType = Int16)
 @p24:  (DbType = String)
 @p25:  (Size = 8000)
@@ -868,8 +868,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2: True
 @p3: Your (Size = 8000) (DbType = AnsiString)
 @p4: strong (Size = 8000) (DbType = AnsiString)
-@p5: 01/02/2015 10:11:12
-@p6: 01/02/2019 14:11:12
+@p5: 01/02/2015 10:11:12 (DbType = DateTime)
+@p6: 01/02/2019 14:11:12 (DbType = DateTime)
 @p7: 01/02/2017 12:11:12
 @p8: 01/02/2016 11:11:12 +00:00
 @p9: 102.2
@@ -885,7 +885,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19: 103.3
 @p20: don't (Size = 4000)
 @p21: 84.4
-@p22: 01/02/2018 13:11:12
+@p22: 01/02/2018 13:11:12 (DbType = DateTime)
 @p23: 79
 @p24: 82.2
 @p25: Gumball Rules! (Size = 8000) (DbType = AnsiString)
@@ -988,8 +988,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2: True (Nullable = true)
 @p3: Your (Size = 8000) (DbType = AnsiString)
 @p4: strong (Size = 8000) (DbType = AnsiString)
-@p5: 01/02/2015 10:11:12 (Nullable = true)
-@p6: 01/02/2019 14:11:12 (Nullable = true)
+@p5: 01/02/2015 10:11:12 (Nullable = true) (DbType = DateTime)
+@p6: 01/02/2019 14:11:12 (Nullable = true) (DbType = DateTime)
 @p7: 01/02/2017 12:11:12 (Nullable = true)
 @p8: 01/02/2016 11:11:12 +00:00 (Nullable = true)
 @p9: 102.2 (Nullable = true)
@@ -1005,7 +1005,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19: 103.3 (Nullable = true)
 @p20: don't (Size = 4000)
 @p21: 84.4 (Nullable = true)
-@p22: 01/02/2018 13:11:12 (Nullable = true)
+@p22: 01/02/2018 13:11:12 (Nullable = true) (DbType = DateTime)
 @p23: 79 (Nullable = true)
 @p24: 82.2 (Nullable = true)
 @p25: Gumball Rules! (Size = 8000) (DbType = AnsiString)
@@ -1108,8 +1108,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2:  (DbType = String)
 @p3:  (Size = 8000)
 @p4:  (Size = 8000)
-@p5:  (DbType = DateTime2)
-@p6:  (DbType = DateTime2)
+@p5:  (DbType = DateTime)
+@p6:  (DbType = DateTime)
 @p7:  (DbType = DateTime2)
 @p8:  (DbType = String)
 @p9:  (DbType = String)
@@ -1125,7 +1125,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19:  (DbType = String)
 @p20:  (Size = 4000) (DbType = String)
 @p21:  (DbType = String)
-@p22:  (DbType = DateTime2)
+@p22:  (DbType = DateTime)
 @p23:  (DbType = Int16)
 @p24:  (DbType = String)
 @p25:  (Size = 8000)
