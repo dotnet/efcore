@@ -821,7 +821,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 if (expression.Test.IsSimpleExpression())
                 {
-                    _relationalCommandBuilder.Append(" = 1");
+                    _relationalCommandBuilder.Append(" = ");
+                    _relationalCommandBuilder.Append(TrueLiteral);
                 }
 
                 _relationalCommandBuilder.AppendLine();
