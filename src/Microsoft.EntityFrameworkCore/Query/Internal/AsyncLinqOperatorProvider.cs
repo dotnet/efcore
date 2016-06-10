@@ -1117,7 +1117,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         // Set operations
         private static readonly MethodInfo _concat = GetMethod("Concat", 1);
         private static readonly MethodInfo _except = GetMethod("Except", 1);
-        private static readonly MethodInfo _intersect = GetMethod("Intersect", 1);
         private static readonly MethodInfo _union = GetMethod("Union", 1);
 
         /// <summary>
@@ -1155,6 +1154,84 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     mi.GetParameters().Length == parameterCount + 2
                     && mi.GetParameters().Last().ParameterType == typeof(CancellationToken))
                    ?? candidateMethods.Single(mi => mi.GetParameters().Length == parameterCount + 1);
+        }
+
+
+        private static readonly MethodInfo _intersect
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_Intersect));
+
+        // ReSharper disable once InconsistentNaming
+        private static IAsyncEnumerable<TSource> _Intersect<TSource>(
+            IAsyncEnumerable<TSource> first, IAsyncEnumerable<TSource> second)
+            => new IntersectAsyncEnumerable<TSource>(first, second);
+
+        private class IntersectAsyncEnumerable<TSource> : IAsyncEnumerable<TSource>
+        {
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            private readonly IAsyncEnumerable<TSource> _first;
+            private readonly IAsyncEnumerable<TSource> _second;
+
+            public IntersectAsyncEnumerable(IAsyncEnumerable<TSource> first, IAsyncEnumerable<TSource> second)
+            {
+                _first = first;
+                _second = second;
+            }
+
+            public IAsyncEnumerator<TSource> GetEnumerator()
+                => new IntersectAsyncEnumerator<TSource>(
+                    _first.GetEnumerator(),
+                    _second.GetEnumerator());
+
+            private class IntersectAsyncEnumerator<T> : IAsyncEnumerator<TSource>
+            {
+                // ReSharper disable once MemberHidesStaticFromOuterClass
+                private readonly IAsyncEnumerator<TSource> _first;
+                private readonly IAsyncEnumerator<TSource> _second;
+
+                private HashSet<TSource> _set;
+
+                public IntersectAsyncEnumerator(IAsyncEnumerator<TSource> first, IAsyncEnumerator<TSource> second)
+                {
+                    _first = first;
+                    _second = second;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (_set == null)
+                    {
+                        _set = new HashSet<TSource>();
+
+                        while (await _second.MoveNext(cancellationToken))
+                        {
+                            _set.Add(_second.Current);
+                        }
+                    }
+
+                    while (await _first.MoveNext(cancellationToken))
+                    {
+                        var element = _first.Current;
+
+                        if (_set.Remove(element))
+                        {
+                            Current = element;
+
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+                public TSource Current { get; private set; }
+
+                public void Dispose()
+                {
+                    _second.Dispose();
+                    _first.Dispose();
+                }
+            }
         }
     }
 }
