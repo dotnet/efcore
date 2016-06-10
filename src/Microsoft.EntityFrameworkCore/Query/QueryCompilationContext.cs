@@ -35,15 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.QueryCompilationContext class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="model"> The model. </param>
-        /// <param name="logger"> The logger. </param>
-        /// <param name="entityQueryModelVisitorFactory"> The entity query model visitor factory. </param>
-        /// <param name="requiresMaterializationExpressionVisitorFactory"> The requires materialization expression visitor factory. </param>
-        /// <param name="linqOperatorProvider"> The linq operator provider. </param>
-        /// <param name="contextType"> Type of the context. </param>
-        /// <param name="trackQueryResults"> The default configured tracking behavior. </param>
         public QueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,

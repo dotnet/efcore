@@ -24,14 +24,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private readonly IEntityEntryGraphIterator _graphIterator;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ChangeTracker" /> class. Instances of this class are typically
-        ///     obtained from <see cref="DbContext.ChangeTracker" /> and it is not designed to be directly constructed
-        ///     in your application code.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="stateManager"> The internal state manager being used to store information about tracked entities. </param>
-        /// <param name="changeDetector"> The internal change detector used to identify changes in tracked entities. </param>
-        /// <param name="graphIterator"> The internal graph iterator used to traverse graphs of entities. </param>
-        /// <param name="context"> The context this change tracker belongs to. </param>
         public ChangeTracker(
             [NotNull] IStateManager stateManager,
             [NotNull] IChangeDetector changeDetector,

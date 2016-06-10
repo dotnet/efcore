@@ -22,22 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class EntityQueryModelVisitorFactory : IEntityQueryModelVisitorFactory
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityQueryModelVisitorFactory"/> class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="queryOptimizer"> The <see cref="IQueryOptimizer"/> to be used when processing a query. </param>
-        /// <param name="navigationRewritingExpressionVisitorFactory"> The <see cref="INavigationRewritingExpressionVisitorFactory"/> to be used when processing a query. </param>
-        /// <param name="subQueryMemberPushDownExpressionVisitor"> The <see cref="ISubQueryMemberPushDownExpressionVisitor"/> to be used when processing a query. </param>
-        /// <param name="querySourceTracingExpressionVisitorFactory"> The <see cref="IQuerySourceTracingExpressionVisitorFactory"/> to be used when processing a query. </param>
-        /// <param name="entityResultFindingExpressionVisitorFactory"> The <see cref="IEntityResultFindingExpressionVisitorFactory"/> to be used when processing a query. </param>
-        /// <param name="taskBlockingExpressionVisitor"> The <see cref="ITaskBlockingExpressionVisitor"/> to be used when processing a query. </param>
-        /// <param name="memberAccessBindingExpressionVisitorFactory"> The <see cref="IMemberAccessBindingExpressionVisitorFactory"/> to be used when processing a query. </param>
-        /// <param name="orderingExpressionVisitorFactory"> The <see cref="IOrderingExpressionVisitorFactory"/> to be used when processing a query. </param>
-        /// <param name="projectionExpressionVisitorFactory"> The <see cref="IProjectionExpressionVisitorFactory"/> to be used when processing a query. </param>
-        /// <param name="entityQueryableExpressionVisitorFactory"> The <see cref="IEntityQueryableExpressionVisitorFactory"/> to be used when processing a query. </param>
-        /// <param name="queryAnnotationExtractor"> The <see cref="IQueryAnnotationExtractor"/> to be used when processing a query. </param>
-        /// <param name="resultOperatorHandler"> The <see cref="IResultOperatorHandler"/> to be used when processing a query. </param>
-        /// <param name="entityMaterializerSource"> The <see cref="IEntityMaterializerSource"/> to be used when processing a query. </param>
-        /// <param name="expressionPrinter"> The <see cref="IExpressionPrinter"/> to be used when processing a query. </param>
         protected EntityQueryModelVisitorFactory(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,

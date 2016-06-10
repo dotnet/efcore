@@ -51,24 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual IModelCacheKeyFactory ModelCacheKeyFactory { get; }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ModelSource"/> class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="setFinder">
-        ///     The <see cref="IDbSetFinder"/> that will locate the <see cref="DbSet{TEntity}"/> properties
-        ///     on the derived context.
-        /// </param>
-        /// <param name="coreConventionSetBuilder">
-        ///     The <see cref="ICoreConventionSetBuilder"/> that will build the conventions to be used 
-        ///     to build the model.
-        /// </param>
-        /// <param name="modelCustomizer">
-        ///     The <see cref="IModelCustomizer"/> that will perform additional configuration of the model
-        ///     in addition to what is discovered by convention.
-        /// </param>
-        /// <param name="modelCacheKeyFactory">
-        ///     The <see cref="IModelCacheKeyFactory"/> that will create keys used to store and lookup models
-        ///     the model cache.
-        /// </param>
         protected ModelSource([NotNull] IDbSetFinder setFinder, [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder, [NotNull] IModelCustomizer modelCustomizer, [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
         {
             Check.NotNull(setFinder, nameof(setFinder));

@@ -18,12 +18,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private readonly InternalEntityEntry _internalEntityEntry;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityEntryGraphNode" /> class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="internalEntityEntry"> The internal entry tracking information about this entity. </param>
-        /// <param name="inboundNavigation">
-        ///     The navigation property that is being traversed to reach this node in the graph.
-        /// </param>
         public EntityEntryGraphNode(
             [NotNull] InternalEntityEntry internalEntityEntry,
             [CanBeNull] INavigation inboundNavigation)

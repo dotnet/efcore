@@ -24,15 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public class CollectionNavigationBuilder : IInfrastructure<InternalRelationshipBuilder>
     {
         /// <summary>
-        ///     <para>
-        ///         Initializes a new instance of the <see cref="CollectionNavigationBuilder" /> class.
-        ///     </para>
-        ///     <para>
-        ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-        ///         and it is not designed to be directly constructed in your application code.
-        ///     </para>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="builder"> The internal builder being used to configure the relationship. </param>
         public CollectionNavigationBuilder([NotNull] InternalRelationshipBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));

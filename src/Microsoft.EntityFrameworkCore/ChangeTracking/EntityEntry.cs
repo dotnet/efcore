@@ -30,11 +30,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private readonly InternalEntityEntry _internalEntityEntry;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityEntry" /> class. Instances of this class are returned from
-        ///     methods when using the <see cref="ChangeTracker" /> API and it is not designed to be directly constructed in
-        ///     your application code.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="internalEntry"> The internal entry tracking information about this entity. </param>
         public EntityEntry([NotNull] InternalEntityEntry internalEntry)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));

@@ -15,11 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryContextFactory : IQueryContextFactory
     {
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.QueryContextFactory class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="stateManager"> The state manager. </param>
-        /// <param name="concurrencyDetector"> The concurrency detector. </param>
-        /// <param name="changeDetector"> The change detector. </param>
         protected QueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IConcurrencyDetector concurrencyDetector,

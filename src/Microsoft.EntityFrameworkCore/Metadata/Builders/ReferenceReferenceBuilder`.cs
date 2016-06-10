@@ -26,17 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         where TRelatedEntity : class
     {
         /// <summary>
-        ///     <para>
-        ///         Initializes a new instance of the <see cref="ReferenceReferenceBuilder{TEntity, TRelatedEntity}" /> class.
-        ///     </para>
-        ///     <para>
-        ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-        ///         and it is not designed to be directly constructed in your application code.
-        ///     </para>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="builder"> The internal builder being used to configure this relationship. </param>
-        /// <param name="declaringEntityType"> The first entity type in the relationship. </param>
-        /// <param name="relatedEntityType"> The second entity type in the relationship. </param>
         public ReferenceReferenceBuilder(
             [NotNull] InternalRelationshipBuilder builder,
             [NotNull] EntityType declaringEntityType,
@@ -46,24 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Initializes a new instance of the <see cref="ReferenceReferenceBuilder{TEntity, TRelatedEntity}" /> class.
-        ///     </para>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="builder"> The internal builder being used to configure this relationship. </param>
-        /// <param name="oldBuilder"> A builder to copy configuration from. </param>
-        /// <param name="inverted">
-        ///     A value indicating whether to reverse the direction of the relationship.
-        /// </param>
-        /// <param name="foreignKeySet">
-        ///     A value indicating whether the foreign key properties have been configured in this chain of configuration calls.
-        /// </param>
-        /// <param name="principalKeySet">
-        ///     A value indicating whether the principal key properties have been configured in this chain of configuration calls.
-        /// </param>
-        /// <param name="requiredSet">
-        ///     A value indicating whether required/optional has been configured in this chain of configuration calls.
-        /// </param>
         protected ReferenceReferenceBuilder(InternalRelationshipBuilder builder,
             ReferenceReferenceBuilder oldBuilder,
             bool inverted = false,

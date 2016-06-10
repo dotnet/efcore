@@ -23,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private const string SystemAliasPrefix = "t";
         private readonly ISet<string> _tableAliasSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ISensitiveDataLogger logger,

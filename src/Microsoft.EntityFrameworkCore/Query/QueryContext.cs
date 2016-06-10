@@ -25,11 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         private IQueryBuffer _queryBuffer;
 
         /// <summary>
-        ///     Initializes a new instance of the Microsoft.EntityFrameworkCore.Query.QueryContext class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="queryBufferFactory"> The query buffer factory. </param>
-        /// <param name="stateManager"> The state manager. </param>
-        /// <param name="concurrencyDetector"> The concurrency detector. </param>
         public QueryContext(
             [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IStateManager stateManager,
