@@ -2050,7 +2050,7 @@ FROM [Customers] AS [c]
 WHERE LEN([c].[City]) = 6",
                 Sql);
         }
-        
+
         public override void Where_datetime_date_component()
         {
             base.Where_datetime_date_component();
@@ -2079,7 +2079,7 @@ WHERE DATEPART(day, [o].[OrderDate]) = 4",
         public override void Where_datetime_year_component()
         {
             base.Where_datetime_year_component();
-            
+
             Assert.Equal(
 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -2091,7 +2091,7 @@ WHERE DATEPART(year, [o].[OrderDate]) = 1998",
         public override void Where_datetime_dayOfYear_component()
         {
             base.Where_datetime_dayOfYear_component();
-            
+
             Assert.Equal(
 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -3052,7 +3052,7 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID]",
                 Sql);
         }
-        
+
         public override void GroupJoin_simple3()
         {
             base.GroupJoin_simple3();
@@ -3450,7 +3450,7 @@ WHERE [c].[CustomerID] = N'ALFKI'",
             Assert.Contains(
                     @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (@__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
+WHERE ((@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([p].[UnitsInStock] < 20))",
                     Sql);
         }
 
@@ -3464,7 +3464,7 @@ WHERE (@__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_0 <> 1) AND ([
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE ([p].[ProductID] < @__productId_0) AND ((@__flag_1 = 1 AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
+WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = 1) AND ([p].[UnitsInStock] >= 20)) OR ((@__flag_1 <> 1) AND ([p].[UnitsInStock] < 20)))",
                     Sql);
         }
 
@@ -3475,7 +3475,7 @@ WHERE ([p].[ProductID] < @__productId_0) AND ((@__flag_1 = 1 AND ([p].[UnitsInSt
             Assert.Contains(
                     @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE @__flag_0 = 1 AND ([p].[UnitsInStock] >= 20)",
+WHERE (@__flag_0 = 1) AND ([p].[UnitsInStock] >= 20)",
                     Sql);
         }
 
@@ -3679,6 +3679,19 @@ END",
                 Sql);
         }
 
+        public override void Where_bool_parameter()
+        {
+            base.Where_bool_parameter();
+
+            Assert.Equal(
+                @"@__prm_0: True
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE @__prm_0 = 1",
+                Sql);
+        }
+
         public override void Where_bool_parameter_compared_to_binary_expression()
         {
             base.Where_bool_parameter_compared_to_binary_expression();
@@ -3861,7 +3874,7 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
-        // TODO: Complex projection translation.
+// TODO: Complex projection translation.
 
 //        public override void Projection_when_arithmetic_expressions()
 //        {
@@ -5412,7 +5425,6 @@ LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[Custom
 ORDER BY [o].[CustomerID]",
                 Sql);
         }
-
 
         private const string FileLineEnding = @"
 ";

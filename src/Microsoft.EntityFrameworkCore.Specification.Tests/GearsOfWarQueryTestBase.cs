@@ -1060,6 +1060,17 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Where_subquery_boolean()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.Where(g => g.Weapons.First().IsAutomatic).ToList();
+
+                Assert.Equal(2, query.Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Select_Where_Navigation_Client()
         {
             using (var context = CreateContext())

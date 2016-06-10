@@ -104,8 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
         protected virtual string ConcatOperator => "+";
-        protected virtual string TrueLiteral => "1";
-        protected virtual string FalseLiteral => "0";
         protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
@@ -819,11 +817,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 Visit(expression.Test);
 
-                if (expression.Test.IsSimpleExpression())
-                {
-                    _relationalCommandBuilder.Append(" = 1");
-                }
-
                 _relationalCommandBuilder.AppendLine();
                 _relationalCommandBuilder.Append("THEN ");
 
@@ -916,14 +909,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _relationalCommandBuilder.Append(")");
                 }
 
-                if (expression.IsLogicalOperation()
-                    && (expression.Left.IsSimpleExpression()
-                        || expression.Left is SelectExpression))
-                {
-                    _relationalCommandBuilder.Append(" = ");
-                    _relationalCommandBuilder.Append(TrueLiteral);
-                }
-
                 string op;
                 if (!TryGenerateBinaryOperator(expression.NodeType, out op))
                 {
@@ -953,14 +938,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 if (needParens)
                 {
                     _relationalCommandBuilder.Append(")");
-                }
-
-                if (expression.IsLogicalOperation()
-                    && (expression.Right.IsSimpleExpression()
-                        || expression.Right is SelectExpression))
-                {
-                    _relationalCommandBuilder.Append(" = ");
-                    _relationalCommandBuilder.Append(TrueLiteral);
                 }
 
                 _typeMapping = parentTypeMapping;
@@ -1339,14 +1316,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 return base.VisitBinary(expression);
             }
 
-            protected override Expression VisitConditional(ConditionalExpression node)
+            protected override Expression VisitConditional(ConditionalExpression expression)
             {
                 var parentIsSearchCondition = _isSearchCondition;
                 _isSearchCondition = true;
-                var test = Visit(node.Test);
+                var test = Visit(expression.Test);
                 _isSearchCondition = false;
-                var ifTrue = Visit(node.IfTrue);
-                var ifFalse = Visit(node.IfFalse);
+                var ifTrue = Visit(expression.IfTrue);
+                var ifFalse = Visit(expression.IfFalse);
                 _isSearchCondition = parentIsSearchCondition;
 
                 var newExpression = Expression.Condition(test, ifTrue, ifFalse);
@@ -1409,12 +1386,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _isSearchCondition = false;
                     var newExpression = base.VisitExtension(expression);
                     _isSearchCondition = parentIsSearchCondition;
-                    return expression is AliasExpression
+                    return (expression is AliasExpression || expression is ColumnExpression || expression is SelectExpression)
                         ? Expression.Equal(newExpression, Expression.Constant(true, typeof(bool)))
                         : newExpression;
                 }
 
                 return base.VisitExtension(expression);
+            }
+
+            protected override Expression VisitParameter(ParameterExpression expression)
+            {
+                var newExpression = base.VisitParameter(expression);
+                return _isSearchCondition && (newExpression.Type == typeof(bool))
+                    ? Expression.Equal(newExpression, Expression.Constant(true, typeof(bool)))
+                    : newExpression;
             }
         }
     }

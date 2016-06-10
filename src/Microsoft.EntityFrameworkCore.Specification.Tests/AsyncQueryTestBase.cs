@@ -1057,6 +1057,13 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual async Task Where_bool_parameter()
+        {
+            var prm = true;
+            await AssertQuery<Product>(ps => ps.Where(p => prm), entryCount: 77);
+        }
+
+        [ConditionalFact]
         public virtual async Task Where_bool_parameter_compared_to_binary_expression()
         {
             var prm = true;

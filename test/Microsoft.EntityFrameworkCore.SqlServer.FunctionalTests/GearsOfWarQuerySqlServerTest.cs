@@ -1058,6 +1058,21 @@ LEFT JOIN [Weapon] AS [w.SynergyWith] ON [w].[SynergyWithId] = [w.SynergyWith].[
 ORDER BY [w].[SynergyWithId]", Sql);
         }
 
+        public override void Where_subquery_boolean()
+        {
+            base.Where_subquery_boolean();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((
+    SELECT TOP(1) [w].[IsAutomatic]
+    FROM [Weapon] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+) = 1)",
+                Sql);
+        }
+
         public override void Singleton_Navigation_With_Member_Access()
         {
             base.Singleton_Navigation_With_Member_Access();
