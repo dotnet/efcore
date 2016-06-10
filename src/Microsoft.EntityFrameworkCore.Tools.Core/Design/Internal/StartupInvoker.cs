@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly Type _startupType;
         private readonly string _environment;
-        private readonly string _startupTargetDir;
+        private readonly string _contentRootPath;
         private readonly string _startupAssemblyName;
         private readonly LazyRef<ILogger> _logger;
 
@@ -25,11 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] LazyRef<ILogger> logger,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
-            [NotNull] string startupTargetDir)
+            [NotNull] string contentRootPath)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotEmpty(startupTargetDir, nameof(startupTargetDir));
+            Check.NotEmpty(contentRootPath, nameof(contentRootPath));
 
             _logger = logger;
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 ? environment
                 : "Development";
 
-            _startupTargetDir = startupTargetDir;
+            _contentRootPath = contentRootPath;
 
             _startupAssemblyName = startupAssembly.GetName().Name;
 
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             services.AddSingleton<IHostingEnvironment>(
                 new HostingEnvironment
                 {
-                    ContentRootPath = _startupTargetDir,
+                    ContentRootPath = _contentRootPath,
                     EnvironmentName = _environment,
                     ApplicationName = _startupAssemblyName
                 });

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         public CommandOption StartupAssembly { get; set; }
         public CommandOption DataDirectory { get; set; }
         public CommandOption ProjectDirectory { get; set; }
-        public CommandOption StartupTargetDirectory { get; set; }
+        public CommandOption ContentRootPath { get; set; }
         public CommandOption RootNamespace { get; set; }
 
         public CommonOptions Value()
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                 StartupAssembly = StartupAssembly.Value(),
                 DataDirectory = DataDirectory.Value(),
                 ProjectDirectory = ProjectDirectory.Value(),
-                StartupTargetDirectory = StartupTargetDirectory.Value(),
+                ContentRootPath = ContentRootPath.Value(),
                 RootNamespace = RootNamespace.Value()
             };
     }

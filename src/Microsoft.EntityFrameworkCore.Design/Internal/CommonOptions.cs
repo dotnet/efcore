@@ -10,6 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public string DataDirectory { get; set; }
         public string RootNamespace { get; set; }
         public string ProjectDirectory { get; set; }
-        public string StartupTargetDirectory { get; set; }
+        public string ContentRootPath { get; set; }
     }
 }

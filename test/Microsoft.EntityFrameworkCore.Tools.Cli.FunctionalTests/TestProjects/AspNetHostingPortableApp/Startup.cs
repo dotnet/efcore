@@ -9,12 +9,18 @@ namespace AspNetHostingPortableApp
     public class Startup
     {
         private IConfiguration _config;
-        public Startup(IHostingEnvironment app)
+        public Startup(IHostingEnvironment env)
         {
-            _config = new ConfigurationBuilder()
-                .SetBasePath(app.ContentRootPath)
-                .AddJsonFile("config.json")
-                .Build();
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("config.json");
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets();
+            }
+
+            _config = builder.Build();
         }
         
         public void ConfigureServices(IServiceCollection services)

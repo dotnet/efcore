@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private const string StartupAssemblyOptionTemplate = "--startup-assembly";
         private const string DataDirectoryOptionTemplate = "--data-dir";
         private const string ProjectDirectoryOptionTemplate = "--project-dir";
-        private const string AppBaseDirectoryOptionTemplate = "--app-base-dir";
+        private const string ContentRootPathOptionTemplate = "--content-root-path";
         private const string RootNamespaceOptionTemplate = "--root-namespace";
         private const string VerboseOptionTemplate = "--verbose";
 
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string dispatcherVersion,
             string dataDir,
             string projectDir,
-            string startupTargetDir,
+            string contentRootPath,
             string rootNamespace,
             bool verbose)
             => new[]
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 DispatcherVersionArgumentName, dispatcherVersion,
                 DataDirectoryOptionTemplate, dataDir,
                 ProjectDirectoryOptionTemplate, projectDir,
-                AppBaseDirectoryOptionTemplate, startupTargetDir,
+                ContentRootPathOptionTemplate, contentRootPath,
                 RootNamespaceOptionTemplate, rootNamespace,
                 verbose ? VerboseOptionTemplate : string.Empty
             };
@@ -184,9 +184,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 Reporter.Verbose.WriteLine(ToolsStrings.LogDataDirectory(startupOutputPaths.RuntimeOutputPath));
 
                 // Workaround https://github.com/dotnet/cli/issues/3164
-                var isExecutable = startupProject.GetCompilerOptions(startupFramework, configuration).EmitEntryPoint.HasValue
-                    ? startupProject.GetCompilerOptions(startupFramework, configuration).EmitEntryPoint.Value
-                    : startupProject.GetCompilerOptions(null, configuration).EmitEntryPoint.GetValueOrDefault();
+                var isExecutable = startupProject.GetCompilerOptions(startupFramework, configuration).EmitEntryPoint
+                    ?? startupProject.GetCompilerOptions(null, configuration).EmitEntryPoint.GetValueOrDefault();
 
                 var startupAssembly = isExecutable
                     ? startupOutputPaths.RuntimeFiles.Executable
@@ -210,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                     startupAssembly: startupOutputPaths.RuntimeFiles.Assembly,
                                     dispatcherVersion: ThisAssemblyVersion,
                                     dataDir: startupOutputPaths.RuntimeOutputPath,
-                                    startupTargetDir: startupOutputPaths.RuntimeOutputPath,
+                                    contentRootPath: startupProject.ProjectDirectory,
                                     projectDir: targetProject.ProjectDirectory,
                                     rootNamespace: targetProject.Name,
                                     verbose: isVerbose)

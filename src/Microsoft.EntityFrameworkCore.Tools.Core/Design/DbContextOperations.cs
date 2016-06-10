@@ -23,30 +23,29 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
         private readonly string _environment;
-        private readonly string _startupTargetDir;
         private readonly LazyRef<ILogger> _logger;
+        private readonly string _contentRootPath;
         private readonly IServiceProvider _runtimeServices;
 
-        public DbContextOperations(
-            [NotNull] ILoggerProvider loggerProvider,
+        public DbContextOperations([NotNull] ILoggerProvider loggerProvider,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
-            [NotNull] string startupTargetDir)
+            [NotNull] string contentRootPath)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotEmpty(startupTargetDir, nameof(startupTargetDir));
+            Check.NotEmpty(contentRootPath, nameof(contentRootPath));
 
             _loggerProvider = loggerProvider;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
             _environment = environment;
-            _startupTargetDir = startupTargetDir;
+            _contentRootPath = contentRootPath;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
-            var startup = new StartupInvoker(_logger, startupAssembly, environment, startupTargetDir);
+            var startup = new StartupInvoker(_logger, startupAssembly, environment, contentRootPath);
             _runtimeServices = startup.ConfigureServices();
         }
 
@@ -245,7 +244,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         private DbContextFactoryOptions CreateFactoryOptions()
             => new DbContextFactoryOptions
             {
-                ApplicationBasePath = _startupTargetDir,
+#if NET451
+                ApplicationBasePath = AppDomain.CurrentDomain.GetData("APP_CONTEXT_BASE_DIRECTORY") as string ?? AppDomain.CurrentDomain.BaseDirectory,
+#else
+                ApplicationBasePath = AppContext.BaseDirectory,
+#endif
+                ContentRootPath = _contentRootPath,
                 EnvironmentName = !string.IsNullOrEmpty(_environment)
                         ? _environment
                         : "Development"

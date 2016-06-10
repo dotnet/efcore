@@ -29,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] Assembly startupAssembly,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
-            [NotNull] string startupTargetDir,
+            [NotNull] string contentRootPath,
             [NotNull] string rootNamespace)
         {
             Check.NotNull(startupAssemblyLoader, nameof(startupAssemblyLoader));
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
-            Check.NotEmpty(startupTargetDir, nameof(startupTargetDir));
+            Check.NotEmpty(contentRootPath, nameof(contentRootPath));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
             _loggerProvider = loggerProvider;
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _rootNamespace = rootNamespace;
 
             var logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
-            var startup = new StartupInvoker(logger, startupAssembly, environment, startupTargetDir);
+            var startup = new StartupInvoker(logger, startupAssembly, environment, contentRootPath);
             _servicesBuilder = new DesignTimeServicesBuilder(startupAssemblyLoader, startup);
         }
 

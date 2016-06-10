@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
         private const string StartupAssemblyOptionTemplate = "--startup-assembly";
         private const string DataDirectoryOptionTemplate = "--data-dir";
         private const string ProjectDirectoryOptionTemplate = "--project-dir";
-        private const string AppBaseDirectoryOptionTemplate = "--app-base-dir";
+        private const string ContentRootPathOptionTemplate = "--content-root-path";
         private const string RootNamespaceOptionTemplate = "--root-namespace";
 
         private static void EnsureValidDispatchRecipient(ref string[] args)
@@ -81,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
                     "The folder used as the data directory (defaults to current working directory)."),
                 ProjectDirectory = app.Option(ProjectDirectoryOptionTemplate + " <DIR>",
                     "The folder used as the project directory (defaults to current working directory)."),
-                StartupTargetDirectory = app.Option(AppBaseDirectoryOptionTemplate + " <DIR>",
-                    "The folder used as the base directory for the application (defaults to current working directory)."),
+                ContentRootPath = app.Option(ContentRootPathOptionTemplate + " <DIR>",
+                    "The folder used as the content root path for the application (defaults to application base directory)."),
                 RootNamespace = app.Option(RootNamespaceOptionTemplate + " <NAMESPACE>",
                     "The root namespace of the target project (defaults to the project assembly name).")
             };
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli
 
             ConsoleCommandLogger.Output("");
             ConsoleCommandLogger.Output(@"                     _/\__       ".Insert(21, Bold + White));
-            ConsoleCommandLogger.Output(@"               ---==/    \\      ");
+            ConsoleCommandLogger.Output(@"               ---==/    \\      ".Insert(20, Bold + White));
             ConsoleCommandLogger.Output(@"         ___  ___   |.    \|\    ".Insert(26, Bold).Insert(21, Normal).Insert(20, Bold + White).Insert(9, Normal + Magenta));
             ConsoleCommandLogger.Output(@"        | __|| __|  |  )   \\\   ".Insert(20, Bold + White).Insert(8, Normal + Magenta));
             ConsoleCommandLogger.Output(@"        | _| | _|   \_/ |  //|\\ ".Insert(20, Bold + White).Insert(8, Normal + Magenta));

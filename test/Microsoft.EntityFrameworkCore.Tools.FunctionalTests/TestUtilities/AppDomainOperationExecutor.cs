@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities
             string targetDir,
             string targetName,
             string projectDir,
-            string startupProjectDir,
+            string contentRootPath,
             string rootNamespace)
         {
             _domain = AppDomain.CreateDomain(
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.TestUtilities
                         { "targetName", targetName },
                         { "startupTargetName", targetName },
                         { "projectDir", projectDir },
-                        { "startupProjectDir", startupProjectDir },
+                        { "contentRootPath", contentRootPath },
                         { "rootNamespace", rootNamespace }
                     }
                 },

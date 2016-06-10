@@ -16,6 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual string ApplicationBasePath { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     Gets or sets the directory containing the application content files.
+        /// </summary>
+        public virtual string ContentRootPath { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     Gets or sets the name of the environment.
         /// </summary>
         public virtual string EnvironmentName { get; [param: CanBeNull] set; }

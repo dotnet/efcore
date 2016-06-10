@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var startupTargetName = (string)args["startupTargetName"];
             var environment = (string)args["environment"];
             _projectDir = (string)args["projectDir"];
-            var startupProjectDir = (string)args["startupProjectDir"];
+            var contentRootPath = (string)args["contentRootPath"];
             var rootNamespace = (string)args["rootNamespace"];
 
             // NOTE: LazyRef is used so any exceptions get passed to the resultHandler
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     assembly.Value,
                     startupAssembly.Value,
                     environment,
-                    startupProjectDir));
+                    contentRootPath));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     loggerProvider,
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     startupAssembly.Value,
                     environment,
                     _projectDir,
-                    startupProjectDir,
+                    contentRootPath,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     startupAssembly.Value,
                     environment,
                     _projectDir,
-                    startupProjectDir,
+                    contentRootPath,
                     rootNamespace));
         }
 

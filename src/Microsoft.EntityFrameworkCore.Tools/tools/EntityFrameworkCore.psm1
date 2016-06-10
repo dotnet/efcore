@@ -804,7 +804,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     $startupOutputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties OutputPath
     $startupProperties = $startupProject.Properties
     $startupFullPath = GetProperty $startupProperties FullPath
-    $startupTargetDir = Join-Path $startupFullPath $startupOutputPath
+    $appBasePath = Join-Path $startupFullPath $startupOutputPath
 
     $webConfig = GetProjectItem $startupProject 'Web.Config'
     $appConfig = GetProjectItem $startupProject 'App.Config'
@@ -817,10 +817,10 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
         $configurationFile = GetProperty $appConfig.Properties FullPath
     }
 
-    Write-Verbose "Using application base '$startupTargetDir'."
+    Write-Verbose "Using application base '$appBasePath'."
 
     $info = New-Object AppDomainSetup -Property @{
-        ApplicationBase = $startupTargetDir
+        ApplicationBase = $appBasePath
         ShadowCopyFiles = 'true'
     }
 
@@ -839,15 +839,16 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
     }
     try {
         $commandsAssembly = 'Microsoft.EntityFrameworkCore.Tools'
-        $commandsAssemblyFile = Join-Path $startupTargetDir "$commandsAssembly.dll"
+        $commandsAssemblyFile = Join-Path $appBasePath "$commandsAssembly.dll"
         if (!(Test-Path $commandsAssemblyFile)) {
-            Copy-Item "$PSScriptRoot/../lib/net451/$commandsAssembly.dll" $startupTargetDir
+            Copy-Item "$PSScriptRoot/../lib/net451/$commandsAssembly.dll" $appBasePath
             $removeCommandsAssembly = $True
         }
         $operationExecutorTypeName = 'Microsoft.EntityFrameworkCore.Design.OperationExecutor'
         $targetAssemblyName = GetProperty $properties AssemblyName
         $startupAssemblyName = GetProperty $startupProperties AssemblyName
         $rootNamespace = GetProperty $properties RootNamespace
+        $currentDirectory = [IO.Directory]::GetCurrentDirectory()
 
         $executor = $domain.CreateInstanceAndUnwrap(
             $commandsAssembly,
@@ -862,7 +863,7 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
                     targetName = $targetAssemblyName
                     environment = $environment
                     projectDir = $fullPath
-                    startupProjectDir = $startupFullPath
+                    contentRootPath = $startupFullPath
                     rootNamespace = $rootNamespace
                 }
             ),
@@ -870,11 +871,10 @@ function InvokeOperation($startupProject, $environment, $project, $operation, $a
             $null)
 
         $resultHandler = New-Object Microsoft.EntityFrameworkCore.Design.OperationResultHandler
-        $currentDirectory = [IO.Directory]::GetCurrentDirectory()
 
-        Write-Verbose "Using current directory '$startupTargetDir'."
+        Write-Verbose "Using current directory '$appBasePath'."
 
-        [IO.Directory]::SetCurrentDirectory($startupTargetDir)
+        [IO.Directory]::SetCurrentDirectory($appBasePath)
         try {
             $domain.CreateInstance(
                 $commandsAssembly,

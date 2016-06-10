@@ -57,9 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 ? Directory.GetCurrentDirectory()
                 : options.ProjectDirectory;
 
-            var startupTargetDir = string.IsNullOrEmpty(options.StartupTargetDirectory)
-                ? Directory.GetCurrentDirectory()
-                : options.StartupTargetDirectory;
+            var contentRootPath = string.IsNullOrEmpty(options.ContentRootPath)
+#if NET451
+                ? AppDomain.CurrentDomain.GetData("APP_CONTEXT_BASE_DIRECTORY") as string ?? AppDomain.CurrentDomain.BaseDirectory
+#else
+                ? AppContext.BaseDirectory
+#endif
+                : options.ContentRootPath;
 
             var rootNamespace = string.IsNullOrEmpty(options.RootNamespace)
                 ? assemblyFileName
@@ -71,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     assembly: projectAssembly,
                     startupAssembly: startupAssembly,
                     environment: environment,
-                    startupTargetDir: startupTargetDir));
+                    contentRootPath: contentRootPath));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     new LoggerProvider(name => new ConsoleCommandLogger(name)),
@@ -79,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     startupAssembly: startupAssembly,
                     environment: environment,
                     projectDir: projectDir,
-                    startupTargetDir: startupTargetDir,
+                    contentRootPath: contentRootPath,
                     rootNamespace: rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
@@ -89,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     startupAssembly: startupAssembly,
                     environment: environment,
                     projectDir: projectDir,
-                    startupTargetDir: startupTargetDir,
+                    contentRootPath: contentRootPath,
                     rootNamespace: rootNamespace));
         }
 

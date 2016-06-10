@@ -23,6 +23,7 @@
       "target": "project"
     },
     "Microsoft.AspNetCore.Hosting": "1.0.0-*",
+    "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0-*",
     "Microsoft.Extensions.Configuration.Json": "1.0.0-*"
   },
   "frameworks": {
@@ -30,5 +31,6 @@
   },
   "tools": {
     "Microsoft.EntityFrameworkCore.Tools": "$toolVersion$"
-  }
+  },
+  "userSecretsId": "fae9676f-aeb3-4db1-bed0-f20cf8597039"
 }
