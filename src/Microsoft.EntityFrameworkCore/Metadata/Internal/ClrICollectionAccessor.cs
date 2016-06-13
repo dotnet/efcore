@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
         where TEntity : class
-        where TCollection : class, ICollection<TElement>
+        where TCollection : class, IEnumerable<TElement>
     {
         private readonly string _propertyName;
         private readonly Func<TEntity, TCollection> _getCollection;
@@ -89,10 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (_createCollection == null)
             {
                 throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
-                    _propertyName, typeof(TEntity).FullName, typeof(TCollection).FullName));
+                    _propertyName, typeof(TEntity).Name, typeof(TCollection).Name));
             }
 
-            var collection = _createCollection();
+            var collection = (ICollection<TElement>)_createCollection();
             foreach (TElement value in values)
             {
                 collection.Add(value);
@@ -107,25 +107,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual object GetOrCreate(object instance) => GetOrCreateCollection(instance);
 
-        private TCollection GetOrCreateCollection(object instance)
+        private ICollection<TElement> GetOrCreateCollection(object instance)
         {
-            var collection = _getCollection((TEntity)instance);
+            var collection = GetCollection(instance);
 
             if (collection == null)
             {
                 if (_setCollection == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).FullName));
+                    throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).Name));
                 }
 
                 if (_createAndSetCollection == null)
                 {
                     throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
-                        _propertyName, typeof(TEntity).FullName, typeof(TCollection).FullName));
+                        _propertyName, typeof(TEntity).Name, typeof(TCollection).Name));
                 }
 
-                collection = _createAndSetCollection((TEntity)instance, _setCollection);
+                collection = (ICollection<TElement>)_createAndSetCollection((TEntity)instance, _setCollection);
             }
+
+            return collection;
+        }
+
+        private ICollection<TElement> GetCollection(object instance)
+        {
+            var enumerable = _getCollection((TEntity)instance);
+            var collection = enumerable as ICollection<TElement>;
+
+            if (enumerable != null
+                && collection == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NavigationBadType(
+                        _propertyName, typeof(TEntity).Name, enumerable.GetType().Name, typeof(TElement).Name));
+            }
+
             return collection;
         }
 
@@ -135,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool Contains(object instance, object value)
         {
-            var collection = _getCollection((TEntity)instance);
+            var collection = GetCollection((TEntity)instance);
 
             return (collection != null) && collection.Contains((TElement)value);
         }
@@ -145,6 +162,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Remove(object instance, object value)
-            => _getCollection((TEntity)instance)?.Remove((TElement)value);
+            => GetCollection((TEntity)instance)?.Remove((TElement)value);
     }
 }

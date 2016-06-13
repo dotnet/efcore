@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var property = navigation.GetPropertyInfo();
-            var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
+            var elementType = property.PropertyType.TryGetElementType(typeof(IEnumerable<>));
 
             // TODO: Only ICollections supported; add support for enumerables with add/remove methods
             // Issue #752
@@ -46,18 +46,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
-                        navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.FullName, navigation.GetTargetType().Name));
+                        navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.Name, navigation.GetTargetType().Name));
             }
 
             if (property.PropertyType.IsArray)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.NavigationArray(navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.FullName));
+                    CoreStrings.NavigationArray(navigation.Name, navigation.DeclaringEntityType.DisplayName(), property.PropertyType.Name));
             }
 
             if (property.GetMethod == null)
             {
-                throw new InvalidOperationException(CoreStrings.NavigationNoGetter(navigation.Name, navigation.DeclaringEntityType.Name));
+                throw new InvalidOperationException(CoreStrings.NavigationNoGetter(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [UsedImplicitly]
         private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
             where TEntity : class
-            where TCollection : class, ICollection<TElement>
+            where TCollection : class, IEnumerable<TElement>
         {
             var getterDelegate = (Func<TEntity, TCollection>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TCollection>));
 

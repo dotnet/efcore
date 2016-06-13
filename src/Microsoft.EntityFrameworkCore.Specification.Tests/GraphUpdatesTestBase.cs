@@ -119,9 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Principal:
-                        existing.Children.Add(new2a);
-                        existing.Children.Add(new2b);
-                        root.OptionalChildren.Add(new1);
+                        Add(existing.Children, new2a);
+                        Add(existing.Children, new2b);
+                        Add(root.OptionalChildren, new1);
                         break;
                     case ChangeMechanism.Dependent:
                         new2a.Parent = existing;
@@ -209,9 +209,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Principal:
-                        existing.Children.Add(new2a);
-                        existing.Children.Add(new2b);
-                        root.RequiredChildren.Add(new1);
+                        Add(existing.Children, new2a);
+                        Add(existing.Children, new2b);
+                        Add(root.RequiredChildren, new1);
                         break;
                     case ChangeMechanism.Dependent:
                         new2a.Parent = existing;
@@ -276,8 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         removed1.Parent = null;
                         break;
                     case ChangeMechanism.Principal:
-                        childCollection.Remove(removed2);
-                        root.OptionalChildren.Remove(removed1);
+                        Remove(childCollection, removed2);
+                        Remove(root.OptionalChildren, removed1);
                         break;
                     case ChangeMechanism.FK:
                         removed2.ParentId = null;
@@ -305,11 +305,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 AssertKeys(root, loadedRoot);
                 AssertNavigations(loadedRoot);
 
-                Assert.Equal(2, loadedRoot.RequiredChildren.Count);
-                Assert.Equal(2, loadedRoot.RequiredChildren.First().Children.Count);
+                Assert.Equal(2, loadedRoot.RequiredChildren.Count());
+                Assert.Equal(2, loadedRoot.RequiredChildren.First().Children.Count());
 
-                Assert.Equal(1, loadedRoot.OptionalChildren.Count);
-                Assert.Equal(1, loadedRoot.OptionalChildren.First().Children.Count);
+                Assert.Equal(1, loadedRoot.OptionalChildren.Count());
+                Assert.Equal(1, loadedRoot.OptionalChildren.First().Children.Count());
             }
         }
 
@@ -342,8 +342,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         removed1.Parent = null;
                         break;
                     case ChangeMechanism.Principal:
-                        childCollection.Remove(removed2);
-                        root.RequiredChildren.Remove(removed1);
+                        Remove(childCollection, removed2);
+                        Remove(root.RequiredChildren, removed1);
                         break;
                     case ChangeMechanism.FK:
                         context.Entry(removed2).GetInfrastructure()[context.Entry(removed2).Property(e => e.ParentId).Metadata] = null;
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 AssertNavigations(root);
 
-                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.Equal(1, root.RequiredChildren.Count());
                 Assert.DoesNotContain(removed1Id, root.RequiredChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Required1s.Where(e => e.Id == removed1Id));
@@ -1007,9 +1007,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Principal:
-                        existing.Children.Add(new2a);
-                        existing.Children.Add(new2b);
-                        root.OptionalChildrenAk.Add(new1);
+                        Add(existing.Children, new2a);
+                        Add(existing.Children, new2b);
+                        Add(root.OptionalChildrenAk, new1);
                         break;
                     case ChangeMechanism.Dependent:
                         new2a.Parent = existing;
@@ -1097,9 +1097,9 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Principal:
-                        existing.Children.Add(new2a);
-                        existing.Children.Add(new2b);
-                        root.RequiredChildrenAk.Add(new1);
+                        Add(existing.Children, new2a);
+                        Add(existing.Children, new2b);
+                        Add(root.RequiredChildrenAk, new1);
                         break;
                     case ChangeMechanism.Dependent:
                         new2a.Parent = existing;
@@ -1164,8 +1164,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         removed1.Parent = null;
                         break;
                     case ChangeMechanism.Principal:
-                        childCollection.Remove(removed2);
-                        root.OptionalChildrenAk.Remove(removed1);
+                        Remove(childCollection, removed2);
+                        Remove(root.OptionalChildrenAk, removed1);
                         break;
                     case ChangeMechanism.FK:
                         removed2.ParentId = null;
@@ -1193,11 +1193,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 AssertKeys(root, loadedRoot);
                 AssertNavigations(loadedRoot);
 
-                Assert.Equal(2, loadedRoot.RequiredChildrenAk.Count);
-                Assert.Equal(2, loadedRoot.RequiredChildrenAk.First().Children.Count);
+                Assert.Equal(2, loadedRoot.RequiredChildrenAk.Count());
+                Assert.Equal(2, loadedRoot.RequiredChildrenAk.First().Children.Count());
 
-                Assert.Equal(1, loadedRoot.OptionalChildrenAk.Count);
-                Assert.Equal(1, loadedRoot.OptionalChildrenAk.First().Children.Count);
+                Assert.Equal(1, loadedRoot.OptionalChildrenAk.Count());
+                Assert.Equal(1, loadedRoot.OptionalChildrenAk.First().Children.Count());
             }
         }
 
@@ -1225,8 +1225,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                         removed1.Parent = null;
                         break;
                     case ChangeMechanism.Principal:
-                        childCollection.Remove(removed2);
-                        root.RequiredChildrenAk.Remove(removed1);
+                        Remove(childCollection, removed2);
+                        Remove(root.RequiredChildrenAk, removed1);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
@@ -1251,11 +1251,11 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.False(context.RequiredAk1s.Any(e => e.Id == removed1.Id));
                 Assert.False(context.RequiredAk2s.Any(e => e.Id == removed2.Id));
 
-                Assert.Equal(1, loadedRoot.RequiredChildrenAk.Count);
-                Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().Children.Count);
+                Assert.Equal(1, loadedRoot.RequiredChildrenAk.Count());
+                Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().Children.Count());
 
-                Assert.Equal(2, loadedRoot.OptionalChildrenAk.Count);
-                Assert.Equal(2, loadedRoot.OptionalChildrenAk.First().Children.Count);
+                Assert.Equal(2, loadedRoot.OptionalChildrenAk.Count());
+                Assert.Equal(2, loadedRoot.OptionalChildrenAk.First().Children.Count());
             }
         }
 
@@ -1888,7 +1888,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.RequiredChildren.Count);
+                Assert.Equal(2, root.RequiredChildren.Count());
 
                 var removed = root.RequiredChildren.First();
 
@@ -1905,7 +1905,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
 
-                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.Equal(1, root.RequiredChildren.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
@@ -1916,7 +1916,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.Equal(1, root.RequiredChildren.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
@@ -1934,7 +1934,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.OptionalChildren.Count);
+                Assert.Equal(2, root.OptionalChildren.Count());
 
                 var removed = root.OptionalChildren.First();
 
@@ -1951,7 +1951,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.Equal(1, root.OptionalChildren.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
@@ -1962,7 +1962,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.Equal(1, root.OptionalChildren.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
@@ -2100,7 +2100,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.OptionalChildrenAk.Count);
+                Assert.Equal(2, root.OptionalChildrenAk.Count());
 
                 var removed = root.OptionalChildrenAk.First();
 
@@ -2117,7 +2117,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.Equal(1, root.OptionalChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
@@ -2128,7 +2128,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.Equal(1, root.OptionalChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
@@ -2146,7 +2146,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.RequiredChildrenAk.Count);
+                Assert.Equal(2, root.RequiredChildrenAk.Count());
 
                 var removed = root.RequiredChildrenAk.First();
 
@@ -2163,7 +2163,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                 Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
 
-                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.Equal(1, root.RequiredChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
@@ -2174,7 +2174,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.Equal(1, root.RequiredChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
@@ -2332,7 +2332,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.Equal(1, root.RequiredChildren.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
@@ -2343,7 +2343,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.Equal(1, root.RequiredChildren.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
@@ -2467,7 +2467,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.Equal(1, root.RequiredChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
@@ -2478,7 +2478,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.Equal(1, root.RequiredChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
@@ -2602,7 +2602,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.Equal(1, root.OptionalChildren.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
@@ -2616,7 +2616,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.Equal(1, root.OptionalChildren.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
@@ -2700,7 +2700,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.Equal(1, root.OptionalChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
@@ -2714,7 +2714,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.Equal(1, root.OptionalChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
@@ -2779,7 +2779,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.RequiredChildren.Count);
+                Assert.Equal(2, root.RequiredChildren.Count());
             }
 
             using (var context = CreateContext())
@@ -2807,7 +2807,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.Equal(1, root.RequiredChildren.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
@@ -2826,7 +2826,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.OptionalChildren.Count);
+                Assert.Equal(2, root.OptionalChildren.Count());
             }
 
             using (var context = CreateContext())
@@ -2854,7 +2854,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.Equal(1, root.OptionalChildren.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
@@ -3002,7 +3002,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.OptionalChildrenAk.Count);
+                Assert.Equal(2, root.OptionalChildrenAk.Count());
             }
 
             using (var context = CreateContext())
@@ -3030,7 +3030,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.Equal(1, root.OptionalChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
@@ -3049,7 +3049,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.RequiredChildrenAk.Count);
+                Assert.Equal(2, root.RequiredChildrenAk.Count());
             }
 
             using (var context = CreateContext())
@@ -3077,7 +3077,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.Equal(1, root.RequiredChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
@@ -3221,7 +3221,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.RequiredChildren.Count);
+                Assert.Equal(2, root.RequiredChildren.Count());
 
                 var removed = root.RequiredChildren.First();
 
@@ -3232,7 +3232,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(2, orphanedIds.Count);
 
                 var added = new Required2();
-                removed.Children.Add(added);
+                Add(removed.Children, added);
                 context.ChangeTracker.DetectChanges();
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
@@ -3256,7 +3256,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.Equal(1, root.RequiredChildren.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                 Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
@@ -3360,7 +3360,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(2, root.RequiredChildrenAk.Count);
+                Assert.Equal(2, root.RequiredChildrenAk.Count());
 
                 var removed = root.RequiredChildrenAk.First();
 
@@ -3371,7 +3371,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 Assert.Equal(2, orphanedIds.Count);
 
                 var added = new RequiredAk2();
-                removed.Children.Add(added);
+                Add(removed.Children, added);
                 context.ChangeTracker.DetectChanges();
 
                 Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
@@ -3395,7 +3395,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             {
                 var root = LoadFullGraph(context);
 
-                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.Equal(1, root.RequiredChildrenAk.Count());
                 Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                 Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
@@ -3489,6 +3489,10 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        private void Add<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Add(item);
+
+        private void Remove<T>(IEnumerable<T> collection, T item) => ((ICollection<T>)collection).Remove(item);
+
         public enum ChangeMechanism
         {
             Dependent,
@@ -3545,8 +3549,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 actual.RequiredChildren.OrderBy(e => e.Id).Select(e => e.Id));
 
             Assert.Equal(
-                expected.RequiredChildren.OrderBy(e => e.Id).Select(e => e.Children.Count),
-                actual.RequiredChildren.OrderBy(e => e.Id).Select(e => e.Children.Count));
+                expected.RequiredChildren.OrderBy(e => e.Id).Select(e => e.Children.Count()),
+                actual.RequiredChildren.OrderBy(e => e.Id).Select(e => e.Children.Count()));
 
             Assert.Equal(
                 expected.RequiredChildren.OrderBy(e => e.Id).SelectMany(e => e.Children).OrderBy(e => e.Id).Select(e => e.Id),
@@ -3557,8 +3561,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 actual.OptionalChildren.OrderBy(e => e.Id).Select(e => e.Id));
 
             Assert.Equal(
-                expected.OptionalChildren.OrderBy(e => e.Id).Select(e => e.Children.Count),
-                actual.OptionalChildren.OrderBy(e => e.Id).Select(e => e.Children.Count));
+                expected.OptionalChildren.OrderBy(e => e.Id).Select(e => e.Children.Count()),
+                actual.OptionalChildren.OrderBy(e => e.Id).Select(e => e.Children.Count()));
 
             Assert.Equal(
                 expected.OptionalChildren.OrderBy(e => e.Id).SelectMany(e => e.Children).OrderBy(e => e.Id).Select(e => e.Id),
@@ -3579,8 +3583,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 actual.RequiredChildrenAk.OrderBy(e => e.Id).Select(e => e.AlternateId));
 
             Assert.Equal(
-                expected.RequiredChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count),
-                actual.RequiredChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count));
+                expected.RequiredChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count()),
+                actual.RequiredChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count()));
 
             Assert.Equal(
                 expected.RequiredChildrenAk.OrderBy(e => e.Id).SelectMany(e => e.Children).OrderBy(e => e.Id).Select(e => e.AlternateId),
@@ -3591,8 +3595,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                 actual.OptionalChildrenAk.OrderBy(e => e.Id).Select(e => e.AlternateId));
 
             Assert.Equal(
-                expected.OptionalChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count),
-                actual.OptionalChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count));
+                expected.OptionalChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count()),
+                actual.OptionalChildrenAk.OrderBy(e => e.Id).Select(e => e.Children.Count()));
 
             Assert.Equal(
                 expected.OptionalChildrenAk.OrderBy(e => e.Id).SelectMany(e => e.Children).OrderBy(e => e.Id).Select(e => e.AlternateId),
@@ -3742,14 +3746,14 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public int Id { get; set; }
             public Guid AlternateId { get; set; }
 
-            public ICollection<Required1> RequiredChildren { get; set; } = new List<Required1>();
-            public ICollection<Optional1> OptionalChildren { get; set; } = new List<Optional1>();
+            public IEnumerable<Required1> RequiredChildren { get; set; } = new List<Required1>();
+            public IEnumerable<Optional1> OptionalChildren { get; set; } = new List<Optional1>();
             public RequiredSingle1 RequiredSingle { get; set; }
             public RequiredNonPkSingle1 RequiredNonPkSingle { get; set; }
             public OptionalSingle1 OptionalSingle { get; set; }
 
-            public ICollection<RequiredAk1> RequiredChildrenAk { get; set; } = new List<RequiredAk1>();
-            public ICollection<OptionalAk1> OptionalChildrenAk { get; set; } = new List<OptionalAk1>();
+            public IEnumerable<RequiredAk1> RequiredChildrenAk { get; set; } = new List<RequiredAk1>();
+            public IEnumerable<OptionalAk1> OptionalChildrenAk { get; set; } = new List<OptionalAk1>();
             public RequiredSingleAk1 RequiredSingleAk { get; set; }
             public RequiredNonPkSingleAk1 RequiredNonPkSingleAk { get; set; }
             public OptionalSingleAk1 OptionalSingleAk { get; set; }
@@ -3762,7 +3766,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public int ParentId { get; set; }
             public Root Parent { get; set; }
 
-            public ICollection<Required2> Children { get; set; } = new List<Required2>();
+            public IEnumerable<Required2> Children { get; set; } = new List<Required2>();
         }
 
         protected class Required2
@@ -3780,7 +3784,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public int? ParentId { get; set; }
             public Root Parent { get; set; }
 
-            public ICollection<Optional2> Children { get; set; } = new List<Optional2>();
+            public IEnumerable<Optional2> Children { get; set; } = new List<Optional2>();
         }
 
         protected class Optional2
@@ -3850,7 +3854,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public Guid ParentId { get; set; }
             public Root Parent { get; set; }
 
-            public ICollection<RequiredAk2> Children { get; set; } = new List<RequiredAk2>();
+            public IEnumerable<RequiredAk2> Children { get; set; } = new List<RequiredAk2>();
         }
 
         protected class RequiredAk2
@@ -3870,7 +3874,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             public Guid? ParentId { get; set; }
             public Root Parent { get; set; }
 
-            public ICollection<OptionalAk2> Children { get; set; } = new List<OptionalAk2>();
+            public IEnumerable<OptionalAk2> Children { get; set; } = new List<OptionalAk2>();
         }
 
         protected class OptionalAk2

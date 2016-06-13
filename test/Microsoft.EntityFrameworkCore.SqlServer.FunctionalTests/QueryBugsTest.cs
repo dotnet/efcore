@@ -597,7 +597,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                 var query4 = ctx.Customers.Select(c => c.Orders4);
 
-                Assert.Equal(CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).FullName, typeof(MyInvalidCollection3758<Order3758>).FullName),
+                Assert.Equal(CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).Name, typeof(MyInvalidCollection3758<Order3758>).Name),
                     Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
             }
         }

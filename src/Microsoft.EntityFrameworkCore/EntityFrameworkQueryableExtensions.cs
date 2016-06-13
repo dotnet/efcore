@@ -2189,7 +2189,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     type of entity being queried (<typeparamref name="TEntity" />). If you wish to include additional types based on the navigation
         ///     properties of the type being included, then chain a call to
         ///     <see
-        ///         cref="ThenInclude{TEntity, TPreviousProperty, TProperty}(IIncludableQueryable{TEntity, ICollection{TPreviousProperty}}, Expression{Func{TPreviousProperty, TProperty}})" />
+        ///         cref="ThenInclude{TEntity, TPreviousProperty, TProperty}(IIncludableQueryable{TEntity, IEnumerable{TPreviousProperty}}, Expression{Func{TPreviousProperty, TProperty}})" />
         ///     after this call.
         /// </summary>
         /// <example>
@@ -2289,7 +2289,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A new query with the related data included.
         /// </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull] this IIncludableQueryable<TEntity, ICollection<TPreviousProperty>> source,
+            [NotNull] this IIncludableQueryable<TEntity, IEnumerable<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
             => new IncludableQueryable<TEntity, TProperty>(
