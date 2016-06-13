@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -19,9 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = context.Set<Product>().Include(e => e.Category).Single();
                 var principal = dependent.Category;
 
-                Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Same(principal, dependent.Category);
-                Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Same(principal, dependent.Category);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        });
             }
         }
 
@@ -35,9 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var principal = context.Set<Category>().Include(e => e.Products).Single();
                 var dependent = principal.Products.Single();
 
-                Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Same(principal, dependent.Category);
-                Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Same(principal, dependent.Category);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        });
             }
         }
 
@@ -51,8 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = context.Set<ProductDN>().Include(e => e.Category).Single();
                 var principal = dependent.Category;
 
-                Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Same(principal, dependent.Category);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Same(principal, dependent.Category);
+                        });
             }
         }
 
@@ -66,8 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var principal = context.Set<CategoryPN>().Include(e => e.Products).Single();
                 var dependent = principal.Products.Single();
 
-                Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.CategoryId);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Products);
+                        });
             }
         }
 
@@ -81,9 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = context.Set<Child>().Include(e => e.Parent).Single();
                 var principal = dependent.Parent;
 
-                Assert.Equal(principal.Id, dependent.ParentId);
-                Assert.Same(principal, dependent.Parent);
-                Assert.Same(dependent, principal.Child);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentId);
+                            Assert.Same(principal, dependent.Parent);
+                            Assert.Same(dependent, principal.Child);
+                        });
             }
         }
 
@@ -97,9 +123,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var principal = context.Set<Parent>().Include(e => e.Child).Single();
                 var dependent = principal.Child;
 
-                Assert.Equal(principal.Id, dependent.ParentId);
-                Assert.Same(principal, dependent.Parent);
-                Assert.Same(dependent, principal.Child);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentId);
+                            Assert.Same(principal, dependent.Parent);
+                            Assert.Same(dependent, principal.Child);
+                        });
             }
         }
 
@@ -113,8 +144,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = context.Set<ChildDN>().Include(e => e.Parent).Single();
                 var principal = dependent.Parent;
 
-                Assert.Equal(principal.Id, dependent.ParentId);
-                Assert.Same(principal, dependent.Parent);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentId);
+                            Assert.Same(principal, dependent.Parent);
+                        });
             }
         }
 
@@ -128,8 +164,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var principal = context.Set<ParentPN>().Include(e => e.Child).Single();
                 var dependent = principal.Child;
 
-                Assert.Equal(principal.Id, dependent.ParentId);
-                Assert.Same(dependent, principal.Child);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentId);
+                            Assert.Same(dependent, principal.Child);
+                        });
             }
         }
 
@@ -144,9 +185,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = widgets.Single(e => e.Id == 78);
                 var principal = widgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                Assert.Same(principal, dependent.ParentWidget);
-                Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                        });
             }
         }
 
@@ -161,9 +207,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = widgets.Single(e => e.Id == 78);
                 var principal = widgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                Assert.Same(principal, dependent.ParentWidget);
-                Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                        });
             }
         }
 
@@ -178,9 +229,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = widgets.Single(e => e.Id == 78);
                 var principal = widgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                Assert.Same(principal, dependent.ParentWidget);
-                Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                        });
             }
         }
 
@@ -195,8 +251,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = widgets.Single(e => e.Id == 78);
                 var principal = widgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                        });
             }
         }
 
@@ -211,8 +272,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = widgets.Single(e => e.Id == 78);
                 var principal = widgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                Assert.Same(principal, dependent.ParentWidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                        });
             }
         }
 
@@ -227,8 +293,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = widgets.Single(e => e.Id == 78);
                 var principal = widgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                Assert.Same(principal, dependent.ParentWidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Same(principal, dependent.ParentWidget);
+                        });
             }
         }
 
@@ -243,8 +314,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = widgets.Single(e => e.Id == 78);
                 var principal = widgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentWidgetId);
-                Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentWidgetId);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.ChildWidgets);
+                        });
             }
         }
 
@@ -259,9 +335,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = smidgets.Single(e => e.Id == 78);
                 var principal = smidgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                Assert.Same(principal, dependent.ParentSmidget);
-                Assert.Same(dependent, principal.ChildSmidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                            Assert.Same(principal, dependent.ParentSmidget);
+                            Assert.Same(dependent, principal.ChildSmidget);
+                        });
             }
         }
 
@@ -276,9 +357,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = smidgets.Single(e => e.Id == 78);
                 var principal = smidgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                Assert.Same(principal, dependent.ParentSmidget);
-                Assert.Same(dependent, principal.ChildSmidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                            Assert.Same(principal, dependent.ParentSmidget);
+                            Assert.Same(dependent, principal.ChildSmidget);
+                        });
             }
         }
 
@@ -293,9 +379,14 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = smidgets.Single(e => e.Id == 78);
                 var principal = smidgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                Assert.Same(principal, dependent.ParentSmidget);
-                Assert.Same(dependent, principal.ChildSmidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                            Assert.Same(principal, dependent.ParentSmidget);
+                            Assert.Same(dependent, principal.ChildSmidget);
+                        });
             }
         }
 
@@ -310,8 +401,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = smidgets.Single(e => e.Id == 78);
                 var principal = smidgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                Assert.Same(dependent, principal.ChildSmidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                            Assert.Same(dependent, principal.ChildSmidget);
+                        });
             }
         }
 
@@ -326,8 +422,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = smidgets.Single(e => e.Id == 78);
                 var principal = smidgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                Assert.Same(principal, dependent.ParentSmidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                            Assert.Same(principal, dependent.ParentSmidget);
+                        });
             }
         }
 
@@ -342,8 +443,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = smidgets.Single(e => e.Id == 78);
                 var principal = smidgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                Assert.Same(principal, dependent.ParentSmidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                            Assert.Same(principal, dependent.ParentSmidget);
+                        });
             }
         }
 
@@ -358,8 +464,13 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = smidgets.Single(e => e.Id == 78);
                 var principal = smidgets.Single(e => e.Id == 77);
 
-                Assert.Equal(principal.Id, dependent.ParentSmidgetId);
-                Assert.Same(dependent, principal.ChildSmidget);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.ParentSmidgetId);
+                            Assert.Same(dependent, principal.ChildSmidget);
+                        });
             }
         }
 
@@ -373,12 +484,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var dependent = context.Set<Post>().Include(e => e.Blog).Single();
                 var principal = dependent.Blog;
 
-                Assert.Equal(principal.Id, dependent.BlogId);
-                Assert.Same(principal, dependent.Blog);
-                Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.BlogId);
+                            Assert.Same(principal, dependent.Blog);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
 
-                Assert.Equal(dependent.Id, principal.TopPostId);
-                Assert.Same(dependent, principal.TopPost);
+                            Assert.Equal(dependent.Id, principal.TopPostId);
+                            Assert.Same(dependent, principal.TopPost);
+                        });
             }
         }
 
@@ -392,12 +508,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
                 var principal = context.Set<Blog>().Include(e => e.Posts).Single();
                 var dependent = principal.Posts.Single();
 
-                Assert.Equal(principal.Id, dependent.BlogId);
-                Assert.Same(principal, dependent.Blog);
-                Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
+                AssertFixup(
+                    context,
+                    () =>
+                        {
+                            Assert.Equal(principal.Id, dependent.BlogId);
+                            Assert.Same(principal, dependent.Blog);
+                            Assert.Equal(new[] { dependent }.ToList(), principal.Posts);
 
-                Assert.Equal(dependent.Id, principal.TopPostId);
-                Assert.Same(dependent, principal.TopPost);
+                            Assert.Equal(dependent.Id, principal.TopPostId);
+                            Assert.Same(dependent, principal.TopPost);
+                        });
             }
         }
 
@@ -674,6 +795,17 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking.Internal
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase("QueryFixup");
+        }
+
+        private void AssertFixup(DbContext context, Action asserts)
+        {
+            asserts();
+            context.ChangeTracker.DetectChanges();
+            asserts();
+            context.ChangeTracker.DetectChanges();
+            asserts();
+            context.ChangeTracker.DetectChanges();
+            asserts();
         }
     }
 }

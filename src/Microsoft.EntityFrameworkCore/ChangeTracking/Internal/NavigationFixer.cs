@@ -170,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && newTargetEntry == null)
             {
                 stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
+                entry.SetRelationshipSnapshotValue(navigation, newValue);
                 _attacher.AttachGraph(stateManager.GetOrCreateEntry(newValue), EntityState.Added);
             }
         }
@@ -247,8 +248,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         // Set the inverse navigation to point to this principal
                         SetNavigation(newTargetEntry, inverse, entry.Entity);
-
-                        entry.AddToCollectionSnapshot(navigation, newValue);
                     }
                     finally
                     {
@@ -260,6 +259,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
                     _attacher.AttachGraph(newTargetEntry, EntityState.Added);
                 }
+
+                entry.AddToCollectionSnapshot(navigation, newValue);
             }
         }
 
