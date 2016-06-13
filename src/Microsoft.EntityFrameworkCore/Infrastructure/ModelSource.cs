@@ -127,8 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
         /// </summary>
-        /// <param name="modelBuilder"></param>
-        /// <param name="context"></param>
+        /// <param name="modelBuilder"> The <see cref="ModelBuilder"/> being used to build the model. </param>
+        /// <param name="context"> The context to find <see cref="DbSet{TEntity}"/> properties on. </param>
         protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
         {
             foreach (var setInfo in SetFinder.FindSets(context))

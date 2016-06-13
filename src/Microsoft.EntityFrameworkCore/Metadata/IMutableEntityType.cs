@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns></returns>
+        /// <returns> The foreign key that was removed. </returns>
         IMutableForeignKey RemoveForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,

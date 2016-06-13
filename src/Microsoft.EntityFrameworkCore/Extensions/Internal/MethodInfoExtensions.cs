@@ -9,18 +9,16 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Extensions.Internal
 {
     /// <summary>
-    ///     Extension methods for <see cref="MethodInfo" />.
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     [DebuggerStepThrough]
     public static class MethodInfoExtensions
     {
         /// <summary>
-        ///     Gets a value indicating whether the specified <see cref="MethodInfo" /> is a version of this <see cref="MethodInfo" /> that
-        ///     has the generic types specified.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="methodInfo"> The base method without the types specified. </param>
-        /// <param name="genericMethod"> The method with the types specified. </param>
-        /// <returns></returns>
         public static bool MethodIsClosedFormOf([NotNull] this MethodInfo methodInfo, [NotNull] MethodInfo genericMethod)
             => methodInfo.IsGenericMethod
                && ReferenceEquals(
