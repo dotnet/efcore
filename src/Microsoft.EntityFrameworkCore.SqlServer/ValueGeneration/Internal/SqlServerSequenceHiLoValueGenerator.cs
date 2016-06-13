@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerSequenceHiLoValueGenerator<TValue> : HiLoValueGenerator<TValue>
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
@@ -19,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
         private readonly ISqlServerConnection _connection;
         private readonly ISequence _sequence;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerSequenceHiLoValueGenerator(
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
@@ -36,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
             _connection = connection;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override long GetNewLowValue()
             => (long)Convert.ChangeType(
                 _rawSqlCommandBuilder
@@ -44,6 +56,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
                 typeof(long),
                 CultureInfo.InvariantCulture);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override bool GeneratesTemporaryValues => false;
     }
 }

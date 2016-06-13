@@ -15,8 +15,16 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator, ISqlServerExpressionVisitor
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
@@ -32,6 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Expression VisitLateralJoin(LateralJoinExpression lateralJoinExpression)
         {
             Check.NotNull(lateralJoinExpression, nameof(lateralJoinExpression));
@@ -43,6 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             return lateralJoinExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Expression VisitCount(CountExpression countExpression)
         {
             Check.NotNull(countExpression, nameof(countExpression));
@@ -57,6 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             return base.VisitCount(countExpression);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
             if (selectExpression.Projection.OfType<RowNumberExpression>().Any())
@@ -73,6 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             base.GenerateLimitOffset(selectExpression);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void VisitProjection(IReadOnlyList<Expression> projections)
         {
             var comparisonTransformer = new ProjectionComparisonTransformingVisitor();
@@ -81,6 +105,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             base.VisitProjection(transformedProjections);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
         {
             Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));
@@ -92,6 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             return rowNumberExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression VisitDatePartExpression(DatePartExpression datePartExpression)
         {
             Check.NotNull(datePartExpression, nameof(datePartExpression));
@@ -104,6 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             return datePartExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             if (sqlFunctionExpression.FunctionName.StartsWith("@@", StringComparison.Ordinal))

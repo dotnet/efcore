@@ -13,8 +13,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerHistoryRepository : HistoryRepository
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerHistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -36,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override string ExistsSql
         {
             get
@@ -59,8 +71,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override bool InterpretExistsResult(object value) => value != DBNull.Value;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetInsertScript(HistoryRow row)
         {
             Check.NotNull(row, nameof(row));
@@ -80,6 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetDeleteScript(string migrationId)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
@@ -94,6 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetCreateIfNotExistsScript()
         {
             var builder = new IndentedStringBuilder();
@@ -120,6 +148,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetBeginIfNotExistsScript(string migrationId)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
@@ -136,6 +168,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetBeginIfExistsScript(string migrationId)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
@@ -152,6 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetEndIfScript() => "END;" + Environment.NewLine;
     }
 }

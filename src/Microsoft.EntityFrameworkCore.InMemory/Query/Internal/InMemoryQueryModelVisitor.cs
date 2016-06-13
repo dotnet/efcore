@@ -18,10 +18,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InMemoryQueryModelVisitor : EntityQueryModelVisitor
     {
         private readonly IMaterializerFactory _materializerFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InMemoryQueryModelVisitor(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -61,6 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _materializerFactory = materializerFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void IncludeNavigations(
             IncludeSpecification includeSpecification,
             Type resultType,
@@ -380,10 +392,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly MethodInfo EntityQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(EntityQuery));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly MethodInfo OfTypeMethodInfo
             = typeof(Enumerable).GetTypeInfo()
             .GetDeclaredMethod(nameof(Enumerable.OfType));
@@ -416,6 +436,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly MethodInfo ProjectionQueryMethodInfo
             = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(ProjectionQuery));

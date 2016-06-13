@@ -7,8 +7,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class OptionsBuilderConfiguration : IFluentApiConfiguration
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public OptionsBuilderConfiguration([NotNull] ICollection<string> methodBodyLines)
         {
             Check.NotNull(methodBodyLines, nameof(methodBodyLines));
@@ -16,8 +24,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             FluentApiLines = methodBodyLines;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool HasAttributeEquivalent { get; } = false;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ICollection<string> FluentApiLines { get; [param: NotNull] set; }
     }
 }

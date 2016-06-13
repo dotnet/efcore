@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class CSharpUtilities
     {
         private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>
@@ -99,8 +103,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 default(RegexOptions),
                 TimeSpan.FromMilliseconds(1000.0));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static CSharpUtilities Instance { get; } = new CSharpUtilities();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string DelimitString([NotNull] string value)
         {
             Check.NotNull(value, nameof(value));
@@ -108,6 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return "\"" + EscapeString(value) + "\"";
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string EscapeString([NotNull] string str)
         {
             Check.NotNull(str, nameof(str));
@@ -115,6 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return str.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\t", "\\t");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string EscapeVerbatimString([NotNull] string str)
         {
             Check.NotEmpty(str, nameof(str));
@@ -122,6 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return str.Replace("\"", "\"\"");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral([NotNull] byte[] value)
         {
             Check.NotNull(value, nameof(value));
@@ -129,38 +153,82 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return "new byte[] {" + string.Join(", ", value) + "}";
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(bool value)
             => value ? "true" : "false";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(int value)
             => value.ToString(CultureInfo.InvariantCulture);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(long value)
             => value.ToString(CultureInfo.InvariantCulture) + "L";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(decimal value)
             => value.ToString(CultureInfo.InvariantCulture) + "m";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(float value)
             => value.ToString(CultureInfo.InvariantCulture) + "f";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(double value)
             => value.ToString(CultureInfo.InvariantCulture) + "D";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(TimeSpan value)
             => "new TimeSpan(" + value.Ticks + ")";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(DateTime value)
             => "new DateTime(" + value.Ticks + ", DateTimeKind."
                + Enum.GetName(typeof(DateTimeKind), value.Kind) + ")";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(DateTimeOffset value)
             => "new DateTimeOffset(" + value.Ticks + ", "
                + GenerateLiteral(value.Offset) + ")";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral(Guid value)
             => "new Guid(" + GenerateLiteral(value.ToString()) + ")";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral([NotNull] string value)
         {
             Check.NotNull(value, nameof(value));
@@ -168,6 +236,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return "\"" + EscapeString(value) + "\"";
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateVerbatimStringLiteral([NotNull] string value)
         {
             Check.NotNull(value, nameof(value));
@@ -175,6 +247,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return "@\"" + EscapeVerbatimString(value) + "\"";
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLiteral([NotNull] object value)
         {
             Check.NotNull(value, nameof(value));
@@ -187,13 +263,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return string.Format(CultureInfo.InvariantCulture, "{0}", value);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsCSharpKeyword([NotNull] string identifier)
             => _cSharpKeywords.Contains(identifier);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
             => GenerateCSharpIdentifier(identifier, existingIdentifiers, Uniquifier);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers,
             [NotNull] Func<string, ICollection<string>, string> uniquifier)
@@ -225,6 +313,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return uniquifier(proposedIdentifier, existingIdentifiers);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Uniquifier(
             [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
@@ -265,6 +357,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             { typeof(decimal), "decimal" }
         };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GetTypeName([NotNull] Type propertyType)
         {
             Check.NotNull(propertyType, nameof(propertyType));
@@ -289,6 +385,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return typeName;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsValidIdentifier([CanBeNull] string name)
         {
             if (string.IsNullOrEmpty(name))

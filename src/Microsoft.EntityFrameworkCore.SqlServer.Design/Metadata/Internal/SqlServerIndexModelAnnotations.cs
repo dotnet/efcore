@@ -6,10 +6,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerIndexModelAnnotations
     {
         private readonly IndexModel _index;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerIndexModelAnnotations([NotNull] IndexModel index)
         {
             Check.NotNull(index, nameof(index));
@@ -17,6 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
             _index = index;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsClustered
         {
             get

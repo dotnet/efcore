@@ -10,13 +10,25 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper)
             : base(sqlGenerationHelper)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -27,6 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 .Append("last_insert_rowid()");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -40,6 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return ResultSetMapping.LastInResultSet;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -47,6 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             commandStringBuilder.Append("changes() = " + expectedRowsAffected);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GenerateNextSequenceValueOperation(string name, string schema)
         {
             throw new NotSupportedException(SqliteStrings.SequencesNotSupported);

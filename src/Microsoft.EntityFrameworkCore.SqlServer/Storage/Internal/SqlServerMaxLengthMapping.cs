@@ -8,8 +8,16 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerMaxLengthMapping : RelationalTypeMapping
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerMaxLengthMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
@@ -18,6 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerMaxLengthMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
@@ -35,6 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 ? size.HasValue && size < 4000 ? size.Value : 4000
                 : size.HasValue && size < 8000 ? size.Value : 8000;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override RelationalTypeMapping CreateCopy(string storeType, int? size)
             => new SqlServerMaxLengthMapping(
                 storeType,
@@ -45,6 +61,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 HasNonDefaultUnicode,
                 hasNonDefaultSize: size != Size);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void ConfigureParameter(DbParameter parameter)
         {
             // For strings and byte arrays, set the max length to the size facet if specififed, or

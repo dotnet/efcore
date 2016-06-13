@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
@@ -18,6 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly IDbContextOptions _options;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerModificationCommandBatchFactory(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
@@ -38,6 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _options = options;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ModificationCommandBatch Create()
         {
             var optionsExtension = _options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();

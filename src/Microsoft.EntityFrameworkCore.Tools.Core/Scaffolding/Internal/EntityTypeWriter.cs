@@ -11,12 +11,20 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class EntityTypeWriter
     {
         private CSharpUtilities CSharpUtilities { get; }
         private IndentedStringBuilder _sb;
         private EntityConfiguration _entity;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public EntityTypeWriter(
             [NotNull] CSharpUtilities cSharpUtilities)
         {
@@ -25,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             CSharpUtilities = cSharpUtilities;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string WriteCode(
             [NotNull] EntityConfiguration entityConfiguration)
         {
@@ -64,6 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return _sb.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddClass()
         {
             AddAttributes(_entity.AttributeConfigurations);
@@ -78,6 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("}");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddConstructor()
         {
             if (_entity.NavigationPropertyInitializerConfigurations.Count > 0)
@@ -99,6 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddProperties()
         {
             foreach (var property in _entity.EntityType.GetProperties().OrderBy(p => p.Scaffolding().ColumnOrdinal))
@@ -115,6 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddNavigationProperties()
         {
             if (_entity.NavigationPropertyConfigurations.Count > 0)
@@ -136,6 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddAttributes(
             [NotNull] IEnumerable<IAttributeConfiguration> attributeConfigurations)
         {

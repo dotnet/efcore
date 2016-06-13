@@ -18,10 +18,24 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ModelConfiguration
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected const string DbContextSuffix = "Context";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected const string DefaultDbContextName = "Model" + DbContextSuffix;
+
         private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
         private static readonly KeyConvention _keyConvention = new KeyConvention();
 
@@ -30,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
         private SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
         private List<SequenceConfiguration> _sequenceConfigurations;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ModelConfiguration(
             [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] IModel model,
@@ -53,12 +71,40 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             ScaffoldingUtilities = scaffoldingUtilities;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IModel Model { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IRelationalAnnotationProvider AnnotationProvider { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual CSharpUtilities CSharpUtilities { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ScaffoldingUtilities ScaffoldingUtilities { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual CustomConfiguration CustomConfiguration { get; [param: NotNull] set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string ClassName()
         {
             var annotatedName = AnnotationProvider.For(Model).DatabaseName;
@@ -70,8 +116,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             return DefaultDbContextName;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Namespace() => CustomConfiguration.Namespace;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual List<OptionsBuilderConfiguration> OnConfiguringConfigurations
         {
             get
@@ -86,6 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual List<EntityConfiguration> EntityConfigurations
         {
             get
@@ -101,6 +159,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual List<SequenceConfiguration> SequenceConfigurations
         {
             get
@@ -113,6 +175,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddSequenceConfigurations()
         {
             _sequenceConfigurations = new List<SequenceConfiguration>();
@@ -180,6 +246,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddEntityConfigurations()
         {
             foreach (var entityType in Model.GetEntityTypes())
@@ -197,6 +267,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddConnectionStringConfiguration()
         {
             var methodName = Model.Scaffolding().UseProviderMethodName;
@@ -217,6 +291,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                     }));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddEntityPropertiesConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -230,6 +308,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddEntityConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -239,6 +321,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             AddIndexConfigurations(entityConfiguration);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddKeyConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -287,6 +373,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddTableNameConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -327,6 +417,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddIndexConfigurations([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -337,6 +431,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddIndexConfiguration(
             [NotNull] EntityConfiguration entityConfiguration,
             [NotNull] Index index)
@@ -348,6 +446,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                 _configurationFactory.CreateIndexConfiguration("e", index));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddPropertyConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
@@ -361,6 +463,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             AddValueGeneratedConfiguration(propertyConfiguration);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddRequiredConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
@@ -385,6 +491,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddMaxLengthConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
@@ -404,6 +514,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddValueGeneratedConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
@@ -453,6 +567,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddColumnNameAndTypeConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
@@ -513,6 +631,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddDefaultValueConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
@@ -529,6 +651,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddDefaultExpressionConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
@@ -545,6 +671,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddComputedExpressionConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
@@ -561,6 +691,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddNavigationProperties([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -646,6 +780,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddNavigationPropertyInitializers([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -667,6 +805,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddRelationshipConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -692,6 +834,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityConfiguration GetEntityConfiguration([NotNull] EntityType entityType)
         {
             if (_entityConfigurationMap == null)

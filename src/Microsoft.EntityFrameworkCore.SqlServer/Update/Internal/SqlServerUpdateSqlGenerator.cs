@@ -13,10 +13,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
         private readonly IRelationalTypeMapper _typeMapper;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMapper typeMapper)
             : base(sqlGenerationHelper)
@@ -24,6 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _typeMapper = typeMapper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ResultSetMapping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
             IReadOnlyList<ModificationCommand> modificationCommands,
@@ -196,6 +208,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return ResultSetMapping.NotLastInResultSet;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -414,6 +430,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return ResultSetMapping.LastInResultSet;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
@@ -423,11 +443,19 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return ResultSetMapping.LastInResultSet;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SET NOCOUNT ON")
                 .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -437,6 +465,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             commandStringBuilder.Append(" = ").Append("scope_identity()");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("@@ROWCOUNT = ")

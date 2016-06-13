@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerTypeMapper : RelationalTypeMapper
     {
         private readonly SqlServerMaxLengthMapping _nvarcharmax 
@@ -100,6 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
         private readonly HashSet<string> _disallowedMappings;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerTypeMapper()
         {
             _storeTypeMappings
@@ -228,10 +236,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         hasNonDefaultSize: true));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IStringRelationalTypeMapper StringMapper { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void ValidateTypeName(string storeType)
         {
             if (_disallowedMappings.Contains(storeType))
@@ -240,14 +260,30 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override string GetColumnType(IProperty property) => property.SqlServer().ColumnType;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _clrTypeMappings;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _storeTypeMappings;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override RelationalTypeMapping FindMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));
@@ -262,6 +298,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         // Indexes in SQL Server have a max size of 900 bytes
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override bool RequiresKeyMapping(IProperty property)
             => base.RequiresKeyMapping(property) || property.IsIndex();
     }

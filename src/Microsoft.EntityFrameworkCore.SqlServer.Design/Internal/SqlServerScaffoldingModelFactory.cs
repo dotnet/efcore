@@ -16,6 +16,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
         private const int DefaultTimeTimePrecision = 7;
@@ -26,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static readonly ISet<string> _dataTypesAllowingMaxLengthMax =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "varchar", "nvarchar", "varbinary" };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
@@ -35,6 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
         {
             var model = base.Create(connectionString, tableSelectionSet);
@@ -42,6 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return model;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override PropertyBuilder VisitColumn(EntityTypeBuilder builder, ColumnModel column)
         {
             var propertyBuilder = base.VisitColumn(builder, column);
@@ -60,6 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return propertyBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override RelationalTypeMapping GetTypeMapping(ColumnModel column)
         {
             RelationalTypeMapping mapping = null;
@@ -75,6 +95,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return mapping;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override KeyBuilder VisitPrimaryKey(EntityTypeBuilder builder, TableModel table)
         {
             var keyBuilder = base.VisitPrimaryKey(builder, table);
@@ -111,6 +135,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return keyBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override IndexBuilder VisitIndex(EntityTypeBuilder builder, IndexModel index)
         {
             var indexBuilder = base.VisitIndex(builder, index);

@@ -5,33 +5,61 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public static class SqlServerInternalMetadataBuilderExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static SqlServerModelBuilderAnnotations SqlServer(
             [NotNull] this InternalModelBuilder builder,
             ConfigurationSource configurationSource)
             => new SqlServerModelBuilderAnnotations(builder, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static SqlServerPropertyBuilderAnnotations SqlServer(
             [NotNull] this InternalPropertyBuilder builder,
             ConfigurationSource configurationSource)
             => new SqlServerPropertyBuilderAnnotations(builder, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static RelationalEntityTypeBuilderAnnotations SqlServer(
             [NotNull] this InternalEntityTypeBuilder builder,
             ConfigurationSource configurationSource)
             => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, SqlServerFullAnnotationNames.Instance);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static SqlServerKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalKeyBuilder builder,
             ConfigurationSource configurationSource)
             => new SqlServerKeyBuilderAnnotations(builder, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static SqlServerIndexBuilderAnnotations SqlServer(
             [NotNull] this InternalIndexBuilder builder,
             ConfigurationSource configurationSource)
             => new SqlServerIndexBuilderAnnotations(builder, configurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static RelationalForeignKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalRelationshipBuilder builder,
             ConfigurationSource configurationSource)

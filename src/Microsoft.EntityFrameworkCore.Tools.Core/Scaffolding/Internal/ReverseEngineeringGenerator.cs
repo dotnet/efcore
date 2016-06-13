@@ -15,11 +15,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ReverseEngineeringGenerator
     {
         private readonly ConfigurationFactory _configurationFactory;
         private readonly IScaffoldingModelFactory _factory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ReverseEngineeringGenerator(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
@@ -37,10 +45,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             CodeWriter = codeWriter;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ILogger Logger { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual CodeWriter CodeWriter { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Task<ReverseEngineerFiles> GenerateAsync(
             [NotNull] ReverseEngineeringConfiguration configuration,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -77,6 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 dbContextClassName, cancellationToken);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IModel GetMetadataModel([NotNull] ReverseEngineeringConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
@@ -93,6 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return metadataModel;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void CheckOutputFiles(
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,

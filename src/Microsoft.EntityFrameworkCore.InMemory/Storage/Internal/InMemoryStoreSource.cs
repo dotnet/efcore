@@ -8,6 +8,10 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InMemoryStoreSource : IInMemoryStoreSource
     {
         private readonly IInMemoryTableFactory _tableFactory;
@@ -17,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new Lazy<ConcurrentDictionary<string, IInMemoryStore>>(
                 () => new ConcurrentDictionary<string, IInMemoryStore>(), LazyThreadSafetyMode.PublicationOnly);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InMemoryStoreSource([NotNull] IInMemoryTableFactory tableFactory)
         {
             _tableFactory = tableFactory;
@@ -26,6 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 LazyThreadSafetyMode.PublicationOnly);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IInMemoryStore GetNamedStore(string name)
             => name != null
                 ? _namedStores.Value.GetOrAdd(name, n => new InMemoryStore(_tableFactory))

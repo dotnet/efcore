@@ -14,12 +14,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteRelationalConnection : RelationalConnection
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly bool _enforceForeignKeys = true;
         private int _openedCount;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteRelationalConnection(
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] IDbContextOptions options,
@@ -38,10 +46,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override DbConnection CreateDbConnection() => new SqliteConnection(ConnectionString);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override bool IsMultipleActiveResultSetsEnabled => true;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Open()
         {
             base.Open();
@@ -54,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             await base.OpenAsync(cancellationToken);
@@ -66,6 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Close()
         {
             base.Close();
@@ -85,6 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual SqliteRelationalConnection CreateReadOnlyConnection()
         {
             var builder = new SqliteConnectionStringBuilder(ConnectionString)

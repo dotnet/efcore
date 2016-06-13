@@ -6,10 +6,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerColumnModelAnnotations
     {
         private readonly ColumnModel _column;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerColumnModelAnnotations([NotNull] ColumnModel column)
         {
             Check.NotNull(column, nameof(column));
@@ -17,12 +25,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
             _column = column;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int? DateTimePrecision
         {
             get { return _column[SqlServerDatabaseModelAnnotationNames.DateTimePrecision] as int?; }
             [param: CanBeNull] set { _column[SqlServerDatabaseModelAnnotationNames.DateTimePrecision] = value; }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsIdentity
         {
             get

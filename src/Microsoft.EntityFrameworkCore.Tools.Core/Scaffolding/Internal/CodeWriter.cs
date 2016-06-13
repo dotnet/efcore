@@ -13,10 +13,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public abstract class CodeWriter
     {
         private const string DefaultFileExtension = ".cs";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected CodeWriter([NotNull] IFileService fileService)
         {
             Check.NotNull(fileService, nameof(fileService));
@@ -24,17 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             FileService = fileService;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IFileService FileService { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
 
         /// <summary>
-        ///     Returns a list of the files which would be output by this class where
-        ///     the file already exists.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="outputPath"> directory where the files are to be output </param>
-        /// <param name="dbContextClassName"> name of the <see cref="DbContext" /> class </param>
-        /// <param name="entityTypes"> a list of the <see cref="IEntityType" /> classes to be output </param>
-        /// <returns> A list of paths to the output files which already exist </returns>
         public virtual IList<string> GetExistingFilePaths(
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
@@ -70,14 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     Returns a list of the files which would be output by this class but
-        ///     which currently exist and would not be able to be overwritten due to
-        ///     being read-only.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="outputPath"> directory where the files are to be output </param>
-        /// <param name="dbContextClassName"> name of the <see cref="DbContext" /> class </param>
-        /// <param name="entityTypes"> a list of the <see cref="IEntityType" /> classes to be output </param>
-        /// <returns> A list of paths to the output files which currently exist and are read-only </returns>
         public virtual IList<string> GetReadOnlyFilePaths(
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
@@ -101,6 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return readOnlyFiles;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public abstract Task<ReverseEngineerFiles> WriteCodeAsync(
             [NotNull] ModelConfiguration modelConfiguration,
             [NotNull] string outputPath,

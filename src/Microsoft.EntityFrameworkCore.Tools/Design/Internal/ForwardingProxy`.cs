@@ -22,6 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly MarshalByRefObject _target;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public ForwardingProxy([NotNull] object target)
             : base(typeof(T))
         {
@@ -44,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return RemotingServices.GetEnvoyChainForProxy(_target).SyncProcessMessage(msg);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public new virtual T GetTransparentProxy() => (T)base.GetTransparentProxy();
     }
 }

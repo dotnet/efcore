@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
@@ -14,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IUpdateSqlGenerator _updateSqlGenerator;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteModificationCommandBatchFactory(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
@@ -31,6 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ModificationCommandBatch Create()
             => new SingularModificationCommandBatch(
                 _commandBuilderFactory,

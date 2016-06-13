@@ -16,6 +16,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
     {
         private SqlConnection _connection;
@@ -42,6 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             { "numeric", new[] { -999999999999999999L, 999999999999999999L } }
         };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerDatabaseModelFactory([NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
@@ -49,6 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Logger = loggerFactory.CreateCommandsLogger();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ILogger Logger { get; }
 
         private void ResetState()
@@ -61,6 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _tableColumns = new Dictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));

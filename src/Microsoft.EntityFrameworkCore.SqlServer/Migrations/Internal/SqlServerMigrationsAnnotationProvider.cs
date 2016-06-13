@@ -8,8 +8,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IEnumerable<IAnnotation> For(IKey key)
         {
             var isClustered = key.SqlServer().IsClustered;
@@ -21,6 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IEnumerable<IAnnotation> For(IIndex index)
         {
             var isClustered = index.SqlServer().IsClustered;
@@ -32,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
             if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)

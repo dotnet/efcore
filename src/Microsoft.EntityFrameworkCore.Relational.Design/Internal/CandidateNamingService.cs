@@ -12,17 +12,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class CandidateNamingService
     {
         /// <summary>
-        /// Generates a candidate identifier from an original identifier using the following rules.
-        /// Split the original identifier into words using as word separator either a change from
-        /// lower to upper case or a non-letter, non-digit character. Then ignore any non-letter, non-digit
-        /// characters. Then upper-case the first character of each word and lower-case the remaining
-        /// characters. Then concatenate the words back together into a single candidate identifier.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="originalIdentifier"> the original identifier </param>
-        /// <returns> the candidate identifier </returns>
         public virtual string GenerateCandidateIdentifier([NotNull] string originalIdentifier)
         {
             Check.NotEmpty(originalIdentifier, nameof(originalIdentifier));
@@ -56,6 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return candidateStringBuilder.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GetDependentEndCandidateNavigationPropertyName([NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -70,6 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return foreignKey.PrincipalEntityType.DisplayName();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GetPrincipalEndCandidateNavigationPropertyName(
             [NotNull] IForeignKey foreignKey,
             [NotNull] string dependentEndNavigationPropertyName)

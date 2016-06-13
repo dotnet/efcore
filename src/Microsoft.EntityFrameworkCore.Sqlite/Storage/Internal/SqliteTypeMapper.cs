@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteTypeMapper : RelationalTypeMapper
     {
         private static readonly RelationalTypeMapping _integer = new RelationalTypeMapping("INTEGER", typeof(long));
@@ -18,6 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteTypeMapper()
         {
             _storeTypeMappings
@@ -49,12 +57,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override string GetColumnType(IProperty property) => property.Sqlite().ColumnType;
 
         /// <summary>
-        ///     Returns a clr type for a SQLite column type. Defaults to typeof(string).
-        ///     It uses the same heuristics from
-        ///     <see href="https://www.sqlite.org/datatype3.html">"2.1 Determination of Column Affinity"</see>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping FindMapping(string storeType)
         {
@@ -93,9 +104,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private static bool Contains(string haystack, string needle)
             => haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _clrTypeMappings;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _storeTypeMappings;
     }

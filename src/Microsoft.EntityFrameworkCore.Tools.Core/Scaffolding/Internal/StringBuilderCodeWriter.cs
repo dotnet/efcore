@@ -10,11 +10,28 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class StringBuilderCodeWriter : CodeWriter
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual DbContextWriter DbContextWriter { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual EntityTypeWriter EntityTypeWriter { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public StringBuilderCodeWriter(
             [NotNull] IFileService fileService,
             [NotNull] DbContextWriter dbContextWriter,
@@ -28,6 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             EntityTypeWriter = entityTypeWriter;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override Task<ReverseEngineerFiles> WriteCodeAsync(
             ModelConfiguration modelConfiguration, 
             string outputPath, 

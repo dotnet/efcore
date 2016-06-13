@@ -3,8 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerFullAnnotationNames : RelationalFullAnnotationNames
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected SqlServerFullAnnotationNames(string prefix)
             : base(prefix)
         {
@@ -14,11 +22,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             HiLoSequenceSchema = prefix + SqlServerAnnotationNames.HiLoSequenceSchema;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public new static SqlServerFullAnnotationNames Instance { get; } = new SqlServerFullAnnotationNames(SqlServerAnnotationNames.Prefix);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public readonly string Clustered;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public readonly string ValueGenerationStrategy;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public readonly string HiLoSequenceName;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public readonly string HiLoSequenceSchema;
     }
 }

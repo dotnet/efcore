@@ -12,10 +12,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MaterializerFactory : IMaterializerFactory
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public MaterializerFactory([NotNull] IEntityMaterializerSource entityMaterializerSource)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
@@ -23,6 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _entityMaterializerSource = entityMaterializerSource;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Expression<Func<IEntityType, ValueBuffer, object>> CreateMaterializer(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

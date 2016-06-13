@@ -7,8 +7,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class AttributeConfiguration : IAttributeConfiguration
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public AttributeConfiguration(
             [NotNull] string attributeName, [CanBeNull] params string[] attributeArguments)
         {
@@ -20,8 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
                     : StripAttribute(attributeName) + "(" + string.Join(", ", attributeArguments) + ")";
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string AttributeBody { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected static string StripAttribute([NotNull] string attributeName)
             => attributeName.EndsWith("Attribute", StringComparison.Ordinal)
                 ? attributeName.Substring(0, attributeName.Length - 9)

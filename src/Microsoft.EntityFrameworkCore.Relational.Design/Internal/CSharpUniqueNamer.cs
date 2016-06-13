@@ -7,15 +7,27 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class CSharpUniqueNamer<T> : CSharpNamer<T>
     {
         private readonly HashSet<string> _usedNames = new HashSet<string>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter)
             : this(nameGetter, null)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter,
             [CanBeNull] IEnumerable<string> usedNames)
             : base(nameGetter)
@@ -29,6 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetName(T item)
         {
             if (NameCache.ContainsKey(item))

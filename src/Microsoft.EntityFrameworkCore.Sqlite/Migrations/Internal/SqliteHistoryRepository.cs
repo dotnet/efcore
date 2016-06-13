@@ -10,8 +10,16 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteHistoryRepository : HistoryRepository
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteHistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -33,13 +41,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override string ExistsSql
             => "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = '" +
                SqlGenerationHelper.EscapeLiteral(TableName) +
                "' AND \"type\" = 'table';";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override bool InterpretExistsResult(object value) => (long)value != 0L;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetCreateIfNotExistsScript()
         {
             var script = GetCreateScript();
@@ -47,16 +67,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return script.Insert(script.IndexOf("CREATE TABLE", StringComparison.Ordinal) + 12, " IF NOT EXISTS");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetBeginIfNotExistsScript(string migrationId)
         {
             throw new NotSupportedException(SqliteStrings.MigrationScriptGenerationNotSupported);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetBeginIfExistsScript(string migrationId)
         {
             throw new NotSupportedException(SqliteStrings.MigrationScriptGenerationNotSupported);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override string GetEndIfScript()
         {
             throw new NotSupportedException(SqliteStrings.MigrationScriptGenerationNotSupported);

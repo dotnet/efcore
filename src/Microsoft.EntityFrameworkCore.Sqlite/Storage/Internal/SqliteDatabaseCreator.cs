@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteDatabaseCreator : RelationalDatabaseCreator
     {
         // ReSharper disable once InconsistentNaming
@@ -18,6 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly SqliteRelationalConnection _connection;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteDatabaseCreator(
             [NotNull] SqliteRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
@@ -33,12 +41,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Create()
         {
             Connection.Open();
             Connection.Close();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override bool Exists()
         {
             using (var readOnlyConnection = _connection.CreateReadOnlyConnection())
@@ -56,6 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return true;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override bool HasTables()
         {
             var count = (long)_rawSqlCommandBuilder
@@ -65,6 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return count != 0;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Delete()
         {
             string path = null;

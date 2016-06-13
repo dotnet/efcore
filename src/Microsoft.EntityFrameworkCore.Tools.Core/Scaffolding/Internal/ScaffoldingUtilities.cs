@@ -15,8 +15,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class ScaffoldingUtilities
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string GenerateLambdaToKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] string lambdaIdentifier)
@@ -40,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return sb.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void LayoutRelationshipConfigurationLines(
             [NotNull] IndentedStringBuilder sb,
             [NotNull] string entityLambdaIdentifier,
@@ -154,6 +166,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

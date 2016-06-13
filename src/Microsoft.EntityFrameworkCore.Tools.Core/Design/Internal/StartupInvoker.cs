@@ -13,6 +13,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class StartupInvoker
     {
         private readonly Type _startupType;
@@ -21,6 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _startupAssemblyName;
         private readonly LazyRef<ILogger> _logger;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public StartupInvoker(
             [NotNull] LazyRef<ILogger> logger,
             [NotNull] Assembly startupAssembly,
@@ -50,6 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .FirstOrDefault();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceProvider ConfigureServices()
         {
             var services = ConfigureHostServices(new ServiceCollection());
@@ -61,9 +73,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                    ?? services.BuildServiceProvider();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceCollection ConfigureDesignTimeServices([NotNull] IServiceCollection services)
             => ConfigureDesignTimeServices(_startupType, services);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceCollection ConfigureDesignTimeServices([CanBeNull] Type type, [NotNull] IServiceCollection services)
         {
             Invoke(type, new[] { "ConfigureDesignTimeServices" }, services);
@@ -126,6 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
         {
             services.AddSingleton<IHostingEnvironment>(

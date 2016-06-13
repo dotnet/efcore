@@ -18,11 +18,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DesignTimeServicesBuilder
     {
         private readonly AssemblyLoader _assemblyLoader;
         private readonly StartupInvoker _startup;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public DesignTimeServicesBuilder(
             [NotNull] AssemblyLoader assemblyLoader,
             [NotNull] StartupInvoker startupInvoker)
@@ -31,6 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _startup = startupInvoker;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceProvider Build([NotNull] DbContext context)
         {
             Check.NotNull(context, nameof(context));
@@ -49,6 +61,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return services.BuildServiceProvider();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceProvider Build([NotNull] string provider)
             => ConfigureUserServices(
                 ConfigureProviderServices(
@@ -56,6 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ConfigureServices(new ServiceCollection()), throwOnError: true))
                 .BuildServiceProvider();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IServiceCollection ConfigureServices([NotNull] IServiceCollection services)
             => services
                 .AddSingleton<CSharpHelper>()
@@ -68,6 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private IServiceCollection ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
             => _startup.ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IServiceCollection ConfigureContextServices(
             [NotNull] IServiceProvider contextServices,
             [NotNull] IServiceCollection services)

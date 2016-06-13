@@ -10,23 +10,43 @@ using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InMemoryTable<TKey> : IInMemoryTable
     {
         private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
         private readonly Dictionary<TKey, object[]> _rows;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InMemoryTable([NotNull] IPrincipalKeyValueFactory<TKey> keyValueFactory)
         {
             _keyValueFactory = keyValueFactory;
             _rows = new Dictionary<TKey, object[]>(keyValueFactory.EqualityComparer);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<object[]> SnapshotRows()
             => _rows.Values.ToList();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Create(IUpdateEntry entry)
             => _rows.Add(CreateKey(entry), CreateValueBuffer(entry));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Delete(IUpdateEntry entry)
         {
             var key = CreateKey(entry);
@@ -41,6 +61,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Update(IUpdateEntry entry)
         {
             var key = CreateKey(entry);

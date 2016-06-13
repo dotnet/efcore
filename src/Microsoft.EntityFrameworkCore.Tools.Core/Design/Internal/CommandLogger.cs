@@ -13,6 +13,10 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     // TODO: Consider replacing with something besides Logging
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public abstract class CommandLogger : ILogger
     {
         private static readonly string[] _includedNames =
@@ -23,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private readonly bool _enabledByName;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected CommandLogger([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -30,13 +38,25 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _enabledByName = _includedNames.Contains(name);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsEnabled(LogLevel logLevel) => _enabledByName;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDisposable BeginScope([NotNull] object state)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Log<TState>(
             LogLevel logLevel,
             EventId eventId,
@@ -89,12 +109,40 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IDisposable BeginScope<TState>(TState state) => null;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract void WriteError([NotNull] string message);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract void WriteWarning([NotNull] string message);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract void WriteInformation([NotNull] string message);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract void WriteDebug([NotNull] string message);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected abstract void WriteTrace([NotNull] string message);
     }
 }

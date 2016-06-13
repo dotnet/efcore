@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DbContextWriter
     {
         private const string EntityLambdaIdentifier = "entity";
@@ -20,6 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private ModelConfiguration _model;
         private bool _foundFirstFluentApiForEntity;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public DbContextWriter(
             [NotNull] ScaffoldingUtilities scaffoldingUtilities,
             [NotNull] CSharpUtilities cSharpUtilities)
@@ -30,6 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ScaffoldingUtilities = scaffoldingUtilities;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string WriteCode(
             [NotNull] ModelConfiguration modelConfiguration)
         {
@@ -53,6 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return _sb.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddClass()
         {
             var className =
@@ -71,6 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("}");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddOnConfiguring()
         {
             _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
@@ -102,6 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("}");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddOnModelCreating()
         {
             _sb.AppendLine();
@@ -164,6 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("}");
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddEntityFluentApi(
             [NotNull] List<IFluentApiConfiguration> fluentApiConfigurations)
         {
@@ -198,6 +226,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddPropertyConfigurations(
             [NotNull] List<PropertyConfiguration> propertyConfigurations)
         {
@@ -255,6 +287,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddRelationshipConfigurations(
             [NotNull] List<RelationshipConfiguration> relationshipConfigurations)
         {
@@ -272,6 +308,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddDbSetProperties()
         {
             var first = true;
@@ -290,6 +330,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void AddEntityTypeErrors()
         {
             if (_model.Model.Scaffolding().EntityTypeErrors.Count == 0)

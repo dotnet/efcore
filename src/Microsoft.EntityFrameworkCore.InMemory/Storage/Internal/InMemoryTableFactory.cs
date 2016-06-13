@@ -11,11 +11,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InMemoryTableFactory : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
     {
         private readonly ConcurrentDictionary<IKey, Func<IInMemoryTable>> _factories
             = new ConcurrentDictionary<IKey, Func<IInMemoryTable>>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IInMemoryTable Create(IEntityType entityType)
             => _factories.GetOrAdd(entityType.FindPrimaryKey(), Create)();
 

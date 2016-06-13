@@ -13,11 +13,19 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerSequenceValueGeneratorFactory(
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
@@ -29,6 +37,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
             _sqlGenerator = sqlGenerator;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ValueGenerator Create(IProperty property, SqlServerSequenceValueGeneratorState generatorState, ISqlServerConnection connection)
         {
             Check.NotNull(property, nameof(property));

@@ -6,28 +6,39 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
-    ///     Abstraction for outputting a 'file'. Normally this will be outputting a file to disk
-    ///     but this allows for other implementations which e.g. just output to memory.
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public interface IFileService
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         bool DirectoryExists([NotNull] string directoryName);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         bool FileExists([NotNull] string directoryName, [NotNull] string fileName);
 
         /// <summary>
-        ///     Checks whether 'file' is read-only. Absence of the 'file' is interpreted as readable.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         bool IsFileReadOnly([NotNull] string directoryName, [NotNull] string fileName);
 
         /// <summary>
-        ///     Creates, if necessary, a directory with the specified name. Creates, if necessary,
-        ///     a 'file' located within the given directory and with the given name.
-        ///     Ensures that the contents of the 'file' contain the given contents (overwriting if necessary).
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <returns>the full path of the output 'file'</returns>
         string OutputFile([NotNull] string directoryName, [NotNull] string fileName, [NotNull] string contents);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         string RetrieveFileContents([NotNull] string directoryName, [NotNull] string fileName);
     }
 }

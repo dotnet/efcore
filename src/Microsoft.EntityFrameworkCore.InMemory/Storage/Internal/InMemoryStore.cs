@@ -13,6 +13,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class InMemoryStore : IInMemoryStore
     {
         private readonly IInMemoryTableFactory _tableFactory;
@@ -21,17 +25,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private LazyRef<Dictionary<IEntityType, IInMemoryTable>> _tables = CreateTables();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InMemoryStore([NotNull] IInMemoryTableFactory tableFactory)
         {
             _tableFactory = tableFactory;
         }
 
         /// <summary>
-        ///     Returns true just after the database has been created, false thereafter
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <returns>
-        ///     true if the database has just been created, false otherwise
-        /// </returns>
         public virtual bool EnsureCreated(IModel model)
         {
             lock (_lock)
@@ -45,6 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool Clear()
         {
             lock (_lock)
@@ -65,6 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 () => new Dictionary<IEntityType, IInMemoryTable>());
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<InMemoryTableSnapshot> GetTables(IEntityType entityType)
         {
             var data = new List<InMemoryTableSnapshot>();
@@ -86,6 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return data;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int ExecuteTransaction(IEnumerable<IUpdateEntry> entries, ILogger<InMemoryDatabase> logger)
         {
             var rowsAffected = 0;

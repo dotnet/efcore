@@ -6,8 +6,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class NavigationPropertyInitializerConfiguration
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public NavigationPropertyInitializerConfiguration(
             [NotNull] string navPropName, [NotNull] string principalEntityTypeName)
         {
@@ -18,7 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal
             PrincipalEntityTypeName = principalEntityTypeName;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string NavigationPropertyName { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string PrincipalEntityTypeName { get; }
     }
 }
