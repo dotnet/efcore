@@ -4,7 +4,6 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.NETCore.Platforms": "1.0.1-*",
     "Microsoft.EntityFrameworkCore.Relational.Tests": "1.0.0",
     "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": "1.0.0"
   },
