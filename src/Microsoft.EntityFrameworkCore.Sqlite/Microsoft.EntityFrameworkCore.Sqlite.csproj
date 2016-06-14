@@ -94,14 +94,14 @@
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringTrimEndTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringTrimStartTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringTrimTranslator.cs" />
-    <Compile Include="Query\Sql\SqliteQuerySqlGenerator.cs" />
-    <Compile Include="Query\Sql\SqliteQuerySqlGeneratorFactory.cs" />
+    <Compile Include="Query\Sql\Internal\SqliteQuerySqlGenerator.cs" />
+    <Compile Include="Query\Sql\Internal\SqliteQuerySqlGeneratorFactory.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="Storage\Internal\SqliteDatabaseCreator.cs" />
     <Compile Include="Storage\Internal\SqliteRelationalConnection.cs" />
     <Compile Include="Storage\Internal\SqliteSqlGenerationHelper.cs" />
     <Compile Include="Storage\Internal\SqliteTypeMapper.cs" />
-    <Compile Include="Storage\SqliteDatabaseProviderServices.cs" />
+    <Compile Include="Storage\Internal\SqliteDatabaseProviderServices.cs" />
     <Compile Include="Update\Internal\SqliteModificationCommandBatchFactory.cs" />
     <Compile Include="Update\Internal\SqliteUpdateSqlGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\SqliteValueGeneratorCache.cs" />

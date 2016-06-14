@@ -136,7 +136,7 @@
     <Compile Include="Query\Internal\SqlServerQueryModelVisitorFactory.cs" />
     <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGeneratorFactory.cs" />
-    <Compile Include="Query\Sql\ISqlServerExpressionVisitor.cs" />
+    <Compile Include="Query\Sql\Internal\ISqlServerExpressionVisitor.cs" />
     <Compile Include="Storage\Internal\ISqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerConnection.cs" />
     <Compile Include="Storage\Internal\SqlServerDatabaseCreator.cs" />
