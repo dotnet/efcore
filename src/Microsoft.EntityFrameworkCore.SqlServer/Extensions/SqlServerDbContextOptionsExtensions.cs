@@ -11,12 +11,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     SQL Server specific extension methods for <see cref="DbContextOptionsBuilder"/>.
+    /// </summary>
     public static class SqlServerDbContextOptionsExtensions
     {
         /// <summary>
         ///     Configures the context to connect to a Microsoft SQL Server database.
         /// </summary>
-        /// <param name="optionsBuilder"> A builder for setting options on the context. </param>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connectionString"> The connection string of the database to connect to. </param>
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
@@ -43,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to a Microsoft SQL Server database.
         /// </summary>
-        /// <param name="optionsBuilder"> A builder for setting options on the context. </param>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connection">
         ///     An existing <see cref="DbConnection" /> to be used to connect to the database. If the connection is
         ///     in the open state then EF will not open or close the connection. If the connection is in the closed
@@ -73,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to a Microsoft SQL Server database.
         /// </summary>
-        /// <param name="optionsBuilder"> A builder for setting options on the context. </param>
+        /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connectionString"> The connection string of the database to connect to. </param>
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
@@ -89,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to a Microsoft SQL Server database.
         /// </summary>
-        /// <param name="optionsBuilder"> A builder for setting options on the context. </param>
+        /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connection">
         ///     An existing <see cref="DbConnection" /> to be used to connect to the database. If the connection is
         ///     in the open state then EF will not open or close the connection. If the connection is in the closed

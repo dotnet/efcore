@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     Values that are used as the eventId when logging messages from this assembly via <see cref="ILogger" />.
+    ///     Values that are used as the eventId when logging messages from the core Entity Framework components.
     /// </summary>
     public enum CoreEventId
     {

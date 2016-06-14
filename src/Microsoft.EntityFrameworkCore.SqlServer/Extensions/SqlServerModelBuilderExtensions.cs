@@ -9,8 +9,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     SQL Server specific extension methods for <see cref="ModelBuilder"/>.
+    /// </summary>
     public static class SqlServerModelBuilderExtensions
     {
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="schema">The schema of the sequence. </param>
+        /// <returns> A builder to further configure the sequence. </returns>
         public static RelationalSequenceBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
@@ -23,12 +33,27 @@ namespace Microsoft.EntityFrameworkCore
             return new RelationalSequenceBuilder(modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema));
         }
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.ForSqlServerHasSequence(name, null, builderAction);
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="schema">The schema of the sequence. </param>
+        /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
@@ -45,6 +70,14 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <typeparam name="T"> The type of values the sequence will generate. </typeparam>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="schema">The schema of the sequence. </param>
+        /// <returns> A builder to further configure the sequence. </returns>
         public static RelationalSequenceBuilder ForSqlServerHasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
@@ -60,12 +93,29 @@ namespace Microsoft.EntityFrameworkCore
             return new RelationalSequenceBuilder(sequence);
         }
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <typeparam name="T"> The type of values the sequence will generate. </typeparam>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.ForSqlServerHasSequence<T>(name, null, builderAction);
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <typeparam name="T"> The type of values the sequence will generate. </typeparam>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="schema">The schema of the sequence. </param>
+        /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
@@ -82,6 +132,14 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <param name="clrType"> The type of values the sequence will generate. </param>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="schema">The schema of the sequence. </param>
+        /// <returns> A builder to further configure the sequence. </returns>
         public static RelationalSequenceBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
@@ -99,6 +157,14 @@ namespace Microsoft.EntityFrameworkCore
             return new RelationalSequenceBuilder(sequence);
         }
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <param name="clrType"> The type of values the sequence will generate. </param>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
@@ -106,6 +172,15 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
             => modelBuilder.ForSqlServerHasSequence(clrType, name, null, builderAction);
 
+        /// <summary>
+        ///     Configures a database sequence when targeting SQL Server.
+        /// </summary>
+        /// <param name="clrType"> The type of values the sequence will generate. </param>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="schema">The schema of the sequence. </param>
+        /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
@@ -124,6 +199,14 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     Configures the model to use a sequence-based hi-lo pattern to generate values for properties
+        ///     marked as <see cref="ValueGenerated.OnAdd"/>, when targeting SQL Server.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the sequence. </param>
+        /// <param name="schema">The schema of the sequence. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerUseSequenceHiLo(
             [NotNull] this ModelBuilder modelBuilder,
             [CanBeNull] string name = null,
@@ -149,6 +232,13 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     Configures the model to use the SQL Server IDENTITY feature to generate values for properties
+        ///     marked as <see cref="ValueGenerated.OnAdd"/>, when targeting SQL Server. This is the default
+        ///     behavior when targeting SQL Server.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder ForSqlServerUseIdentityColumns(
             [NotNull] this ModelBuilder modelBuilder)
         {

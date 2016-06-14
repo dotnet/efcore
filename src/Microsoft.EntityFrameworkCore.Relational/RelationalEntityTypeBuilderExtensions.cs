@@ -13,8 +13,17 @@ using Microsoft.EntityFrameworkCore.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     Relational database specific extension methods for <see cref="EntityTypeBuilder"/>.
+    /// </summary>
     public static class RelationalEntityTypeBuilderExtensions
     {
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name)
@@ -29,12 +38,26 @@ namespace Microsoft.EntityFrameworkCore
             return entityTypeBuilder;
         }
 
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name);
 
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
@@ -51,6 +74,14 @@ namespace Microsoft.EntityFrameworkCore
             return entityTypeBuilder;
         }
 
+        /// <summary>
+        ///     Configures the table that the entity maps to when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name,
@@ -58,6 +89,12 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
 
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <returns> A builder that allows the discriminator column to be configured. </returns>
         public static DiscriminatorBuilder HasDiscriminator([NotNull] this EntityTypeBuilder entityTypeBuilder)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -66,6 +103,14 @@ namespace Microsoft.EntityFrameworkCore
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator();
         }
 
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the discriminator column. </param>
+        /// <param name="discriminatorType"> The type of values stored in the discriminator column. </param>
+        /// <returns> A builder that allows the discriminator column to be configured. </returns>
         public static DiscriminatorBuilder HasDiscriminator(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [NotNull] string name,
@@ -79,6 +124,14 @@ namespace Microsoft.EntityFrameworkCore
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, discriminatorType);
         }
 
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator column. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the discriminator column. </param>
+        /// <returns> A builder that allows the discriminator column to be configured. </returns>
         public static DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [NotNull] string name)
@@ -90,6 +143,18 @@ namespace Microsoft.EntityFrameworkCore
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, typeof(TDiscriminator)));
         }
 
+        /// <summary>
+        ///     Configures the discriminator column used to identify which entity type each row in a table represents
+        ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <typeparam name="TDiscriminator"> The type of values stored in the discriminator column. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="propertyExpression"> 
+        ///     A lambda expression representing the property to be used as the discriminator (
+        ///     <c>blog => blog.Discriminator</c>).
+        /// </param>
+        /// <returns> A builder that allows the discriminator column to be configured. </returns>
         public static DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TEntity, TDiscriminator>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] Expression<Func<TEntity, TDiscriminator>> propertyExpression)

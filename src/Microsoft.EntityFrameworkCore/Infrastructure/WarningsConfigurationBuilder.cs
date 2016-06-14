@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Causes warning to be logged when the specified core warnings are generated. Database providers (and other extensions)
+        ///     Causes a warning to be logged when the specified core warnings are generated. Database providers (and other extensions)
         ///     may provide extension method overloads of this method to configure this behavior for warnings they generate.  
         /// </summary>
         /// <param name="coreEventIds">

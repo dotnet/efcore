@@ -27,8 +27,21 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 // by top-level app developers.
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
+    /// <summary>
+    ///     Relational database specific extension methods for <see cref="IServiceCollection"/>.
+    /// </summary>
     public static class RelationalServiceCollectionExtensions
     {
+        /// <summary>
+        ///     <para>
+        ///         Adds the base services required by a relational database provider.
+        ///     </para>
+        ///      <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
         public static IServiceCollection AddRelational([NotNull] this IServiceCollection services)
         {
             Check.NotNull(services, nameof(services));

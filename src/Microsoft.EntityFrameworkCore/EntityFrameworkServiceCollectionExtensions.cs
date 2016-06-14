@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <returns>
-        ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
+        ///     The same service collection so that multiple calls can be chained.
         /// </returns>
         public static IServiceCollection AddDbContext<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
@@ -82,7 +82,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <returns>
-        ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
+        ///     The same service collection so that multiple calls can be chained.
         /// </returns>
         public static IServiceCollection AddDbContext<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
@@ -109,9 +109,11 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         {
         ///             var connectionString = "connection string to database";
         /// 
-        ///             services.AddDbContext&lt;MyContext&gt;((serviceProvider, options) => 
-        ///                 options.UseSqlServer(connectionString)
-        ///                        .UseInternalServiceProvider(serviceProvider)); 
+        ///             services
+        ///                 .AddEntityFrameworkSqlServer()
+        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) => 
+        ///                     options.UseSqlServer(connectionString)
+        ///                            .UseInternalServiceProvider(serviceProvider)); 
         ///         }
         ///     </code>
         /// </example>
@@ -135,7 +137,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <returns>
-        ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
+        ///     The same service collection so that multiple calls can be chained.
         /// </returns>
         public static IServiceCollection AddDbContext<TContext>(
             [NotNull] this IServiceCollection serviceCollection,

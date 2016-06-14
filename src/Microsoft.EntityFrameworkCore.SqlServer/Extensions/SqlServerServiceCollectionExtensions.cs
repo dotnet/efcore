@@ -21,6 +21,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    ///     SQL Server specific extension methods for <see cref="IServiceCollection"/>.
+    /// </summary>
     public static class SqlServerServiceCollectionExtensions
     {
         /// <summary>
@@ -32,25 +35,27 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         You only need to use this functionality when you want Entity Framework to resolve the services it uses
-        ///         from an external <see cref="IServiceCollection" />. If you are not using an external
-        ///         <see cref="IServiceCollection" /> Entity Framework will take care of creating the services it requires.
+        ///         from an external dependency injection container. If you are not using an external
+        ///         dependency injection container, Entity Framework will take care of creating the services it requires.
         ///     </para>
         /// </summary>
         /// <example>
         ///     <code>
-        ///         public void ConfigureServices(IServiceCollection services) 
+        ///         public void ConfigureServices(IServiceCollection services)
         ///         {
         ///             var connectionString = "connection string to database";
-        /// 
+        ///
         ///             services
         ///                 .AddEntityFrameworkSqlServer()
-        ///                 .AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString)); 
+        ///                 .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                     options.UseSqlServer(connectionString)
+        ///                            .UseInternalServiceProvider(serviceProvider));
         ///         }
         ///     </code>
         /// </example>
         /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
-        ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
+        ///     The same service collection so that multiple calls can be chained.
         /// </returns>
         public static IServiceCollection AddEntityFrameworkSqlServer([NotNull] this IServiceCollection services)
         {

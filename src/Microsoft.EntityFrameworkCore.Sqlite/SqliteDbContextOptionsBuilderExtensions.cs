@@ -10,8 +10,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     SQLite specific extension methods for <see cref="DbContextOptionsBuilder"/>.
+    /// </summary>
     public static class SqliteDbContextOptionsBuilderExtensions
     {
+        /// <summary>
+        ///     Configures the context to connect to a SQLite database.
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="connectionString"> The connection string of the database to connect to. </param>
+        /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlite(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [NotNull] string connectionString,
@@ -31,6 +41,17 @@ namespace Microsoft.EntityFrameworkCore
             return optionsBuilder;
         }
 
+        /// <summary>
+        ///     Configures the context to connect to a SQLite database.
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="connection">
+        ///     An existing <see cref="DbConnection" /> to be used to connect to the database. If the connection is
+        ///     in the open state then EF will not open or close the connection. If the connection is in the closed
+        ///     state then EF will open and close the connection as needed.
+        /// </param>
+        /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlite(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [NotNull] DbConnection connection,
@@ -50,6 +71,14 @@ namespace Microsoft.EntityFrameworkCore
             return optionsBuilder;
         }
 
+        /// <summary>
+        ///     Configures the context to connect to a SQLite database.
+        /// </summary>
+        /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="connectionString"> The connection string of the database to connect to. </param>
+        /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [NotNull] string connectionString,
@@ -58,6 +87,18 @@ namespace Microsoft.EntityFrameworkCore
             => (DbContextOptionsBuilder<TContext>)UseSqlite(
                 (DbContextOptionsBuilder)optionsBuilder, connectionString, sqliteOptionsAction);
 
+        /// <summary>
+        ///     Configures the context to connect to a SQLite database.
+        /// </summary>
+        /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="connection">
+        ///     An existing <see cref="DbConnection" /> to be used to connect to the database. If the connection is
+        ///     in the open state then EF will not open or close the connection. If the connection is in the closed
+        ///     state then EF will open and close the connection as needed.
+        /// </param>
+        /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [NotNull] DbConnection connection,
