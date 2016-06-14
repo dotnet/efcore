@@ -56,6 +56,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var outerShapedQuery = (MethodCallExpression)methodCallExpression.Arguments[0];
 
+                // Hack for now, ideally we'd have the correct arguments for nested joins
+                // i.e. a shaped query
+                if (!(outerShapedQuery.Arguments[2] is ConstantExpression))
+                {
+                    return methodCallExpression;
+                }
+
                 var outerShaper = (Shaper)((ConstantExpression)outerShapedQuery.Arguments[2]).Value;
 
                 var innerLambda

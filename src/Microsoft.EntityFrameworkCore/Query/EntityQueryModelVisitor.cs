@@ -1028,7 +1028,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private const string CreateTransparentIdentifierMethodName = "CreateTransparentIdentifier";
 
+        private interface ITransparentIdentifier
+        {
+            Type OuterType { get; }
+            Type InnerType { get; }
+        }
         private struct TransparentIdentifier<TOuter, TInner>
+            //: ITransparentIdentifier
         {
             [UsedImplicitly]
             public static TransparentIdentifier<TOuter, TInner> CreateTransparentIdentifier(TOuter outer, TInner inner)
@@ -1045,6 +1051,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             [UsedImplicitly]
             public TInner Inner;
+
+            //public Type OuterType => typeof(TOuter);
+            //public Type InnerType => typeof(TInner);
         }
 
         private static Expression CallCreateTransparentIdentifier(

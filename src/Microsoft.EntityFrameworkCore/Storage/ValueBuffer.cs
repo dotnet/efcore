@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The value at the requested index. </returns>
         public object this[int index]
         {
-            get { return _values[_offset + index]; }
+            get { return _values[_offset + index % _values.Count]; }
             [param: CanBeNull] set { _values[_offset + index] = value; }
         }
 
