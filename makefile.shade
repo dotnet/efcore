@@ -47,7 +47,7 @@ k-standard-goals
       
       Log.Info("Repacking Nupkg: " + projectNupkg);
 
-       var extractToDirectory = projectNupkg + "-temp";
+      var extractToDirectory = projectNupkg + "-temp";
       ZipFile.ExtractToDirectory(projectNupkg, extractToDirectory);
 
       var nuspecFile = Files.Include(Path.Combine(extractToDirectory, "*.nuspec")).First();
@@ -67,7 +67,11 @@ k-standard-goals
       File.WriteAllLines(nuspecFile, nuspec);
 
       // repack
-      var nugetExePath = Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe");
+      var nugetExePath = Environment.GetEnvironmentVariable("KOREBUILD_NUGET_EXE");
+      if (string.IsNullOrEmpty(nugetExePath))
+      {
+        nugetExePath = Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe");
+      }
       var nuspecPath = Path.Combine(extractToDirectory, TOOL_PACKAGE_NAME + ".nuspec");
       ExecClr(nugetExePath, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
       
