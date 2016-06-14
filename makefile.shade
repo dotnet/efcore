@@ -8,6 +8,7 @@ default BUILD_DIR_LOCAL='${Path.Combine(BASE_DIR_LOCAL, "artifacts", "build")}'
 default TOOL_PACKAGE_NAME='Microsoft.EntityFrameworkCore.Tools'
 default CLI_TOOL_PROJECT_NAME='Microsoft.EntityFrameworkCore.Design'
 default TOOL_EXE_NAME='${CLI_TOOL_PROJECT_NAME}.exe'
+default NUGET_EXE_PATH='${E("KOREBUILD_NUGET_EXE") ?? Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe")}'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
@@ -67,13 +68,8 @@ k-standard-goals
       File.WriteAllLines(nuspecFile, nuspec);
 
       // repack
-      var nugetExePath = Environment.GetEnvironmentVariable("KOREBUILD_NUGET_EXE");
-      if (string.IsNullOrEmpty(nugetExePath))
-      {
-        nugetExePath = Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe");
-      }
       var nuspecPath = Path.Combine(extractToDirectory, TOOL_PACKAGE_NAME + ".nuspec");
-      ExecClr(nugetExePath, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
+      ExecClr(NUGET_EXE_PATH, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
       
       try
       {
@@ -154,9 +150,8 @@ k-standard-goals
       File.Copy(x64ExePath, x64ExeDestinationPath);
       
       // repack
-      var nugetExePath = Path.Combine(BASE_DIR_LOCAL, ".build", "nuget.exe");
       var nuspecPath = Path.Combine(extractToDirectory, CLI_TOOL_PROJECT_NAME + ".nuspec");
-      ExecClr(nugetExePath, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
+      ExecClr(NUGET_EXE_PATH, "pack " + nuspecPath + " -OutputDirectory " + BUILD_DIR_LOCAL);
       
       try
       {
