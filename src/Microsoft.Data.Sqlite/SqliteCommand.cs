@@ -67,6 +67,7 @@ namespace Microsoft.Data.Sqlite
         /// Gets or sets a value indicating how <see cref="CommandText" /> is interpreted. Only
         /// <see cref="CommandType.Text" /> is supported.
         /// </summary>
+        /// <value>A value indicating how <see cref="CommandText" /> is interpreted.</value>
         public override CommandType CommandType
         {
             get { return CommandType.Text; }
@@ -82,16 +83,19 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the SQL to execute against the database.
         /// </summary>
+        /// <value>The SQL to execute against the database.</value>
         public override string CommandText { get; set; }
 
         /// <summary>
         /// Gets or sets the connection used by the command.
         /// </summary>
+        /// <value>The connection used by the command.</value>
         public new virtual SqliteConnection Connection { get; set; }
 
         /// <summary>
         /// Gets or sets the connection used by the command. Must be a <see cref="SqliteConnection" />.
         /// </summary>
+        /// <value>The connection used by the command.</value>
         protected override DbConnection DbConnection
         {
             get { return Connection; }
@@ -101,11 +105,13 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the transaction within which the command executes.
         /// </summary>
+        /// <value>The transaction within which the command executes.</value>
         public new virtual SqliteTransaction Transaction { get; set; }
 
         /// <summary>
         /// Gets or sets the transaction within which the command executes. Must be a <see cref="SqliteTransaction" />.
         /// </summary>
+        /// <value>The transaction within which the command executes.</value>
         protected override DbTransaction DbTransaction
         {
             get { return Transaction; }
@@ -115,18 +121,21 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets the collection of parameters used by the command.
         /// </summary>
+        /// <value>The collection of parameters used by the command.</value>
         public new virtual SqliteParameterCollection Parameters
             => _parameters.Value;
 
         /// <summary>
         /// Gets the collection of parameters used by the command.
         /// </summary>
+        /// <value>The collection of parameters used by the command.</value>
         protected override DbParameterCollection DbParameterCollection
             => Parameters;
 
         /// <summary>
         /// Gets or sets the wait time before terminating the attempt to execute the command.
         /// </summary>
+        /// <value>The wait time before terminating the attempt to execute the command.</value>
         /// <remarks>
         /// The timeout is used when the command is waiting to obtain a lock on the table.
         /// </remarks>
@@ -135,11 +144,13 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets a value indicating whether the command should be visible in an interface control.
         /// </summary>
+        /// <value>A value indicating whether the command should be visible in an interface control.</value>
         public override bool DesignTimeVisible { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating how the results are applied to the row being updated.
         /// </summary>
+        /// <value>A value indicating how the results are applied to the row being updated.</value>
         public override UpdateRowSource UpdatedRowSource { get; set; }
 
         /// <summary>

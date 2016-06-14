@@ -79,6 +79,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the database file.
         /// </summary>
+        /// <value>The database file.</value>
         public virtual string DataSource
         {
             get { return _dataSource; }
@@ -88,6 +89,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the connection mode.
         /// </summary>
+        /// <value>The connection mode.</value>
         public virtual SqliteOpenMode Mode
         {
             get { return _mode; }
@@ -97,12 +99,14 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets a collection containing the keys used by the connection string.
         /// </summary>
+        /// <value>A collection containing the keys used by the connection string.</value>
         public override ICollection Keys
             => new ReadOnlyCollection<string>((string[])_validKeywords);
 
         /// <summary>
         /// Gets a collection containing the values used by the connection string.
         /// </summary>
+        /// <value>A collection containing the values used by the connection string.</value>
         public override ICollection Values
         {
             get
@@ -120,6 +124,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the caching mode used by the connection.
         /// </summary>
+        /// <value>The caching mode used by the connection.</value>
         /// <seealso href="http://sqlite.org/sharedcache.html">SQLite Shared-Cache Mode</seealso>
         public virtual SqliteCacheMode Cache
         {

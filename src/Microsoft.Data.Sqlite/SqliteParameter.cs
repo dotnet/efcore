@@ -93,6 +93,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the type of the parameter.
         /// </summary>
+        /// <value>The type of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
         /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
         public override DbType DbType { get; set; } = DbType.String;
@@ -100,13 +101,15 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the SQLite type of the parameter.
         /// </summary>
+        /// <value>The SQLite type of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
         /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
         public virtual SqliteType SqliteType { get; set; } = SqliteType.Text;
 
         /// <summary>
-        /// Gets or sets direction of the parameter. Only <see cref="ParameterDirection.Input" /> is supported.
+        /// Gets or sets the direction of the parameter. Only <see cref="ParameterDirection.Input" /> is supported.
         /// </summary>
+        /// <value>The direction of the parameter.</value>
         public override ParameterDirection Direction
         {
             get { return ParameterDirection.Input; }
@@ -122,11 +125,13 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets a value indicating whether the parameter is nullable.
         /// </summary>
+        /// <value>A value indicating whether the parameter is nullable.</value>
         public override bool IsNullable { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the parameter.
         /// </summary>
+        /// <value>The name of the parameter.</value>
         public override string ParameterName
         {
             get { return _parameterName; }
@@ -144,28 +149,33 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets the maximum size, in bytes, of the parameter.
         /// </summary>
+        /// <value>The maximum size, in bytes, of the parameter.</value>
         public override int Size { get; set; }
 
         /// <summary>
         /// Gets or sets the source column used for loading the value.
         /// </summary>
+        /// <value>The source column used for loading the value.</value>
         public override string SourceColumn { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether the source column is nullable.
         /// </summary>
+        /// <value>A value indicating whether the source column is nullable.</value>
         public override bool SourceColumnNullMapping { get; set; }
 
 #if NET451
         /// <summary>
         /// Gets or sets the version to use when loading the value.
         /// </summary>
+        /// <value>The version to use when loading the value.</value>
         public override DataRowVersion SourceVersion { get; set; }
 #endif
 
         /// <summary>
         /// Gets or sets the value of the parameter.
         /// </summary>
+        /// <value>The value of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
         /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
         public override object Value

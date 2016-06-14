@@ -27,12 +27,14 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets the number of items in the collection.
         /// </summary>
+        /// <value>The number of items in the collection.</value>
         public override int Count
             => _parameters.Count;
 
         /// <summary>
         /// Gets the object used to synchronize access to the collection.
         /// </summary>
+        /// <value>The object used to synchronize access to the collection.</value>
         public override object SyncRoot
             => ((ICollection)_parameters).SyncRoot;
 
@@ -40,18 +42,21 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets a value indicating whether the collection is a fixed size.
         /// </summary>
+        /// <value>A value indicating whether the collection is a fixed size.</value>
         public override bool IsFixedSize
             => false;
 
         /// <summary>
         /// Gets a value indicating whether the collection is read-only.
         /// </summary>
+        /// <value>A value indicating whether the collection is read-only.</value>
         public override bool IsReadOnly
             => false;
 
         /// <summary>
         /// Gets a value indicating whether the collection is synchronized.
         /// </summary>
+        /// <value>A value indicating whether the collection is synchronized.</value>
         public override bool IsSynchronized
             => false;
 #endif

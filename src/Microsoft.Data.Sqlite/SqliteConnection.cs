@@ -50,6 +50,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets a handle to underlying database connection.
         /// </summary>
+        /// <value>A handle to underlying database connection.</value>
         /// <seealso href="http://sqlite.org/c3ref/sqlite3.html">Database Connection Handle</seealso>
         public virtual IntPtr Handle
             => _db?.DangerousGetHandle() ?? IntPtr.Zero;
@@ -57,6 +58,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets or sets a string used to open the connection.
         /// </summary>
+        /// <value>A string used to open the connection.</value>
         /// <seealso cref="SqliteConnectionStringBuilder" />
         public override string ConnectionString
         {
@@ -78,12 +80,14 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets the name of the current database. Always 'main'.
         /// </summary>
+        /// <value>The name of the current database.</value>
         public override string Database
             => MainDatabaseName;
 
         /// <summary>
         /// Gets the path to the database file. Will be absolute for open connections.
         /// </summary>
+        /// <value>The path to the database file.</value>
         public override string DataSource
         {
             get
@@ -101,18 +105,21 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets the version of SQLite used by the connection.
         /// </summary>
+        /// <value>The version of SQLite used by the connection.</value>
         public override string ServerVersion
             => NativeMethods.sqlite3_libversion();
 
         /// <summary>
         /// Gets the current state of the connection.
         /// </summary>
+        /// <value>The current state of the connection.</value>
         public override ConnectionState State
             => _state;
 
         /// <summary>
         /// Gets or sets the transaction currently being used by the connection, or null if none.
         /// </summary>
+        /// <value>The transaction currently being used by the connection.</value>
         protected internal virtual SqliteTransaction Transaction { get; set; }
 
         private void SetState(ConnectionState value)

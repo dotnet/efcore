@@ -52,12 +52,14 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets the depth of nesting for the current row. Always zero.
         /// </summary>
+        /// <value>The depth of nesting for the current row.</value>
         public override int Depth
             => 0;
 
         /// <summary>
         /// Gets the number of columns in the current row.
         /// </summary>
+        /// <value>The number of columns in the current row.</value>
         public override int FieldCount
         {
             get
@@ -74,6 +76,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets a handle to underlying prepared statement.
         /// </summary>
+        /// <value>A handle to underlying prepared statement.</value>
         /// <seealso href="http://sqlite.org/c3ref/stmt.html">Prepared Statement Object</seealso>
         public virtual IntPtr Handle
             => _stmt?.DangerousGetHandle() ?? IntPtr.Zero;
@@ -81,18 +84,21 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets a value indicating whether the data reader contains any rows.
         /// </summary>
+        /// <value>A value indicating whether the data reader contains any rows.</value>
         public override bool HasRows
             => _hasRows;
 
         /// <summary>
         /// Gets a value indicating whether the data reader is closed.
         /// </summary>
+        /// <value>A value indicating whether the data reader is closed.</value>
         public override bool IsClosed
             => _closed;
 
         /// <summary>
         /// Gets the number of rows inserted, updated, or deleted. -1 for SELECT statements.
         /// </summary>
+        /// <value>The number of rows inserted, updated, or deleted.</value>
         public override int RecordsAffected { get; }
 
         /// <summary>

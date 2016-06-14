@@ -50,12 +50,14 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets the connection associated with the transaction.
         /// </summary>
+        /// <value>The connection associated with the transaction.</value>
         public new virtual SqliteConnection Connection
             => _connection;
 
         /// <summary>
         /// Gets the connection associated with the transaction.
         /// </summary>
+        /// <value>The connection associated with the transaction.</value>
         protected override DbConnection DbConnection
             => Connection;
 
@@ -63,6 +65,7 @@ namespace Microsoft.Data.Sqlite
         /// Gets the isolation level for the transaction. This cannot be changed if the transaction is completed or
         /// closed.
         /// </summary>
+        /// <value>The isolation level for the transaction.</value>
         public override IsolationLevel IsolationLevel
         {
             get

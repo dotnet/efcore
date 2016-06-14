@@ -24,6 +24,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         /// Gets the SQLite error code.
         /// </summary>
+        /// <value>The SQLite error code.</value>
         /// <seealso href="http://sqlite.org/rescode.html">SQLite Result Codes</seealso>
         public virtual int SqliteErrorCode { get; }
     }
