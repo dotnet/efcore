@@ -70,7 +70,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.csproj", "{A0B496FE-1E59-4262-A5F5-101CBBA42738}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Tools.Core", "src\Microsoft.EntityFrameworkCore.Tools.Core\Microsoft.EntityFrameworkCore.Tools.Core.csproj", "{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Design.Core", "src\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj", "{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.EntityFrameworkCore.Tools.Core.Tests", "test\Microsoft.EntityFrameworkCore.Tools.Core.Tests\Microsoft.EntityFrameworkCore.Tools.Core.Tests.csproj", "{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}"
 EndProject

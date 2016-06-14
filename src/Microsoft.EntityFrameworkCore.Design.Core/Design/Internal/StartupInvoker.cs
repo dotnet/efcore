@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 _logger.Value.LogWarning(
-                    ToolsCoreStrings.InvokeStartupMethodFailed(method.Name, type.DisplayName(), ex.Message));
+                    DesignCoreStrings.InvokeStartupMethodFailed(method.Name, type.DisplayName(), ex.Message));
                 _logger.Value.LogDebug(ex.ToString());
 
                 return null;

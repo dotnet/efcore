@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 migrator.Migrate(targetMigration);
             }
 
-            _logger.Value.LogInformation(ToolsCoreStrings.Done);
+            _logger.Value.LogInformation(DesignCoreStrings.Done);
         }
 
         public virtual MigrationFiles RemoveMigration(
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                 var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force);
 
-                _logger.Value.LogInformation(ToolsCoreStrings.Done);
+                _logger.Value.LogInformation(DesignCoreStrings.Done);
 
                 return files;
             }
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
             if (!(providerServices is IRelationalDatabaseProviderServices))
             {
-                throw new OperationException(ToolsCoreStrings.NonRelationalProvider(providerServices.InvariantName));
+                throw new OperationException(DesignCoreStrings.NonRelationalProvider(providerServices.InvariantName));
             }
 
             var assemblyName = _assembly.GetName();
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 && assemblyName.FullName != migrationsAssemblyName)
             {
                 throw new OperationException(
-                    ToolsCoreStrings.MigrationsAssemblyMismatch(assemblyName.Name, migrationsAssemblyName));
+                    DesignCoreStrings.MigrationsAssemblyMismatch(assemblyName.Name, migrationsAssemblyName));
             }
         }
     }

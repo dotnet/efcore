@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Tools.Core": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-*"
   },
   "configurations": {
     "debug_x86": {

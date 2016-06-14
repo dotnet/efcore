@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 return Literal(enumValue);
             }
 
-            throw new InvalidOperationException(ToolsCoreStrings.UnknownLiteral(value.GetType()));
+            throw new InvalidOperationException(DesignCoreStrings.UnknownLiteral(value.GetType()));
         }
 
         private static bool IsIdentifierStartCharacter(char ch)

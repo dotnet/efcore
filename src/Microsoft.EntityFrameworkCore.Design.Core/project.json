@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0-rc3-*",
-  "description": "Shared components for Entity Framework Core tools.",
+  "version": "1.0.0-preview2-*",
+  "description": "Shared design-time components for Entity Framework Core tools.",
   "packOptions": {
     "tags": [
       "Entity Framework Core",

@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            throw new InvalidOperationException(ToolsCoreStrings.UnknownOperation(operation.GetType()));
+            throw new InvalidOperationException(DesignCoreStrings.UnknownOperation(operation.GetType()));
         }
 
         protected virtual void Generate([NotNull] AddColumnOperation operation, [NotNull] IndentedStringBuilder builder)

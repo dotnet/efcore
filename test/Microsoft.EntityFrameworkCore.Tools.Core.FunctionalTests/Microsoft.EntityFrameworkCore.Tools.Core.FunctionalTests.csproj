@@ -67,9 +67,9 @@
       <Project>{99595B81-D47C-40BA-8C61-5328A5A0E4AB}</Project>
       <Name>Microsoft.EntityFrameworkCore.SqlServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Tools.Core\Microsoft.EntityFrameworkCore.Tools.Core.csproj">
+    <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj">
       <Project>{D3D0A8E8-EC2F-4E01-8650-8554E186A66F}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Tools.Core</Name>
+      <Name>Microsoft.EntityFrameworkCore.Design.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4}</Project>

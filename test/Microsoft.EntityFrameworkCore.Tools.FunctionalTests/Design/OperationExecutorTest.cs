@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                             BuildReference.ByName("Microsoft.AspNetCore.Hosting.Abstractions", copyLocal: true),
                             BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
                             BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools", copyLocal: true),
-                            BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core", copyLocal: true),
+                            BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Core", copyLocal: true),
                             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
                             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
                             BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.AspNetCore.Hosting.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools", copyLocal: true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Core", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                     {
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools", copyLocal: true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Core", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true)
                     },
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.AspNetCore.Hosting.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools", copyLocal: true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Core", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.AspNetCore.Hosting.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools", copyLocal: true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Core", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         () => executor.GetMigrations("MyContext"));
 
                     Assert.Equal(
-                        ToolsCoreStrings.NoParameterlessConstructor("MyContext"),
+                        DesignCoreStrings.NoParameterlessConstructor("MyContext"),
                         ex.Message);
                 }
             }
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         BuildReference.ByName("Microsoft.AspNetCore.Hosting.Abstractions", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools", copyLocal: true),
-                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Tools.Core", copyLocal: true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Core", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational.Design", copyLocal: true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", copyLocal: true),
@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests.Design
                         () => executor.GetMigrations("MyContext"));
 
                     Assert.Equal(
-                        ToolsCoreStrings.MigrationsAssemblyMismatch(build.TargetName, "UnknownAssembly"),
+                        DesignCoreStrings.MigrationsAssemblyMismatch(build.TargetName, "UnknownAssembly"),
                         ex.Message);
                 }
             }

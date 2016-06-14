@@ -56,19 +56,19 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var connection = context.Database.GetDbConnection();
                 if (confirmCheck(connection.Database, connection.DataSource))
                 {
-                    _logger.Value.LogInformation(ToolsCoreStrings.LogDroppingDatabase(connection.Database));
+                    _logger.Value.LogInformation(DesignCoreStrings.LogDroppingDatabase(connection.Database));
                     if (context.Database.EnsureDeleted())
                     {
-                        _logger.Value.LogInformation(ToolsCoreStrings.LogDatabaseDropped(connection.Database));
+                        _logger.Value.LogInformation(DesignCoreStrings.LogDatabaseDropped(connection.Database));
                     }
                     else
                     {
-                        _logger.Value.LogInformation(ToolsCoreStrings.LogNotExistDatabase(connection.Database));
+                        _logger.Value.LogInformation(DesignCoreStrings.LogNotExistDatabase(connection.Database));
                     }
                 }
                 else
                 {
-                    _logger.Value.LogInformation(ToolsCoreStrings.Cancelled);
+                    _logger.Value.LogInformation(DesignCoreStrings.Cancelled);
                 }
             }
         }
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private DbContext CreateContext(Func<DbContext> factory)
         {
             var context = factory();
-            _logger.Value.LogDebug(ToolsCoreStrings.LogUseContext(context.GetType().Name));
+            _logger.Value.LogDebug(DesignCoreStrings.LogUseContext(context.GetType().Name));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         private IDictionary<Type, Func<DbContext>> FindContextTypes()
         {
-            _logger.Value.LogDebug(ToolsCoreStrings.LogFindingContexts);
+            _logger.Value.LogDebug(DesignCoreStrings.LogFindingContexts);
 
             var contexts = new Dictionary<Type, Func<DbContext>>();
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                         }
                         catch (MissingMethodException ex)
                         {
-                            throw new OperationException(ToolsCoreStrings.NoParameterlessConstructor(context.Name), ex);
+                            throw new OperationException(DesignCoreStrings.NoParameterlessConstructor(context.Name), ex);
                         }
                     }));
             }
@@ -183,20 +183,20 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 if (types.Count == 0)
                 {
-                    throw new OperationException(ToolsCoreStrings.NoContext(_assembly.GetName().Name));
+                    throw new OperationException(DesignCoreStrings.NoContext(_assembly.GetName().Name));
                 }
                 if (types.Count == 1)
                 {
                     return types.First();
                 }
 
-                throw new OperationException(ToolsCoreStrings.MultipleContexts);
+                throw new OperationException(DesignCoreStrings.MultipleContexts);
             }
 
             var candidates = FilterTypes(types, name, ignoreCase: true);
             if (candidates.Count == 0)
             {
-                throw new OperationException(ToolsCoreStrings.NoContextWithName(name));
+                throw new OperationException(DesignCoreStrings.NoContextWithName(name));
             }
             if (candidates.Count == 1)
             {
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             candidates = FilterTypes(candidates, name);
             if (candidates.Count == 0)
             {
-                throw new OperationException(ToolsCoreStrings.MultipleContextsWithName(name));
+                throw new OperationException(DesignCoreStrings.MultipleContextsWithName(name));
             }
             if (candidates.Count == 1)
             {
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             candidates = candidates.Where(t => t.Key.Namespace == null).ToDictionary(t => t.Key, t => t.Value);
             if (candidates.Count == 0)
             {
-                throw new OperationException(ToolsCoreStrings.MultipleContextsWithQualifiedName(name));
+                throw new OperationException(DesignCoreStrings.MultipleContextsWithQualifiedName(name));
             }
 
             Debug.Assert(candidates.Count == 1, "candidates.Count is not 1.");

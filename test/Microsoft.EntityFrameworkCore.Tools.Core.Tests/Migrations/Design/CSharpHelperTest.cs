@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Migrations.Design
         {
             var ex = Assert.Throws<InvalidOperationException>(
                 () => new CSharpHelper().UnknownLiteral(new object()));
-            Assert.Equal(ToolsCoreStrings.UnknownLiteral(typeof(object)), ex.Message);
+            Assert.Equal(DesignCoreStrings.UnknownLiteral(typeof(object)), ex.Message);
         }
 
         [Theory]

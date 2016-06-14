@@ -19,43 +19,43 @@ namespace Microsoft.EntityFrameworkCore.Tools.Core.Tests.Scaffolding.Internal
                 OutputPath = null
             };
 
-            Assert.Equal(ToolsCoreStrings.ConnectionStringRequired,
+            Assert.Equal(DesignCoreStrings.ConnectionStringRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ConnectionString = "NonEmptyConnectionString";
-            Assert.Equal(ToolsCoreStrings.ProjectPathRequired,
+            Assert.Equal(DesignCoreStrings.ProjectPathRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ProjectPath = "NonEmptyProjectPath";
-            Assert.Equal(ToolsCoreStrings.RootNamespaceRequired,
+            Assert.Equal(DesignCoreStrings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = @"Invalid!CSharp*Class&Name";
-            Assert.Equal(ToolsCoreStrings.ContextClassNotValidCSharpIdentifier(@"Invalid!CSharp*Class&Name"),
+            Assert.Equal(DesignCoreStrings.ContextClassNotValidCSharpIdentifier(@"Invalid!CSharp*Class&Name"),
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = "1CSharpClassNameCannotStartWithNumber";
-            Assert.Equal(ToolsCoreStrings.ContextClassNotValidCSharpIdentifier("1CSharpClassNameCannotStartWithNumber"),
+            Assert.Equal(DesignCoreStrings.ContextClassNotValidCSharpIdentifier("1CSharpClassNameCannotStartWithNumber"),
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = "volatile"; // cannot be C# keyword
-            Assert.Equal(ToolsCoreStrings.ContextClassNotValidCSharpIdentifier("volatile"),
+            Assert.Equal(DesignCoreStrings.ContextClassNotValidCSharpIdentifier("volatile"),
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = "GoodClassName";
             configuration.OutputPath = @"\AnAbsolutePath";
-            Assert.Equal(ToolsCoreStrings.RootNamespaceRequired,
+            Assert.Equal(DesignCoreStrings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.OutputPath = @"A\Relative\Path";
-            Assert.Equal(ToolsCoreStrings.RootNamespaceRequired,
+            Assert.Equal(DesignCoreStrings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
         }

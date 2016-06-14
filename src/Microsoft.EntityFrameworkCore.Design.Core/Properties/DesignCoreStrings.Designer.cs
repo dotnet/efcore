@@ -11,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore
 	///		This API supports the Entity Framework Core infrastructure and is not intended to be used 
     ///     directly from your code. This API may change or be removed in future releases.
 	/// </summary>
-    public static class ToolsCoreStrings
+    public static class DesignCoreStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Core.Properties.ToolsCoreStrings", typeof(ToolsCoreStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Design.Core.Properties.DesignCoreStrings", typeof(DesignCoreStrings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// The name '{migrationName}' is used by an existing migration.

@@ -5,6 +5,8 @@
         ],
         "packages": {
             "Microsoft.EntityFrameworkCore": { },
+            "Microsoft.EntityFrameworkCore.Design": { },
+            "Microsoft.EntityFrameworkCore.Design.Core": { },
             "Microsoft.EntityFrameworkCore.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.InMemory": { },
             "Microsoft.EntityFrameworkCore.SqlServer": { },
@@ -15,9 +17,7 @@
             "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": { },
             "Microsoft.EntityFrameworkCore.Sqlite": { },
             "Microsoft.EntityFrameworkCore.Sqlite.Design": { },
-            "Microsoft.EntityFrameworkCore.Design": { },
-            "Microsoft.EntityFrameworkCore.Tools": { },
-            "Microsoft.EntityFrameworkCore.Tools.Core": { }
+            "Microsoft.EntityFrameworkCore.Tools": { }
         }
     },
     "Default": { // Rules to run for packages not listed in any other set.

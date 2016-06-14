@@ -80,7 +80,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCo
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests", "src\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests\Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.xproj", "{88796EE8-B48B-434D-AC55-FAFFC9BE0D77}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.Core", "src\Microsoft.EntityFrameworkCore.Tools.Core\Microsoft.EntityFrameworkCore.Tools.Core.xproj", "{6C155372-A8A1-4E3B-8808-E875AFE452C8}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Design.Core", "src\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.xproj", "{6C155372-A8A1-4E3B-8808-E875AFE452C8}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.EntityFrameworkCore.Tools.Tests", "test\Microsoft.EntityFrameworkCore.Tools.Tests\Microsoft.EntityFrameworkCore.Tools.Tests.xproj", "{A9F7622A-62D7-45B9-9FFB-0E00AFFA0BB7}"
 EndProject

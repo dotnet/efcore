@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <AssemblyName>Microsoft.EntityFrameworkCore.Tools.Core</AssemblyName>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Design.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NoWarn>1591</NoWarn>
@@ -33,8 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\ToolsCoreStrings.resx">
-      <LogicalName>Microsoft.EntityFrameworkCore.Tools.Core.Properties.ToolsCoreStrings.resources</LogicalName>
+    <EmbeddedResource Include="Properties\DesignCoreStrings.resx">
+      <LogicalName>Microsoft.EntityFrameworkCore.Design.Core.Properties.DesignCoreStrings.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -86,8 +86,8 @@
     <Compile Include="Migrations\Design\ScaffoldedMigration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="Properties\ToolsCoreStrings.Designer.cs">
-      <DependentUpon>ToolsCoreStrings.resx</DependentUpon>
+    <Compile Include="Properties\DesignCoreStrings.Designer.cs">
+      <DependentUpon>DesignCoreStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Scaffolding\Configuration\Internal\AttributeConfiguration.cs" />
     <Compile Include="Scaffolding\Configuration\Internal\CustomConfiguration.cs" />

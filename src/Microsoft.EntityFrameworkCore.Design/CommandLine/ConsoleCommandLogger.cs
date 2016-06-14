@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Tools.Core.Utilities.Internal;
+using Microsoft.EntityFrameworkCore.Design.Core.Utilities.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Cli
 {

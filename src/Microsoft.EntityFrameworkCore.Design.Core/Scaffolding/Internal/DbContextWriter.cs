@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (_sb.Indent())
             {
-                _sb.AppendLine("#warning " + ToolsCoreStrings.SensitiveInformationWarning);
+                _sb.AppendLine("#warning " + DesignCoreStrings.SensitiveInformationWarning);
 
                 foreach (var optionsBuilderConfig in _model.OnConfiguringConfigurations)
                 {

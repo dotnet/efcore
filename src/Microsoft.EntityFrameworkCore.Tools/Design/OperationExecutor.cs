@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                         catch (Exception ex)
                         {
                             throw new OperationException(
-                                ToolsCoreStrings.UnreferencedAssembly(targetName, startupTargetName),
+                                DesignCoreStrings.UnreferencedAssembly(targetName, startupTargetName),
                                 ex);
                         }
                     });

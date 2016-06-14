@@ -107,9 +107,9 @@
       <Project>{6a25df99-2615-46d8-9532-821764647ee1}</Project>
       <Name>Microsoft.EntityFrameworkCore.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Tools.Core\Microsoft.EntityFrameworkCore.Tools.Core.csproj">
+    <ProjectReference Include="..\Microsoft.EntityFrameworkCore.Design.Core\Microsoft.EntityFrameworkCore.Design.Core.csproj">
       <Project>{d3d0a8e8-ec2f-4e01-8650-8554e186a66f}</Project>
-      <Name>Microsoft.EntityFrameworkCore.Tools.Core</Name>
+      <Name>Microsoft.EntityFrameworkCore.Design.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.EntityFrameworkCore\Microsoft.EntityFrameworkCore.csproj">
       <Project>{715c38e9-b2f5-4db2-8025-0c6492debdd4}</Project>
@@ -118,7 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\ToolsStrings.resx">
-      <LogicalName>Microsoft.EntityFrameworkCore.Tools.Properties.ToolsCoreStrings.resources</LogicalName>
+      <LogicalName>Microsoft.EntityFrameworkCore.Tools.Properties.ToolsStrings.resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     return null;
                 }
 
-                throw new OperationException(ToolsCoreStrings.CannotFindRuntimeProviderAssembly(provider), ex);
+                throw new OperationException(DesignCoreStrings.CannotFindRuntimeProviderAssembly(provider), ex);
             }
 
             var providerServicesAttribute = providerAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 throw new InvalidOperationException(
-                    ToolsCoreStrings.CannotFindDesignTimeProviderAssemblyAttribute(
+                    DesignCoreStrings.CannotFindDesignTimeProviderAssemblyAttribute(
                         nameof(DesignTimeProviderServicesAttribute),
                         provider));
             }
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 throw new OperationException(
-                    ToolsCoreStrings.CannotFindDesignTimeProviderAssembly(providerServicesAttribute.PackageName), ex);
+                    DesignCoreStrings.CannotFindDesignTimeProviderAssembly(providerServicesAttribute.PackageName), ex);
             }
 
             return designTimeProviderAssembly.GetType(

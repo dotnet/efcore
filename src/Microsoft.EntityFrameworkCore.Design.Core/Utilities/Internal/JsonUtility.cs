@@ -8,7 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Core.Utilities.Internal
+namespace Microsoft.EntityFrameworkCore.Design.Core.Utilities.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

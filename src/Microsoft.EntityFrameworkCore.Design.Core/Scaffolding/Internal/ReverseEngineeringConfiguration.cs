@@ -75,12 +75,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (string.IsNullOrEmpty(ConnectionString))
             {
-                throw new ArgumentException(ToolsCoreStrings.ConnectionStringRequired);
+                throw new ArgumentException(DesignCoreStrings.ConnectionStringRequired);
             }
 
             if (string.IsNullOrEmpty(ProjectPath))
             {
-                throw new ArgumentException(ToolsCoreStrings.ProjectPathRequired);
+                throw new ArgumentException(DesignCoreStrings.ProjectPathRequired);
             }
 
             if (!string.IsNullOrWhiteSpace(ContextClassName)
@@ -88,12 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     || CSharpUtilities.Instance.IsCSharpKeyword(ContextClassName)))
             {
                 throw new ArgumentException(
-                    ToolsCoreStrings.ContextClassNotValidCSharpIdentifier(ContextClassName));
+                    DesignCoreStrings.ContextClassNotValidCSharpIdentifier(ContextClassName));
             }
 
             if (string.IsNullOrEmpty(ProjectRootNamespace))
             {
-                throw new ArgumentException(ToolsCoreStrings.RootNamespaceRequired);
+                throw new ArgumentException(DesignCoreStrings.RootNamespaceRequired);
             }
         }
     }

@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (_migrationsAssembly.FindMigrationId(migrationName) != null)
             {
-                throw new InvalidOperationException(ToolsCoreStrings.DuplicateMigrationName(migrationName));
+                throw new InvalidOperationException(DesignCoreStrings.DuplicateMigrationName(migrationName));
             }
 
             var subNamespaceDefaulted = false;
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
                 else
                 {
-                    _logger.Value.LogWarning(ToolsCoreStrings.ForeignMigrations(migrationNamespace));
+                    _logger.Value.LogWarning(DesignCoreStrings.ForeignMigrations(migrationNamespace));
                 }
             }
 
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var lastModelSnapshotName = modelSnapshot.GetType().Name;
                 if (lastModelSnapshotName != modelSnapshotName)
                 {
-                    _logger.Value.LogDebug(ToolsCoreStrings.ReusingSnapshotName(lastModelSnapshotName));
+                    _logger.Value.LogDebug(DesignCoreStrings.ReusingSnapshotName(lastModelSnapshotName));
 
                     modelSnapshotName = lastModelSnapshotName;
                 }
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (upOperations.Any(o => o.IsDestructiveChange))
             {
-                _logger.Value.LogWarning(ToolsCoreStrings.DestructiveOperation);
+                _logger.Value.LogWarning(DesignCoreStrings.DestructiveOperation);
             }
 
             var migrationCode = _migrationCodeGenerator.GenerateMigration(
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelSnapshot = _migrationsAssembly.ModelSnapshot;
             if (modelSnapshot == null)
             {
-                throw new InvalidOperationException(ToolsCoreStrings.NoSnapshot);
+                throw new InvalidOperationException(DesignCoreStrings.NoSnapshot);
             }
 
             var language = _migrationCodeGenerator.FileExtension;
@@ -217,25 +217,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     if (force)
                     {
-                        _logger.Value.LogWarning(ToolsCoreStrings.ForceRemoveMigration(migration.GetId()));
+                        _logger.Value.LogWarning(DesignCoreStrings.ForceRemoveMigration(migration.GetId()));
                     }
                     else if (_historyRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
                     {
-                        throw new InvalidOperationException(ToolsCoreStrings.UnapplyMigration(migration.GetId()));
+                        throw new InvalidOperationException(DesignCoreStrings.UnapplyMigration(migration.GetId()));
                     }
 
                     var migrationFileName = migration.GetId() + language;
                     var migrationFile = TryGetProjectFile(projectDir, migrationFileName);
                     if (migrationFile != null)
                     {
-                        _logger.Value.LogInformation(ToolsCoreStrings.RemovingMigration(migration.GetId()));
+                        _logger.Value.LogInformation(DesignCoreStrings.RemovingMigration(migration.GetId()));
                         File.Delete(migrationFile);
                         files.MigrationFile = migrationFile;
                     }
                     else
                     {
-                        _logger.Value.LogWarning(ToolsCoreStrings.NoMigrationFile(migrationFileName, migration.GetType().FullName));
+                        _logger.Value.LogWarning(DesignCoreStrings.NoMigrationFile(migrationFileName, migration.GetType().FullName));
                     }
 
                     var migrationMetadataFileName = migration.GetId() + ".Designer" + language;
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
                     else
                     {
-                        _logger.Value.LogDebug(ToolsCoreStrings.NoMigrationMetadataFile(migrationMetadataFileName));
+                        _logger.Value.LogDebug(DesignCoreStrings.NoMigrationMetadataFile(migrationMetadataFileName));
                     }
 
                     model = migrations.Count > 1
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
                 else
                 {
-                    _logger.Value.LogDebug(ToolsCoreStrings.ManuallyDeleted);
+                    _logger.Value.LogDebug(DesignCoreStrings.ManuallyDeleted);
                 }
             }
 
@@ -267,14 +267,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 if (modelSnapshotFile != null)
                 {
-                    _logger.Value.LogInformation(ToolsCoreStrings.RemovingSnapshot);
+                    _logger.Value.LogInformation(DesignCoreStrings.RemovingSnapshot);
                     File.Delete(modelSnapshotFile);
                     files.SnapshotFile = modelSnapshotFile;
                 }
                 else
                 {
                     _logger.Value.LogWarning(
-                        ToolsCoreStrings.NoSnapshotFile(modelSnapshotFileName, modelSnapshot.GetType().FullName));
+                        DesignCoreStrings.NoSnapshotFile(modelSnapshotFileName, modelSnapshot.GetType().FullName));
                 }
             }
             else
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         modelSnapshotFileName);
                 }
 
-                _logger.Value.LogInformation(ToolsCoreStrings.RevertingSnapshot);
+                _logger.Value.LogInformation(DesignCoreStrings.RevertingSnapshot);
                 File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
             }
 
@@ -317,12 +317,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
-            _logger.Value.LogDebug(ToolsCoreStrings.WritingMigration(migrationFile));
+            _logger.Value.LogDebug(DesignCoreStrings.WritingMigration(migrationFile));
             Directory.CreateDirectory(migrationDirectory);
             File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
             File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
 
-            _logger.Value.LogDebug(ToolsCoreStrings.WritingSnapshot(modelSnapshotFile));
+            _logger.Value.LogDebug(DesignCoreStrings.WritingSnapshot(modelSnapshotFile));
             Directory.CreateDirectory(modelSnapshotDirectory);
             File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
 
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var lastNamespace = siblingType.Namespace;
                 if (lastNamespace != defaultNamespace)
                 {
-                    _logger.Value.LogDebug(ToolsCoreStrings.ReusingNamespace(siblingType.Name));
+                    _logger.Value.LogDebug(DesignCoreStrings.ReusingNamespace(siblingType.Name));
 
                     return lastNamespace;
                 }
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var lastDirectory = Path.GetDirectoryName(siblingPath);
                     if (!defaultDirectory.Equals(lastDirectory, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.Value.LogDebug(ToolsCoreStrings.ReusingDirectory(siblingFileName));
+                        _logger.Value.LogDebug(DesignCoreStrings.ReusingDirectory(siblingFileName));
 
                         return lastDirectory;
                     }

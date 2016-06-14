@@ -13,7 +13,7 @@
       "type": "build",
       "target": "package"
     },
-    "Microsoft.EntityFrameworkCore.Tools.Core": {
+    "Microsoft.EntityFrameworkCore.Design.Core": {
       "target": "project"
     },
     "Microsoft.EntityFrameworkCore.Sqlite": {

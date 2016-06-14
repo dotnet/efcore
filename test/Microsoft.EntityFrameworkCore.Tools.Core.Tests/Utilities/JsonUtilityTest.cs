@@ -3,7 +3,7 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
-using Microsoft.EntityFrameworkCore.Tools.Core.Utilities.Internal;
+using Microsoft.EntityFrameworkCore.Design.Core.Utilities.Internal;
 using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
