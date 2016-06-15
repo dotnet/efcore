@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-preview2-*",
+  "version": "1.0.0-preview3-*",
   "description": "Command line tools for Entity Framework Core. Includes the Scaffold-DbContext, Add-Migration, and Update-Database commands for the Package Manager Console in Visual Studio and the 'dotnet ef' command line tool.",
   "packOptions": {
     "tags": [
@@ -35,7 +35,7 @@
       "dependencies": {
         "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
         "Microsoft.DotNet.ProjectModel": "1.0.0-*",
-        "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+        "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"

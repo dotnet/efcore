@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc3-*",
+  "version": "1.1.0-alpha1-*",
   "description": "Shared design-time test suite for Entity Framework Core relational database providers.",
   "packOptions": {
     "tags": [
@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.0-*",
     "Microsoft.Extensions.DependencyModel": "1.0.0-*",
     "Microsoft.CodeAnalysis.CSharp": "1.3.0-*"
   },

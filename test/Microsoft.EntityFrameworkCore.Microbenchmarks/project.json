@@ -2,14 +2,14 @@
   "buildOptions": {
     "warningsAsErrors": true,
     "copyToOutput": {
-       "include": [
-          "config.json"
-       ]
+      "include": [
+        "config.json"
+      ]
     }
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0-*",
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
   "publishOptions": {
@@ -31,6 +31,6 @@
         }
       }
     },
-    "net451": { }
+    "net451": {}
   }
 }
