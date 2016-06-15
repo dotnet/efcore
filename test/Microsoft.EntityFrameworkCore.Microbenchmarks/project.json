@@ -1,6 +1,11 @@
 {
   "buildOptions": {
-    "warningsAsErrors": true
+    "warningsAsErrors": true,
+    "copyToOutput": {
+       "include": [
+          "config.json"
+       ]
+    }
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
@@ -8,7 +13,9 @@
     "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
   },
   "publishOptions": {
-    "includeFiles": "config.json"
+    "include": [
+      "config.json"
+    ]
   },
   "testRunner": "xunit",
   "frameworks": {
