@@ -149,21 +149,26 @@ namespace Microsoft.EntityFrameworkCore.Tests.ChangeTracking
 
             var hashSet = new ObservableHashSet<int>(testData);
 
-            var arrray = new int[orderedDistinct.Count];
-            hashSet.CopyTo(arrray);
+            Assert.Equal(orderedDistinct.Count, hashSet.Count);
 
-            Assert.Equal(orderedDistinct, arrray.Take(orderedDistinct.Count).OrderBy(i => i));
+            var array = new int[hashSet.Count];
+            hashSet.CopyTo(array);
 
-            arrray = new int[orderedDistinct.Count + 100];
-            hashSet.CopyTo(arrray, 100);
+            Assert.Equal(orderedDistinct, array.OrderBy(i => i));
 
-            Assert.Equal(orderedDistinct, arrray.Skip(100).Take(orderedDistinct.Count).OrderBy(i => i));
+            array = new int[hashSet.Count + 100];
+            hashSet.CopyTo(array, 100);
 
-            var toTake = Math.Max(10, orderedDistinct.Count);
-            arrray = new int[100 + toTake];
-            hashSet.CopyTo(arrray, 100, toTake);
+            Assert.Equal(orderedDistinct, array.Skip(100).OrderBy(i => i));
 
-            Assert.Equal(orderedDistinct.Take(toTake), arrray.Skip(100).Take(toTake).OrderBy(i => i));
+            var toTake = Math.Min(10, hashSet.Count);
+            array = new int[100 + toTake];
+            hashSet.CopyTo(array, 100, toTake);
+
+            foreach (var value in array.Skip(100).Take(toTake))
+            {
+                Assert.Contains(value, hashSet);
+            }
         }
 
         [Fact]
