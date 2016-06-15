@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-preview2-*",
+  "version": "1.0.0-preview3-*",
   "description": "Design-time components for Entity Framework Core tools",
   "packOptions": {
     "tags": [
@@ -30,7 +30,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",
     "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-*"
   },
   "configurations": {

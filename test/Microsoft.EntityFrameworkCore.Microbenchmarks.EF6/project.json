@@ -19,6 +19,6 @@
   },
   "testRunner": "xunit",
   "frameworks": {
-    "net451": { }
+    "net451": {}
   }
 }

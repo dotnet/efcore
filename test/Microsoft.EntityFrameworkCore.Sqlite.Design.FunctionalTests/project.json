@@ -8,9 +8,9 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.0-*",
     "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.0-*"
   },
   "publishOptions": {
     "include": "ReverseEngineering/**/*.expected"

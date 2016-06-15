@@ -7,8 +7,8 @@
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Design.Core": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0-*",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {

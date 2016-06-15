@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.1.0-*",
   "description": "Reusable Microsoft.EntityFrameworkCore functional tests for provider writers.",
   "buildOptions": {
     "warningsAsErrors": true,
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
-    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.1.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {

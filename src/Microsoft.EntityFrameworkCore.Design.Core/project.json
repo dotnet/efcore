@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-preview2-*",
+  "version": "1.0.0-preview3-*",
   "description": "Shared design-time components for Entity Framework Core tools.",
   "packOptions": {
     "tags": [
@@ -22,11 +22,11 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.0-*",
-    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.0-*",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.1.0-*"
   },
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "netstandard1.3": {
       "dependencies": {
         "System.AppContext": "4.1.0-*",
