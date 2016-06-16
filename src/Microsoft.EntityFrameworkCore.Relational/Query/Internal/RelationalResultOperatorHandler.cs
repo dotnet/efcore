@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private sealed class HandlerContext
         {
             private readonly IResultOperatorHandler _resultOperatorHandler;
+            private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
 
             public HandlerContext(
                 IResultOperatorHandler resultOperatorHandler,
@@ -43,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 SelectExpression selectExpression)
             {
                 _resultOperatorHandler = resultOperatorHandler;
+                _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
 
                 Model = model;
                 RelationalAnnotationProvider = relationalAnnotationProvider;
-                SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
                 SelectExpressionFactory = selectExpressionFactory;
                 QueryModelVisitor = queryModelVisitor;
                 ResultOperator = resultOperator;
@@ -56,7 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IModel Model { get; }
             public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
-            public ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
             public ISelectExpressionFactory SelectExpressionFactory { get; }
             public ResultOperatorBase ResultOperator { get; }
             public SelectExpression SelectExpression { get; }
@@ -70,6 +70,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return _resultOperatorHandler
                     .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
+            }
+
+            public SqlTranslatingExpressionVisitor CreateSqlTranslatingVisitor(bool bindParentQueries = false)
+            {
+                return _sqlTranslatingExpressionVisitorFactory
+                    .Create(
+                        QueryModelVisitor,
+                        SelectExpression,
+                        bindParentQueries: bindParentQueries);
             }
         }
 
@@ -166,11 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleAll(HandlerContext handlerContext)
         {
-            var filteringVisitor
-                = handlerContext.SqlTranslatingExpressionVisitorFactory
-                    .Create(
-                        handlerContext.QueryModelVisitor,
-                        handlerContext.SelectExpression);
+            var filteringVisitor = handlerContext.CreateSqlTranslatingVisitor();
 
             var predicate
                 = filteringVisitor.Visit(
@@ -229,17 +234,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleContains(HandlerContext handlerContext)
         {
-            var filteringVisitor
-                = handlerContext.SqlTranslatingExpressionVisitorFactory
-                    .Create(
-                        handlerContext.QueryModelVisitor,
-                        handlerContext.SelectExpression, 
-                        bindParentQueries: true);
+            var filteringVisitor = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
             var itemResultOperator = (ContainsResultOperator)handlerContext.ResultOperator;
 
             var item = filteringVisitor.Visit(itemResultOperator.Item);
-
             if (item != null)
             {
                 var itemSelectExpression = item as SelectExpression;
@@ -431,11 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleGroup(HandlerContext handlerContext)
         {
-            var sqlTranslatingExpressionVisitor
-                = handlerContext.SqlTranslatingExpressionVisitorFactory
-                    .Create(
-                        handlerContext.QueryModelVisitor,
-                        handlerContext.SelectExpression);
+            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor();
 
             var groupResultOperator = (GroupResultOperator)handlerContext.ResultOperator;
 
@@ -650,9 +645,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var skipResultOperator = (SkipResultOperator)handlerContext.ResultOperator;
 
-            handlerContext.SelectExpression.Offset = skipResultOperator.Count;
+            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
-            return handlerContext.EvalOnServer;
+            var offset = sqlTranslatingExpressionVisitor.Visit(skipResultOperator.Count);
+            if (offset != null)
+            {
+                handlerContext.SelectExpression.Offset = offset;
+
+                return handlerContext.EvalOnServer;
+            }
+
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleSum(HandlerContext handlerContext)
@@ -676,9 +679,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var takeResultOperator = (TakeResultOperator)handlerContext.ResultOperator;
 
-            handlerContext.SelectExpression.Limit = takeResultOperator.Count;
+            var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor(bindParentQueries: true);
 
-            return handlerContext.EvalOnServer;
+            var limit = sqlTranslatingExpressionVisitor.Visit(takeResultOperator.Count);
+            if (limit != null)
+            {
+                handlerContext.SelectExpression.Limit = takeResultOperator.Count;
+
+                return handlerContext.EvalOnServer;
+            }
+
+            return handlerContext.EvalOnClient();
         }
 
         private static void SetProjectionConditionalExpression(

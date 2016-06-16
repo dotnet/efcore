@@ -1500,6 +1500,125 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_predicate()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A." && t.Gear.HasSoulPatch);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => t.Gear.SquadId);
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_projection_into_anonymous_type()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => new { t.Gear.SquadId });
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_orderby()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Gear.SquadId);
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_groupby()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").GroupBy(t => t.Gear.SquadId);
+                var result = query.ToList();
+
+                Assert.Equal(2, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_all()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").All(t => t.Gear.HasSoulPatch);
+
+                Assert.False(query);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A." && context.Gears.Select(g => g.SquadId).Contains(t.Gear.SquadId));
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_skip()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => context.Gears.Skip(t.Gear.SquadId));
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_works_with_take()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Note != "K.I.A.").Select(t => context.Gears.Take(t.Gear.SquadId));
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_type_compensation_throws_rasonable_exception_for_nullable_values()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Tags.Where(t => t.Gear.HasSoulPatch);
+
+                //Nullable object must have a value
+                Assert.Throws<InvalidOperationException>(() => query.ToList());
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

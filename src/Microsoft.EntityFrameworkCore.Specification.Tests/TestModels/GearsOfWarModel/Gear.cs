@@ -36,6 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
         public string LeaderNickname { get; set; }
         public int LeaderSquadId { get; set; }
 
+        public bool HasSoulPatch { get; set; }
+
         [NotMapped]
         public bool IsMarcus => Nickname == "Marcus";
     }
