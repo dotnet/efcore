@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc3-*",
+  "version": "1.0.0-rtm-*",
   "description": "Shared test suite for Entity Framework Core database providers.",
   "packOptions": {
     "tags": [

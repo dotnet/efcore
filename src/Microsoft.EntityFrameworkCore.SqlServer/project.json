@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc3-*",
+  "version": "1.0.0-rtm-*",
   "description": "Microsoft SQL Server database provider for Entity Framework Core.",
   "packOptions": {
     "tags": [

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-rc3-*",
+  "version": "1.0.0-rtm-*",
   "description": "Design-time Entity Framework Core functionality for SQLite",
   "packOptions": {
     "tags": [
