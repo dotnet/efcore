@@ -4,8 +4,12 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Tests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": {
+      "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {

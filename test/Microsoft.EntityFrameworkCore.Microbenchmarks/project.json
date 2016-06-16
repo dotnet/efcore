@@ -10,7 +10,9 @@
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": "1.0.0-*"
+    "Microsoft.EntityFrameworkCore.Microbenchmarks.Core": {
+      "target": "project"
+    }
   },
   "publishOptions": {
     "include": [

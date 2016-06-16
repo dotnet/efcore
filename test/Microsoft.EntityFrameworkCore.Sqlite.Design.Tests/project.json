@@ -4,9 +4,15 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design.Tests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Sqlite.Tests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Relational.Design.Tests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite.Design.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite.Tests": {
+      "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {

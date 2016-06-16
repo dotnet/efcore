@@ -14,7 +14,9 @@
     "dotnet-test-xunit": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.0-*",
     "Microsoft.EntityFrameworkCore.SqlServer.Design": "1.1.0-*",
-    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": {
+      "target": "project"
+    }
   },
   "publishOptions": {
     "include": [
