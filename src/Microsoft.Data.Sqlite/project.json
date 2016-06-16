@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.1.0-*",
   "description": "SQLite implementation of the System.Data.Common provider model.\r\n\r\nCommonly Used Types:\r\nMicrosoft.Data.Sqlite.SqliteCommand\r\nMicrosoft.Data.Sqlite.SqliteConnection\r\nMicrosoft.Data.Sqlite.SqliteConnectionStringBuilder\r\nMicrosoft.Data.Sqlite.SqliteDataReader\r\nMicrosoft.Data.Sqlite.SqliteException\r\nMicrosoft.Data.Sqlite.SqliteFactory\r\nMicrosoft.Data.Sqlite.SqliteParameter\r\nMicrosoft.Data.Sqlite.SqliteTransaction",
   "packOptions": {
     "tags": [
