@@ -713,6 +713,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
+        /// Entity type '{entityType}' is defined with a single key property, but {valuesCount} values were passed to the 'DbSet.Find' method.
+        /// </summary>
+        public static string FindNotCompositeKey([CanBeNull] object entityType, [CanBeNull] object valuesCount)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FindNotCompositeKey", "entityType", "valuesCount"), entityType, valuesCount);
+        }
+
+        /// <summary>
+        /// Entity type '{entityType}' is defined with a {propertiesCount}-part composite key, but {valuesCount} values were passed to the 'DbSet.Find' method.
+        /// </summary>
+        public static string FindValueCountMismatch([CanBeNull] object entityType, [CanBeNull] object propertiesCount, [CanBeNull] object valuesCount)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FindValueCountMismatch", "entityType", "propertiesCount", "valuesCount"), entityType, propertiesCount, valuesCount);
+        }
+
+        /// <summary>
+        /// The key value at position {index} of the call to 'DbSet&lt;{entityType}&gt;.Find' was of type '{valueType}', which does not match the property type of '{propertyType}'.
+        /// </summary>
+        public static string FindValueTypeMismatch([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object valueType, [CanBeNull] object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FindValueTypeMismatch", "index", "entityType", "valueType", "propertyType"), index, entityType, valueType, propertyType);
+        }
+
+        /// <summary>
         /// The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.
         /// </summary>
         public static string ForeignKeyReferencedEntityKeyMismatch([CanBeNull] object principalKey, [CanBeNull] object principalEntityType)

@@ -289,6 +289,11 @@ namespace Microsoft.EntityFrameworkCore.Tests
                 throw new NotImplementedException();
             }
 
+            public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues)
+            {
+                throw new NotImplementedException();
+            }
+
             public InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
             {
                 throw new NotImplementedException();

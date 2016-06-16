@@ -81,6 +81,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual InternalEntityEntry TryGetEntry(object[] keyValues)
+        {
+            InternalEntityEntry entry;
+            var key = PrincipalKeyValueFactory.CreateFromKeyValues(keyValues);
+            return key != null && _identityMap.TryGetValue((TKey)key, out entry) ? entry : null;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityEntry TryGetEntry(ValueBuffer valueBuffer, bool throwOnNullKey)
         {
             InternalEntityEntry entry;

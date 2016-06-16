@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 {
                     Assert.Same(
                         entity,
-                        stateManager.TryGetEntry(key, new ValueBuffer(new object[] { entity.Id, entity.Name }), false).Entity);
+                        stateManager.TryGetEntry(key, new object[] { entity.Id }).Entity);
                 }
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
                 {
                     Assert.Same(
                         entity,
-                        stateManager.TryGetEntry(key, new ValueBuffer(new object[] { entity.Id, entity.Name }), false).Entity);
+                        stateManager.TryGetEntry(key, new object[] { entity.Id }).Entity);
                 }
             }
         }

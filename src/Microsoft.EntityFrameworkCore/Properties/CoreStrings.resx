@@ -378,6 +378,15 @@
   <data name="CannotMaterializeAbstractType" xml:space="preserve">
     <value>Unable to create an instance of type entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.</value>
   </data>
+  <data name="FindNotCompositeKey" xml:space="preserve">
+    <value>Entity type '{entityType}' is defined with a single key property, but {valuesCount} values were passed to the 'DbSet.Find' method.</value>
+  </data>
+  <data name="FindValueCountMismatch" xml:space="preserve">
+    <value>Entity type '{entityType}' is defined with a {propertiesCount}-part composite key, but {valuesCount} values were passed to the 'DbSet.Find' method.</value>
+  </data>
+  <data name="FindValueTypeMismatch" xml:space="preserve">
+    <value>The key value at position {index} of the call to 'DbSet&lt;{entityType}&gt;.Find' was of type '{valueType}', which does not match the property type of '{propertyType}'.</value>
+  </data>
   <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
     <value>The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.</value>
   </data>

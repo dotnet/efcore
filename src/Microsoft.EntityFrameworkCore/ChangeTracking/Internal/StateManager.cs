@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public class StateManager : IStateManager
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IConcurrencyDetector _concurrencyDetector;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public StateManager(
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsSingleQueryMode(IEntityType entityType)
@@ -97,25 +97,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void EndSingleQueryMode() => _singleQueryMode = false;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IInternalEntityEntryNotifier Notify { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IValueGenerationManager ValueGeneration { get; }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry GetOrCreateEntry(object entity)
@@ -140,13 +140,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void BeginTrackingQuery() => _singleQueryMode = _singleQueryMode == null;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry StartTrackingFromQuery(
@@ -186,14 +186,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityEntry TryGetEntry(IKey key, object[] keyValues)
+            => FindIdentityMap(key)?.TryGetEntry(keyValues);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(IKey key, ValueBuffer valueBuffer, bool throwOnNullKey)
             => GetOrCreateIdentityMap(key).TryGetEntry(valueBuffer, throwOnNullKey);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(object entity)
@@ -272,13 +279,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry StartTracking(InternalEntityEntry entry)
@@ -317,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void StopTracking(InternalEntityEntry entry)
@@ -359,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void Unsubscribe()
@@ -374,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void RecordReferencedUntrackedEntity(
@@ -390,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferers(object referencedEntity, bool clear)
@@ -410,21 +417,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
             => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntry(foreignKey, dependentEntry);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
             => FindIdentityMap(foreignKey.PrincipalKey)?.TryGetEntryUsingRelationshipSnapshot(foreignKey, dependentEntry);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void UpdateIdentityMap(InternalEntityEntry entry, IKey key)
@@ -445,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void UpdateDependentMap(InternalEntityEntry entry, IForeignKey foreignKey)
@@ -461,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependents(
@@ -474,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
@@ -487,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey)
@@ -517,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -572,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task<int> SaveChangesAsync(
@@ -606,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual int SaveChanges(
@@ -619,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual async Task<int> SaveChangesAsync(
@@ -633,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual void AcceptAllChanges()
@@ -656,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual DbContext Context { get; }
