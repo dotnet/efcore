@@ -4,9 +4,15 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer.Tests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Relational.Design.Tests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.SqlServer.Design.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.SqlServer.Tests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Relational.Design.Tests": {
+      "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {

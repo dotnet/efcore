@@ -4,8 +4,12 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Relational.Design.Tests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.Tools.Core.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Relational.Design.Tests": {
+      "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {

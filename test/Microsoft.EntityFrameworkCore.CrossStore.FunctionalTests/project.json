@@ -3,9 +3,15 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": "1.0.0"
+    "Microsoft.EntityFrameworkCore.InMemory.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": {
+      "target": "project"
+    },
+    "Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests": {
+      "target": "project"
+    }
   },
   "testRunner": "xunit",
   "frameworks": {
