@@ -137,17 +137,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
+        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor, bool navigationExpansionSubquery = false)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
-            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor);
+            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor, navigationExpansionSubquery);
         }
 
         private NavigationRewritingExpressionVisitor(
-            EntityQueryModelVisitor queryModelVisitor, IAsyncQueryProvider entityQueryProvider, NavigationRewritingExpressionVisitor parentvisitor)
-            : this(queryModelVisitor)
+            EntityQueryModelVisitor queryModelVisitor, 
+            IAsyncQueryProvider entityQueryProvider, 
+            NavigationRewritingExpressionVisitor parentvisitor, 
+            bool navigationExpansionSubquery)
+            : this(queryModelVisitor, navigationExpansionSubquery)
         {
             _entityQueryProvider = entityQueryProvider;
             _parentvisitor = parentvisitor;
@@ -558,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (navigations.Count > 1)
             {
-                var subQueryVisitor = CreateVisitorForSubQuery();
+                var subQueryVisitor = CreateVisitorForSubQuery(navigationExpansionSubquery: true);
                 subQueryVisitor.Rewrite(subQueryModel);
             }
 
@@ -571,8 +574,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used 
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery()
-            => new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider, this);
+        public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery(bool navigationExpansionSubquery = false)
+            => new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider, this, navigationExpansionSubquery);
 
         private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
         {
@@ -935,15 +938,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private class NavigationRewritingQueryModelVisitor : ExpressionTransformingQueryModelVisitor
         {
             private readonly SubqueryInjector _subqueryInjector;
+            private readonly bool _navigationExpansionSubquery;
 
             public bool InsideInnerKeySelector { get; private set; }
 
             public AdditionalFromClause AdditionalFromClauseBeingProcessed { get; private set; }
 
-            public NavigationRewritingQueryModelVisitor(NavigationRewritingExpressionVisitor transformingVisitor, EntityQueryModelVisitor queryModelVisitor)
+            public NavigationRewritingQueryModelVisitor(
+                NavigationRewritingExpressionVisitor transformingVisitor, 
+                EntityQueryModelVisitor queryModelVisitor, 
+                bool navigationExpansionSubquery)
                 : base(transformingVisitor)
             {
                 _subqueryInjector = new SubqueryInjector(queryModelVisitor);
+                _navigationExpansionSubquery = navigationExpansionSubquery;
             }
 
             public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
@@ -952,6 +960,38 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 AdditionalFromClauseBeingProcessed = fromClause;
                 fromClause.TransformExpressions(TransformingVisitor.Visit);
                 AdditionalFromClauseBeingProcessed = oldAdditionalFromClause;
+            }
+
+            public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
+            {
+                base.VisitWhereClause(whereClause, queryModel, index);
+
+                if (whereClause.Predicate.Type == typeof(bool?))
+                {
+                    whereClause.Predicate = Expression.Convert(whereClause.Predicate, typeof(bool));
+                }
+            }
+
+            public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+            {
+                var originalTypes = orderByClause.Orderings.Select(o => o.Expression.Type).ToList();
+
+                base.VisitOrderByClause(orderByClause, queryModel, index);
+
+                var newTypes = orderByClause.Orderings.Select(o => o.Expression.Type).ToList();
+
+                Debug.Assert(originalTypes.Count == newTypes.Count);
+
+                for (var i = 0; i < newTypes.Count; i++)
+                {
+                    if ((originalTypes[i] != newTypes[i])
+                        && !originalTypes[i].IsNullableType()
+                        && newTypes[i].IsNullableType()
+                        && (originalTypes[i].UnwrapNullableType() == newTypes[i].UnwrapNullableType()))
+                    {
+                        orderByClause.Orderings[i].Expression = Expression.Convert(orderByClause.Orderings[i].Expression, originalTypes[i]);
+                    }
+                }
             }
 
             public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
@@ -986,11 +1026,126 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
             {
-                var newSelector = _subqueryInjector.Visit(selectClause.Selector);
+                selectClause.Selector = _subqueryInjector.Visit(selectClause.Selector);
 
-                selectClause.Selector = newSelector;
+                if (_navigationExpansionSubquery)
+                {
+                    base.VisitSelectClause(selectClause, queryModel);
+                    return;
+                }
 
-                selectClause.TransformExpressions(TransformingVisitor.Visit);
+                var originalType = selectClause.Selector.Type;
+
+                base.VisitSelectClause(selectClause, queryModel);
+
+                var newType = selectClause.Selector.Type;
+                if ((originalType != newType)
+                    && !originalType.IsNullableType()
+                    && newType.IsNullableType()
+                    && (originalType.UnwrapNullableType() == newType.UnwrapNullableType()))
+                {
+                    selectClause.Selector = Expression.Convert(selectClause.Selector, originalType);
+                }
+            }
+
+            public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+            {
+                var allResultOperator = resultOperator as AllResultOperator;
+                if (allResultOperator != null)
+                {
+                    Func<AllResultOperator, Expression> expressionExtractor = o => o.Predicate;
+                    Action<AllResultOperator, Expression> adjuster = (o, e) => o.Predicate = e;
+                    VisitAndAdjustResultOperatorType(allResultOperator, expressionExtractor, adjuster, queryModel, index);
+
+                    return;
+                }
+
+                var containsResultOperator = resultOperator as ContainsResultOperator;
+                if (containsResultOperator != null)
+                {
+                    Func<ContainsResultOperator, Expression> expressionExtractor = o => o.Item;
+                    Action<ContainsResultOperator, Expression> adjuster = (o, e) => o.Item = e;
+                    VisitAndAdjustResultOperatorType(containsResultOperator, expressionExtractor, adjuster, queryModel, index);
+
+                    return;
+                }
+
+                var skipResultOperator = resultOperator as SkipResultOperator;
+                if (skipResultOperator != null)
+                {
+                    Func<SkipResultOperator, Expression> expressionExtractor = o => o.Count;
+                    Action<SkipResultOperator, Expression> adjuster = (o, e) => o.Count = e;
+                    VisitAndAdjustResultOperatorType(skipResultOperator, expressionExtractor, adjuster, queryModel, index);
+
+                    return;
+                }
+
+                var takeResultOperator = resultOperator as TakeResultOperator;
+                if (takeResultOperator != null)
+                {
+                    Func<TakeResultOperator, Expression> expressionExtractor = o => o.Count;
+                    Action<TakeResultOperator, Expression> adjuster = (o, e) => o.Count = e;
+                    VisitAndAdjustResultOperatorType(takeResultOperator, expressionExtractor, adjuster, queryModel, index);
+
+                    return;
+                }
+
+                var groupResultOperator = resultOperator as GroupResultOperator;
+                if (groupResultOperator != null)
+                {
+                    var originalKeySelectorType = groupResultOperator.KeySelector.Type;
+                    var originalElementSelectorType = groupResultOperator.ElementSelector.Type;
+
+                    base.VisitResultOperator(resultOperator, queryModel, index);
+
+                    var newKeySelectorType = groupResultOperator.KeySelector.Type;
+                    var newElementSelectorType = groupResultOperator.ElementSelector.Type;
+
+                    if (originalKeySelectorType != newKeySelectorType
+                        && !originalKeySelectorType.IsNullableType()
+                        && newKeySelectorType.IsNullableType()
+                        && originalKeySelectorType.UnwrapNullableType() == newKeySelectorType.UnwrapNullableType())
+                    {
+                        groupResultOperator.KeySelector = Expression.Convert(groupResultOperator.KeySelector, originalKeySelectorType);
+                    }
+
+                    if (originalElementSelectorType != newElementSelectorType
+                        && !originalElementSelectorType.IsNullableType()
+                        && newElementSelectorType.IsNullableType()
+                        && originalElementSelectorType.UnwrapNullableType() == newElementSelectorType.UnwrapNullableType())
+                    {
+                        groupResultOperator.ElementSelector = Expression.Convert(groupResultOperator.ElementSelector, originalElementSelectorType);
+                    }
+
+                    return;
+                }
+
+                base.VisitResultOperator(resultOperator, queryModel, index);
+            }
+
+            private void VisitAndAdjustResultOperatorType<TResultOperator>(
+                TResultOperator resultOperator,
+                Func<TResultOperator, Expression> expressionExtractor,
+                Action<TResultOperator, Expression> adjuster,
+                QueryModel queryModel,
+                int index)
+                where TResultOperator : ResultOperatorBase
+            {
+                var originalExpression = expressionExtractor(resultOperator);
+                var originalType = originalExpression.Type;
+
+                var translatedExpression = TransformingVisitor.Visit(originalExpression);
+
+                var newType = translatedExpression.Type;
+                if ((originalType != newType)
+                    && !originalType.IsNullableType()
+                    && newType.IsNullableType()
+                    && (originalType.UnwrapNullableType() == newType.UnwrapNullableType()))
+                {
+                    translatedExpression = Expression.Convert(translatedExpression, originalType);
+                }
+
+                adjuster(resultOperator, translatedExpression);
             }
 
             private class SubqueryInjector : RelinqExpressionVisitor

@@ -189,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             {
                 Nickname = "Dom",
                 FullName = "Dominic Santiago",
+                HasSoulPatch = false,
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Corporal,
                 AssignedCity = ephyra,
@@ -201,6 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             {
                 Nickname = "Cole Train",
                 FullName = "Augustus Cole",
+                HasSoulPatch = false,
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Private,
                 CityOrBirthName = hanover.Name,
@@ -213,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             {
                 Nickname = "Paduk",
                 FullName = "Garron Paduk",
+                HasSoulPatch = false,
                 SquadId = kiloSquad.Id,
                 Rank = MilitaryRank.Private,
                 CityOrBirthName = unknown.Name,
@@ -224,6 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             {
                 Nickname = "Baird",
                 FullName = "Damon Baird",
+                HasSoulPatch = true,
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Corporal,
                 CityOrBirthName = unknown.Name,
@@ -237,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.GearsOfWa
             {
                 Nickname = "Marcus",
                 FullName = "Marcus Fenix",
+                HasSoulPatch = true,
                 SquadId = deltaSquad.Id,
                 Rank = MilitaryRank.Sergeant,
                 CityOrBirthName = jacinto.Name,
