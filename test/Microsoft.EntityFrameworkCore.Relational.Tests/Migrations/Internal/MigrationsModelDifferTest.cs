@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
@@ -356,8 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Migrations.Internal
                     });
         }
 
-        [ConditionalTheory]
-        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Mono's type comparisons for empty byte arrays is incorrect")]
+        [Theory]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), 0)]
         [InlineData(typeof(string), "")]

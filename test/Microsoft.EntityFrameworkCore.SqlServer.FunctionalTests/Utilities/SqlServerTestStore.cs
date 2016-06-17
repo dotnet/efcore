@@ -405,15 +405,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
 
                     while (await dataReader.ReadAsync())
                     {
-                        try
-                        {
-                            results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
-                        }
-                        catch (NotImplementedException)
-                        {
-                            // TODO remove workaround for mono limitation.
-                            results = results.Concat(new[] { (T)dataReader.GetValue(0) });
-                        }
+                        results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
                     }
 
                     return results;

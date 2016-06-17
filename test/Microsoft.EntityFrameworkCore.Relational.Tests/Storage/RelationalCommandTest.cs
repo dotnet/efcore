@@ -315,7 +315,6 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.Storage
         }
 
         [ConditionalTheory]
-        [MonoVersionCondition(Min = "4.2.0", SkipReason = "ExecuteReaderAsync is not implemented in Mono < 4.2.0")]
         [InlineData(true)]
         [InlineData(false)]
         public async Task Can_ExecuteReaderAsync(bool manageConnection)

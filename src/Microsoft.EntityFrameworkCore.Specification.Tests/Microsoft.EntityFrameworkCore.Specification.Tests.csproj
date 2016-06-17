@@ -170,7 +170,6 @@
     <Compile Include="TestUtilities\KeyComparer.cs" />
     <Compile Include="TestUtilities\NavigationComparer.cs" />
     <Compile Include="TestUtilities\PropertyComparer.cs" />
-    <Compile Include="TestUtilities\TestPlatformHelper.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTestFramework.cs" />
@@ -179,7 +178,6 @@
     <Compile Include="TestUtilities\Xunit\ConditionalTheoryDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\FrameworkSkipConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ITestCondition.cs" />
-    <Compile Include="TestUtilities\Xunit\MonoVersionConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\PlatformSkipConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\RuntimeFrameworks.cs" />
     <Compile Include="TestUtilities\Xunit\SkipReasonTestCase.cs" />

@@ -27,13 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
                 return true;
             }
 
-            if (excludedFrameworks.HasFlag(RuntimeFrameworks.Mono)
-                &&
-                TestPlatformHelper.IsMono)
-            {
-                return false;
-            }
-
             if (excludedFrameworks.HasFlag(RuntimeFrameworks.CLR)
                 &&
                 RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework", StringComparison.OrdinalIgnoreCase))

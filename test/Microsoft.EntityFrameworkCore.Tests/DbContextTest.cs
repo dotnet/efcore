@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -4935,10 +4934,6 @@ namespace Microsoft.EntityFrameworkCore.Tests
             context.Dispose();
 
             var ex = Assert.Throws<ObjectDisposedException>(() => context.Model);
-            if (!TestPlatformHelper.IsMono)
-            {
-                Assert.Contains(nameof(EarlyLearningCenter), ex.Message);
-            }
         }
 
         [Fact]

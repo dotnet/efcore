@@ -20,7 +20,6 @@ branches:
     - release
     - dev
     - /^(.*\/)?ci-.*$/
-env: KOREBUILD_TEST_SKIPMONO=1
 script:
   - ./build.sh --quiet verify
 notifications:

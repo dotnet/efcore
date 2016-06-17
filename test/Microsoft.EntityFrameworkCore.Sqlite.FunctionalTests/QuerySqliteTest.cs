@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Xunit;
 
 #if NETCOREAPP1_0
@@ -14,7 +13,6 @@ using System.Threading;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
-    [MonoVersionCondition(Min = "4.2.0", SkipReason = "Queries fail on Mono < 4.2.0 due to differences in the implementation of LINQ")]
     public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>
     {
         public QuerySqliteTest(NorthwindQuerySqliteFixture fixture)

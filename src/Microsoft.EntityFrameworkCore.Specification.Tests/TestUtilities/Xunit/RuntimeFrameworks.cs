@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit
     public enum RuntimeFrameworks
     {
         None = 0,
-        Mono = 1 << 0,
         CLR = 1 << 1,
         CoreCLR = 1 << 2
     }

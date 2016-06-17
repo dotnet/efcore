@@ -3,7 +3,7 @@
 
 using System;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities
         private static readonly string _dataSource = new SqlConnectionStringBuilder(SqlServerTestStore.CreateConnectionString("sample")).DataSource;
         private readonly bool _isLocalDb = _dataSource.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase);
 
-        public bool IsMet => TestPlatformHelper.IsWindows || !_isLocalDb;
+        public bool IsMet => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !_isLocalDb;
 
         public string SkipReason => _isLocalDb
             ? "LocalDb is not accessible on this platform. An external SQL Server must be configured."
