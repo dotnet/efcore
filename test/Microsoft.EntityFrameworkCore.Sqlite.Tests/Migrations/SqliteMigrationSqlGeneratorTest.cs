@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
+        private const string FileLineEnding = @"
+";
+
         protected override IMigrationsSqlGenerator SqlGenerator
         {
             get
@@ -59,7 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
             Assert.Equal(@"CREATE TABLE ""Pie"" (
     ""FlavorId"" INT NOT NULL,
     FOREIGN KEY (""FlavorId"") REFERENCES ""Flavor"" (""Id"")
-);" + EOL, Sql);
+);
+",
+            Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Fact]
@@ -82,7 +87,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Tests.Migrations
 
             Assert.Equal(@"CREATE TABLE ""History"" (
     ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
-);" + EOL, Sql);
+);
+",
+            Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         [Theory]

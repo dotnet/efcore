@@ -351,7 +351,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 
         private static string DumpParameters()
             => string.Join(
-                Environment.NewLine, 
+                FileLineEnding, 
                 TestSqlLoggerFactory.CommandLogData.Single().Parameters
                 .Select(p => p.Name + ": " + TestSqlLoggerFactory.FormatParameter(p)));
 
@@ -1779,7 +1779,7 @@ WHERE [e].[Time] = @__timeSpan_0",
                 builder.AppendLine();
             }
 
-            var actual = builder.ToString();
+            var actual = builder.ToString().Replace(Environment.NewLine, FileLineEnding);
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]

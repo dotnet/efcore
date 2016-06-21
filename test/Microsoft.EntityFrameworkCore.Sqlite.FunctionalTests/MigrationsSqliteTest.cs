@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 {
     public class MigrationsSqliteTest : MigrationsTestBase<MigrationsSqliteFixture>
     {
+        private const string FileLineEnding = @"
+";
+
         public MigrationsSqliteTest(MigrationsSqliteFixture fixture)
             : base(fixture)
         {
@@ -30,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 );
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_no_migration_script()
@@ -44,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests
 );
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_up_scripts()
@@ -73,7 +76,7 @@ INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_idempotent_up_scripts()
@@ -100,7 +103,7 @@ DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000001_Migration1';
 
 ",
-                Sql);
+                Sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         public override void Can_generate_idempotent_down_scripts()
@@ -125,7 +128,7 @@ CreatedTable
     ColumnWithDefaultToDrop INTEGER NULL DEFAULT 0
     ColumnWithDefaultToAlter INTEGER NULL DEFAULT 1
 ",
-                sql);
+                sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         protected override void BuildSecondMigration(MigrationBuilder migrationBuilder)
@@ -153,7 +156,7 @@ CreatedTable
     ColumnWithDefaultToDrop INTEGER NULL DEFAULT 0
     ColumnWithDefaultToAlter INTEGER NULL DEFAULT 1
 ",
-                sql);
+                sql.Replace(Environment.NewLine, FileLineEnding));
         }
 
         private string GetDatabaseSchemaAsync(DbConnection connection)

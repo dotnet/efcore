@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Xunit;
@@ -62,6 +63,9 @@ LEFT JOIN [Address2] AS [a] ON [a].[PersonId] = [p].[Id]",
 
         protected override DbContext CreateContext() => _fixture.CreateContext();
 
-        private static string Sql => TestSqlLoggerFactory.SqlStatements.Last();
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
     }
 }

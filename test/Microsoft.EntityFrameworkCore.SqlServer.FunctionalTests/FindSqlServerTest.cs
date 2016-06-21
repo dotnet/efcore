@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
         {
             base.Find_int_key_tracked();
 
-            Assert.Equal("", TestSqlLoggerFactory.Sql);
+            Assert.Equal("", Sql);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = 77", TestSqlLoggerFactory.Sql);
+WHERE [e].[Id] = 77", Sql);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ WHERE [e].[Id] = 77", TestSqlLoggerFactory.Sql);
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = 99", TestSqlLoggerFactory.Sql);
+WHERE [e].[Id] = 99", Sql);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ WHERE [e].[Id] = 99", TestSqlLoggerFactory.Sql);
         {
             base.Find_string_key_tracked();
 
-            Assert.Equal("", TestSqlLoggerFactory.Sql);
+            Assert.Equal("", Sql);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ WHERE [e].[Id] = 99", TestSqlLoggerFactory.Sql);
 
             Assert.Equal(@"SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
-WHERE [e].[Id] = N'Cat'", TestSqlLoggerFactory.Sql);
+WHERE [e].[Id] = N'Cat'", Sql);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ WHERE [e].[Id] = N'Cat'", TestSqlLoggerFactory.Sql);
 
             Assert.Equal(@"SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
-WHERE [e].[Id] = N'Fox'", TestSqlLoggerFactory.Sql);
+WHERE [e].[Id] = N'Fox'", Sql);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ WHERE [e].[Id] = N'Fox'", TestSqlLoggerFactory.Sql);
         {
             base.Find_composite_key_tracked();
 
-            Assert.Equal("", TestSqlLoggerFactory.Sql);
+            Assert.Equal("", Sql);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ WHERE [e].[Id] = N'Fox'", TestSqlLoggerFactory.Sql);
 
             Assert.Equal(@"SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = 77) AND ([e].[Id2] = N'Dog')", TestSqlLoggerFactory.Sql);
+WHERE ([e].[Id1] = 77) AND ([e].[Id2] = N'Dog')", Sql);
         }
 
         [Fact]
@@ -101,7 +101,7 @@ WHERE ([e].[Id1] = 77) AND ([e].[Id2] = N'Dog')", TestSqlLoggerFactory.Sql);
 
             Assert.Equal(@"SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = 77) AND ([e].[Id2] = N'Fox')", TestSqlLoggerFactory.Sql);
+WHERE ([e].[Id1] = 77) AND ([e].[Id2] = N'Fox')", Sql);
         }
 
         [Fact]
@@ -109,7 +109,7 @@ WHERE ([e].[Id1] = 77) AND ([e].[Id2] = N'Fox')", TestSqlLoggerFactory.Sql);
         {
             base.Find_base_type_tracked();
 
-            Assert.Equal("", TestSqlLoggerFactory.Sql);
+            Assert.Equal("", Sql);
         }
 
         [Fact]
@@ -120,7 +120,7 @@ WHERE ([e].[Id1] = 77) AND ([e].[Id2] = N'Fox')", TestSqlLoggerFactory.Sql);
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 77)", TestSqlLoggerFactory.Sql);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 77)", Sql);
         }
 
         [Fact]
@@ -131,7 +131,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 77)",
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 99)", TestSqlLoggerFactory.Sql);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 99)", Sql);
         }
 
         [Fact]
@@ -139,7 +139,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 99)",
         {
             base.Find_derived_type_tracked();
 
-            Assert.Equal("", TestSqlLoggerFactory.Sql);
+            Assert.Equal("", Sql);
         }
 
         [Fact]
@@ -150,7 +150,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 99)",
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 78)", TestSqlLoggerFactory.Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 78)", Sql);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 78)", TestSqlLogger
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 99)", TestSqlLoggerFactory.Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 99)", Sql);
         }
 
         [Fact]
@@ -172,7 +172,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 99)", TestSqlLogger
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 88)", TestSqlLoggerFactory.Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 88)", Sql);
         }
 
         [Fact]
@@ -183,7 +183,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 88)", TestSqlLogger
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 77)", TestSqlLoggerFactory.Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 77)", Sql);
         }
 
         [Fact]
@@ -191,7 +191,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 77)", TestSqlLogger
         {
             base.Find_derived_type_using_base_set_tracked();
 
-            Assert.Equal("", TestSqlLoggerFactory.Sql);
+            Assert.Equal("", Sql);
         }
 
         [Fact]
@@ -202,7 +202,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = 77)", TestSqlLogger
             Assert.Equal(
                 @"SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 78)", TestSqlLoggerFactory.Sql);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 78)", Sql);
         }
 
         [Fact]
@@ -210,7 +210,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 78)",
         {
             base.Find_shadow_key_tracked();
 
-            Assert.Equal("", TestSqlLoggerFactory.Sql);
+            Assert.Equal("", Sql);
         }
 
         [Fact]
@@ -220,7 +220,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = 78)",
 
             Assert.Equal(@"SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = 77", TestSqlLoggerFactory.Sql);
+WHERE [e].[Id] = 77", Sql);
         }
 
         [Fact]
@@ -230,10 +230,15 @@ WHERE [e].[Id] = 77", TestSqlLoggerFactory.Sql);
 
             Assert.Equal(@"SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = 99", TestSqlLoggerFactory.Sql);
+WHERE [e].[Id] = 99", Sql);
         }
 
         public override void Dispose() => TestSqlLoggerFactory.Reset();
+
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 
         public class FindSqlServerFixture : FindFixtureBase
         {

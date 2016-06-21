@@ -264,7 +264,7 @@ WHERE EXISTS (
     WHERE ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName]))
 ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+                Assert.Equal(expectedSql, Sql);
             }
         }
 
@@ -296,7 +296,7 @@ ORDER BY [o].[CustomerFirstName], [o].[CustomerLastName]";
 FROM [Order] AS [o]
 LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+                Assert.Equal(expectedSql, Sql);
             }
         }
 
@@ -541,7 +541,7 @@ SELECT [c].[FirstName], [c].[LastName]
 FROM [Customer] AS [c]
 WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_details_LastName_1)";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
+                Assert.Equal(expectedSql, Sql);
             }
         }
 
@@ -1077,6 +1077,11 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 Assert.True(ctx.ChangeTracker.Entries().Count() > 0);
             }
         }
+
+        private const string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
 
         private void CreateDatabase3101()
         {
