@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Core.Utilities.Internal
                 || obj is float
                 || obj is double)
             {
-                sb.Append(obj);
+                sb.Append(Convert.ToString(obj, CultureInfo.InvariantCulture));
                 return;
             }
             if (obj is IEnumerable)
