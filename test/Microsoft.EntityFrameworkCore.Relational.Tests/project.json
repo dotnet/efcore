@@ -4,7 +4,9 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Tests": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Tests": {
+      "target": "project"
+    },
     "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.0-*"
   },
   "testRunner": "xunit",
