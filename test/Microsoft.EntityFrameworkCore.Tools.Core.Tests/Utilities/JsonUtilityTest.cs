@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Globalization;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Design.Core.Utilities.Internal;
+using Microsoft.EntityFrameworkCore.Specification.Tests.TestUtilities.Xunit;
 using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
         }
 
         [Fact]
+        [UseCulture("")] // Invariant culture
         public void SerializesAnonymousType()
         {
             var t = new
@@ -84,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
             var actual = JsonUtility.Serialize(t);
             _output?.WriteLine(actual);
             Assert.Equal(
-@"{
+                @"{
     ""id"": ""Microsoft.EntityFrameworkCore.EFCore10"",
     ""escapedChars"": ""EFCore\\" + "\\\"" + @"\t\f\b\r\n"",
     ""floatNo"": 1.89,
@@ -100,7 +103,50 @@ namespace Microsoft.EntityFrameworkCore.Tests.Utilities
     ""emptyArray"": [
     ]
 }"
-              , actual);
+                , actual);
+            Assert.NotNull(JsonConvert.DeserializeObject(actual));
+        }
+
+        [Fact]
+        [UseCulture("pt-BR")]
+        public void SerializesAnonymousTypeDiffernetSeparatorsCulture()
+        {
+            var t = new
+            {
+                id = "Microsoft.EntityFrameworkCore.EFCore10",
+                escapedChars = "EFCore\\\"\t\f\b\r\n",
+                floatNo = 1.89f,
+                decimalNo = 48.1m,
+                doubleNo = 48d,
+                uintNo = 12u,
+                intNo = -23,
+                ulongNo = 123UL,
+                longNo = -123L,
+                trueType = true,
+                falseType = false,
+                nullProp = (object)null,
+                emptyArray = new object[] { }
+            };
+            var actual = JsonUtility.Serialize(t);
+            _output?.WriteLine(actual);
+            Assert.Equal(
+                @"{
+    ""id"": ""Microsoft.EntityFrameworkCore.EFCore10"",
+    ""escapedChars"": ""EFCore\\" + "\\\"" + @"\t\f\b\r\n"",
+    ""floatNo"": 1.89,
+    ""decimalNo"": 48.1,
+    ""doubleNo"": 48,
+    ""uintNo"": 12,
+    ""intNo"": -23,
+    ""ulongNo"": 123,
+    ""longNo"": -123,
+    ""trueType"": true,
+    ""falseType"": false,
+    ""nullProp"": null,
+    ""emptyArray"": [
+    ]
+}"
+                , actual);
             Assert.NotNull(JsonConvert.DeserializeObject(actual));
         }
     }
