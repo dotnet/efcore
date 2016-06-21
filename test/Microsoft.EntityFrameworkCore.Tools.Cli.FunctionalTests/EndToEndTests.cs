@@ -35,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
         [Fact(Skip = SkipReason)]
         public void MigrationsOnNetStandardClassLibraryWithExternalStartup()
         {
-            AddAndApplyMigrationImpl("NetStandardClassLibrary", "NetStandardContext", "initialLibrary", startupProject: "NetCoreStartupApp");
+            AddAndApplyMigrationImpl("NetStandardClassLibrary", "NetStandardContext", "initialLibrary", startupProjectName: "NetCoreStartupApp");
         }
 
         [Fact(Skip = SkipReason)]
         public void MigrationsOnDesktopClassLibraryWithExternalStartup()
         {
-            AddAndApplyMigrationImpl("DesktopClassLibrary", "DesktopContext", "initialLibrary", startupProject: "DesktopStartupApp");
+            AddAndApplyMigrationImpl("DesktopClassLibrary", "DesktopContext", "initialLibrary", startupProjectName: "DesktopStartupApp");
         }
 
         [Fact(Skip = SkipReason)]
@@ -67,19 +67,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
             => AddAndApplyMigrationImpl(project, "TestContext", "Initial");
 
         private void AddAndApplyMigrationImpl(
-            string targetProject,
+            string targetProjectName,
             string contextName,
             string migrationName,
-            string startupProject = null)
+            string startupProjectName = null)
         {
-            var targetDir = Path.Combine(_fixture.TestProjectRoot, targetProject, "project.json");
-            var startupProjectDir = startupProject != null
-                ? Path.Combine(_fixture.TestProjectRoot, startupProject, "project.json")
+            var targetProject = Path.Combine(_fixture.TestProjectRoot, targetProjectName, "project.json");
+            var startupProject = startupProjectName != null
+                ? Path.Combine(_fixture.TestProjectRoot, startupProjectName, "project.json")
                 : null;
 
-            _output.WriteLine("Target dir = " + targetDir);
+            _output.WriteLine("Target dir = " + targetProject);
 
-            var migrationDir = Path.Combine(Path.GetDirectoryName(targetDir), "Migrations");
+            var migrationDir = Path.Combine(Path.GetDirectoryName(targetProject), "Migrations");
             var snapshotFile = contextName + "ModelSnapshot.cs";
 
             if (Directory.Exists(migrationDir))
@@ -87,22 +87,25 @@ namespace Microsoft.EntityFrameworkCore.Tools.Cli.FunctionalTests
                 Assert.False(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
             }
 
-            _fixture.InstallTool(targetDir, _output, _fixture.TestProjectRoot);
+            _fixture.InstallTool(targetProject, _output, _fixture.TestProjectRoot);
 
-            if (startupProjectDir != null)
+            if (startupProject != null)
             {
-                _fixture.InstallTool(startupProjectDir, _output, _fixture.TestProjectRoot);
+                _fixture.InstallTool(startupProject, _output, _fixture.TestProjectRoot);
             }
 
             var args = $"--context {contextName}";
 
-            AssertCommand.Pass(new MigrationAddCommand(targetDir, migrationName, _output, startupProjectDir)
+            AssertCommand.Pass(new MigrationAddCommand(targetProject, migrationName, _output, startupProject)
                 .Execute(args));
 
             Assert.True(Directory.EnumerateFiles(migrationDir, snapshotFile, SearchOption.AllDirectories).Any());
 
-            AssertCommand.Pass(new DatabaseUpdateCommand(targetDir, _output, startupProjectDir)
+            AssertCommand.Pass(new DatabaseUpdateCommand(targetProject, _output, startupProject)
                 .Execute(args));
+
+            AssertCommand.Pass(new MigrationScriptCommand(targetProject, _output, startupProject)
+                .Execute("--output " + Path.Combine(Path.GetDirectoryName(targetProject), "obj/dotnet-ef/migrations.sql")));
         }
     }
 }
